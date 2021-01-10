@@ -2,7 +2,7 @@
 
 package com.mndk.kmap4bte.projection.wtm;
 
-import com.mndk.kmap4bte.projection.GeographicProjection;
+import io.github.terra121.projection.GeographicProjection;
 
 public class WTMProjection extends GeographicProjection {
 
@@ -18,6 +18,11 @@ public class WTMProjection extends GeographicProjection {
     @Override
     public double[] fromGeo(double lon, double lat) {
         return geoToWTM(new double[] {lon, lat}, 500000.0, 200000.0, 1.0, 38, 127);
+    }
+
+    @Override
+    public double metersPerUnit() {
+        return 0; // Idk
     }
 
     private static double[] geoToWTM(double[] coord,

@@ -1,9 +1,27 @@
 package com.mndk.kmap4bte.projection;
 
-import com.mndk.kmap4bte.projection.terra121.ModifiedAirocean;
 import com.mndk.kmap4bte.projection.wtm.WTMProjection;
+import io.github.terra121.generator.EarthGeneratorSettings;
+import io.github.terra121.projection.GeographicProjection;
 
 public class Projections {
-    public static final GeographicProjection BTE = new ModifiedAirocean();
+    public static final GeographicProjection BTE;
     public static final GeographicProjection WTM = new WTMProjection();
+
+    static {
+        final String BTE_GEN_JSON =
+                "{" +
+                    "\"projection\":\"bteairocean\"," +
+                    "\"orentation\":\"upright\"," +
+                    "\"scaleX\":7318261.522857145," +
+                    "\"scaleY\":7318261.522857145," +
+                    "\"smoothblend\":true," +
+                    "\"roads\":true," +
+                    "\"customcubic\":\"\"," +
+                    "\"dynamicbaseheight\":true," +
+                    "\"osmwater\":true," +
+                    "\"buildings\":true" +
+                "}";
+        BTE = new EarthGeneratorSettings(BTE_GEN_JSON).getProjection();
+    }
 }

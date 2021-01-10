@@ -5,6 +5,7 @@ import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.map.RenderMapType;
 import com.mndk.kmap4bte.projection.Projections;
 import com.mndk.kmap4bte.projection.wtm.WTMTileConverter;
+import io.github.terra121.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -50,7 +51,6 @@ public class MapRenderer {
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         double[] temp;
-        double metersPerUnit = Projections.BTE.metersPerUnit();
 
         // Convert boundaries
         for(int i=0;i<4;i++) {
@@ -59,18 +59,19 @@ public class MapRenderer {
             temp = WTMTileConverter.tileToWTM(tileX + CORNERS[i][0], tileY + CORNERS[i][1], level);
 
             // Convert wtm coordinate to geo coordinate
-            temp = Projections.WTM.toGeo(temp[0], temp[1]);
+            try {
+                temp = Projections.WTM.toGeo(temp[0], temp[1]);
 
-            // Convert geo coordinate to bte projection coordinate
-            temp = Projections.BTE.fromGeo(temp[0], temp[1]);
+                // Convert geo coordinate to bte projection coordinate
+                temp = Projections.BTE.fromGeo(temp[0], temp[1]);
 
-            // Multiply projection coordinate by metersPerUnit
-            temp[0] *= metersPerUnit; temp[1] *= -metersPerUnit;
-
-            // Add vertex
-            builder.pos(temp[0]-px, y-py, temp[1]-pz)
-                   .tex(CORNERS[i][2], CORNERS[i][3])
-                   .endVertex();
+                // Add vertex
+                builder.pos(temp[0] - px, y - py, temp[1] - pz)
+                        .tex(CORNERS[i][2], CORNERS[i][3])
+                        .endVertex();
+            } catch(OutOfProjectionBoundsException exception) {
+                // Skip rendering tile it it has projection error
+            }
         }
 
         t.draw();
@@ -92,23 +93,26 @@ public class MapRenderer {
 
         int level = 1;
 
-        double metersPerUnit = Projections.BTE.metersPerUnit();
+        try {
+            // Convert in-game coordinate to geo coordinate
+            double[] posResult = Projections.BTE.toGeo(px, pz);
 
-        // Convert in-game coordinate to geo coordinate
-        double[] posResult = Projections.BTE.toGeo(px / metersPerUnit, -pz / metersPerUnit);
+            // Apply wtm projection on geo coordinate result
+            posResult = Projections.WTM.fromGeo(posResult[0], posResult[1]);
 
-        // Apply wtm projection on geo coordinate result
-        posResult = Projections.WTM.fromGeo(posResult[0], posResult[1]);
+            // Convert wtm coordinate to tile coordinate
+            int[] tilePos = WTMTileConverter.wtmToTile(posResult[0], posResult[1], level);
 
-        // Convert wtm coordinate to tile coordinate
-        int[] tilePos = WTMTileConverter.wtmToTile(posResult[0], posResult[1], level);
-
-        // Iterate tiles around player
-        for(int y=-2;y<=2;y++) for(int x=-2;x<=2;x++) {
-            MapRenderer.renderTile(
-                    t, builder,
-                    tilePos[0]+x, tilePos[1]+y, level, MapRenderer.renderMapType,
-                    MapRenderer.y, px, py, pz);
+            // Iterate tiles around player
+            for (int y = -2; y <= 2; y++)
+                for (int x = -2; x <= 2; x++) {
+                    MapRenderer.renderTile(
+                            t, builder,
+                            tilePos[0] + x, tilePos[1] + y, level, MapRenderer.renderMapType,
+                            MapRenderer.y, px, py, pz);
+                }
+        } catch(OutOfProjectionBoundsException exception) {
+            // If there's projection error, then just do nothing :troll:
         }
 
         GlStateManager.disableAlpha();

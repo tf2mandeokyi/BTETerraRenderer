@@ -3,6 +3,7 @@ package com.mndk.kmap4bte.event;
 import com.mndk.kmap4bte.ModReference;
 import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.renderer.MapRenderer;
+import io.github.terra121.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -18,7 +19,7 @@ public class RenderEvent {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public static void onRenderEvent(final RenderWorldLastEvent event) throws IOException {
+    public static void onRenderEvent(final RenderWorldLastEvent event) throws IOException, OutOfProjectionBoundsException {
         EntityPlayer player = Minecraft.getMinecraft().player;
 
         // "Smooth" player position
