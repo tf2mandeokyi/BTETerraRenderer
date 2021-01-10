@@ -11,12 +11,14 @@ public class GuiOption<T> {
     protected Function<T, T> adder;
     protected T from, to;
     public String name;
+    public boolean isButton;
 
-    public GuiOption(Supplier<T> getter, Consumer<T> setter, T from, T to, Function<T, T> adder, String name) {
+    public GuiOption(Supplier<T> getter, Consumer<T> setter, T from, T to, Function<T, T> adder, boolean isButton, String name) {
         this.getter = getter; this.setter = setter;
         this.name = name;
         this.adder = adder;
         this.from = from; this.to = to;
+        this.isButton = isButton;
     }
 
     public T toggle() {

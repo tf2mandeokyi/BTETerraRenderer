@@ -29,7 +29,7 @@ public class MapRenderer {
 
 
 
-    public static double y = 4.1;
+    public static float y = 4.1f;
     public static boolean drawTiles = false;
     public static RenderMapSource renderMapSource = RenderMapSource.KAKAO;
     public static RenderMapType renderMapType = RenderMapType.PLAIN_MAP;

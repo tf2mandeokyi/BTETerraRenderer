@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 public class GuiEnumOption<T extends IterableEnum<T>> extends GuiOption<T> {
 
     public GuiEnumOption(Supplier<T> getter, Consumer<T> setter, T from, T to, String name) {
-        super(getter, setter, from, to, IterableEnum::next, name);
+        super(getter, setter, from, to, IterableEnum::next, true, name);
     }
 
 }

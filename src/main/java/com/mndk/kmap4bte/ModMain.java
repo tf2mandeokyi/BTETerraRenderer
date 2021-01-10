@@ -8,8 +8,6 @@ import org.apache.logging.log4j.Logger;
 
 @Mod(modid = ModReference.MODID, name = ModReference.NAME, version = ModReference.VERSION)
 public class ModMain {
-    public static ModMain instance;
-
     public static Logger logger;
 
     @Mod.EventHandler
