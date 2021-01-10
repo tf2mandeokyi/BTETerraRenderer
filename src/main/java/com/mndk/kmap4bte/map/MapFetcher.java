@@ -53,21 +53,6 @@ public class MapFetcher {
 
 
 
-    @Deprecated
-    private static ResourceLocation addResourceLocation(String id, BufferedImage image) {
-        if(resourceLocations.containsKey(id)) {
-            ResourceLocation newResult = Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(id, new DynamicTexture(image));
-            resourceLocations.put(id, newResult);
-            return newResult;
-        }
-        if(resourceLocations.size() >= MAX_SIZE) resourceLocations.remove(0);
-        ResourceLocation result = Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(id, new DynamicTexture(image));
-        resourceLocations.put(id, result);
-        return result;
-    }
-
-
-
     /**
      * Fetches kakao map, and then returns it as BufferedImage.
      * @param tileX
