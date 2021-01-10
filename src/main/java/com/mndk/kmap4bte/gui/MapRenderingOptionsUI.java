@@ -56,10 +56,16 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 I18n.format("gui.kmap4bte.maprenderer.map_source")
         ));
 
-        this.options.addSlider(new GuiNumberOption<Float>(
+        this.options.addSlider(new GuiNumberOption<>(
                 () -> (int) MapRenderer.y + .0f, (n) -> MapRenderer.y = n + .1f,
                 0.f, 256.f,
                 I18n.format("gui.kmap4bte.maprenderer.map_y_level")
+        ));
+
+        this.options.addSlider(new GuiNumberOption<>(
+                () -> MapRenderer.opacity, (n) -> MapRenderer.opacity = n,
+                0.f, 1.f,
+                I18n.format("gui.kmap4bte.maprenderer.opacity")
         ));
 
         for(GuiButton button : options.buttons) {

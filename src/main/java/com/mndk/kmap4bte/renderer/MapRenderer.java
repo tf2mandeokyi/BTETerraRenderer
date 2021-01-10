@@ -34,6 +34,7 @@ public class MapRenderer {
     public static boolean drawTiles = false;
     public static RenderMapSource renderMapSource = RenderMapSource.KAKAO;
     public static RenderMapType renderMapType = RenderMapType.PLAIN_MAP;
+    public static float opacity = 1f;
 
 
 
@@ -48,7 +49,7 @@ public class MapRenderer {
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(resourceLocation);
 
         // begin vertex
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
         double[] temp;
 
@@ -68,6 +69,7 @@ public class MapRenderer {
                 // Add vertex
                 builder.pos(temp[0] - px, y - py, temp[1] - pz)
                         .tex(CORNERS[i][2], CORNERS[i][3])
+                        .color(1.f, 1.f, 1.f, MapRenderer.opacity)
                         .endVertex();
             } catch(OutOfProjectionBoundsException exception) {
                 // Skip rendering tile it it has projection error
@@ -85,9 +87,20 @@ public class MapRenderer {
         BufferBuilder builder = t.getBuffer();
 
         GlStateManager.pushMatrix();
-        GlStateManager.disableLighting();
         GlStateManager.disableCull();
-        GlStateManager.enableAlpha();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+
+        /*GlStateManager.tryBlendFuncSeparate(
+                GlStateManager.SourceFactor.DST_COLOR,
+                GlStateManager.DestFactor.SRC_COLOR,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ZERO
+        );
+        GlStateManager.enableBlend();
+        GlStateManager.color(1.f, 0.f, 0.f, MapRenderer.opacity);
+        GlStateManager.alphaFunc(GL11.GL_EQUAL, MapRenderer.opacity);*/
+        //GlStateManager.enableAlpha();
 
         GlStateManager.scale(1, 1, 1);
 
@@ -115,9 +128,10 @@ public class MapRenderer {
             // If there's projection error, then just do nothing :troll:
         }
 
-        GlStateManager.disableAlpha();
+        GlStateManager.disableBlend();
+
+        //GlStateManager.disableAlpha();
         GlStateManager.enableCull();
-        GlStateManager.enableLighting();
         GlStateManager.popMatrix();
     }
 }
