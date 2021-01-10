@@ -40,24 +40,26 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         this.options.add(new GuiBooleanOption(
                 () -> MapRenderer.drawTiles, (b) -> MapRenderer.drawTiles = b,
-                "Render map"
+                I18n.format("gui.kmap4bte.maprenderer.enable_render")
         ));
+        System.out.println(I18n.hasKey("gui.kmap4bte.maprenderer.enable_render"));
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapRenderer.renderMapType, (e) -> MapRenderer.renderMapType = e,
                 RenderMapType.PLAIN_MAP, RenderMapType.AERIAL,
-                "Map Type"
+                I18n.format("gui.kmap4bte.maprenderer.map_type")
         ));
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapRenderer.renderMapSource, (e) -> MapRenderer.renderMapSource = e,
                 RenderMapSource.KAKAO, RenderMapSource.KAKAO,
-                "Map Source"
+                I18n.format("gui.kmap4bte.maprenderer.map_source")
         ));
 
         this.options.addSlider(new GuiNumberOption<Float>(
                 () -> (int) MapRenderer.y + .0f, (n) -> MapRenderer.y = n + .1f,
-                0.f, 256.f, "Map Y level"
+                0.f, 256.f,
+                I18n.format("gui.kmap4bte.maprenderer.map_y_level")
         ));
 
         for(GuiButton button : options.buttons) {
@@ -83,7 +85,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, "Map Rendering Options", this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
+        this.drawCenteredString(this.fontRenderer, I18n.format("gui.kmap4bte.maprenderer.title"), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

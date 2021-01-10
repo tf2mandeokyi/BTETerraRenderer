@@ -8,9 +8,7 @@ import java.util.List;
 
 public class ModCommands {
 
-    private static final List<CommandBase> commands = new ArrayList<CommandBase>() {{
-        add(new TestCommand());
-    }};
+    private static final List<CommandBase> commands = new ArrayList<CommandBase>() {{ }};
 
     public static void registerCommands(FMLServerStartingEvent event) {
         for(CommandBase base : commands) {

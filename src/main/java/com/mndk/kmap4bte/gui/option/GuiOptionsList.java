@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSlider;
+import net.minecraft.client.resources.I18n;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,13 @@ public class GuiOptionsList {
         }
 
         public void updateDisplayString(T t) {
-            this.displayString = option.name + ": " + t;
+            if(t instanceof Boolean) {
+                Boolean b = (Boolean) t;
+                this.displayString = option.name + ": " + (b ? I18n.format("gui.yes") : I18n.format("gui.no"));
+            }
+            else {
+                this.displayString = option.name + ": " + t;
+            }
         }
     }
 

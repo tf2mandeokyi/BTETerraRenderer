@@ -86,16 +86,9 @@ public class MapRenderer {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
+        GlStateManager.enableAlpha();
 
         GlStateManager.scale(1, 1, 1);
-
-        // GlStateManager.translate(-px, -py, -pz);
-
-        // Normal GlStateManager#translate() method would cause floating point error,
-        // as it gets farther from (0, 0).
-        // So instead of using it, we can just pass drawTile() the player's position
-        // so that it can subtract it from its coordinate results by itself.
-        // Fortunately, this doesn't cause floating point issue.
 
         int level = 1;
 
@@ -118,6 +111,7 @@ public class MapRenderer {
                     MapRenderer.y, px, py, pz);
         }
 
+        GlStateManager.disableAlpha();
         GlStateManager.enableCull();
         GlStateManager.enableLighting();
         GlStateManager.popMatrix();

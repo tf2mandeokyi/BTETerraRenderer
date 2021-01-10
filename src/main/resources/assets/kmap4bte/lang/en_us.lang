@@ -1,0 +1,14 @@
+key.kmap4bte.maprenderer.category=Korean Map Renderer
+key.kmap4bte.maprenderer.options_ui=Open Options UI
+
+gui.kmap4bte.maprenderer.title=Map Rendering Options
+gui.kmap4bte.maprenderer.enable_render=Enable Map Rendering
+gui.kmap4bte.maprenderer.map_type=Map Type
+gui.kmap4bte.maprenderer.map_source=Map Source
+gui.kmap4bte.maprenderer.map_y_level=Map Y Level
+gui.kmap4bte.maprenderer.opacity=Map Opacity
+
+enum.kmap4bte.mapsource.KAKAO=Kakao Map
+
+enum.kmap4bte.maptype.PLAIN_MAP=Plain Map
+enum.kmap4bte.maptype.AERIAL=Aerial

@@ -1,16 +1,15 @@
 package com.mndk.kmap4bte.map;
 
 import com.mndk.kmap4bte.util.IterableEnum;
+import net.minecraft.client.resources.I18n;
 
 public enum RenderMapSource implements IterableEnum<RenderMapSource> {
-    KAKAO("Kakao Map");
+    KAKAO;
 
-    private final String name;
     private RenderMapSource next;
-    RenderMapSource(String name) { this.name = name; }
 
     public String toString() {
-        return name;
+        return I18n.format("enum.kmap4bte.mapsource." + super.toString());
     }
 
     @Override
