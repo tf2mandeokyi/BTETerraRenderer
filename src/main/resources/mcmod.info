@@ -1,0 +1,16 @@
+[
+{
+  "modid": "kmap4bte",
+  "name": "Korean Maps for BuildTheEarth",
+  "description": "Renders korean map for BuildTheEarth project.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["tf2_mandeokyi"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
