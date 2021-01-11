@@ -1,6 +1,7 @@
 package com.mndk.kmap4bte.event;
 
 import com.mndk.kmap4bte.ModReference;
+import com.mndk.kmap4bte.map.CustomMapRenderers;
 import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.renderer.MapRenderer;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
@@ -30,7 +31,7 @@ public class RenderEvent {
 
         if(MapRenderer.drawTiles) {
             if(MapRenderer.renderMapSource == RenderMapSource.KAKAO) {
-                MapRenderer.renderTiles(px, py, pz);
+                MapRenderer.renderTiles(CustomMapRenderers.KAKAO, px, py, pz);
             }
         }
     }

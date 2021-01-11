@@ -4,14 +4,20 @@ import com.mndk.kmap4bte.util.IterableEnum;
 import net.minecraft.client.resources.I18n;
 
 public enum RenderMapType implements IterableEnum<RenderMapType> {
-    PLAIN_MAP, AERIAL;
+    PLAIN_MAP("PLAIN_MAP"), AERIAL("AERIAL");
 
     private RenderMapType next;
+    private final String enumName;
+
+    RenderMapType(String s) { this.enumName = s; }
 
     @Override
     public RenderMapType next() {
         return next;
     }
+
+    @Override
+    public String getEnumName() { return enumName; }
 
     @Override
     public String toString() {

@@ -14,13 +14,7 @@ public class Projections {
                     "\"projection\":\"bteairocean\"," +
                     "\"orentation\":\"upright\"," +
                     "\"scaleX\":7318261.522857145," +
-                    "\"scaleY\":7318261.522857145," +
-                    "\"smoothblend\":true," +
-                    "\"roads\":true," +
-                    "\"customcubic\":\"\"," +
-                    "\"dynamicbaseheight\":true," +
-                    "\"osmwater\":true," +
-                    "\"buildings\":true" +
+                    "\"scaleY\":7318261.522857145" +
                 "}";
         BTE = new EarthGeneratorSettings(BTE_GEN_JSON).getProjection();
     }
