@@ -20,9 +20,11 @@ public class MapRenderingOptionsUI extends GuiScreen {
     private static final int OPTIONS_LIST_TOP_MARGIN = 24;
     private static final int BUTTON_TOP_MARGIN = 5;
 
-    private static final int BUTTON_WIDTH = 256;
+    private static final int BUTTON_WIDTH = 150;
     private static final int BUTTON_HEIGHT = 20;
     private static final int DONE_BUTTON_BOTTOM_MARGIN = 26;
+
+    private static final int SETTINGS_CENTER_X = 150;
 
     GuiButton doneButton;
     GuiOptionsList options;
@@ -34,7 +36,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
         super.initGui();
 
         this.options = new GuiOptionsList(this,
-                (this.width - BUTTON_WIDTH) / 2, OPTIONS_LIST_TOP_MARGIN,
+                SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), OPTIONS_LIST_TOP_MARGIN,
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN
         );
 
@@ -74,7 +76,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         this.addButton(doneButton = new GuiButton(
                 0,
-                (this.width - BUTTON_WIDTH) / 2, this.height - DONE_BUTTON_BOTTOM_MARGIN,
+                SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), this.height - DONE_BUTTON_BOTTOM_MARGIN,
                 BUTTON_WIDTH, BUTTON_HEIGHT,
                 I18n.format("gui.done")
         ));
@@ -90,8 +92,11 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, I18n.format("gui.kmap4bte.maprenderer.title"), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
+        // this.drawDefaultBackground();
+        this.drawCenteredString(
+                this.fontRenderer, I18n.format("gui.kmap4bte.maprenderer.title"),
+                SETTINGS_CENTER_X, TITLE_HEIGHT, 0xFFFFFF
+        );
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

@@ -91,17 +91,6 @@ public class MapRenderer {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        /*GlStateManager.tryBlendFuncSeparate(
-                GlStateManager.SourceFactor.DST_COLOR,
-                GlStateManager.DestFactor.SRC_COLOR,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO
-        );
-        GlStateManager.enableBlend();
-        GlStateManager.color(1.f, 0.f, 0.f, MapRenderer.opacity);
-        GlStateManager.alphaFunc(GL11.GL_EQUAL, MapRenderer.opacity);*/
-        //GlStateManager.enableAlpha();
-
         GlStateManager.scale(1, 1, 1);
 
         int level = 1;
@@ -129,8 +118,6 @@ public class MapRenderer {
         }
 
         GlStateManager.disableBlend();
-
-        //GlStateManager.disableAlpha();
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
     }

@@ -12,14 +12,19 @@ import org.lwjgl.input.Keyboard;
 
 public class ClientProxy extends CommonProxy {
 
-    public static KeyBinding mapOptionsKey;
+    public static KeyBinding mapOptionsKey, mapToggleKey;
 
     public static void initializeKeys() {
         mapOptionsKey = new KeyBinding(
                 I18n.format("key.kmap4bte.maprenderer.options_ui"),
                 Keyboard.KEY_V,
                 I18n.format("key.kmap4bte.maprenderer.category"));
+        mapToggleKey = new KeyBinding(
+                I18n.format("key.kmap4bte.maprenderer.toggle"),
+                Keyboard.KEY_B,
+                I18n.format("key.kmap4bte.maprenderer.category"));
         ClientRegistry.registerKeyBinding(mapOptionsKey);
+        ClientRegistry.registerKeyBinding(mapToggleKey);
     }
 
     @Override

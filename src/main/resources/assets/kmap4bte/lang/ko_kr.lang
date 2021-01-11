@@ -1,5 +1,6 @@
 key.kmap4bte.maprenderer.category=한국 지도 렌더러
 key.kmap4bte.maprenderer.options_ui=설정 UI 열기
+key.kmap4bte.maprenderer.toggle=지도 렌더링 On/Off
 
 gui.kmap4bte.maprenderer.title=지도 렌더링 설정
 gui.kmap4bte.maprenderer.enable_render=지도 렌더링 활성화

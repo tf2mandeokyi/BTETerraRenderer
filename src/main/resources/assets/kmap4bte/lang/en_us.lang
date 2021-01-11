@@ -1,5 +1,6 @@
 key.kmap4bte.maprenderer.category=Korean Map Renderer
 key.kmap4bte.maprenderer.options_ui=Open Options UI
+key.kmap4bte.maprenderer.toggle=Toggle Map Rendering
 
 gui.kmap4bte.maprenderer.title=Map Rendering Options
 gui.kmap4bte.maprenderer.enable_render=Enable Map Rendering
