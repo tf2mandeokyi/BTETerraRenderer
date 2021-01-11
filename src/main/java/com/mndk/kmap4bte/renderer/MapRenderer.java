@@ -11,16 +11,6 @@ import java.io.IOException;
 
 public class MapRenderer {
 
-    // Tile boundary matrix
-    //
-    // double[...][0: tileX_add, 1: tileY_add, 2: u, 3: v]
-    private static final double[][] CORNERS = {
-            {0, 1, 0, 0}, // top left
-            {1, 1, 1, 0}, // top right
-            {1, 0, 1, 1}, // bottom right
-            {0, 0, 0, 1}  // bottom left
-    };
-
 
 
     public static float y = 4.1f;

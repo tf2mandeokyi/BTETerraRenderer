@@ -1,8 +1,6 @@
 package com.mndk.kmap4bte.event;
 
 import com.mndk.kmap4bte.ModReference;
-import com.mndk.kmap4bte.map.CustomMapRenderers;
-import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.renderer.MapRenderer;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.Minecraft;
@@ -18,6 +16,8 @@ import java.io.IOException;
 @Mod.EventBusSubscriber(modid = ModReference.MODID, value = Side.CLIENT)
 public class RenderEvent {
 
+
+
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public static void onRenderEvent(final RenderWorldLastEvent event) throws IOException, OutOfProjectionBoundsException {
@@ -30,9 +30,7 @@ public class RenderEvent {
         final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
         if(MapRenderer.drawTiles) {
-            if(MapRenderer.renderMapSource == RenderMapSource.KAKAO) {
-                MapRenderer.renderTiles(CustomMapRenderers.KAKAO, px, py, pz);
-            }
+            MapRenderer.renderTiles(MapRenderer.renderMapSource.getMapRenderer(), px, py, pz);
         }
     }
 
