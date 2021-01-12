@@ -32,7 +32,7 @@ public class MapRenderer {
 
         GlStateManager.scale(1, 1, 1);
 
-        int level = 1;
+        int level = 0;
 
         // Iterate tiles around player
         for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {

@@ -4,8 +4,6 @@ import com.mndk.kmap4bte.gui.option.GuiBooleanOption;
 import com.mndk.kmap4bte.gui.option.GuiEnumOption;
 import com.mndk.kmap4bte.gui.option.GuiNumberOption;
 import com.mndk.kmap4bte.gui.option.GuiOptionsList;
-import com.mndk.kmap4bte.map.RenderMapSource;
-import com.mndk.kmap4bte.map.RenderMapType;
 import com.mndk.kmap4bte.renderer.MapRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -48,13 +46,11 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapRenderer.renderMapType, (e) -> MapRenderer.renderMapType = e,
-                RenderMapType.PLAIN_MAP, RenderMapType.AERIAL,
                 I18n.format("gui.kmap4bte.maprenderer.map_type")
         ));
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapRenderer.renderMapSource, (e) -> MapRenderer.renderMapSource = e,
-                RenderMapSource.KAKAO, RenderMapSource.KAKAO,
                 I18n.format("gui.kmap4bte.maprenderer.map_source")
         ));
 

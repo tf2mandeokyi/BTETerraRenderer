@@ -1,4 +1,4 @@
-package com.mndk.kmap4bte.projection.wtm;
+package com.mndk.kmap4bte.map.kakao;
 
 public class WTMTileConverter {
 

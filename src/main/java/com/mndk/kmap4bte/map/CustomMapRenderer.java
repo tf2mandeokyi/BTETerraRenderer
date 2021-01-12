@@ -1,6 +1,5 @@
 package com.mndk.kmap4bte.map;
 
-import com.mndk.kmap4bte.renderer.MapRenderer;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -11,11 +10,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.lwjgl.opengl.GL11;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public abstract class CustomMapRenderer {
 
@@ -27,20 +27,13 @@ public abstract class CustomMapRenderer {
         this.source = source;
     }
 
-    /**
-     * Fetches kakao map, and then returns it as ResourceLocation.
-     * @param playerX
-     * @param playerZ
-     * @param level
-     * @param type
-     * @return
-     * @throws IOException
-     */
+
+
     public ResourceLocation getMapResourceLocationByPlayerCoordinate(
             double playerX, double playerZ,
             int tileDeltaX, int tileDeltaY,
             int level, RenderMapType type
-    ) throws IOException, OutOfProjectionBoundsException {
+    ) throws OutOfProjectionBoundsException {
 
         int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, level);
 
@@ -50,9 +43,14 @@ public abstract class CustomMapRenderer {
 
         BufferedImage image = this.fetchMap(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
 
+        if(image == null) {
+            resourceLocations.put(tileID, null);
+            return null;
+        }
+
         ResourceLocation result = Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(
                 genTileID(0, 0, level, type, source),
-                new DynamicTexture(Objects.requireNonNull(image))
+                new DynamicTexture(image)
         );
 
         resourceLocations.put(tileID, result);
@@ -75,24 +73,40 @@ public abstract class CustomMapRenderer {
 
 
 
-    public abstract BufferedImage fetchMap(
+    public abstract URLConnection getTileUrlConnection(
             double playerX, double playerZ,
             int tileDeltaX, int tileDeltaY,
             int level, RenderMapType type
-    ) throws IOException;
+    );
+
+
+
+    public BufferedImage fetchMap(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
+        try {
+            URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
+            if(connection == null) return null;
+            connection.connect();
+            return ImageIO.read(connection.getInputStream());
+        } catch(IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
 
 
 
     public void renderTile(
             Tessellator t, BufferBuilder builder,
             int level, RenderMapType type,
-            double y, double opacity,
+            double y, float opacity,
             double px, double py, double pz,
             int tileDeltaX, int tileDeltaY
-    ) throws IOException {
+    ) {
         try {
 
             ResourceLocation resourceLocation = this.getMapResourceLocationByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
+
+            if(resourceLocation == null) return;
 
             int[] tilePos = this.playerPositionToTileCoord(px, pz, level);
 
@@ -111,7 +125,7 @@ public abstract class CustomMapRenderer {
 
                 builder.pos(temp[0] - px, y - py, temp[1] - pz)
                             .tex(mat[2], mat[3])
-                            .color(1.f, 1.f, 1.f, MapRenderer.opacity)
+                            .color(1.f, 1.f, 1.f, opacity)
                             .endVertex();
             }
 

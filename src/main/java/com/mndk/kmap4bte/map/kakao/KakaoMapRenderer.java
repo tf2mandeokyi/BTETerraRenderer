@@ -4,14 +4,11 @@ import com.mndk.kmap4bte.map.CustomMapRenderer;
 import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.map.RenderMapType;
 import com.mndk.kmap4bte.projection.Projections;
-import com.mndk.kmap4bte.projection.wtm.WTMTileConverter;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 
 public class KakaoMapRenderer extends CustomMapRenderer {
 
@@ -40,12 +37,12 @@ public class KakaoMapRenderer extends CustomMapRenderer {
     public int[] playerPositionToTileCoord(double playerX, double playerZ, int level) throws OutOfProjectionBoundsException {
         double[] temp = Projections.BTE.toGeo(playerX, playerZ);
         temp = Projections.WTM.fromGeo(temp[0], temp[1]);
-        return WTMTileConverter.wtmToTile(temp[0], temp[1], level);
+        return WTMTileConverter.wtmToTile(temp[0], temp[1], level + 1);
     }
 
     @Override
     public double[] tileCoordToPlayerPosition(int tileX, int tileY, int level) throws OutOfProjectionBoundsException {
-        double[] temp = WTMTileConverter.tileToWTM(tileX, tileY, level);
+        double[] temp = WTMTileConverter.tileToWTM(tileX, tileY, level + 1);
         temp = Projections.WTM.toGeo(temp[0], temp[1]);
         return Projections.BTE.fromGeo(temp[0], temp[1]);
     }
@@ -57,28 +54,25 @@ public class KakaoMapRenderer extends CustomMapRenderer {
 
 
     @Override
-    public BufferedImage fetchMap(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) throws IOException {
+    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
 
         try {
+
             int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, level);
 
-            URL url;
             String dir = type == RenderMapType.AERIAL ? "map_skyview" : "map_2d/2012tlq";
             String fileType = type == RenderMapType.AERIAL ? ".jpg" : ".png";
 
-            try {
-                url = new URL("http://map" + domain_num + ".daumcdn.net/" +
-                        dir + "/L" + level + "/" + (tilePos[1] + tileDeltaY) + "/" + (tilePos[0] + tileDeltaX) + fileType
-                );
-                System.out.println(url.getPath());
-            } catch (MalformedURLException e) {
-                return null;
-            }
+            URL url = new URL("http://map" + domain_num + ".daumcdn.net/" +
+                    dir + "/L" + (level + 1) + "/" + (tilePos[1] + tileDeltaY) + "/" + (tilePos[0] + tileDeltaX) + fileType
+            );
 
             domain_num++;
             if(domain_num >= 4) domain_num = 0;
-            return ImageIO.read(url);
-        } catch(OutOfProjectionBoundsException exception) {
+
+            return url.openConnection();
+
+        } catch(OutOfProjectionBoundsException | IOException exception) {
             return null;
         }
     }

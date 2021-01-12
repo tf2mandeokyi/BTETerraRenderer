@@ -7,8 +7,13 @@ import java.util.function.Supplier;
 
 public class GuiEnumOption<T extends IterableEnum<T>> extends GuiOption<T> {
 
-    public GuiEnumOption(Supplier<T> getter, Consumer<T> setter, T from, T to, String name) {
-        super(getter, setter, from, to, IterableEnum::next, true, name);
+    public GuiEnumOption(Supplier<T> getter, Consumer<T> setter, String name) {
+        super(getter, setter, null, null, IterableEnum::next, true, name);
+    }
+
+    public T toggle() {
+        T t = get().next();
+        set(t); return t;
     }
 
 }
