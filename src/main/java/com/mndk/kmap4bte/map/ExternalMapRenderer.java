@@ -15,12 +15,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class ExternalMapRenderer {
 
-    private static final Map<String, ResourceLocation> resourceLocations = new HashMap<>();
+    public static final Map<String, ResourceLocation> resourceLocations = new HashMap<>();
+    private static final List<Map.Entry<String, BufferedImage>> renderList
+            = new ArrayList<>();
 
     private final RenderMapSource source;
 
@@ -30,7 +31,7 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public ResourceLocation getMapResourceLocationByPlayerCoordinate(
+    public void initializeMapImageByPlayerCoordinate(
             double playerX, double playerZ,
             int tileDeltaX, int tileDeltaY,
             int level, RenderMapType type
@@ -38,25 +39,11 @@ public abstract class ExternalMapRenderer {
 
         int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, level);
 
-        String tileID = genTileID(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, level, type, source);
+        String tileID = genTileID(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, level, type, this.source);
 
-        if(resourceLocations.containsKey(tileID)) return resourceLocations.get(tileID);
+        BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
 
-        BufferedImage image = this.fetchMap(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
-
-        if(image == null) {
-            resourceLocations.put(tileID, null);
-            return null;
-        }
-
-        ResourceLocation result = Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(
-                genTileID(0, 0, level, type, source),
-                new DynamicTexture(image)
-        );
-
-        resourceLocations.put(tileID, result);
-
-        return result;
+        renderList.add(new AbstractMap.SimpleEntry<>(tileID, image));
     }
 
 
@@ -67,8 +54,6 @@ public abstract class ExternalMapRenderer {
 
     /**
      * This should return: [tileDeltaX, tileDeltaY, u, v]
-     * @param i
-     * @return
      */
     protected abstract int[] getCornerMatrix(int i);
 
@@ -89,8 +74,7 @@ public abstract class ExternalMapRenderer {
 
 
 
-    // TODO make this multi-threaded
-    public BufferedImage fetchMap(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
+    public BufferedImage fetchMapSync(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
         try {
             URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
             if(connection == null) return null;
@@ -118,37 +102,64 @@ public abstract class ExternalMapRenderer {
         try {
             int[] tilePos = this.playerPositionToTileCoord(px, pz, level);
 
-            ResourceLocation resourceLocation =
-                    this.getMapResourceLocationByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
-            if(resourceLocation == null) return;
-            FMLClientHandler.instance().getClient().renderEngine.bindTexture(resourceLocation);
+            String tileID = genTileID(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, level, type, source);
 
-            // begin vertex
-            builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+            if(!renderList.isEmpty()) {
+                // Cannot set all images to resource locations at once, because it would cause ConcurrentModificationException.
+                // So instead, it's setting one image by frame.
 
-            double[] temp;
+                // TODO The code is messy, so re-categorize this
 
-            // Convert boundaries
-            for (int i = 0; i < 4; i++) {
+                Map.Entry<String, BufferedImage> entry = renderList.get(0);
+                renderList.remove(0);
+                DynamicTexture texture = new DynamicTexture(entry.getValue());
+                ResourceLocation reloc =
+                        Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(tileID, texture);
+                resourceLocations.put(entry.getKey(), reloc);
+            }
 
-                int[] mat = this.getCornerMatrix(i);
-                temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, level);
+            if(!resourceLocations.containsKey(tileID)) {
+                // If the tile is not loaded, load it in new thread
+                resourceLocations.put(tileID, null);
+                new Thread(() -> {
+                    try {
+                        initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
+                    } catch (OutOfProjectionBoundsException exception) {
+                        exception.printStackTrace();
+                    }
+                }).start();
+            }
+            else if(resourceLocations.get(tileID) != null) {
+                ResourceLocation resourceLocation = resourceLocations.get(tileID);
 
-                builder.pos(temp[0] - px, y - py, temp[1] - pz)
+                FMLClientHandler.instance().getClient().renderEngine.bindTexture(resourceLocation);
+
+                // begin vertex
+                builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+
+                double[] temp;
+
+                // Convert boundaries
+                for (int i = 0; i < 4; i++) {
+
+                    int[] mat = this.getCornerMatrix(i);
+                    temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, level);
+
+                    builder.pos(temp[0] - px, y - py, temp[1] - pz)
                             .tex(mat[2], mat[3])
                             .color(1.f, 1.f, 1.f, opacity)
                             .endVertex();
+                }
+
+                t.draw();
             }
 
-            t.draw();
-
         } catch(OutOfProjectionBoundsException ignored) {}
-        return;
     }
 
 
 
-    private static String genTileID(int tileX, int tileY, int level, RenderMapType type, RenderMapSource source) {
+    public static String genTileID(int tileX, int tileY, int level, RenderMapType type, RenderMapSource source) {
         return "tilemap_" + source.getEnumName() + "_" + tileX + "_" + tileY + "_" + level + "_" + type.getEnumName();
     }
 
