@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.mndk.kmap4bte.ModMain;
+import com.mndk.mapdisp4bte.ModMain;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.transform.OffsetProjectionTransform;
 import io.github.terra121.projection.transform.ScaleProjectionTransform;
