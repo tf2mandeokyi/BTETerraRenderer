@@ -2,7 +2,7 @@ package com.mndk.kmap4bte.event;
 
 import com.mndk.kmap4bte.gui.MapRenderingOptionsUI;
 import com.mndk.kmap4bte.proxy.ClientProxy;
-import com.mndk.kmap4bte.renderer.MapRenderer;
+import com.mndk.kmap4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -18,7 +18,7 @@ public class KeyEvent {
         if(ClientProxy.mapOptionsKey.isPressed()) {
             Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUI());
         } else if(ClientProxy.mapToggleKey.isPressed()) {
-            MapRenderer.drawTiles = !MapRenderer.drawTiles;
+            MapTileRenderer.drawTiles = !MapTileRenderer.drawTiles;
         }
     }
 

@@ -4,7 +4,7 @@ import com.mndk.kmap4bte.gui.option.GuiBooleanOption;
 import com.mndk.kmap4bte.gui.option.GuiEnumOption;
 import com.mndk.kmap4bte.gui.option.GuiNumberOption;
 import com.mndk.kmap4bte.gui.option.GuiOptionsList;
-import com.mndk.kmap4bte.renderer.MapRenderer;
+import com.mndk.kmap4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -39,29 +39,29 @@ public class MapRenderingOptionsUI extends GuiScreen {
         );
 
         this.options.add(new GuiBooleanOption(
-                () -> MapRenderer.drawTiles, (b) -> MapRenderer.drawTiles = b,
+                () -> MapTileRenderer.drawTiles, (b) -> MapTileRenderer.drawTiles = b,
                 I18n.format("gui.kmap4bte.maprenderer.enable_render")
         ));
         System.out.println(I18n.hasKey("gui.kmap4bte.maprenderer.enable_render"));
 
         this.options.add(new GuiEnumOption<>(
-                () -> MapRenderer.renderMapType, (e) -> MapRenderer.renderMapType = e,
+                () -> MapTileRenderer.renderMapType, (e) -> MapTileRenderer.renderMapType = e,
                 I18n.format("gui.kmap4bte.maprenderer.map_type")
         ));
 
         this.options.add(new GuiEnumOption<>(
-                () -> MapRenderer.renderMapSource, (e) -> MapRenderer.renderMapSource = e,
+                () -> MapTileRenderer.renderMapSource, (e) -> MapTileRenderer.renderMapSource = e,
                 I18n.format("gui.kmap4bte.maprenderer.map_source")
         ));
 
         this.options.addSlider(new GuiNumberOption<>(
-                () -> (int) MapRenderer.y + .0f, (n) -> MapRenderer.y = n + .1f,
+                () -> (int) MapTileRenderer.y + .0f, (n) -> MapTileRenderer.y = n + .1f,
                 0.f, 256.f,
                 I18n.format("gui.kmap4bte.maprenderer.map_y_level")
         ));
 
         this.options.addSlider(new GuiNumberOption<>(
-                () -> MapRenderer.opacity, (n) -> MapRenderer.opacity = n,
+                () -> MapTileRenderer.opacity, (n) -> MapTileRenderer.opacity = n,
                 0.f, 1.f,
                 I18n.format("gui.kmap4bte.maprenderer.opacity")
         ));

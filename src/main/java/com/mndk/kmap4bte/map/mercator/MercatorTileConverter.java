@@ -1,9 +1,6 @@
-package com.mndk.kmap4bte.map.osm;
+package com.mndk.kmap4bte.map.mercator;
 
-public class OsmTileConverter {
-
-    private static final double RADIAN = Math.PI / 180;
-    private static final double DEGREE = 180 / Math.PI;
+public class MercatorTileConverter {
 
     public static int[] geoToTile(double lon, double lat, int level) {
         double factor = Math.pow(2, level);
@@ -20,6 +17,23 @@ public class OsmTileConverter {
                 (tileX * 360 / divisor) - 180,
                 Math.toDegrees(Math.atan(Math.sinh(n)))
         };
+    }
+
+    public static String tileXYToQuadKey(int tileX, int tileY, int levelOfDetail) {
+        StringBuilder quadKey = new StringBuilder();
+        for (int i = levelOfDetail; i > 0; i--) {
+            char digit = '0';
+            int mask = 1 << (i - 1);
+            if ((tileX & mask) != 0) digit++;
+            if ((tileY & mask) != 0) digit+=2;
+            quadKey.append(digit);
+        }
+        return quadKey.toString();
+    }
+
+    public static void main(String[] args) {
+        int[] a = geoToTile(126.994453, 37.433197, 18);
+        System.out.println(a[0] + ", " + a[1]);
     }
 
 }

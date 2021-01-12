@@ -9,7 +9,7 @@ public enum RenderMapSource implements IterableEnum<RenderMapSource> {
     KAKAO, OSM;
 
     private RenderMapSource next;
-    private CustomMapRenderer renderer;
+    private ExternalMapRenderer renderer;
 
     public String toString() {
         return I18n.format("enum.kmap4bte.mapsource." + super.toString());
@@ -23,7 +23,7 @@ public enum RenderMapSource implements IterableEnum<RenderMapSource> {
     @Override
     public String getEnumName() { return super.toString(); }
 
-    public CustomMapRenderer getMapRenderer() {
+    public ExternalMapRenderer getMapRenderer() {
         return renderer;
     }
 

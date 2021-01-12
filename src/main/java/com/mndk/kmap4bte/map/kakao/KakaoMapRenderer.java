@@ -1,6 +1,6 @@
 package com.mndk.kmap4bte.map.kakao;
 
-import com.mndk.kmap4bte.map.CustomMapRenderer;
+import com.mndk.kmap4bte.map.ExternalMapRenderer;
 import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.map.RenderMapType;
 import com.mndk.kmap4bte.projection.Projections;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class KakaoMapRenderer extends CustomMapRenderer {
+public class KakaoMapRenderer extends ExternalMapRenderer {
 
     // Tile boundary matrix
     //

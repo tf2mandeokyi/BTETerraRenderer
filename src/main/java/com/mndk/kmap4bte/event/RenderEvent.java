@@ -1,8 +1,7 @@
 package com.mndk.kmap4bte.event;
 
 import com.mndk.kmap4bte.ModReference;
-import com.mndk.kmap4bte.renderer.MapRenderer;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import com.mndk.kmap4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -11,8 +10,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.IOException;
-
 @Mod.EventBusSubscriber(modid = ModReference.MODID, value = Side.CLIENT)
 public class RenderEvent {
 
@@ -20,7 +17,7 @@ public class RenderEvent {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public static void onRenderEvent(final RenderWorldLastEvent event) throws IOException, OutOfProjectionBoundsException {
+    public static void onRenderEvent(final RenderWorldLastEvent event) {
         EntityPlayer player = Minecraft.getMinecraft().player;
 
         // "Smooth" player position
@@ -29,8 +26,8 @@ public class RenderEvent {
         final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
         final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-        if(MapRenderer.drawTiles) {
-            MapRenderer.renderTiles(MapRenderer.renderMapSource.getMapRenderer(), px, py, pz);
+        if(MapTileRenderer.drawTiles) {
+            MapTileRenderer.renderTiles(MapTileRenderer.renderMapSource.getMapRenderer(), px, py, pz);
         }
     }
 

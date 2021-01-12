@@ -17,13 +17,13 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class CustomMapRenderer {
+public abstract class ExternalMapRenderer {
 
     private static final Map<String, ResourceLocation> resourceLocations = new HashMap<>();
 
     private final RenderMapSource source;
 
-    public CustomMapRenderer(RenderMapSource source) {
+    public ExternalMapRenderer(RenderMapSource source) {
         this.source = source;
     }
 
@@ -81,6 +81,7 @@ public abstract class CustomMapRenderer {
 
 
 
+    // TODO make this multi-threaded
     public BufferedImage fetchMap(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
         try {
             URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
@@ -103,13 +104,11 @@ public abstract class CustomMapRenderer {
             int tileDeltaX, int tileDeltaY
     ) {
         try {
-
-            ResourceLocation resourceLocation = this.getMapResourceLocationByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
-
-            if(resourceLocation == null) return;
-
             int[] tilePos = this.playerPositionToTileCoord(px, pz, level);
 
+            ResourceLocation resourceLocation =
+                    this.getMapResourceLocationByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
+            if(resourceLocation == null) return;
             FMLClientHandler.instance().getClient().renderEngine.bindTexture(resourceLocation);
 
             // begin vertex
@@ -130,7 +129,9 @@ public abstract class CustomMapRenderer {
             }
 
             t.draw();
+
         } catch(OutOfProjectionBoundsException ignored) {}
+        return;
     }
 
 

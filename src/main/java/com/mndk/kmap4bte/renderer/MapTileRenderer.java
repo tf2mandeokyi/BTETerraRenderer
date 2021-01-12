@@ -1,15 +1,13 @@
 package com.mndk.kmap4bte.renderer;
 
-import com.mndk.kmap4bte.map.CustomMapRenderer;
+import com.mndk.kmap4bte.map.ExternalMapRenderer;
 import com.mndk.kmap4bte.map.RenderMapSource;
 import com.mndk.kmap4bte.map.RenderMapType;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 
-import java.io.IOException;
-
-public class MapRenderer {
+public class MapTileRenderer {
 
 
 
@@ -21,7 +19,7 @@ public class MapRenderer {
 
 
 
-    public static void renderTiles(CustomMapRenderer renderer, double px, double py, double pz) throws IOException {
+    public static void renderTiles(ExternalMapRenderer renderer, double px, double py, double pz) {
         Tessellator t = Tessellator.getInstance();
         BufferBuilder builder = t.getBuffer();
 
@@ -38,8 +36,8 @@ public class MapRenderer {
         for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {
             renderer.renderTile(
                     t, builder,
-                    level, MapRenderer.renderMapType,
-                    MapRenderer.y, MapRenderer.opacity,
+                    level, MapTileRenderer.renderMapType,
+                    MapTileRenderer.y, MapTileRenderer.opacity,
                     px, py, pz,
                     x, y
             );
