@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL11;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,11 +74,18 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public abstract URLConnection getTileUrlConnection(
-            double playerX, double playerZ,
-            int tileDeltaX, int tileDeltaY,
-            int level, RenderMapType type
-    );
+    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
+        try {
+            int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, level);
+
+            String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, level, type);
+
+            return new URL(url).openConnection();
+        }catch(OutOfProjectionBoundsException | IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
 
 
 
@@ -93,6 +101,10 @@ public abstract class ExternalMapRenderer {
             return null;
         }
     }
+
+
+
+    public abstract String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type);
 
 
 

@@ -6,15 +6,10 @@ import com.mndk.kmap4bte.map.RenderMapType;
 import com.mndk.kmap4bte.projection.Projections;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-
 public abstract class MercatorMapRenderer extends ExternalMapRenderer {
 
 
-    private final String urlTemplate;
+    private final String plainMapTemplate, aerialTemplate;
 
 
     private static final int[][] CORNERS = {
@@ -25,9 +20,10 @@ public abstract class MercatorMapRenderer extends ExternalMapRenderer {
     };
 
 
-    public MercatorMapRenderer(RenderMapSource source, String urlTemplate) {
+    public MercatorMapRenderer(RenderMapSource source, String plainMapTemplate, String aerialTemplate) {
         super(source);
-        this.urlTemplate = urlTemplate;
+        this.plainMapTemplate = plainMapTemplate;
+        this.aerialTemplate = aerialTemplate;
     }
 
 
@@ -51,29 +47,16 @@ public abstract class MercatorMapRenderer extends ExternalMapRenderer {
     }
 
 
-    public String getUrlTemplate(int tileX, int tileY, int level) {
-        return urlTemplate
-                .replace("{z}", (18 - level) + "")
-                .replace("{x}", tileX + "")
-                .replace("{y}", tileY + "");
-    }
+    protected String getRandom() {return "";}
 
 
     @Override
-    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
-        try {
-            int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, level);
+    public String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type) {
+        String template = type == RenderMapType.AERIAL ? aerialTemplate : plainMapTemplate;
 
-            String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, level);
-
-            System.out.println(url);
-
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-
-            return connection;
-        }catch(OutOfProjectionBoundsException | IOException exception) {
-            exception.printStackTrace();
-            return null;
-        }
+        return template.replace("{random}", this.getRandom())
+                .replace("{z}", (18 - level) + "")
+                .replace("{x}", tileX + "")
+                .replace("{y}", tileY + "");
     }
 }

@@ -10,11 +10,19 @@ import java.net.URLConnection;
 public class OpenStreetMapRenderer extends MercatorMapRenderer {
 
     public OpenStreetMapRenderer() {
-        super(RenderMapSource.OSM, "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+        super(RenderMapSource.OSM,
+                "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png");
     }
 
     private static int domain_num = 0;
     private static final char[] asdf = {'a', 'b', 'c'};
+
+    @Override
+    protected String getRandom() {
+        domain_num = domain_num >= 2 ? 0 : domain_num + 1;
+        return asdf[domain_num] + "";
+    }
 
     @Override
     public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
@@ -22,8 +30,6 @@ public class OpenStreetMapRenderer extends MercatorMapRenderer {
         URLConnection result = super.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
 
         if(result == null) return null;
-        /*domain_num++;
-        if(domain_num >= 3) domain_num = 0;*/
 
         result.setRequestProperty("User-Agent", ModReference.MODID + "/" + ModReference.VERSION + " Java/1.8");
         result.setUseCaches(true);

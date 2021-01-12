@@ -6,10 +6,6 @@ import com.mndk.kmap4bte.map.RenderMapType;
 import com.mndk.kmap4bte.projection.Projections;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-
 public class KakaoMapRenderer extends ExternalMapRenderer {
 
     // Tile boundary matrix
@@ -33,12 +29,15 @@ public class KakaoMapRenderer extends ExternalMapRenderer {
     private static int domain_num = 0;
 
 
+
     @Override
     public int[] playerPositionToTileCoord(double playerX, double playerZ, int level) throws OutOfProjectionBoundsException {
         double[] temp = Projections.BTE.toGeo(playerX, playerZ);
         temp = Projections.WTM.fromGeo(temp[0], temp[1]);
         return WTMTileConverter.wtmToTile(temp[0], temp[1], level + 1);
     }
+
+
 
     @Override
     public double[] tileCoordToPlayerPosition(int tileX, int tileY, int level) throws OutOfProjectionBoundsException {
@@ -47,34 +46,22 @@ public class KakaoMapRenderer extends ExternalMapRenderer {
         return Projections.BTE.fromGeo(temp[0], temp[1]);
     }
 
+
+
     @Override
     protected int[] getCornerMatrix(int i) {
         return CORNERS[i];
     }
 
 
+
     @Override
-    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
+    public String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type) {
+        String dir = type == RenderMapType.AERIAL ? "map_skyview" : "map_2d/2012tlq";
+        String fileType = type == RenderMapType.AERIAL ? ".jpg" : ".png";
 
-        try {
-
-            int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, level);
-
-            String dir = type == RenderMapType.AERIAL ? "map_skyview" : "map_2d/2012tlq";
-            String fileType = type == RenderMapType.AERIAL ? ".jpg" : ".png";
-
-            URL url = new URL("http://map" + domain_num + ".daumcdn.net/" +
-                    dir + "/L" + (level + 1) + "/" + (tilePos[1] + tileDeltaY) + "/" + (tilePos[0] + tileDeltaX) + fileType
-            );
-
-            domain_num++;
-            if(domain_num >= 4) domain_num = 0;
-
-            return url.openConnection();
-
-        } catch(OutOfProjectionBoundsException | IOException exception) {
-            return null;
-        }
+        return "http://map" + domain_num + ".daumcdn.net/" +
+                dir + "/L" + (level + 1) + "/" + tileY + "/" + tileX + fileType;
     }
 
 
