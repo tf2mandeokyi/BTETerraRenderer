@@ -167,7 +167,7 @@ public abstract class ExternalMapRenderer {
 
 
     public static String genTileID(int tileX, int tileY, int level, RenderMapType type, RenderMapSource source) {
-        return "tilemap_" + source.getEnumName() + "_" + tileX + "_" + tileY + "_" + level + "_" + type.getEnumName();
+        return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + level + "_" + type;
     }
 
 }

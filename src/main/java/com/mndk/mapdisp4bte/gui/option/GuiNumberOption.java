@@ -7,7 +7,11 @@ import java.util.function.Supplier;
 public class GuiNumberOption<N extends Number> extends GuiOption<N> {
 
     public GuiNumberOption(Supplier<N> getter, Consumer<N> setter, N from, N to, String name) {
-        super(getter, setter, from, to, null, false, name);
+        super(getter, setter, from, to, false, name);
     }
 
+    @Override
+    public N getNext(N current) {
+        return null;
+    }
 }

@@ -4,6 +4,8 @@ import com.mndk.mapdisp4bte.gui.option.GuiBooleanOption;
 import com.mndk.mapdisp4bte.gui.option.GuiEnumOption;
 import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
+import com.mndk.mapdisp4bte.map.RenderMapSource;
+import com.mndk.mapdisp4bte.map.RenderMapType;
 import com.mndk.mapdisp4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -45,12 +47,12 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapTileRenderer.renderMapType, (e) -> MapTileRenderer.renderMapType = e,
-                I18n.format("gui.mapdisp4bte.maprenderer.map_type")
+                RenderMapType.values(), I18n.format("gui.mapdisp4bte.maprenderer.map_type")
         ));
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapTileRenderer.renderMapSource, (e) -> MapTileRenderer.renderMapSource = e,
-                I18n.format("gui.mapdisp4bte.maprenderer.map_source")
+                RenderMapSource.values(), I18n.format("gui.mapdisp4bte.maprenderer.map_source")
         ));
 
         this.options.addSlider(new GuiNumberOption<>(
