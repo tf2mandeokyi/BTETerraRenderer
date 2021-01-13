@@ -3,11 +3,12 @@ package com.mndk.mapdisp4bte.map;
 import com.mndk.mapdisp4bte.map.bing.BingMapRenderer;
 import com.mndk.mapdisp4bte.map.kakao.KakaoMapRenderer;
 import com.mndk.mapdisp4bte.map.osm.OpenStreetMapRenderer;
+import com.mndk.mapdisp4bte.map.tmap.TMapRenderer;
 import com.mndk.mapdisp4bte.util.IterableEnum;
 import net.minecraft.client.resources.I18n;
 
 public enum RenderMapSource implements IterableEnum<RenderMapSource> {
-    KAKAO, OSM, BING;
+    KAKAO, OSM, BING, TMAP;
 
     private RenderMapSource next;
     private ExternalMapRenderer renderer;
@@ -35,7 +36,10 @@ public enum RenderMapSource implements IterableEnum<RenderMapSource> {
         OSM.next = BING;
         OSM.renderer = new OpenStreetMapRenderer();
 
-        BING.next = KAKAO;
+        BING.next = TMAP;
         BING.renderer = new BingMapRenderer();
+
+        TMAP.next = KAKAO;
+        TMAP.renderer = new TMapRenderer();
     }
 }

@@ -8,9 +8,6 @@ import io.github.terra121.projection.OutOfProjectionBoundsException;
 
 public class KakaoMapRenderer extends ExternalMapRenderer {
 
-    // Tile boundary matrix
-    //
-    // double[...][0: tileX_add, 1: tileY_add, 2: u, 3: v]
     private static final int[][] CORNERS = {
             {0, 1, 0, 0}, // top left
             {1, 1, 1, 0}, // top right

@@ -9,9 +9,10 @@ gui.mapdisp4bte.maprenderer.map_source=Map Source
 gui.mapdisp4bte.maprenderer.map_y_level=Map Y Level
 gui.mapdisp4bte.maprenderer.opacity=Map Opacity
 
-enum.mapdisp4bte.mapsource.KAKAO=Kakao Map
+enum.mapdisp4bte.mapsource.KAKAO=Kakao Map (Korea only)
 enum.mapdisp4bte.mapsource.OSM=OpenStreetMap
 enum.mapdisp4bte.mapsource.BING=Bing Maps
+enum.mapdisp4bte.mapsource.TMAP=T Map (Korea only)
 
 enum.mapdisp4bte.maptype.PLAIN_MAP=Plain Map
 enum.mapdisp4bte.maptype.AERIAL=Aerial

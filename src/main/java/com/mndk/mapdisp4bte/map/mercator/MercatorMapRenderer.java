@@ -3,15 +3,19 @@ package com.mndk.mapdisp4bte.map.mercator;
 import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
+import com.mndk.mapdisp4bte.map.tmap.TMapRenderer;
 import com.mndk.mapdisp4bte.projection.Projections;
 import io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public abstract class MercatorMapRenderer extends ExternalMapRenderer {
+public class MercatorMapRenderer extends ExternalMapRenderer {
 
 
     private final String plainMapTemplate, aerialTemplate;
 
 
+    // Tile boundary matrix
+    //
+    // double[...][0: tileX_add, 1: tileY_add, 2: u, 3: v]
     private static final int[][] CORNERS = {
             {0, 1, 0, 1}, // top left
             {1, 1, 1, 1}, // top right
@@ -58,5 +62,25 @@ public abstract class MercatorMapRenderer extends ExternalMapRenderer {
                 .replace("{z}", (18 - level) + "")
                 .replace("{x}", tileX + "")
                 .replace("{y}", tileY + "");
+    }
+
+
+    public static void main(String[] args) throws Throwable {
+        double x = 12444462.968534665, z = -7655289.338730685;
+        /*BufferedImage image;
+
+        image = new OpenStreetMapRenderer()
+                .fetchMapSync(x, z, 0, 0, 0, RenderMapType.PLAIN_MAP);
+        ImageIO.write(image, "png", new File("a.png"));
+        image = new TMapRenderer()
+                .fetchMapSync(x, z, 0, 0, 0, RenderMapType.PLAIN_MAP);
+        ImageIO.write(image, "png", new File("b.png"));*/
+        int[] tile = new TMapRenderer().playerPositionToTileCoord(x, z, 0);
+
+        System.out.println(tile[0] + ", " + tile[1]);
+
+        double[] a = new TMapRenderer().tileCoordToPlayerPosition(tile[0], tile[1], 0);
+
+        System.out.println(a[0] + ", " + a[1]);
     }
 }

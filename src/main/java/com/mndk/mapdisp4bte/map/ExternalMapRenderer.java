@@ -22,8 +22,7 @@ import java.util.concurrent.Executors;
 public abstract class ExternalMapRenderer {
 
     public static final Map<String, ResourceLocation> resourceLocations = new HashMap<>();
-    private static final List<Map.Entry<String, BufferedImage>> renderList
-            = new ArrayList<>();
+    private static final List<Map.Entry<String, BufferedImage>> renderList = new ArrayList<>();
 
     private final RenderMapSource source;
     private final ExecutorService donwloadExecutor;
@@ -68,6 +67,8 @@ public abstract class ExternalMapRenderer {
             int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, level);
 
             String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, level, type);
+
+            // System.out.println(url);
 
             return new URL(url).openConnection();
         }catch(OutOfProjectionBoundsException | IOException exception) {
