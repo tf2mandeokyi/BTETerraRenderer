@@ -42,7 +42,6 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 () -> MapTileRenderer.drawTiles, (b) -> MapTileRenderer.drawTiles = b,
                 I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
         ));
-        System.out.println(I18n.hasKey("gui.mapdisp4bte.maprenderer.enable_render"));
 
         this.options.add(new GuiEnumOption<>(
                 () -> MapTileRenderer.renderMapType, (e) -> MapTileRenderer.renderMapType = e,

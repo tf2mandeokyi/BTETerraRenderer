@@ -26,12 +26,10 @@ public abstract class ExternalMapRenderer {
             = new ArrayList<>();
 
     private final RenderMapSource source;
-    private final int maximumDownloadThreads;
     private final ExecutorService donwloadExecutor;
 
     public ExternalMapRenderer(RenderMapSource source, int maximumDownloadThreads) {
         this.source = source;
-        this.maximumDownloadThreads = maximumDownloadThreads;
         this.donwloadExecutor = Executors.newFixedThreadPool(maximumDownloadThreads);
     }
 
