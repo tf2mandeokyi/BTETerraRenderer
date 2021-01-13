@@ -9,7 +9,7 @@ public class BingMapRenderer extends MercatorMapRenderer {
     private static final String aerialTemplate = "https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill";
 
     public BingMapRenderer() {
-        super(RenderMapSource.BING, plainMapTemplate, aerialTemplate);
+        super(RenderMapSource.BING, plainMapTemplate, aerialTemplate, 2);
     }
 
     @Override

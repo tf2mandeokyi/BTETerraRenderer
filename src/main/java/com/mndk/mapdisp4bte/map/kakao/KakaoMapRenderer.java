@@ -21,7 +21,7 @@ public class KakaoMapRenderer extends ExternalMapRenderer {
 
 
     public KakaoMapRenderer() {
-        super(RenderMapSource.KAKAO);
+        super(RenderMapSource.KAKAO, 2);
     }
 
 

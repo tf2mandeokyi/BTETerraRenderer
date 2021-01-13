@@ -20,8 +20,8 @@ public abstract class MercatorMapRenderer extends ExternalMapRenderer {
     };
 
 
-    public MercatorMapRenderer(RenderMapSource source, String plainMapTemplate, String aerialTemplate) {
-        super(source);
+    public MercatorMapRenderer(RenderMapSource source, String plainMapTemplate, String aerialTemplate, int maximumDownloadThreads) {
+        super(source, maximumDownloadThreads);
         this.plainMapTemplate = plainMapTemplate;
         this.aerialTemplate = aerialTemplate;
     }

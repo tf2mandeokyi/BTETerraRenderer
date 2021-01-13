@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class ExternalMapRenderer {
 
@@ -24,9 +26,13 @@ public abstract class ExternalMapRenderer {
             = new ArrayList<>();
 
     private final RenderMapSource source;
+    private final int maximumDownloadThreads;
+    private final ExecutorService donwloadExecutor;
 
-    public ExternalMapRenderer(RenderMapSource source) {
+    public ExternalMapRenderer(RenderMapSource source, int maximumDownloadThreads) {
         this.source = source;
+        this.maximumDownloadThreads = maximumDownloadThreads;
+        this.donwloadExecutor = Executors.newFixedThreadPool(maximumDownloadThreads);
     }
 
 
@@ -112,22 +118,24 @@ public abstract class ExternalMapRenderer {
 
                 Map.Entry<String, BufferedImage> entry = renderList.get(0);
                 renderList.remove(0);
-                DynamicTexture texture = new DynamicTexture(entry.getValue());
-                ResourceLocation reloc =
-                        Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(tileID, texture);
-                resourceLocations.put(entry.getKey(), reloc);
+                if(entry != null) if(entry.getValue() != null) {
+                    DynamicTexture texture = new DynamicTexture(entry.getValue());
+                    ResourceLocation reloc =
+                            Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(tileID, texture);
+                    resourceLocations.put(entry.getKey(), reloc);
+                }
             }
 
             if(!resourceLocations.containsKey(tileID)) {
                 // If the tile is not loaded, load it in new thread
                 resourceLocations.put(tileID, null);
-                new Thread(() -> {
+                this.donwloadExecutor.execute(() -> {
                     try {
                         initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
                     } catch (OutOfProjectionBoundsException exception) {
                         exception.printStackTrace();
                     }
-                }).start();
+                });
             }
             else if(resourceLocations.get(tileID) != null) {
                 ResourceLocation resourceLocation = resourceLocations.get(tileID);

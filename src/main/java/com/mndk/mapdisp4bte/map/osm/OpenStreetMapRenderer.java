@@ -12,7 +12,8 @@ public class OpenStreetMapRenderer extends MercatorMapRenderer {
     public OpenStreetMapRenderer() {
         super(RenderMapSource.OSM,
                 "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+                "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                2);
     }
 
     private static int domain_num = 0;
