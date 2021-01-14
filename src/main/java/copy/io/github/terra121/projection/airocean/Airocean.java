@@ -1,8 +1,8 @@
-package io.github.terra121.projection.airocean;
+package copy.io.github.terra121.projection.airocean;
 
-import io.github.terra121.util.MathUtils;
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.util.MathUtils;
+import copy.io.github.terra121.projection.GeographicProjection;
 
 /**
  * Implementation of the Dynmaxion projection.

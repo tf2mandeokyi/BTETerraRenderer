@@ -1,9 +1,9 @@
-package io.github.terra121.projection.transform;
+package copy.io.github.terra121.projection.transform;
 
 import com.google.common.base.Preconditions;
 
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.GeographicProjection;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
 /**
  * Applies a simple translation to the projected space, such that:

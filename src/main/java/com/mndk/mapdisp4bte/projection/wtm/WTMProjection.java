@@ -2,7 +2,7 @@
 
 package com.mndk.mapdisp4bte.projection.wtm;
 
-import io.github.terra121.projection.GeographicProjection;
+import copy.io.github.terra121.projection.GeographicProjection;
 
 public class WTMProjection extends GeographicProjection {
 

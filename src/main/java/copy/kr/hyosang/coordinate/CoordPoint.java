@@ -1,4 +1,4 @@
-package kr.hyosang.coordinate;
+package copy.kr.hyosang.coordinate;
 
 /* Copied from https://hyosang82.tistory.com/269, thus its license is followed by Daum OpenAPI. */
 

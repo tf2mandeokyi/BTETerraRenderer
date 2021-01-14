@@ -1,6 +1,6 @@
-package io.github.terra121.projection;
+package copy.io.github.terra121.projection;
 
-import io.github.terra121.util.MathUtils;
+import copy.io.github.terra121.util.MathUtils;
 
 public class InvertableVectorField {
 

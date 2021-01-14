@@ -1,7 +1,7 @@
 package com.mndk.mapdisp4bte.projection;
 
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.GeographicProjection;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
 public class MercatorProjection extends GeographicProjection {
     @Override

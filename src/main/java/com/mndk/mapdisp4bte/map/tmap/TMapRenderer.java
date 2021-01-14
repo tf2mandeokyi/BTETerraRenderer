@@ -4,7 +4,7 @@ import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.mercator.MercatorMapRenderer;
 import com.mndk.mapdisp4bte.map.mercator.MercatorTileConverter;
 import com.mndk.mapdisp4bte.projection.Projections;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
 public class TMapRenderer extends MercatorMapRenderer {
 
@@ -28,15 +28,15 @@ public class TMapRenderer extends MercatorMapRenderer {
     }
 
     @Override
-    public int[] playerPositionToTileCoord(double playerX, double playerZ, int level) throws OutOfProjectionBoundsException {
+    public int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException {
         double[] temp = Projections.BTE.toGeo(playerX, playerZ);
-        return MercatorTileConverter.geoToTile_invertLat(temp[0], temp[1], 18 - level);
+        return MercatorTileConverter.geoToTile_invertLat(temp[0], temp[1], zoom);
     }
 
 
     @Override
-    public double[] tileCoordToPlayerPosition(int tileX, int tileY, int level) throws OutOfProjectionBoundsException {
-        double[] temp = MercatorTileConverter.tileToGeo_invertLat(tileX, tileY, 18 - level);
+    public double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException {
+        double[] temp = MercatorTileConverter.tileToGeo_invertLat(tileX, tileY, zoom);
         return Projections.BTE.fromGeo(temp[0], temp[1]);
     }
 }

@@ -1,4 +1,4 @@
-package io.github.terra121;
+package copy.io.github.terra121;
 
 public class TerraConstants {
 

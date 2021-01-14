@@ -4,7 +4,7 @@ import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import com.mndk.mapdisp4bte.projection.Projections;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
 public class KakaoMapRenderer extends ExternalMapRenderer {
 
@@ -28,17 +28,17 @@ public class KakaoMapRenderer extends ExternalMapRenderer {
 
 
     @Override
-    public int[] playerPositionToTileCoord(double playerX, double playerZ, int level) throws OutOfProjectionBoundsException {
+    public int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException {
         double[] temp = Projections.BTE.toGeo(playerX, playerZ);
         temp = Projections.WTM.fromGeo(temp[0], temp[1]);
-        return WTMTileConverter.wtmToTile(temp[0], temp[1], level + 1);
+        return WTMTileConverter.wtmToTile(temp[0], temp[1], zoom);
     }
 
 
 
     @Override
-    public double[] tileCoordToPlayerPosition(int tileX, int tileY, int level) throws OutOfProjectionBoundsException {
-        double[] temp = WTMTileConverter.tileToWTM(tileX, tileY, level + 1);
+    public double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException {
+        double[] temp = WTMTileConverter.tileToWTM(tileX, tileY, zoom);
         temp = Projections.WTM.toGeo(temp[0], temp[1]);
         return Projections.BTE.fromGeo(temp[0], temp[1]);
     }
@@ -50,15 +50,22 @@ public class KakaoMapRenderer extends ExternalMapRenderer {
         return CORNERS[i];
     }
 
+    @Override
+    protected int getZoomFromLevel(int level) {
+        return level + 1;
+    }
 
 
     @Override
-    public String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type) {
+    public String getUrlTemplate(int tileX, int tileY, int zoom, RenderMapType type) {
         String dir = type == RenderMapType.AERIAL ? "map_skyview" : "map_2d/2012tlq";
         String fileType = type == RenderMapType.AERIAL ? ".jpg" : ".png";
 
+        if(domain_num >= 3) domain_num = -1;
+        domain_num++;
+
         return "http://map" + domain_num + ".daumcdn.net/" +
-                dir + "/L" + (level + 1) + "/" + tileY + "/" + tileX + fileType;
+                dir + "/L" + zoom + "/" + tileY + "/" + tileX + fileType;
     }
 
 

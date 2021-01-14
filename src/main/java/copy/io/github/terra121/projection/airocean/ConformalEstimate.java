@@ -1,7 +1,7 @@
-package io.github.terra121.projection.airocean;
+package copy.io.github.terra121.projection.airocean;
 
-import io.github.terra121.projection.InvertableVectorField;
-import io.github.terra121.util.MathUtils;
+import copy.io.github.terra121.util.MathUtils;
+import copy.io.github.terra121.projection.InvertableVectorField;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +11,7 @@ import java.util.Scanner;
  * Implementation of the Dynmaxion like conformal projection.
  * Slightly modifies the Dynmaxion projection to make it conformal.
  *
- * @see io.github.terra121.projection.airocean.Airocean
+ * @see Airocean
  */
 public class ConformalEstimate extends Airocean {
 

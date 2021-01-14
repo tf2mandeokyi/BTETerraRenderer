@@ -13,8 +13,8 @@ public class BingMapRenderer extends MercatorMapRenderer {
     }
 
     @Override
-    public String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type) {
+    public String getUrlTemplate(int tileX, int tileY, int zoom, RenderMapType type) {
         String template = type == RenderMapType.AERIAL ? aerialTemplate : plainMapTemplate;
-        return template.replace("{u}", BingTileConverter.tileToQuadKey(tileX, tileY, 18 - level));
+        return template.replace("{u}", BingTileConverter.tileToQuadKey(tileX, tileY, zoom));
     }
 }

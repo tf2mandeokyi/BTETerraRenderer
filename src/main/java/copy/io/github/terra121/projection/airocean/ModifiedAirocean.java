@@ -1,13 +1,13 @@
-package io.github.terra121.projection.airocean;
+package copy.io.github.terra121.projection.airocean;
 
-import io.github.terra121.projection.OutOfProjectionBoundsException;
-import io.github.terra121.util.MathUtils;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.util.MathUtils;
 
 /**
  * Implementation of the BTE modified Dynmaxion projection.
  *
- * @see io.github.terra121.projection.airocean.Airocean
- * @see io.github.terra121.projection.airocean.ConformalEstimate
+ * @see Airocean
+ * @see ConformalEstimate
  */
 public class ModifiedAirocean extends ConformalEstimate {
 

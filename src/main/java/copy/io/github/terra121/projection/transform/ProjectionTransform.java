@@ -1,6 +1,6 @@
-package io.github.terra121.projection.transform;
+package copy.io.github.terra121.projection.transform;
 
-import io.github.terra121.projection.GeographicProjection;
+import copy.io.github.terra121.projection.GeographicProjection;
 
 /**
  * Warps a Geographic projection and applies a transformation to it.

@@ -1,4 +1,4 @@
-package io.github.terra121.util;
+package copy.io.github.terra121.util;
 
 import static com.google.common.base.Preconditions.checkState;
 

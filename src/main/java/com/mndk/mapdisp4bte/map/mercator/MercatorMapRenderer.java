@@ -5,7 +5,7 @@ import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import com.mndk.mapdisp4bte.map.tmap.TMapRenderer;
 import com.mndk.mapdisp4bte.projection.Projections;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
 public class MercatorMapRenderer extends ExternalMapRenderer {
 
@@ -32,15 +32,15 @@ public class MercatorMapRenderer extends ExternalMapRenderer {
 
 
     @Override
-    public int[] playerPositionToTileCoord(double playerX, double playerZ, int level) throws OutOfProjectionBoundsException {
+    public int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException {
         double[] temp = Projections.BTE.toGeo(playerX, playerZ);
-        return MercatorTileConverter.geoToTile(temp[0], temp[1], 18 - level);
+        return MercatorTileConverter.geoToTile(temp[0], temp[1], zoom);
     }
 
 
     @Override
-    public double[] tileCoordToPlayerPosition(int tileX, int tileY, int level) throws OutOfProjectionBoundsException {
-        double[] temp = MercatorTileConverter.tileToGeo(tileX, tileY, 18 - level);
+    public double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException {
+        double[] temp = MercatorTileConverter.tileToGeo(tileX, tileY, zoom);
         return Projections.BTE.fromGeo(temp[0], temp[1]);
     }
 
@@ -50,16 +50,21 @@ public class MercatorMapRenderer extends ExternalMapRenderer {
         return CORNERS[i];
     }
 
+    @Override
+    protected int getZoomFromLevel(int level) {
+        return 18 - level;
+    }
+
 
     protected String getRandom() {return "";}
 
 
     @Override
-    public String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type) {
+    public String getUrlTemplate(int tileX, int tileY, int zoom, RenderMapType type) {
         String template = type == RenderMapType.AERIAL ? aerialTemplate : plainMapTemplate;
 
         return template.replace("{random}", this.getRandom())
-                .replace("{z}", (18 - level) + "")
+                .replace("{z}", zoom + "")
                 .replace("{x}", tileX + "")
                 .replace("{y}", tileY + "");
     }

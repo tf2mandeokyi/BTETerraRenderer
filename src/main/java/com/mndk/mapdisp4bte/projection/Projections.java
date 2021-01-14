@@ -1,8 +1,8 @@
 package com.mndk.mapdisp4bte.projection;
 
 import com.mndk.mapdisp4bte.projection.wtm.WTMProjection;
-import io.github.terra121.generator.EarthGeneratorSettings;
-import io.github.terra121.projection.GeographicProjection;
+import copy.io.github.terra121.generator.EarthGeneratorSettings;
+import copy.io.github.terra121.projection.GeographicProjection;
 
 public class Projections {
     public static final GeographicProjection BTE;

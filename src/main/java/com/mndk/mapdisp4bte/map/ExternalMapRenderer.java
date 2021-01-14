@@ -1,6 +1,6 @@
 package com.mndk.mapdisp4bte.map;
 
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -37,36 +37,38 @@ public abstract class ExternalMapRenderer {
     public void initializeMapImageByPlayerCoordinate(
             double playerX, double playerZ,
             int tileDeltaX, int tileDeltaY,
-            int level, RenderMapType type
+            int zoom, RenderMapType type
     ) throws OutOfProjectionBoundsException {
 
-        int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, level);
+        int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, zoom);
 
-        String tileID = genTileID(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, level, type, this.source);
+        String tileID = genTileID(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, type, this.source);
 
-        BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
+        BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
 
         renderList.add(new AbstractMap.SimpleEntry<>(tileID, image));
     }
 
 
 
-    public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int level) throws OutOfProjectionBoundsException;
+    public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException;
 
-    public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int level) throws OutOfProjectionBoundsException;
+    public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
 
     /**
      * This should return: [tileDeltaX, tileDeltaY, u, v]
      */
     protected abstract int[] getCornerMatrix(int i);
 
+    protected abstract int getZoomFromLevel(int level); // TODO do this
 
 
-    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
+
+    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom, RenderMapType type) {
         try {
-            int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, level);
+            int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, zoom);
 
-            String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, level, type);
+            String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, zoom, type);
 
             // System.out.println(url);
 
@@ -79,9 +81,9 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public BufferedImage fetchMapSync(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int level, RenderMapType type) {
+    public BufferedImage fetchMapSync(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom, RenderMapType type) {
         try {
-            URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, level, type);
+            URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
             if(connection == null) return null;
             connection.connect();
             return ImageIO.read(connection.getInputStream());
@@ -105,9 +107,11 @@ public abstract class ExternalMapRenderer {
             int tileDeltaX, int tileDeltaY
     ) {
         try {
-            int[] tilePos = this.playerPositionToTileCoord(px, pz, level);
+            int zoom = this.getZoomFromLevel(level);
 
-            String tileID = genTileID(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, level, type, source);
+            int[] tilePos = this.playerPositionToTileCoord(px, pz, zoom);
+
+            String tileID = genTileID(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
 
             if(!renderList.isEmpty()) {
                 // Cannot set all images to resource locations at once, because it would cause ConcurrentModificationException.
@@ -130,7 +134,7 @@ public abstract class ExternalMapRenderer {
                 resourceLocations.put(tileID, null);
                 this.donwloadExecutor.execute(() -> {
                     try {
-                        initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, level, type);
+                        initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
                     } catch (OutOfProjectionBoundsException exception) {
                         exception.printStackTrace();
                     }
@@ -150,7 +154,7 @@ public abstract class ExternalMapRenderer {
                 for (int i = 0; i < 4; i++) {
 
                     int[] mat = this.getCornerMatrix(i);
-                    temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, level);
+                    temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, zoom);
 
                     builder.pos(temp[0] - px, y - py, temp[1] - pz)
                             .tex(mat[2], mat[3])
@@ -166,8 +170,8 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public static String genTileID(int tileX, int tileY, int level, RenderMapType type, RenderMapSource source) {
-        return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + level + "_" + type;
+    public static String genTileID(int tileX, int tileY, int zoom, RenderMapType type, RenderMapSource source) {
+        return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + zoom + "_" + type;
     }
 
 }

@@ -1,7 +1,7 @@
-package io.github.terra121.projection.transform;
+package copy.io.github.terra121.projection.transform;
 
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import copy.io.github.terra121.projection.GeographicProjection;
 
 /**
  * Mirrors the warped projection vertically.

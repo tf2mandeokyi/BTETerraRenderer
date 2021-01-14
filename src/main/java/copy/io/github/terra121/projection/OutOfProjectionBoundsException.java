@@ -1,4 +1,4 @@
-package io.github.terra121.projection;
+package copy.io.github.terra121.projection;
 
 public final class OutOfProjectionBoundsException extends Exception {
     private static final OutOfProjectionBoundsException INSTANCE = new OutOfProjectionBoundsException(false);
