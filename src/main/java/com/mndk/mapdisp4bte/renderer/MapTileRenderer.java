@@ -1,6 +1,7 @@
 package com.mndk.mapdisp4bte.renderer;
 
 import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
+import com.mndk.mapdisp4bte.map.MapTileManager;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -42,6 +43,8 @@ public class MapTileRenderer {
                     x, y
             );
         }
+
+        MapTileManager.getInstance().freeUnusedResourceLocations();
 
         GlStateManager.disableBlend();
         GlStateManager.enableCull();

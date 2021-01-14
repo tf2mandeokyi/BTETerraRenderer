@@ -1,10 +1,7 @@
 package com.mndk.mapdisp4bte.proxy;
 
 import com.mndk.mapdisp4bte.ModMain;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.*;
 
 public class CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {

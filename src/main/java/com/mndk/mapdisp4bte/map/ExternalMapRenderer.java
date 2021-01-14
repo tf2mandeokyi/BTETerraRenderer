@@ -1,10 +1,8 @@
 package com.mndk.mapdisp4bte.map;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -15,14 +13,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class ExternalMapRenderer {
-
-    public static final Map<String, ResourceLocation> resourceLocations = new HashMap<>();
-    private static final List<Map.Entry<String, BufferedImage>> renderList = new ArrayList<>();
 
     private final RenderMapSource source;
     private final ExecutorService donwloadExecutor;
@@ -42,11 +36,11 @@ public abstract class ExternalMapRenderer {
 
         int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, zoom);
 
-        String tileID = genTileID(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, type, this.source);
+        String tileId = genTileId(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, type, this.source);
 
         BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
 
-        renderList.add(new AbstractMap.SimpleEntry<>(tileID, image));
+        MapTileManager.getInstance().addImageToRenderList(tileId, image);
     }
 
 
@@ -60,7 +54,7 @@ public abstract class ExternalMapRenderer {
      */
     protected abstract int[] getCornerMatrix(int i);
 
-    protected abstract int getZoomFromLevel(int level); // TODO do this
+    protected abstract int getZoomFromLevel(int level);
 
 
 
@@ -111,9 +105,9 @@ public abstract class ExternalMapRenderer {
 
             int[] tilePos = this.playerPositionToTileCoord(px, pz, zoom);
 
-            String tileID = genTileID(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
+            String tileId = genTileId(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
 
-            if(!renderList.isEmpty()) {
+            /*if(!renderList.isEmpty()) {
                 // Cannot set all images to resource locations at once, because it would cause ConcurrentModificationException.
                 // So instead, it's setting one image by frame.
 
@@ -121,17 +115,26 @@ public abstract class ExternalMapRenderer {
 
                 Map.Entry<String, BufferedImage> entry = renderList.get(0);
                 renderList.remove(0);
-                if(entry != null) if(entry.getValue() != null) {
-                    DynamicTexture texture = new DynamicTexture(entry.getValue());
-                    ResourceLocation reloc =
-                            Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(tileID, texture);
-                    resourceLocations.put(entry.getKey(), reloc);
+                try {
+                    if (entry != null) if (entry.getValue() != null) {
+                        DynamicTexture texture = new DynamicTexture(entry.getValue());
+                        ResourceLocation reloc =
+                                Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(tileID, texture);
+                        resourceLocations.put(entry.getKey(), reloc);
+                    }
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    renderList.add(entry); // Try again if the error happens
                 }
-            }
+            }*/
 
-            if(!resourceLocations.containsKey(tileID)) {
+            MapTileManager.getInstance().convertAllImagesToResoureLocations();
+
+            ResourceLocation resourceLocation;
+
+            if(!MapTileManager.getInstance().tileIdExists(tileId)) {
                 // If the tile is not loaded, load it in new thread
-                resourceLocations.put(tileID, null);
+                MapTileManager.getInstance().setTileIdOnly(tileId);
                 this.donwloadExecutor.execute(() -> {
                     try {
                         initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
@@ -140,8 +143,7 @@ public abstract class ExternalMapRenderer {
                     }
                 });
             }
-            else if(resourceLocations.get(tileID) != null) {
-                ResourceLocation resourceLocation = resourceLocations.get(tileID);
+            else if((resourceLocation = MapTileManager.getInstance().getResourceLocationByTileId(tileId)) != null) {
 
                 FMLClientHandler.instance().getClient().renderEngine.bindTexture(resourceLocation);
 
@@ -165,12 +167,16 @@ public abstract class ExternalMapRenderer {
                 t.draw();
             }
 
-        } catch(OutOfProjectionBoundsException ignored) {}
+            MapTileManager.getInstance().addTileIdToPreserveList(tileId);
+
+        } catch(OutOfProjectionBoundsException exception) {
+            exception.printStackTrace();
+        }
     }
 
 
 
-    public static String genTileID(int tileX, int tileY, int zoom, RenderMapType type, RenderMapSource source) {
+    public static String genTileId(int tileX, int tileY, int zoom, RenderMapType type, RenderMapSource source) {
         return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + zoom + "_" + type;
     }
 

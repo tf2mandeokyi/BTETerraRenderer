@@ -3,10 +3,7 @@ package com.mndk.mapdisp4bte;
 import com.mndk.mapdisp4bte.proxy.CommonProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = ModReference.MODID, name = ModReference.NAME, version = ModReference.VERSION, clientSideOnly = true)
