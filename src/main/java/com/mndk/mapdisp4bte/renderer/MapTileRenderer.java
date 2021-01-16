@@ -1,22 +1,14 @@
 package com.mndk.mapdisp4bte.renderer;
 
+import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
 import com.mndk.mapdisp4bte.map.MapTileManager;
-import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 
 public class MapTileRenderer {
-
-
-
-    public static float y = 4.1f;
-    public static boolean drawTiles = false;
-    public static RenderMapSource renderMapSource = RenderMapSource.KAKAO;
-    public static RenderMapType renderMapType = RenderMapType.PLAIN_MAP;
-    public static float opacity = 1f;
 
 
 
@@ -33,15 +25,22 @@ public class MapTileRenderer {
 
         int level = 0;
 
-        // Iterate tiles around player
-        for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {
-            renderer.renderTile(
-                    t, builder,
-                    level, MapTileRenderer.renderMapType,
-                    MapTileRenderer.y, MapTileRenderer.opacity,
-                    px, py, pz,
-                    x, y
-            );
+        try {
+            RenderMapType type = RenderMapType.valueOf(ModConfig.mapType);
+
+            // Iterate tiles around player
+            for (int y = -2; y <= 2; y++)
+                for (int x = -2; x <= 2; x++) {
+                    renderer.renderTile(
+                            t, builder,
+                            level, type,
+                            ModConfig.yLevel, (float) ModConfig.opacity,
+                            px, py, pz,
+                            x, y
+                    );
+                }
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
         }
 
         MapTileManager.getInstance().freeUnusedResourceLocations();

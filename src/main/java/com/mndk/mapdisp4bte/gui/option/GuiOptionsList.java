@@ -31,11 +31,11 @@ public class GuiOptionsList {
         ));
     }
 
-    public void addSlider(GuiNumberOption<Float> option) {
+    public void addSlider(GuiNumberOption<Double> option) {
 
         GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
             @Override
-            public void setEntryValue(int id, float value) { option.set(value); }
+            public void setEntryValue(int id, float value) { option.set((double) value); }
             @Override public void setEntryValue(int id, boolean value) { }
             @Override public void setEntryValue(int id, String value) { }
         };
@@ -49,8 +49,8 @@ public class GuiOptionsList {
                 -index-1,
                 x, y + index * (buttonHeight + buttonMarginTop),
                 option.name,
-                option.from, option.to,
-                option.get(),
+                option.from.floatValue(), option.to.floatValue(),
+                option.get().floatValue(),
                 helper
         );
 

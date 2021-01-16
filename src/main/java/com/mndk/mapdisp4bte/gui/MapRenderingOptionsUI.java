@@ -1,12 +1,12 @@
 package com.mndk.mapdisp4bte.gui;
 
+import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.gui.option.GuiBooleanOption;
 import com.mndk.mapdisp4bte.gui.option.GuiEnumOption;
 import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
-import com.mndk.mapdisp4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -41,29 +41,29 @@ public class MapRenderingOptionsUI extends GuiScreen {
         );
 
         this.options.add(new GuiBooleanOption(
-                () -> MapTileRenderer.drawTiles, (b) -> MapTileRenderer.drawTiles = b,
+                () -> ModConfig.drawTiles, (b) -> ModConfig.drawTiles = b,
                 I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
         ));
 
         this.options.add(new GuiEnumOption<>(
-                () -> MapTileRenderer.renderMapType, (e) -> MapTileRenderer.renderMapType = e,
+                () -> RenderMapType.valueOf(ModConfig.mapType), (e) -> ModConfig.mapType = e.toString(),
                 RenderMapType.values(), I18n.format("gui.mapdisp4bte.maprenderer.map_type")
         ));
 
         this.options.add(new GuiEnumOption<>(
-                () -> MapTileRenderer.renderMapSource, (e) -> MapTileRenderer.renderMapSource = e,
+                () -> RenderMapSource.valueOf(ModConfig.mapSource), (e) -> ModConfig.mapSource = e.toString(),
                 RenderMapSource.values(), I18n.format("gui.mapdisp4bte.maprenderer.map_source")
         ));
 
         this.options.addSlider(new GuiNumberOption<>(
-                () -> (int) MapTileRenderer.y + .0f, (n) -> MapTileRenderer.y = n + .1f,
-                0.f, 256.f,
+                () -> ModConfig.yLevel, (n) -> ModConfig.yLevel = n,
+                0., 256.,
                 I18n.format("gui.mapdisp4bte.maprenderer.map_y_level")
         ));
 
         this.options.addSlider(new GuiNumberOption<>(
-                () -> MapTileRenderer.opacity, (n) -> MapTileRenderer.opacity = n,
-                0.f, 1.f,
+                () -> ModConfig.opacity, (n) -> ModConfig.opacity = n,
+                0., 1.,
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")
         ));
 

@@ -45,16 +45,14 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException;
-
-    public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
-
     /**
      * This should return: [tileDeltaX, tileDeltaY, u, v]
      */
     protected abstract int[] getCornerMatrix(int i);
-
+    public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException;
+    public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
     protected abstract int getZoomFromLevel(int level);
+    public abstract String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type);
 
 
 
@@ -89,10 +87,6 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public abstract String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type);
-
-
-
     public void renderTile(
             Tessellator t, BufferBuilder builder,
             int level, RenderMapType type,
@@ -106,27 +100,6 @@ public abstract class ExternalMapRenderer {
             int[] tilePos = this.playerPositionToTileCoord(px, pz, zoom);
 
             String tileId = genTileId(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
-
-            /*if(!renderList.isEmpty()) {
-                // Cannot set all images to resource locations at once, because it would cause ConcurrentModificationException.
-                // So instead, it's setting one image by frame.
-
-                // TODO The code is messy, so re-categorize this
-
-                Map.Entry<String, BufferedImage> entry = renderList.get(0);
-                renderList.remove(0);
-                try {
-                    if (entry != null) if (entry.getValue() != null) {
-                        DynamicTexture texture = new DynamicTexture(entry.getValue());
-                        ResourceLocation reloc =
-                                Minecraft.getMinecraft().renderEngine.getDynamicTextureLocation(tileID, texture);
-                        resourceLocations.put(entry.getKey(), reloc);
-                    }
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    renderList.add(entry); // Try again if the error happens
-                }
-            }*/
 
             MapTileManager.getInstance().convertAllImagesToResoureLocations();
 
