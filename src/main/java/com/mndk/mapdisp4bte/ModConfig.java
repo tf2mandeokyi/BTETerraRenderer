@@ -6,11 +6,21 @@ import net.minecraftforge.common.config.Config;
 public class ModConfig {
 
 
+    @Config.Comment("The map alignment value in x axis")
+    @Config.Name("X Align")
+    public static double xAlign = 0;
+
+
+    @Config.Comment("The map alignment value in z axis")
+    @Config.Name("Z Align")
+    public static double zAlign = 0;
+
+
     @Config.Comment("The y level that the map should be rendered")
     @Config.Name("Y Level")
     public static double yLevel = 4;
 
-    
+
 
     @Config.Comment("True if the map should be rendered, and false otherwise.")
     @Config.Name("Render Map")

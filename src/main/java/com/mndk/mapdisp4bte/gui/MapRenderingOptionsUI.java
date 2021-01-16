@@ -67,6 +67,18 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")
         ));
 
+        this.options.addSlider(new GuiNumberOption<>(
+                () -> ModConfig.xAlign, (n) -> ModConfig.xAlign = n,
+                -100., 100.,
+                "x"
+        ));
+
+        this.options.addSlider(new GuiNumberOption<>(
+                () -> ModConfig.zAlign, (n) -> ModConfig.zAlign = n,
+                -100., 100.,
+                "z"
+        ));
+
         for(GuiButton button : options.buttons) {
             this.addButton(button);
         }

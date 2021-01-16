@@ -35,7 +35,7 @@ public class MapTileRenderer {
                             t, builder,
                             level, type,
                             ModConfig.yLevel, (float) ModConfig.opacity,
-                            px, py, pz,
+                            px+ModConfig.xAlign, py, pz+ModConfig.zAlign,
                             x, y
                     );
                 }
