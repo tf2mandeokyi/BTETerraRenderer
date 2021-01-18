@@ -9,6 +9,12 @@ gui.mapdisp4bte.maprenderer.map_source=Map Source
 gui.mapdisp4bte.maprenderer.map_y_level=Map Y Level
 gui.mapdisp4bte.maprenderer.opacity=Map Opacity
 
+gui.mapdisp4bte.maprenderer.map_align=Map Alignment
+gui.mapdisp4bte.maprenderer.x_align=X Axis
+gui.mapdisp4bte.maprenderer.z_align=Z Axis
+gui.mapdisp4bte.maprenderer.x_align_reset=Reset X
+gui.mapdisp4bte.maprenderer.z_align_reset=Reset Z
+
 enum.mapdisp4bte.mapsource.KAKAO=Kakao Map (Korea only)
 enum.mapdisp4bte.mapsource.OSM=OpenStreetMap
 enum.mapdisp4bte.mapsource.BING=Bing Maps

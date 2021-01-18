@@ -9,6 +9,12 @@ gui.mapdisp4bte.maprenderer.map_source=지도 소스
 gui.mapdisp4bte.maprenderer.map_y_level=지도 Y축 값
 gui.mapdisp4bte.maprenderer.opacity=지도 불투명도
 
+gui.mapdisp4bte.maprenderer.map_align=지도 좌표 조정
+gui.mapdisp4bte.maprenderer.x_align=X축
+gui.mapdisp4bte.maprenderer.z_align=Z축
+gui.mapdisp4bte.maprenderer.x_align_reset=X축 초기화
+gui.mapdisp4bte.maprenderer.z_align_reset=Z축 초기화
+
 enum.mapdisp4bte.mapsource.KAKAO=카카오맵 (한국 전용)
 enum.mapdisp4bte.mapsource.OSM=오픈스트리트맵
 enum.mapdisp4bte.mapsource.BING=빙 맵
