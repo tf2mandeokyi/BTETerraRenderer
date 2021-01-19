@@ -4,8 +4,6 @@ import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
@@ -36,7 +34,7 @@ public abstract class ExternalMapRenderer {
 
         int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, zoom);
 
-        String tileId = genTileId(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, type, this.source);
+        String tileId = genTileKey(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, type, this.source);
 
         BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
 
@@ -99,48 +97,48 @@ public abstract class ExternalMapRenderer {
 
             int[] tilePos = this.playerPositionToTileCoord(px, pz, zoom);
 
-            String tileId = genTileId(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
+            String tileKey = genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
 
-            MapTileManager.getInstance().convertAllImagesToResoureLocations();
+            MapTileManager.getInstance().cacheAllImages();
 
-            ResourceLocation resourceLocation;
+            if(!MapTileCache.instance.isTileInDownloadingState(tileKey)) {
+                if(!MapTileCache.instance.textureExists(tileKey)) {
+                    // If the tile is not loaded, load it in new thread
+                    MapTileCache.instance.setTileDownloadingState(tileKey, true);
+                    this.donwloadExecutor.execute(() -> {
+                        try {
+                            initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
+                            MapTileCache.instance.setTileDownloadingState(tileKey, false);
 
-            if(!MapTileManager.getInstance().tileIdExists(tileId)) {
-                // If the tile is not loaded, load it in new thread
-                MapTileManager.getInstance().setTileIdOnly(tileId);
-                this.donwloadExecutor.execute(() -> {
-                    try {
-                        initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
-                    } catch (OutOfProjectionBoundsException exception) {
-                        exception.printStackTrace();
-                    }
-                });
-            }
-            else if((resourceLocation = MapTileManager.getInstance().getResourceLocationByTileId(tileId)) != null) {
-
-                FMLClientHandler.instance().getClient().renderEngine.bindTexture(resourceLocation);
-
-                // begin vertex
-                builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-
-                double[] temp;
-
-                // Convert boundaries
-                for (int i = 0; i < 4; i++) {
-
-                    int[] mat = this.getCornerMatrix(i);
-                    temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, zoom);
-
-                    builder.pos(temp[0] - px, y - py, temp[1] - pz)
-                            .tex(mat[2], mat[3])
-                            .color(1.f, 1.f, 1.f, opacity)
-                            .endVertex();
+                        } catch (OutOfProjectionBoundsException exception) {
+                            exception.printStackTrace();
+                        }
+                    });
                 }
+                else {
 
-                t.draw();
+                    MapTileCache.instance.bindTexture(tileKey);
+
+                    // begin vertex
+                    builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+
+                    double[] temp;
+
+                    // Convert boundaries
+                    for (int i = 0; i < 4; i++) {
+
+                        int[] mat = this.getCornerMatrix(i);
+                        temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, zoom);
+
+                        builder.pos(temp[0] - px, y - py, temp[1] - pz)
+                                .tex(mat[2], mat[3])
+                                .color(1.f, 1.f, 1.f, opacity)
+                                .endVertex();
+                    }
+
+                    t.draw();
+                }
             }
-
-            MapTileManager.getInstance().addTileIdToPreserveList(tileId);
 
         } catch(OutOfProjectionBoundsException exception) {
             exception.printStackTrace();
@@ -149,7 +147,7 @@ public abstract class ExternalMapRenderer {
 
 
 
-    public static String genTileId(int tileX, int tileY, int zoom, RenderMapType type, RenderMapSource source) {
+    public static String genTileKey(int tileX, int tileY, int zoom, RenderMapType type, RenderMapSource source) {
         return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + zoom + "_" + type;
     }
 

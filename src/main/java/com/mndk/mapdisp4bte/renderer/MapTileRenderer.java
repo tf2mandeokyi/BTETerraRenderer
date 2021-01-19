@@ -2,15 +2,13 @@ package com.mndk.mapdisp4bte.renderer;
 
 import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
-import com.mndk.mapdisp4bte.map.MapTileManager;
+import com.mndk.mapdisp4bte.map.MapTileCache;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 
 public class MapTileRenderer {
-
-
 
     public static void renderTiles(ExternalMapRenderer renderer, double px, double py, double pz) {
         Tessellator t = Tessellator.getInstance();
@@ -43,7 +41,7 @@ public class MapTileRenderer {
             e.printStackTrace();
         }
 
-        MapTileManager.getInstance().freeUnusedResourceLocations();
+        MapTileCache.instance.cleanup();
 
         GlStateManager.disableBlend();
         GlStateManager.enableCull();
