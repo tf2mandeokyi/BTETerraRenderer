@@ -2,13 +2,14 @@ package com.mndk.mapdisp4bte.map;
 
 import com.mndk.mapdisp4bte.map.bing.BingMapRenderer;
 import com.mndk.mapdisp4bte.map.kakao.KakaoMapRenderer;
+import com.mndk.mapdisp4bte.map.naver.NaverMapRenderer;
 import com.mndk.mapdisp4bte.map.osm.OpenStreetMapRenderer;
 import com.mndk.mapdisp4bte.map.tmap.TMapRenderer;
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 import net.minecraft.client.resources.I18n;
 
 public enum RenderMapSource implements TranslatableEnum<RenderMapSource> {
-    KAKAO, OSM, BING, TMAP;
+    OSM, BING, KAKAO, TMAP, NAVER;
 
     private ExternalMapRenderer renderer;
 
@@ -25,5 +26,6 @@ public enum RenderMapSource implements TranslatableEnum<RenderMapSource> {
         OSM.renderer = new OpenStreetMapRenderer();
         BING.renderer = new BingMapRenderer();
         TMAP.renderer = new TMapRenderer();
+        NAVER.renderer = new NaverMapRenderer();
     }
 }
