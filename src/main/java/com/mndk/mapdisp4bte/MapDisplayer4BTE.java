@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = ModReference.MODID, name = ModReference.NAME, version = ModReference.VERSION, clientSideOnly = true)
-public class ModMain {
+public class MapDisplayer4BTE {
     public static Logger logger;
 
     @SidedProxy(clientSide="com.mndk.mapdisp4bte.proxy.ClientProxy", serverSide="com.mndk.mapdisp4bte.proxy.CommonProxy")

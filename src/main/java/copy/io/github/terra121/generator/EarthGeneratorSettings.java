@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.mndk.mapdisp4bte.ModMain;
+import com.mndk.mapdisp4bte.MapDisplayer4BTE;
 import copy.io.github.terra121.projection.GeographicProjection;
 import copy.io.github.terra121.projection.transform.OffsetProjectionTransform;
 import copy.io.github.terra121.projection.transform.ScaleProjectionTransform;
@@ -22,7 +22,7 @@ public class EarthGeneratorSettings {
             try {
                 this.settings = GSON.fromJson(generatorSettings, JsonSettings.class);
             } catch (JsonSyntaxException e) {
-                ModMain.logger.error("Invalid Earth Generator Settings, using default settings");
+                MapDisplayer4BTE.logger.error("Invalid Earth Generator Settings, using default settings");
                 this.settings = new JsonSettings();
             }
         }
