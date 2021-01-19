@@ -24,4 +24,6 @@ The map renderer tool for building in BuildTheEarth project.
 3. Run Minecraft
 4. In game, press **V** to open render settings UI, and press **B** to toggle map rendering
 
+![Reference screenshot](https://github.com/tf2mandeokyi/MapDisplayer4BTE/raw/master/.docs/screenshot0.png "Location: Manhattan, New York (40.70339 N, 74.01777 W)")
+
 [latest version download link]: https://github.com/tf2mandeokyi/MapDisplayer4BTE/releases/download/1.01.2/mapdisp4bte-1.01.2.jar
