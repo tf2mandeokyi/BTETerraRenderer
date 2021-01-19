@@ -19,6 +19,7 @@ enum.mapdisp4bte.mapsource.KAKAO=카카오맵 (한국 전용)
 enum.mapdisp4bte.mapsource.OSM=오픈스트리트맵
 enum.mapdisp4bte.mapsource.BING=빙 맵
 enum.mapdisp4bte.mapsource.TMAP=T맵 (한국 전용)
+enum.mapdisp4bte.mapsource.NAVER=네이버 맵 (한국 전용)
 
 enum.mapdisp4bte.maptype.PLAIN_MAP=일반 지도
 enum.mapdisp4bte.maptype.AERIAL=항공사진

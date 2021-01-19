@@ -19,6 +19,7 @@ enum.mapdisp4bte.mapsource.KAKAO=Kakao Map (Korea only)
 enum.mapdisp4bte.mapsource.OSM=OpenStreetMap
 enum.mapdisp4bte.mapsource.BING=Bing Maps
 enum.mapdisp4bte.mapsource.TMAP=T Map (Korea only)
+enum.mapdisp4bte.mapsource.NAVER=Naver Map (Korea only)
 
 enum.mapdisp4bte.maptype.PLAIN_MAP=Plain Map
 enum.mapdisp4bte.maptype.AERIAL=Aerial
