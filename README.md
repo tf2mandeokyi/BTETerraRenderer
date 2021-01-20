@@ -9,11 +9,11 @@ The map renderer tool for building in BuildTheEarth project.
 
 * Global
   * [Bing maps](https://www.bing.com/maps)
-  * [OpenStreetMap](http://openstreetmap.org/)
+  * [OpenStreetMap](http://openstreetmap.org/) (No Aerial)
 * Korean
   * [Naver map](https://map.naver.com/)
   * [Kakao map](https://map.kakao.com/)
-  * [T map](https://www.tmap.co.kr/)
+  * [T map](https://www.tmap.co.kr/) (No Aerial)
 
 
 
