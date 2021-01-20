@@ -3,7 +3,7 @@ package com.mndk.mapdisp4bte.gui;
 import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.ModReference;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
-import com.mndk.mapdisp4bte.gui.option.slider.GuiNumberSlider;
+import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiBooleanToggleable;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiEnumToggleable;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
@@ -120,13 +120,13 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")
         ));
 
-        this.optionsList.addSlider(new GuiNumberSlider<>(
+        this.optionsList.addSlider(new GuiNumberOption<>(
                 () -> ModConfig.yLevel, (n) -> ModConfig.yLevel = n,
                 0., 256.,
                 I18n.format("gui.mapdisp4bte.maprenderer.map_y_level")
         ));
 
-        this.optionsList.addSlider(new GuiNumberSlider<>(
+        this.optionsList.addSlider(new GuiNumberOption<>(
                 () -> ModConfig.opacity, (n) -> ModConfig.opacity = n,
                 0., 1.,
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")
@@ -162,6 +162,14 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 SETTINGS_CENTER_X, TITLE_HEIGHT, 0xFFFFFF
         );
 
+        this.drawAlignmentImage();
+
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+
+
+    private void drawAlignmentImage() {
         String xAlignString = I18n.format("gui.mapdisp4bte.maprenderer.x_align") + ": " + ModConfig.xAlign + "m";
         String zAlignString = I18n.format("gui.mapdisp4bte.maprenderer.z_align") + ": " + ModConfig.zAlign + "m";
 
@@ -204,8 +212,6 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         Minecraft.getMinecraft().renderEngine.bindTexture(ALIGNMENT_MARKER_RELOC);
         this.drawCenteredImage(marker_pos_x, marker_pos_y, 4, 4);
-
-        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
 

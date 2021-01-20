@@ -1,6 +1,5 @@
 package com.mndk.mapdisp4bte.gui.option;
 
-import com.mndk.mapdisp4bte.gui.option.slider.GuiNumberSlider;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleable;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPageButtonList;
@@ -12,9 +11,13 @@ import java.util.List;
 
 public class GuiOptionsList {
 
+
+
     GuiScreen parent;
     public List<GuiButton> buttons;
     int x, y, width, buttonHeight, buttonMarginTop;
+
+
 
     public GuiOptionsList(GuiScreen parent, int x, int y, int width, int buttonHeight, int buttonMarginTop) {
         buttons = new ArrayList<>();
@@ -22,6 +25,8 @@ public class GuiOptionsList {
         this.x = x; this.y = y;
         this.width = width; this.buttonHeight = buttonHeight; this.buttonMarginTop = buttonMarginTop;
     }
+
+
 
     public <T> void addToggleable(GuiToggleable<T> option) {
         int index = buttons.size();
@@ -33,7 +38,9 @@ public class GuiOptionsList {
         ));
     }
 
-    public void addSlider(GuiNumberSlider<Double> option) {
+
+
+    public void addSlider(GuiNumberOption<Double> option) {
 
         GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
             @Override
@@ -51,7 +58,7 @@ public class GuiOptionsList {
                 -index-1,
                 x, y + index * (buttonHeight + buttonMarginTop),
                 option.name,
-                option.getFrom().floatValue(), option.getTo().floatValue(),
+                option.getMin().floatValue(), option.getMax().floatValue(),
                 option.get().floatValue(),
                 helper
         );
@@ -61,6 +68,8 @@ public class GuiOptionsList {
         this.buttons.add(tmp);
     }
 
+
+
     public void actionPerformed(GuiButton button) {
         for(GuiButton comp : this.buttons) {
             if(comp instanceof GuiOptionButton<?>) {
@@ -69,6 +78,8 @@ public class GuiOptionsList {
             }
         }
     }
+
+
 
     private static class GuiOptionButton<T> extends GuiButton {
 

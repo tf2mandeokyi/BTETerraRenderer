@@ -5,14 +5,14 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Deprecated
-public class GuiNumberToggleable<N extends Number> extends GuiToggleable<N> {
+public class GuiNumberToggleable extends GuiToggleable<Integer> {
 
-    public GuiNumberToggleable(Supplier<N> getter, Consumer<N> setter, N from, N to, String name) {
-        super(getter, setter, from, to, false, name);
+    public GuiNumberToggleable(Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, String name) {
+        super(getter, setter, min, max, false, name);
     }
 
     @Override
-    public N getNext(N current) {
-        return null;
+    public Integer getNext(Integer current) {
+        return current + 1;
     }
 }
