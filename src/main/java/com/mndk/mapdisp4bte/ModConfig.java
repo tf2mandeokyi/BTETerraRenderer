@@ -30,7 +30,7 @@ public class ModConfig {
 
     @Config.Comment({
             "The source of the map",
-            "List: KAKAO for KakaoMap, OSM for OpenStreetMap, BING for Bing maps, and TMAP for Tmap"
+            "List: KAKAO for KakaoMap, NAVER for Naver map, OSM for OpenStreetMap, BING for Bing maps, and TMAP for Tmap"
     })
     @Config.Name("Map Source")
     public static String mapSource = "KAKAO";
