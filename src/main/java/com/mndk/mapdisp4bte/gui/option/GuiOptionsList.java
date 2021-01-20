@@ -1,8 +1,7 @@
 package com.mndk.mapdisp4bte.gui.option;
 
-import com.mndk.mapdisp4bte.gui.slider.GuiNumberSlider;
-import com.mndk.mapdisp4bte.gui.toggleable.GuiNumberToggleable;
-import com.mndk.mapdisp4bte.gui.toggleable.GuiToggleable;
+import com.mndk.mapdisp4bte.gui.option.slider.GuiNumberSlider;
+import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleable;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;

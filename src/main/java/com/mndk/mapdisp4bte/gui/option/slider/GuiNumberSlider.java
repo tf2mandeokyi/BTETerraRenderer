@@ -1,4 +1,4 @@
-package com.mndk.mapdisp4bte.gui.slider;
+package com.mndk.mapdisp4bte.gui.option.slider;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
