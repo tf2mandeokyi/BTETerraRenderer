@@ -99,16 +99,18 @@ public abstract class ExternalMapManager {
 
             String tileKey = genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
 
+            MapTileCache cache = MapTileManager.getInstance().getTileCache();
+
             MapTileManager.getInstance().cacheAllImages();
 
-            if(!MapTileCache.instance.isTileInDownloadingState(tileKey)) {
-                if(!MapTileCache.instance.textureExists(tileKey)) {
+            if(!cache.isTileInDownloadingState(tileKey)) {
+                if(!cache.textureExists(tileKey)) {
                     // If the tile is not loaded, load it in new thread
-                    MapTileCache.instance.setTileDownloadingState(tileKey, true);
+                    cache.setTileDownloadingState(tileKey, true);
                     this.donwloadExecutor.execute(() -> {
                         try {
                             initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
-                            MapTileCache.instance.setTileDownloadingState(tileKey, false);
+                            cache.setTileDownloadingState(tileKey, false);
 
                         } catch (OutOfProjectionBoundsException exception) {
                             exception.printStackTrace();
@@ -117,7 +119,7 @@ public abstract class ExternalMapManager {
                 }
                 else {
 
-                    MapTileCache.instance.bindTexture(tileKey);
+                    cache.bindTexture(tileKey);
 
                     // begin vertex
                     builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);

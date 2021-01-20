@@ -11,7 +11,6 @@ public class MapTileCache {
 
 
 
-    public static final MapTileCache instance = new MapTileCache(1000 * 60 * 5, 100); // 5-minutes-span cache
     private static final boolean DEBUG = false;
     private static void log(String message) {
         if(DEBUG) MapDisplayer4BTE.logger.info(message);
@@ -26,7 +25,7 @@ public class MapTileCache {
 
 
 
-    private MapTileCache(long expireMilliseconds, int maximumSize) {
+    public MapTileCache(long expireMilliseconds, int maximumSize) {
         this.glTextureIdMap = new HashMap<>();
         this.downloadingTileKeys = new HashSet<>();
         this.expireMilliseconds = expireMilliseconds;

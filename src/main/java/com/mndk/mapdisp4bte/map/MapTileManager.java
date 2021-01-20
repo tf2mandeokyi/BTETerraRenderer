@@ -9,9 +9,11 @@ public class MapTileManager {
     public static MapTileManager getInstance() { return instance; }
 
     private List<Map.Entry<String, BufferedImage>> renderList;
+    private final MapTileCache tileCache;
 
     private MapTileManager() {
         this.renderList = new ArrayList<>();
+        this.tileCache = new MapTileCache(1000 * 60 * 5, 100);
     }
 
     public void addImageToRenderList(String tileId, BufferedImage image) {
@@ -34,7 +36,7 @@ public class MapTileManager {
 
                 try {
                     if (entry.getValue() != null) {
-                        MapTileCache.instance.addTexture(tileKey, image);
+                        tileCache.addTexture(tileKey, image);
                     }
                 } catch(Exception e) {
                     e.printStackTrace();
@@ -45,6 +47,10 @@ public class MapTileManager {
 
         renderList = newList;
 
+    }
+
+    public MapTileCache getTileCache() {
+        return this.tileCache;
     }
 
 }
