@@ -1,13 +1,13 @@
-package com.mndk.mapdisp4bte.gui.option;
+package com.mndk.mapdisp4bte.gui.toggleable;
 
 import net.minecraft.client.resources.I18n;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class GuiBooleanOption extends GuiOption<Boolean> {
+public class GuiBooleanToggleable extends GuiToggleable<Boolean> {
 
-    public GuiBooleanOption(Supplier<Boolean> getter, Consumer<Boolean> setter, String name) {
+    public GuiBooleanToggleable(Supplier<Boolean> getter, Consumer<Boolean> setter, String name) {
         super(getter, setter, false, true, true, name);
     }
 

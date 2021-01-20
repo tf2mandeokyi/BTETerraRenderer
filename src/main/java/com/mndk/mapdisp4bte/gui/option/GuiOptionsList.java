@@ -1,5 +1,8 @@
 package com.mndk.mapdisp4bte.gui.option;
 
+import com.mndk.mapdisp4bte.gui.slider.GuiNumberSlider;
+import com.mndk.mapdisp4bte.gui.toggleable.GuiNumberToggleable;
+import com.mndk.mapdisp4bte.gui.toggleable.GuiToggleable;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,7 +24,7 @@ public class GuiOptionsList {
         this.width = width; this.buttonHeight = buttonHeight; this.buttonMarginTop = buttonMarginTop;
     }
 
-    public <T> void add(GuiOption<T> option) {
+    public <T> void addToggleable(GuiToggleable<T> option) {
         int index = buttons.size();
         this.buttons.add(new GuiOptionButton<>(
                 -index-1,
@@ -31,7 +34,7 @@ public class GuiOptionsList {
         ));
     }
 
-    public void addSlider(GuiNumberOption<Double> option) {
+    public void addSlider(GuiNumberSlider<Double> option) {
 
         GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
             @Override
@@ -49,7 +52,7 @@ public class GuiOptionsList {
                 -index-1,
                 x, y + index * (buttonHeight + buttonMarginTop),
                 option.name,
-                option.from.floatValue(), option.to.floatValue(),
+                option.getFrom().floatValue(), option.getTo().floatValue(),
                 option.get().floatValue(),
                 helper
         );
@@ -70,9 +73,9 @@ public class GuiOptionsList {
 
     private static class GuiOptionButton<T> extends GuiButton {
 
-        protected final GuiOption<T> option;
+        protected final GuiToggleable<T> option;
 
-        public GuiOptionButton(int buttonId, int x, int y, int width, int height, GuiOption<T> option) {
+        public GuiOptionButton(int buttonId, int x, int y, int width, int height, GuiToggleable<T> option) {
             super(buttonId, x, y, width, height, "");
             this.option = option;
             this.updateDisplayString(option.get());

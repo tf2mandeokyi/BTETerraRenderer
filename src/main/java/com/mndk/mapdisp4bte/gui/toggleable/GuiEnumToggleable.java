@@ -1,15 +1,15 @@
-package com.mndk.mapdisp4bte.gui.option;
+package com.mndk.mapdisp4bte.gui.toggleable;
 
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class GuiEnumOption<T extends TranslatableEnum<T>> extends GuiOption<T> {
+public class GuiEnumToggleable<T extends TranslatableEnum<T>> extends GuiToggleable<T> {
 
     private final T[] list;
 
-    public GuiEnumOption(Supplier<T> getter, Consumer<T> setter, T[] list, String name) {
+    public GuiEnumToggleable(Supplier<T> getter, Consumer<T> setter, T[] list, String name) {
         super(getter, setter, null, null, true, name);
         this.list = list;
     }
