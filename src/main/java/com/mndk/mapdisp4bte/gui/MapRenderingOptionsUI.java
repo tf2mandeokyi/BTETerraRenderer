@@ -2,11 +2,10 @@ package com.mndk.mapdisp4bte.gui;
 
 import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.ModReference;
+import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.gui.slider.GuiNumberSlider;
 import com.mndk.mapdisp4bte.gui.toggleable.GuiBooleanToggleable;
 import com.mndk.mapdisp4bte.gui.toggleable.GuiEnumToggleable;
-import com.mndk.mapdisp4bte.gui.toggleable.GuiNumberToggleable;
-import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.Minecraft;
@@ -63,42 +62,13 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         super.initGui();
 
-        this.optionsList = new GuiOptionsList(this,
-                SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), OPTIONS_LIST_TOP_MARGIN,
-                BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN
-        );
+        this.setupOptionsList();
+        this.addOtherButtons();
+    }
 
-        this.optionsList.addToggleable(new GuiBooleanToggleable(
-                () -> ModConfig.drawTiles, (b) -> ModConfig.drawTiles = b,
-                I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
-        ));
 
-        this.optionsList.addToggleable(new GuiEnumToggleable<>(
-                () -> RenderMapType.valueOf(ModConfig.mapType), (e) -> ModConfig.mapType = e.toString(),
-                RenderMapType.values(), I18n.format("gui.mapdisp4bte.maprenderer.map_type")
-        ));
 
-        this.optionsList.addToggleable(new GuiEnumToggleable<>(
-                () -> RenderMapSource.valueOf(ModConfig.mapSource), (e) -> ModConfig.mapSource = e.toString(),
-                RenderMapSource.values(), I18n.format("gui.mapdisp4bte.maprenderer.map_source")
-        ));
-
-        this.optionsList.addSlider(new GuiNumberSlider<>(
-                () -> ModConfig.yLevel, (n) -> ModConfig.yLevel = n,
-                0., 256.,
-                I18n.format("gui.mapdisp4bte.maprenderer.map_y_level")
-        ));
-
-        this.optionsList.addSlider(new GuiNumberSlider<>(
-                () -> ModConfig.opacity, (n) -> ModConfig.opacity = n,
-                0., 1.,
-                I18n.format("gui.mapdisp4bte.maprenderer.opacity")
-        ));
-
-        for(GuiButton button : optionsList.buttons) {
-            this.addButton(button);
-        }
-
+    private void addOtherButtons() {
         this.addButton(doneButton = new GuiButton(
                 0,
                 SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), this.height - DONE_BUTTON_BOTTOM_MARGIN,
@@ -123,6 +93,48 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 ALIGNMENT_RESET_BUTTON_HEIGHT,
                 I18n.format("gui.mapdisp4bte.maprenderer.z_align_reset")
         ));
+    }
+
+
+
+    private void setupOptionsList() {
+        this.optionsList = new GuiOptionsList(this,
+                SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), OPTIONS_LIST_TOP_MARGIN,
+                BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN
+        );
+
+        this.optionsList.addToggleable(new GuiBooleanToggleable(
+                () -> ModConfig.drawTiles, (b) -> ModConfig.drawTiles = b,
+                I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
+        ));
+
+        this.optionsList.addToggleable(new GuiEnumToggleable<>(
+                () -> RenderMapType.valueOf(ModConfig.mapType), (e) -> ModConfig.mapType = e.toString(),
+                RenderMapType.values(),
+                I18n.format("gui.mapdisp4bte.maprenderer.map_type")
+        ));
+
+        this.optionsList.addToggleable(new GuiEnumToggleable<>(
+                () -> RenderMapSource.valueOf(ModConfig.mapSource), (e) -> ModConfig.mapSource = e.toString(),
+                RenderMapSource.values(),
+                I18n.format("gui.mapdisp4bte.maprenderer.map_source")
+        ));
+
+        this.optionsList.addSlider(new GuiNumberSlider<>(
+                () -> ModConfig.yLevel, (n) -> ModConfig.yLevel = n,
+                0., 256.,
+                I18n.format("gui.mapdisp4bte.maprenderer.map_y_level")
+        ));
+
+        this.optionsList.addSlider(new GuiNumberSlider<>(
+                () -> ModConfig.opacity, (n) -> ModConfig.opacity = n,
+                0., 1.,
+                I18n.format("gui.mapdisp4bte.maprenderer.opacity")
+        ));
+
+        for(GuiButton button : optionsList.buttons) {
+            this.addButton(button);
+        }
     }
 
 
