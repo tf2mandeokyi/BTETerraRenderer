@@ -3,13 +3,13 @@ package com.mndk.mapdisp4bte.map.osm;
 import com.mndk.mapdisp4bte.ModReference;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
-import com.mndk.mapdisp4bte.map.mercator.MercatorMapRenderer;
+import com.mndk.mapdisp4bte.map.mercator.MercatorMapManager;
 
 import java.net.URLConnection;
 
-public class OpenStreetMapRenderer extends MercatorMapRenderer {
+public class OpenStreetMapManager extends MercatorMapManager {
 
-    public OpenStreetMapRenderer() {
+    public OpenStreetMapManager() {
         super(RenderMapSource.OSM,
                 "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -17,12 +17,12 @@ public class OpenStreetMapRenderer extends MercatorMapRenderer {
     }
 
     private static int domain_num = 0;
-    private static final char[] asdf = {'a', 'b', 'c'};
+    private static final char[] randomChars = {'a', 'b', 'c'};
 
     @Override
     protected String getRandom() {
         domain_num = domain_num >= 2 ? 0 : domain_num + 1;
-        return asdf[domain_num] + "";
+        return randomChars[domain_num] + "";
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.mndk.mapdisp4bte.renderer;
 
 import com.mndk.mapdisp4bte.ModConfig;
-import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
+import com.mndk.mapdisp4bte.map.ExternalMapManager;
 import com.mndk.mapdisp4bte.map.MapTileCache;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.Tessellator;
 
 public class MapTileRenderer {
 
-    public static void renderTiles(ExternalMapRenderer renderer, double px, double py, double pz) {
+    public static void renderTiles(ExternalMapManager renderer, double px, double py, double pz) {
         Tessellator t = Tessellator.getInstance();
         BufferBuilder builder = t.getBuffer();
 

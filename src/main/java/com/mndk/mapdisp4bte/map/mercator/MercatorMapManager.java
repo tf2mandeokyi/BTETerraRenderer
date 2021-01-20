@@ -1,13 +1,12 @@
 package com.mndk.mapdisp4bte.map.mercator;
 
-import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
+import com.mndk.mapdisp4bte.map.ExternalMapManager;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
-import com.mndk.mapdisp4bte.map.tmap.TMapRenderer;
 import com.mndk.mapdisp4bte.projection.Projections;
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public class MercatorMapRenderer extends ExternalMapRenderer {
+public class MercatorMapManager extends ExternalMapManager {
 
 
     private final String plainMapTemplate, aerialTemplate;
@@ -24,7 +23,7 @@ public class MercatorMapRenderer extends ExternalMapRenderer {
     };
 
 
-    public MercatorMapRenderer(RenderMapSource source, String plainMapTemplate, String aerialTemplate, int maximumDownloadThreads) {
+    public MercatorMapManager(RenderMapSource source, String plainMapTemplate, String aerialTemplate, int maximumDownloadThreads) {
         super(source, maximumDownloadThreads);
         this.plainMapTemplate = plainMapTemplate;
         this.aerialTemplate = aerialTemplate;
@@ -67,25 +66,5 @@ public class MercatorMapRenderer extends ExternalMapRenderer {
                 .replace("{z}", zoom + "")
                 .replace("{x}", tileX + "")
                 .replace("{y}", tileY + "");
-    }
-
-
-    public static void main(String[] args) throws Throwable {
-        double x = 12444462.968534665, z = -7655289.338730685;
-        /*BufferedImage image;
-
-        image = new OpenStreetMapRenderer()
-                .fetchMapSync(x, z, 0, 0, 0, RenderMapType.PLAIN_MAP);
-        ImageIO.write(image, "png", new File("a.png"));
-        image = new TMapRenderer()
-                .fetchMapSync(x, z, 0, 0, 0, RenderMapType.PLAIN_MAP);
-        ImageIO.write(image, "png", new File("b.png"));*/
-        int[] tile = new TMapRenderer().playerPositionToTileCoord(x, z, 0);
-
-        System.out.println(tile[0] + ", " + tile[1]);
-
-        double[] a = new TMapRenderer().tileCoordToPlayerPosition(tile[0], tile[1], 0);
-
-        System.out.println(a[0] + ", " + a[1]);
     }
 }

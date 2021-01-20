@@ -14,12 +14,12 @@ import java.net.URLConnection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class ExternalMapRenderer {
+public abstract class ExternalMapManager {
 
     private final RenderMapSource source;
     private final ExecutorService donwloadExecutor;
 
-    public ExternalMapRenderer(RenderMapSource source, int maximumDownloadThreads) {
+    public ExternalMapManager(RenderMapSource source, int maximumDownloadThreads) {
         this.source = source;
         this.donwloadExecutor = Executors.newFixedThreadPool(maximumDownloadThreads);
     }

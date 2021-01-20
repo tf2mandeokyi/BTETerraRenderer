@@ -12,9 +12,9 @@ public class MapTileCache {
 
 
     public static final MapTileCache instance = new MapTileCache(1000 * 60 * 5, 100); // 5-minutes-span cache
-    private static boolean debug = false;
+    private static final boolean DEBUG = false;
     private static void log(String message) {
-        if(debug) MapDisplayer4BTE.logger.info(message);
+        if(DEBUG) MapDisplayer4BTE.logger.info(message);
     }
 
 

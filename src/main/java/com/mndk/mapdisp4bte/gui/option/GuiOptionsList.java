@@ -61,8 +61,8 @@ public class GuiOptionsList {
 
     public void actionPerformed(GuiButton button) {
         for(GuiButton comp : this.buttons) {
-            if(comp instanceof GuiOptionButton) {
-                GuiOptionButton b = (GuiOptionButton) comp;
+            if(comp instanceof GuiOptionButton<?>) {
+                GuiOptionButton<?> b = (GuiOptionButton<?>) comp;
                 if(b == button && b.option.isButton) b.toggle();
             }
         }

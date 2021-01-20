@@ -1,11 +1,11 @@
 package com.mndk.mapdisp4bte.map.naver;
 
 import com.mndk.mapdisp4bte.map.RenderMapSource;
-import com.mndk.mapdisp4bte.map.mercator.MercatorMapRenderer;
+import com.mndk.mapdisp4bte.map.mercator.MercatorMapManager;
 
-public class NaverMapRenderer extends MercatorMapRenderer {
+public class NaverMapManager extends MercatorMapManager {
 
-    public NaverMapRenderer() {
+    public NaverMapManager() {
         super(RenderMapSource.NAVER,
                 "https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.lko",
                 "https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png?mt=bg.ol.ts.lko",

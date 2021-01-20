@@ -1,12 +1,12 @@
 package com.mndk.mapdisp4bte.map.tmap;
 
 import com.mndk.mapdisp4bte.map.RenderMapSource;
-import com.mndk.mapdisp4bte.map.mercator.MercatorMapRenderer;
+import com.mndk.mapdisp4bte.map.mercator.MercatorMapManager;
 import com.mndk.mapdisp4bte.map.mercator.MercatorTileConverter;
 import com.mndk.mapdisp4bte.projection.Projections;
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public class TMapRenderer extends MercatorMapRenderer {
+public class TMapManager extends MercatorMapManager {
 
     private static final int[][] CORNERS = {
             {0, 1, 0, 0}, // top left
@@ -20,7 +20,7 @@ public class TMapRenderer extends MercatorMapRenderer {
         return CORNERS[i];
     }
 
-    public TMapRenderer() {
+    public TMapManager() {
         super(RenderMapSource.TMAP,
                 "https://topopentile2.tmap.co.kr/tms/1.0.0/hd_tile/{z}/{x}/{y}.png",
                 "https://topopentile2.tmap.co.kr/tms/1.0.0/hd_tile/{z}/{x}/{y}.png", // TODO figure this out

@@ -2,15 +2,13 @@ package com.mndk.mapdisp4bte.map.bing;
 
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
-import com.mndk.mapdisp4bte.map.mercator.MercatorMapRenderer;
+import com.mndk.mapdisp4bte.map.mercator.MercatorMapManager;
 
-public class BingMapRenderer extends MercatorMapRenderer {
+public class BingMapManager extends MercatorMapManager {
     private static final String plainMapTemplate = "https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill";
     private static final String aerialTemplate = "https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill";
 
-    public BingMapRenderer() {
-        super(RenderMapSource.BING, plainMapTemplate, aerialTemplate, 2);
-    }
+    public BingMapManager() { super(RenderMapSource.BING, plainMapTemplate, aerialTemplate, 2); }
 
     @Override
     public String getUrlTemplate(int tileX, int tileY, int zoom, RenderMapType type) {

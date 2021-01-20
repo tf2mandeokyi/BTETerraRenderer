@@ -1,6 +1,6 @@
 /* This code is from https://hyosang82.tistory.com/269 */
 
-package com.mndk.mapdisp4bte.projection.wtm;
+package com.mndk.mapdisp4bte.projection;
 
 import copy.io.github.terra121.projection.GeographicProjection;
 

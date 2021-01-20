@@ -1,12 +1,12 @@
 package com.mndk.mapdisp4bte.map.kakao;
 
-import com.mndk.mapdisp4bte.map.ExternalMapRenderer;
+import com.mndk.mapdisp4bte.map.ExternalMapManager;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import com.mndk.mapdisp4bte.projection.Projections;
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public class KakaoMapRenderer extends ExternalMapRenderer {
+public class KakaoMapManager extends ExternalMapManager {
 
     private static final int[][] CORNERS = {
             {0, 1, 0, 0}, // top left
@@ -17,7 +17,7 @@ public class KakaoMapRenderer extends ExternalMapRenderer {
 
 
 
-    public KakaoMapRenderer() {
+    public KakaoMapManager() {
         super(RenderMapSource.KAKAO, 2);
     }
 
