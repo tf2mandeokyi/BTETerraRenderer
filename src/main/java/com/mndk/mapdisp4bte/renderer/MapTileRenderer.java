@@ -2,7 +2,6 @@ package com.mndk.mapdisp4bte.renderer;
 
 import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.map.ExternalMapManager;
-import com.mndk.mapdisp4bte.map.MapTileCache;
 import com.mndk.mapdisp4bte.map.MapTileManager;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -33,7 +32,7 @@ public class MapTileRenderer {
                     renderer.renderTile(
                             t, builder,
                             level, type,
-                            ModConfig.yLevel, (float) ModConfig.opacity,
+                            ModConfig.yLevel + 0.1, (float) ModConfig.opacity, // Adding .1 to y because rendering issue
                             px+ModConfig.xAlign, py, pz+ModConfig.zAlign,
                             x, y
                     );

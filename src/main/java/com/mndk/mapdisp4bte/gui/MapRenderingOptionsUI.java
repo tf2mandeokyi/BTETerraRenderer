@@ -2,13 +2,14 @@ package com.mndk.mapdisp4bte.gui;
 
 import com.mndk.mapdisp4bte.ModConfig;
 import com.mndk.mapdisp4bte.ModReference;
-import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
+import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiBooleanToggleable;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiEnumToggleable;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -30,7 +31,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
     private static final int BUTTON_HEIGHT = 20;
     private static final int DONE_BUTTON_BOTTOM_MARGIN = 26;
 
-    private static final int SETTINGS_CENTER_X = 150;
+    private static final int SETTINGS_CENTER_X = 170;
 
     private static final int ALIGNMENT_IMAGE_MARGIN_BOTTOM = 20;
     private static final int ALIGNMENT_IMAGE_MARGIN_RIGHT = 20;
@@ -64,6 +65,118 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         this.setupOptionsList();
         this.addOtherButtons();
+    }
+
+
+
+    @Override
+    protected void actionPerformed(GuiButton button) {
+        if(button == doneButton) { // Done button
+            Minecraft.getMinecraft().player.closeScreen();
+        }
+        else if(button == xAlignResetButton) {
+            ModConfig.xAlign = 0;
+        }
+        else if(button == zAlignResetButton) {
+            ModConfig.zAlign = 0;
+        }
+        optionsList.actionPerformed(button);
+    }
+
+
+
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        this.optionsList.updateScreen();
+    }
+
+
+
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        this.drawCenteredString(
+                this.fontRenderer, I18n.format("gui.mapdisp4bte.maprenderer.title"),
+                SETTINGS_CENTER_X, TITLE_HEIGHT, 0xFFFFFF
+        );
+
+        this.optionsList.drawScreen(mouseX, mouseY, partialTicks);
+
+        this.drawAlignmentImage();
+
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+
+
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+
+
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        if(this.mouseClickedInAlignmentImage = this.isMouseInAlignmentImage(mouseX, mouseY)) {
+            mouseXYToXZAlign(mouseX, mouseY);
+        }
+        this.optionsList.mouseClicked(mouseX, mouseY, mouseButton);
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        super.keyTyped(typedChar, keyCode);
+        this.optionsList.keyTyped(typedChar, keyCode);
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+        if(mouseClickedInAlignmentImage) {
+            if(this.isMouseInAlignmentImage(mouseX, mouseY)) {
+                mouseXYToXZAlign(mouseX, mouseY);
+            }
+        }
+    }
+
+
+
+    private boolean isMouseInAlignmentImage(int mouseX, int mouseY) {
+        return mouseX >= this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH &&
+               mouseX <= this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT &&
+               mouseY >= this.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT &&
+               mouseY <= this.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
+    }
+
+
+
+    private void mouseXYToXZAlign(int mouseX, int mouseY) {
+        int x1 = mouseX - this.width + ALIGNMENT_IMAGE_MARGIN_RIGHT + ALIGNMENT_IMAGE_WIDTH,
+                y1 = mouseY - this.height + ALIGNMENT_IMAGE_MARGIN_BOTTOM + ALIGNMENT_IMAGE_HEIGHT;
+        ModConfig.xAlign = MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH;
+        ModConfig.zAlign = MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT;
+    }
+
+
+
+    private void drawImage(int x, int y, int w, int h) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos(x, y+h, this.zLevel).tex(0, 1).endVertex();
+        bufferbuilder.pos(x+w, y+h, this.zLevel).tex(1, 1).endVertex();
+        bufferbuilder.pos(x+w, y, this.zLevel).tex(1, 0).endVertex();
+        bufferbuilder.pos(x, y, this.zLevel).tex(0, 0).endVertex();
+        tessellator.draw();
+    }
+
+
+
+    private void drawCenteredImage(int x, int y, int w, int h) {
+        this.drawImage(x - w/2, y - h/2, w, h);
     }
 
 
@@ -103,28 +216,28 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN
         );
 
-        this.optionsList.addToggleable(new GuiBooleanToggleable(
+        this.optionsList.addToggleableButton(new GuiBooleanToggleable(
                 () -> ModConfig.drawTiles, (b) -> ModConfig.drawTiles = b,
                 I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
         ));
 
-        this.optionsList.addToggleable(new GuiEnumToggleable<>(
+        this.optionsList.addToggleableButton(new GuiEnumToggleable<>(
                 () -> RenderMapType.valueOf(ModConfig.mapType), (e) -> ModConfig.mapType = e.toString(),
                 RenderMapType.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_type")
         ));
 
-        this.optionsList.addToggleable(new GuiEnumToggleable<>(
+        this.optionsList.addToggleableButton(new GuiEnumToggleable<>(
                 () -> RenderMapSource.valueOf(ModConfig.mapSource), (e) -> ModConfig.mapSource = e.toString(),
                 RenderMapSource.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")
         ));
 
-        this.optionsList.addSlider(new GuiNumberOption<>(
+        this.optionsList.addNumberInput(new GuiNumberOption<>(
                 () -> ModConfig.yLevel, (n) -> ModConfig.yLevel = n,
-                0., 256.,
-                I18n.format("gui.mapdisp4bte.maprenderer.map_y_level")
-        ));
+                -100000.0, 100000.0,
+                I18n.format("gui.mapdisp4bte.maprenderer.map_y_level") + ": "
+        ), this.fontRenderer);
 
         this.optionsList.addSlider(new GuiNumberOption<>(
                 () -> ModConfig.opacity, (n) -> ModConfig.opacity = n,
@@ -132,39 +245,11 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")
         ));
 
-        for(GuiButton button : optionsList.buttons) {
-            this.addButton(button);
+        for(Gui component : optionsList.components) {
+            if(component instanceof GuiButton) {
+                this.addButton((GuiButton) component);
+            }
         }
-    }
-
-
-
-    @Override
-    protected void actionPerformed(GuiButton button) {
-        if(button == doneButton) { // Done button
-            Minecraft.getMinecraft().player.closeScreen();
-        }
-        else if(button == xAlignResetButton) {
-            ModConfig.xAlign = 0;
-        }
-        else if(button == zAlignResetButton) {
-            ModConfig.zAlign = 0;
-        }
-        optionsList.actionPerformed(button);
-    }
-
-
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.drawCenteredString(
-                this.fontRenderer, I18n.format("gui.mapdisp4bte.maprenderer.title"),
-                SETTINGS_CENTER_X, TITLE_HEIGHT, 0xFFFFFF
-        );
-
-        this.drawAlignmentImage();
-
-        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
 
@@ -212,71 +297,6 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
         Minecraft.getMinecraft().renderEngine.bindTexture(ALIGNMENT_MARKER_RELOC);
         this.drawCenteredImage(marker_pos_x, marker_pos_y, 4, 4);
-    }
-
-
-
-    @Override
-    public boolean doesGuiPauseGame() {
-        return false;
-    }
-
-
-
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        if(this.mouseClickedInAlignmentImage = this.isMouseInAlignmentImage(mouseX, mouseY)) {
-            mouseXYToXZAlign(mouseX, mouseY);
-        }
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-    }
-
-
-
-    @Override
-    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-        if(mouseClickedInAlignmentImage) {
-            if(this.isMouseInAlignmentImage(mouseX, mouseY)) {
-                mouseXYToXZAlign(mouseX, mouseY);
-            }
-        }
-    }
-
-
-
-    private boolean isMouseInAlignmentImage(int mouseX, int mouseY) {
-        return mouseX >= this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH &&
-               mouseX <= this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT &&
-               mouseY >= this.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT &&
-               mouseY <= this.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
-    }
-
-
-
-    private void mouseXYToXZAlign(int mouseX, int mouseY) {
-        int x1 = mouseX - this.width + ALIGNMENT_IMAGE_MARGIN_RIGHT + ALIGNMENT_IMAGE_WIDTH,
-                y1 = mouseY - this.height + ALIGNMENT_IMAGE_MARGIN_BOTTOM + ALIGNMENT_IMAGE_HEIGHT;
-        ModConfig.xAlign = MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH;
-        ModConfig.zAlign = MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT;
-    }
-
-
-
-    private void drawImage(int x, int y, int w, int h) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, y+h, this.zLevel).tex(0, 1).endVertex();
-        bufferbuilder.pos(x+w, y+h, this.zLevel).tex(1, 1).endVertex();
-        bufferbuilder.pos(x+w, y, this.zLevel).tex(1, 0).endVertex();
-        bufferbuilder.pos(x, y, this.zLevel).tex(0, 0).endVertex();
-        tessellator.draw();
-    }
-
-
-
-    private void drawCenteredImage(int x, int y, int w, int h) {
-        this.drawImage(x - w/2, y - h/2, w, h);
     }
 
 
