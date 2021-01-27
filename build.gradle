@@ -14,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.01.2'
+version = '1.01.3'
 group = 'com.mndk.mapdisp4bte' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'mapdisp4bte'
 
