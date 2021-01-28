@@ -5,4 +5,4 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency_name: "forge"
+      - dependency-name: "forge"
