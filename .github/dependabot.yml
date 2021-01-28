@@ -1,8 +1,10 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
+    # path to build.gradle
     directory: "/"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency_name: "forge"
+    ignored_updates:
+      - match:
+          dependency_name: "forge"
