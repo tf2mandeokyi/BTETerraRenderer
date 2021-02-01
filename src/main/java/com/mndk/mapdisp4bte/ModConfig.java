@@ -2,7 +2,7 @@ package com.mndk.mapdisp4bte;
 
 import net.minecraftforge.common.config.Config;
 
-@Config(modid = ModReference.MODID, type = Config.Type.INSTANCE, category = "general")
+@Config(modid = MapDisplayer4BTE.MODID, type = Config.Type.INSTANCE, category = "general")
 public class ModConfig {
 
 

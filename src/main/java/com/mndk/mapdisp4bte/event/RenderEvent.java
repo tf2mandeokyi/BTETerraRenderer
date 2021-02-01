@@ -1,7 +1,7 @@
 package com.mndk.mapdisp4bte.event;
 
+import com.mndk.mapdisp4bte.MapDisplayer4BTE;
 import com.mndk.mapdisp4bte.ModConfig;
-import com.mndk.mapdisp4bte.ModReference;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod.EventBusSubscriber(modid = ModReference.MODID, value = Side.CLIENT)
+@Mod.EventBusSubscriber(modid = MapDisplayer4BTE.MODID, value = Side.CLIENT)
 public class RenderEvent {
 
 

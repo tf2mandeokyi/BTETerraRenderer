@@ -1,6 +1,6 @@
 package com.mndk.mapdisp4bte.map.osm;
 
-import com.mndk.mapdisp4bte.ModReference;
+import com.mndk.mapdisp4bte.MapDisplayer4BTE;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import com.mndk.mapdisp4bte.map.mercator.MercatorMapManager;
@@ -32,7 +32,7 @@ public class OpenStreetMapManager extends MercatorMapManager {
 
         if(result == null) return null;
 
-        result.setRequestProperty("User-Agent", ModReference.MODID + "/" + ModReference.VERSION + " Java/1.8");
+        result.setRequestProperty("User-Agent", MapDisplayer4BTE.MODID + "/" + MapDisplayer4BTE.VERSION + " Java/1.8");
         result.setUseCaches(true);
 
         return result;

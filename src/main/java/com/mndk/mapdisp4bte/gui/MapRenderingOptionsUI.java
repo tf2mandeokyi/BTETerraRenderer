@@ -1,7 +1,7 @@
 package com.mndk.mapdisp4bte.gui;
 
+import com.mndk.mapdisp4bte.MapDisplayer4BTE;
 import com.mndk.mapdisp4bte.ModConfig;
-import com.mndk.mapdisp4bte.ModReference;
 import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiBooleanToggleable;
@@ -49,9 +49,9 @@ public class MapRenderingOptionsUI extends GuiScreen {
     GuiOptionsList optionsList;
 
     private static final ResourceLocation ALIGNMENT_IMAGE_RELOC =
-            new ResourceLocation(ModReference.MODID, "textures/ui/alignment_image.png");
+            new ResourceLocation(MapDisplayer4BTE.MODID, "textures/ui/alignment_image.png");
     private static final ResourceLocation ALIGNMENT_MARKER_RELOC =
-            new ResourceLocation(ModReference.MODID, "textures/ui/alignment_marker.png");
+            new ResourceLocation(MapDisplayer4BTE.MODID, "textures/ui/alignment_marker.png");
 
     private boolean mouseClickedInAlignmentImage = false;
 
