@@ -30,8 +30,7 @@ public class ConfigHandler {
 
     public static void saveDefaultFile() throws IOException {
         FileWriter writer = new FileWriter(fileLocation);
-        YAML.dump(new ModConfig(), writer);
-        writer.close();
+        new ModConfig().saveTo(YAML, writer);
     }
 
     public static void saveConfig() throws IOException {

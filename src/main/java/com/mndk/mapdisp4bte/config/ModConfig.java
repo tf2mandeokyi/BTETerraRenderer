@@ -5,6 +5,7 @@ import com.mndk.mapdisp4bte.map.RenderMapType;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class ModConfig {
     }
 
 
-    public void saveTo(Yaml yaml, FileWriter fileWriter) {
+    public void saveTo(Yaml yaml, FileWriter fileWriter) throws IOException {
         Map<String, Object> map = new HashMap<>();
         map.put("align", new HashMap<String, Object>() {{
             put("x", align.x);
@@ -62,6 +63,7 @@ public class ModConfig {
         map.put("opacity", opacity);
 
         yaml.dump(map, fileWriter);
+        fileWriter.close();
     }
 
 
