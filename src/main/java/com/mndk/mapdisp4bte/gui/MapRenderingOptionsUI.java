@@ -1,7 +1,7 @@
 package com.mndk.mapdisp4bte.gui;
 
 import com.mndk.mapdisp4bte.MapDisplayer4BTE;
-import com.mndk.mapdisp4bte.ModConfig;
+import com.mndk.mapdisp4bte.config.ConfigHandler;
 import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiBooleanToggleable;
@@ -22,6 +22,8 @@ import org.lwjgl.opengl.GL11;
 import java.io.IOException;
 
 public class MapRenderingOptionsUI extends GuiScreen {
+
+
 
     private static final int TITLE_HEIGHT = 8;
     private static final int OPTIONS_LIST_TOP_MARGIN = 24;
@@ -75,10 +77,10 @@ public class MapRenderingOptionsUI extends GuiScreen {
             Minecraft.getMinecraft().player.closeScreen();
         }
         else if(button == xAlignResetButton) {
-            ModConfig.xAlign = 0;
+            ConfigHandler.getModConfig().setXAlign(0);
         }
         else if(button == zAlignResetButton) {
-            ModConfig.zAlign = 0;
+            ConfigHandler.getModConfig().setZAlign(0);
         }
         optionsList.actionPerformed(button);
     }
@@ -90,7 +92,6 @@ public class MapRenderingOptionsUI extends GuiScreen {
         super.updateScreen();
         this.optionsList.updateScreen();
     }
-
 
 
 
@@ -127,11 +128,14 @@ public class MapRenderingOptionsUI extends GuiScreen {
     }
 
 
+
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
         this.optionsList.keyTyped(typedChar, keyCode);
     }
+
+
 
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
@@ -156,8 +160,8 @@ public class MapRenderingOptionsUI extends GuiScreen {
     private void mouseXYToXZAlign(int mouseX, int mouseY) {
         int x1 = mouseX - this.width + ALIGNMENT_IMAGE_MARGIN_RIGHT + ALIGNMENT_IMAGE_WIDTH,
                 y1 = mouseY - this.height + ALIGNMENT_IMAGE_MARGIN_BOTTOM + ALIGNMENT_IMAGE_HEIGHT;
-        ModConfig.xAlign = MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH;
-        ModConfig.zAlign = MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT;
+        ConfigHandler.getModConfig().setXAlign(MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH);
+        ConfigHandler.getModConfig().setZAlign(MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT);
     }
 
 
@@ -217,30 +221,30 @@ public class MapRenderingOptionsUI extends GuiScreen {
         );
 
         this.optionsList.addToggleableButton(new GuiBooleanToggleable(
-                () -> ModConfig.drawTiles, (b) -> ModConfig.drawTiles = b,
+                ConfigHandler.getModConfig()::isDrawTiles, ConfigHandler.getModConfig()::setDrawTiles,
                 I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
         ));
 
         this.optionsList.addToggleableButton(new GuiEnumToggleable<>(
-                () -> RenderMapType.valueOf(ModConfig.mapType), (e) -> ModConfig.mapType = e.toString(),
+                ConfigHandler.getModConfig()::getMapType, ConfigHandler.getModConfig()::setMapType,
                 RenderMapType.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_type")
         ));
 
         this.optionsList.addToggleableButton(new GuiEnumToggleable<>(
-                () -> RenderMapSource.valueOf(ModConfig.mapSource), (e) -> ModConfig.mapSource = e.toString(),
+                ConfigHandler.getModConfig()::getMapSource, ConfigHandler.getModConfig()::setMapSource,
                 RenderMapSource.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")
         ));
 
         this.optionsList.addNumberInput(new GuiNumberOption<>(
-                () -> ModConfig.yLevel, (n) -> ModConfig.yLevel = n,
+                ConfigHandler.getModConfig()::getYLevel, ConfigHandler.getModConfig()::setYLevel,
                 -100000.0, 100000.0,
                 I18n.format("gui.mapdisp4bte.maprenderer.map_y_level") + ": "
         ), this.fontRenderer);
 
         this.optionsList.addSlider(new GuiNumberOption<>(
-                () -> ModConfig.opacity, (n) -> ModConfig.opacity = n,
+                ConfigHandler.getModConfig()::getOpacity, ConfigHandler.getModConfig()::setOpacity,
                 0., 1.,
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")
         ));
@@ -254,9 +258,21 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
 
 
+    @Override
+    public void onGuiClosed() {
+        try {
+            ConfigHandler.saveConfig(); // TODO move this to somewhere else
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onGuiClosed();
+    }
+
+
+
     private void drawAlignmentImage() {
-        String xAlignString = I18n.format("gui.mapdisp4bte.maprenderer.x_align") + ": " + ModConfig.xAlign + "m";
-        String zAlignString = I18n.format("gui.mapdisp4bte.maprenderer.z_align") + ": " + ModConfig.zAlign + "m";
+        String xAlignString = I18n.format("gui.mapdisp4bte.maprenderer.x_align") + ": " + ConfigHandler.getModConfig().getXAlign() + "m";
+        String zAlignString = I18n.format("gui.mapdisp4bte.maprenderer.z_align") + ": " + ConfigHandler.getModConfig().getZAlign() + "m";
 
         int imageRight = this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT, imageLeft = imageRight - ALIGNMENT_IMAGE_WIDTH;
         int imageBottom = this.height - ALIGNMENT_IMAGE_HEIGHT, imageTop = imageBottom - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
@@ -289,8 +305,8 @@ public class MapRenderingOptionsUI extends GuiScreen {
         this.drawImage(imageLeft, imageTop, ALIGNMENT_IMAGE_WIDTH, ALIGNMENT_IMAGE_HEIGHT);
 
         // Alignment marker
-        double x1 = - ALIGNMENT_IMAGE_WIDTH * (ModConfig.xAlign - MAX_IMAGE_ALIGNMENT_VALUE) / IMAGE_ALIGNMENT_VALUE_RANGE,
-                y1 = - ALIGNMENT_IMAGE_HEIGHT * (ModConfig.zAlign - MAX_IMAGE_ALIGNMENT_VALUE) / IMAGE_ALIGNMENT_VALUE_RANGE;
+        double x1 = - ALIGNMENT_IMAGE_WIDTH * (ConfigHandler.getModConfig().getXAlign() - MAX_IMAGE_ALIGNMENT_VALUE) / IMAGE_ALIGNMENT_VALUE_RANGE,
+                y1 = - ALIGNMENT_IMAGE_HEIGHT * (ConfigHandler.getModConfig().getZAlign() - MAX_IMAGE_ALIGNMENT_VALUE) / IMAGE_ALIGNMENT_VALUE_RANGE;
         int marker_pos_x = (int) (x1 + this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH),
                 marker_pos_y = (int) (y1 + this.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT);
 

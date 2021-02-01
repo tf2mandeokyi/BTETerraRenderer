@@ -1,6 +1,7 @@
 package com.mndk.mapdisp4bte.renderer;
 
-import com.mndk.mapdisp4bte.ModConfig;
+import com.mndk.mapdisp4bte.config.ConfigHandler;
+import com.mndk.mapdisp4bte.config.ModConfig;
 import com.mndk.mapdisp4bte.map.ExternalMapManager;
 import com.mndk.mapdisp4bte.map.MapTileManager;
 import com.mndk.mapdisp4bte.map.RenderMapType;
@@ -23,8 +24,10 @@ public class MapTileRenderer {
 
         int level = 0;
 
+        ModConfig config = ConfigHandler.getModConfig();
+
         try {
-            RenderMapType type = RenderMapType.valueOf(ModConfig.mapType);
+            RenderMapType type = config.getMapType();
 
             // Iterate tiles around player
             for (int y = -2; y <= 2; y++)
@@ -32,8 +35,8 @@ public class MapTileRenderer {
                     renderer.renderTile(
                             t, builder,
                             level, type,
-                            ModConfig.yLevel + 0.1, (float) ModConfig.opacity, // Adding .1 to y because rendering issue
-                            px+ModConfig.xAlign, py, pz+ModConfig.zAlign,
+                            config.getYLevel() + 0.1, (float) config.getOpacity(), // Adding .1 to y because rendering issue
+                            px+config.getXAlign(), py, pz+config.getZAlign(),
                             x, y
                     );
                 }

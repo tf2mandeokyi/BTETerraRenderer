@@ -1,8 +1,7 @@
 package com.mndk.mapdisp4bte.event;
 
 import com.mndk.mapdisp4bte.MapDisplayer4BTE;
-import com.mndk.mapdisp4bte.ModConfig;
-import com.mndk.mapdisp4bte.map.RenderMapSource;
+import com.mndk.mapdisp4bte.config.ConfigHandler;
 import com.mndk.mapdisp4bte.renderer.MapTileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,9 +27,9 @@ public class RenderEvent {
         final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
         final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-        if(ModConfig.drawTiles) {
+        if(ConfigHandler.getModConfig().isDrawTiles()) {
             try {
-                MapTileRenderer.renderTiles(RenderMapSource.valueOf(ModConfig.mapSource).getMapRenderer(), px, py, pz);
+                MapTileRenderer.renderTiles(ConfigHandler.getModConfig().getMapSource().getMapRenderer(), px, py, pz);
             } catch(IllegalArgumentException exception) {
                 exception.printStackTrace();
             }

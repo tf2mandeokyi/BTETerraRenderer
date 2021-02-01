@@ -1,5 +1,6 @@
 package com.mndk.mapdisp4bte.proxy;
 
+import com.mndk.mapdisp4bte.config.ConfigHandler;
 import com.mndk.mapdisp4bte.event.KeyEvent;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -7,6 +8,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.lwjgl.input.Keyboard;
+
+import java.io.IOException;
 
 public class ClientProxy extends CommonProxy {
 
@@ -29,6 +32,11 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         initializeKeys();
+        try {
+            ConfigHandler.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         MinecraftForge.EVENT_BUS.register(KeyEvent.class);
     }
 }
