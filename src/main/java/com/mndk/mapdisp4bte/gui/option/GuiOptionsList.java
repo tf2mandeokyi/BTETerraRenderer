@@ -1,8 +1,12 @@
 package com.mndk.mapdisp4bte.gui.option;
 
+import com.mndk.mapdisp4bte.gui.GuiEnumSelectionUi;
 import com.mndk.mapdisp4bte.gui.option.input.GuiNumberOptionInput;
+import com.mndk.mapdisp4bte.gui.option.toggleable.GuiEnumToggleable;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleable;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleableButton;
+import com.mndk.mapdisp4bte.util.TranslatableEnum;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 
 import java.util.ArrayList;
@@ -34,6 +38,17 @@ public class GuiOptionsList {
                 x, y + index * (buttonHeight + buttonMarginTop),
                 width, buttonHeight,
                 option
+        ));
+    }
+
+
+    public <T extends TranslatableEnum<T>> void addSelectionUiButton(GuiEnumToggleable<T> option, String buttonText) {
+        int index = components.size();
+        this.components.add(new GuiSelectionUiButton<>(
+                -index - 1,
+                x, y + index * (buttonHeight + buttonMarginTop),
+                width, buttonHeight,
+                buttonText, option
         ));
     }
 
@@ -96,6 +111,10 @@ public class GuiOptionsList {
                 GuiToggleableButton<?> b = (GuiToggleableButton<?>) component;
                 if (b == button && b.option.isButton) b.toggle();
             }
+            else if(component instanceof GuiSelectionUiButton<?>) {
+                GuiSelectionUiButton<?> b = (GuiSelectionUiButton<?>) component;
+                if (b == button) Minecraft.getMinecraft().displayGuiScreen(b.getSelectionUi());
+            }
         }
     }
 
@@ -133,5 +152,21 @@ public class GuiOptionsList {
                 ((GuiTextField) component).mouseClicked(x, y, button);
             }
         }
+    }
+
+
+    public static class GuiSelectionUiButton<T extends TranslatableEnum<T>> extends GuiButton {
+
+        private final GuiEnumToggleable<T> option;
+
+        public GuiSelectionUiButton(int buttonId, int x, int y, int width, int height, String buttonText, GuiEnumToggleable<T> option) {
+            super(buttonId, x, y, width, height, buttonText);
+            this.option = option;
+        }
+
+        public GuiEnumSelectionUi<T> getSelectionUi() {
+            return new GuiEnumSelectionUi<>(this.option);
+        }
+
     }
 }

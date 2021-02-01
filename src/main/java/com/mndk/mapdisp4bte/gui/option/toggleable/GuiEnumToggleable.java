@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public class GuiEnumToggleable<T extends TranslatableEnum<T>> extends GuiToggleable<T> {
 
-    private final T[] list;
+    public final T[] list;
 
     public GuiEnumToggleable(Supplier<T> getter, Consumer<T> setter, T[] list, String name) {
         super(getter, setter, null, null, true, name);

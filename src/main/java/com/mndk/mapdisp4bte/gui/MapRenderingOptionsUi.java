@@ -12,16 +12,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 
-public class MapRenderingOptionsUI extends GuiScreen {
+public class MapRenderingOptionsUi extends GuiScreen {
 
 
 
@@ -61,8 +57,6 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
     @Override
     public void initGui() {
-        Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
-
         super.initGui();
 
         this.setupOptionsList();
@@ -166,25 +160,6 @@ public class MapRenderingOptionsUI extends GuiScreen {
 
 
 
-    private void drawImage(int x, int y, int w, int h) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, y+h, this.zLevel).tex(0, 1).endVertex();
-        bufferbuilder.pos(x+w, y+h, this.zLevel).tex(1, 1).endVertex();
-        bufferbuilder.pos(x+w, y, this.zLevel).tex(1, 0).endVertex();
-        bufferbuilder.pos(x, y, this.zLevel).tex(0, 0).endVertex();
-        tessellator.draw();
-    }
-
-
-
-    private void drawCenteredImage(int x, int y, int w, int h) {
-        this.drawImage(x - w/2, y - h/2, w, h);
-    }
-
-
-
     private void addOtherButtons() {
         this.addButton(doneButton = new GuiButton(
                 0,
@@ -231,11 +206,11 @@ public class MapRenderingOptionsUI extends GuiScreen {
                 I18n.format("gui.mapdisp4bte.maprenderer.map_type")
         ));
 
-        this.optionsList.addToggleableButton(new GuiEnumToggleable<>(
+        this.optionsList.addSelectionUiButton(new GuiEnumToggleable<>(
                 ConfigHandler.getModConfig()::getMapSource, ConfigHandler.getModConfig()::setMapSource,
                 RenderMapSource.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")
-        ));
+        ), I18n.format("gui.mapdisp4bte.maprenderer.map_source"));
 
         this.optionsList.addNumberInput(new GuiNumberOption<>(
                 ConfigHandler.getModConfig()::getYLevel, ConfigHandler.getModConfig()::setYLevel,
@@ -301,8 +276,9 @@ public class MapRenderingOptionsUI extends GuiScreen {
         );
 
         // Alignment image
-        Minecraft.getMinecraft().renderEngine.bindTexture(ALIGNMENT_IMAGE_RELOC);
-        this.drawImage(imageLeft, imageTop, ALIGNMENT_IMAGE_WIDTH, ALIGNMENT_IMAGE_HEIGHT);
+        ImageUiRenderer.drawImage(
+                ALIGNMENT_IMAGE_RELOC,
+                imageLeft, imageTop, this.zLevel, ALIGNMENT_IMAGE_WIDTH, ALIGNMENT_IMAGE_HEIGHT);
 
         // Alignment marker
         double x1 = - ALIGNMENT_IMAGE_WIDTH * (ConfigHandler.getModConfig().getXAlign() - MAX_IMAGE_ALIGNMENT_VALUE) / IMAGE_ALIGNMENT_VALUE_RANGE,
@@ -310,9 +286,10 @@ public class MapRenderingOptionsUI extends GuiScreen {
         int marker_pos_x = (int) (x1 + this.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH),
                 marker_pos_y = (int) (y1 + this.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT);
 
-
-        Minecraft.getMinecraft().renderEngine.bindTexture(ALIGNMENT_MARKER_RELOC);
-        this.drawCenteredImage(marker_pos_x, marker_pos_y, 4, 4);
+        // Alignment marker
+        ImageUiRenderer.drawCenteredImage(
+                ALIGNMENT_MARKER_RELOC,
+                marker_pos_x, marker_pos_y, this.zLevel, 4, 4);
     }
 
 
