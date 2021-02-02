@@ -8,6 +8,7 @@ gui.mapdisp4bte.maprenderer.map_type=Map Type
 gui.mapdisp4bte.maprenderer.map_source=Map Source
 gui.mapdisp4bte.maprenderer.map_y_level=Map Y Level
 gui.mapdisp4bte.maprenderer.opacity=Map Opacity
+gui.mapdisp4bte.maprenderer.change_map_source=Change Map Source...
 
 gui.mapdisp4bte.maprenderer.map_align=Map Alignment
 gui.mapdisp4bte.maprenderer.x_align=X Axis

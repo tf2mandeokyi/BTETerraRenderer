@@ -210,7 +210,7 @@ public class MapRenderingOptionsUi extends GuiScreen {
                 ConfigHandler.getModConfig()::getMapSource, ConfigHandler.getModConfig()::setMapSource,
                 RenderMapSource.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")
-        ), I18n.format("gui.mapdisp4bte.maprenderer.map_source"));
+        ), I18n.format("gui.mapdisp4bte.maprenderer.change_map_source"));
 
         this.optionsList.addNumberInput(new GuiNumberOption<>(
                 ConfigHandler.getModConfig()::getYLevel, ConfigHandler.getModConfig()::setYLevel,
