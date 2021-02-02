@@ -3,7 +3,7 @@ package com.mndk.mapdisp4bte.gui.option.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class ToggleableOption<T> {
+public abstract class ToggleableOption<T> extends TypeOption<T> {
 
     protected Supplier<T> getter;
     protected Consumer<T> setter;
@@ -12,8 +12,7 @@ public abstract class ToggleableOption<T> {
     public boolean isButton;
 
     public ToggleableOption(Supplier<T> getter, Consumer<T> setter, T from, T to, boolean isButton, String name) {
-        this.getter = getter; this.setter = setter;
-        this.name = name;
+        super(getter, setter, name);
         this.from = from; this.to = to;
         this.isButton = isButton;
     }
@@ -36,8 +35,4 @@ public abstract class ToggleableOption<T> {
     public String getStringOf(T value) {
         return value + "";
     }
-
-
-    public T get() { return getter.get(); }
-    public void set(T value) { setter.accept(value); }
 }
