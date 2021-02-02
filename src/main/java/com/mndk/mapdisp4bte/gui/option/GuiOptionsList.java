@@ -2,8 +2,9 @@ package com.mndk.mapdisp4bte.gui.option;
 
 import com.mndk.mapdisp4bte.gui.GuiEnumSelectionUi;
 import com.mndk.mapdisp4bte.gui.option.input.GuiNumberOptionInput;
-import com.mndk.mapdisp4bte.gui.option.toggleable.EnumOption;
-import com.mndk.mapdisp4bte.gui.option.toggleable.ToggleableOption;
+import com.mndk.mapdisp4bte.gui.option.types.EnumOption;
+import com.mndk.mapdisp4bte.gui.option.types.NumberOption;
+import com.mndk.mapdisp4bte.gui.option.types.ToggleableOption;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleableButton;
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 import net.minecraft.client.Minecraft;
@@ -53,7 +54,7 @@ public class GuiOptionsList {
     }
 
 
-    public void addSlider(GuiNumberOption<Double> option) {
+    public void addSlider(NumberOption<Double> option) {
 
         GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
             @Override
@@ -90,7 +91,7 @@ public class GuiOptionsList {
     }
 
 
-    public void addNumberInput(GuiNumberOption<Double> option, FontRenderer fontRenderer) {
+    public void addNumberInput(NumberOption<Double> option, FontRenderer fontRenderer) {
         int index = components.size();
 
         GuiNumberOptionInput input = new GuiNumberOptionInput(

@@ -1,17 +1,17 @@
 package com.mndk.mapdisp4bte.gui.option.input;
 
-import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
+import com.mndk.mapdisp4bte.gui.option.types.NumberOption;
 import com.mndk.mapdisp4bte.util.StringToNumber;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 
 public class GuiNumberOptionInput extends GuiTextField {
 
-    protected final GuiNumberOption<Double> option;
+    protected final NumberOption<Double> option;
     protected final FontRenderer fontRenderer;
     protected boolean numberValidated = true;
 
-    public GuiNumberOptionInput(int componentId, FontRenderer fontrenderer, int x, int y, int width, int height, GuiNumberOption<Double> option) {
+    public GuiNumberOptionInput(int componentId, FontRenderer fontrenderer, int x, int y, int width, int height, NumberOption<Double> option) {
         super(componentId, fontrenderer, x, y, width, height);
         this.option = option;
         this.setText(StringToNumber.formatNicely(option.get()));

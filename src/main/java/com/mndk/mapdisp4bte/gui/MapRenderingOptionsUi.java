@@ -2,10 +2,10 @@ package com.mndk.mapdisp4bte.gui;
 
 import com.mndk.mapdisp4bte.MapDisplayer4BTE;
 import com.mndk.mapdisp4bte.config.ConfigHandler;
-import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
+import com.mndk.mapdisp4bte.gui.option.types.NumberOption;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
-import com.mndk.mapdisp4bte.gui.option.toggleable.BooleanOption;
-import com.mndk.mapdisp4bte.gui.option.toggleable.EnumOption;
+import com.mndk.mapdisp4bte.gui.option.types.BooleanOption;
+import com.mndk.mapdisp4bte.gui.option.types.EnumOption;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.Minecraft;
@@ -212,13 +212,13 @@ public class MapRenderingOptionsUi extends GuiScreen {
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")
         ), I18n.format("gui.mapdisp4bte.maprenderer.change_map_source"));
 
-        this.optionsList.addNumberInput(new GuiNumberOption<>(
+        this.optionsList.addNumberInput(new NumberOption<>(
                 ConfigHandler.getModConfig()::getYLevel, ConfigHandler.getModConfig()::setYLevel,
                 -100000.0, 100000.0,
                 I18n.format("gui.mapdisp4bte.maprenderer.map_y_level") + ": "
         ), this.fontRenderer);
 
-        this.optionsList.addSlider(new GuiNumberOption<>(
+        this.optionsList.addSlider(new NumberOption<>(
                 ConfigHandler.getModConfig()::getOpacity, ConfigHandler.getModConfig()::setOpacity,
                 0., 1.,
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")

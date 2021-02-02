@@ -1,4 +1,4 @@
-package com.mndk.mapdisp4bte.gui.option.toggleable;
+package com.mndk.mapdisp4bte.gui.option.types;
 
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 

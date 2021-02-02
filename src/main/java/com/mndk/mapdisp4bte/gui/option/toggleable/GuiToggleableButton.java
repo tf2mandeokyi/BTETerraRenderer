@@ -1,5 +1,6 @@
 package com.mndk.mapdisp4bte.gui.option.toggleable;
 
+import com.mndk.mapdisp4bte.gui.option.types.ToggleableOption;
 import net.minecraft.client.gui.GuiButton;
 
 public class GuiToggleableButton<T> extends GuiButton {

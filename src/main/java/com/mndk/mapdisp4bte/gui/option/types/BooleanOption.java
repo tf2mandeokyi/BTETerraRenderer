@@ -1,4 +1,4 @@
-package com.mndk.mapdisp4bte.gui.option.toggleable;
+package com.mndk.mapdisp4bte.gui.option.types;
 
 import net.minecraft.client.resources.I18n;
 

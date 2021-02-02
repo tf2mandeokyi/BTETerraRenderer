@@ -1,16 +1,16 @@
-package com.mndk.mapdisp4bte.gui.option;
+package com.mndk.mapdisp4bte.gui.option.types;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class GuiNumberOption<T extends Number> {
+public class NumberOption<T extends Number> {
 
     public Supplier<T> getter;
     public Consumer<T> setter;
     protected T min, max;
     public String name;
 
-    public GuiNumberOption(Supplier<T> getter, Consumer<T> setter, T from, T to, String name) {
+    public NumberOption(Supplier<T> getter, Consumer<T> setter, T from, T to, String name) {
         this.getter = getter; this.setter = setter;
         this.name = name;
         this.min = from; this.max = to;
