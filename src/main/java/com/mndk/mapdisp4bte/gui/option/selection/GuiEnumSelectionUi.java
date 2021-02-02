@@ -1,6 +1,8 @@
-package com.mndk.mapdisp4bte.gui;
+package com.mndk.mapdisp4bte.gui.option.selection;
 
 import com.mndk.mapdisp4bte.MapDisplayer4BTE;
+import com.mndk.mapdisp4bte.gui.ImageUiRenderer;
+import com.mndk.mapdisp4bte.gui.MapRenderingOptionsUi;
 import com.mndk.mapdisp4bte.gui.option.types.EnumOption;
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 import net.minecraft.client.Minecraft;

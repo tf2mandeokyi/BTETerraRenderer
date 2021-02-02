@@ -1,6 +1,6 @@
 package com.mndk.mapdisp4bte.gui.option;
 
-import com.mndk.mapdisp4bte.gui.GuiEnumSelectionUi;
+import com.mndk.mapdisp4bte.gui.option.selection.GuiEnumSelectionUi;
 import com.mndk.mapdisp4bte.gui.option.input.GuiNumberOptionInput;
 import com.mndk.mapdisp4bte.gui.option.types.EnumOption;
 import com.mndk.mapdisp4bte.gui.option.types.NumberOption;
