@@ -5,9 +5,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Deprecated
-public class GuiNumberToggleable extends GuiToggleable<Integer> {
+public class IntegerOption extends ToggleableOption<Integer> {
 
-    public GuiNumberToggleable(Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, String name) {
+    public IntegerOption(Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, String name) {
         super(getter, setter, min, max, false, name);
     }
 

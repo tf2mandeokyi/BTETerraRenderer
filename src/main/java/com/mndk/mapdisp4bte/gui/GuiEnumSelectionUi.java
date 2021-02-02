@@ -1,7 +1,7 @@
 package com.mndk.mapdisp4bte.gui;
 
 import com.mndk.mapdisp4bte.MapDisplayer4BTE;
-import com.mndk.mapdisp4bte.gui.option.toggleable.GuiEnumToggleable;
+import com.mndk.mapdisp4bte.gui.option.toggleable.EnumOption;
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -31,11 +31,11 @@ public class GuiEnumSelectionUi<T extends TranslatableEnum<T>> extends GuiScreen
 
     private GuiButton doneButton;
 
-    private final GuiEnumToggleable<T> option;
+    private final EnumOption<T> option;
 
 
 
-    public GuiEnumSelectionUi(GuiEnumToggleable<T> option) {
+    public GuiEnumSelectionUi(EnumOption<T> option) {
         this.option = option;
     }
 

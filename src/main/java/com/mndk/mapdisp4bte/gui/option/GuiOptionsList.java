@@ -2,8 +2,8 @@ package com.mndk.mapdisp4bte.gui.option;
 
 import com.mndk.mapdisp4bte.gui.GuiEnumSelectionUi;
 import com.mndk.mapdisp4bte.gui.option.input.GuiNumberOptionInput;
-import com.mndk.mapdisp4bte.gui.option.toggleable.GuiEnumToggleable;
-import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleable;
+import com.mndk.mapdisp4bte.gui.option.toggleable.EnumOption;
+import com.mndk.mapdisp4bte.gui.option.toggleable.ToggleableOption;
 import com.mndk.mapdisp4bte.gui.option.toggleable.GuiToggleableButton;
 import com.mndk.mapdisp4bte.util.TranslatableEnum;
 import net.minecraft.client.Minecraft;
@@ -31,7 +31,7 @@ public class GuiOptionsList {
     }
 
 
-    public <T> void addToggleableButton(GuiToggleable<T> option) {
+    public <T> void addToggleableButton(ToggleableOption<T> option) {
         int index = components.size();
         this.components.add(new GuiToggleableButton<>(
                 -index - 1,
@@ -42,7 +42,7 @@ public class GuiOptionsList {
     }
 
 
-    public <T extends TranslatableEnum<T>> void addSelectionUiButton(GuiEnumToggleable<T> option, String buttonText) {
+    public <T extends TranslatableEnum<T>> void addSelectionUiButton(EnumOption<T> option, String buttonText) {
         int index = components.size();
         this.components.add(new GuiSelectionUiButton<>(
                 -index - 1,
@@ -157,9 +157,9 @@ public class GuiOptionsList {
 
     public static class GuiSelectionUiButton<T extends TranslatableEnum<T>> extends GuiButton {
 
-        private final GuiEnumToggleable<T> option;
+        private final EnumOption<T> option;
 
-        public GuiSelectionUiButton(int buttonId, int x, int y, int width, int height, String buttonText, GuiEnumToggleable<T> option) {
+        public GuiSelectionUiButton(int buttonId, int x, int y, int width, int height, String buttonText, EnumOption<T> option) {
             super(buttonId, x, y, width, height, buttonText);
             this.option = option;
         }

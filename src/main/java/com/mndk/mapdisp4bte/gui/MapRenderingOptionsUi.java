@@ -4,8 +4,8 @@ import com.mndk.mapdisp4bte.MapDisplayer4BTE;
 import com.mndk.mapdisp4bte.config.ConfigHandler;
 import com.mndk.mapdisp4bte.gui.option.GuiNumberOption;
 import com.mndk.mapdisp4bte.gui.option.GuiOptionsList;
-import com.mndk.mapdisp4bte.gui.option.toggleable.GuiBooleanToggleable;
-import com.mndk.mapdisp4bte.gui.option.toggleable.GuiEnumToggleable;
+import com.mndk.mapdisp4bte.gui.option.toggleable.BooleanOption;
+import com.mndk.mapdisp4bte.gui.option.toggleable.EnumOption;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import net.minecraft.client.Minecraft;
@@ -195,18 +195,18 @@ public class MapRenderingOptionsUi extends GuiScreen {
                 BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN
         );
 
-        this.optionsList.addToggleableButton(new GuiBooleanToggleable(
+        this.optionsList.addToggleableButton(new BooleanOption(
                 ConfigHandler.getModConfig()::isDrawTiles, ConfigHandler.getModConfig()::setDrawTiles,
                 I18n.format("gui.mapdisp4bte.maprenderer.enable_render")
         ));
 
-        this.optionsList.addToggleableButton(new GuiEnumToggleable<>(
+        this.optionsList.addToggleableButton(new EnumOption<>(
                 ConfigHandler.getModConfig()::getMapType, ConfigHandler.getModConfig()::setMapType,
                 RenderMapType.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_type")
         ));
 
-        this.optionsList.addSelectionUiButton(new GuiEnumToggleable<>(
+        this.optionsList.addSelectionUiButton(new EnumOption<>(
                 ConfigHandler.getModConfig()::getMapSource, ConfigHandler.getModConfig()::setMapSource,
                 RenderMapSource.values(),
                 I18n.format("gui.mapdisp4bte.maprenderer.map_source")

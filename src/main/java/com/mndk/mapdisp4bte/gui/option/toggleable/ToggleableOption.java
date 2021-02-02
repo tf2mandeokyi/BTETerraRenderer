@@ -3,7 +3,7 @@ package com.mndk.mapdisp4bte.gui.option.toggleable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class GuiToggleable<T> {
+public abstract class ToggleableOption<T> {
 
     protected Supplier<T> getter;
     protected Consumer<T> setter;
@@ -11,7 +11,7 @@ public abstract class GuiToggleable<T> {
     public String name;
     public boolean isButton;
 
-    public GuiToggleable(Supplier<T> getter, Consumer<T> setter, T from, T to, boolean isButton, String name) {
+    public ToggleableOption(Supplier<T> getter, Consumer<T> setter, T from, T to, boolean isButton, String name) {
         this.getter = getter; this.setter = setter;
         this.name = name;
         this.from = from; this.to = to;
