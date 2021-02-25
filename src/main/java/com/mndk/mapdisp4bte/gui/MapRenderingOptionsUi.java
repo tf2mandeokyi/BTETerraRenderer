@@ -218,11 +218,17 @@ public class MapRenderingOptionsUi extends GuiScreen {
                 I18n.format("gui.mapdisp4bte.maprenderer.map_y_level") + ": "
         ), this.fontRenderer);
 
-        this.optionsList.addSlider(new NumberOption<>(
+        this.optionsList.addSlider(
                 ConfigHandler.getModConfig()::getOpacity, ConfigHandler.getModConfig()::setOpacity,
                 0., 1.,
                 I18n.format("gui.mapdisp4bte.maprenderer.opacity")
-        ));
+        );
+
+        this.optionsList.addSlider(
+                ConfigHandler.getModConfig()::getZoom, ConfigHandler.getModConfig()::setZoom,
+                -3, 3,
+                I18n.format("gui.mapdisp4bte.maprenderer.zoom")
+        );
 
         for(Gui component : optionsList.components) {
             if(component instanceof GuiButton) {

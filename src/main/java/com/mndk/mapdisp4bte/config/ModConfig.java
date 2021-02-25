@@ -17,6 +17,7 @@ public class ModConfig {
     private String mapType;
     private double opacity;
     private boolean drawTiles;
+    private int zoom;
 
 
     public static class AlignmentAxis {
@@ -34,18 +35,28 @@ public class ModConfig {
         this.mapSource = "OSM";
         this.mapType = "PLAIN_MAP";
         this.opacity = 0.7;
+        this.zoom = 0;
     }
 
 
     @SuppressWarnings("unchecked")
     public ModConfig(Map<String, Object> map) {
+    	this();
         Map<String, Object> alignMap = (Map<String, Object>) map.get("align");
-        this.align = new AlignmentAxis((double) alignMap.get("x"), (double) alignMap.get("z"));
-        this.drawTiles = (boolean) map.get("draw");
-        this.yLevel = (double) map.get("y_level");
-        this.mapSource = (String) map.get("map_source");
-        this.mapType = (String) map.get("map_type");
-        this.opacity = (double) map.get("opacity");
+        if(alignMap != null) if(alignMap.containsKey("x") && alignMap.containsKey("z")) 
+        	this.align = new AlignmentAxis((double) alignMap.get("x"), (double) alignMap.get("z"));
+        if(map.containsKey("draw"))
+        	this.drawTiles = (boolean) map.get("draw");
+        if(map.containsKey("y_level"))
+        	this.yLevel = (double) map.get("y_level");
+        if(map.containsKey("map_source"))
+        	this.mapSource = (String) map.get("map_source");
+        if(map.containsKey("map_type"))
+        	this.mapType = (String) map.get("map_type");
+        if(map.containsKey("opacity"))
+        	this.opacity = (double) map.get("opacity");
+        if(map.containsKey("zoom"))
+        	this.zoom = (int) map.get("zoom");
         // TODO simplify these with annotation or smth
     }
 
@@ -61,6 +72,7 @@ public class ModConfig {
         map.put("map_source", mapSource);
         map.put("map_type", mapType);
         map.put("opacity", opacity);
+        map.put("zoom", zoom);
 
         yaml.dump(map, fileWriter);
         fileWriter.close();
@@ -113,6 +125,14 @@ public class ModConfig {
 
     public void setOpacity(double opacity) {
         this.opacity = opacity;
+    }
+    
+    public int getZoom() {
+    	return zoom;
+    }
+    
+    public void setZoom(int zoom) {
+    	this.zoom = zoom;
     }
 
     public boolean isDrawTiles() {

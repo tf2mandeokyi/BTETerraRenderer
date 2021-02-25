@@ -12,6 +12,8 @@ import net.minecraft.client.gui.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class GuiOptionsList {
 
@@ -57,24 +59,14 @@ public class GuiOptionsList {
     public void addSlider(NumberOption<Double> option) {
 
         GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
-            @Override
-            public void setEntryValue(int id, float value) {
-                option.set((double) value);
-            }
-
-            @Override
-            public void setEntryValue(int id, boolean value) {
-            }
-
-            @Override
-            public void setEntryValue(int id, String value) {
-            }
+            @Override public void setEntryValue(int id, float value) { option.set((double) value); }
+            @Override public void setEntryValue(int id, boolean value) { }
+            @Override public void setEntryValue(int id, String value) { }
         };
 
         GuiSlider.FormatHelper helper = (id, name, value) -> option.name + ": " + value;
-
         int index = components.size();
-
+        
         GuiSlider tmp = new GuiSlider(
                 responder,
                 -index - 1,
@@ -86,7 +78,58 @@ public class GuiOptionsList {
         );
 
         tmp.setWidth(width);
+        this.components.add(tmp);
+    }
 
+
+    public void addSlider(Supplier<Double> getter, Consumer<Double> setter, double from, double to, String optionName) {
+
+        GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
+            @Override public void setEntryValue(int id, float value) { setter.accept((double) value); }
+            @Override public void setEntryValue(int id, boolean value) { }
+            @Override public void setEntryValue(int id, String value) { }
+        };
+
+        GuiSlider.FormatHelper helper = (id, name, value) -> optionName + ": " + value;
+        int index = components.size();
+        
+        GuiSlider tmp = new GuiSlider(
+                responder,
+                -index - 1,
+                x, y + index * (buttonHeight + buttonMarginTop),
+                optionName,
+                (float) from, (float) to,
+                getter.get().floatValue(),
+                helper
+        );
+
+        tmp.setWidth(width);
+        this.components.add(tmp);
+    }
+
+
+    public void addSlider(Supplier<Integer> getter, Consumer<Integer> setter, int from, int to, String optionName) {
+
+        GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
+            @Override public void setEntryValue(int id, float value) { setter.accept((int) value); }
+            @Override public void setEntryValue(int id, boolean value) { }
+            @Override public void setEntryValue(int id, String value) { }
+        };
+
+        GuiSlider.FormatHelper helper = (id, name, value) -> optionName + ": " + (int) value;
+        int index = components.size();
+        
+        GuiSlider tmp = new GuiSlider(
+                responder,
+                -index - 1,
+                x, y + index * (buttonHeight + buttonMarginTop),
+                optionName,
+                (int) from, (int) to,
+                getter.get().intValue(),
+                helper
+        );
+
+        tmp.setWidth(width);
         this.components.add(tmp);
     }
 

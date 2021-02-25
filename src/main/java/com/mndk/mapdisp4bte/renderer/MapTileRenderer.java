@@ -22,8 +22,6 @@ public class MapTileRenderer {
 
         GlStateManager.scale(1, 1, 1);
 
-        int level = 0;
-
         ModConfig config = ConfigHandler.getModConfig();
 
         try {
@@ -34,7 +32,7 @@ public class MapTileRenderer {
                 for (int x = -2; x <= 2; x++) {
                     renderer.renderTile(
                             t, builder,
-                            level, type,
+                            config.getZoom(), type,
                             config.getYLevel() + 0.1, (float) config.getOpacity(), // Adding .1 to y because rendering issue
                             px+config.getXAlign(), py, pz+config.getZAlign(),
                             x, y
