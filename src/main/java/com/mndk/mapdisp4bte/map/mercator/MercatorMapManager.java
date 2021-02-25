@@ -4,7 +4,7 @@ import com.mndk.mapdisp4bte.map.ExternalMapManager;
 import com.mndk.mapdisp4bte.map.RenderMapSource;
 import com.mndk.mapdisp4bte.map.RenderMapType;
 import com.mndk.mapdisp4bte.projection.Projections;
-import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 
 public class MercatorMapManager extends ExternalMapManager {
 

@@ -1,4 +1,4 @@
-package copy.kr.hyosang.coordinate;
+package kr.hyosang.coordinate;
 
 /* Copied from https://hyosang82.tistory.com/269 */
 

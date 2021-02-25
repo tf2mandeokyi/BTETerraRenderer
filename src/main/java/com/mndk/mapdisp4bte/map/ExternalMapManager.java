@@ -1,6 +1,6 @@
 package com.mndk.mapdisp4bte.map;
 
-import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -48,7 +48,7 @@ public abstract class ExternalMapManager {
      */
     protected abstract int[] getCornerMatrix(int i);
     public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException;
-    public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
+    public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException, OutOfProjectionBoundsException;
     protected abstract int getZoomFromLevel(int level);
     public abstract String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type);
 
@@ -142,9 +142,7 @@ public abstract class ExternalMapManager {
                 }
             }
 
-        } catch(OutOfProjectionBoundsException exception) {
-            exception.printStackTrace();
-        }
+        } catch(OutOfProjectionBoundsException ignored) { }
     }
 
 
