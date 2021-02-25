@@ -15,4 +15,9 @@ public class BingMapManager extends MercatorMapManager {
         String template = type == RenderMapType.AERIAL ? aerialTemplate : plainMapTemplate;
         return template.replace("{u}", BingTileConverter.tileToQuadKey(tileX, tileY, zoom));
     }
+
+    @Override
+    protected int getZoomFromLevel(int level) {
+        return 19 - level;
+    }
 }
