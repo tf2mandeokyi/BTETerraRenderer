@@ -18,9 +18,9 @@ apply plugin: 'maven-publish'
 
 
 
-version = '1.01.3'
-group = 'com.mndk.mapdisp4bte'
-archivesBaseName = 'mapdisp4bte'
+version = project.mod_version
+group = project.group
+archivesBaseName = project.mod_id
 
 
 
@@ -54,8 +54,8 @@ minecraft {
 
 
 configurations {
-    embed
-    compile.extendsFrom embed
+    shade
+    compile.extendsFrom shade
 }
 
 
@@ -63,12 +63,13 @@ configurations {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
 
-    embed 'org.yaml:snakeyaml:1.27'
+    shade 'org.yaml:snakeyaml:1.27'
+    shade 'org.osgeo:proj4j:0.1.0'
 }
 
 
 
-jar {
+/*jar {
     manifest {
         attributes([
             "Specification-Title": "mapdisp4bte",
@@ -82,6 +83,10 @@ jar {
     }
 
     from project.configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+}*/
+
+jar {
+    from project.configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 
