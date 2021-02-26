@@ -31,16 +31,15 @@ public class MapTileRenderer {
             RenderMapType type = config.getMapType();
 
             // Iterate tiles around player
-            for (int y = -2; y <= 2; y++)
-                for (int x = -2; x <= 2; x++) {
-                    renderer.renderTile(
-                            t, builder,
-                            level, type,
-                            config.getYLevel() + 0.1, (float) config.getOpacity(), // Adding .1 to y because rendering issue
-                            px+config.getXAlign(), py, pz+config.getZAlign(),
-                            x, y
-                    );
-                }
+            for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {
+                renderer.renderTile(
+                        t, builder,
+                        level, type,
+                        config.getYLevel() + 0.1, (float) config.getOpacity(), // Adding .1 to y because rendering issue
+                        px+config.getXAlign(), py, pz+config.getZAlign(),
+                        x, y
+                );
+            }
         } catch(IllegalArgumentException e) {
             e.printStackTrace();
         }

@@ -14,13 +14,13 @@ public class MapTileCache {
 
     private static final boolean DEBUG = false;
     private static void log(String message) {
-        if(DEBUG) BTETerraRenderer.logger.info(message);
+        if(DEBUG) BTETerraRenderer.logger.debug(message);
     }
 
 
 
     private final int maximumSize;
-    private final Map<String, GLIdWithDownloadDateWrapper> glTextureIdMap;
+    private final Map<String, GLIdWrapper> glTextureIdMap;
     private final Set<String> downloadingTileKeys;
     private final long expireMilliseconds;
 
@@ -67,10 +67,10 @@ public class MapTileCache {
     public void addTexture(String tileKey, BufferedImage image) {
         synchronized (this) {
             if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
-                this.deleteTheOldestOne();
+                this.deleteTheOldestData();
             }
             int glId = initializeTile(image);
-            glTextureIdMap.put(tileKey, new GLIdWithDownloadDateWrapper(glId, System.currentTimeMillis()));
+            glTextureIdMap.put(tileKey, new GLIdWrapper(glId, System.currentTimeMillis()));
             log("Added texture " + tileKey + " (Size: " + glTextureIdMap.size() + ")");
         }
     }
@@ -88,7 +88,7 @@ public class MapTileCache {
     public void bindTexture(String tileKey) {
         synchronized (this) {
             int glId = validateAndGetGlId(tileKey);
-            this.glTextureIdMap.get(tileKey).date = System.currentTimeMillis();
+            this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
             GlStateManager.bindTexture(glId);
         }
     }
@@ -108,13 +108,13 @@ public class MapTileCache {
 
 
 
-    private void deleteTheOldestOne() {
+    private void deleteTheOldestData() {
         String oldestKey = null; long oldest = Long.MAX_VALUE;
-        for (Map.Entry<String, GLIdWithDownloadDateWrapper> entry : glTextureIdMap.entrySet()) {
-            GLIdWithDownloadDateWrapper wrapper = entry.getValue();
-            if(wrapper.date < oldest) {
+        for (Map.Entry<String, GLIdWrapper> entry : glTextureIdMap.entrySet()) {
+            GLIdWrapper wrapper = entry.getValue();
+            if(wrapper.lastUpdated < oldest) {
                 oldestKey = entry.getKey();
-                oldest = wrapper.date;
+                oldest = wrapper.lastUpdated;
             }
         }
         if(oldestKey != null) {
@@ -128,9 +128,9 @@ public class MapTileCache {
         long now = System.currentTimeMillis();
         ArrayList<String> deleteList = new ArrayList<>();
         synchronized (this) {
-            for (Map.Entry<String, GLIdWithDownloadDateWrapper> entry : glTextureIdMap.entrySet()) {
-                GLIdWithDownloadDateWrapper wrapper = entry.getValue();
-                if(wrapper.date + this.expireMilliseconds < now) {
+            for (Map.Entry<String, GLIdWrapper> entry : glTextureIdMap.entrySet()) {
+                GLIdWrapper wrapper = entry.getValue();
+                if(wrapper.lastUpdated + this.expireMilliseconds < now) {
                     deleteList.add(entry.getKey());
                 }
             }
@@ -143,6 +143,9 @@ public class MapTileCache {
 
 
 
+    /**
+     * @return The GL texture id associated with the image texture.
+     * */
     private static int initializeTile(BufferedImage image) {
         int width = image.getWidth(), height = image.getHeight();
         int glTextureId = TextureUtil.glGenTextures();
@@ -158,10 +161,10 @@ public class MapTileCache {
 
 
 
-    private static class GLIdWithDownloadDateWrapper {
-        final int glId; long date;
-        public GLIdWithDownloadDateWrapper(int glId, long date) {
-            this.glId = glId; this.date = date;
+    private static class GLIdWrapper {
+        final int glId; long lastUpdated;
+        public GLIdWrapper(int glId, long date) {
+            this.glId = glId; this.lastUpdated = date;
         }
     }
 }

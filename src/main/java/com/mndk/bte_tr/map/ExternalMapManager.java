@@ -60,8 +60,6 @@ public abstract class ExternalMapManager {
 
             String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, zoom, type);
 
-            // System.out.println(url);
-
             return new URL(url).openConnection();
         }catch(OutOfProjectionBoundsException | IOException exception) {
             exception.printStackTrace();
@@ -101,7 +99,7 @@ public abstract class ExternalMapManager {
 
             MapTileCache cache = MapTileManager.getInstance().getTileCache();
 
-            MapTileManager.getInstance().cacheAllImages();
+            MapTileManager.getInstance().cacheAllImagesInQueue();
 
             if(!cache.isTileInDownloadingState(tileKey)) {
                 if(!cache.textureExists(tileKey)) {

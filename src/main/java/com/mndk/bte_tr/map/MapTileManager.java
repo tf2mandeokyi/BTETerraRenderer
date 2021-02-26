@@ -8,44 +8,45 @@ public class MapTileManager {
     public static MapTileManager instance = new MapTileManager();
     public static MapTileManager getInstance() { return instance; }
 
-    private List<Map.Entry<String, BufferedImage>> renderList;
+    private List<Map.Entry<String, BufferedImage>> imageRenderQueue;
     private final MapTileCache tileCache;
 
     private MapTileManager() {
-        this.renderList = new ArrayList<>();
-        this.tileCache = new MapTileCache(1000 * 60 * 5, 100);
+        this.imageRenderQueue = new ArrayList<>();
+        this.tileCache = new MapTileCache(1000 * 60 * 5, 1000);
     }
 
     public void addImageToRenderList(String tileId, BufferedImage image) {
-        renderList.add(new AbstractMap.SimpleEntry<>(tileId, image));
+        imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileId, image));
     }
 
     /**
-     * Note: this function must be called in the thread where the opengl context is found.
+     * This function must be called in the thread where the opengl context is found.
      */
-    public void cacheAllImages() {
+    public void cacheAllImagesInQueue() {
         List<Map.Entry<String, BufferedImage>> newList = new ArrayList<>();
 
-        while(!renderList.isEmpty()) {
-            Map.Entry<String, BufferedImage> entry = renderList.get(0);
-            renderList.remove(0);
+        while(!imageRenderQueue.isEmpty()) {
+        	// To prevent ConcurrentModificationException, the code is caching one image at a time.
+            Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
+            imageRenderQueue.remove(0);
+            if(entry == null) continue;
+            
+            String tileKey = entry.getKey();
+            BufferedImage image = entry.getValue();
 
-            if(entry != null) {
-                String tileKey = entry.getKey();
-                BufferedImage image = entry.getValue();
-
-                try {
-                    if (entry.getValue() != null) {
-                        tileCache.addTexture(tileKey, image);
-                    }
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    newList.add(new AbstractMap.SimpleEntry<>(tileKey, image)); // Try again if the error happens
+            try {
+                if (entry.getValue() != null) {
+                    tileCache.addTexture(tileKey, image);
                 }
+            } catch(Exception e) {
+                e.printStackTrace();
+                // Put the image data back to the queue if something went wrong
+                newList.add(new AbstractMap.SimpleEntry<>(tileKey, image));
             }
         }
 
-        renderList = newList;
+        imageRenderQueue = newList;
 
     }
 
