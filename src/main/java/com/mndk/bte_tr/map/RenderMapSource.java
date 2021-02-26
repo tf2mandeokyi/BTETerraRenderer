@@ -15,7 +15,7 @@ public enum RenderMapSource implements TranslatableEnum<RenderMapSource> {
     private ExternalMapManager renderer;
 
     public String getTranslatedString() {
-        return I18n.format("enum.mapdisp4bte.mapsource." + super.toString());
+        return I18n.format("enum.bte_tr.mapsource." + super.toString());
     }
 
     public ExternalMapManager getMapRenderer() {

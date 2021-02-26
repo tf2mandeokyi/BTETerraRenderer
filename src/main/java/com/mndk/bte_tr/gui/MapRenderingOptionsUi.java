@@ -155,6 +155,9 @@ public class MapRenderingOptionsUi extends GuiScreen {
 	}
 
 	private void setupOptionsList() {
+		
+		// Messy code smh
+		
 		this.optionsList = new GuiOptionsList(this, SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), OPTIONS_LIST_TOP_MARGIN,
 				BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN);
 
@@ -172,11 +175,14 @@ public class MapRenderingOptionsUi extends GuiScreen {
 
 		this.optionsList.addNumberInput(
 				new NumberOption<>(ConfigHandler.getModConfig()::getYLevel, ConfigHandler.getModConfig()::setYLevel,
-						-100000.0, 100000.0, I18n.format("gui.bte_tr.maprenderer.map_y_level") + ": "),
+						-1000000.0, 1000000.0, I18n.format("gui.bte_tr.maprenderer.map_y_level") + ": "),
 				this.fontRenderer);
 
 		this.optionsList.addSlider(new NumberOption<>(ConfigHandler.getModConfig()::getOpacity,
 				ConfigHandler.getModConfig()::setOpacity, 0., 1., I18n.format("gui.bte_tr.maprenderer.opacity")));
+
+		this.optionsList.addIntegerSlider(new NumberOption<>(ConfigHandler.getModConfig()::getZoom,
+				ConfigHandler.getModConfig()::setZoom, -3, 3, I18n.format("gui.bte_tr.maprenderer.zoom")));
 
 		for (Gui component : optionsList.components) {
 			if (component instanceof GuiButton) {
@@ -188,7 +194,7 @@ public class MapRenderingOptionsUi extends GuiScreen {
 	@Override
 	public void onGuiClosed() {
 		try {
-			ConfigHandler.saveConfig(); // TODO move this to somewhere else
+			ConfigHandler.saveConfig();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

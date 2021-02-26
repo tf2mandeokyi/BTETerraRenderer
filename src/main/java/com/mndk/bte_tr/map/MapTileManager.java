@@ -13,7 +13,7 @@ public class MapTileManager {
 
     private MapTileManager() {
         this.imageRenderQueue = new ArrayList<>();
-        this.tileCache = new MapTileCache(1000 * 60 * 5, 1000);
+        this.tileCache = new MapTileCache(1000 * 60, 1000);
     }
 
     public void addImageToRenderList(String tileId, BufferedImage image) {

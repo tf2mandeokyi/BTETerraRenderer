@@ -8,7 +8,6 @@ public abstract class ToggleableOption<T> extends TypeOption<T> {
     protected Supplier<T> getter;
     protected Consumer<T> setter;
     protected T from, to;
-    public String name;
     public boolean isButton;
 
     public ToggleableOption(Supplier<T> getter, Consumer<T> setter, T from, T to, boolean isButton, String name) {

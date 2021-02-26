@@ -58,21 +58,10 @@ public class GuiOptionsList {
     public void addSlider(NumberOption<Double> option) {
 
         GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
-            @Override
-            public void setEntryValue(int id, float value) {
-                option.set((double) value);
-            }
-
-            @Override
-            public void setEntryValue(int id, boolean value) {
-            }
-
-            @Override
-            public void setEntryValue(int id, String value) {
-            }
+            @Override public void setEntryValue(int id, float value) { option.set((double) value); }
+            @Override public void setEntryValue(int id, boolean value) { }
+            @Override public void setEntryValue(int id, String value) { }
         };
-
-        GuiSlider.FormatHelper helper = (id, name, value) -> option.name + ": " + value;
 
         int index = components.size();
 
@@ -83,7 +72,33 @@ public class GuiOptionsList {
                 option.name,
                 option.getMin().floatValue(), option.getMax().floatValue(),
                 option.get().floatValue(),
-                helper
+                (id, name, value) -> option.name + ": " + value
+        );
+
+        tmp.setWidth(width);
+
+        this.components.add(tmp);
+    }
+
+
+    public void addIntegerSlider(NumberOption<Integer> option) {
+
+        GuiPageButtonList.GuiResponder responder = new GuiPageButtonList.GuiResponder() {
+            @Override public void setEntryValue(int id, float value) { option.set(Math.round(value)); }
+            @Override public void setEntryValue(int id, boolean value) { }
+            @Override public void setEntryValue(int id, String value) { }
+        };
+
+        int index = components.size();
+
+        GuiSlider tmp = new GuiSlider(
+                responder,
+                -index - 1,
+                x, y + index * (buttonHeight + buttonMarginTop),
+                option.name,
+                option.getMin().intValue(), option.getMax().intValue(),
+                option.get().intValue(),
+                (id, name, value) -> option.name + ": " + Math.round(value)
         );
 
         tmp.setWidth(width);

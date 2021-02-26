@@ -9,6 +9,6 @@ public enum RenderMapType implements TranslatableEnum<RenderMapType> {
 
     @Override
     public String getTranslatedString() {
-        return I18n.format( "enum.mapdisp4bte.maptype." + super.toString());
+        return I18n.format( "enum.bte_tr.maptype." + super.toString());
     }
 }
