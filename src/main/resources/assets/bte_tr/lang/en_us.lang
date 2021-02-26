@@ -1,0 +1,26 @@
+key.bte_tr.maprenderer.category=BTETerraRenderer
+key.bte_tr.maprenderer.options_ui=Open Options UI
+key.bte_tr.maprenderer.toggle=Toggle Map Rendering
+
+gui.bte_tr.maprenderer.title=Map Rendering Options
+gui.bte_tr.maprenderer.enable_render=Enable Map Rendering
+gui.bte_tr.maprenderer.map_type=Map Type
+gui.bte_tr.maprenderer.map_source=Map Source
+gui.bte_tr.maprenderer.map_y_level=Map Y Level
+gui.bte_tr.maprenderer.opacity=Map Opacity
+gui.bte_tr.maprenderer.change_map_source=Change Map Source...
+
+gui.bte_tr.maprenderer.map_align=Map Alignment
+gui.bte_tr.maprenderer.x_align=X Axis
+gui.bte_tr.maprenderer.z_align=Z Axis
+gui.bte_tr.maprenderer.x_align_reset=Reset X
+gui.bte_tr.maprenderer.z_align_reset=Reset Z
+
+enum.bte_tr.mapsource.KAKAO=Kakao Map (Korea only)
+enum.bte_tr.mapsource.OSM=OpenStreetMap
+enum.bte_tr.mapsource.BING=Bing Maps
+enum.bte_tr.mapsource.TMAP=T Map (Korea only)
+enum.bte_tr.mapsource.NAVER=Naver Map (Korea only)
+
+enum.bte_tr.maptype.PLAIN_MAP=Plain Map
+enum.bte_tr.maptype.AERIAL=Aerial
