@@ -9,6 +9,7 @@ gui.bte_tr.maprenderer.map_source=Map Source
 gui.bte_tr.maprenderer.map_y_level=Map Y Level
 gui.bte_tr.maprenderer.opacity=Map Opacity
 gui.bte_tr.maprenderer.zoom=Map Zoom
+gui.bte_tr.maprenderer.size=Map Size
 gui.bte_tr.maprenderer.change_map_source=Change Map Source...
 
 gui.bte_tr.maprenderer.map_align=Map Alignment

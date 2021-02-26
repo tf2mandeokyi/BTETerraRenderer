@@ -19,6 +19,7 @@ public class ModConfig {
     private double opacity;
     private boolean drawTiles;
     private int zoom;
+    private int radius;
 
 
     public static class AlignmentAxis {
@@ -37,6 +38,7 @@ public class ModConfig {
         this.mapType = "PLAIN_MAP";
         this.opacity = 0.7;
         this.zoom = 0;
+        this.radius = 2;
     }
 
 
@@ -62,7 +64,9 @@ public class ModConfig {
         if(map.containsKey("opacity")) this.opacity = (double) map.get("opacity");
 
         if(map.containsKey("zoom")) this.zoom = (int) map.get("zoom");
-        // TODO simplify these with annotation or smth
+        
+        if(map.containsKey("radius")) this.radius = (int) map.get("radius");
+        // TODO simplify these with annotations or smth
     }
 
 
@@ -79,6 +83,7 @@ public class ModConfig {
         map.put("map_type", mapType);
         map.put("opacity", opacity);
         map.put("zoom", zoom);
+        map.put("radius", radius);
 
         yaml.dump(map, fileWriter);
         fileWriter.close();
@@ -139,6 +144,14 @@ public class ModConfig {
     
     public void setZoom(int zoom) {
     	this.zoom = zoom;
+    }
+    
+    public int getRadius() {
+    	return radius;
+    }
+    
+    public void setRadius(int radius) {
+    	this.radius = radius;
     }
 
     public boolean isDrawTiles() {

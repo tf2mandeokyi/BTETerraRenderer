@@ -161,29 +161,40 @@ public class MapRenderingOptionsUi extends GuiScreen {
 		this.optionsList = new GuiOptionsList(this, SETTINGS_CENTER_X - (BUTTON_WIDTH / 2), OPTIONS_LIST_TOP_MARGIN,
 				BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN);
 
+		
 		this.optionsList.addToggleableButton(new BooleanOption(ConfigHandler.getModConfig()::isDrawTiles,
 				ConfigHandler.getModConfig()::setDrawTiles, I18n.format("gui.bte_tr.maprenderer.enable_render")));
 
+		
 		this.optionsList.addToggleableButton(
 				new EnumOption<>(ConfigHandler.getModConfig()::getMapType, ConfigHandler.getModConfig()::setMapType,
 						RenderMapType.values(), I18n.format("gui.bte_tr.maprenderer.map_type")));
 
+		
 		this.optionsList.addSelectionUiButton(
 				new EnumOption<>(ConfigHandler.getModConfig()::getMapSource, ConfigHandler.getModConfig()::setMapSource,
 						RenderMapSource.values(), I18n.format("gui.bte_tr.maprenderer.map_source")),
 				I18n.format("gui.bte_tr.maprenderer.change_map_source"));
 
+		
 		this.optionsList.addNumberInput(
 				new NumberOption<>(ConfigHandler.getModConfig()::getYLevel, ConfigHandler.getModConfig()::setYLevel,
 						-1000000.0, 1000000.0, I18n.format("gui.bte_tr.maprenderer.map_y_level") + ": "),
 				this.fontRenderer);
 
+		
 		this.optionsList.addSlider(new NumberOption<>(ConfigHandler.getModConfig()::getOpacity,
 				ConfigHandler.getModConfig()::setOpacity, 0., 1., I18n.format("gui.bte_tr.maprenderer.opacity")));
 
+		
 		this.optionsList.addIntegerSlider(new NumberOption<>(ConfigHandler.getModConfig()::getZoom,
 				ConfigHandler.getModConfig()::setZoom, -3, 3, I18n.format("gui.bte_tr.maprenderer.zoom")));
+		
+		
+		this.optionsList.addIntegerSlider(new NumberOption<>(ConfigHandler.getModConfig()::getRadius,
+				ConfigHandler.getModConfig()::setRadius, 0, 4, I18n.format("gui.bte_tr.maprenderer.size")));
 
+		
 		for (Gui component : optionsList.components) {
 			if (component instanceof GuiButton) {
 				this.addButton((GuiButton) component);

@@ -110,9 +110,7 @@ public abstract class ExternalMapManager {
                             initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
                             cache.setTileDownloadingState(tileKey, false);
 
-                        } catch (OutOfProjectionBoundsException exception) {
-                            exception.printStackTrace();
-                        }
+                        } catch (OutOfProjectionBoundsException ignored) { }
                     });
                 }
                 else {
@@ -140,9 +138,7 @@ public abstract class ExternalMapManager {
                 }
             }
 
-        } catch(OutOfProjectionBoundsException exception) {
-            exception.printStackTrace();
-        }
+        } catch(OutOfProjectionBoundsException ignored) { }
     }
 
 
