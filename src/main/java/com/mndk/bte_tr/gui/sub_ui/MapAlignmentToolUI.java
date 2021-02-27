@@ -1,9 +1,11 @@
-package com.mndk.bte_tr.gui;
+package com.mndk.bte_tr.gui.sub_ui;
 
 import java.io.IOException;
 
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.config.ConfigHandler;
+import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
+import com.mndk.bte_tr.gui.util.ImageUiRenderer;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;

@@ -1,7 +1,6 @@
 package com.mndk.bte_tr.event;
 
 import com.mndk.bte_tr.config.ConfigHandler;
-import com.mndk.bte_tr.gui.OldMapRenderingOptionsUi;
 import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
 import com.mndk.bte_tr.proxy.ClientProxy;
 

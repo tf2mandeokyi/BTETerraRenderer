@@ -3,6 +3,9 @@ package com.mndk.bte_tr.gui;
 import java.io.IOException;
 
 import com.mndk.bte_tr.config.ConfigHandler;
+import com.mndk.bte_tr.gui.sub_ui.DefaultMapRenderingOptionsUI;
+import com.mndk.bte_tr.gui.sub_ui.MapAlignmentToolUI;
+import com.mndk.bte_tr.gui.sub_ui.MapSelectorUI;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -12,8 +15,8 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	
 	
 	
-	static final int DEFAULT_BUTTON_HEIGHT = 20;
-	static final int DEFAULT_BUTTON_MARGIN_BOTTOM = 5;
+	public static final int DEFAULT_BUTTON_HEIGHT = 20;
+	public static final int DEFAULT_BUTTON_MARGIN_BOTTOM = 5;
 	
 	
 	final DefaultMapRenderingOptionsUI defaultOptions;

@@ -1,10 +1,11 @@
-package com.mndk.bte_tr.gui;
+package com.mndk.bte_tr.gui.sub_ui;
 
 import java.io.IOException;
 
 import com.mndk.bte_tr.config.ConfigHandler;
-import com.mndk.bte_tr.gui.option.input.GuiNumberOptionInput;
-import com.mndk.bte_tr.gui.option.types.NumberOption;
+import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
+import com.mndk.bte_tr.gui.components.GuiNumberInput;
+import com.mndk.bte_tr.gui.components.NumberOption;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -37,11 +38,11 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	GuiButton doneButton;
 	GuiButton mapRenderingToggler;
 	GuiButton mapSelectorToggler;
-	GuiNumberOptionInput mapYAxisInput;
+	GuiNumberInput mapYAxisInput;
 	
 	
 	
-	DefaultMapRenderingOptionsUI(MapRenderingOptionsUI parent) {
+	public DefaultMapRenderingOptionsUI(MapRenderingOptionsUI parent) {
 		super(parent);
 	}
 	
@@ -72,7 +73,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				I18n.format("gui.bte_tr.maprenderer.change_map_source")
 		));
 		
-		this.mapYAxisInput = new GuiNumberOptionInput(
+		this.mapYAxisInput = new GuiNumberInput(
 				COMPONENT_ID_GROUP + 3, this.fontRenderer, 
 				BASIC_OPTIONS_MARGIN_LEFT + BASIC_OPTIONS_WIDTH / 3, (int) (c + h * (3 - count)),
 				BASIC_OPTIONS_WIDTH * 2 / 3, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 

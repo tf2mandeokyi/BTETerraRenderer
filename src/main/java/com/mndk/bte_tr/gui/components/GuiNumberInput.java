@@ -1,18 +1,17 @@
-package com.mndk.bte_tr.gui.option.input;
+package com.mndk.bte_tr.gui.components;
 
-import com.mndk.bte_tr.gui.option.types.NumberOption;
 import com.mndk.bte_tr.util.StringToNumber;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 
-public class GuiNumberOptionInput extends GuiTextField {
+public class GuiNumberInput extends GuiTextField {
 
     protected final NumberOption<Double> option;
     protected final FontRenderer fontRenderer;
     protected boolean numberValidated = true;
 
-    public GuiNumberOptionInput(int componentId, FontRenderer fontrenderer, int x, int y, int width, int height, NumberOption<Double> option) {
+    public GuiNumberInput(int componentId, FontRenderer fontrenderer, int x, int y, int width, int height, NumberOption<Double> option) {
         super(componentId, fontrenderer, x, y, width, height);
         this.option = option;
         this.setText(StringToNumber.formatNicely(option.get()));

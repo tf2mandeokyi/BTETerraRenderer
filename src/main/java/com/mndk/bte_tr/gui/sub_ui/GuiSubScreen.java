@@ -1,6 +1,8 @@
-package com.mndk.bte_tr.gui;
+package com.mndk.bte_tr.gui.sub_ui;
 
 import java.io.IOException;
+
+import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

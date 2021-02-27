@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.gui.option.types;
+package com.mndk.bte_tr.gui.components;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

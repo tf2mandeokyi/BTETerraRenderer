@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.gui;
+package com.mndk.bte_tr.gui.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
