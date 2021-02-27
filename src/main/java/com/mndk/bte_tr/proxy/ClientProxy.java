@@ -18,13 +18,13 @@ public class ClientProxy extends CommonProxy {
 
     public static void initializeKeys() {
         mapOptionsKey = new KeyBinding(
-                I18n.format("key.mapdisp4bte.maprenderer.options_ui"),
+                I18n.format("key.bte_tr.maprenderer.options_ui"),
                 Keyboard.KEY_V,
-                I18n.format("key.mapdisp4bte.maprenderer.category"));
+                I18n.format("key.bte_tr.maprenderer.category"));
         mapToggleKey = new KeyBinding(
-                I18n.format("key.mapdisp4bte.maprenderer.toggle"),
+                I18n.format("key.bte_tr.maprenderer.toggle"),
                 Keyboard.KEY_B,
-                I18n.format("key.mapdisp4bte.maprenderer.category"));
+                I18n.format("key.bte_tr.maprenderer.category"));
         ClientRegistry.registerKeyBinding(mapOptionsKey);
         ClientRegistry.registerKeyBinding(mapToggleKey);
     }

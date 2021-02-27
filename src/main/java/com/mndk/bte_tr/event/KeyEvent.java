@@ -1,7 +1,8 @@
 package com.mndk.bte_tr.event;
 
 import com.mndk.bte_tr.config.ConfigHandler;
-import com.mndk.bte_tr.gui.MapRenderingOptionsUi;
+import com.mndk.bte_tr.gui.OldMapRenderingOptionsUi;
+import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
 import com.mndk.bte_tr.proxy.ClientProxy;
 
 import net.minecraft.client.Minecraft;
@@ -17,9 +18,9 @@ public class KeyEvent {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void onKeyEvent(InputEvent.KeyInputEvent event) {
         if(ClientProxy.mapOptionsKey.isPressed()) {
-            Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUi());
+            Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUI());
         } else if(ClientProxy.mapToggleKey.isPressed()) {
-            ConfigHandler.getModConfig().toggleDrawTiles();
+            ConfigHandler.getModConfig().toggleTileRendering();
         }
     }
 

@@ -4,6 +4,7 @@ import com.mndk.bte_tr.gui.option.types.ToggleableOption;
 
 import net.minecraft.client.gui.GuiButton;
 
+@Deprecated
 public class GuiToggleableButton<T> extends GuiButton {
 
     public final ToggleableOption<T> option;

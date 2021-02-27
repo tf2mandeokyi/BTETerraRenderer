@@ -1,8 +1,5 @@
 package com.mndk.bte_tr.gui.option;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +11,16 @@ import com.mndk.bte_tr.gui.option.types.NumberOption;
 import com.mndk.bte_tr.gui.option.types.ToggleableOption;
 import com.mndk.bte_tr.util.TranslatableEnum;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiPageButtonList;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiSlider;
+import net.minecraft.client.gui.GuiTextField;
+
+@Deprecated
 public class GuiOptionsList {
 
 

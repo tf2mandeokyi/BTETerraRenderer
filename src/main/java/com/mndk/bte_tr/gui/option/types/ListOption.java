@@ -3,6 +3,7 @@ package com.mndk.bte_tr.gui.option.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@Deprecated
 public class ListOption<T> extends ToggleableOption<T> {
 
     public final T[] list;

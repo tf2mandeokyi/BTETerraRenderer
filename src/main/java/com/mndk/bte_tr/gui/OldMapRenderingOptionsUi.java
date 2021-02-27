@@ -1,12 +1,5 @@
 package com.mndk.bte_tr.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
-
 import java.io.IOException;
 
 import com.mndk.bte_tr.BTETerraRenderer;
@@ -16,9 +9,16 @@ import com.mndk.bte_tr.gui.option.types.BooleanOption;
 import com.mndk.bte_tr.gui.option.types.EnumOption;
 import com.mndk.bte_tr.gui.option.types.NumberOption;
 import com.mndk.bte_tr.map.RenderMapSource;
-import com.mndk.bte_tr.map.RenderMapType;
 
-public class MapRenderingOptionsUi extends GuiScreen {
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ResourceLocation;
+
+@Deprecated
+public class OldMapRenderingOptionsUi extends GuiScreen {
 
 	private static final int TITLE_HEIGHT = 8;
 	private static final int OPTIONS_LIST_TOP_MARGIN = 24;
@@ -162,13 +162,13 @@ public class MapRenderingOptionsUi extends GuiScreen {
 				BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TOP_MARGIN);
 
 		
-		this.optionsList.addToggleableButton(new BooleanOption(ConfigHandler.getModConfig()::isDrawTiles,
-				ConfigHandler.getModConfig()::setDrawTiles, I18n.format("gui.bte_tr.maprenderer.enable_render")));
+		this.optionsList.addToggleableButton(new BooleanOption(ConfigHandler.getModConfig()::isTileRendering,
+				ConfigHandler.getModConfig()::setTileRendering, I18n.format("gui.bte_tr.maprenderer.enable_render")));
 
 		
-		this.optionsList.addToggleableButton(
+		/*this.optionsList.addToggleableButton(
 				new EnumOption<>(ConfigHandler.getModConfig()::getMapType, ConfigHandler.getModConfig()::setMapType,
-						RenderMapType.values(), I18n.format("gui.bte_tr.maprenderer.map_type")));
+						RenderMapType.values(), I18n.format("gui.bte_tr.maprenderer.map_type")));*/
 
 		
 		this.optionsList.addSelectionUiButton(

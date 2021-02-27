@@ -2,7 +2,6 @@ package com.mndk.bte_tr.map.mercator;
 
 import com.mndk.bte_tr.map.ExternalMapManager;
 import com.mndk.bte_tr.map.RenderMapSource;
-import com.mndk.bte_tr.map.RenderMapType;
 import com.mndk.bte_tr.projection.Projections;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
@@ -10,7 +9,7 @@ import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 public class MercatorMapManager extends ExternalMapManager {
 
 
-    private final String plainMapTemplate, aerialTemplate;
+    protected final String requestUrlTemplate;
 
 
     // Tile boundary matrix
@@ -24,10 +23,9 @@ public class MercatorMapManager extends ExternalMapManager {
     };
 
 
-    public MercatorMapManager(RenderMapSource source, String plainMapTemplate, String aerialTemplate, int maximumDownloadThreads) {
+    public MercatorMapManager(RenderMapSource source, String requestUrlTemplate, int maximumDownloadThreads) {
         super(source, maximumDownloadThreads);
-        this.plainMapTemplate = plainMapTemplate;
-        this.aerialTemplate = aerialTemplate;
+        this.requestUrlTemplate = requestUrlTemplate;
     }
 
 
@@ -60,10 +58,8 @@ public class MercatorMapManager extends ExternalMapManager {
 
 
     @Override
-    public String getUrlTemplate(int tileX, int tileY, int zoom, RenderMapType type) {
-        String template = type == RenderMapType.AERIAL ? aerialTemplate : plainMapTemplate;
-
-        return template.replace("{random}", this.getRandom())
+    public String getUrlTemplate(int tileX, int tileY, int zoom) {
+        return requestUrlTemplate.replace("{random}", this.getRandom())
                 .replace("{z}", zoom + "")
                 .replace("{x}", tileX + "")
                 .replace("{y}", tileY + "");

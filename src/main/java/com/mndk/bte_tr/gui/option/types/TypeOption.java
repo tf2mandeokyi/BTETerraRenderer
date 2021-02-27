@@ -3,6 +3,7 @@ package com.mndk.bte_tr.gui.option.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@Deprecated
 public class TypeOption<T> {
 
     protected Supplier<T> getter;

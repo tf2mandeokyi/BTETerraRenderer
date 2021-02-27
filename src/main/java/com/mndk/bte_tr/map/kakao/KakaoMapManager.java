@@ -2,12 +2,11 @@ package com.mndk.bte_tr.map.kakao;
 
 import com.mndk.bte_tr.map.ExternalMapManager;
 import com.mndk.bte_tr.map.RenderMapSource;
-import com.mndk.bte_tr.map.RenderMapType;
 import com.mndk.bte_tr.projection.Projections;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public class KakaoMapManager extends ExternalMapManager {
+public abstract class KakaoMapManager extends ExternalMapManager {
 
     private static final int[][] CORNERS = {
             {0, 1, 0, 0}, // top left
@@ -18,13 +17,13 @@ public class KakaoMapManager extends ExternalMapManager {
 
 
 
-    public KakaoMapManager() {
-        super(RenderMapSource.KAKAO, 2);
+    public KakaoMapManager(RenderMapSource source) {
+        super(source, 2);
     }
 
 
 
-    private static int domain_num = 0;
+    protected static int domain_num = 0;
 
 
 
@@ -58,16 +57,7 @@ public class KakaoMapManager extends ExternalMapManager {
 
 
     @Override
-    public String getUrlTemplate(int tileX, int tileY, int zoom, RenderMapType type) {
-        String dir = type == RenderMapType.AERIAL ? "map_skyview" : "map_2d/2012tlq";
-        String fileType = type == RenderMapType.AERIAL ? ".jpg" : ".png";
-
-        if(domain_num >= 3) domain_num = -1;
-        domain_num++;
-
-        return "http://map" + domain_num + ".daumcdn.net/" +
-                dir + "/L" + zoom + "/" + tileY + "/" + tileX + fileType;
-    }
+    public abstract String getUrlTemplate(int tileX, int tileY, int zoom);
 
 
 }

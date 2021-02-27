@@ -1,7 +1,9 @@
 package com.mndk.bte_tr.map;
 
-import com.mndk.bte_tr.map.bing.BingMapManager;
-import com.mndk.bte_tr.map.kakao.KakaoMapManager;
+import com.mndk.bte_tr.map.bing.BingAerialMapManager;
+import com.mndk.bte_tr.map.bing.BingPlainMapManager;
+import com.mndk.bte_tr.map.kakao.KakaoAerialMapManager;
+import com.mndk.bte_tr.map.kakao.KakaoPlainMapManager;
 import com.mndk.bte_tr.map.naver.NaverMapManager;
 import com.mndk.bte_tr.map.osm.OpenStreetMapManager;
 import com.mndk.bte_tr.map.tmap.TMapManager;
@@ -10,7 +12,7 @@ import com.mndk.bte_tr.util.TranslatableEnum;
 import net.minecraft.client.resources.I18n;
 
 public enum RenderMapSource implements TranslatableEnum<RenderMapSource> {
-    OSM, BING, KAKAO, TMAP, NAVER;
+    OSM, BING_AERIAL, BING_PLAIN, KAKAO_AERIAL, KAKAO_PLAIN, TMAP, NAVER;
 
     private ExternalMapManager renderer;
 
@@ -23,9 +25,11 @@ public enum RenderMapSource implements TranslatableEnum<RenderMapSource> {
     }
 
     static {
-        KAKAO.renderer = new KakaoMapManager();
+        KAKAO_AERIAL.renderer = new KakaoAerialMapManager();
+        KAKAO_PLAIN.renderer = new KakaoPlainMapManager();
         OSM.renderer = new OpenStreetMapManager();
-        BING.renderer = new BingMapManager();
+        BING_AERIAL.renderer = new BingAerialMapManager();
+        BING_PLAIN.renderer = new BingPlainMapManager();
         TMAP.renderer = new TMapManager();
         NAVER.renderer = new NaverMapManager();
     }

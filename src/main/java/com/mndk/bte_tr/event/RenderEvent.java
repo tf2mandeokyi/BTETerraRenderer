@@ -28,7 +28,7 @@ public class RenderEvent {
         final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
         final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-        if(ConfigHandler.getModConfig().isDrawTiles()) {
+        if(ConfigHandler.getModConfig().isTileRendering()) {
             try {
                 MapTileRenderer.renderTiles(ConfigHandler.getModConfig().getMapSource().getMapRenderer(), px, py, pz);
             } catch(IllegalArgumentException exception) {

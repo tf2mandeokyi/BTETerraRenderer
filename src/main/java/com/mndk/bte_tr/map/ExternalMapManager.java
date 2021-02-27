@@ -29,14 +29,14 @@ public abstract class ExternalMapManager {
     public void initializeMapImageByPlayerCoordinate(
             double playerX, double playerZ,
             int tileDeltaX, int tileDeltaY,
-            int zoom, RenderMapType type
+            int zoom
     ) throws OutOfProjectionBoundsException {
 
         int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, zoom);
 
-        String tileId = genTileKey(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, type, this.source);
+        String tileId = genTileKey(tileCoord[0]+tileDeltaX, tileCoord[1]+tileDeltaY, zoom, this.source);
 
-        BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
+        BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom);
 
         MapTileManager.getInstance().addImageToRenderList(tileId, image);
     }
@@ -50,15 +50,15 @@ public abstract class ExternalMapManager {
     public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException;
     public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
     protected abstract int getZoomFromLevel(int level);
-    public abstract String getUrlTemplate(int tileX, int tileY, int level, RenderMapType type);
+    public abstract String getUrlTemplate(int tileX, int tileY, int level);
 
 
 
-    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom, RenderMapType type) {
+    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom) {
         try {
             int[] tilePos = this.playerPositionToTileCoord(playerX, playerZ, zoom);
 
-            String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, zoom, type);
+            String url = this.getUrlTemplate(tilePos[0] + tileDeltaX, tilePos[1] + tileDeltaY, zoom);
 
             return new URL(url).openConnection();
         }catch(OutOfProjectionBoundsException | IOException exception) {
@@ -69,9 +69,9 @@ public abstract class ExternalMapManager {
 
 
 
-    public BufferedImage fetchMapSync(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom, RenderMapType type) {
+    public BufferedImage fetchMapSync(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom) {
         try {
-            URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
+            URLConnection connection = this.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, zoom);
             if(connection == null) return null;
             connection.connect();
             return ImageIO.read(connection.getInputStream());
@@ -85,7 +85,7 @@ public abstract class ExternalMapManager {
 
     public void renderTile(
             Tessellator t, BufferBuilder builder,
-            int level, RenderMapType type,
+            int level,
             double y, float opacity,
             double px, double py, double pz,
             int tileDeltaX, int tileDeltaY
@@ -95,7 +95,7 @@ public abstract class ExternalMapManager {
 
             int[] tilePos = this.playerPositionToTileCoord(px, pz, zoom);
 
-            String tileKey = genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, type, source);
+            String tileKey = genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom, source);
 
             MapTileCache cache = MapTileManager.getInstance().getTileCache();
 
@@ -107,7 +107,7 @@ public abstract class ExternalMapManager {
                     cache.setTileDownloadingState(tileKey, true);
                     this.donwloadExecutor.execute(() -> {
                         try {
-                            initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom, type);
+                            initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom);
                             cache.setTileDownloadingState(tileKey, false);
 
                         } catch (OutOfProjectionBoundsException ignored) { }
@@ -143,8 +143,8 @@ public abstract class ExternalMapManager {
 
 
 
-    public static String genTileKey(int tileX, int tileY, int zoom, RenderMapType type, RenderMapSource source) {
-        return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + zoom + "_" + type;
+    public static String genTileKey(int tileX, int tileY, int zoom, RenderMapSource source) {
+        return "tilemap_" + source + "_" + tileX + "_" + tileY + "_" + zoom;
     }
 
 }

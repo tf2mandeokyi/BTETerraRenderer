@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import com.mndk.bte_tr.util.TranslatableEnum;
 
+@Deprecated
 public class EnumOption<T extends TranslatableEnum<T>> extends ListOption<T> {
 
     public final T[] list;

@@ -4,16 +4,12 @@ import java.net.URLConnection;
 
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.map.RenderMapSource;
-import com.mndk.bte_tr.map.RenderMapType;
 import com.mndk.bte_tr.map.mercator.MercatorMapManager;
 
 public class OpenStreetMapManager extends MercatorMapManager {
 
     public OpenStreetMapManager() {
-        super(RenderMapSource.OSM,
-                "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                2);
+        super(RenderMapSource.OSM, "https://{random}.tile.openstreetmap.org/{z}/{x}/{y}.png", 2);
     }
 
     private static int domain_num = 0;
@@ -26,9 +22,9 @@ public class OpenStreetMapManager extends MercatorMapManager {
     }
 
     @Override
-    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom, RenderMapType type) {
+    public URLConnection getTileUrlConnection(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom) {
 
-        URLConnection result = super.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, zoom, type);
+        URLConnection result = super.getTileUrlConnection(playerX, playerZ, tileDeltaX, tileDeltaY, zoom);
 
         if(result == null) return null;
 

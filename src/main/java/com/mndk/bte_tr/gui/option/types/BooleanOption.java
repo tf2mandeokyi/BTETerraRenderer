@@ -5,6 +5,7 @@ import net.minecraft.client.resources.I18n;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@Deprecated
 public class BooleanOption extends ToggleableOption<Boolean> {
 
     public BooleanOption(Supplier<Boolean> getter, Consumer<Boolean> setter, String name) {

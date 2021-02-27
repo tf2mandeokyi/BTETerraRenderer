@@ -22,10 +22,7 @@ public class TMapManager extends MercatorMapManager {
     }
 
     public TMapManager() {
-        super(RenderMapSource.TMAP,
-                "https://topopentile2.tmap.co.kr/tms/1.0.0/hd_tile/{z}/{x}/{y}.png",
-                "https://topopentile2.tmap.co.kr/tms/1.0.0/hd_tile/{z}/{x}/{y}.png", // TODO figure this out
-                2);
+        super(RenderMapSource.TMAP, "https://topopentile2.tmap.co.kr/tms/1.0.0/hd_tile/{z}/{x}/{y}.png", 2);
     }
 
     @Override

@@ -1,23 +1,21 @@
 package com.mndk.bte_tr.config;
 
-import org.yaml.snakeyaml.Yaml;
-
-import com.mndk.bte_tr.map.RenderMapSource;
-import com.mndk.bte_tr.map.RenderMapType;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.yaml.snakeyaml.Yaml;
+
+import com.mndk.bte_tr.map.RenderMapSource;
+
 public class ModConfig {
 
     private AlignmentAxis align;
     private double yLevel;
-    private String mapSource;
-    private String mapType;
+    private RenderMapSource mapSource;
     private double opacity;
-    private boolean drawTiles;
+    private boolean renderTiles;
     private int zoom;
     private int radius;
 
@@ -32,10 +30,9 @@ public class ModConfig {
 
     public ModConfig() {
         this.align = new AlignmentAxis(0, 0);
-        this.drawTiles = false;
+        this.renderTiles = false;
         this.yLevel = 4;
-        this.mapSource = "OSM";
-        this.mapType = "PLAIN_MAP";
+        this.mapSource = RenderMapSource.OSM;
         this.opacity = 0.7;
         this.zoom = 0;
         this.radius = 2;
@@ -53,13 +50,13 @@ public class ModConfig {
         	}
         }
         
-        if(map.containsKey("draw")) this.drawTiles = (boolean) map.get("draw");
+        if(map.containsKey("draw")) this.renderTiles = (boolean) map.get("draw");
 
         if(map.containsKey("y_level")) this.yLevel = (double) map.get("y_level");
 
-        if(map.containsKey("map_source")) this.mapSource = (String) map.get("map_source");
-
-        if(map.containsKey("map_type")) this.mapType = (String) map.get("map_type");
+        try {
+        	if(map.containsKey("map_source")) this.mapSource = RenderMapSource.valueOf((String) map.get("map_source"));
+        } catch(Exception ignored) {}
 
         if(map.containsKey("opacity")) this.opacity = (double) map.get("opacity");
 
@@ -77,10 +74,9 @@ public class ModConfig {
             put("x", align.x);
             put("z", align.z);
         }});
-        map.put("draw", drawTiles);
+        map.put("draw", renderTiles);
         map.put("y_level", yLevel);
-        map.put("map_source", mapSource);
-        map.put("map_type", mapType);
+        map.put("map_source", mapSource.toString());
         map.put("opacity", opacity);
         map.put("zoom", zoom);
         map.put("radius", radius);
@@ -115,19 +111,11 @@ public class ModConfig {
     }
 
     public RenderMapSource getMapSource() {
-        return RenderMapSource.valueOf(mapSource);
+        return mapSource;
     }
 
     public void setMapSource(RenderMapSource mapSource) {
-        this.mapSource = mapSource.toString();
-    }
-
-    public RenderMapType getMapType() {
-        return RenderMapType.valueOf(mapType);
-    }
-
-    public void setMapType(RenderMapType mapType) {
-        this.mapType = mapType.toString();
+        this.mapSource = mapSource;
     }
 
     public double getOpacity() {
@@ -154,15 +142,15 @@ public class ModConfig {
     	this.radius = radius;
     }
 
-    public boolean isDrawTiles() {
-        return drawTiles;
+    public boolean isTileRendering() {
+        return renderTiles;
     }
 
-    public void setDrawTiles(boolean b) {
-        drawTiles = b;
+    public void setTileRendering(boolean b) {
+        renderTiles = b;
     }
 
-    public void toggleDrawTiles() {
-        drawTiles = !drawTiles;
+    public void toggleTileRendering() {
+        renderTiles = !renderTiles;
     }
 }

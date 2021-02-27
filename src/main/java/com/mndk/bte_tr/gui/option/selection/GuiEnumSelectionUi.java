@@ -10,10 +10,12 @@ import java.io.IOException;
 
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.gui.ImageUiRenderer;
-import com.mndk.bte_tr.gui.MapRenderingOptionsUi;
+import com.mndk.bte_tr.gui.OldMapRenderingOptionsUi;
 import com.mndk.bte_tr.gui.option.types.EnumOption;
 import com.mndk.bte_tr.util.TranslatableEnum;
 
+
+@Deprecated
 public class GuiEnumSelectionUi<T extends TranslatableEnum<T>> extends GuiScreen {
 
 
@@ -99,7 +101,7 @@ public class GuiEnumSelectionUi<T extends TranslatableEnum<T>> extends GuiScreen
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         if(button == doneButton) {
-            Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUi());
+            Minecraft.getMinecraft().displayGuiScreen(new OldMapRenderingOptionsUi());
         }
         super.actionPerformed(button);
     }

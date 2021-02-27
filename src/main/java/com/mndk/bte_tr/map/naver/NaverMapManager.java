@@ -6,10 +6,8 @@ import com.mndk.bte_tr.map.mercator.MercatorMapManager;
 public class NaverMapManager extends MercatorMapManager {
 
     public NaverMapManager() {
-        super(RenderMapSource.NAVER,
-                "https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.lko",
-                "https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png?mt=bg.ol.ts.lko",
-                2);
+        super(RenderMapSource.NAVER, "https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.lko", 2);
+        // "https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png?mt=bg.ol.ts.lko"
     }
 
     @Override
