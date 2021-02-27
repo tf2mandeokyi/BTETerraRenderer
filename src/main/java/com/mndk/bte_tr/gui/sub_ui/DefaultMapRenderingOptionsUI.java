@@ -18,8 +18,8 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	static final int COMPONENT_ID_GROUP = 100;
 	
 	static final int VERTICAL_SHIFT = 0;
-	static final int BASIC_OPTIONS_MARGIN_LEFT = 50;
-	static final int BASIC_OPTIONS_WIDTH = 150;
+	static final int BASIC_OPTIONS_MARGIN_LEFT = 30;
+	static final int BASIC_OPTIONS_WIDTH = 130;
 	static final int BASIC_OPTIONS_COMPONENT_COUNT = 7;
 	static final int OPTIONS_MARGIN_BOTTOM = 7;
 	
@@ -86,7 +86,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 		);
 		
 		String opacitySliderName = I18n.format("gui.bte_tr.maprenderer.opacity");
-		parent.addButton(new GuiSlider(
+		GuiSlider tempSlider = new GuiSlider(
 				OPACITY_SLIDER_RESPONDER,
 				COMPONENT_ID_GROUP + 4,
 				BASIC_OPTIONS_MARGIN_LEFT, (int) (c + h * (4 - count)),
@@ -94,7 +94,9 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				0, 1,
 				(float) ConfigHandler.getModConfig().getOpacity(),
 				(id, name, value) -> opacitySliderName + ": " + value
-		));
+		);
+		tempSlider.width = BASIC_OPTIONS_WIDTH;
+		parent.addButton(tempSlider);
 		
 		parent.addButton(this.doneButton = new GuiButton(
 				0,

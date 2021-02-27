@@ -19,12 +19,12 @@ public class MapSelectorUI extends GuiSubScreen {
 	
 	private static final int TITLE_MARGIN_BOTTOM = 20;
 	
-	private static int LIST_WIDTH = 150;
+	private static int LIST_WIDTH;
 	private static final int LIST_PADDING = 5;
 	
     private static final int LIST_TOP_MARGIN = 40;
     private static final int ELEMENT_TOP_MARGIN = 10;
-    private static final int LIST_LEFT_MARGIN = 50;
+    private static final int LIST_LEFT_MARGIN = 30;
     private static final int LIST_LEFT = DefaultMapRenderingOptionsUI.BASIC_OPTIONS_WIDTH + DefaultMapRenderingOptionsUI.BASIC_OPTIONS_MARGIN_LEFT
     		+ LIST_LEFT_MARGIN;
 
