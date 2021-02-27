@@ -26,4 +26,6 @@ The map renderer tool for BuildTheEarth project.
 
 ![Reference screenshot](https://github.com/tf2mandeokyi/BTETerraRenderer/raw/master/docs/screenshot0.png "Location: Manhattan, New York (40.70339 N, 74.01777 W)")
 
+*The map shown at the top-left corner is [Terramap](https://github.com/SmylerMC/terramap).*
+
 [latest version download link]: https://github.com/tf2mandeokyi/BTETerraRenderer/releases/download/1.01.3/mapdisp4bte-1.01.3.jar
