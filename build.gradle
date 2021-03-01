@@ -60,7 +60,7 @@ configurations {
 
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.0.43'
 
     shade 'org.yaml:snakeyaml:1.27'
     shade 'org.osgeo:proj4j:0.1.0'
