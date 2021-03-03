@@ -8,8 +8,8 @@
   "url": "https://www.curseforge.com/minecraft/mc-mods/bteterrarenderer",
   "updateUrl": "",
   "authorList": ["tf2_mandeokyi"],
-  "credits": "",
-  "logoFile": "",
+  "credits": "Authored by tf2_mandeokyi, logo by d1m4 (vicrobex)",
+  "logoFile": "assets/bte_tr/textures/icon.png",
   "screenshots": [],
   "dependencies": []
 }

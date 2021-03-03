@@ -28,7 +28,7 @@ public class OpenStreetMapManager extends MercatorMapManager {
 
         if(result == null) return null;
 
-        result.setRequestProperty("User-Agent", BTETerraRenderer.MODID + "/" + BTETerraRenderer.VERSION + " Java/1.8");
+        result.setRequestProperty("User-Agent", BTETerraRenderer.MODID + "/1.0" + " Java/1.8");
         result.setUseCaches(true);
 
         return result;
