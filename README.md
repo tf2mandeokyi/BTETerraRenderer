@@ -1,7 +1,8 @@
 ![Logo](src/main/resources/assets/bte_tr/textures/icon.png)
 # BTETerraRenderer
-The map renderer tool for BuildTheEarth project.
+The map renderer tool for BuildTheEarth project that renders external maps, such as [Bing maps](https://www.bing.com/maps) and [OpenStreetMap](http://openstreetmap.org/). It is made to help builders build accurate road details and building tops easily.
 
+Logo by [vicrobex](https://github.com/vicrobex)
 
 
 ## Supported maps
