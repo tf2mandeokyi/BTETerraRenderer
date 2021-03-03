@@ -1,6 +1,5 @@
+![Logo](src/main/resources/assets/bte_tr/textures/icon.png)
 # BTETerraRenderer
-[**Download mod**][latest version download link]
-
 The map renderer tool for BuildTheEarth project.
 
 
@@ -24,8 +23,8 @@ The map renderer tool for BuildTheEarth project.
 3. Run Minecraft
 4. In game, press **V** to open render settings UI, and press **B** to toggle map rendering
 
-![Reference screenshot](https://github.com/tf2mandeokyi/BTETerraRenderer/raw/master/docs/screenshot0.png "Location: Manhattan, New York (40.70339 N, 74.01777 W)")
+![Reference screenshot](docs/screenshot0.png "Location: Manhattan, New York (40.70339 N, 74.01777 W)")
 
 *The map shown at the top-left corner is [Terramap](https://github.com/SmylerMC/terramap).*
 
-[latest version download link]: https://github.com/tf2mandeokyi/BTETerraRenderer/releases/download/1.01.3/mapdisp4bte-1.01.3.jar
+[latest version download link]: https://github.com/tf2mandeokyi/BTETerraRenderer/releases/download/1.01.4/mapdisp4bte-1.01.4.jar
