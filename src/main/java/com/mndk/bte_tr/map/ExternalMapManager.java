@@ -6,6 +6,9 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
+import com.mndk.bte_tr.map_new.MapTileCache;
+import com.mndk.bte_tr.map_new.MapTileManager;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,14 +17,15 @@ import java.net.URLConnection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Deprecated
 public abstract class ExternalMapManager {
 
     private final RenderMapSource source;
-    private final ExecutorService donwloadExecutor;
+    private final ExecutorService downloadExecutor;
 
     public ExternalMapManager(RenderMapSource source, int maximumDownloadThreads) {
         this.source = source;
-        this.donwloadExecutor = Executors.newFixedThreadPool(maximumDownloadThreads);
+        this.downloadExecutor = Executors.newFixedThreadPool(maximumDownloadThreads);
     }
 
 
@@ -105,7 +109,7 @@ public abstract class ExternalMapManager {
                 if(!cache.textureExists(tileKey)) {
                     // If the tile is not loaded, load it in new thread
                     cache.setTileDownloadingState(tileKey, true);
-                    this.donwloadExecutor.execute(() -> {
+                    this.downloadExecutor.execute(() -> {
                         try {
                             initializeMapImageByPlayerCoordinate(px, pz, tileDeltaX, tileDeltaY, zoom);
                             cache.setTileDownloadingState(tileKey, false);

@@ -2,8 +2,8 @@ package com.mndk.bte_tr.renderer;
 
 import com.mndk.bte_tr.config.ConfigHandler;
 import com.mndk.bte_tr.config.ModConfig;
-import com.mndk.bte_tr.map.ExternalMapManager;
-import com.mndk.bte_tr.map.MapTileManager;
+import com.mndk.bte_tr.map_new.MapTileManager;
+import com.mndk.bte_tr.map_new.NewExternalMapManager;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.Tessellator;
 
 public class MapTileRenderer {
 
-    public static void renderTiles(ExternalMapManager renderer, double px, double py, double pz) {
+    public static void renderTiles(NewExternalMapManager renderer, double px, double py, double pz) {
         Tessellator t = Tessellator.getInstance();
         BufferBuilder builder = t.getBuffer();
 

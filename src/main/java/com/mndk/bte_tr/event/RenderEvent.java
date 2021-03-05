@@ -2,6 +2,7 @@ package com.mndk.bte_tr.event;
 
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.config.ConfigHandler;
+import com.mndk.bte_tr.config.ModConfig;
 import com.mndk.bte_tr.renderer.MapTileRenderer;
 
 import net.minecraft.client.Minecraft;
@@ -30,7 +31,7 @@ public class RenderEvent {
 
         if(ConfigHandler.getModConfig().isTileRendering()) {
             try {
-                MapTileRenderer.renderTiles(ConfigHandler.getModConfig().getMapSource().getMapRenderer(), px, py, pz);
+                MapTileRenderer.renderTiles(ModConfig.currentMapManager, px, py, pz);
             } catch(IllegalArgumentException exception) {
                 exception.printStackTrace();
             }

@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.map;
+package com.mndk.bte_tr.map_new;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;

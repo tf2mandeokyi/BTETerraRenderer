@@ -7,8 +7,10 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
+import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.config.ConfigHandler;
 import com.mndk.bte_tr.event.KeyEvent;
+import com.mndk.bte_tr.map_new.MapJsonLoader;
 
 import java.io.IOException;
 
@@ -34,8 +36,15 @@ public class ClientProxy extends CommonProxy {
         super.init(event);
         initializeKeys();
         try {
+        	MapJsonLoader.load();
+        } catch(Exception e) {
+        	BTETerraRenderer.logger.error("Error caught while parsing map json files!");
+        	e.printStackTrace();
+        }
+        try {
             ConfigHandler.init();
         } catch (IOException e) {
+        	BTETerraRenderer.logger.error("Error caught while parsing config file!");
             e.printStackTrace();
         }
         MinecraftForge.EVENT_BUS.register(KeyEvent.class);

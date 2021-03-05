@@ -9,12 +9,12 @@ import java.io.*;
 public class ConfigHandler {
 
     public static final Yaml YAML = new Yaml();
-    private static final String fileLocation = "config/" + BTETerraRenderer.MODID + ".yml";
+    private static final String YAML_FILE_LOCATION = "config/" + BTETerraRenderer.MODID + ".yml";
     private static ModConfig config;
 
-    public static void init() throws IOException {
+    public static void init(String fileLocation) throws IOException {
         if(!new File(fileLocation).exists()) {
-            saveDefaultFile();
+            saveDefaultFile(fileLocation);
         }
 
         try {
@@ -22,19 +22,22 @@ public class ConfigHandler {
         } catch(FileNotFoundException e) {
             System.out.println("Cannot load configuration file!");
         }
-        System.out.println(config.getYLevel());
+    }
+
+    public static void init() throws IOException {
+        init(YAML_FILE_LOCATION);
     }
 
     public static ModConfig getModConfig() {
         return config;
     }
 
-    public static void saveDefaultFile() throws IOException {
+    public static void saveDefaultFile(String fileLocation) throws IOException {
         FileWriter writer = new FileWriter(fileLocation);
         new ModConfig().saveTo(YAML, writer);
     }
 
     public static void saveConfig() throws IOException {
-        config.saveTo(YAML, new FileWriter(fileLocation));
+        config.saveTo(YAML, new FileWriter(YAML_FILE_LOCATION));
     }
 }

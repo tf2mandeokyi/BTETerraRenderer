@@ -4,9 +4,12 @@ import java.io.IOException;
 
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.config.ConfigHandler;
+import com.mndk.bte_tr.config.ModConfig;
 import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
 import com.mndk.bte_tr.gui.util.ImageUiRenderer;
-import com.mndk.bte_tr.map.RenderMapSource;
+import com.mndk.bte_tr.map_new.ExternalMapSet;
+import com.mndk.bte_tr.map_new.MapJsonLoader;
+import com.mndk.bte_tr.map_new.NewExternalMapManager;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -34,8 +37,6 @@ public class MapSelectorUI extends GuiSubScreen {
     
     private static final ResourceLocation RADIO_BUTTON_IMAGE =
             new ResourceLocation(BTETerraRenderer.MODID, "textures/ui/radio_button.png");
-    
-    private static RenderMapSource[] sources = RenderMapSource.values();
 
     // private GuiButton doneButton;
     
@@ -53,9 +54,11 @@ public class MapSelectorUI extends GuiSubScreen {
 		
 		int tempWidth;
 		LIST_WIDTH = 0;
-		for(RenderMapSource source : sources) {
-			tempWidth = this.fontRenderer.getStringWidth(source.getTranslatedString());
-			LIST_WIDTH = LIST_WIDTH < tempWidth ? tempWidth : LIST_WIDTH;
+		for(ExternalMapSet set : MapJsonLoader.maps) {
+			for(NewExternalMapManager map : set.getMaps()) {
+				tempWidth = this.fontRenderer.getStringWidth(map.getName());
+				LIST_WIDTH = LIST_WIDTH < tempWidth ? tempWidth : LIST_WIDTH;
+			}
 		}
 		
 		LIST_WIDTH += 2 * LIST_PADDING + 20;
@@ -88,27 +91,30 @@ public class MapSelectorUI extends GuiSubScreen {
 		int c = LIST_TOP_MARGIN + LIST_PADDING + this.fontRenderer.FONT_HEIGHT + TITLE_MARGIN_BOTTOM;
 		int h = this.fontRenderer.FONT_HEIGHT + ELEMENT_TOP_MARGIN;
 		
-		Gui.drawRect(LIST_LEFT, LIST_TOP_MARGIN, LIST_LEFT + LIST_WIDTH, c + h * sources.length, 0x3F000000);
+		Gui.drawRect(LIST_LEFT, LIST_TOP_MARGIN, LIST_LEFT + LIST_WIDTH, c + h * 100, 0x3F000000); // TODO change 100 to something else
 		
 		this.drawCenteredString(
                 this.fontRenderer, I18n.format("gui.bte_tr.maprenderer.map_source"),
                 LIST_LEFT + LIST_WIDTH / 2, LIST_TOP_MARGIN + LIST_PADDING, 0xFFFFFF
         );
 		
-        for(int i=0;i<sources.length;i++) {
-            RenderMapSource source = sources[i];
-            float u = (ConfigHandler.getModConfig().getMapSource() == source ? 1/8.f : 0) + (isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
-            ImageUiRenderer.drawImage(RADIO_BUTTON_IMAGE,
-            		LIST_LEFT + LIST_PADDING,
-                    c + h * i - 8,
-                    0,
-                    16, 16,
-                    u, 0, u + 1/16.f, 1/16.f);
-            this.drawString(this.fontRenderer, source.getTranslatedString(),
-            		LIST_LEFT + LIST_PADDING + 20,
-                    c + h * i - (this.fontRenderer.FONT_HEIGHT / 2),
-                    0xFFFFFF);
-        }
+		int i = 0;
+		for(ExternalMapSet set : MapJsonLoader.maps) {
+			for(NewExternalMapManager map : set.getMaps()) {
+	            float u = (ModConfig.currentMapManager.getId().equals(map.getId()) ? 1/8.f : 0) + (isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
+	            ImageUiRenderer.drawImage(RADIO_BUTTON_IMAGE,
+	            		LIST_LEFT + LIST_PADDING,
+	                    c + h * i - 8,
+	                    0,
+	                    16, 16,
+	                    u, 0, u + 1/16.f, 1/16.f);
+	            this.drawString(this.fontRenderer, map.getName(),
+	            		LIST_LEFT + LIST_PADDING + 20,
+	                    c + h * i - (this.fontRenderer.FONT_HEIGHT / 2),
+	                    0xFFFFFF);
+	            i++;
+			}
+		}
 
         // doneButton.drawButton(parent.mc, mouseX, mouseY, partialTicks);
 	}
@@ -131,13 +137,17 @@ public class MapSelectorUI extends GuiSubScreen {
 	
 	
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException { 
-		for(int i=0;i<sources.length;i++) {
-            if(isMouseOnIndex(mouseX, mouseY, i)) {
-                ConfigHandler.getModConfig().setMapSource(sources[i]);
-                return;
-            }
-        }
+	public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+		int i = 0;
+		for(ExternalMapSet set : MapJsonLoader.maps) {
+			for(NewExternalMapManager map : set.getMaps()) {
+	            if(isMouseOnIndex(mouseX, mouseY, i)) {
+	                ConfigHandler.getModConfig().setMapId(map.getId());
+	                return;
+	            }
+	            i++;
+	        }
+		}
 	}
 	
 	

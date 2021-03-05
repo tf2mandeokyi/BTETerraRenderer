@@ -2,6 +2,7 @@ package com.mndk.bte_tr.map.mercator;
 
 import com.mndk.bte_tr.map.ExternalMapManager;
 import com.mndk.bte_tr.map.RenderMapSource;
+import com.mndk.bte_tr.map_new.mercator.MercatorTileConverter;
 import com.mndk.bte_tr.projection.Projections;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;

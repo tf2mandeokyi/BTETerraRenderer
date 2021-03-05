@@ -11,6 +11,7 @@ import com.mndk.bte_tr.util.TranslatableEnum;
 
 import net.minecraft.client.resources.I18n;
 
+@Deprecated
 public enum RenderMapSource implements TranslatableEnum<RenderMapSource> {
     OSM, BING_AERIAL, BING_PLAIN, KAKAO_AERIAL, KAKAO_PLAIN, TMAP, NAVER;
 

@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.map;
+package com.mndk.bte_tr.map_new;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
