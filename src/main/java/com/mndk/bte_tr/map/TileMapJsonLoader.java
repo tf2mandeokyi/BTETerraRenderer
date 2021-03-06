@@ -25,11 +25,9 @@ public class TileMapJsonLoader {
 	public static final JsonParser JSON_PARSER = new JsonParser();
 	public static final Gson GSON = new Gson();
 	
-	public static List<ExternalTileMapSet> maps = new ArrayList<>();
+	public static TileMapJsonResult result;
 	
 	public static void load(String modConfigDirectory) throws Exception {
-		
-		maps = new ArrayList<>();
 
 		File configFolder = new File(modConfigDirectory + "/" + BTETerraRenderer.MODID);
 		File customMapJson = new File(modConfigDirectory + "/" + BTETerraRenderer.MODID + "/maps.json");
@@ -39,17 +37,19 @@ public class TileMapJsonLoader {
 		if(!customMapJson.exists()) {
 			saveMapJsonTo(customMapJson);
 		}
-		load(new FileReader(customMapJson));
+		result = load(new FileReader(customMapJson));
 	}
 	
 
-	private static void load(Reader fileReader) throws Exception {
+	private static TileMapJsonResult load(Reader fileReader) throws Exception {
 		JsonElement mapJson = JSON_PARSER.parse(fileReader);
 		JsonArray array = mapJson.getAsJsonObject().get("categories").getAsJsonArray();
+		List<TileMapJsonResult.Category> result = new ArrayList<>();
 		for(JsonElement element : array) {
 			if(!element.isJsonObject()) continue;
-			maps.add(getMapSetFromJsonObject(element.getAsJsonObject()));
+			result.add(getMapSetFromJsonObject(element.getAsJsonObject()));
 		}
+		return new TileMapJsonResult(result);
 	}
 	
 	
@@ -65,7 +65,7 @@ public class TileMapJsonLoader {
 	}
 	
 	
-	private static ExternalTileMapSet getMapSetFromJsonObject(JsonObject object) throws Exception {
+	private static TileMapJsonResult.Category getMapSetFromJsonObject(JsonObject object) throws Exception {
 		String name = JsonUtil.validateStringElement(object, "name");
 		
 		List<ExternalTileMap> mapSet = new ArrayList<>();
@@ -75,6 +75,6 @@ public class TileMapJsonLoader {
 			mapSet.add(ExternalTileMap.parse(mapElement.getAsJsonObject()));
 		}
 		
-		return new ExternalTileMapSet(name, mapSet);
+		return new TileMapJsonResult.Category(name, mapSet);
 	}
 }

@@ -7,9 +7,9 @@ import com.mndk.bte_tr.config.ConfigHandler;
 import com.mndk.bte_tr.config.ModConfig;
 import com.mndk.bte_tr.gui.MapRenderingOptionsUI;
 import com.mndk.bte_tr.gui.util.ImageUiRenderer;
-import com.mndk.bte_tr.map.ExternalTileMapSet;
-import com.mndk.bte_tr.map.TileMapJsonLoader;
 import com.mndk.bte_tr.map.ExternalTileMap;
+import com.mndk.bte_tr.map.TileMapJsonLoader;
+import com.mndk.bte_tr.map.TileMapJsonResult;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -54,8 +54,8 @@ public class MapSelectorUI extends GuiSubScreen {
 		
 		int tempWidth;
 		LIST_WIDTH = 0;
-		for(ExternalTileMapSet set : TileMapJsonLoader.maps) {
-			for(ExternalTileMap map : set.getMaps()) {
+		for(TileMapJsonResult.Category category : TileMapJsonLoader.result.getCategories()) {
+			for(ExternalTileMap map : category.getMaps()) {
 				tempWidth = this.fontRenderer.getStringWidth(map.getName());
 				LIST_WIDTH = LIST_WIDTH < tempWidth ? tempWidth : LIST_WIDTH;
 			}
@@ -99,8 +99,8 @@ public class MapSelectorUI extends GuiSubScreen {
         );
 		
 		int i = 0;
-		for(ExternalTileMapSet set : TileMapJsonLoader.maps) {
-			for(ExternalTileMap map : set.getMaps()) {
+		for(TileMapJsonResult.Category category : TileMapJsonLoader.result.getCategories()) {
+			for(ExternalTileMap map : category.getMaps()) {
 	            float u = (ModConfig.currentMapManager.getId().equals(map.getId()) ? 1/8.f : 0) + (isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
 	            ImageUiRenderer.drawImage(RADIO_BUTTON_IMAGE,
 	            		LIST_LEFT + LIST_PADDING,
@@ -139,8 +139,8 @@ public class MapSelectorUI extends GuiSubScreen {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		int i = 0;
-		for(ExternalTileMapSet set : TileMapJsonLoader.maps) {
-			for(ExternalTileMap map : set.getMaps()) {
+		for(TileMapJsonResult.Category category : TileMapJsonLoader.result.getCategories()) {
+			for(ExternalTileMap map : category.getMaps()) {
 	            if(isMouseOnIndex(mouseX, mouseY, i)) {
 	                ConfigHandler.getModConfig().setMapId(map.getId());
 	                return;
