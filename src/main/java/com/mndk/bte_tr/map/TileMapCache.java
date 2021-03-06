@@ -12,7 +12,7 @@ public class TileMapCache {
 	
 	
 	
-    public static TileMapCache instance = new TileMapCache(1000 * 60, 1000);
+    public static TileMapCache instance = new TileMapCache(1000 * 60 * 5, 10000);
     public static TileMapCache getInstance() { return instance; }
 
 
@@ -168,7 +168,7 @@ public class TileMapCache {
     
     
     
-    public void addImageToRenderList(String tileId, BufferedImage image) {
+    public void addImageToRenderQueue(String tileId, BufferedImage image) {
         imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileId, image));
     }
     

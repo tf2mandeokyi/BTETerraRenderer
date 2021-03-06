@@ -113,7 +113,7 @@ public abstract class ExternalTileMap {
 
         BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom);
 
-        TileMapCache.getInstance().addImageToRenderList(tileId, image);
+        TileMapCache.getInstance().addImageToRenderQueue(tileId, image);
     }
     
     
