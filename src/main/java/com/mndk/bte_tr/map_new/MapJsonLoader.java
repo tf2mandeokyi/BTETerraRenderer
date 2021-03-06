@@ -1,50 +1,70 @@
 package com.mndk.bte_tr.map_new;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mndk.bte_tr.BTETerraRenderer;
-import com.mndk.bte_tr.config.ConfigHandler;
-import com.mndk.bte_tr.config.ModConfig;
 import com.mndk.bte_tr.util.JsonUtil;
-
-import scala.actors.threadpool.Arrays;
 
 public class MapJsonLoader {
 	
 	private static final String MAP_JSON_PATH = "assets/" + BTETerraRenderer.MODID + "/maps.json";
 	
+	public static final JsonParser JSON_PARSER = new JsonParser();
+	public static final Gson GSON = new Gson();
+	
 	public static List<ExternalMapSet> maps = new ArrayList<>();
 	
-	public static void load() throws Exception {
+	public static void load(String modConfigDirectory) throws Exception {
 		
 		maps = new ArrayList<>();
-		JsonElement mapJson = new JsonParser().parse(new InputStreamReader(MapJsonLoader.class.getClassLoader().getResourceAsStream(MAP_JSON_PATH)));
+
+		File customMapJson = new File(modConfigDirectory + "/maps.json");
+		if(!customMapJson.exists()) {
+			saveMapJsonTo(customMapJson);
+		}
+		load(new FileReader(customMapJson));
+	}
+	
+
+	private static void load(Reader fileReader) throws Exception {
+		JsonElement mapJson = JSON_PARSER.parse(fileReader);
 		JsonArray array = mapJson.getAsJsonObject().get("categories").getAsJsonArray();
 		for(JsonElement element : array) {
 			if(!element.isJsonObject()) continue;
 			maps.add(getMapSetFromJsonObject(element.getAsJsonObject()));
 		}
 	}
-	/*
-	public static void initializeDefaultMapJsonFile(FMLPreInitializationEvent event) {
-		File directory = event.getModConfigurationDirectory();
-		if(!directory.exists()) directory.mkdirs();
+	
+	
+	private static void saveMapJsonTo(File file) throws IOException {
+		file.createNewFile();
+		FileWriter writer = new FileWriter(file);
 		
+		InputStreamReader reader = new InputStreamReader(MapJsonLoader.class.getClassLoader().getResourceAsStream(MAP_JSON_PATH), Charset.defaultCharset());
+
+        int c;
+        while ((c = reader.read()) != -1) writer.write(c);
+        writer.close();
 	}
-	*/
+	
 	
 	private static ExternalMapSet getMapSetFromJsonObject(JsonObject object) throws Exception {
 		String name = JsonUtil.validateStringElement(object, "name");
 		
-		Set<NewExternalMapManager> mapSet = new HashSet<>();
+		List<NewExternalMapManager> mapSet = new ArrayList<>();
 		JsonArray mapJsonArray = object.get("maps").getAsJsonArray();
 		for(JsonElement mapElement : mapJsonArray) {
 			if(!mapElement.isJsonObject()) continue;
@@ -52,9 +72,5 @@ public class MapJsonLoader {
 		}
 		
 		return new ExternalMapSet(name, mapSet);
-	}
-	
-	public static void main(String[] args) throws Exception {
-		load();
 	}
 }

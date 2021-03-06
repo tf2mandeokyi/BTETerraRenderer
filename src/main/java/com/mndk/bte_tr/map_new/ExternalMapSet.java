@@ -1,13 +1,13 @@
 package com.mndk.bte_tr.map_new;
 
-import java.util.Set;
+import java.util.List;
 
 public class ExternalMapSet {
 	
 	private final String name;
-	private final Set<NewExternalMapManager> mapSet;
+	private final List<NewExternalMapManager> mapSet;
 	
-	public ExternalMapSet(String name, Set<NewExternalMapManager> mapSet) {
+	public ExternalMapSet(String name, List<NewExternalMapManager> mapSet) {
 		this.name = name;
 		this.mapSet = mapSet;
 	}
@@ -16,7 +16,7 @@ public class ExternalMapSet {
 		return name;
 	}
 	
-	public Set<NewExternalMapManager> getMaps() {
+	public List<NewExternalMapManager> getMaps() {
 		return mapSet;
 	}
 	

@@ -5,6 +5,8 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
 import org.lwjgl.input.Keyboard;
 
 import com.mndk.bte_tr.BTETerraRenderer;
@@ -32,15 +34,19 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void init(FMLInitializationEvent event) {
-        super.init(event);
-        initializeKeys();
+    public void preInit(FMLPreInitializationEvent event) {
         try {
-        	MapJsonLoader.load();
+        	MapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
         } catch(Exception e) {
         	BTETerraRenderer.logger.error("Error caught while parsing map json files!");
         	e.printStackTrace();
         }
+    }
+    
+    @Override
+    public void init(FMLInitializationEvent event) {
+        super.init(event);
+        initializeKeys();
         try {
             ConfigHandler.init();
         } catch (IOException e) {
