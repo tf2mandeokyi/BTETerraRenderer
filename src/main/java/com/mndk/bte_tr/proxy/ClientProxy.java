@@ -12,7 +12,7 @@ import org.lwjgl.input.Keyboard;
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.config.ConfigHandler;
 import com.mndk.bte_tr.event.KeyEvent;
-import com.mndk.bte_tr.map_new.MapJsonLoader;
+import com.mndk.bte_tr.map.TileMapJsonLoader;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         try {
-        	MapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
+        	TileMapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
         } catch(Exception e) {
         	BTETerraRenderer.logger.error("Error caught while parsing map json files!");
         	e.printStackTrace();

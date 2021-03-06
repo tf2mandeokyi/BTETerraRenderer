@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.map_new;
+package com.mndk.bte_tr.map;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -19,9 +19,9 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mndk.bte_tr.map_new.bing.NewBingMapManager;
-import com.mndk.bte_tr.map_new.kakao_wtm.NewKakaoMapManager;
-import com.mndk.bte_tr.map_new.mercator.NewMercatorMapManager;
+import com.mndk.bte_tr.map.bing.BingTileMap;
+import com.mndk.bte_tr.map.kakao_wtm.KakaoTileMap;
+import com.mndk.bte_tr.map.mercator.MercatorTileMap;
 import com.mndk.bte_tr.util.JsonUtil;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
@@ -29,7 +29,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public abstract class NewExternalMapManager {
+public abstract class ExternalTileMap {
 	
 	
 	
@@ -64,19 +64,19 @@ public abstract class NewExternalMapManager {
     
     
     
-    public static NewExternalMapManager parse(JsonObject object) throws Exception {
+    public static ExternalTileMap parse(JsonObject object) throws Exception {
     	String projectionId = JsonUtil.validateStringElement(object, "projection");
     	switch(projectionId.toLowerCase()) {
-    		case "mercator": return new NewMercatorMapManager(object);
-    		case "bing": return new NewBingMapManager(object);
-    		case "kakao_wtm": return new NewKakaoMapManager(object);
+    		case "mercator": return new MercatorTileMap(object);
+    		case "bing": return new BingTileMap(object);
+    		case "kakao_wtm": return new KakaoTileMap(object);
     	}
     	throw new Exception(projectionId + " projection doesn't exist!");
     }
     
     
     
-    protected NewExternalMapManager(JsonObject object) throws Exception {
+    protected ExternalTileMap(JsonObject object) throws Exception {
     	
     	this.id = JsonUtil.validateStringElement(object, "id");
     	this.name = JsonUtil.validateStringElement(object, "name");
@@ -113,7 +113,7 @@ public abstract class NewExternalMapManager {
 
         BufferedImage image = this.fetchMapSync(playerX, playerZ, tileDeltaX, tileDeltaY, zoom);
 
-        MapTileManager.getInstance().addImageToRenderList(tileId, image);
+        TileMapCache.getInstance().addImageToRenderList(tileId, image);
     }
     
     
@@ -209,9 +209,9 @@ public abstract class NewExternalMapManager {
 
             String tileKey = this.genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom);
 
-            MapTileCache cache = MapTileManager.getInstance().getTileCache();
+            TileMapCache cache = TileMapCache.getInstance();
 
-            MapTileManager.getInstance().cacheAllImagesInQueue();
+            cache.cacheAllImagesInQueue();
 
             if(!cache.isTileInDownloadingState(tileKey)) {
                 if(!cache.textureExists(tileKey)) {
@@ -273,7 +273,7 @@ public abstract class NewExternalMapManager {
     
     @Override
     public String toString() {
-    	return NewExternalMapManager.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + tileUrl + "}";
+    	return ExternalTileMap.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + tileUrl + "}";
     }
 
 }

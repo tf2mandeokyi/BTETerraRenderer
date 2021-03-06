@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.map_new.mercator;
+package com.mndk.bte_tr.map.mercator;
 
 public class MercatorTileConverter {
 

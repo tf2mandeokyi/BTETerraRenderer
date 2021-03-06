@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
-import com.mndk.bte_tr.map_new.ExternalMapSet;
-import com.mndk.bte_tr.map_new.MapJsonLoader;
-import com.mndk.bte_tr.map_new.NewExternalMapManager;
+import com.mndk.bte_tr.map.ExternalTileMapSet;
+import com.mndk.bte_tr.map.TileMapJsonLoader;
+import com.mndk.bte_tr.map.ExternalTileMap;
 
 public class ModConfig {
 
@@ -21,7 +21,7 @@ public class ModConfig {
     private int zoom;
     private int radius;
 
-    public static NewExternalMapManager currentMapManager;
+    public static ExternalTileMap currentMapManager;
 
     public static class AlignmentAxis {
         public double x, z;
@@ -113,8 +113,8 @@ public class ModConfig {
 
     public void setMapId(String mapId) {
         this.mapId = mapId;
-        for(ExternalMapSet set : MapJsonLoader.maps) {
-        	for(NewExternalMapManager map : set.getMaps()) {
+        for(ExternalTileMapSet set : TileMapJsonLoader.maps) {
+        	for(ExternalTileMap map : set.getMaps()) {
         		if(mapId.equals(map.getId())) {
             		currentMapManager = map;
         		}

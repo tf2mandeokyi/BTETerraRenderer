@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.map_new;
+package com.mndk.bte_tr.map;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -8,7 +8,12 @@ import java.util.*;
 
 import com.mndk.bte_tr.BTETerraRenderer;
 
-public class MapTileCache {
+public class TileMapCache {
+	
+	
+	
+    public static TileMapCache instance = new TileMapCache(1000 * 60, 1000);
+    public static TileMapCache getInstance() { return instance; }
 
 
 
@@ -23,14 +28,16 @@ public class MapTileCache {
     private final Map<String, GLIdWrapper> glTextureIdMap;
     private final Set<String> downloadingTileKeys;
     private final long expireMilliseconds;
+    private List<Map.Entry<String, BufferedImage>> imageRenderQueue;
 
 
 
-    public MapTileCache(long expireMilliseconds, int maximumSize) {
+    public TileMapCache(long expireMilliseconds, int maximumSize) {
         this.glTextureIdMap = new HashMap<>();
         this.downloadingTileKeys = new HashSet<>();
         this.expireMilliseconds = expireMilliseconds;
         this.maximumSize = maximumSize;
+        this.imageRenderQueue = new ArrayList<>();
     }
 
 
@@ -157,6 +164,41 @@ public class MapTileCache {
         TextureUtil.uploadTexture(glTextureId, imageData, width, height);
 
         return glTextureId;
+    }
+    
+    
+    
+    public void addImageToRenderList(String tileId, BufferedImage image) {
+        imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileId, image));
+    }
+    
+    
+    
+    public void cacheAllImagesInQueue() {
+        List<Map.Entry<String, BufferedImage>> newList = new ArrayList<>();
+
+        while(!imageRenderQueue.isEmpty()) {
+        	// To prevent ConcurrentModificationException, the code is caching one image at a time.
+            Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
+            imageRenderQueue.remove(0);
+            if(entry == null) continue;
+            
+            String tileKey = entry.getKey();
+            BufferedImage image = entry.getValue();
+
+            try {
+                if (entry.getValue() != null) {
+                    this.addTexture(tileKey, image);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+                // Put the image data back to the queue if something went wrong
+                newList.add(new AbstractMap.SimpleEntry<>(tileKey, image));
+            }
+        }
+
+        imageRenderQueue = newList;
+
     }
 
 

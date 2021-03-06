@@ -1,14 +1,14 @@
-package com.mndk.bte_tr.map_new.kakao_wtm;
+package com.mndk.bte_tr.map.kakao_wtm;
 
 import com.google.gson.JsonObject;
-import com.mndk.bte_tr.map_new.NewExternalMapManager;
+import com.mndk.bte_tr.map.ExternalTileMap;
 import com.mndk.bte_tr.projection.Projections;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public class NewKakaoMapManager extends NewExternalMapManager {
+public class KakaoTileMap extends ExternalTileMap {
 	
-    public NewKakaoMapManager(JsonObject object) throws Exception { super(object); }
+    public KakaoTileMap(JsonObject object) throws Exception { super(object); }
 
 
 

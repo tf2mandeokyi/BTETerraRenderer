@@ -1,4 +1,4 @@
-package com.mndk.bte_tr.map_new;
+package com.mndk.bte_tr.map;
 
 import java.io.File;
 import java.io.FileReader;
@@ -18,14 +18,14 @@ import com.google.gson.JsonParser;
 import com.mndk.bte_tr.BTETerraRenderer;
 import com.mndk.bte_tr.util.JsonUtil;
 
-public class MapJsonLoader {
+public class TileMapJsonLoader {
 	
 	private static final String MAP_JSON_PATH = "assets/" + BTETerraRenderer.MODID + "/maps.json";
 	
 	public static final JsonParser JSON_PARSER = new JsonParser();
 	public static final Gson GSON = new Gson();
 	
-	public static List<ExternalMapSet> maps = new ArrayList<>();
+	public static List<ExternalTileMapSet> maps = new ArrayList<>();
 	
 	public static void load(String modConfigDirectory) throws Exception {
 		
@@ -53,7 +53,7 @@ public class MapJsonLoader {
 		file.createNewFile();
 		FileWriter writer = new FileWriter(file);
 		
-		InputStreamReader reader = new InputStreamReader(MapJsonLoader.class.getClassLoader().getResourceAsStream(MAP_JSON_PATH), Charset.defaultCharset());
+		InputStreamReader reader = new InputStreamReader(TileMapJsonLoader.class.getClassLoader().getResourceAsStream(MAP_JSON_PATH), Charset.defaultCharset());
 
         int c;
         while ((c = reader.read()) != -1) writer.write(c);
@@ -61,16 +61,16 @@ public class MapJsonLoader {
 	}
 	
 	
-	private static ExternalMapSet getMapSetFromJsonObject(JsonObject object) throws Exception {
+	private static ExternalTileMapSet getMapSetFromJsonObject(JsonObject object) throws Exception {
 		String name = JsonUtil.validateStringElement(object, "name");
 		
-		List<NewExternalMapManager> mapSet = new ArrayList<>();
+		List<ExternalTileMap> mapSet = new ArrayList<>();
 		JsonArray mapJsonArray = object.get("maps").getAsJsonArray();
 		for(JsonElement mapElement : mapJsonArray) {
 			if(!mapElement.isJsonObject()) continue;
-			mapSet.add(NewExternalMapManager.parse(mapElement.getAsJsonObject()));
+			mapSet.add(ExternalTileMap.parse(mapElement.getAsJsonObject()));
 		}
 		
-		return new ExternalMapSet(name, mapSet);
+		return new ExternalTileMapSet(name, mapSet);
 	}
 }

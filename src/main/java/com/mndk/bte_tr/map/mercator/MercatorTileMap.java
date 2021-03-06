@@ -1,15 +1,15 @@
-package com.mndk.bte_tr.map_new.mercator;
+package com.mndk.bte_tr.map.mercator;
 
 import com.google.gson.JsonObject;
-import com.mndk.bte_tr.map_new.NewExternalMapManager;
+import com.mndk.bte_tr.map.ExternalTileMap;
 import com.mndk.bte_tr.projection.Projections;
 
 import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
 
-public class NewMercatorMapManager extends NewExternalMapManager {
+public class MercatorTileMap extends ExternalTileMap {
 
 
-    public NewMercatorMapManager(JsonObject object) throws Exception { super(object); }
+    public MercatorTileMap(JsonObject object) throws Exception { super(object); }
 
 
     @Override
