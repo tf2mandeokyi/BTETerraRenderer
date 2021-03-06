@@ -9,7 +9,7 @@ import java.io.*;
 public class ConfigHandler {
 
     public static final Yaml YAML = new Yaml();
-    private static final String YAML_FILE_LOCATION = "config/" + BTETerraRenderer.MODID + ".yml";
+    private static final String YAML_FILE_LOCATION = "config/" + BTETerraRenderer.MODID + "/config.yml";
     private static ModConfig config;
 
     public static void init(String fileLocation) throws IOException {

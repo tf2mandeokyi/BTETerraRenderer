@@ -35,6 +35,7 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
+    	super.preInit(event);
         try {
         	TileMapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
         } catch(Exception e) {

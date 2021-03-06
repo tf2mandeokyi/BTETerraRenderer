@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 
-public class MapTileRenderer {
+public class TileMapRenderer {
 
     public static void renderTiles(ExternalTileMap renderer, double px, double py, double pz) {
         Tessellator t = Tessellator.getInstance();

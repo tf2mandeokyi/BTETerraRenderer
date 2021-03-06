@@ -31,7 +31,11 @@ public class TileMapJsonLoader {
 		
 		maps = new ArrayList<>();
 
-		File customMapJson = new File(modConfigDirectory + "/maps.json");
+		File configFolder = new File(modConfigDirectory + "/" + BTETerraRenderer.MODID);
+		File customMapJson = new File(modConfigDirectory + "/" + BTETerraRenderer.MODID + "/maps.json");
+		if(!configFolder.isDirectory()) {
+			configFolder.mkdirs();
+		}
 		if(!customMapJson.exists()) {
 			saveMapJsonTo(customMapJson);
 		}
