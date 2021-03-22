@@ -23,11 +23,11 @@ public class ClientProxy extends CommonProxy {
     public static void initializeKeys() {
         mapOptionsKey = new KeyBinding(
                 I18n.format("key.bte_tr.maprenderer.options_ui"),
-                Keyboard.KEY_V,
+                Keyboard.KEY_GRAVE,
                 I18n.format("key.bte_tr.maprenderer.category"));
         mapToggleKey = new KeyBinding(
                 I18n.format("key.bte_tr.maprenderer.toggle"),
-                Keyboard.KEY_B,
+                Keyboard.KEY_R,
                 I18n.format("key.bte_tr.maprenderer.category"));
         ClientRegistry.registerKeyBinding(mapOptionsKey);
         ClientRegistry.registerKeyBinding(mapToggleKey);
