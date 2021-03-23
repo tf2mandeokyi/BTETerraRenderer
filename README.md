@@ -30,4 +30,4 @@ Logo by [vicrobex](https://github.com/vicrobex)
 
 *The map shown at the top-left corner is [Terramap](https://github.com/SmylerMC/terramap).*
 
-[latest version download link]: https://github.com/tf2mandeokyi/BTETerraRenderer/releases/download/1.01.4/mapdisp4bte-1.01.4.jar
+[latest version download link]: https://github.com/tf2mandeokyi/BTETerraRenderer/releases/tag/1.02
