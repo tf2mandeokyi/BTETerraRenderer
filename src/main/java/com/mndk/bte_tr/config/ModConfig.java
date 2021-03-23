@@ -7,18 +7,20 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
-import com.mndk.bte_tr.map.RenderMapSource;
+import com.mndk.bte_tr.map.ExternalTileMap;
+import com.mndk.bte_tr.map.TileMapJsonLoader;
 
 public class ModConfig {
 
     private AlignmentAxis align;
     private double yLevel;
-    private RenderMapSource mapSource;
+    private String mapId;
     private double opacity;
     private boolean renderTiles;
     private int zoom;
     private int radius;
 
+    public static ExternalTileMap currentMapManager;
 
     public static class AlignmentAxis {
         public double x, z;
@@ -32,7 +34,7 @@ public class ModConfig {
         this.align = new AlignmentAxis(0, 0);
         this.renderTiles = false;
         this.yLevel = 4;
-        this.mapSource = RenderMapSource.OSM;
+        this.setMapId("osm");
         this.opacity = 0.7;
         this.zoom = 0;
         this.radius = 2;
@@ -54,9 +56,7 @@ public class ModConfig {
 
         if(map.containsKey("y_level")) this.yLevel = (double) map.get("y_level");
 
-        try {
-        	if(map.containsKey("map_source")) this.mapSource = RenderMapSource.valueOf((String) map.get("map_source"));
-        } catch(Exception ignored) {}
+        if(map.containsKey("map_id")) this.setMapId((String) map.get("map_id"));
 
         if(map.containsKey("opacity")) this.opacity = (double) map.get("opacity");
 
@@ -76,7 +76,7 @@ public class ModConfig {
         }});
         map.put("draw", renderTiles);
         map.put("y_level", yLevel);
-        map.put("map_source", mapSource.toString());
+        map.put("map_id", mapId);
         map.put("opacity", opacity);
         map.put("zoom", zoom);
         map.put("radius", radius);
@@ -110,12 +110,9 @@ public class ModConfig {
         this.yLevel = yLevel;
     }
 
-    public RenderMapSource getMapSource() {
-        return mapSource;
-    }
-
-    public void setMapSource(RenderMapSource mapSource) {
-        this.mapSource = mapSource;
+    public void setMapId(String mapId) {
+        this.mapId = mapId;
+        currentMapManager = TileMapJsonLoader.result.getTileMap(mapId);
     }
 
     public double getOpacity() {

@@ -1,20 +1,15 @@
 package com.mndk.bte_tr.map.bing;
 
-import com.mndk.bte_tr.map.RenderMapSource;
-import com.mndk.bte_tr.map.mercator.MercatorMapManager;
+import com.google.gson.JsonObject;
+import com.mndk.bte_tr.map.mercator.MercatorTileMap;
 
-public class BingMapManager extends MercatorMapManager {
+public class BingTileMap extends MercatorTileMap {
 
-    public BingMapManager(RenderMapSource source, String urlRequestTemplate) { super(source, urlRequestTemplate, 2); }
+    public BingTileMap(JsonObject object) throws Exception { super(object); }
 
     @Override
     public String getUrlTemplate(int tileX, int tileY, int zoom) {
-        return requestUrlTemplate.replace("{u}", BingMapManager.tileToQuadKey(tileX, tileY, zoom));
-    }
-
-    @Override
-    protected int getZoomFromLevel(int level) {
-        return 19 - level;
+        return super.getUrlTemplate(tileX, tileY, zoom).replace("{u}", BingTileMap.tileToQuadKey(tileX, tileY, zoom));
     }
 
 	public static String tileToQuadKey(int tileX, int tileY, int zoom) {
