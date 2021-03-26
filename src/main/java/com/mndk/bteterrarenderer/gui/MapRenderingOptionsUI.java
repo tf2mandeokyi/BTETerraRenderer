@@ -1,12 +1,15 @@
 package com.mndk.bteterrarenderer.gui;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.gui.sub_ui.DefaultMapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.sub_ui.MapAlignmentToolUI;
 import com.mndk.bteterrarenderer.gui.sub_ui.MapSelectorUI;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -26,7 +29,30 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	
 	
 	
-	public MapRenderingOptionsUI() {
+	public static void open() {
+        Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUI());
+	}
+	
+	
+	
+	@Deprecated
+	public static void open(long milliseconds) {
+		new Timer().schedule(new TimerTask() {
+			public void run() { 
+				synchronized(Minecraft.getMinecraft()) { open(); }
+			}
+		}, milliseconds);
+		// I could've used a "rendering scheduler" or something instead, but I think it's an overkill to make one.
+		// So I'm using "le ol' Timer#schedule" to delay opening the ui.
+		// Not a good idea, but it sorta works, right?
+		
+		// It turned out it doesn't work lmao
+		// I'll just in case make a TODO here to fix this later
+	}
+	
+	
+	
+	private MapRenderingOptionsUI() {
 		this.defaultOptions = new DefaultMapRenderingOptionsUI(this);
 		this.mapSelectorUi = new MapSelectorUI(this);
 		this.alignmentToolUi = new MapAlignmentToolUI(this);

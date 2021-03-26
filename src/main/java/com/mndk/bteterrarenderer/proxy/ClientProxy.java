@@ -1,20 +1,23 @@
 package com.mndk.bteterrarenderer.proxy;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.event.KeyEvent;
 import com.mndk.bteterrarenderer.map.TileMapJsonLoader;
 
-import java.io.IOException;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class ClientProxy extends CommonProxy {
 
@@ -53,7 +56,17 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void init(FMLInitializationEvent event) {
         super.init(event);
+        
         initializeKeys();
+        
         MinecraftForge.EVENT_BUS.register(KeyEvent.class);
+    }
+    
+    @Override
+    public void postInit(FMLPostInitializationEvent event) {
+    	super.postInit(event);
+        
+        ClientCommandHandler.instance.registerCommand(new ToggleMapCommand());
+        // ClientCommandHandler.instance.registerCommand(new OpenConfigCommand());
     }
 }
