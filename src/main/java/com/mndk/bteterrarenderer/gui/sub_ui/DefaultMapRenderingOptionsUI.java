@@ -130,8 +130,8 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
 	@Override
 	public void keyTyped(char key, int keyCode) {
-        this.mapYAxisInput.textboxKeyTyped(key, keyCode);
-    }
+		this.mapYAxisInput.textboxKeyTyped(key, keyCode);
+	}
 	
 	
 	

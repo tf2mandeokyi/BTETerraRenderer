@@ -12,7 +12,7 @@ public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override
 	public void execute(MinecraftServer arg0, ICommandSender arg1, String[] arg2) throws CommandException {
-        ConfigHandler.getModConfig().toggleTileRendering();
+		ConfigHandler.getModConfig().toggleTileRendering();
 	}
 
 	@Override

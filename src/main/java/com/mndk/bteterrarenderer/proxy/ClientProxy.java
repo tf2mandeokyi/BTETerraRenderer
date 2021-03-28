@@ -21,52 +21,52 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class ClientProxy extends CommonProxy {
 
-    public static KeyBinding mapOptionsKey, mapToggleKey;
+	public static KeyBinding mapOptionsKey, mapToggleKey;
 
-    public static void initializeKeys() {
-        mapOptionsKey = new KeyBinding(
-                I18n.format("key.bteterrarenderer.maprenderer.options_ui"),
-                Keyboard.KEY_GRAVE,
-                I18n.format("key.bteterrarenderer.maprenderer.category"));
-        mapToggleKey = new KeyBinding(
-                I18n.format("key.bteterrarenderer.maprenderer.toggle"),
-                Keyboard.KEY_R,
-                I18n.format("key.bteterrarenderer.maprenderer.category"));
-        ClientRegistry.registerKeyBinding(mapOptionsKey);
-        ClientRegistry.registerKeyBinding(mapToggleKey);
-    }
+	public static void initializeKeys() {
+		mapOptionsKey = new KeyBinding(
+				I18n.format("key.bteterrarenderer.maprenderer.options_ui"),
+				Keyboard.KEY_GRAVE,
+				I18n.format("key.bteterrarenderer.maprenderer.category"));
+		mapToggleKey = new KeyBinding(
+				I18n.format("key.bteterrarenderer.maprenderer.toggle"),
+				Keyboard.KEY_R,
+				I18n.format("key.bteterrarenderer.maprenderer.category"));
+		ClientRegistry.registerKeyBinding(mapOptionsKey);
+		ClientRegistry.registerKeyBinding(mapToggleKey);
+	}
 
-    @Override
-    public void preInit(FMLPreInitializationEvent event) {
-    	super.preInit(event);
-        try {
-        	TileMapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
-        } catch(Exception e) {
-        	BTETerraRenderer.logger.error("Error caught while parsing map json files!");
-        	e.printStackTrace();
-        }
-        try {
-            ConfigHandler.init();
-        } catch (IOException e) {
-        	BTETerraRenderer.logger.error("Error caught while parsing config file!");
-            e.printStackTrace();
-        }
-    }
-    
-    @Override
-    public void init(FMLInitializationEvent event) {
-        super.init(event);
-        
-        initializeKeys();
-        
-        MinecraftForge.EVENT_BUS.register(KeyEvent.class);
-    }
-    
-    @Override
-    public void postInit(FMLPostInitializationEvent event) {
-    	super.postInit(event);
-        
-        ClientCommandHandler.instance.registerCommand(new ToggleMapCommand());
-        // ClientCommandHandler.instance.registerCommand(new OpenConfigCommand());
-    }
+	@Override
+	public void preInit(FMLPreInitializationEvent event) {
+		super.preInit(event);
+		try {
+			TileMapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
+		} catch(Exception e) {
+			BTETerraRenderer.logger.error("Error caught while parsing map json files!");
+			e.printStackTrace();
+		}
+		try {
+			ConfigHandler.init();
+		} catch (IOException e) {
+			BTETerraRenderer.logger.error("Error caught while parsing config file!");
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void init(FMLInitializationEvent event) {
+		super.init(event);
+		
+		initializeKeys();
+		
+		MinecraftForge.EVENT_BUS.register(KeyEvent.class);
+	}
+	
+	@Override
+	public void postInit(FMLPostInitializationEvent event) {
+		super.postInit(event);
+		
+		ClientCommandHandler.instance.registerCommand(new ToggleMapCommand());
+		// ClientCommandHandler.instance.registerCommand(new OpenConfigCommand());
+	}
 }

@@ -9,30 +9,30 @@ import org.lwjgl.opengl.GL11;
 
 public class ImageUiRenderer {
 
-    public static void drawImage(ResourceLocation res, int x, int y, float zLevel, int w, int h, float u1, float v1, float u2, float v2) {
+	public static void drawImage(ResourceLocation res, int x, int y, float zLevel, int w, int h, float u1, float v1, float u2, float v2) {
 
-        if(res != null) Minecraft.getMinecraft().renderEngine.bindTexture(res);
+		if(res != null) Minecraft.getMinecraft().renderEngine.bindTexture(res);
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder bufferbuilder = tessellator.getBuffer();
 
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, y+h, zLevel).tex(u1, v2).endVertex();
-        bufferbuilder.pos(x+w, y+h, zLevel).tex(u2, v2).endVertex();
-        bufferbuilder.pos(x+w, y, zLevel).tex(u2, v1).endVertex();
-        bufferbuilder.pos(x, y, zLevel).tex(u1, v1).endVertex();
+		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+		bufferbuilder.pos(x, y+h, zLevel).tex(u1, v2).endVertex();
+		bufferbuilder.pos(x+w, y+h, zLevel).tex(u2, v2).endVertex();
+		bufferbuilder.pos(x+w, y, zLevel).tex(u2, v1).endVertex();
+		bufferbuilder.pos(x, y, zLevel).tex(u1, v1).endVertex();
 
-        tessellator.draw();
-    }
+		tessellator.draw();
+	}
 
-    public static void drawImage(ResourceLocation res, int x, int y, float zLevel, int w, int h) {
-        drawImage(res, x, y, zLevel, w, h, 0, 0, 1, 1);
-    }
+	public static void drawImage(ResourceLocation res, int x, int y, float zLevel, int w, int h) {
+		drawImage(res, x, y, zLevel, w, h, 0, 0, 1, 1);
+	}
 
 
 
-    public static void drawCenteredImage(ResourceLocation res, int x, int y, float zLevel, int w, int h) {
-        drawImage(res, x - w/2, y - h/2, zLevel, w, h);
-    }
+	public static void drawCenteredImage(ResourceLocation res, int x, int y, float zLevel, int w, int h) {
+		drawImage(res, x - w/2, y - h/2, zLevel, w, h);
+	}
 
 }

@@ -18,25 +18,25 @@ public class RenderEvent {
 
 
 
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent
-    public static void onRenderEvent(final RenderWorldLastEvent event) {
-        EntityPlayer player = Minecraft.getMinecraft().player;
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public static void onRenderEvent(final RenderWorldLastEvent event) {
+		EntityPlayer player = Minecraft.getMinecraft().player;
 
-        // "Smooth" player position
-        final float partialTicks = event.getPartialTicks();
-        final double px = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
-        final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
-        final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
+		// "Smooth" player position
+		final float partialTicks = event.getPartialTicks();
+		final double px = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
+		final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
+		final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-        if(ConfigHandler.getModConfig().isTileRendering()) {
-            try {
-                TileMapRenderer.renderTiles(ModConfig.currentMapManager, px, py, pz);
-            } catch(IllegalArgumentException exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
+		if(ConfigHandler.getModConfig().isTileRendering()) {
+			try {
+				TileMapRenderer.renderTiles(ModConfig.currentMapManager, px, py, pz);
+			} catch(IllegalArgumentException exception) {
+				exception.printStackTrace();
+			}
+		}
+	}
 
 
 }

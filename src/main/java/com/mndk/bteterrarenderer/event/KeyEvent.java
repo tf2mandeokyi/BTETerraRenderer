@@ -12,16 +12,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class KeyEvent {
 
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public static void onKeyEvent(InputEvent.KeyInputEvent event) {
-    	
-        if(ClientProxy.mapOptionsKey.isPressed()) {
-        	MapRenderingOptionsUI.open();
-        }
-        else if(ClientProxy.mapToggleKey.isPressed()) {
-            ConfigHandler.getModConfig().toggleTileRendering();
-        }
-    }
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority = EventPriority.NORMAL)
+	public static void onKeyEvent(InputEvent.KeyInputEvent event) {
+		
+		if(ClientProxy.mapOptionsKey.isPressed()) {
+			MapRenderingOptionsUI.open();
+		}
+		else if(ClientProxy.mapToggleKey.isPressed()) {
+			ConfigHandler.getModConfig().toggleTileRendering();
+		}
+	}
 
 }

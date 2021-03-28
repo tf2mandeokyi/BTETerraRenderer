@@ -29,18 +29,18 @@ public class MapSelectorUI extends GuiSubScreen {
 	private static int LIST_WIDTH;
 	private static final int LIST_PADDING = 5;
 	
-    private static final int LIST_TOP_MARGIN = 40;
-    private static final int ELEMENT_TOP_MARGIN = 10;
-    private static final int LIST_LEFT_MARGIN = 30;
-    private static final int LIST_LEFT = DefaultMapRenderingOptionsUI.BASIC_OPTIONS_WIDTH + DefaultMapRenderingOptionsUI.BASIC_OPTIONS_MARGIN_LEFT
-    		+ LIST_LEFT_MARGIN;
+	private static final int LIST_TOP_MARGIN = 40;
+	private static final int ELEMENT_TOP_MARGIN = 10;
+	private static final int LIST_LEFT_MARGIN = 30;
+	private static final int LIST_LEFT = DefaultMapRenderingOptionsUI.BASIC_OPTIONS_WIDTH + DefaultMapRenderingOptionsUI.BASIC_OPTIONS_MARGIN_LEFT
+			+ LIST_LEFT_MARGIN;
 
-    
-    
-    private static final ResourceLocation RADIO_BUTTON_IMAGE =
-            new ResourceLocation(BTETerraRenderer.MODID, "textures/ui/radio_button.png");
-    
-    
+	
+	
+	private static final ResourceLocation RADIO_BUTTON_IMAGE =
+			new ResourceLocation(BTETerraRenderer.MODID, "textures/ui/radio_button.png");
+	
+	
 	
 	
 	public MapSelectorUI(MapRenderingOptionsUI parent) {
@@ -89,19 +89,19 @@ public class MapSelectorUI extends GuiSubScreen {
 		Gui.drawRect(LIST_LEFT, LIST_TOP_MARGIN, LIST_LEFT + LIST_WIDTH, c + h * clickableElementList.size(), 0x3F000000);
 		
 		this.drawCenteredString(
-                this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.map_source"),
-                LIST_LEFT + LIST_WIDTH / 2, LIST_TOP_MARGIN + LIST_PADDING, 0xFFFFFF
-        );
+				this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.map_source"),
+				LIST_LEFT + LIST_WIDTH / 2, LIST_TOP_MARGIN + LIST_PADDING, 0xFFFFFF
+		);
 		
 		int i = 0;
 		for(Object object : clickableElementList) {
 			if(object instanceof String) {
 				String categoryName = (String) object;
 				this.drawCenteredString(this.fontRenderer, categoryName,
-	            		LIST_LEFT + LIST_WIDTH / 2,
-	                    c + h * i - (this.fontRenderer.FONT_HEIGHT / 2),
-	                    0xFFFFFF
-	            );
+						LIST_LEFT + LIST_WIDTH / 2,
+						c + h * i - (this.fontRenderer.FONT_HEIGHT / 2),
+						0xFFFFFF
+				);
 			}
 			else if(object instanceof ExternalTileMap) {
 				
@@ -109,17 +109,17 @@ public class MapSelectorUI extends GuiSubScreen {
 				float u = (ModConfig.currentMapManager.getId().equals(map.getId()) ? 1/8.f : 0) + (isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
 				
 				ImageUiRenderer.drawImage(RADIO_BUTTON_IMAGE,
-	            		LIST_LEFT + LIST_PADDING,
-	                    c + h * i - 8,
-	                    0,
-	                    16, 16,
-	                    u, 0, u + 1/16.f, 1/16.f
-	            );
-	            this.drawString(this.fontRenderer, map.getName(),
-	            		LIST_LEFT + LIST_PADDING + 20,
-	                    c + h * i - (this.fontRenderer.FONT_HEIGHT / 2),
-	                    0xFFFFFF
-	            );
+						LIST_LEFT + LIST_PADDING,
+						c + h * i - 8,
+						0,
+						16, 16,
+						u, 0, u + 1/16.f, 1/16.f
+				);
+				this.drawString(this.fontRenderer, map.getName(),
+						LIST_LEFT + LIST_PADDING + 20,
+						c + h * i - (this.fontRenderer.FONT_HEIGHT / 2),
+						0xFFFFFF
+				);
 			}
 			++i;
 		}
@@ -132,13 +132,13 @@ public class MapSelectorUI extends GuiSubScreen {
 		int c = LIST_TOP_MARGIN + LIST_PADDING + this.fontRenderer.FONT_HEIGHT + TITLE_MARGIN_BOTTOM;
 		int h = this.fontRenderer.FONT_HEIGHT + ELEMENT_TOP_MARGIN;
 		
-        int y = c + h * index;
-        return
-                mouseX >= LIST_LEFT + LIST_PADDING &&
-                mouseX <= LIST_LEFT + LIST_WIDTH - LIST_PADDING &&
-                mouseY >= y - 8 &&
-                mouseY <= y + 8;
-    }
+		int y = c + h * index;
+		return
+				mouseX >= LIST_LEFT + LIST_PADDING &&
+				mouseX <= LIST_LEFT + LIST_WIDTH - LIST_PADDING &&
+				mouseY >= y - 8 &&
+				mouseY <= y + 8;
+	}
 	
 	
 	

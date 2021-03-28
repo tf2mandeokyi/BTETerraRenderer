@@ -62,9 +62,9 @@ public class TileMapJsonLoader {
 				Charset.defaultCharset()
 		);
 
-        int c;
-        while ((c = reader.read()) != -1) writer.write(c);
-        writer.close();
+		int c;
+		while ((c = reader.read()) != -1) writer.write(c);
+		writer.close();
 	}
 	
 	

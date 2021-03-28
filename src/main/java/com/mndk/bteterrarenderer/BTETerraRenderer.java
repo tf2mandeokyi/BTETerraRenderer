@@ -14,31 +14,31 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 @Mod(modid = BTETerraRenderer.MODID, name = BTETerraRenderer.NAME, clientSideOnly = true)
 public class BTETerraRenderer {
 
-    public static final String MODID = "bteterrarenderer";
-    public static final String NAME = "BTETerraRenderer";
+	public static final String MODID = "bteterrarenderer";
+	public static final String NAME = "BTETerraRenderer";
 
-    public static Logger logger;
+	public static Logger logger;
 
-    @SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.CommonProxy")
-    public static CommonProxy proxy;
+	@SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.CommonProxy")
+	public static CommonProxy proxy;
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        proxy.preInit(event);
-    }
+	@Mod.EventHandler
+	public void preInit(FMLPreInitializationEvent event) {
+		proxy.preInit(event);
+	}
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
-        proxy.init(event);
-    }
+	@Mod.EventHandler
+	public void init(FMLInitializationEvent event) {
+		proxy.init(event);
+	}
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
-        proxy.postInit(event);
-    }
+	@Mod.EventHandler
+	public void postInit(FMLPostInitializationEvent event) {
+		proxy.postInit(event);
+	}
 
-    @Mod.EventHandler
-    public void serverStarting(FMLServerStartingEvent event) {
-        proxy.serverStarting(event);
-    }
+	@Mod.EventHandler
+	public void serverStarting(FMLServerStartingEvent event) {
+		proxy.serverStarting(event);
+	}
 }

@@ -33,12 +33,12 @@ public class TileMapJsonResult {
 	
 	public ExternalTileMap getTileMap(String mapId) {
 		for(Category category : categories) {
-        	for(ExternalTileMap map : category.getMaps()) {
-        		if(mapId.equals(map.getId())) {
-            		return map;
-        		}
-        	}
-        }
+			for(ExternalTileMap map : category.getMaps()) {
+				if(mapId.equals(map.getId())) {
+					return map;
+				}
+			}
+		}
 		return null;
 	}
 	

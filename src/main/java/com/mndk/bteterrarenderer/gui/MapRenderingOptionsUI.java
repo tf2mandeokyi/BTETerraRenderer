@@ -30,7 +30,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	
 	
 	public static void open() {
-        Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUI());
+		Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsUI());
 	}
 	
 	
