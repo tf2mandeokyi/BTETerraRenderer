@@ -17,7 +17,7 @@ Logo by [vicrobex](https://github.com/vicrobex)
   * [Kakao map](https://map.kakao.com/)
   * [T map](https://www.tmap.co.kr/) (No Aerial)
 
-See [maps.json README](src/main/resources/assets/bteterrarenderer/) for more info.
+*See [maps.json README](src/main/resources/assets/bteterrarenderer/) for more info.*
 
 
 
