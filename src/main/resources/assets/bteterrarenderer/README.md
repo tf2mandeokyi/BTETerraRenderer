@@ -47,7 +47,7 @@ The enum of available projections.
 
 If you want it more, make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.map`. They all should be the subclass of `ExternalTileMap`, and should be registered at `ExternalTileMap.parse()`)
 
-#### `mercator`
+#### Value: `mercator`
 
 Mercator projection.
 
@@ -57,7 +57,7 @@ Mercator projection.
 | `{y}`          | Y-axis parameter.                    |
 | `{z}`          | The value of the map zoom parameter. |
 
-#### `bing`
+#### Value: `bing`
 
 Mercator projection, but is used for bing maps.
 
@@ -65,7 +65,7 @@ Mercator projection, but is used for bing maps.
 | -------------- | ------------------------- |
 | `{u}`          | The ID of Bing map tiles. |
 
-#### `kakao_wtm`
+#### Value: `kakao_wtm`
 
 GRS80 projection that is used for Kakao map. (Proj4: `EPSG:5181`, `+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +units=m +no_defs`)
 
