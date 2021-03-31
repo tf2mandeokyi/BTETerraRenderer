@@ -8,10 +8,6 @@ To make this file customizable, the file is loaded and then saved at `.../.minec
 
 ## JSON structure
 
-<style>
-    td { background-color: #fff; }
-    th { background-color: #f0f0f0; }
-</style>
 <table>
     <tr>
         <th><b>property</b></th>
