@@ -7,7 +7,7 @@ The map renderer tool for BuildTheEarth project that renders external maps, such
 Logo by [vicrobex](https://github.com/vicrobex)
 
 
-## Supported maps
+## Default supported maps
 
 * Global
   * [Bing maps](https://www.bing.com/maps)
@@ -16,6 +16,8 @@ Logo by [vicrobex](https://github.com/vicrobex)
   * [Naver map](https://map.naver.com/)
   * [Kakao map](https://map.kakao.com/)
   * [T map](https://www.tmap.co.kr/) (No Aerial)
+
+See [maps.json README](src/main/resources/assets/bteterrarenderer/) for more info.
 
 
 
