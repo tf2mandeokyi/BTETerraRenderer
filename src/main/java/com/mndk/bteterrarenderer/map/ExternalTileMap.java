@@ -66,6 +66,7 @@ public abstract class ExternalTileMap {
 	public static ExternalTileMap parse(JsonObject object) throws Exception {
 		String projectionId = JsonUtil.validateStringElement(object, "projection");
 		switch(projectionId.toLowerCase()) {
+			case "webmercator":
 			case "mercator": return new MercatorTileMap(object);
 			case "bing": return new BingTileMap(object);
 			case "kakao_wtm": return new KakaoTileMap(object);
