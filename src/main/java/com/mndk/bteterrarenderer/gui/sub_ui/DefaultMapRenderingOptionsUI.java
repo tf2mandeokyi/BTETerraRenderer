@@ -9,28 +9,28 @@ import com.mndk.bteterrarenderer.gui.components.NumberOption;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiPageButtonList;
-import net.minecraft.client.gui.GuiSlider;
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.fml.client.config.GuiSlider;
+import net.minecraftforge.fml.client.config.GuiSlider.ISlider;
 
 public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
 	static final int COMPONENT_ID_GROUP = 100;
 	
 	static final int VERTICAL_SHIFT = 0;
-	static final int BASIC_OPTIONS_MARGIN_LEFT = 30;
-	static final int BASIC_OPTIONS_WIDTH = 130;
-	static final int BASIC_OPTIONS_COMPONENT_COUNT = 7;
-	static final int OPTIONS_MARGIN_BOTTOM = 7;
+	static final int LOPTIONS_MARGIN_LEFT = 30;
+	static final int LOPTIONS_COMPONENT_COUNT = 8;
+	static final int LOPTIONS_MARGIN_BOTTOM = 6;
+	static final int OPTIONS_WIDTH = 130;
 	
 	static final int DONE_BUTTON_MARGIN_BOTTOM = 26;
 	
 	
 	
-	static final GuiPageButtonList.GuiResponder OPACITY_SLIDER_RESPONDER = new GuiPageButtonList.GuiResponder() {
-		@Override public void setEntryValue(int arg0, float arg1) { ConfigHandler.getModConfig().setOpacity(arg1); }
-		@Override public void setEntryValue(int arg0, boolean arg1) {}
-		@Override public void setEntryValue(int arg0, String arg1) {}
+	static final ISlider OPACITY_SLIDER_RESPONDER = new ISlider() {
+		@Override public void onChangeSliderValue(GuiSlider slider) {
+			ConfigHandler.getModConfig().setOpacity(slider.getValue());
+		}
 	};
 	
 	
@@ -52,13 +52,15 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	protected void init() {
 		
 		int c = (parent.height - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT) / 2 + VERTICAL_SHIFT;
-		int h = MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT + OPTIONS_MARGIN_BOTTOM;
-		double count = (BASIC_OPTIONS_COMPONENT_COUNT - 1) / 2.;
+		int h = MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT + LOPTIONS_MARGIN_BOTTOM;
+		double count = (LOPTIONS_COMPONENT_COUNT - 1) / 2.;
+		int i = 1;
+		
 		
 		parent.addButton(this.mapRenderingToggler = new GuiButton(
-				COMPONENT_ID_GROUP + 1, 
-				BASIC_OPTIONS_MARGIN_LEFT, (int) (c + h * (1 - count)), 
-				BASIC_OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
+				COMPONENT_ID_GROUP + i, 
+				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
+				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
 						(ConfigHandler.getModConfig().isTileRendering() ? 
 								I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
@@ -66,17 +68,23 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 						)
 		));
 		
+		
+		// Map selector button
+		++i;
 		parent.addButton(this.mapSelectorToggler = new GuiButton(
-				COMPONENT_ID_GROUP + 2, 
-				BASIC_OPTIONS_MARGIN_LEFT, (int) (c + h * (2 - count)), 
-				BASIC_OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
+				COMPONENT_ID_GROUP + i, 
+				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
+				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.change_map_source")
 		));
+
 		
+		// Map Y axis input
+		++i;
 		this.mapYAxisInput = new GuiNumberInput(
-				COMPONENT_ID_GROUP + 3, this.fontRenderer, 
-				BASIC_OPTIONS_MARGIN_LEFT + BASIC_OPTIONS_WIDTH / 3, (int) (c + h * (3 - count)),
-				BASIC_OPTIONS_WIDTH * 2 / 3, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
+				COMPONENT_ID_GROUP + i, this.fontRenderer, 
+				LOPTIONS_MARGIN_LEFT + OPTIONS_WIDTH / 3, (int) (c + h * (i - count)),
+				OPTIONS_WIDTH * 2 / 3, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				new NumberOption<Double>(
 						ConfigHandler.getModConfig()::getYLevel, 
 						ConfigHandler.getModConfig()::setYLevel,
@@ -84,24 +92,28 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 						I18n.format("gui.bteterrarenderer.maprenderer.map_y_level") + ": "
 				)
 		);
+
 		
+		// Map opacity slider
+		++i;
 		String opacitySliderName = I18n.format("gui.bteterrarenderer.maprenderer.opacity");
-		GuiSlider tempSlider = new GuiSlider(
-				OPACITY_SLIDER_RESPONDER,
-				COMPONENT_ID_GROUP + 4,
-				BASIC_OPTIONS_MARGIN_LEFT, (int) (c + h * (4 - count)),
-				opacitySliderName,
-				0, 1,
-				(float) ConfigHandler.getModConfig().getOpacity(),
-				(id, name, value) -> opacitySliderName + ": " + value
-		);
-		tempSlider.width = BASIC_OPTIONS_WIDTH;
-		parent.addButton(tempSlider);
+		parent.addButton(new GuiSlider(
+				COMPONENT_ID_GROUP + i,
+				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
+				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
+				opacitySliderName + ": ", "",
+				0, 1, ConfigHandler.getModConfig().getOpacity(),
+				true, true,
+				OPACITY_SLIDER_RESPONDER
+		));
+
 		
+		// Done (or close) button
+		i += 2;
 		parent.addButton(this.doneButton = new GuiButton(
 				0,
-				BASIC_OPTIONS_MARGIN_LEFT, (int) (c + h * (6 - count)), 
-				BASIC_OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
+				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
+				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.done")
 		));
 	}
@@ -146,10 +158,10 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		int c = (parent.height - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT) / 2 + VERTICAL_SHIFT;
 		int h = MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT + MapRenderingOptionsUI.DEFAULT_BUTTON_MARGIN_BOTTOM;
-		double count = (BASIC_OPTIONS_COMPONENT_COUNT - 1) / 2.;
+		double count = (LOPTIONS_COMPONENT_COUNT - 1) / 2.;
 		
 		parent.drawCenteredString(this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.title"),
-				BASIC_OPTIONS_MARGIN_LEFT + BASIC_OPTIONS_WIDTH / 2, (int) (c - h * count) - this.fontRenderer.FONT_HEIGHT / 2,
+				LOPTIONS_MARGIN_LEFT + OPTIONS_WIDTH / 2, (int) (c - h * count) - this.fontRenderer.FONT_HEIGHT / 2,
 				0xFFFFFF
 		);
 		

@@ -32,7 +32,7 @@ public class MapSelectorUI extends GuiSubScreen {
 	private static final int LIST_TOP_MARGIN = 40;
 	private static final int ELEMENT_TOP_MARGIN = 10;
 	private static final int LIST_LEFT_MARGIN = 30;
-	private static final int LIST_LEFT = DefaultMapRenderingOptionsUI.BASIC_OPTIONS_WIDTH + DefaultMapRenderingOptionsUI.BASIC_OPTIONS_MARGIN_LEFT
+	private static final int LIST_LEFT = DefaultMapRenderingOptionsUI.OPTIONS_WIDTH + DefaultMapRenderingOptionsUI.LOPTIONS_MARGIN_LEFT
 			+ LIST_LEFT_MARGIN;
 
 	
