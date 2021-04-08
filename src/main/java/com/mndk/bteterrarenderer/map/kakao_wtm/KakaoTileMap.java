@@ -15,7 +15,7 @@ public class KakaoTileMap extends ExternalTileMap {
 	@Override
 	public int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException {
 		double[] temp = Projections.BTE.toGeo(playerX, playerZ);
-		temp = Projections.WTM.fromGeo(temp[0], temp[1]);
+		temp = Projections.KAKAO_WTM.fromGeo(temp[0], temp[1]);
 		return wtmToTile(temp[0], temp[1], zoom);
 	}
 
@@ -24,7 +24,7 @@ public class KakaoTileMap extends ExternalTileMap {
 	@Override
 	public double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException {
 		double[] temp = tileToWTM(tileX, tileY, zoom);
-		temp = Projections.WTM.toGeo(temp[0], temp[1]);
+		temp = Projections.KAKAO_WTM.toGeo(temp[0], temp[1]);
 		return Projections.BTE.fromGeo(temp[0], temp[1]);
 	}
 	
