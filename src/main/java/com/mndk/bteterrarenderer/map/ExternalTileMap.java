@@ -24,7 +24,7 @@ import com.mndk.bteterrarenderer.map.mercator.MercatorTileMap;
 import com.mndk.bteterrarenderer.util.JsonUtil;
 import com.mndk.bteterrarenderer.util.StringUrlUtil;
 
-import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;

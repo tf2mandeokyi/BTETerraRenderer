@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.mndk.bteterrarenderer.map.ExternalTileMap;
 import com.mndk.bteterrarenderer.projection.Projections;
 
-import copy.io.github.terra121.projection.OutOfProjectionBoundsException;
+import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 
 public class KakaoTileMap extends ExternalTileMap {
 	

@@ -11,7 +11,12 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = BTETerraRenderer.MODID, name = BTETerraRenderer.NAME, clientSideOnly = true)
+@Mod(
+		modid = BTETerraRenderer.MODID,
+		name = BTETerraRenderer.NAME,
+		clientSideOnly = true,
+		dependencies = "required-after:terraplusplus"
+)
 public class BTETerraRenderer {
 
 	public static final String MODID = "bteterrarenderer";

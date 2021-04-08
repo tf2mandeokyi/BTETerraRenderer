@@ -2,9 +2,9 @@
 
 package com.mndk.bteterrarenderer.projection;
 
-import copy.io.github.terra121.projection.GeographicProjection;
+import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 
-public class WTMProjection extends GeographicProjection {
+public class WTMProjection implements GeographicProjection {
 
 	private static final double EARTH_RADIUS = 6378137.0;
 	private static final double EARTH_RADIUS2 = EARTH_RADIUS * EARTH_RADIUS;

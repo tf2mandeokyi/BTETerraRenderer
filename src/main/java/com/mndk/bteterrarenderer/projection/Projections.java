@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.projection;
 
-import copy.io.github.terra121.generator.EarthGeneratorSettings;
-import copy.io.github.terra121.projection.GeographicProjection;
+import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
+import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 
 public class Projections {
 	public static final GeographicProjection BTE;
@@ -15,6 +15,6 @@ public class Projections {
 					"\"scaleX\":7318261.522857145," +
 					"\"scaleY\":7318261.522857145" +
 				"}";
-		BTE = new EarthGeneratorSettings(BTE_GEN_JSON).getProjection();
+		BTE = EarthGeneratorSettings.parse(BTE_GEN_JSON).projection();
 	}
 }
