@@ -26,7 +26,7 @@ Logo by [vicrobex](https://github.com/vicrobex)
 1. [Download][latest version download link] the latest version of the mod
 2. Put the mod in mods folder
 3. Run Minecraft
-4. In game, press **V** to open render settings UI, and press **B** to toggle map rendering
+4. In game, press **` (Grave)** to open render settings UI, and press **R** to toggle map rendering
 
 ![Reference screenshot](docs/screenshot0.png "Location: Manhattan, New York (40.70339 N, 74.01777 W)")
 
