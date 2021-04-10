@@ -7,16 +7,16 @@ You can create the map data file `<insert_name_here>.yml` at `.../.minecraft/con
 
 ## Map Object structure
 
-| Map Object Key | Value Type | Required? | Description |
+| Map Object Key | Value Type | Required? \[`Default`\] | Description |
 |-|-|-|-|
 | `name` | String | true | Displayed name of the map |
 | `tile_url` | String | true | Tile URL. |
 | `projection` | Projection Enum (String) | true | Name of the projection. |
-| `max_thread` | integer | No (Default = 2 | The maximum amount of threads from which tile datas are loaded. |
+| `max_thread` | integer | No \[`2`\] | The maximum amount of threads from which tile datas are loaded. |
 | `request_headers` | Map<String, String> | No | HTTP request headers. |
-| `default_zoom` | integer | No (Default = 18) | Default zoom value of the tile map. |
-| `invert_zoom` | boolean | No (Default = false) | Whether to invert the zoom system. |
-| `invert_lat` | boolean | No (Default = false) | Whether to invert the latitude. |
+| `default_zoom` | integer | No \[`18`\] | Default zoom value of the tile map. |
+| `invert_zoom` | boolean | No \[`false`\] | Whether to invert the zoom system. |
+| `invert_lat` | boolean | No \[`false`\] | Whether to invert the latitude. |
 
 
 ## Projections
@@ -27,7 +27,7 @@ If you want it more, make a PR of it. (Projection map classes are listed at `com
 
 #### `webmercator` 
 
-Mercator projection. (alias: `mercator`)
+Web Mercator projection. (alias: `mercator`)
 
 | tile parameter | description                          |
 | -------------- | ------------------------------------ |
@@ -37,7 +37,7 @@ Mercator projection. (alias: `mercator`)
 
 #### `bing`
 
-Mercator projection, but for Bing maps.
+Web Mercator projection, but for Bing maps.
 
 | tile parameter | description      |
 | -------------- | ---------------- |
@@ -45,9 +45,9 @@ Mercator projection, but for Bing maps.
 
 #### `kakao_wtm`
 
-GRS80 projection ([EPSG:5181](http://epsg.io/5181)) for Korean maps.
+Tile projection ([EPSG:5181](http://epsg.io/5181)) for Korean maps.
 
-Parameters are the same as `webmercator` projection's. 
+Parameters are the same as `webmercator`'s parameters. 
 
 
 ## YAML map file example
