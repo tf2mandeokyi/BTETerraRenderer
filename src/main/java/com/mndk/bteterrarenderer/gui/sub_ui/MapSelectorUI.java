@@ -106,7 +106,8 @@ public class MapSelectorUI extends GuiSubScreen {
 			else if(object instanceof ExternalTileMap) {
 				
 				ExternalTileMap map = (ExternalTileMap) object;
-				float u = (ModConfig.currentMapManager.getId().equals(map.getId()) ? 1/8.f : 0) + (isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
+				float u = (ModConfig.currentMapManager == null ? 0 : ModConfig.currentMapManager.getId().equals(map.getId()) ? 1/8.f : 0) + 
+						(isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
 				
 				ImageUiRenderer.drawImage(RADIO_BUTTON_IMAGE,
 						LIST_LEFT + LIST_PADDING,

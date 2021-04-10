@@ -10,7 +10,7 @@ public class ConfigHandler {
 	private static final String YAML_FILE_LOCATION = "config/" + BTETerraRenderer.MODID + "/config.yml";
 	private static ModConfig config;
 
-	public static void init(String fileLocation) throws IOException {
+	public static void refresh(String fileLocation) throws IOException {
 		if(!new File(fileLocation).exists()) {
 			saveDefaultFile(fileLocation);
 		}
@@ -22,8 +22,8 @@ public class ConfigHandler {
 		}
 	}
 
-	public static void init() throws IOException {
-		init(YAML_FILE_LOCATION);
+	public static void refresh() throws IOException {
+		refresh(YAML_FILE_LOCATION);
 	}
 
 	public static ModConfig getModConfig() {

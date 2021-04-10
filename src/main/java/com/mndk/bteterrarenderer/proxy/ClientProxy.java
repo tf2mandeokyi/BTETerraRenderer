@@ -40,13 +40,13 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		try {
-			TileMapYamlLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
+			TileMapYamlLoader.refresh(event.getModConfigurationDirectory().getAbsolutePath());
 		} catch(Exception e) {
 			BTETerraRenderer.logger.error("Error caught while parsing map json files!");
 			e.printStackTrace();
 		}
 		try {
-			ConfigHandler.init();
+			ConfigHandler.refresh();
 		} catch (IOException e) {
 			BTETerraRenderer.logger.error("Error caught while parsing config file!");
 			e.printStackTrace();

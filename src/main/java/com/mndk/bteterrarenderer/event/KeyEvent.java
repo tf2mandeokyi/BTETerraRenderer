@@ -1,7 +1,11 @@
 package com.mndk.bteterrarenderer.event;
 
+import java.io.IOException;
+
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
+import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
 
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -17,6 +21,17 @@ public class KeyEvent {
 	public static void onKeyEvent(InputEvent.KeyInputEvent event) {
 		
 		if(ClientProxy.mapOptionsKey.isPressed()) {
+
+			try { TileMapYamlLoader.refresh(); } catch (Exception e) {
+				BTETerraRenderer.logger.error("Error caught while parsing yaml map files!");
+				e.printStackTrace();
+			}
+
+			try { ConfigHandler.refresh(); } catch (IOException e) {
+				BTETerraRenderer.logger.error("Error caught while parsing config.yml!");
+				e.printStackTrace();
+			}
+			
 			MapRenderingOptionsUI.open();
 		}
 		else if(ClientProxy.mapToggleKey.isPressed()) {

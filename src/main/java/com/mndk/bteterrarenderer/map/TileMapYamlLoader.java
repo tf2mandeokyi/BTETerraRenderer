@@ -15,23 +15,29 @@ public class TileMapYamlLoader {
 	
 	private static final String DEFAULT_MAP_YAML_PATH = "assets/" + BTETerraRenderer.MODID + "/default_maps.yml";
 	
+	private static File mapFilesDirectory;
 	public static TileMapLoaderResult result;
 	
-	public static void load(String modConfigDirectory) throws Exception {
+	public static void refresh() throws Exception {
 
 		result = new TileMapLoaderResult();
 		
 		result.append(loadDefaultMap());
 		
-		File mapFolder = new File(modConfigDirectory + "/" + BTETerraRenderer.MODID + "/maps");
-		if(!mapFolder.isDirectory()) {
-			mapFolder.mkdirs();
+		if(!mapFilesDirectory.isDirectory()) {
+			mapFilesDirectory.mkdirs();
 		}
 		else {
-			for(File mapFile : mapFolder.listFiles((dir, name) -> name.endsWith(".yml"))) {
+			for(File mapFile : mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"))) {
 				try { result.append(load(new FileReader(mapFile))); } catch(Exception e) { e.printStackTrace(); }
 			}
 		}
+	}
+	
+	
+	public static void refresh(String modConfigDirectory) throws Exception {
+		mapFilesDirectory = new File(modConfigDirectory + "/" + BTETerraRenderer.MODID + "/maps");
+		refresh();
 	}
 	
 
