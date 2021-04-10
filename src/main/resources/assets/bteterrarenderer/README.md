@@ -1,8 +1,43 @@
-# maps.yaml
+# YAML map data file
 
-The map data file which is used to make custom map objects.
+The map data file that contains custom map objects.
 
-You can create the map data file `<insert_name_here>.yml` at `.../.minecraft/config/bteterrarenderer/maps/` directory.
+You can create your custom map data file at `.../.minecraft/config/bteterrarenderer/maps/`.
+
+(Note: There is no limit to the map data file's name, so name it to whatever you want.)
+
+
+## example.yml
+
+```yaml
+categories:
+
+   # Map Category name.
+   Global:
+   
+      # Map ID. This should be unique among the entire map data files.
+      osm: 
+      
+         ## Map Display Name
+         name: OpenStreetMap
+         
+         ## Tile URL. The parameters are dependent to map's projection.
+         tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
+         
+         ## Projection name. Projections are listed at end of this README.
+         projection: webmercator
+         
+         # The maximum amount of threads from which tile data are loaded.
+         max_thread: 2
+         
+         # HTTP request headers.
+         request_headers:
+            User-Agent: bteterrarenderer/1.0 Java/1.8
+      
+      # ...
+      
+   # ...
+```
 
 
 ## Map Object structure
@@ -21,9 +56,9 @@ You can create the map data file `<insert_name_here>.yml` at `.../.minecraft/con
 
 ## Projections
 
-The string enum of available projections are listed here.
+The available projection enums are listed here.
 
-If you want it more, make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.map`. They all should be the subclass of `ExternalTileMap`, and should be registered at `ExternalTileMap.parse()`)
+If you want it more, make an issue (or suggestion), or make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.map`. They all should be the subclass of `ExternalTileMap` and should be registered at `ExternalTileMap.parse()`)
 
 #### `webmercator` 
 
@@ -48,37 +83,3 @@ Web Mercator projection, but for Bing maps.
 Tile projection ([EPSG:5181](http://epsg.io/5181)) for Korean maps.
 
 Parameters are the same as `webmercator`'s parameters. 
-
-
-## YAML map file example
-
-```yaml
-categories:
-
-   # Map Category name.
-   Global:
-   
-      # Map ID. This should be unique among the entire map data files.
-      osm: 
-      
-         ## Map Display Name
-         name: OpenStreetMap
-         
-         ## Tile URL. The parameters are dependent to map's projection.
-         tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
-         
-         ## Projection name. Projections are listed at at end of this README.
-         projection: webmercator
-         
-         # The maximum amount of threads from which tile datas are loaded.
-         max_thread: 2
-         
-         # HTTP request headers.
-         request_headers:
-            User-Agent: bteterrarenderer/1.0 Java/1.8
-      
-      # ...
-      
-   # ...
-```
-
