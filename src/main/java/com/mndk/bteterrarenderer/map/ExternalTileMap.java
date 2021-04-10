@@ -15,13 +15,10 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.map.bing.BingTileMap;
 import com.mndk.bteterrarenderer.map.kakao_wtm.KakaoTileMap;
 import com.mndk.bteterrarenderer.map.mercator.MercatorTileMap;
-import com.mndk.bteterrarenderer.util.JsonUtil;
 import com.mndk.bteterrarenderer.util.StringUrlUtil;
 
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -63,41 +60,41 @@ public abstract class ExternalTileMap {
 	
 	
 	
-	public static ExternalTileMap parse(JsonObject object) throws Exception {
-		String projectionId = JsonUtil.validateStringElement(object, "projection");
+	public static ExternalTileMap parse(String id, Map<String, Object> object) throws Exception {
+		String projectionId = (String) object.get("projection");
 		switch(projectionId.toLowerCase()) {
 			case "webmercator":
-			case "mercator": return new MercatorTileMap(object);
-			case "bing": return new BingTileMap(object);
-			case "kakao_wtm": return new KakaoTileMap(object);
+			case "mercator": return new MercatorTileMap(id, object);
+			case "bing": return new BingTileMap(id, object);
+			case "kakao_wtm": return new KakaoTileMap(id, object);
 		}
 		throw new Exception(projectionId + " projection doesn't exist!");
 	}
 	
 	
 	
-	protected ExternalTileMap(JsonObject object) throws Exception {
+	@SuppressWarnings("unchecked")
+	protected ExternalTileMap(String id, Map<String, Object> object) throws Exception {
 		
-		this.id = JsonUtil.validateStringElement(object, "id");
-		this.name = JsonUtil.validateStringElement(object, "name");
-		this.tileUrl = JsonUtil.validateStringElement(object, "tile_url");
-		this.defaultZoom = JsonUtil.validateIntegerElement(object, "default_zoom", DEFAULT_ZOOM);
-		this.invertLatitude = JsonUtil.validateBooleanElement(object, "invert_lat", false);
-		this.invertZoom = JsonUtil.validateBooleanElement(object, "invert_zoom", false);
+		this.id = id;
+		this.name = (String) object.get("name");
+		this.tileUrl = (String) object.get("tile_url");
+		this.defaultZoom = (int) object.getOrDefault("default_zoom", DEFAULT_ZOOM);
+		this.invertLatitude = (boolean) object.getOrDefault("invert_lat", false);
+		this.invertZoom = (boolean) object.getOrDefault("invert_zoom", false);
 
-		int maxThread = JsonUtil.validateIntegerElement(object, "max_thread", DEFAULT_MAX_THREAD);
+		int maxThread = (int) object.getOrDefault("max_thread", DEFAULT_MAX_THREAD);
 		this.downloadExecutor = Executors.newFixedThreadPool(maxThread);
 
 		this.requestHeaders = new HashMap<>();
 		if(object.get("request_headers") != null) {
-			JsonObject request_headers;
+			Map<String, Object> request_headers;
 			try {
-				request_headers = object.get("request_headers").getAsJsonObject();
+				request_headers = (Map<String, Object>) object.get("request_headers");
 			} catch(IllegalStateException e) { throw new Exception("request_headers should be an object!"); }
 			
-			for(Entry<String, JsonElement> entry : request_headers.entrySet()) {
-				String key = entry.getKey();
-				requestHeaders.put(key, JsonUtil.validateStringElement(request_headers, key));
+			for(Entry<String, Object> entry : request_headers.entrySet()) {
+				requestHeaders.put(entry.getKey(), (String) entry.getValue());
 			}
 		}
 	}

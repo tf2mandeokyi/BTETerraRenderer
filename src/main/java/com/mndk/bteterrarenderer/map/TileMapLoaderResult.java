@@ -1,22 +1,26 @@
 package com.mndk.bteterrarenderer.map;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class TileMapJsonResult {
+public class TileMapLoaderResult {
 	
 	private final List<Category> categories;
-	private final int totalMapCount;
-	private final int uiElementCount;
+	private int totalMapCount;
+	private int uiElementCount;
 	
-	public TileMapJsonResult(List<Category> categories) {
+	public TileMapLoaderResult() {
+		this.categories = new ArrayList<>();
+		this.totalMapCount = 0; this.uiElementCount = 0;
+	}
+	
+	public TileMapLoaderResult(List<Category> categories) {
 		this.categories = categories;
-		int tot = 0, ui = 0;
+		this.totalMapCount = 0; this.uiElementCount = 0;
 		for(Category category : categories) {
-			tot += category.maps.size();
-			ui += category.maps.size() + 1;
+			this.totalMapCount += category.maps.size();
+			this.uiElementCount += category.maps.size() + 1;
 		}
-		this.totalMapCount = tot;
-		this.uiElementCount = ui;
 	}
 	
 	public List<Category> getCategories() {
@@ -40,6 +44,12 @@ public class TileMapJsonResult {
 			}
 		}
 		return null;
+	}
+	
+	public void append(TileMapLoaderResult other) {
+		this.categories.addAll(other.categories);
+		this.totalMapCount += other.totalMapCount;
+		this.uiElementCount += other.uiElementCount;
 	}
 	
 	public static class Category {

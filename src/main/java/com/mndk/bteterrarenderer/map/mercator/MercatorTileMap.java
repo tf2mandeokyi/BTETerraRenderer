@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.map.mercator;
 
-import com.google.gson.JsonObject;
+import java.util.Map;
+
 import com.mndk.bteterrarenderer.map.ExternalTileMap;
 import com.mndk.bteterrarenderer.projection.Projections;
 
@@ -9,7 +10,7 @@ import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException
 public class MercatorTileMap extends ExternalTileMap {
 
 
-	public MercatorTileMap(JsonObject object) throws Exception { super(object); }
+	public MercatorTileMap(String id, Map<String, Object> object) throws Exception { super(id, object); }
 
 
 	@Override

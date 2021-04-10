@@ -8,7 +8,7 @@ import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.event.KeyEvent;
-import com.mndk.bteterrarenderer.map.TileMapJsonLoader;
+import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -40,7 +40,7 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		try {
-			TileMapJsonLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
+			TileMapYamlLoader.load(event.getModConfigurationDirectory().getAbsolutePath());
 		} catch(Exception e) {
 			BTETerraRenderer.logger.error("Error caught while parsing map json files!");
 			e.printStackTrace();

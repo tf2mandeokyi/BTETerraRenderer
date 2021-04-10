@@ -1,14 +1,12 @@
 package com.mndk.bteterrarenderer.config;
 
-import org.yaml.snakeyaml.Yaml;
-
 import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTRConstants;
 
 import java.io.*;
 
 public class ConfigHandler {
 
-	public static final Yaml YAML = new Yaml();
 	private static final String YAML_FILE_LOCATION = "config/" + BTETerraRenderer.MODID + "/config.yml";
 	private static ModConfig config;
 
@@ -18,7 +16,7 @@ public class ConfigHandler {
 		}
 
 		try {
-			config = new ModConfig(YAML.load(new FileReader(fileLocation)));
+			config = new ModConfig(BTRConstants.YAML.load(new FileReader(fileLocation)));
 		} catch(FileNotFoundException e) {
 			System.out.println("Cannot load configuration file!");
 		}
@@ -34,10 +32,10 @@ public class ConfigHandler {
 
 	public static void saveDefaultFile(String fileLocation) throws IOException {
 		FileWriter writer = new FileWriter(fileLocation);
-		new ModConfig().saveTo(YAML, writer);
+		new ModConfig().saveTo(BTRConstants.YAML, writer);
 	}
 
 	public static void saveConfig() throws IOException {
-		config.saveTo(YAML, new FileWriter(YAML_FILE_LOCATION));
+		config.saveTo(BTRConstants.YAML, new FileWriter(YAML_FILE_LOCATION));
 	}
 }

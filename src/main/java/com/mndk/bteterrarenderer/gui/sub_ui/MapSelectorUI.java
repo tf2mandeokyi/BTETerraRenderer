@@ -10,8 +10,8 @@ import com.mndk.bteterrarenderer.config.ModConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.util.ImageUiRenderer;
 import com.mndk.bteterrarenderer.map.ExternalTileMap;
-import com.mndk.bteterrarenderer.map.TileMapJsonLoader;
-import com.mndk.bteterrarenderer.map.TileMapJsonResult;
+import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
+import com.mndk.bteterrarenderer.map.TileMapLoaderResult;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -56,7 +56,7 @@ public class MapSelectorUI extends GuiSubScreen {
 		LIST_WIDTH = 0;
 		clickableElementList.clear();
 		
-		for(TileMapJsonResult.Category category : TileMapJsonLoader.result.getCategories()) {
+		for(TileMapLoaderResult.Category category : TileMapYamlLoader.result.getCategories()) {
 			clickableElementList.add(category.getName());
 			for(ExternalTileMap map : category.getMaps()) {
 				clickableElementList.add(map);

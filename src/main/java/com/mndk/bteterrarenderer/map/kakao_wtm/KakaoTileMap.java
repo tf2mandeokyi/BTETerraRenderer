@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.map.kakao_wtm;
 
-import com.google.gson.JsonObject;
+import java.util.Map;
+
 import com.mndk.bteterrarenderer.map.ExternalTileMap;
 import com.mndk.bteterrarenderer.projection.Projections;
 
@@ -8,7 +9,7 @@ import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException
 
 public class KakaoTileMap extends ExternalTileMap {
 	
-	public KakaoTileMap(JsonObject object) throws Exception { super(object); }
+	public KakaoTileMap(String id, Map<String, Object> object) throws Exception { super(id, object); }
 
 
 
