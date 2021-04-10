@@ -1,0 +1,92 @@
+categories:
+
+   Global:
+   
+      osm:
+         name: OpenStreetMap
+         tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
+         projection: webmercator
+         max_thread: 2
+         request_headers:
+            User-Agent: bteterrarenderer/1.0 Java/1.8
+            
+            
+      bing_aerial:
+         name: Bing Maps (Aerial)
+         tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill
+         projection: bing
+         max_thread: 2
+     
+     
+      bing_plain:
+         name: Bing Maps (Plain)
+         tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill
+         projection: bing
+         max_thread: 2
+   
+   
+   
+   Korea:
+   
+      skymaps_kr:
+         name: Skymaps
+         tile_url: https://www.skymaps.co.kr/map/tile.sqlite/ortho2020/{z}/{x}/{y}.jpg
+         projection: kakao_wtm
+         max_thread: 2
+         default_zoom: 1
+         invert_lat: true
+         invert_zoom: true
+         
+         
+      kakao_aerial:
+         name: Kakao Map (Aerial)
+         tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_skyview/L{z}/{y}/{x}.jpg
+         projection: kakao_wtm
+         max_thread: 2
+         default_zoom: 1
+         invert_lat: true
+         invert_zoom: true
+         
+         
+      kakao_plain:
+         name: Kakao Map (Plain)
+         tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_2d/2012tlq/L{z}/{y}/{x}.png
+         projection: kakao_wtm
+         max_thread: 2
+         default_zoom: 1
+         invert_lat: true
+         invert_zoom: true
+         
+         
+      naver_plain:
+         name: Naver Map
+         tile_url: https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.lko
+         projection: webmercator
+         max_thread: 2
+         
+         
+      tmap_plain:
+         name: T Map
+         tile_url: https://topopentile2.tmap.co.kr/tms/1.0.0/hd_tile/{z}/{x}/{y}.png
+         projection: webmercator
+         max_thread: 2
+         invert_lat: true
+         
+         
+         
+   Japan:
+   
+      lidar_jp_aerial:
+         name: Japan LiDAR (Aerial)
+         tile_url: http://maps.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg
+         projection: webmercator
+         max_thread: 2
+         default_zoom: 17
+         
+         
+      lidar_jp_plain:
+         name: Japan LiDAR (Plain)
+         tile_url: http://maps.gsi.go.jp/xyz/std/{z}/{x}/{y}.png
+         projection: webmercator
+         max_thread: 2
+         default_zoom: 17

@@ -12,6 +12,9 @@ import net.minecraft.client.renderer.Tessellator;
 public class TileMapRenderer {
 
 	public static void renderTiles(ExternalTileMap renderer, double px, double py, double pz) {
+		
+		if(renderer == null) return;
+		
 		Tessellator t = Tessellator.getInstance();
 		BufferBuilder builder = t.getBuffer();
 

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
 
 import com.mndk.bteterrarenderer.map.ExternalTileMap;
-import com.mndk.bteterrarenderer.map.TileMapJsonLoader;
+import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
 
 public class ModConfig {
 
@@ -112,7 +112,7 @@ public class ModConfig {
 
 	public void setMapId(String mapId) {
 		this.mapId = mapId;
-		currentMapManager = TileMapJsonLoader.result.getTileMap(mapId);
+		currentMapManager = TileMapYamlLoader.result.getTileMap(mapId);
 	}
 
 	public double getOpacity() {

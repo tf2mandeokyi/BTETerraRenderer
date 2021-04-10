@@ -1,11 +1,12 @@
 package com.mndk.bteterrarenderer.map.bing;
 
-import com.google.gson.JsonObject;
+import java.util.Map;
+
 import com.mndk.bteterrarenderer.map.mercator.MercatorTileMap;
 
 public class BingTileMap extends MercatorTileMap {
 
-	public BingTileMap(JsonObject object) throws Exception { super(object); }
+	public BingTileMap(String id, Map<String, Object> object) throws Exception { super(id, object); }
 
 	@Override
 	public String getUrlTemplate(int tileX, int tileY, int zoom) {
