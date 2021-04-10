@@ -2,40 +2,7 @@
 
 The map data file which is used to make custom map objects.
 
-Put the map data file at `.../.minecraft/config/bteterrarenderer/maps/` and name it to `<whatever_the_name_you_want>.yml`.
-
-
-## <insert_name_here>.yaml Example
-
-```yaml
-categories:
-
-   # Map Category name.
-   Global:
-   
-      # Map ID. This should be unique among the entire map data files.
-      osm: 
-      
-         ## Map Display Name
-         name: OpenStreetMap
-         
-         ## Tile URL. The parameters are dependent to map's projection.
-         tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
-         
-         ## Projection name. Projections are listed at at end of this README.
-         projection: webmercator
-         
-         # The maximum amount of threads from which tile datas are loaded.
-         max_thread: 2
-         
-         # HTTP request headers.
-         request_headers:
-            User-Agent: bteterrarenderer/1.0 Java/1.8
-      
-      # ...
-      
-   # ...
-```
+You can create the map data file `<insert_name_here>.yml` at `.../.minecraft/config/bteterrarenderer/maps/` directory.
 
 
 ## Map Object structure
@@ -81,4 +48,37 @@ Mercator projection, but for Bing maps.
 GRS80 projection ([EPSG:5181](http://epsg.io/5181)) for Korean maps.
 
 Parameters are the same as `webmercator` projection's. 
+
+
+## YAML map file example
+
+```yaml
+categories:
+
+   # Map Category name.
+   Global:
+   
+      # Map ID. This should be unique among the entire map data files.
+      osm: 
+      
+         ## Map Display Name
+         name: OpenStreetMap
+         
+         ## Tile URL. The parameters are dependent to map's projection.
+         tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
+         
+         ## Projection name. Projections are listed at at end of this README.
+         projection: webmercator
+         
+         # The maximum amount of threads from which tile datas are loaded.
+         max_thread: 2
+         
+         # HTTP request headers.
+         request_headers:
+            User-Agent: bteterrarenderer/1.0 Java/1.8
+      
+      # ...
+      
+   # ...
+```
 
