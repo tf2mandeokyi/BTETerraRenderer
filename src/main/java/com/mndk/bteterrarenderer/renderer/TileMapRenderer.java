@@ -27,7 +27,7 @@ public class TileMapRenderer {
 
 		ModConfig config = ConfigHandler.getModConfig();
 
-		int size = config.getRadius();
+		int size = config.getRadius() - 1;
 		
 		// Iterate tiles around player
 		for (int y = -size; y <= size; y++) for (int x = -size; x <= size; x++) {

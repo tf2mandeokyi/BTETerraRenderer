@@ -27,14 +27,6 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
 	
 	
-	static final ISlider OPACITY_SLIDER_RESPONDER = new ISlider() {
-		@Override public void onChangeSliderValue(GuiSlider slider) {
-			ConfigHandler.getModConfig().setOpacity(slider.getValue());
-		}
-	};
-	
-	
-	
 	GuiButton doneButton;
 	GuiButton mapRenderingToggler;
 	GuiButton mapSelectorToggler;
@@ -96,15 +88,16 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 		
 		// Map opacity slider
 		++i;
-		String opacitySliderName = I18n.format("gui.bteterrarenderer.maprenderer.opacity");
 		parent.addButton(new GuiSlider(
 				COMPONENT_ID_GROUP + i,
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				opacitySliderName + ": ", "",
+				I18n.format("gui.bteterrarenderer.maprenderer.opacity") + ": ", "",
 				0, 1, ConfigHandler.getModConfig().getOpacity(),
 				true, true,
-				OPACITY_SLIDER_RESPONDER
+				new ISlider() { @Override public void onChangeSliderValue(GuiSlider slider) {
+						ConfigHandler.getModConfig().setOpacity(slider.getValue());
+				}}
 		));
 
 		

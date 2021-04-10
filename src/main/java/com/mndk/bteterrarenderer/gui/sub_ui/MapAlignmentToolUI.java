@@ -28,12 +28,6 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 	private static final int IMAGE_ALIGNMENT_VALUE_RANGE = MAX_IMAGE_ALIGNMENT_VALUE - MIN_IMAGE_ALIGNMENT_VALUE;
 	
 	private static final int OPTIONS_WIDTH = 130;
-	
-	static final ISlider ZOOM_SLIDER_RESPONDER = new ISlider() {
-		@Override public void onChangeSliderValue(GuiSlider slider) {
-			ConfigHandler.getModConfig().setZoom(slider.getValueInt());
-		}
-	};
 
 	
 	
@@ -70,21 +64,38 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 						- ((ALIGNMENT_IMAGE_HEIGHT + ALIGNMENT_RESET_BUTTON_HEIGHT) / 2),
 				ALIGNMENT_RESET_BUTTON_WIDTH, ALIGNMENT_RESET_BUTTON_HEIGHT,
 				I18n.format("gui.bteterrarenderer.maprenderer.z_align_reset")));
+
 		
+		int imageTop = parent.height - ALIGNMENT_IMAGE_HEIGHT - ALIGNMENT_IMAGE_MARGIN_BOTTOM - 30;
 		
 		
 		// Map zoom slider
-		int imageTop = parent.height - ALIGNMENT_IMAGE_HEIGHT - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
-		String zoomSliderName = I18n.format("gui.bteterrarenderer.maprenderer.zoom");
 		parent.addButton(new net.minecraftforge.fml.client.config.GuiSlider(
 				1002,
 				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - OPTIONS_WIDTH,
-				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT - 30,
+				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				zoomSliderName + ": ", "",
+				I18n.format("gui.bteterrarenderer.maprenderer.zoom") + ": ", "",
 				-3, 3, ConfigHandler.getModConfig().getZoom(),
 				false, true,
-				ZOOM_SLIDER_RESPONDER
+				new ISlider() { @Override public void onChangeSliderValue(GuiSlider slider) {
+					ConfigHandler.getModConfig().setZoom(slider.getValueInt());
+				}}
+		));
+		
+		
+		// Map size slider
+		parent.addButton(new net.minecraftforge.fml.client.config.GuiSlider(
+				1002,
+				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - OPTIONS_WIDTH,
+				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - 2 * MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT - 6,
+				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
+				I18n.format("gui.bteterrarenderer.maprenderer.size") + ": ", "",
+				1, 5, ConfigHandler.getModConfig().getRadius(),
+				false, true,
+				new ISlider() { @Override public void onChangeSliderValue(GuiSlider slider) {
+					ConfigHandler.getModConfig().setRadius(slider.getValueInt());
+				}}
 		));
 	}
 
