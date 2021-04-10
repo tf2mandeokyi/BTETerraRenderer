@@ -36,6 +36,7 @@ public class KeyEvent {
 		}
 		else if(ClientProxy.mapToggleKey.isPressed()) {
 			ConfigHandler.getModConfig().toggleTileRendering();
+			try { ConfigHandler.saveConfig(); } catch(IOException e) { e.printStackTrace(); }
 		}
 	}
 
