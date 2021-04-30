@@ -1,15 +1,15 @@
-package com.mndk.bteterrarenderer.map.kakao_wtm;
+package com.mndk.bteterrarenderer.tms;
 
 import java.util.Map;
 
-import com.mndk.bteterrarenderer.map.ExternalTileMap;
+import com.mndk.bteterrarenderer.tms.TileMapService;
 import com.mndk.bteterrarenderer.projection.Projections;
 
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 
-public class KakaoTileMap extends ExternalTileMap {
+public class KakaoTMS extends TileMapService {
 	
-	public KakaoTileMap(String id, Map<String, Object> object) throws Exception { super(id, object); }
+	public KakaoTMS(String id, Map<String, Object> object) throws Exception { super(id, object); }
 
 
 

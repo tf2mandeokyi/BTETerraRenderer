@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.map;
+package com.mndk.bteterrarenderer.tms;
 
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -13,12 +13,10 @@ import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
+import com.mndk.bteterrarenderer.storage.TileMapCache;
 import org.lwjgl.opengl.GL11;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.map.bing.BingTileMap;
-import com.mndk.bteterrarenderer.map.kakao_wtm.KakaoTileMap;
-import com.mndk.bteterrarenderer.map.mercator.MercatorTileMap;
 import com.mndk.bteterrarenderer.util.StringUrlUtil;
 
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -26,7 +24,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public abstract class ExternalTileMap {
+public abstract class TileMapService {
 	
 	
 	
@@ -60,13 +58,13 @@ public abstract class ExternalTileMap {
 	
 	
 	
-	public static ExternalTileMap parse(String id, Map<String, Object> object) throws Exception {
+	public static TileMapService parse(String id, Map<String, Object> object) throws Exception {
 		String projectionId = (String) object.get("projection");
 		switch(projectionId.toLowerCase()) {
 			case "webmercator":
-			case "mercator": return new MercatorTileMap(id, object);
-			case "bing": return new BingTileMap(id, object);
-			case "kakao_wtm": return new KakaoTileMap(id, object);
+			case "mercator": return new WebMercatorTMS(id, object);
+			case "bing": return new BingTMS(id, object);
+			case "kakao_wtm": return new KakaoTMS(id, object);
 		}
 		throw new Exception(projectionId + " projection doesn't exist!");
 	}
@@ -74,7 +72,7 @@ public abstract class ExternalTileMap {
 	
 	
 	@SuppressWarnings("unchecked")
-	protected ExternalTileMap(String id, Map<String, Object> object) throws Exception {
+	protected TileMapService(String id, Map<String, Object> object) throws Exception {
 		
 		this.id = id;
 		this.name = (String) object.get("name");
@@ -226,7 +224,7 @@ public abstract class ExternalTileMap {
 	
 	@Override
 	public String toString() {
-		return ExternalTileMap.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + tileUrl + "}";
+		return TileMapService.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + tileUrl + "}";
 	}
 
 
@@ -239,9 +237,9 @@ public abstract class ExternalTileMap {
 
 	static {
 		try {
-			SERVER_RETURNED_ERROR = ImageIO.read(ExternalTileMap.class.getClassLoader().getResourceAsStream(
+			SERVER_RETURNED_ERROR = ImageIO.read(TileMapService.class.getClassLoader().getResourceAsStream(
 					"assets/" + BTETerraRenderer.MODID + "/textures/image_not_found.png"));
-			SOMETHING_WENT_WRONG = ImageIO.read(ExternalTileMap.class.getClassLoader().getResourceAsStream(
+			SOMETHING_WENT_WRONG = ImageIO.read(TileMapService.class.getClassLoader().getResourceAsStream(
 					"assets/" + BTETerraRenderer.MODID + "/textures/internal_error_image.png"));
 			
 			// Converting the same image to resource every time might cause a preference issue.

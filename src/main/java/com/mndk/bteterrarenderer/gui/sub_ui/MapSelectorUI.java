@@ -9,9 +9,9 @@ import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.config.ModConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.util.ImageUiRenderer;
-import com.mndk.bteterrarenderer.map.ExternalTileMap;
-import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
-import com.mndk.bteterrarenderer.map.TileMapLoaderResult;
+import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
+import com.mndk.bteterrarenderer.storage.TileMapLoaderResult;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -58,7 +58,7 @@ public class MapSelectorUI extends GuiSubScreen {
 		
 		for(TileMapLoaderResult.Category category : TileMapYamlLoader.result.getCategories()) {
 			clickableElementList.add(category.getName());
-			for(ExternalTileMap map : category.getMaps()) {
+			for(TileMapService map : category.getMaps()) {
 				clickableElementList.add(map);
 				tempWidth = this.fontRenderer.getStringWidth(map.getName());
 				LIST_WIDTH = LIST_WIDTH < tempWidth ? tempWidth : LIST_WIDTH;
@@ -103,9 +103,9 @@ public class MapSelectorUI extends GuiSubScreen {
 						0xFFFFFF
 				);
 			}
-			else if(object instanceof ExternalTileMap) {
+			else if(object instanceof TileMapService) {
 				
-				ExternalTileMap map = (ExternalTileMap) object;
+				TileMapService map = (TileMapService) object;
 				float u = (ModConfig.currentMapManager == null ? 0 : ModConfig.currentMapManager.getId().equals(map.getId()) ? 1/8.f : 0) + 
 						(isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
 				
@@ -162,8 +162,8 @@ public class MapSelectorUI extends GuiSubScreen {
 		int index = this.getMouseIndex(mouseX, mouseY);
 		if(index == -1) return;
 		Object obj = clickableElementList.get(index);
-		if(!(obj instanceof ExternalTileMap)) return;
-		ConfigHandler.getModConfig().setMapId(((ExternalTileMap) obj).getId());
+		if(!(obj instanceof TileMapService)) return;
+		ConfigHandler.getModConfig().setMapId(((TileMapService) obj).getId());
 	}
 	
 	

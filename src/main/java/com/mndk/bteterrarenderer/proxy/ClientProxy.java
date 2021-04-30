@@ -8,7 +8,7 @@ import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.event.KeyEvent;
-import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
+import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;

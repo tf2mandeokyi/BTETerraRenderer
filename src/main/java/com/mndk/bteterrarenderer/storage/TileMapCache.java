@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.map;
+package com.mndk.bteterrarenderer.storage;
 
+import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 
@@ -186,10 +187,10 @@ public class TileMapCache {
 			String tileKey = entry.getKey();
 			BufferedImage image = entry.getValue();
 
-			if(image == ExternalTileMap.SERVER_RETURNED_ERROR) {
+			if(image == TileMapService.SERVER_RETURNED_ERROR) {
 				
 			}
-			else if(image == ExternalTileMap.SOMETHING_WENT_WRONG) {
+			else if(image == TileMapService.SOMETHING_WENT_WRONG) {
 				
 			}
 			else {

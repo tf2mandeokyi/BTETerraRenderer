@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.renderer;
 
 import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.config.ModConfig;
-import com.mndk.bteterrarenderer.map.ExternalTileMap;
-import com.mndk.bteterrarenderer.map.TileMapCache;
+import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.storage.TileMapCache;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.Tessellator;
 
 public class TileMapRenderer {
 
-	public static void renderTiles(ExternalTileMap renderer, double px, double py, double pz) {
+	public static void renderTiles(TileMapService renderer, double px, double py, double pz) {
 		
 		if(renderer == null) return;
 		

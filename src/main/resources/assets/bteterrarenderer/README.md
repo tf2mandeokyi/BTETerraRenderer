@@ -58,7 +58,7 @@ categories:
 
 The available projection enums are listed here.
 
-If you want it more, make an issue (or suggestion), or make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.map`. They all should be the subclass of `ExternalTileMap` and should be registered at `ExternalTileMap.parse()`)
+If you want it more, make an issue (or suggestion), or make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.tms`. They all should be the subclass of `ExternalTileMap` and should be registered at `ExternalTileMap.parse()`)
 
 #### `webmercator` 
 

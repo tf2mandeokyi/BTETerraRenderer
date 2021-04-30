@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
-import com.mndk.bteterrarenderer.map.ExternalTileMap;
-import com.mndk.bteterrarenderer.map.TileMapYamlLoader;
+import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 
 public class ModConfig {
 
@@ -20,7 +20,7 @@ public class ModConfig {
 	private int zoom;
 	private int radius;
 
-	public static ExternalTileMap currentMapManager;
+	public static TileMapService currentMapManager;
 
 	public static class AlignmentAxis {
 		public double x, z;

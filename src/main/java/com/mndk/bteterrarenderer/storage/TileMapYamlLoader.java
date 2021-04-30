@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.map;
+package com.mndk.bteterrarenderer.storage;
 
 import java.io.File;
 import java.io.FileReader;
@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTRConstants;
+import com.mndk.bteterrarenderer.tms.TileMapService;
 
 public class TileMapYamlLoader {
 	
@@ -65,10 +66,10 @@ public class TileMapYamlLoader {
 	
 	@SuppressWarnings("unchecked")
 	private static TileMapLoaderResult.Category getMapCategoryFromMapObject(String name, Map<String, Object> mapList) throws Exception {
-		List<ExternalTileMap> mapSet = new ArrayList<>();
+		List<TileMapService> mapSet = new ArrayList<>();
 		
 		for(Map.Entry<String, Object> map : mapList.entrySet()) {
-			mapSet.add(ExternalTileMap.parse(map.getKey(), (Map<String, Object>) map.getValue()));
+			mapSet.add(TileMapService.parse(map.getKey(), (Map<String, Object>) map.getValue()));
 		}
 		
 		return new TileMapLoaderResult.Category(name, mapSet);

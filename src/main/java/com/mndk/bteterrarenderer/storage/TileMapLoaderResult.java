@@ -1,4 +1,6 @@
-package com.mndk.bteterrarenderer.map;
+package com.mndk.bteterrarenderer.storage;
+
+import com.mndk.bteterrarenderer.tms.TileMapService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +37,9 @@ public class TileMapLoaderResult {
 		return this.uiElementCount;
 	}
 	
-	public ExternalTileMap getTileMap(String mapId) {
+	public TileMapService getTileMap(String mapId) {
 		for(Category category : categories) {
-			for(ExternalTileMap map : category.getMaps()) {
+			for(TileMapService map : category.getMaps()) {
 				if(mapId.equals(map.getId())) {
 					return map;
 				}
@@ -54,9 +56,9 @@ public class TileMapLoaderResult {
 	
 	public static class Category {
 		private final String name;
-		private final List<ExternalTileMap> maps;
+		private final List<TileMapService> maps;
 		
-		public Category(String name, List<ExternalTileMap> maps) {
+		public Category(String name, List<TileMapService> maps) {
 			this.name = name;
 			this.maps = maps;
 		}
@@ -65,7 +67,7 @@ public class TileMapLoaderResult {
 			return name;
 		}
 		
-		public List<ExternalTileMap> getMaps() {
+		public List<TileMapService> getMaps() {
 			return maps;
 		}
 	}
