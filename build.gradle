@@ -5,14 +5,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath "com.github.jengelman.gradle.plugins:shadow:4.0.0"
     }
 }
 
 
 
-apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
@@ -20,12 +20,13 @@ apply plugin: 'maven-publish'
 
 
 version = project.mod_version
-group = project.group
+group = project.mod_group
 archivesBaseName = project.mod_id
 
 
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava.options.encoding = 'UTF-8'
 
 
 
@@ -52,20 +53,9 @@ repositories {
 
 
 minecraft {
-    mappings channel: 'snapshot', version: '20171003-1.12'
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-
-        server {
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-    }
+    version = project.forge_version
+    mappings = project.mcp_mappings
+    runDir = "run"
 }
 
 
@@ -78,14 +68,40 @@ configurations {
 
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
-	
-	compile 'com.github.OpenCubicChunks.CubicChunks:cubicchunks:6e18a97abe31e1c7892ebcf8ed0f17a4ac379e10'
-	compile 'com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec'
-	compile 'com.github.BuildTheEarth:terraplusplus:74449c4af349fd9b77b10e1041ed2c09f2d78518'
+
+    deobfProvided('com.github.OpenCubicChunks.CubicChunks:cubicchunks:6e18a97abe31e1c7892ebcf8ed0f17a4ac379e10') {
+        transitive = false
+    }
+    deobfProvided('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') {
+        transitive = false
+    }
+    deobfProvided('com.github.BuildTheEarth:terraplusplus:74449c4af349fd9b77b10e1041ed2c09f2d78518') {
+        transitive = true
+    }
 	
     shade 'org.yaml:snakeyaml:1.28'
     shade 'org.osgeo:proj4j:0.1.0'
+}
+
+
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    // copy everything else except the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 
