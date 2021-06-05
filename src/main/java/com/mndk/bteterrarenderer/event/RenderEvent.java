@@ -1,10 +1,8 @@
 package com.mndk.bteterrarenderer.event;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.config.ConfigHandler;
-import com.mndk.bteterrarenderer.config.ModConfig;
+import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.renderer.TileMapRenderer;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -29,9 +27,9 @@ public class RenderEvent {
 		final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-		if(ConfigHandler.getModConfig().isTileRendering()) {
+		if(BTRConfig.doRender) {
 			try {
-				TileMapRenderer.renderTiles(ModConfig.currentMapManager, px, py, pz);
+				TileMapRenderer.renderTiles(BTRConfig.getTileMapService(), px, py, pz);
 			} catch(IllegalArgumentException exception) {
 				exception.printStackTrace();
 			}

@@ -19,14 +19,3 @@ gui.bteterrarenderer.maprenderer.x_align=X Axis
 gui.bteterrarenderer.maprenderer.z_align=Z Axis
 gui.bteterrarenderer.maprenderer.x_align_reset=Reset X
 gui.bteterrarenderer.maprenderer.z_align_reset=Reset Z
-
-enum.bteterrarenderer.mapsource.OSM=OpenStreetMap
-enum.bteterrarenderer.mapsource.BING_AERIAL=[Aerial] Bing Maps
-enum.bteterrarenderer.mapsource.BING_PLAIN=[Plain] Bing Maps
-enum.bteterrarenderer.mapsource.KAKAO_AERIAL=[Aerial] Kakao Map (Korea only)
-enum.bteterrarenderer.mapsource.KAKAO_PLAIN=[Plain] Kakao Map (Korea only)
-enum.bteterrarenderer.mapsource.TMAP=T Map (Korea only)
-enum.bteterrarenderer.mapsource.NAVER=Naver Map (Korea only)
-
-enum.bteterrarenderer.maptype.PLAIN_MAP=Plain Map
-enum.bteterrarenderer.maptype.AERIAL=Aerial

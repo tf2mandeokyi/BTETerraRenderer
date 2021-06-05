@@ -1,5 +1,9 @@
 package com.mndk.bteterrarenderer.storage;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTRConstants;
+import com.mndk.bteterrarenderer.tms.TileMapService;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
@@ -7,10 +11,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.BTRConstants;
-import com.mndk.bteterrarenderer.tms.TileMapService;
 
 public class TileMapYamlLoader {
 	
@@ -25,12 +25,20 @@ public class TileMapYamlLoader {
 		
 		result.append(loadDefaultMap());
 		
-		if(!mapFilesDirectory.isDirectory()) {
+		if(!mapFilesDirectory.exists()) {
 			mapFilesDirectory.mkdirs();
 		}
 		else {
-			for(File mapFile : mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"))) {
-				try { result.append(load(new FileReader(mapFile))); } catch(Exception e) { e.printStackTrace(); }
+			File[] mapFiles = mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
+
+			if (mapFiles != null) {
+				for (File mapFile : mapFiles) {
+					try {
+						result.append(load(new FileReader(mapFile)));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}

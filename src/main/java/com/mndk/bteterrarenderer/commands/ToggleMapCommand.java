@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.commands;
 
-import com.mndk.bteterrarenderer.config.ConfigHandler;
-
+import com.mndk.bteterrarenderer.config.BTRConfig;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -12,7 +11,8 @@ public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override
 	public void execute(MinecraftServer arg0, ICommandSender arg1, String[] arg2) throws CommandException {
-		ConfigHandler.getModConfig().toggleTileRendering();
+		BTRConfig.doRender = !BTRConfig.doRender;
+		BTRConfig.save();
 	}
 
 	@Override

@@ -1,10 +1,8 @@
 package com.mndk.bteterrarenderer.renderer;
 
-import com.mndk.bteterrarenderer.config.ConfigHandler;
-import com.mndk.bteterrarenderer.config.ModConfig;
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.storage.TileMapCache;
-
+import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -25,17 +23,17 @@ public class TileMapRenderer {
 
 		GlStateManager.scale(1, 1, 1);
 
-		ModConfig config = ConfigHandler.getModConfig();
+		BTRConfig.RenderSettings settings = BTRConfig.RENDER_SETTINGS;
 
-		int size = config.getRadius() - 1;
+		int size = settings.radius - 1;
 		
 		// Iterate tiles around player
 		for (int y = -size; y <= size; y++) for (int x = -size; x <= size; x++) {
 			renderer.renderTile(
 					t, builder,
-					-config.getZoom(),
-					config.getYLevel() + 0.1, (float) config.getOpacity(), // Adding .1 to y because rendering issue
-					px+config.getXAlign(), py, pz+config.getZAlign(),
+					-settings.zoom,
+					settings.yAxis + 0.1, (float) settings.opacity, // Adding .1 to y because rendering issue
+					px + settings.align_x, py, pz + settings.align_z,
 					x, y
 			);
 		}

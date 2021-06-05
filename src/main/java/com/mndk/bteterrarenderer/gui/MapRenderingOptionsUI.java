@@ -1,18 +1,17 @@
 package com.mndk.bteterrarenderer.gui;
 
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import com.mndk.bteterrarenderer.config.ConfigHandler;
+import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.gui.sub_ui.DefaultMapRenderingOptionsUI;
-import com.mndk.bteterrarenderer.gui.sub_ui.MapAlignmentToolUI;
+import com.mndk.bteterrarenderer.gui.sub_ui.MapAlignerUI;
 import com.mndk.bteterrarenderer.gui.sub_ui.MapSelectorUI;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapRenderingOptionsUI extends GuiScreen {
 	
@@ -25,7 +24,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	final DefaultMapRenderingOptionsUI defaultOptions;
 	public boolean renderMapSelector;
 	final MapSelectorUI mapSelectorUi;
-	final MapAlignmentToolUI alignmentToolUi;
+	final MapAlignerUI alignmentToolUi;
 	
 	
 	
@@ -47,7 +46,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 		// Not a good idea, but it sorta works, right?
 		
 		// It turned out it doesn't work lmao
-		// I'll just in case make a TODO here to fix this later
+		// TODO fix this
 	}
 	
 	
@@ -55,7 +54,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	private MapRenderingOptionsUI() {
 		this.defaultOptions = new DefaultMapRenderingOptionsUI(this);
 		this.mapSelectorUi = new MapSelectorUI(this);
-		this.alignmentToolUi = new MapAlignmentToolUI(this);
+		this.alignmentToolUi = new MapAlignerUI(this);
 	}
 	
 	
@@ -71,7 +70,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	
 	
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
+	protected void actionPerformed(GuiButton button) {
 		this.defaultOptions.actionPerformed(button);
 		this.alignmentToolUi.actionPerformed(button);
 		if(this.renderMapSelector) this.mapSelectorUi.actionPerformed(button);
@@ -131,7 +130,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	
 	@Override
 	public void onGuiClosed() {
-		try { ConfigHandler.saveConfig(); } catch(IOException e) { e.printStackTrace(); }
+		BTRConfig.save();
 		super.onGuiClosed();
 	}
 	

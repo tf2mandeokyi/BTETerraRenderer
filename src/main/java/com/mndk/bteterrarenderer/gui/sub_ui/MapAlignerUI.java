@@ -1,20 +1,17 @@
 package com.mndk.bteterrarenderer.gui.sub_ui;
 
-import java.io.IOException;
-
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.config.ConfigHandler;
+import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.util.ImageUiRenderer;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiSlider;
-import net.minecraftforge.fml.client.config.GuiSlider.ISlider;
 
-public class MapAlignmentToolUI extends GuiSubScreen {
-	
+public class MapAlignerUI extends GuiSubScreen {
+
+
+
 	private static final int ALIGNMENT_IMAGE_MARGIN_BOTTOM = 20;
 	private static final int ALIGNMENT_IMAGE_MARGIN_RIGHT = 20;
 	private static final int ALIGNMENT_IMAGE_WIDTH = 128;
@@ -43,7 +40,7 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 	
 	
 	
-	public MapAlignmentToolUI(MapRenderingOptionsUI parent) {
+	public MapAlignerUI(MapRenderingOptionsUI parent) {
 		super(parent);
 	}
 
@@ -76,11 +73,10 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.zoom") + ": ", "",
-				-3, 3, ConfigHandler.getModConfig().getZoom(),
+				-3, 3,
+				BTRConfig.RENDER_SETTINGS.zoom,
 				false, true,
-				new ISlider() { @Override public void onChangeSliderValue(GuiSlider slider) {
-					ConfigHandler.getModConfig().setZoom(slider.getValueInt());
-				}}
+				slider -> BTRConfig.RENDER_SETTINGS.zoom = slider.getValueInt()
 		));
 		
 		
@@ -91,22 +87,21 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - 2 * MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT - 6,
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.size") + ": ", "",
-				1, 5, ConfigHandler.getModConfig().getRadius(),
+				1, 5,
+				BTRConfig.RENDER_SETTINGS.radius,
 				false, true,
-				new ISlider() { @Override public void onChangeSliderValue(GuiSlider slider) {
-					ConfigHandler.getModConfig().setRadius(slider.getValueInt());
-				}}
+				slider -> BTRConfig.RENDER_SETTINGS.radius = slider.getValueInt()
 		));
 	}
 
 
 
 	@Override
-	public void actionPerformed(GuiButton button) throws IOException {
+	public void actionPerformed(GuiButton button) {
 		if (button == xAlignResetButton) {
-			ConfigHandler.getModConfig().setXAlign(0);
+			BTRConfig.RENDER_SETTINGS.align_x = 0;
 		} else if (button == zAlignResetButton) {
-			ConfigHandler.getModConfig().setZAlign(0);
+			BTRConfig.RENDER_SETTINGS.align_z = 0;
 		}
 	}
 
@@ -120,9 +115,9 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		String xAlignString = I18n.format("gui.bteterrarenderer.maprenderer.x_align") + ": "
-				+ ConfigHandler.getModConfig().getXAlign() + "m";
+				+ BTRConfig.RENDER_SETTINGS.align_x + "m";
 		String zAlignString = I18n.format("gui.bteterrarenderer.maprenderer.z_align") + ": "
-				+ ConfigHandler.getModConfig().getZAlign() + "m";
+				+ BTRConfig.RENDER_SETTINGS.align_z + "m";
 
 		int imageRight = parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT, imageLeft = imageRight - ALIGNMENT_IMAGE_WIDTH;
 		int imageBottom = parent.height - ALIGNMENT_IMAGE_HEIGHT, imageTop = imageBottom - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
@@ -146,9 +141,9 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 				ALIGNMENT_IMAGE_HEIGHT);
 
 		// Alignment marker
-		double x1 = -ALIGNMENT_IMAGE_WIDTH * (ConfigHandler.getModConfig().getXAlign() - MAX_IMAGE_ALIGNMENT_VALUE)
+		double x1 = -ALIGNMENT_IMAGE_WIDTH * (BTRConfig.RENDER_SETTINGS.align_x - MAX_IMAGE_ALIGNMENT_VALUE)
 				/ IMAGE_ALIGNMENT_VALUE_RANGE,
-				y1 = -ALIGNMENT_IMAGE_HEIGHT * (ConfigHandler.getModConfig().getZAlign() - MAX_IMAGE_ALIGNMENT_VALUE)
+				y1 = -ALIGNMENT_IMAGE_HEIGHT * (BTRConfig.RENDER_SETTINGS.align_z - MAX_IMAGE_ALIGNMENT_VALUE)
 						/ IMAGE_ALIGNMENT_VALUE_RANGE;
 		int marker_pos_x = (int) (x1 + parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH),
 				marker_pos_y = (int) (y1 + parent.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT);
@@ -160,7 +155,7 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (this.mouseClickedInAlignmentImage = this.isMouseInAlignmentImage(mouseX, mouseY)) {
 			mouseXYToXZAlign(mouseX, mouseY);
 		}
@@ -169,7 +164,7 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 
 
 	@Override
-	public void keyTyped(char key, int keyCode) throws IOException {}
+	public void keyTyped(char key, int keyCode) {}
 
 
 
@@ -196,10 +191,10 @@ public class MapAlignmentToolUI extends GuiSubScreen {
 	private void mouseXYToXZAlign(int mouseX, int mouseY) {
 		int x1 = mouseX - parent.width + ALIGNMENT_IMAGE_MARGIN_RIGHT + ALIGNMENT_IMAGE_WIDTH,
 				y1 = mouseY - parent.height + ALIGNMENT_IMAGE_MARGIN_BOTTOM + ALIGNMENT_IMAGE_HEIGHT;
-		ConfigHandler.getModConfig().setXAlign(
-				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH);
-		ConfigHandler.getModConfig().setZAlign(
-				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT);
+		BTRConfig.RENDER_SETTINGS.align_x =
+				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH;
+		BTRConfig.RENDER_SETTINGS.align_z =
+				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT;
 	}
 	
 }

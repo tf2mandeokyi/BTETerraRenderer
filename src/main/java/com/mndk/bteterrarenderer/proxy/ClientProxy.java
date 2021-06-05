@@ -1,15 +1,9 @@
 package com.mndk.bteterrarenderer.proxy;
 
-import java.io.IOException;
-
-import org.lwjgl.input.Keyboard;
-
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
-import com.mndk.bteterrarenderer.config.ConfigHandler;
 import com.mndk.bteterrarenderer.event.KeyEvent;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -18,6 +12,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.lwjgl.input.Keyboard;
 
 public class ClientProxy extends CommonProxy {
 
@@ -43,12 +38,6 @@ public class ClientProxy extends CommonProxy {
 			TileMapYamlLoader.refresh(event.getModConfigurationDirectory().getAbsolutePath());
 		} catch(Exception e) {
 			BTETerraRenderer.logger.error("Error caught while parsing map json files!");
-			e.printStackTrace();
-		}
-		try {
-			ConfigHandler.refresh();
-		} catch (IOException e) {
-			BTETerraRenderer.logger.error("Error caught while parsing config file!");
 			e.printStackTrace();
 		}
 	}

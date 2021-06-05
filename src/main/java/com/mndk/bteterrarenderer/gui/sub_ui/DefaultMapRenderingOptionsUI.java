@@ -1,17 +1,13 @@
 package com.mndk.bteterrarenderer.gui.sub_ui;
 
-import java.io.IOException;
-
-import com.mndk.bteterrarenderer.config.ConfigHandler;
+import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.components.NumberOption;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.config.GuiSlider;
-import net.minecraftforge.fml.client.config.GuiSlider.ISlider;
 
 public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
@@ -54,7 +50,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
-						(ConfigHandler.getModConfig().isTileRendering() ? 
+						(BTRConfig.doRender ?
 								I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
 								I18n.format("gui.bteterrarenderer.maprenderer.disabled")
 						)
@@ -77,9 +73,9 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				COMPONENT_ID_GROUP + i, this.fontRenderer, 
 				LOPTIONS_MARGIN_LEFT + OPTIONS_WIDTH / 3, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH * 2 / 3, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				new NumberOption<Double>(
-						ConfigHandler.getModConfig()::getYLevel, 
-						ConfigHandler.getModConfig()::setYLevel,
+				new NumberOption<>(
+						() -> BTRConfig.RENDER_SETTINGS.yAxis,
+						value -> BTRConfig.RENDER_SETTINGS.yAxis = value,
 						-1000000.0, 1000000.0,
 						I18n.format("gui.bteterrarenderer.maprenderer.map_y_level") + ": "
 				)
@@ -93,11 +89,9 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.opacity") + ": ", "",
-				0, 1, ConfigHandler.getModConfig().getOpacity(),
+				0, 1, BTRConfig.RENDER_SETTINGS.opacity,
 				true, true,
-				new ISlider() { @Override public void onChangeSliderValue(GuiSlider slider) {
-						ConfigHandler.getModConfig().setOpacity(slider.getValue());
-				}}
+				slider -> BTRConfig.RENDER_SETTINGS.opacity = slider.getValue()
 		));
 
 		
@@ -114,14 +108,14 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
 	
 	@Override
-	public void actionPerformed(GuiButton button) throws IOException {
+	public void actionPerformed(GuiButton button) {
 		if(button.equals(doneButton)) {
 			Minecraft.getMinecraft().player.closeScreen();
 		}
 		else if(button.equals(this.mapRenderingToggler)) {
-			ConfigHandler.getModConfig().toggleTileRendering();
+			BTRConfig.doRender = !BTRConfig.doRender;
 			this.mapRenderingToggler.displayString = I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
-					(ConfigHandler.getModConfig().isTileRendering() ? 
+					(BTRConfig.doRender ?
 							I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
 							I18n.format("gui.bteterrarenderer.maprenderer.disabled")
 					);
@@ -141,7 +135,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
 	
 	@Override
-	public void mouseClicked(int x, int y, int button) throws IOException {
+	public void mouseClicked(int x, int y, int button) {
 		this.mapYAxisInput.mouseClicked(x, y, button);
 	}
 	
