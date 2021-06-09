@@ -15,6 +15,9 @@ import net.minecraft.util.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UI for map selecting.
+ */
 public class MapSelectorUI extends GuiSubScreen {
 
 	static final int COMPONENT_ID_GROUP = 200;

@@ -15,7 +15,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class RenderEvent {
 
 
-
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public static void onRenderEvent(final RenderWorldLastEvent event) {

@@ -5,6 +5,9 @@ import com.mndk.bteterrarenderer.util.StringToNumber;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 
+/**
+ * Number input field class.
+ */
 public class GuiNumberInput extends GuiTextField {
 
 	protected final NumberOption<Double> option;

@@ -3,6 +3,10 @@ package com.mndk.bteterrarenderer.gui.components;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Number option class for {@link GuiNumberInput}
+ * @param <T> Number type, such as Integer, Float or Double
+ */
 public class NumberOption<T extends Number> {
 
 	public Supplier<T> getter;

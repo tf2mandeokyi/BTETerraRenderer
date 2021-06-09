@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * UI for map rendering options.
+ */
 public class MapRenderingOptionsUI extends GuiScreen {
 	
 	

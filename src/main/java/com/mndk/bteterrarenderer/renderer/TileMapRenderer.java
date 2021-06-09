@@ -9,9 +9,16 @@ import net.minecraft.client.renderer.Tessellator;
 
 public class TileMapRenderer {
 
-	public static void renderTiles(TileMapService renderer, double px, double py, double pz) {
+	/**
+	 * Renders tile map.
+	 * @param tms TileMapService class
+	 * @param px Player's x position
+	 * @param py Player's y position
+	 * @param pz Player's z position
+	 */
+	public static void renderTiles(TileMapService tms, double px, double py, double pz) {
 		
-		if(renderer == null) return;
+		if(tms == null) return;
 		
 		Tessellator t = Tessellator.getInstance();
 		BufferBuilder builder = t.getBuffer();
@@ -29,7 +36,7 @@ public class TileMapRenderer {
 		
 		// Iterate tiles around player
 		for (int y = -size; y <= size; y++) for (int x = -size; x <= size; x++) {
-			renderer.renderTile(
+			tms.renderTile(
 					t, builder,
 					-settings.zoom,
 					settings.yAxis + 0.1, (float) settings.opacity, // Adding .1 to y because rendering issue

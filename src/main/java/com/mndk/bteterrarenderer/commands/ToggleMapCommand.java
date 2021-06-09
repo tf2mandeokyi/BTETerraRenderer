@@ -7,6 +7,9 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.IClientCommand;
 
+/**
+ * The command class that toggles the map rendering; client side only.
+ */
 public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override

@@ -3,6 +3,9 @@ package com.mndk.bteterrarenderer.projection;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import org.osgeo.proj4j.*;
 
+/**
+ * Proj4j + {@link GeographicProjection}
+ */
 public class Proj4jProjection implements GeographicProjection {
 
 	private static final CRSFactory crsFactory = new CRSFactory();

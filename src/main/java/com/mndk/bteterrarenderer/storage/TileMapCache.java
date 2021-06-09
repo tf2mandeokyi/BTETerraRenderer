@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.storage;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -7,8 +8,9 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
-import com.mndk.bteterrarenderer.BTETerraRenderer;
-
+/**
+ * Cache class that stores tile image data.
+ */
 public class TileMapCache {
 	
 	

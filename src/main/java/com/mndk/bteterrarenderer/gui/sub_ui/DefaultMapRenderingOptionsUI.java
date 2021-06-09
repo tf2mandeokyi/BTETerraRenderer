@@ -9,6 +9,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.config.GuiSlider;
 
+/**
+ * UI for default map rendering options.
+ */
 public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 	
 	static final int COMPONENT_ID_GROUP = 100;

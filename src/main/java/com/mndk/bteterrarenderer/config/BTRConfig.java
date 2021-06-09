@@ -67,6 +67,10 @@ public class BTRConfig {
 
 
     private static class ConfigDataCache {
+        /*
+         * I couldn't put this in BTRConfig, so I made a subclass BTRConfig.ConfigDataCache and put this
+         * variable here.
+         */
         private static TileMapService tileMapService = TileMapYamlLoader.result.getTileMap(mapServiceId);
     }
 
