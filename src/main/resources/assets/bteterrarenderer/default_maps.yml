@@ -9,19 +9,29 @@ categories:
          max_thread: 2
          request_headers:
             User-Agent: bteterrarenderer/1.0 Java/1.8
-            
-            
+
       bing_aerial:
          name: Bing Maps (Aerial)
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill
          projection: bing
          max_thread: 2
-     
-     
+
       bing_plain:
          name: Bing Maps (Plain)
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill
          projection: bing
+         max_thread: 2
+
+      yandex_aerial:
+         name: Yandex.Maps (Aerial)
+         tile_url: https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}
+         projection: worldmercator
+         max_thread: 2
+
+      yandex_plain:
+         name: Yandex.Maps (Plain)
+         tile_url: https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}
+         projection: worldmercator
          max_thread: 2
    
    
@@ -37,7 +47,6 @@ categories:
          invert_lat: true
          invert_zoom: true
          
-         
       kakao_aerial:
          name: Kakao Map (Aerial)
          tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_skyview/L{z}/{y}/{x}.jpg
@@ -46,7 +55,6 @@ categories:
          default_zoom: 1
          invert_lat: true
          invert_zoom: true
-         
          
       kakao_plain:
          name: Kakao Map (Plain)
@@ -57,13 +65,11 @@ categories:
          invert_lat: true
          invert_zoom: true
          
-         
       naver_plain:
          name: Naver Map
          tile_url: https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.lko
          projection: webmercator
          max_thread: 2
-         
          
       tmap_plain:
          name: T Map
@@ -82,8 +88,7 @@ categories:
          projection: webmercator
          max_thread: 2
          default_zoom: 17
-         
-         
+
       lidar_jp_plain:
          name: Japan LiDAR (Plain)
          tile_url: http://maps.gsi.go.jp/xyz/std/{z}/{x}/{y}.png
