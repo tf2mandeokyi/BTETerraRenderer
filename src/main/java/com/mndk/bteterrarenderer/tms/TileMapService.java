@@ -1,5 +1,15 @@
 package com.mndk.bteterrarenderer.tms;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.storage.TileMapCache;
+import com.mndk.bteterrarenderer.util.StringUrlUtil;
+import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import org.lwjgl.opengl.GL11;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,19 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.imageio.ImageIO;
-
-import com.mndk.bteterrarenderer.storage.TileMapCache;
-import org.lwjgl.opengl.GL11;
-
-import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.util.StringUrlUtil;
-
-import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 public abstract class TileMapService {
 	
@@ -63,6 +60,7 @@ public abstract class TileMapService {
 		switch(projectionId.toLowerCase()) {
 			case "webmercator":
 			case "mercator": return new WebMercatorTMS(id, object);
+			case "worldmercator": return new WorldMercatorTMS(id, object);
 			case "bing": return new BingTMS(id, object);
 			case "kakao_wtm": return new KakaoTMS(id, object);
 		}
