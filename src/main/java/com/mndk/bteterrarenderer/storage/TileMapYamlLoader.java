@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.storage;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.BTRConstants;
 import com.mndk.bteterrarenderer.tms.TileMapService;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileReader;
@@ -15,10 +15,11 @@ import java.util.Map;
 public class TileMapYamlLoader {
 	
 	private static final String DEFAULT_MAP_YAML_PATH = "assets/" + BTETerraRenderer.MODID + "/default_maps.yml";
-	
+	public static final Yaml YAML = new Yaml();
+
 	private static File mapFilesDirectory;
 	public static TileMapLoaderResult result;
-	
+
 	public static void refresh() throws Exception {
 
 		result = new TileMapLoaderResult();
@@ -53,7 +54,7 @@ public class TileMapYamlLoader {
 	@SuppressWarnings("unchecked")
 	private static TileMapLoaderResult load(Reader fileReader) throws Exception {
 		
-		Map<String, Object> mapData = BTRConstants.YAML.load(fileReader);
+		Map<String, Object> mapData = YAML.load(fileReader);
 		Map<String, Object> categories = (Map<String, Object>) mapData.get("categories");
 		
 		List<TileMapLoaderResult.Category> result = new ArrayList<>();
