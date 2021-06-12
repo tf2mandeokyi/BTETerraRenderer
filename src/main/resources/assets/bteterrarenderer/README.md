@@ -60,9 +60,9 @@ The available projection enums are listed here.
 
 If you want it more, make an issue (or suggestion), or make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.tms`. They all should be the subclass of `ExternalTileMap` and should be registered at `ExternalTileMap.parse()`)
 
-#### `webmercator` 
+#### `webmercator` (EPSG:3857, alias: `mercator`)
 
-Web Mercator projection. (alias: `mercator`)
+Web Mercator projection.
 
 | tile parameter | description                          |
 | -------------- | ------------------------------------ |
@@ -70,7 +70,17 @@ Web Mercator projection. (alias: `mercator`)
 | `{y}`          | Y-axis parameter.                    |
 | `{z}`          | The value of the map zoom parameter. |
 
-#### `bing`
+#### `worldmercator` (EPSG:3395)
+
+World Mercator projection. Used for Yandex.Maps tile server.
+
+| tile parameter | description                          |
+| -------------- | ------------------------------------ |
+| `{x}`          | X-axis parameter.                    |
+| `{y}`          | Y-axis parameter.                    |
+| `{z}`          | The value of the map zoom parameter. |
+
+#### `bing` (EPSG:3857)
 
 Web Mercator projection, but for Bing maps.
 
@@ -78,8 +88,8 @@ Web Mercator projection, but for Bing maps.
 | -------------- | ---------------- |
 | `{u}`          | Map Tile Quadkey |
 
-#### `kakao_wtm`
+#### `kakao_wtm` (EPSG:5186)
 
-Tile projection ([EPSG:5181](http://epsg.io/5181)) for Korean maps.
+Tile projection for Korean maps.
 
-Parameters are the same as `webmercator`'s parameters. 
+Parameters are the same as `webmercator`'s. 
