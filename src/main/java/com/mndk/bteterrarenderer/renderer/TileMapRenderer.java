@@ -19,7 +19,13 @@ public class TileMapRenderer {
 	public static void renderTiles(TileMapService tms, double px, double py, double pz) {
 		
 		if(tms == null) return;
-		
+
+		BTRConfig.RenderSettings settings = BTRConfig.RENDER_SETTINGS;
+
+		if(settings.yAxis <= py - settings.yDiffLimit || settings.yAxis >=py + settings.yDiffLimit) {
+			return;
+		}
+
 		Tessellator t = Tessellator.getInstance();
 		BufferBuilder builder = t.getBuffer();
 
@@ -29,8 +35,6 @@ public class TileMapRenderer {
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
 		GlStateManager.scale(1, 1, 1);
-
-		BTRConfig.RenderSettings settings = BTRConfig.RENDER_SETTINGS;
 
 		int size = settings.radius - 1;
 		

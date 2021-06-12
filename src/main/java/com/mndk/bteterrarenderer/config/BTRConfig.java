@@ -36,7 +36,7 @@ public class BTRConfig {
         public double align_z = 0;
 
         @Config.Name("y_axis")
-        @Config.Comment("The Y-level where the map is rendered")
+        @Config.Comment("The y-coordinate at which the map is rendered")
         public double yAxis = 4;
 
         @Config.Name("opacity")
@@ -55,6 +55,13 @@ public class BTRConfig {
         @Config.RangeInt(min = 1, max = 5)
         @Config.SlidingOption
         public int radius = 3;
+
+        @Config.Name("y_diff_limit")
+        @Config.Comment({
+                "Limit of difference between the player's y-coordinate and the tile's y-coordinate.",
+                "If the diff reaches the limit, then the map won't be rendered."
+        })
+        public double yDiffLimit = 1000;
 
     }
 
@@ -97,7 +104,7 @@ public class BTRConfig {
 
 
     @Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID)
-    private static class ConfigEventHandler {
+    public static class ConfigEventHandler {
 
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
