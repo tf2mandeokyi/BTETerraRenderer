@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.tms;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.storage.TileMapCache;
 import com.mndk.bteterrarenderer.util.StringUrlUtil;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -100,7 +101,8 @@ public abstract class TileMapService {
 	public void initializeMapImageByPlayerCoordinate(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom) 
 			throws OutOfProjectionBoundsException {
 
-		int[] tileCoord = this.playerPositionToTileCoord(playerX, playerZ, zoom);
+		double[] geoCoord = Projections.BTE.toGeo(playerX, playerZ);
+		int[] tileCoord = this.geoCoordToTileCoord(geoCoord[0], geoCoord[1], zoom);
 		String tileId = this.genTileKey(tileCoord[0] + tileDeltaX, tileCoord[1] + tileDeltaY, zoom);
 		String url = this.getUrlTemplate(tileCoord[0] + tileDeltaX, tileCoord[1] + tileDeltaY, zoom);
 
@@ -132,8 +134,8 @@ public abstract class TileMapService {
 	
 	
 	
-	public abstract int[] playerPositionToTileCoord(double playerX, double playerZ, int zoom) throws OutOfProjectionBoundsException;
-	public abstract double[] tileCoordToPlayerPosition(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
+	public abstract int[] geoCoordToTileCoord(double longitude, double latitude, int zoom) throws OutOfProjectionBoundsException;
+	public abstract double[] tileCoordToGeoCoord(int tileX, int tileY, int zoom) throws OutOfProjectionBoundsException;
 	
 	
 	
@@ -162,7 +164,8 @@ public abstract class TileMapService {
 		try {
 			int zoom = this.getZoomFromLevel(level);
 
-			int[] tilePos = this.playerPositionToTileCoord(px, pz, zoom);
+			double[] temp = Projections.BTE.toGeo(px, pz);
+			int[] tilePos = this.geoCoordToTileCoord(temp[0], temp[1], zoom);
 
 			String tileKey = this.genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom);
 
@@ -189,13 +192,12 @@ public abstract class TileMapService {
 					// begin vertex
 					builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-					double[] temp;
-
 					// Convert boundaries
 					for (int i = 0; i < 4; i++) {
 
 						int[] mat = this.getCornerMatrix(i);
-						temp = tileCoordToPlayerPosition(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, zoom);
+						temp = tileCoordToGeoCoord(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, zoom);
+						temp = Projections.BTE.fromGeo(temp[0], temp[1]);
 
 						builder.pos(temp[0] - px, y - py, temp[1] - pz)
 								.tex(mat[2], mat[3])
