@@ -5,9 +5,6 @@ import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = BTETerraRenderer.MODID)
 public class BTRConfig {
@@ -75,8 +72,8 @@ public class BTRConfig {
 
     private static class ConfigDataCache {
         /*
-         * I couldn't put this in BTRConfig, so I made a subclass BTRConfig.ConfigDataCache and put this
-         * variable here.
+         * I couldn't put this in BTRConfig, so I made a subclass BTRConfig.ConfigDataCache and put the
+         * tms variable here.
          */
         private static TileMapService tileMapService = TileMapYamlLoader.result.getTileMap(mapServiceId);
     }
@@ -101,18 +98,5 @@ public class BTRConfig {
         refreshTileMapService();
     }
 
-
-
-    @Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID)
-    public static class ConfigEventHandler {
-
-        @SubscribeEvent
-        public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if(event.getModID().equals(BTETerraRenderer.MODID)) {
-                BTRConfig.save();
-            }
-        }
-
-    }
 
 }
