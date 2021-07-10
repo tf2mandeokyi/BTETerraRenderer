@@ -91,7 +91,7 @@ public class GuiSidebar extends GuiScreen {
             element.drawScreen(mouseX - translateX, mouseY - currentHeight, partialTicks);
             GlStateManager.translate(0, element.getHeight() + this.elementDistance, 0);
             currentHeight += element.getHeight() + this.elementDistance;
-            this.totalHeight += currentHeight;
+            this.totalHeight += element.getHeight() + this.elementDistance;
         }
         this.totalHeight += elementDistance;
 
@@ -185,14 +185,16 @@ public class GuiSidebar extends GuiScreen {
     @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
-        ScaledResolution scaled = this.getScaledResolution();
-
         this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 15;
 
-        if(this.verticalSlider > this.totalHeight - scaled.getScaledHeight()) {
-            this.verticalSlider = this.totalHeight - scaled.getScaledHeight();
+        if(verticalSlider != 0) {
+            ScaledResolution scaled = this.getScaledResolution();
+
+            if (this.verticalSlider > this.totalHeight - scaled.getScaledHeight()) {
+                this.verticalSlider = this.totalHeight - scaled.getScaledHeight();
+            }
+            if (this.verticalSlider < 0) this.verticalSlider = 0;
         }
-        if(this.verticalSlider < 0) this.verticalSlider = 0;
     }
 
 
@@ -224,7 +226,8 @@ public class GuiSidebar extends GuiScreen {
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         if(widthChangingState) {
-            int newWidth = initialElementWidth - (mouseX - initialMouseX);
+            int dMouseX = mouseX - initialMouseX;
+            int newWidth = initialElementWidth + (side == SidebarSide.LEFT ? dMouseX : -dMouseX);
             if(newWidth > 270) newWidth = 270;
             if(newWidth < 130) newWidth = 130;
 

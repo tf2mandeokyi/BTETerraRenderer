@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.gui.sidebar;
+package com.mndk.bteterrarenderer.gui.sidebar.elem;
 
+import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.gui.Gui;
 
@@ -91,7 +92,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
                         Gui.drawRect(
                                 0, yStart + elementHeight * i,
                                 parent.elementWidth.get(), yStart + elementHeight * (i + 1),
-                                0xDFA1AFFF
+                                0xDFA0AFFF
                         );
                     }
 
@@ -109,6 +110,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
 
     private void drawBackground() {
+        Gui.drawRect(0, 0, parent.elementWidth.get(), height, 0x50000000);
         if(opened) {
             Gui.drawRect(0, height, parent.elementWidth.get(), getHeight(), 0x80000000);
         }

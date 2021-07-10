@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui.sidebar;
+package com.mndk.bteterrarenderer.gui.sidebar.elem;
 
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.resources.I18n;

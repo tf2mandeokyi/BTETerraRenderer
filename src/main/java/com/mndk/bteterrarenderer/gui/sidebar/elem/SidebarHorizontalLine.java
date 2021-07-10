@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.gui.sidebar;
+package com.mndk.bteterrarenderer.gui.sidebar.elem;
 
+import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import net.minecraft.client.gui.Gui;
 
 // TODO Why doesn't this work

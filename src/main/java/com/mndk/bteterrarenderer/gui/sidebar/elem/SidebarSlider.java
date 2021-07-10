@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.gui.sidebar;
+package com.mndk.bteterrarenderer.gui.sidebar.elem;
 
+import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraftforge.fml.client.config.GuiSlider;
 

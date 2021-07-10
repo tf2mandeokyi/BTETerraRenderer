@@ -1,4 +1,6 @@
-package com.mndk.bteterrarenderer.gui.sidebar;
+package com.mndk.bteterrarenderer.gui.sidebar.elem;
+
+import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 import java.io.IOException;
 

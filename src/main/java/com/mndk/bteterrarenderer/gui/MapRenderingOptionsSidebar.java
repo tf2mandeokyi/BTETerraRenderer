@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.gui;
 
 import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.gui.sidebar.*;
+import com.mndk.bteterrarenderer.gui.sidebar.elem.*;
 import com.mndk.bteterrarenderer.storage.TileMapLoaderResult;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 import com.mndk.bteterrarenderer.tms.TileMapService;
@@ -65,7 +66,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         dropdownSelectorList.toArray(new Object[0])
                 ),
 
-                blank,
+                blank, new SidebarText("Map Offset", SidebarText.TextAlignment.LEFT), hl,
 
                 new SidebarSlider(
                         GetterSetter.from(() -> BTRConfig.RENDER_SETTINGS.radius,
@@ -80,8 +81,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         I18n.format("gui.bteterrarenderer.maprenderer.zoom") + ": ", "",
                         -3, 3
                 ),
-
-                blank, new SidebarText("Map Offset", SidebarText.TextAlignment.LEFT), hl,
 
                 new SidebarMapAligner(
                         GetterSetter.from(() -> BTRConfig.RENDER_SETTINGS.align_x,
