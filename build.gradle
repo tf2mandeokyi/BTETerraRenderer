@@ -79,10 +79,10 @@ dependencies {
         transitive = true
     }
 	
-    shade 'org.yaml:snakeyaml:1.28'
+    shade 'org.yaml:snakeyaml:1.29'
     shade 'org.osgeo:proj4j:0.1.0'
 
-    testCompile "junit:junit:4.12"
+    testCompile "junit:junit:4.13.2"
     testCompile 'com.github.BuildTheEarth:terraplusplus:74449c4af349fd9b77b10e1041ed2c09f2d78518'
 }
 
