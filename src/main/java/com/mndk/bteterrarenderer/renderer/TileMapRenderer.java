@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.renderer;
 
-import com.mndk.bteterrarenderer.config.BTRConfig;
+import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.storage.TileMapCache;
 import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -20,7 +20,7 @@ public class TileMapRenderer {
 		
 		if(tms == null) return;
 
-		BTRConfig.RenderSettings settings = BTRConfig.RENDER_SETTINGS;
+		BTETerraRendererConfig.RenderSettings settings = BTETerraRendererConfig.RENDER_SETTINGS;
 
 		if(settings.yAxis <= py - settings.yDiffLimit || settings.yAxis >=py + settings.yDiffLimit) {
 			return;

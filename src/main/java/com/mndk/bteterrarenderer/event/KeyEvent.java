@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.event;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.config.BTRConfig;
+import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
@@ -29,8 +29,8 @@ public class KeyEvent {
 			MapRenderingOptionsUI.open();
 		}
 		else if(ClientProxy.mapToggleKey.isPressed()) {
-			BTRConfig.doRender = !BTRConfig.doRender;
-			BTRConfig.save();
+			BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
+			BTETerraRendererConfig.save();
 		}
 
 		// TODO Delete these before the release

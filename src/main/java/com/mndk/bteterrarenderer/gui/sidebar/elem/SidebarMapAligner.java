@@ -37,6 +37,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 parent.elementWidth.get() / 2 + 3, 0, parent.elementWidth.get() / 2 - 3, 20,
                 zOffset, "Z ="
         );
+        // Gui.drawRect() // TODO
     }
 
 

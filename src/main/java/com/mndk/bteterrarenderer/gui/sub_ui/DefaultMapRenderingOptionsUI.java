@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sub_ui;
 
-import com.mndk.bteterrarenderer.config.BTRConfig;
+import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -53,7 +53,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
-						(BTRConfig.doRender ?
+						(BTETerraRendererConfig.doRender ?
 								I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
 								I18n.format("gui.bteterrarenderer.maprenderer.disabled")
 						)
@@ -77,8 +77,8 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
 				GetterSetter.from(
-						() -> BTRConfig.RENDER_SETTINGS.yAxis,
-						value -> BTRConfig.RENDER_SETTINGS.yAxis = value
+						() -> BTETerraRendererConfig.RENDER_SETTINGS.yAxis,
+						value -> BTETerraRendererConfig.RENDER_SETTINGS.yAxis = value
 				),
 				I18n.format("gui.bteterrarenderer.maprenderer.map_y_level") + ": "
 		);
@@ -91,9 +91,9 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.maprenderer.opacity") + ": ", "",
-				0, 1, BTRConfig.RENDER_SETTINGS.opacity,
+				0, 1, BTETerraRendererConfig.RENDER_SETTINGS.opacity,
 				true, true,
-				slider -> BTRConfig.RENDER_SETTINGS.opacity = slider.getValue()
+				slider -> BTETerraRendererConfig.RENDER_SETTINGS.opacity = slider.getValue()
 		));
 
 		
@@ -115,9 +115,9 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 			Minecraft.getMinecraft().player.closeScreen();
 		}
 		else if(button.equals(this.mapRenderingToggler)) {
-			BTRConfig.doRender = !BTRConfig.doRender;
+			BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
 			this.mapRenderingToggler.displayString = I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
-					(BTRConfig.doRender ?
+					(BTETerraRendererConfig.doRender ?
 							I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
 							I18n.format("gui.bteterrarenderer.maprenderer.disabled")
 					);

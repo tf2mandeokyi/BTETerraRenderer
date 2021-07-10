@@ -1,14 +1,16 @@
-package com.mndk.bteterrarenderer.config;
+package com.mndk.bteterrarenderer;
 
-import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = BTETerraRenderer.MODID)
-public class BTRConfig {
+public class BTETerraRendererConfig {
 
 
 
@@ -122,6 +124,21 @@ public class BTRConfig {
         ConfigManager.sync(BTETerraRenderer.MODID, Config.Type.INSTANCE);
         refreshTileMapService();
     }
+
+
+
+    @Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID)
+    public static class ConfigEventHandler {
+
+        @SubscribeEvent
+        public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+            if (event.getModID().equals(BTETerraRenderer.MODID)) {
+                BTETerraRendererConfig.save();
+            }
+        }
+
+    }
+
 
 
 }

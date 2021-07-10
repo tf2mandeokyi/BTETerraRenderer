@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.gui.sub_ui;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.config.BTRConfig;
+import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.util.ImageUiRenderer;
 import com.mndk.bteterrarenderer.storage.TileMapLoaderResult;
@@ -99,7 +99,7 @@ public class MapSelectorUI extends GuiSubScreen {
 		
 		int i = 0;
 
-		TileMapService currentMapService = BTRConfig.getTileMapService();
+		TileMapService currentMapService = BTETerraRendererConfig.getTileMapService();
 
 		for(Object object : clickableElementList) {
 			if(object instanceof String) {
@@ -170,7 +170,7 @@ public class MapSelectorUI extends GuiSubScreen {
 		if(index == -1) return;
 		Object obj = clickableElementList.get(index);
 		if(!(obj instanceof TileMapService)) return;
-		BTRConfig.setTileMapService((TileMapService) obj);
+		BTETerraRendererConfig.setTileMapService((TileMapService) obj);
 	}
 	
 	

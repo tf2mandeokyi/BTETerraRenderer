@@ -1,14 +1,16 @@
 package com.mndk.bteterrarenderer.gui;
 
-import com.mndk.bteterrarenderer.config.BTRConfig;
+import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.gui.sub_ui.DefaultMapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.sub_ui.MapAlignerUI;
 import com.mndk.bteterrarenderer.gui.sub_ui.MapSelectorUI;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,6 +18,8 @@ import java.util.TimerTask;
 /**
  * UI for map rendering options.
  */
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class MapRenderingOptionsUI extends GuiScreen {
 	
 	
@@ -133,7 +137,7 @@ public class MapRenderingOptionsUI extends GuiScreen {
 	
 	@Override
 	public void onGuiClosed() {
-		BTRConfig.save();
+		BTETerraRendererConfig.save();
 		super.onGuiClosed();
 	}
 	
