@@ -16,19 +16,29 @@ import org.lwjgl.input.Keyboard;
 
 public class ClientProxy extends CommonProxy {
 
-	public static KeyBinding mapOptionsKey, mapToggleKey;
+	// TODO delete "sidebarCheck" before release
+	public static KeyBinding mapOptionsKey, mapToggleKey, sidebarCheck;
 
 	public static void initializeKeys() {
-		mapOptionsKey = new KeyBinding(
+
+		ClientRegistry.registerKeyBinding(mapOptionsKey = new KeyBinding(
 				I18n.format("key.bteterrarenderer.maprenderer.options_ui"),
 				Keyboard.KEY_GRAVE,
-				I18n.format("key.bteterrarenderer.maprenderer.category"));
-		mapToggleKey = new KeyBinding(
+				I18n.format("key.bteterrarenderer.maprenderer.category"))
+		);
+
+		ClientRegistry.registerKeyBinding(mapToggleKey = new KeyBinding(
 				I18n.format("key.bteterrarenderer.maprenderer.toggle"),
 				Keyboard.KEY_R,
-				I18n.format("key.bteterrarenderer.maprenderer.category"));
-		ClientRegistry.registerKeyBinding(mapOptionsKey);
-		ClientRegistry.registerKeyBinding(mapToggleKey);
+				I18n.format("key.bteterrarenderer.maprenderer.category"))
+		);
+
+		// TODO delete these before release
+		ClientRegistry.registerKeyBinding(sidebarCheck = new KeyBinding(
+				"Left sidebar check",
+				Keyboard.KEY_HOME,
+				I18n.format("key.bteterrarenderer.maprenderer.category"))
+		);
 	}
 
 	@Override

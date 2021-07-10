@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.config;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraftforge.common.config.Config;
@@ -22,6 +23,9 @@ public class BTRConfig {
 
 
 
+    @Config.Name("render_settings")
+    @Config.Comment("General render settings")
+    public static final RenderSettings RENDER_SETTINGS = new RenderSettings();
     public static final class RenderSettings {
 
         @Config.Name("align_x")
@@ -64,9 +68,30 @@ public class BTRConfig {
 
 
 
-    @Config.Name("render_settings")
-    @Config.Comment("General render settings")
-    public static final RenderSettings RENDER_SETTINGS = new RenderSettings();
+    @Config.Name("ui_settings")
+    public static final UISettings UI_SETTINGS = new UISettings();
+    public static class UISettings {
+
+        @Config.Name("sidebar_side")
+        public SidebarSide sidebarSide = SidebarSide.RIGHT;
+
+        @Config.Name("sidebar_animation")
+        public boolean sidebarAnimation = true;
+
+        @Config.Name("sidebar_transition_ms")
+        public int sidebarTransitionMs = 300;
+
+        @Config.Name("sidebar_width")
+        @Config.RangeInt(min = 130)
+        // It's not necessary for the sidebar to fill more than a half of the game screen
+        public int sidebarWidth = 200;
+
+        @Config.Name("sidebar_opacity")
+        @Config.RangeDouble(min = 0, max = 1)
+        @Config.SlidingOption
+        public double sidebarOpacity = 0.5;
+
+    }
 
 
 
