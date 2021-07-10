@@ -102,7 +102,7 @@ public abstract class TileMapService {
 	public void initializeMapImageByPlayerCoordinate(double playerX, double playerZ, int tileDeltaX, int tileDeltaY, int zoom) 
 			throws OutOfProjectionBoundsException {
 
-		double[] geoCoord = Projections.BTE.toGeo(playerX, playerZ);
+		double[] geoCoord = Projections.getServerProjection().toGeo(playerX, playerZ);
 		int[] tileCoord = this.geoCoordToTileCoord(geoCoord[0], geoCoord[1], zoom);
 		String tileId = this.genTileKey(tileCoord[0] + tileDeltaX, tileCoord[1] + tileDeltaY, zoom);
 		String url = this.getUrlTemplate(tileCoord[0] + tileDeltaX, tileCoord[1] + tileDeltaY, zoom);
@@ -165,7 +165,7 @@ public abstract class TileMapService {
 		try {
 			int zoom = this.getZoomFromLevel(level);
 
-			double[] temp = Projections.BTE.toGeo(px, pz);
+			double[] temp = Projections.getServerProjection().toGeo(px, pz);
 			int[] tilePos = this.geoCoordToTileCoord(temp[0], temp[1], zoom);
 
 			String tileKey = this.genTileKey(tilePos[0]+tileDeltaX, tilePos[1]+tileDeltaY, zoom);
@@ -198,7 +198,7 @@ public abstract class TileMapService {
 
 						int[] mat = this.getCornerMatrix(i);
 						temp = tileCoordToGeoCoord(tilePos[0] + mat[0] + tileDeltaX, tilePos[1] + mat[1] + tileDeltaY, zoom);
-						temp = Projections.BTE.fromGeo(temp[0], temp[1]);
+						temp = Projections.getServerProjection().fromGeo(temp[0], temp[1]);
 
 						builder.pos(temp[0] - px, y - py, temp[1] - pz)
 								.tex(mat[2], mat[3])

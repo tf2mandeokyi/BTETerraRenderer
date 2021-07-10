@@ -1,5 +1,10 @@
 package com.mndk.bteterrarenderer;
 
+import com.mndk.bteterrarenderer.network.ServerWelcomeMessage;
+import com.mndk.bteterrarenderer.network.ServerWelcomeMsgHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
 import com.mndk.bteterrarenderer.proxy.CommonProxy;
@@ -14,7 +19,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 @Mod(
 		modid = BTETerraRenderer.MODID,
 		name = BTETerraRenderer.NAME,
-		clientSideOnly = true,
 		dependencies = "required-after:terraplusplus;required-after:cubicchunks"
 )
 public class BTETerraRenderer {
@@ -24,7 +28,9 @@ public class BTETerraRenderer {
 
 	public static Logger logger;
 
-	@SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.CommonProxy")
+	public static final SimpleNetworkWrapper NETWORK_WRAPPER = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+
+	@SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.ServerProxy")
 	public static CommonProxy proxy;
 
 	@Mod.EventHandler
@@ -45,5 +51,9 @@ public class BTETerraRenderer {
 	@Mod.EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
+	}
+
+	static {
+		NETWORK_WRAPPER.registerMessage(ServerWelcomeMsgHandler.class, ServerWelcomeMessage.class, 0, Side.CLIENT);
 	}
 }

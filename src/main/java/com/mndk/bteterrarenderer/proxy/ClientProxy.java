@@ -2,12 +2,10 @@ package com.mndk.bteterrarenderer.proxy;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
-import com.mndk.bteterrarenderer.event.KeyEvent;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -57,8 +55,6 @@ public class ClientProxy extends CommonProxy {
 		super.init(event);
 		
 		initializeKeys();
-		
-		MinecraftForge.EVENT_BUS.register(KeyEvent.class);
 	}
 	
 	@Override
