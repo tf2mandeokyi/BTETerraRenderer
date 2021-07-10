@@ -97,7 +97,7 @@ public class BTRConfig {
 
     private static class ConfigDataCache {
         /*
-         * I couldn't put this in BTRConfig, so I made a subclass BTRConfig.ConfigDataCache and put the
+         * I couldn't put this in the main class, so I made a subclass BTRConfig.ConfigDataCache and put the
          * tms variable here.
          */
         private static TileMapService tileMapService = TileMapYamlLoader.result.getTileMap(mapServiceId);

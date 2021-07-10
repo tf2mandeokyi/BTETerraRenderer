@@ -53,11 +53,12 @@ public class SidebarButton extends GuiSidebarElement {
 
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if(this.button.mousePressed(parent.mc, mouseX, mouseY)) {
             this.event.onMouseClicked(this, mouseButton);
-            this.button.playPressSound(parent.mc.getSoundHandler());
+            return true;
         }
+        return false;
     }
 
 

@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.gui.sub_ui;
 import com.mndk.bteterrarenderer.config.BTRConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
-import com.mndk.bteterrarenderer.gui.components.NumberOption;
+import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -74,14 +74,13 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 		++i;
 		this.mapYAxisInput = new GuiNumberInput(
 				COMPONENT_ID_GROUP + i, this.fontRenderer, 
-				LOPTIONS_MARGIN_LEFT + OPTIONS_WIDTH / 3, (int) (c + h * (i - count)),
-				OPTIONS_WIDTH * 2 / 3, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				new NumberOption<>(
+				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
+				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
+				GetterSetter.from(
 						() -> BTRConfig.RENDER_SETTINGS.yAxis,
-						value -> BTRConfig.RENDER_SETTINGS.yAxis = value,
-						-1000000.0, 1000000.0,
-						I18n.format("gui.bteterrarenderer.maprenderer.map_y_level") + ": "
-				)
+						value -> BTRConfig.RENDER_SETTINGS.yAxis = value
+				),
+				I18n.format("gui.bteterrarenderer.maprenderer.map_y_level") + ": "
 		);
 
 		
@@ -149,12 +148,12 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 		int c = (parent.height - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT) / 2 + VERTICAL_SHIFT;
 		int h = MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT + MapRenderingOptionsUI.DEFAULT_BUTTON_MARGIN_BOTTOM;
 		double count = (LOPTIONS_COMPONENT_COUNT - 1) / 2.;
-		
+
 		parent.drawCenteredString(this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.title"),
 				LOPTIONS_MARGIN_LEFT + OPTIONS_WIDTH / 2, (int) (c - h * count) - this.fontRenderer.FONT_HEIGHT / 2,
 				0xFFFFFF
 		);
-		
+
 		this.mapYAxisInput.drawTextBox();
 	}
 	

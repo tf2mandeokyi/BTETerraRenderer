@@ -89,8 +89,8 @@ public class SidebarSlider extends GuiSidebarElement {
 
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        this.slider.mousePressed(parent.mc, mouseX, mouseY);
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        return this.slider.mousePressed(parent.mc, mouseX, mouseY);
     }
 
 

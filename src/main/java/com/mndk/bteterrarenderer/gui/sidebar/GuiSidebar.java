@@ -1,19 +1,23 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
 import com.mndk.bteterrarenderer.util.GetterSetter;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.SoundEvents;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiSidebar extends GuiScreen {
 
 
 
-    private final GuiSidebarElement[] elements;
+    protected final List<GuiSidebarElement> elements;
     public final SidebarSide side;
     public final int paddingSide;
     public final int paddingTopBottom;
@@ -25,14 +29,16 @@ public class GuiSidebar extends GuiScreen {
     private int totalHeight;
     private boolean widthChangingState;
 
+    private int initialMouseX = 0, initialElementWidth;
+
 
 
     public GuiSidebar(
-            GuiSidebarElement[] elements, SidebarSide side,
+            SidebarSide side,
             int paddingSide, int paddingTopBottom, int elementDistance,
             GetterSetter<Integer> elementWidth
     ) {
-        this.elements = elements;
+        this.elements = new ArrayList<>();
         this.side = side;
         this.paddingSide = paddingSide;
         this.paddingTopBottom = paddingTopBottom;
@@ -71,7 +77,7 @@ public class GuiSidebar extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawBackground();
+        this.drawSidebarBackground(mouseX);
 
         int translateX = getTranslateX();
 
@@ -94,53 +100,49 @@ public class GuiSidebar extends GuiScreen {
 
 
 
-    private void drawBackground() {
+    private void drawSidebarBackground(int mouseX) {
         ScaledResolution scaled = this.getScaledResolution();
 
+        int widthChangeBarX;
+
         if(this.side == SidebarSide.LEFT) {
-            int right = elementWidth.get() + 2 * this.paddingSide;
+            int right = widthChangeBarX = elementWidth.get() + 2 * this.paddingSide;
 
             Gui.drawRect(
                     0, 0,
                     right, scaled.getScaledHeight(),
                     0x3F000000
             );
-
-            Gui.drawRect(right - 1, 0, right + 1, scaled.getScaledHeight(), 0xFFFFFF);
         }
         else if(this.side == SidebarSide.RIGHT) {
-            int left = scaled.getScaledWidth() - elementWidth.get() - 2 * this.paddingSide;
+            int left = widthChangeBarX = scaled.getScaledWidth() - elementWidth.get() - 2 * this.paddingSide;
 
             Gui.drawRect(
                     left, 0,
                     scaled.getScaledWidth(), scaled.getScaledHeight(),
                     0x3F000000
             );
-
-            Gui.drawRect(left - 1, 0, left + 1, scaled.getScaledHeight(), 0xFFFFFF);
         }
+        else return;
+
+        Gui.drawRect(widthChangeBarX - 1, 0, widthChangeBarX, scaled.getScaledHeight(),
+                Math.abs(mouseX - widthChangeBarX) <= 4 ? 0xFFFFFFA0 : 0xFFFFFFFF);
+
+        Gui.drawRect(widthChangeBarX, 0, widthChangeBarX + 1, scaled.getScaledHeight(),
+                Math.abs(mouseX - widthChangeBarX) <= 4 ? 0xFF3f3f28 : 0xFF383838);
     }
-
-
-
-    int pMouseX, pMouseY;
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
         int sidebarWidth = elementWidth.get() + 2 * this.paddingSide;
-
-        if(side == SidebarSide.LEFT) {
-            if(mouseX >= sidebarWidth - 3 && mouseX <= sidebarWidth + 3) {
-                widthChangingState = true;
-            }
-        }
-        else if(side == SidebarSide.RIGHT) {
+        if(side == SidebarSide.RIGHT) {
             sidebarWidth = this.getScaledResolution().getScaledWidth() - sidebarWidth;
-            if(mouseX >= sidebarWidth - 3 && mouseX <= sidebarWidth + 3) {
-                widthChangingState = true;
-            }
+        }
+
+        if(Math.abs(mouseX - sidebarWidth) <= 4) {
+            widthChangingState = true;
         }
 
         if(!widthChangingState) {
@@ -149,12 +151,15 @@ public class GuiSidebar extends GuiScreen {
             int currentHeight = this.paddingTopBottom - verticalSlider;
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
-                element.mouseClicked(mx, mouseY - currentHeight, mouseButton);
+                if(element.mouseClicked(mx, mouseY - currentHeight, mouseButton)) {
+                    this.mc.getSoundHandler().
+                            playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                }
                 currentHeight += element.getHeight() + this.elementDistance;
             }
         }
 
-        this.pMouseX = mouseX; this.pMouseY = mouseY;
+        this.initialMouseX = mouseX; this.initialElementWidth = elementWidth.get();
     }
 
 
@@ -182,7 +187,7 @@ public class GuiSidebar extends GuiScreen {
         super.handleMouseInput();
         ScaledResolution scaled = this.getScaledResolution();
 
-        this.verticalSlider -= Mouse.getEventDWheel();
+        this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 15;
 
         if(this.verticalSlider > this.totalHeight - scaled.getScaledHeight()) {
             this.verticalSlider = this.totalHeight - scaled.getScaledHeight();
@@ -219,18 +224,12 @@ public class GuiSidebar extends GuiScreen {
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         if(widthChangingState) {
-            int dMouseX = mouseX - pMouseX;
-            elementWidth.set(elementWidth.get() - dMouseX);
+            int newWidth = initialElementWidth - (mouseX - initialMouseX);
+            if(newWidth > 270) newWidth = 270;
+            if(newWidth < 130) newWidth = 130;
 
-            if(elementWidth.get() > 270) {
-                elementWidth.set(270);
-            }
+            elementWidth.set(newWidth);
 
-            if(elementWidth.get() < 130) {
-                elementWidth.set(130);
-            }
-
-            System.out.println(elementWidth);
             for(GuiSidebarElement element : elements) {
                 if(element == null) continue;
                 element.onWidthChange(elementWidth.get());
@@ -242,8 +241,6 @@ public class GuiSidebar extends GuiScreen {
                 element.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
             }
         }
-
-        this.pMouseX = mouseX; this.pMouseY = mouseY;
     }
 
 

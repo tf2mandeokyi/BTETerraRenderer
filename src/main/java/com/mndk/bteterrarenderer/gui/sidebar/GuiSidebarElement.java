@@ -30,7 +30,7 @@ public abstract class GuiSidebarElement extends Gui {
     public abstract void updateScreen();
     public abstract void drawScreen(int mouseX, int mouseY, float partialTicks);
 
-    public abstract void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException;
+    public abstract boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException;
     public abstract void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick);
     public abstract void mouseReleased(int mouseX, int mouseY, int state);
 

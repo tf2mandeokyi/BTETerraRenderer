@@ -19,6 +19,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -227,7 +228,20 @@ public abstract class TileMapService {
 		return TileMapService.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + tileUrl + "}";
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		TileMapService that = (TileMapService) o;
+		return id.equals(that.id);
+	}
 
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 
 	public String genTileKey(int tileX, int tileY, int zoom) {
 		return "tilemap_" + this.id + "_" + tileX + "_" + tileY + "_" + zoom;
