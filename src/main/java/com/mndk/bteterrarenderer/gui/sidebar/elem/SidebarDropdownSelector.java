@@ -3,6 +3,10 @@ package com.mndk.bteterrarenderer.gui.sidebar.elem;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -62,6 +66,8 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         int width = parent.elementWidth.get();
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
+        this.drawDropdownArrow(rectColor, opened);
+
         Gui.drawRect(-1, -1, 0, height + 1, rectColor);
         Gui.drawRect(-1, -1, width, 0, rectColor);
         Gui.drawRect(width, -1, width + 1, height + 1, rectColor);
@@ -114,6 +120,43 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         if(opened) {
             Gui.drawRect(0, height, parent.elementWidth.get(), getHeight(), 0x80000000);
         }
+    }
+
+
+
+    private void drawDropdownArrow(int colorARGB, boolean flip) {
+
+        float alpha = (float)(colorARGB >> 24 & 255) / 255.0F;
+        float red = (float)(colorARGB >> 16 & 255) / 255.0F;
+        float green = (float)(colorARGB >> 8 & 255) / 255.0F;
+        float blue = (float)(colorARGB & 255) / 255.0F;
+
+        int top = VERTICAL_PADDING;
+        int bottom = VERTICAL_PADDING + fontRenderer.FONT_HEIGHT;
+        int right = parent.elementWidth.get() - HORIZONTAL_PADDING;
+        int left = parent.elementWidth.get() - HORIZONTAL_PADDING - fontRenderer.FONT_HEIGHT;
+
+        if(flip) {
+            int temp = top; top = bottom; bottom = temp;
+            temp = right; right = left; left = temp;
+        }
+
+        Tessellator t = Tessellator.getInstance();
+        BufferBuilder b = t.getBuffer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(red, green, blue, alpha);
+
+        b.begin(7, DefaultVertexFormats.POSITION);
+        b.pos(left, top, 0.0D).endVertex();
+        b.pos((left + right) / 2., bottom, 0.0D).endVertex();
+        b.pos((left + right) / 2., bottom, 0.0D).endVertex();
+        b.pos(right, top, 0.0D).endVertex();
+        t.draw();
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
 
 
