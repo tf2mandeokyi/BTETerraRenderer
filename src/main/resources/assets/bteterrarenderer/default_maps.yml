@@ -37,15 +37,6 @@ categories:
    
    
    Korea:
-   
-      skymaps_kr:
-         name: Skymaps
-         tile_url: https://www.skymaps.co.kr/map/tile.sqlite/ortho2020/{z}/{x}/{y}.jpg
-         projection: kakao_wtm
-         max_thread: 2
-         default_zoom: 1
-         invert_lat: true
-         invert_zoom: true
          
       kakao_aerial:
          name: Kakao Map (Aerial)
@@ -64,12 +55,18 @@ categories:
          default_zoom: 1
          invert_lat: true
          invert_zoom: true
+
+      naver_aerial:
+         name: Naver Map (Aerial)
+         tile_url: https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png
+         projection: webmercator
+         max_thread: 1
          
       naver_plain:
-         name: Naver Map
-         tile_url: https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.lko
+         name: Naver Map (Plain)
+         tile_url: https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png
          projection: webmercator
-         max_thread: 2
+         max_thread: 1
          
       tmap_plain:
          name: T Map
