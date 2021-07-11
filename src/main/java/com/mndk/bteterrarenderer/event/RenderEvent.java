@@ -16,6 +16,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.function.BiConsumer;
+
 @Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID, value = Side.CLIENT)
 public class RenderEvent {
 
@@ -72,15 +74,29 @@ public class RenderEvent {
 
 		int size = settings.radius - 1;
 
-		// Iterate tiles around player
-		for (int y = -size; y <= size; y++) for (int x = -size; x <= size; x++) {
+		BiConsumer<Integer, Integer> drawTile = (dx, dy) -> {
+			if(Math.abs(dx) > size || Math.abs(dy) > size) return;
 			tms.renderTile(
 					t, builder,
 					-settings.zoom,
-					settings.yAxis + 0.1, (float) settings.opacity, // Adding .1 to y because rendering issue
+					settings.yAxis + 0.1, // Adding .1 to y because of texture-overlapping issue
+					(float) settings.opacity,
 					px + settings.align_x, py, pz + settings.align_z,
-					x, y
+					dx, dy
 			);
+		};
+
+		// Draw tiles around player with diamond-priority
+		for(int i = 0; i < 2 * size + 1; ++i) {
+			if(i == 0) {
+				drawTile.accept(0, 0);
+			}
+			for(int j = 0; j < i; ++j) {
+				drawTile.accept(-j, j - i);
+				drawTile.accept(j - i, j);
+				drawTile.accept(j, i - j);
+				drawTile.accept(i - j, -j);
+			}
 		}
 
 		TileMapCache.getInstance().cleanup();

@@ -77,12 +77,6 @@ public class BTETerraRendererConfig {
         @Config.Name("sidebar_side")
         public SidebarSide sidebarSide = SidebarSide.RIGHT;
 
-        @Config.Name("sidebar_animation")
-        public boolean sidebarAnimation = true;
-
-        @Config.Name("sidebar_transition_ms")
-        public int sidebarTransitionMs = 300;
-
         @Config.Name("sidebar_width")
         @Config.RangeInt(min = 130)
         // It's not necessary for the sidebar to fill more than a half of the game screen
