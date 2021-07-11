@@ -1,9 +1,11 @@
 package com.mndk.bteterrarenderer.gui.sidebar.elem;
 
+import com.mndk.bteterrarenderer.gui.components.GuiIntegerSlider;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraftforge.fml.client.config.GuiSlider;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 public class SidebarSlider extends GuiSidebarElement {
@@ -17,7 +19,7 @@ public class SidebarSlider extends GuiSidebarElement {
     private final double minValue, maxValue;
     private final boolean isDouble;
 
-    public SidebarSlider(GetterSetter<Double> value, String prefix, String suffix, double minValue, double maxValue) {
+    public SidebarSlider(@Nonnull GetterSetter<Double> value, String prefix, String suffix, double minValue, double maxValue) {
         this.doubleValue = value;
         this.prefix = prefix; this.suffix = suffix;
         this.minValue = minValue; this.maxValue = maxValue;
@@ -26,7 +28,7 @@ public class SidebarSlider extends GuiSidebarElement {
         this.intValue = null;
     }
 
-    public SidebarSlider(GetterSetter<Integer> value, String prefix, String suffix, int minValue, int maxValue) {
+    public SidebarSlider(@Nonnull GetterSetter<Integer> value, String prefix, String suffix, int minValue, int maxValue) {
         this.intValue = value;
         this.prefix = prefix; this.suffix = suffix;
         this.minValue = minValue; this.maxValue = maxValue;
@@ -43,6 +45,7 @@ public class SidebarSlider extends GuiSidebarElement {
     @Override
     protected void init() {
         if(this.isDouble) {
+            assert doubleValue != null;
             this.slider = new GuiSlider(
                     -1,
                     0, 0,
@@ -54,14 +57,14 @@ public class SidebarSlider extends GuiSidebarElement {
             );
         }
         else {
-            this.slider = new GuiSlider(
+            assert intValue != null;
+            this.slider = new GuiIntegerSlider(
                     -1,
                     0, 0,
                     parent.elementWidth.get(), 20,
                     prefix, suffix,
-                    minValue, maxValue, intValue.get(),
-                    false, true,
-                    slider -> intValue.set(slider.getValueInt())
+                    (int) minValue, (int) maxValue, intValue.get(),
+                    true, intValue::set
             );
         }
     }
