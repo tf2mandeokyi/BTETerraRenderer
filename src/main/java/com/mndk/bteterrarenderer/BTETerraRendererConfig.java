@@ -3,6 +3,8 @@ package com.mndk.bteterrarenderer;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
 import com.mndk.bteterrarenderer.tms.TileMapService;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -13,30 +15,28 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class BTETerraRendererConfig {
 
 
-
     @Config.Name("do_render")
     @Config.Comment("Set to true/false to enable/disable the map overlay.")
     public static boolean doRender = true;
-
 
 
     @Config.Name("map_service_id")
     public static String mapServiceId = "osm";
 
 
-
     @Config.Name("render_settings")
     @Config.Comment("General render settings")
     public static final RenderSettings RENDER_SETTINGS = new RenderSettings();
+    @Getter @Setter
     public static final class RenderSettings {
 
         @Config.Name("align_x")
-        @Config.Comment("The length of which the map is offset in the X-axis")
-        public double align_x = 0;
+        @Config.Comment("The amount of which the map is offset along the X-axis")
+        public double xAlign = 0;
 
         @Config.Name("align_z")
-        @Config.Comment("The length of which the map is offset in the Z-axis")
-        public double align_z = 0;
+        @Config.Comment("The amount of which the map is offset along the Z-axis")
+        public double zAlign = 0;
 
         @Config.Name("y_axis")
         @Config.Comment("The y-coordinate at which the map is rendered")
@@ -69,9 +69,9 @@ public class BTETerraRendererConfig {
     }
 
 
-
     @Config.Name("ui_settings")
     public static final UISettings UI_SETTINGS = new UISettings();
+    @Getter @Setter
     public static class UISettings {
 
         @Config.Name("sidebar_side")
@@ -88,7 +88,6 @@ public class BTETerraRendererConfig {
         public double sidebarOpacity = 0.5;
 
     }
-
 
 
     private static class ConfigDataCache {
@@ -111,7 +110,6 @@ public class BTETerraRendererConfig {
     private static void refreshTileMapService() {
         ConfigDataCache.tileMapService = TileMapYamlLoader.result.getTileMap(mapServiceId);
     }
-
 
 
     public static void save() {

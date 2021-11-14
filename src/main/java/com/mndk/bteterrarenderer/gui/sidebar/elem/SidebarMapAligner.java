@@ -78,10 +78,12 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
     }
 
+
     @Override
     public void mouseReleased(int mouseX, int mouseY, int state) {
 
     }
+
 
     @Override
     public void keyTyped(char key, int keyCode) throws IOException {

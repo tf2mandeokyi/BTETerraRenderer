@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +27,8 @@ public class TileMapYamlLoader {
 		
 		result.append(loadDefaultMap());
 		
-		if(!mapFilesDirectory.exists()) {
-			mapFilesDirectory.mkdirs();
+		if(!mapFilesDirectory.exists() && !mapFilesDirectory.mkdirs()) {
+			BTETerraRenderer.logger.error("Map folder creation failed.");
 		}
 		else {
 			File[] mapFiles = mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
@@ -35,7 +36,8 @@ public class TileMapYamlLoader {
 			if (mapFiles != null) {
 				for (File mapFile : mapFiles) {
 					try {
-						result.append(load(new FileReader(mapFile)));
+						String name = mapFile.getName();
+						result.append(load(name.substring(0, name.length() - 4), new FileReader(mapFile)));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -52,7 +54,7 @@ public class TileMapYamlLoader {
 	
 
 	@SuppressWarnings("unchecked")
-	private static TileMapLoaderResult load(Reader fileReader) throws Exception {
+	private static TileMapLoaderResult load(String fileName, Reader fileReader) throws Exception {
 		
 		Map<String, Object> mapData = YAML.load(fileReader);
 		Map<String, Object> categories = (Map<String, Object>) mapData.get("categories");
@@ -60,27 +62,31 @@ public class TileMapYamlLoader {
 		List<TileMapLoaderResult.Category> result = new ArrayList<>();
 		
 		for(Map.Entry<String, Object> category : categories.entrySet()) {
-			
-			result.add(getMapCategoryFromMapObject(category.getKey(), (Map<String, Object>) category.getValue()));
-			
+			result.add(getMapCategoryFromMapObject(
+					category.getKey(), (Map<String, Object>) category.getValue(), fileName
+			));
 		}
 		return new TileMapLoaderResult(result);
 	}
 	
 	
 	private static TileMapLoaderResult loadDefaultMap() throws Exception {
-		return load(new InputStreamReader(TileMapYamlLoader.class.getClassLoader().getResourceAsStream(DEFAULT_MAP_YAML_PATH)));
+		return load("default", new InputStreamReader(
+				TileMapYamlLoader.class.getClassLoader().getResourceAsStream(DEFAULT_MAP_YAML_PATH), StandardCharsets.UTF_8
+		));
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	private static TileMapLoaderResult.Category getMapCategoryFromMapObject(String name, Map<String, Object> mapList) throws Exception {
+	private static TileMapLoaderResult.Category getMapCategoryFromMapObject(
+			String categoryName, Map<String, Object> mapList, String mapFile
+	) throws Exception {
 		List<TileMapService> mapSet = new ArrayList<>();
 		
 		for(Map.Entry<String, Object> map : mapList.entrySet()) {
-			mapSet.add(TileMapService.parse(map.getKey(), (Map<String, Object>) map.getValue()));
+			mapSet.add(TileMapService.parse(mapFile, categoryName, map.getKey(), (Map<String, Object>) map.getValue()));
 		}
 		
-		return new TileMapLoaderResult.Category(name, mapSet);
+		return new TileMapLoaderResult.Category(categoryName, mapSet);
 	}
 }

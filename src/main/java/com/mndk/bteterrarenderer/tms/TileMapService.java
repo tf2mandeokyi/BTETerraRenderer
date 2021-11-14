@@ -57,8 +57,15 @@ public abstract class TileMapService {
 	
 	
 	
-	public static TileMapService parse(String id, Map<String, Object> object) throws Exception {
+	public static TileMapService parse(
+			String fileName, String categoryName, String id, Map<String, Object> object
+	) throws Exception {
+
 		String projectionId = (String) object.get("projection");
+		id = fileName + "." + categoryName + "." + id;
+		if(fileName != null && !"".equals(fileName)) {
+			object.put("name", "[§7" + fileName + "§r] " + object.get("name"));
+		}
 		switch(projectionId.toLowerCase()) {
 			case "webmercator":
 			case "mercator": return new WebMercatorTMS(id, object);

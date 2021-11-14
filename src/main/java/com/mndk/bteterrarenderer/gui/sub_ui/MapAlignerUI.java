@@ -102,9 +102,9 @@ public class MapAlignerUI extends GuiSubScreen {
 	@Override
 	public void actionPerformed(GuiButton button) {
 		if (button == xAlignResetButton) {
-			BTETerraRendererConfig.RENDER_SETTINGS.align_x = 0;
+			BTETerraRendererConfig.RENDER_SETTINGS.xAlign = 0;
 		} else if (button == zAlignResetButton) {
-			BTETerraRendererConfig.RENDER_SETTINGS.align_z = 0;
+			BTETerraRendererConfig.RENDER_SETTINGS.zAlign = 0;
 		}
 	}
 
@@ -118,9 +118,9 @@ public class MapAlignerUI extends GuiSubScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		String xAlignString = I18n.format("gui.bteterrarenderer.maprenderer.x_align") + ": "
-				+ BTETerraRendererConfig.RENDER_SETTINGS.align_x + "m";
+				+ BTETerraRendererConfig.RENDER_SETTINGS.xAlign + "m";
 		String zAlignString = I18n.format("gui.bteterrarenderer.maprenderer.z_align") + ": "
-				+ BTETerraRendererConfig.RENDER_SETTINGS.align_z + "m";
+				+ BTETerraRendererConfig.RENDER_SETTINGS.zAlign + "m";
 
 		int imageRight = parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT, imageLeft = imageRight - ALIGNMENT_IMAGE_WIDTH;
 		int imageBottom = parent.height - ALIGNMENT_IMAGE_HEIGHT, imageTop = imageBottom - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
@@ -144,9 +144,9 @@ public class MapAlignerUI extends GuiSubScreen {
 				ALIGNMENT_IMAGE_HEIGHT);
 
 		// Alignment marker
-		double x1 = -ALIGNMENT_IMAGE_WIDTH * (BTETerraRendererConfig.RENDER_SETTINGS.align_x - MAX_IMAGE_ALIGNMENT_VALUE)
+		double x1 = -ALIGNMENT_IMAGE_WIDTH * (BTETerraRendererConfig.RENDER_SETTINGS.xAlign - MAX_IMAGE_ALIGNMENT_VALUE)
 				/ IMAGE_ALIGNMENT_VALUE_RANGE,
-				y1 = -ALIGNMENT_IMAGE_HEIGHT * (BTETerraRendererConfig.RENDER_SETTINGS.align_z - MAX_IMAGE_ALIGNMENT_VALUE)
+				y1 = -ALIGNMENT_IMAGE_HEIGHT * (BTETerraRendererConfig.RENDER_SETTINGS.zAlign - MAX_IMAGE_ALIGNMENT_VALUE)
 						/ IMAGE_ALIGNMENT_VALUE_RANGE;
 		int marker_pos_x = (int) (x1 + parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH),
 				marker_pos_y = (int) (y1 + parent.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT);
@@ -159,7 +159,8 @@ public class MapAlignerUI extends GuiSubScreen {
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (this.mouseClickedInAlignmentImage = this.isMouseInAlignmentImage(mouseX, mouseY)) {
+		this.mouseClickedInAlignmentImage = this.isMouseInAlignmentImage(mouseX, mouseY);
+		if (this.mouseClickedInAlignmentImage) {
 			mouseXYToXZAlign(mouseX, mouseY);
 		}
 	}
@@ -194,9 +195,9 @@ public class MapAlignerUI extends GuiSubScreen {
 	private void mouseXYToXZAlign(int mouseX, int mouseY) {
 		int x1 = mouseX - parent.width + ALIGNMENT_IMAGE_MARGIN_RIGHT + ALIGNMENT_IMAGE_WIDTH,
 				y1 = mouseY - parent.height + ALIGNMENT_IMAGE_MARGIN_BOTTOM + ALIGNMENT_IMAGE_HEIGHT;
-		BTETerraRendererConfig.RENDER_SETTINGS.align_x =
+		BTETerraRendererConfig.RENDER_SETTINGS.xAlign =
 				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH;
-		BTETerraRendererConfig.RENDER_SETTINGS.align_z =
+		BTETerraRendererConfig.RENDER_SETTINGS.zAlign =
 				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT;
 	}
 	

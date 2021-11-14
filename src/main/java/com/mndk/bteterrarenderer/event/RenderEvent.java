@@ -81,7 +81,7 @@ public class RenderEvent {
 					-settings.zoom,
 					settings.yAxis + 0.1, // Adding .1 to y because of texture-overlapping issue
 					(float) settings.opacity,
-					px + settings.align_x, py, pz + settings.align_z,
+					px + settings.xAlign, py, pz + settings.zAlign,
 					dx, dy
 			);
 		};

@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.storage;
 
+import com.mndk.bteterrarenderer.gui.sidebar.elem.SidebarDropdownCategory;
 import com.mndk.bteterrarenderer.tms.TileMapService;
 
 import java.util.ArrayList;
@@ -54,22 +55,21 @@ public class TileMapLoaderResult {
 		this.uiElementCount += other.uiElementCount;
 	}
 	
-	public static class Category {
+	public static class Category implements SidebarDropdownCategory<TileMapService> {
 		private final String name;
 		private final List<TileMapService> maps;
+		private boolean opened;
 		
 		public Category(String name, List<TileMapService> maps) {
 			this.name = name;
 			this.maps = maps;
 		}
-		
-		public String getName() { 
-			return name;
-		}
-		
-		public List<TileMapService> getMaps() {
-			return maps;
-		}
+
+		@Override public String getName() { return name; }
+		@Override public boolean isOpened() { return opened; }
+		@Override public void setOpened(boolean opened) { this.opened = opened; }
+		@Override public List<TileMapService> getItems() { return maps; }
+		public List<TileMapService> getMaps() { return maps; }
 	}
 	
 }

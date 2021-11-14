@@ -12,53 +12,48 @@ You can create your custom map data file at `.../.minecraft/config/bteterrarende
 ```yaml
 categories:
 
-   # Map Category name.
-   Global:
-   
-      # Map ID. This should be unique among the entire map data files.
-      osm: 
-      
-         ## Map Display Name
-         name: OpenStreetMap
-         
-         ## Tile URL. The parameters are dependent to map's projection.
-         tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
-         
-         ## Projection name. Projections are listed at end of this README.
-         projection: webmercator
-         
-         # The maximum amount of threads from which tile data are loaded.
-         max_thread: 2
-         
-         # HTTP request headers.
-         request_headers:
-            User-Agent: bteterrarenderer/1.0 Java/1.8
-      
-      # ...
-      
-   # ...
+  # Map Category.
+  Global:
+
+    # Map ID. This should be unique in its local category.
+    #
+    # Just to know, the map id is automatically converted into something like
+    # "<file_name>.<category>.<id>".
+    # So in this case, the id of this map object is converted to:
+    # "example.Global.osm"
+    osm:
+      name: OpenStreetMap
+      tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
+      projection: webmercator
+      max_thread: 2
+      request_headers:
+        User-Agent: bteterrarenderer/1.0 Java/1.8
+
+    # ...
+
+  # ...
 ```
 
 
 ## Map Object structure
 
-| Map Object Key | Value Type | Required? \[`Default`\] | Description |
+| Key | Value Type | Required? \[`Default`\] | Description |
 |-|-|-|-|
-| `name` | String | true | Displayed name of the map |
-| `tile_url` | String | true | Tile URL. |
-| `projection` | Projection Enum (String) | true | Name of the projection. |
-| `max_thread` | integer | No \[`2`\] | The maximum amount of threads from which tile datas are loaded. |
+| `name` | String | Yes | Displayed Name. Supports color codes. |
+| `tile_url` | String | Yes | Tile URL. Parameters are dependent to its map projection. |
+| `projection` | String | Yes | Name of the projection. Projections are listed in [here](#Projections). |
+| `max_thread` | Integer | No \[`2`\] | Maximum amount of threads to load data. |
 | `request_headers` | Map<String, String> | No | HTTP request headers. |
-| `default_zoom` | integer | No \[`18`\] | Default zoom value of the tile map. |
-| `invert_zoom` | boolean | No \[`false`\] | Whether to invert the zoom system. |
-| `invert_lat` | boolean | No \[`false`\] | Whether to invert the latitude. |
+| `default_zoom` | Integer | No \[`18`\] | Default zoom value of the tile map. |
+| `invert_zoom` | Boolean | No \[`false`\] | Whether to invert the zoom system. |
+| `invert_lat` | Boolean | No \[`false`\] | Whether to invert the latitude. |
 
 
 ## Projections
 
-The available projection enums are listed here.
+Available projection names are listed here.
 
-If you want it more, make an issue (or suggestion), or make a PR of it. (Projection map classes are listed at `com.mndk.bteterrarenderer.tms`. They all should be the subclass of `ExternalTileMap` and should be registered at `ExternalTileMap.parse()`)
+If you want a certain projection added, you can either make an issue (or suggestion), or make a PR about it. (Projection map classes are listed at `com.mndk.bteterrarenderer.tms`. They all should be subclass of `TileMapService` and should be registered at `TileMapService.parse()`)
 
 ### Basic parameters:
 | Url parameter | Description                          |
@@ -85,4 +80,4 @@ Web Mercator projection, but for Bing maps.
 
 ### `kakao_wtm` (EPSG:5186)
 
-Tile projection for Korean maps.
+Tile projection for common Korean maps.

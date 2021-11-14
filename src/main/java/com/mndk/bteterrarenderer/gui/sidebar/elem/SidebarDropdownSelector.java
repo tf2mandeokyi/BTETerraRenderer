@@ -9,10 +9,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 public class SidebarDropdownSelector<T> extends GuiSidebarElement {
-
 
 
     private static final int HORIZONTAL_PADDING = 12;
@@ -22,22 +24,39 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     private static final int DROPDOWN_VERTICAL_PADDING = 8;
 
 
-
     private final GetterSetter<T> value;
     private final Function<T, String> nameGetter;
-    private final Object[] values;
+    private final List<SidebarDropdownCategory<T>> categories;
     private boolean opened = false;
 
     private int height, elementHeight;
 
 
-
-    public SidebarDropdownSelector(GetterSetter<T> value, Function<T, String> nameGetter, Object[] values) {
+    public SidebarDropdownSelector(GetterSetter<T> value, Function<T, String> nameGetter) {
         this.value = value;
         this.nameGetter = nameGetter;
-        this.values = values;
+        this.categories = new ArrayList<>();
     }
 
+
+    public List<SidebarDropdownCategory<T>> getCategories() {
+        return this.categories;
+    }
+
+
+    public void addCategory(SidebarDropdownCategory<T> category) {
+        this.categories.add(category);
+    }
+
+
+    public void addCategories(Collection<? extends SidebarDropdownCategory<T>> categories) {
+        this.categories.addAll(categories);
+    }
+
+
+    public void clearCategories() {
+        this.categories.clear();
+    }
 
 
     @Override
@@ -47,92 +66,114 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
 
+    private int getShownElementLength() {
+        int result = 0;
+        for(SidebarDropdownCategory<T> category : categories) {
+            result++;
+            if(category.isOpened()) {
+                result += category.getItems().size();
+            }
+        }
+        return result;
+    }
+
 
     @Override
     public int getHeight() {
         return opened ?
-                this.height + (values.length * this.elementHeight) + DROPDOWN_VERTICAL_PADDING :
+                this.height + (getShownElementLength() * this.elementHeight) + DROPDOWN_VERTICAL_PADDING :
                 this.height;
     }
 
 
-
     @Override
-    @SuppressWarnings( "unchecked")
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
-        this.drawBackground();
 
         int width = parent.elementWidth.get();
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
-        this.drawDropdownArrow(rectColor, opened);
+        // Background
+        Gui.drawRect(0, 0, width, height, 0x50000000);
+        if(opened) {
+            Gui.drawRect(0, height, width, getHeight(), 0x80000000);
+        }
 
+        // Dropdown arrow
+        this.drawDropdownArrow(VERTICAL_PADDING, rectColor, opened);
+
+        // White Border
         Gui.drawRect(-1, -1, 0, height + 1, rectColor);
         Gui.drawRect(-1, -1, width, 0, rectColor);
         Gui.drawRect(width, -1, width + 1, height + 1, rectColor);
         Gui.drawRect(-1, height, width + 1, height + 1, rectColor);
 
-        this.drawString(fontRenderer, nameGetter.apply(value.get()), HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
+        // Current selection
+        T currentValue = value.get();
+        if(currentValue != null) {
+            this.drawString(fontRenderer, nameGetter.apply(currentValue), HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
+        }
 
+        // Dropdown
         if(opened) {
             int i = 0;
             int yStart = height + DROPDOWN_VERTICAL_PADDING;
 
-            for(Object object : values) {
-                if(object instanceof String) {
-                    String categoryName = (String) object;
-                    this.drawCenteredString(this.fontRenderer, categoryName,
-                            parent.elementWidth.get() / 2,
-                            yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
-                            0xFFFFFF
-                    );
-                }
-                else if(object != null) {
-                    T element;
-                    try { element = (T) object; } catch (ClassCastException ignored) { continue; }
-                    String name = nameGetter.apply(element);
-                    int color = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFA0 : 0xFFFFFF;
+            for(SidebarDropdownCategory<T> category : categories) {
+                String categoryName = category.getName();
+                int categoryColor = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
-                    if(value.get().equals(object)) {
-                        Gui.drawRect(
-                                0, yStart + elementHeight * i,
-                                parent.elementWidth.get(), yStart + elementHeight * (i + 1),
-                                0xDFA0AFFF
-                        );
-                    }
+                // Category name
+                this.drawCenteredString(this.fontRenderer, categoryName,
+                        width / 2,
+                        yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
+                        categoryColor
+                );
 
-                    this.drawString(
-                            this.fontRenderer, name,
-                            HORIZONTAL_PADDING, yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
-                            color
-                    );
-                }
+                // Dropdown arrow
+                this.drawDropdownArrow(
+                        yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
+                        categoryColor,
+                        category.isOpened()
+                );
                 ++i;
+
+                // Items
+                if(category.isOpened()) {
+                    for (T item : category.getItems()) {
+                        String name = nameGetter.apply(item);
+                        int color = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFA0 : 0xFFFFFF;
+
+                        // Blue background
+                        if (item.equals(currentValue)) {
+                            Gui.drawRect(
+                                    0, yStart + elementHeight * i,
+                                    width, yStart + elementHeight * (i + 1),
+                                    0xDFA0AFFF
+                            );
+                        }
+
+                        // Item text
+                        this.drawString(
+                                this.fontRenderer, name,
+                                HORIZONTAL_PADDING, yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
+                                color
+                        );
+                        ++i;
+                    }
+                }
             }
         }
     }
 
 
-
-    private void drawBackground() {
-        Gui.drawRect(0, 0, parent.elementWidth.get(), height, 0x50000000);
-        if(opened) {
-            Gui.drawRect(0, height, parent.elementWidth.get(), getHeight(), 0x80000000);
-        }
-    }
-
-
-
-    private void drawDropdownArrow(int colorARGB, boolean flip) {
+    private void drawDropdownArrow(int top, int colorARGB, boolean flip) {
 
         float alpha = (float)(colorARGB >> 24 & 255) / 255.0F;
         float red = (float)(colorARGB >> 16 & 255) / 255.0F;
         float green = (float)(colorARGB >> 8 & 255) / 255.0F;
         float blue = (float)(colorARGB & 255) / 255.0F;
 
-        int top = VERTICAL_PADDING;
-        int bottom = VERTICAL_PADDING + fontRenderer.FONT_HEIGHT;
+        int bottom = top + fontRenderer.FONT_HEIGHT;
         int right = parent.elementWidth.get() - HORIZONTAL_PADDING;
         int left = parent.elementWidth.get() - HORIZONTAL_PADDING - fontRenderer.FONT_HEIGHT;
 
@@ -160,9 +201,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
 
-
     @Override
-    @SuppressWarnings("unchecked")
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         if(mouseInBox(mouseX, mouseY)) {
             opened = !opened;
@@ -170,25 +209,30 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         }
         else {
             int i = 0;
-            for(Object o : values) {
-                if(!(o instanceof String)) {
-                    if(isMouseOnIndex(mouseX, mouseY, i)) {
-                        value.set((T) o);
-                        return true;
+            for(SidebarDropdownCategory<T> category : categories) {
+                if(isMouseOnIndex(mouseX, mouseY, i)) {
+                    category.setOpened(!category.isOpened());
+                    return true;
+                }
+                i++;
+                if(category.isOpened()) {
+                    for(T item : category.getItems()) {
+                        if(isMouseOnIndex(mouseX, mouseY, i)) {
+                            value.set(item);
+                            return true;
+                        }
+                        ++i;
                     }
                 }
-                ++i;
             }
         }
         return false;
     }
 
 
-
     private boolean mouseInBox(int mouseX, int mouseY) {
         return mouseX >= 0 && mouseX <= parent.elementWidth.get() && mouseY >= 0 && mouseY <= height;
     }
-
 
 
     private boolean isMouseOnIndex(int mouseX, int mouseY, int index) {
@@ -199,7 +243,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         return mouseX >= 0 && mouseX <= parent.elementWidth.get() &&
                 mouseY >= yStart + elementHeight * index && mouseY < yStart + elementHeight * (index + 1);
     }
-
 
 
 /*
@@ -215,7 +258,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         return index;
     }
     */
-
 
 
     @Override public void onWidthChange(int newWidth) {}
