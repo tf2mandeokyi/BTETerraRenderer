@@ -11,25 +11,25 @@ categories:
             User-Agent: bteterrarenderer/1.0 Java/1.8
 
       bing_aerial:
-         name: "[§bAerial§r] Bing Maps"
+         name: "Bing Maps (Satellite)"
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill
          projection: bing
          max_thread: 2
 
       bing_plain:
-         name: "[§bPlain§r] Bing Maps"
+         name: "Bing Maps"
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill
          projection: bing
          max_thread: 2
 
       yandex_aerial:
-         name: "[§bAerial§r] Yandex.Maps"
+         name: "Yandex.Maps (Satellite)"
          tile_url: https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}
          projection: worldmercator
          max_thread: 2
 
       yandex_plain:
-         name: "[§bPlain§r] Yandex.Maps"
+         name: "Yandex.Maps"
          tile_url: https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}
          projection: worldmercator
          max_thread: 2
@@ -39,7 +39,7 @@ categories:
    Korea:
          
       kakao_aerial:
-         name: "[§bAerial§r] Kakao Map"
+         name: "Kakao Map (Satellite)"
          tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_skyview/L{z}/{y}/{x}.jpg
          projection: kakao_wtm
          max_thread: 2
@@ -48,7 +48,7 @@ categories:
          invert_zoom: true
          
       kakao_plain:
-         name: "[§bPlain§r] Kakao Map"
+         name: "Kakao Map"
          tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_2d/2012tlq/L{z}/{y}/{x}.png
          projection: kakao_wtm
          max_thread: 2
@@ -57,13 +57,13 @@ categories:
          invert_zoom: true
 
       naver_aerial:
-         name: "[§bAerial§r] Naver Map"
+         name: "Naver Map (Satellite)"
          tile_url: https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png
          projection: webmercator
          max_thread: 1
          
       naver_plain:
-         name: "[§bPlain§r] Naver Map"
+         name: "Naver Map"
          tile_url: https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png
          projection: webmercator
          max_thread: 1
@@ -80,14 +80,14 @@ categories:
    Japan:
    
       lidar_jp_aerial:
-         name: "[§bAerial§r] Japan"
+         name: "Japan LiDAR (Satellite)"
          tile_url: http://maps.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg
          projection: webmercator
          max_thread: 2
          default_zoom: 17
 
       lidar_jp_plain:
-         name: "[§bPlain§r] Japan LiDAR"
+         name: "Japan LiDAR"
          tile_url: http://maps.gsi.go.jp/xyz/std/{z}/{x}/{y}.png
          projection: webmercator
          max_thread: 2

@@ -9,7 +9,6 @@ import java.io.IOException;
 public class SidebarMapAligner extends GuiSidebarElement {
 
 
-
     private static final int GRAY_AREA_HEIGHT = 40;
 
     private static final int TEXT_AND_GRAY_AREA_DIST = 10;

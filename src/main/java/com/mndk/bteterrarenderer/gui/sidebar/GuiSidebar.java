@@ -18,7 +18,7 @@ public class GuiSidebar extends GuiScreen {
 
 
     protected final List<GuiSidebarElement> elements;
-    public final SidebarSide side;
+    public SidebarSide side;
     public final int paddingSide;
     public final int paddingTopBottom;
     public final int elementDistance;
@@ -47,6 +47,12 @@ public class GuiSidebar extends GuiScreen {
         this.widthChangingState = false;
 
         this.elementWidth = elementWidth;
+    }
+
+
+
+    public void setSide(SidebarSide side) {
+        this.side = side;
     }
 
 

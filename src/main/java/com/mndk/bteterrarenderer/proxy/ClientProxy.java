@@ -18,7 +18,6 @@ public class ClientProxy extends CommonProxy {
 	public static KeyBinding mapOptionsKey, mapToggleKey, sidebarCheck;
 
 	public static void initializeKeys() {
-
 		ClientRegistry.registerKeyBinding(mapOptionsKey = new KeyBinding(
 				I18n.format("key.bteterrarenderer.maprenderer.options_ui"),
 				Keyboard.KEY_GRAVE,
@@ -28,13 +27,6 @@ public class ClientProxy extends CommonProxy {
 		ClientRegistry.registerKeyBinding(mapToggleKey = new KeyBinding(
 				I18n.format("key.bteterrarenderer.maprenderer.toggle"),
 				Keyboard.KEY_R,
-				I18n.format("key.bteterrarenderer.maprenderer.category"))
-		);
-
-		// TODO delete these before release
-		ClientRegistry.registerKeyBinding(sidebarCheck = new KeyBinding(
-				"Left sidebar check",
-				Keyboard.KEY_HOME,
 				I18n.format("key.bteterrarenderer.maprenderer.category"))
 		);
 	}

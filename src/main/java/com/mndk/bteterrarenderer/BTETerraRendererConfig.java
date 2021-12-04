@@ -61,8 +61,8 @@ public class BTETerraRendererConfig {
 
         @Config.Name("y_diff_limit")
         @Config.Comment({
-                "Limit of difference between the player's y-coordinate and the tile's y-coordinate.",
-                "If the diff reaches the limit, then the map won't be rendered."
+                "If the difference between the player's y coordinate and the tile's y coordinate",
+                "reaches the limit, then the map will not be rendered."
         })
         public double yDiffLimit = 1000;
 
@@ -73,6 +73,9 @@ public class BTETerraRendererConfig {
     public static final UISettings UI_SETTINGS = new UISettings();
     @Getter @Setter
     public static class UISettings {
+
+        @Config.Name("Old UI")
+        public boolean oldUi = false;
 
         @Config.Name("sidebar_side")
         public SidebarSide sidebarSide = SidebarSide.RIGHT;

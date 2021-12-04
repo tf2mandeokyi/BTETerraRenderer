@@ -21,6 +21,10 @@ public class TileMapYamlLoader {
 	private static File mapFilesDirectory;
 	public static TileMapLoaderResult result;
 
+	public static File getMapFilesDirectory() {
+		return mapFilesDirectory;
+	}
+
 	public static void refresh() throws Exception {
 
 		result = new TileMapLoaderResult();

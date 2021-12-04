@@ -69,42 +69,30 @@ public class SidebarSlider extends GuiSidebarElement {
         }
     }
 
-
-
     @Override
     public void onWidthChange(int newWidth) {
         this.slider.width = newWidth;
     }
-
-
 
     @Override
     public void updateScreen() {
         this.slider.updateSlider();
     }
 
-
-
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.slider.drawButton(parent.mc, mouseX, mouseY, partialTicks);
     }
-
-
 
     @Override
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         return this.slider.mousePressed(parent.mc, mouseX, mouseY);
     }
 
-
-
     @Override
     public void mouseReleased(int mouseX, int mouseY, int state) {
         this.slider.mouseReleased(mouseX, mouseY);
     }
-
-
 
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void keyTyped(char key, int keyCode) throws IOException {}

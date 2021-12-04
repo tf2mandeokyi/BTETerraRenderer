@@ -6,7 +6,6 @@ import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -26,17 +25,16 @@ public class KeyEvent {
 				BTETerraRenderer.logger.error("Error caught while parsing yaml map files!");
 				e.printStackTrace();
 			}
-			
-			MapRenderingOptionsUI.open();
+
+			if(BTETerraRendererConfig.UI_SETTINGS.oldUi) {
+				MapRenderingOptionsUI.open();
+			} else {
+				MapRenderingOptionsSidebar.open();
+			}
 		}
 		else if(ClientProxy.mapToggleKey.isPressed()) {
 			BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
 			BTETerraRendererConfig.save();
-		}
-
-		// TODO Delete these before the release
-		if(ClientProxy.sidebarCheck.isPressed()) {
-			Minecraft.getMinecraft().displayGuiScreen(new MapRenderingOptionsSidebar());
 		}
 	}
 

@@ -10,25 +10,17 @@ buildscript {
     }
 }
 
-
-
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-
-
 version = project.mod_version
 group = project.mod_group
 archivesBaseName = project.mod_id
 
-
-
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava.options.encoding = 'UTF-8'
-
-
 
 repositories {
     mavenCentral()
@@ -50,22 +42,16 @@ repositories {
     }
 }
 
-
-
 minecraft {
     version = project.forge_version
     mappings = project.mcp_mappings
     runDir = "run"
 }
 
-
-
 configurations {
     shade
     compile.extendsFrom shade
 }
-
-
 
 dependencies {
 
@@ -78,17 +64,16 @@ dependencies {
     deobfProvided('com.github.BuildTheEarth:terraplusplus:74449c4af349fd9b77b10e1041ed2c09f2d78518') {
         transitive = true
     }
-
-    provided 'org.projectlombok:lombok:1.18.22'
 	
     shade 'org.yaml:snakeyaml:1.29'
     shade 'org.osgeo:proj4j:0.1.0'
 
     testCompile "junit:junit:4.13.2"
     testCompile 'com.github.BuildTheEarth:terraplusplus:74449c4af349fd9b77b10e1041ed2c09f2d78518'
+
+    compile 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
-
-
 
 processResources {
     // this will ensure that this task is redone when the versions change.
@@ -109,30 +94,20 @@ processResources {
     }
 }
 
-
-
 shadowJar {
 	classifier = null
 	configurations = [project.configurations.shade]
 
 	exclude 'module-info.class'
 }
-
 build.dependsOn shadowJar
-
-
 
 reobf {
 	shadowJar {}
 }
 
-
-
 task relocateShadowJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation) {
 	target = tasks.shadowJar
 	prefix = "${project.mod_group}.${project.mod_id}.dep"
 }
-
-
-
 shadowJar.dependsOn relocateShadowJar

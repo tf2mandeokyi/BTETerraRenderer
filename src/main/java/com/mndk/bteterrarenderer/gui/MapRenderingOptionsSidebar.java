@@ -10,43 +10,48 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextComponentString;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mndk.bteterrarenderer.BTETerraRendererConfig.RENDER_SETTINGS;
+import static com.mndk.bteterrarenderer.BTETerraRendererConfig.UI_SETTINGS;
+
 public class MapRenderingOptionsSidebar extends GuiSidebar {
 
 
-    private static SidebarDropdownSelector<TileMapService> dropdown;
+    private static MapRenderingOptionsSidebar instance;
 
+    private SidebarDropdownSelector<TileMapService> dropdown;
 
     public MapRenderingOptionsSidebar() {
         super(
-                BTETerraRendererConfig.UI_SETTINGS.sidebarSide,
-                20, 20, 10,
-                GetterSetter.from(
-                        BTETerraRendererConfig.UI_SETTINGS::getSidebarWidth,
-                        BTETerraRendererConfig.UI_SETTINGS::setSidebarWidth
-                )
+                UI_SETTINGS.sidebarSide,
+                20, 20, 5,
+                GetterSetter.from(UI_SETTINGS::getSidebarWidth, UI_SETTINGS::setSidebarWidth)
         );
 
-        SidebarBlank blank = new SidebarBlank(13);
+        SidebarBlank blank = new SidebarBlank(10);
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
 
-        dropdown = new SidebarDropdownSelector<>(
-                GetterSetter.from(
-                        BTETerraRendererConfig::getTileMapService,
-                        BTETerraRendererConfig::setTileMapService
-                ),
-                TileMapService::getName
-        );
-        dropdown.addCategories(TileMapYamlLoader.result.getCategories());
+        if(dropdown == null) {
+            dropdown = new SidebarDropdownSelector<>(
+                    GetterSetter.from(BTETerraRendererConfig::getTileMapService, BTETerraRendererConfig::setTileMapService),
+                    TileMapService::getName
+            );
+            dropdown.addCategories(TileMapYamlLoader.result.getCategories());
+        }
 
         this.elements.addAll(Arrays.asList(
+
+                // ===========================================================================================
                 new SidebarText("BTETerraRenderer Settings", SidebarText.TextAlignment.CENTER),
+                // ===========================================================================================
                 blank,
                 new SidebarText("General", SidebarText.TextAlignment.LEFT),
                 hl,
+                // -------------------------------------------------------------------------------------------
                 new SidebarBooleanButton(
                         GetterSetter.from(
                                 () -> BTETerraRendererConfig.doRender,
@@ -55,23 +60,19 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         I18n.format("gui.bteterrarenderer.settings.map_rendering") + ": "
                 ),
                 new SidebarNumberInput(
-                        GetterSetter.from(
-                                BTETerraRendererConfig.RENDER_SETTINGS::getYAxis,
-                                BTETerraRendererConfig.RENDER_SETTINGS::setYAxis
-                        ),
+                        GetterSetter.from(RENDER_SETTINGS::getYAxis, RENDER_SETTINGS::setYAxis),
                         I18n.format("gui.bteterrarenderer.settings.map_y_level") + ": "
                 ),
                 new SidebarSlider(
-                        GetterSetter.from(
-                                BTETerraRendererConfig.RENDER_SETTINGS::getOpacity,
-                                BTETerraRendererConfig.RENDER_SETTINGS::setOpacity
-                        ),
+                        GetterSetter.from(RENDER_SETTINGS::getOpacity, RENDER_SETTINGS::setOpacity),
                         I18n.format("gui.bteterrarenderer.settings.opacity") + ": ", "",
                         0, 1
                 ),
+                // ===========================================================================================
                 blank,
                 new SidebarText("Map Source", SidebarText.TextAlignment.LEFT),
                 hl,
+                // -------------------------------------------------------------------------------------------
                 dropdown,
                 new SidebarButton(
                         "Reload maps...",
@@ -91,43 +92,50 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                                 }
                             } catch(Exception e) {
                                 Minecraft.getMinecraft().player.sendMessage(new TextComponentString(
-                                        "Error while reloading maps! Reason: " + e.getMessage()
+                                        "§c[BTETerraRenderer] Error while reloading maps! Reason: " + e.getMessage()
                                 ));
                             }
                         }
                 ),
+                new SidebarButton(
+                        "Open maps folder...",
+                        (self, mouseButton) -> {
+                            try {
+                                if(Desktop.isDesktopSupported()) {
+                                    Desktop.getDesktop().open(TileMapYamlLoader.getMapFilesDirectory());
+                                }
+                            } catch(Exception ignored) {}
+                        }
+                ),
+                // ===========================================================================================
                 blank,
                 new SidebarText("Map Offset", SidebarText.TextAlignment.LEFT),
                 hl,
+                // -------------------------------------------------------------------------------------------
                 new SidebarSlider(
-                        GetterSetter.from(
-                                BTETerraRendererConfig.RENDER_SETTINGS::getRadius,
-                                BTETerraRendererConfig.RENDER_SETTINGS::setRadius
-                        ),
+                        GetterSetter.from(RENDER_SETTINGS::getRadius, RENDER_SETTINGS::setRadius),
                         I18n.format("gui.bteterrarenderer.settings.size") + ": ", "",
                         1, 8
                 ),
                 new SidebarSlider(
-                        GetterSetter.from(
-                                BTETerraRendererConfig.RENDER_SETTINGS::getZoom,
-                                BTETerraRendererConfig.RENDER_SETTINGS::setZoom
-                        ),
+                        GetterSetter.from(RENDER_SETTINGS::getZoom, RENDER_SETTINGS::setZoom),
                         I18n.format("gui.bteterrarenderer.settings.zoom") + ": ", "",
                         -3, 3
                 ),
                 new SidebarMapAligner(
-                        GetterSetter.from(
-                                BTETerraRendererConfig.RENDER_SETTINGS::getXAlign,
-                                BTETerraRendererConfig.RENDER_SETTINGS::setXAlign
-                        ),
-                        GetterSetter.from(
-                                BTETerraRendererConfig.RENDER_SETTINGS::getZAlign,
-                                BTETerraRendererConfig.RENDER_SETTINGS::setZAlign
-                        )
-                ) // TODO
+                        GetterSetter.from(RENDER_SETTINGS::getXAlign, RENDER_SETTINGS::setXAlign),
+                        GetterSetter.from(RENDER_SETTINGS::getZAlign, RENDER_SETTINGS::setZAlign)
+                )
+                // ===========================================================================================
         ));
     }
 
+
+    public static void open() {
+        if(instance == null) instance = new MapRenderingOptionsSidebar();
+        instance.setSide(UI_SETTINGS.sidebarSide);
+        Minecraft.getMinecraft().displayGuiScreen(instance);
+    }
 
 
     @Override
@@ -135,7 +143,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.save();
         super.onGuiClosed();
     }
-
 
 
     @Override

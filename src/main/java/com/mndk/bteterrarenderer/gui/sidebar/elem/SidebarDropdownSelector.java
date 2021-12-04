@@ -245,21 +245,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
 
-/*
-    private int getMouseIndex(int mouseX, int mouseY) { // TODO implement this you lazy
-        if(mouseX < 0 || mouseX > parent.elementWidth.get()) return -1;
-
-        int c = LIST_TOP_MARGIN + LIST_PADDING + this.fontRenderer.FONT_HEIGHT + TITLE_MARGIN_BOTTOM;
-        int h = this.fontRenderer.FONT_HEIGHT + ELEMENT_TOP_MARGIN;
-        int index = (int) Math.round((mouseY - c) / (double) h), y = c + h * index;
-
-        if(index < 0 || index >= clickableElementList.size()) return -1;
-        if(mouseY - y < -8 || mouseY - y > 8) return -1; // If the cursor is at the gap between elements
-        return index;
-    }
-    */
-
-
     @Override public void onWidthChange(int newWidth) {}
     @Override public void updateScreen() {}
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
