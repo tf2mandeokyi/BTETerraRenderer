@@ -16,7 +16,6 @@ import java.util.List;
 public class GuiSidebar extends GuiScreen {
 
 
-
     protected final List<GuiSidebarElement> elements;
     public SidebarSide side;
     public final int paddingSide;
@@ -30,7 +29,6 @@ public class GuiSidebar extends GuiScreen {
     private boolean widthChangingState;
 
     private int initialMouseX = 0, initialElementWidth;
-
 
 
     public GuiSidebar(
@@ -50,11 +48,9 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
-
     public void setSide(SidebarSide side) {
         this.side = side;
     }
-
 
 
     @Override
@@ -67,7 +63,6 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
-
     @Override
     public void updateScreen() {
         super.updateScreen();
@@ -76,7 +71,6 @@ public class GuiSidebar extends GuiScreen {
             element.updateScreen();
         }
     }
-
 
 
     @Override
@@ -91,7 +85,7 @@ public class GuiSidebar extends GuiScreen {
         GlStateManager.translate(translateX, this.paddingTopBottom - verticalSlider, 0);
         int currentHeight = this.paddingTopBottom - verticalSlider;
 
-        this.totalHeight = 0;
+        this.totalHeight = this.paddingTopBottom;
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
             element.drawScreen(mouseX - translateX, mouseY - currentHeight, partialTicks);
@@ -99,11 +93,10 @@ public class GuiSidebar extends GuiScreen {
             currentHeight += element.getHeight() + this.elementDistance;
             this.totalHeight += element.getHeight() + this.elementDistance;
         }
-        this.totalHeight += elementDistance;
+        this.totalHeight += this.paddingTopBottom - this.elementDistance;
 
         GlStateManager.popAttrib();
     }
-
 
 
     private void drawSidebarBackground(int mouseX) {
@@ -138,6 +131,7 @@ public class GuiSidebar extends GuiScreen {
                 Math.abs(mouseX - widthChangeBarX) <= 4 ? 0xFF3f3f28 : 0xFF383838);
     }
 
+
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -169,7 +163,6 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
-
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
@@ -185,7 +178,6 @@ public class GuiSidebar extends GuiScreen {
 
         widthChangingState = false;
     }
-
 
 
     @Override
@@ -204,7 +196,6 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
-
     private int getTranslateX() {
         ScaledResolution scaled = this.getScaledResolution();
 
@@ -217,7 +208,6 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
-
     @Override
     protected void keyTyped(char key, int keyCode) throws IOException {
         super.keyTyped(key, keyCode);
@@ -226,7 +216,6 @@ public class GuiSidebar extends GuiScreen {
             element.keyTyped(key, keyCode);
         }
     }
-
 
 
     @Override
@@ -245,13 +234,15 @@ public class GuiSidebar extends GuiScreen {
             }
         }
         else {
+            int mx = mouseX - this.getTranslateX();
+            int currentHeight = this.paddingTopBottom - verticalSlider;
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
-                element.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+                element.mouseClickMove(mx, mouseY - currentHeight, clickedMouseButton, timeSinceLastClick);
+                currentHeight += element.getHeight() + this.elementDistance;
             }
         }
     }
-
 
 
     private ScaledResolution getScaledResolution() {

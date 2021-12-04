@@ -11,7 +11,11 @@ public class StringToNumber {
 		return true;
 	}
 
+	public static String formatNicely(double value, int maximumDecimalDigit) {
+		return value == (long) value ? String.format("%d", (long) value) : String.format("%." + maximumDecimalDigit + "f", value);
+	}
+
 	public static String formatNicely(double value) {
-		return value == (long) value ? String.format("%d", (long) value) : String.format("%s", value);
+		return value == (long) value ? String.format("%d", (long) value) : String.format("%f", value);
 	}
 }
