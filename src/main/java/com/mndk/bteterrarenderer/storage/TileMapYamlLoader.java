@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class TileMapYamlLoader {
 	
@@ -32,19 +33,17 @@ public class TileMapYamlLoader {
 		result.append(loadDefaultMap());
 		
 		if(!mapFilesDirectory.exists() && !mapFilesDirectory.mkdirs()) {
-			BTETerraRenderer.logger.error("Map folder creation failed.");
+			throw new Exception("Map folder creation failed.");
 		}
-		else {
-			File[] mapFiles = mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
+		File[] mapFiles = mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
 
-			if (mapFiles != null) {
-				for (File mapFile : mapFiles) {
-					try {
-						String name = mapFile.getName();
-						result.append(load(name.substring(0, name.length() - 4), new FileReader(mapFile)));
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+		if (mapFiles != null) {
+			for (File mapFile : mapFiles) {
+				try {
+					String name = mapFile.getName();
+					result.append(load(name.substring(0, name.length() - 4), new FileReader(mapFile)));
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -76,7 +75,8 @@ public class TileMapYamlLoader {
 	
 	private static TileMapLoaderResult loadDefaultMap() throws Exception {
 		return load("default", new InputStreamReader(
-				TileMapYamlLoader.class.getClassLoader().getResourceAsStream(DEFAULT_MAP_YAML_PATH), StandardCharsets.UTF_8
+				Objects.requireNonNull(TileMapYamlLoader.class.getClassLoader().getResourceAsStream(DEFAULT_MAP_YAML_PATH)),
+				StandardCharsets.UTF_8
 		));
 	}
 	

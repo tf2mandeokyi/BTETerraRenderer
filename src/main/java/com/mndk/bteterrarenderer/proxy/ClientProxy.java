@@ -37,7 +37,7 @@ public class ClientProxy extends CommonProxy {
 		try {
 			TileMapYamlLoader.refresh(event.getModConfigurationDirectory().getAbsolutePath());
 		} catch(Exception e) {
-			BTETerraRenderer.logger.error("Error caught while parsing map json files!");
+			BTETerraRenderer.logger.error("Error caught while parsing map yaml files!");
 			e.printStackTrace();
 		}
 	}

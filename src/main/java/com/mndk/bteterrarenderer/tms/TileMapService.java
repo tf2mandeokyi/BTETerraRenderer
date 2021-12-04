@@ -63,7 +63,7 @@ public abstract class TileMapService {
 
 		String projectionId = (String) object.get("projection");
 		id = fileName + "." + categoryName + "." + id;
-		if(fileName != null && !"".equals(fileName)) {
+		if(fileName != null && !"".equals(fileName) && !"default".equals(fileName)) {
 			object.put("name", "[§7" + fileName + "§r] " + object.get("name"));
 		}
 		switch(projectionId.toLowerCase()) {
@@ -258,10 +258,16 @@ public abstract class TileMapService {
 
 	static {
 		try {
-			SERVER_RETURNED_ERROR = ImageIO.read(TileMapService.class.getClassLoader().getResourceAsStream(
-					"assets/" + BTETerraRenderer.MODID + "/textures/image_not_found.png"));
-			SOMETHING_WENT_WRONG = ImageIO.read(TileMapService.class.getClassLoader().getResourceAsStream(
-					"assets/" + BTETerraRenderer.MODID + "/textures/internal_error_image.png"));
+			SERVER_RETURNED_ERROR = ImageIO.read(
+					Objects.requireNonNull(TileMapService.class.getClassLoader().getResourceAsStream(
+						"assets/" + BTETerraRenderer.MODID + "/textures/image_not_found.png"
+					))
+			);
+			SOMETHING_WENT_WRONG = ImageIO.read(
+					Objects.requireNonNull(TileMapService.class.getClassLoader().getResourceAsStream(
+						"assets/" + BTETerraRenderer.MODID + "/textures/internal_error_image.png"
+					))
+			);
 			
 			// Converting the same image to resource every time might cause a preference issue.
 			// TODO solve this issue

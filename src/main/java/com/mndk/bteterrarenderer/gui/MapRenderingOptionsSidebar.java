@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.gui;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.gui.sidebar.elem.*;
 import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
@@ -8,7 +9,6 @@ import com.mndk.bteterrarenderer.tms.TileMapService;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.TextComponentString;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     public MapRenderingOptionsSidebar() {
         super(
                 UI_SETTINGS.sidebarSide,
-                20, 20, 5,
+                20, 20, 7,
                 GetterSetter.from(UI_SETTINGS::getSidebarWidth, UI_SETTINGS::setSidebarWidth)
         );
 
@@ -91,9 +91,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                                     }
                                 }
                             } catch(Exception e) {
-                                Minecraft.getMinecraft().player.sendMessage(new TextComponentString(
-                                        "§c[BTETerraRenderer] Error while reloading maps! Reason: " + e.getMessage()
-                                ));
+                                ErrorMessageHandler.sendToClient("Error while reloading maps! Reason: " + e.getMessage());
                             }
                         }
                 ),

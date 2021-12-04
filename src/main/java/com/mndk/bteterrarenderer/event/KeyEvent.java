@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.event;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
@@ -22,7 +23,8 @@ public class KeyEvent {
 		if(ClientProxy.mapOptionsKey.isPressed()) {
 
 			try { TileMapYamlLoader.refresh(); } catch (Exception e) {
-				BTETerraRenderer.logger.error("Error caught while parsing yaml map files!");
+				ErrorMessageHandler.sendToClient("Error caught while parsing yaml map files! " +
+						"(Reason: " + e.getMessage() + ")");
 				e.printStackTrace();
 			}
 

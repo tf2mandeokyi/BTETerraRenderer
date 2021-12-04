@@ -9,9 +9,9 @@ public class SidebarBooleanButton extends SidebarButton {
     private final String prefix;
 
     public SidebarBooleanButton(GetterSetter<Boolean> value, String prefix) {
-        super(prefix + booleanToI18n(value.get()), (self, mouseButton) -> {
+        super(prefix + booleanToFormattedI18n(value.get()), (self, mouseButton) -> {
             value.set(!value.get());
-            self.setDisplayString(prefix + booleanToI18n(value.get()));
+            self.setDisplayString(prefix + booleanToFormattedI18n(value.get()));
         });
         this.value = value;
         this.prefix = prefix;
@@ -20,13 +20,13 @@ public class SidebarBooleanButton extends SidebarButton {
     @Override
     protected void init() {
         super.init();
-        this.setDisplayString(prefix + booleanToI18n(value.get()));
+        this.setDisplayString(prefix + booleanToFormattedI18n(value.get()));
     }
 
-    private static String booleanToI18n(boolean b) {
+    private static String booleanToFormattedI18n(boolean b) {
         return b ?
-                I18n.format("gui.bteterrarenderer.maprenderer.enabled") :
-                I18n.format("gui.bteterrarenderer.maprenderer.disabled");
+                "§a" + I18n.format("gui.bteterrarenderer.maprenderer.enabled") :
+                "§c" + I18n.format("gui.bteterrarenderer.maprenderer.disabled");
     }
 
 }
