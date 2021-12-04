@@ -93,9 +93,9 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
         // Background
-        Gui.drawRect(0, 0, width, height, 0x50000000);
+        Gui.drawRect(0, 0, width, height, 0x80000000);
         if(opened) {
-            Gui.drawRect(0, height, width, getHeight(), 0x80000000);
+            Gui.drawRect(0, height, width, getHeight(), 0xA0000000);
         }
 
         // Dropdown arrow
@@ -109,8 +109,15 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         // Current selection
         T currentValue = value.get();
+
         if(currentValue != null) {
-            this.drawString(fontRenderer, nameGetter.apply(currentValue), HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
+            String currentName = nameGetter.apply(currentValue);
+            int limit = width - 2 * HORIZONTAL_PADDING - fontRenderer.FONT_HEIGHT;
+            // Handle overflow
+            if(this.fontRenderer.getStringWidth(currentName) > limit) {
+                currentName = this.fontRenderer.trimStringToWidth(currentName, limit);
+            }
+            this.drawString(fontRenderer, currentName, HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
         }
 
         // Dropdown
@@ -118,7 +125,8 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             int i = 0;
             int yStart = height + DROPDOWN_VERTICAL_PADDING;
 
-            for(SidebarDropdownCategory<T> category : categories) {
+            for(int j = 0; j < categories.size(); ++j) {
+                SidebarDropdownCategory<T> category = categories.get(j);
                 String categoryName = category.getName();
                 int categoryColor = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
@@ -143,6 +151,11 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
                         String name = nameGetter.apply(item);
                         int color = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFA0 : 0xFFFFFF;
 
+                        // Handle overflow
+                        if(this.fontRenderer.getStringWidth(name) > width - 2 * HORIZONTAL_PADDING) {
+                            name = this.fontRenderer.trimStringToWidth(name, width - 2 * HORIZONTAL_PADDING);
+                        }
+
                         // Blue background
                         if (item.equals(currentValue)) {
                             Gui.drawRect(
@@ -161,7 +174,17 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
                         ++i;
                     }
                 }
+                if(j != categories.size() - 1) {
+                    // hr
+                    Gui.drawRect(
+                            0, yStart + elementHeight * i,
+                            width, yStart + elementHeight * i + 1,
+                            0xA0FFFFFF
+                    );
+                }
             }
+
+
         }
     }
 
@@ -249,5 +272,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     @Override public void updateScreen() {}
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
+
     @Override public void keyTyped(char key, int keyCode) throws IOException {}
 }

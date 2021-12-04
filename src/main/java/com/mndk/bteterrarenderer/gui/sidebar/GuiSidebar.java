@@ -117,7 +117,7 @@ public class GuiSidebar extends GuiScreen {
             Gui.drawRect(
                     0, 0,
                     right, scaled.getScaledHeight(),
-                    0x3F000000
+                    0x5F000000
             );
         }
         else if(this.side == SidebarSide.RIGHT) {
