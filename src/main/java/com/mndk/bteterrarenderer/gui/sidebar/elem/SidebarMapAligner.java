@@ -2,11 +2,8 @@ package com.mndk.bteterrarenderer.gui.sidebar.elem;
 
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.util.GetterSetter;
-import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 
 import java.io.IOException;
@@ -23,14 +20,14 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private GuiNumberInput xInput, zInput;
     private final GetterSetter<Double> xOffset, zOffset;
     private int pMouseX = -1, pMouseY = -1;
-    private float playerRotation;
+    private double playerRotationRadians;
     private boolean aligningMode;
 
 
     public SidebarMapAligner(GetterSetter<Double> xOffset, GetterSetter<Double> zOffset) {
         this.xOffset = xOffset;
         this.zOffset = zOffset;
-        this.playerRotation = 0;
+        this.playerRotationRadians = 0;
         this.aligningMode = false;
     }
 
@@ -48,13 +45,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 width / 2 + 3, 0, width / 2 - 3, 20,
                 zOffset, "Z = "
         );
-
-        EntityPlayerSP player = Minecraft.getMinecraft().player;
-        try {
-            this.playerRotation = Projections.getServerProjection().azimuth(player.posX, player.posZ, player.rotationYaw);
-        } catch(OutOfProjectionBoundsException e) {
-            this.playerRotation = 0; // North
-        }
+        this.playerRotationRadians = Math.toRadians(Minecraft.getMinecraft().player.rotationYaw);
     }
 
 
@@ -111,10 +102,9 @@ public class SidebarMapAligner extends GuiSidebarElement {
     public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         if(aligningMode) {
             double dmx = MOUSE_MULTIPLIER * (mouseX - this.pMouseX), dmy = MOUSE_MULTIPLIER * (mouseY - this.pMouseY);
-            double theta = Math.toRadians(this.playerRotation);
 
-            double dx = - dmx * Math.cos(theta) + dmy * Math.sin(theta);
-            double dz = - dmx * Math.sin(theta) - dmy * Math.cos(theta);
+            double dx = dmx * Math.cos(playerRotationRadians) - dmy * Math.sin(playerRotationRadians);
+            double dz = dmx * Math.sin(playerRotationRadians) + dmy * Math.cos(playerRotationRadians);
 
             this.xOffset.set(dx + this.xOffset.get());
             this.zOffset.set(dz + this.zOffset.get());
