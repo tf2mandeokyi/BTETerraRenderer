@@ -65,7 +65,7 @@ dependencies {
         transitive = true
     }
 	
-    shade 'org.yaml:snakeyaml:1.29'
+    shade 'org.yaml:snakeyaml:1.30'
     shade 'org.osgeo:proj4j:0.1.0'
 
     testCompile "junit:junit:4.13.2"
