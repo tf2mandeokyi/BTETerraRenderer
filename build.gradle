@@ -71,7 +71,7 @@ dependencies {
     testCompile "junit:junit:4.13.2"
     testCompile 'com.github.BuildTheEarth:terraplusplus:74449c4af349fd9b77b10e1041ed2c09f2d78518'
 
-    compile 'org.projectlombok:lombok:1.18.22'
+    compile 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
 
