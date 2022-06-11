@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui.sidebar.elem;
+package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
 import java.util.List;
 

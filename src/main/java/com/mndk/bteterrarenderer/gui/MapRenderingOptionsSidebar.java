@@ -3,7 +3,16 @@ package com.mndk.bteterrarenderer.gui;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
-import com.mndk.bteterrarenderer.gui.sidebar.elem.*;
+import com.mndk.bteterrarenderer.gui.sidebar.input.SidebarNumberInput;
+import com.mndk.bteterrarenderer.gui.sidebar.mapaligner.SidebarMapAligner;
+import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarBlank;
+import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarBooleanButton;
+import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarButton;
+import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarHorizontalLine;
+import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarText;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownCategory;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownSelector;
+import com.mndk.bteterrarenderer.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -38,7 +47,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         if(dropdown == null) {
             dropdown = new SidebarDropdownSelector<>(
                     GetterSetter.from(BTETerraRendererConfig::getTileMapService, BTETerraRendererConfig::setTileMapService),
-                    TileMapService::getName
+                    tms -> "[§7§o" + tms.getSource() + "§r]" + tms.getName()
             );
             dropdown.addCategories(TMSYamlLoader.result.getCategories());
         }
@@ -46,10 +55,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         this.elements.addAll(Arrays.asList(
 
                 // ===========================================================================================
-                new SidebarText("BTETerraRenderer Settings", SidebarText.TextAlignment.CENTER),
+                new SidebarText(
+                        I18n.format("gui.bteterrarenderer.new_settings.title"),
+                        SidebarText.TextAlignment.CENTER
+                ),
                 // ===========================================================================================
                 blank,
-                new SidebarText("General", SidebarText.TextAlignment.LEFT),
+                new SidebarText(
+                        I18n.format("gui.bteterrarenderer.new_settings.general"),
+                        SidebarText.TextAlignment.LEFT
+                ),
                 hl,
                 // -------------------------------------------------------------------------------------------
                 new SidebarBooleanButton(
@@ -57,25 +72,25 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                                 () -> BTETerraRendererConfig.doRender,
                                 value -> BTETerraRendererConfig.doRender = value
                         ),
-                        I18n.format("gui.bteterrarenderer.settings.map_rendering") + ": "
+                        I18n.format("gui.bteterrarenderer.new_settings.map_rendering") + ": "
                 ),
                 new SidebarNumberInput(
                         GetterSetter.from(RENDER_SETTINGS::getYAxis, RENDER_SETTINGS::setYAxis),
-                        I18n.format("gui.bteterrarenderer.settings.map_y_level") + ": "
+                        I18n.format("gui.bteterrarenderer.new_settings.map_y_level") + ": "
                 ),
                 new SidebarSlider(
                         GetterSetter.from(RENDER_SETTINGS::getOpacity, RENDER_SETTINGS::setOpacity),
-                        I18n.format("gui.bteterrarenderer.settings.opacity") + ": ", "",
+                        I18n.format("gui.bteterrarenderer.new_settings.opacity") + ": ", "",
                         0, 1
                 ),
                 // ===========================================================================================
                 blank,
-                new SidebarText("Map Source", SidebarText.TextAlignment.LEFT),
+                new SidebarText(I18n.format("gui.bteterrarenderer.new_settings.map_source"), SidebarText.TextAlignment.LEFT),
                 hl,
                 // -------------------------------------------------------------------------------------------
                 dropdown,
                 new SidebarButton(
-                        "Reload maps...",
+                        I18n.format("gui.bteterrarenderer.new_settings.map_reload"),
                         (self, mouseButton) -> {
                             try {
                                 Map<String, Boolean> opened = new HashMap<>();
@@ -91,12 +106,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                                     }
                                 }
                             } catch(Exception e) {
-                                ErrorMessageHandler.sendToClient("Error while reloading maps! Reason: " + e.getMessage());
+                                ErrorMessageHandler.sendToClient("Caught an error while reloading maps! Reason: " + e.getMessage());
                             }
                         }
                 ),
                 new SidebarButton(
-                        "Open maps folder...",
+                        I18n.format("gui.bteterrarenderer.new_settings.map_folder"),
                         (self, mouseButton) -> {
                             try {
                                 if(Desktop.isDesktopSupported()) {
@@ -107,17 +122,17 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 ),
                 // ===========================================================================================
                 blank,
-                new SidebarText("Map Offset", SidebarText.TextAlignment.LEFT),
+                new SidebarText(I18n.format("gui.bteterrarenderer.new_settings.map_offset"), SidebarText.TextAlignment.LEFT),
                 hl,
                 // -------------------------------------------------------------------------------------------
                 new SidebarSlider(
                         GetterSetter.from(RENDER_SETTINGS::getRadius, RENDER_SETTINGS::setRadius),
-                        I18n.format("gui.bteterrarenderer.settings.size") + ": ", "",
+                        I18n.format("gui.bteterrarenderer.new_settings.size") + ": ", "",
                         1, 8
                 ),
                 new SidebarSlider(
                         GetterSetter.from(RENDER_SETTINGS::getZoom, RENDER_SETTINGS::setZoom),
-                        I18n.format("gui.bteterrarenderer.settings.zoom") + ": ", "",
+                        I18n.format("gui.bteterrarenderer.new_settings.zoom") + ": ", "",
                         -3, 3
                 ),
                 new SidebarMapAligner(

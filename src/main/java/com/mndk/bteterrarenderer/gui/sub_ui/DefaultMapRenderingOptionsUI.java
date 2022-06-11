@@ -52,10 +52,10 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				COMPONENT_ID_GROUP + i, 
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
+				I18n.format("gui.bteterrarenderer.settings.map_rendering") + ": " +
 						(BTETerraRendererConfig.doRender ?
-								I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
-								I18n.format("gui.bteterrarenderer.maprenderer.disabled")
+								I18n.format("gui.bteterrarenderer.settings.enabled") :
+								I18n.format("gui.bteterrarenderer.settings.disabled")
 						)
 		));
 		
@@ -66,7 +66,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				COMPONENT_ID_GROUP + i, 
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				I18n.format("gui.bteterrarenderer.maprenderer.change_map_source")
+				I18n.format("gui.bteterrarenderer.settings.change_map_source")
 		));
 
 		
@@ -80,7 +80,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 						() -> BTETerraRendererConfig.RENDER_SETTINGS.yAxis,
 						value -> BTETerraRendererConfig.RENDER_SETTINGS.yAxis = value
 				),
-				I18n.format("gui.bteterrarenderer.maprenderer.map_y_level") + ": "
+				I18n.format("gui.bteterrarenderer.settings.map_y_level") + ": "
 		);
 
 		
@@ -90,7 +90,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				COMPONENT_ID_GROUP + i,
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				I18n.format("gui.bteterrarenderer.maprenderer.opacity") + ": ", "",
+				I18n.format("gui.bteterrarenderer.settings.opacity") + ": ", "",
 				0, 1, BTETerraRendererConfig.RENDER_SETTINGS.opacity,
 				true, true,
 				slider -> BTETerraRendererConfig.RENDER_SETTINGS.opacity = slider.getValue()
@@ -116,10 +116,10 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 		}
 		else if(button.equals(this.mapRenderingToggler)) {
 			BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
-			this.mapRenderingToggler.displayString = I18n.format("gui.bteterrarenderer.maprenderer.map_rendering") + ": " + 
+			this.mapRenderingToggler.displayString = I18n.format("gui.bteterrarenderer.settings.map_rendering") + ": " +
 					(BTETerraRendererConfig.doRender ?
-							I18n.format("gui.bteterrarenderer.maprenderer.enabled") : 
-							I18n.format("gui.bteterrarenderer.maprenderer.disabled")
+							I18n.format("gui.bteterrarenderer.settings.enabled") :
+							I18n.format("gui.bteterrarenderer.settings.disabled")
 					);
 		}
 		else if(button.equals(mapSelectorToggler)) {
@@ -149,7 +149,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 		int h = MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT + MapRenderingOptionsUI.DEFAULT_BUTTON_MARGIN_BOTTOM;
 		double count = (LOPTIONS_COMPONENT_COUNT - 1) / 2.;
 
-		parent.drawCenteredString(this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.title"),
+		parent.drawCenteredString(this.fontRenderer, I18n.format("gui.bteterrarenderer.settings.title"),
 				LOPTIONS_MARGIN_LEFT + OPTIONS_WIDTH / 2, (int) (c - h * count) - this.fontRenderer.FONT_HEIGHT / 2,
 				0xFFFFFF
 		);

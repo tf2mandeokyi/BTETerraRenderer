@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui.sidebar.elem;
+package com.mndk.bteterrarenderer.gui.sidebar.button;
 
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.resources.I18n;
@@ -25,8 +25,8 @@ public class SidebarBooleanButton extends SidebarButton {
 
     private static String booleanToFormattedI18n(boolean b) {
         return b ?
-                "§a" + I18n.format("gui.bteterrarenderer.maprenderer.enabled") :
-                "§c" + I18n.format("gui.bteterrarenderer.maprenderer.disabled");
+                "§a" + I18n.format("options.on") :
+                "§c" + I18n.format("options.off");
     }
 
 }

@@ -56,14 +56,14 @@ public class MapAlignerUI extends GuiSubScreen {
 				parent.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT - ALIGNMENT_RESET_BUTTON_HEIGHT
 						- 5,
 				ALIGNMENT_RESET_BUTTON_WIDTH, ALIGNMENT_RESET_BUTTON_HEIGHT,
-				I18n.format("gui.bteterrarenderer.maprenderer.x_align_reset")));
+				I18n.format("gui.bteterrarenderer.settings.x_align_reset")));
 
 		parent.addButton(zAlignResetButton = new GuiButton(1001,
 				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH - ALIGNMENT_RESET_BUTTON_WIDTH - 5,
 				parent.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM
 						- ((ALIGNMENT_IMAGE_HEIGHT + ALIGNMENT_RESET_BUTTON_HEIGHT) / 2),
 				ALIGNMENT_RESET_BUTTON_WIDTH, ALIGNMENT_RESET_BUTTON_HEIGHT,
-				I18n.format("gui.bteterrarenderer.maprenderer.z_align_reset")));
+				I18n.format("gui.bteterrarenderer.settings.z_align_reset")));
 
 		
 		int imageTop = parent.height - ALIGNMENT_IMAGE_HEIGHT - ALIGNMENT_IMAGE_MARGIN_BOTTOM - 30;
@@ -75,7 +75,7 @@ public class MapAlignerUI extends GuiSubScreen {
 				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - OPTIONS_WIDTH,
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				I18n.format("gui.bteterrarenderer.maprenderer.zoom") + ": ", "",
+				I18n.format("gui.bteterrarenderer.settings.zoom") + ": ", "",
 				-3, 3,
 				BTETerraRendererConfig.RENDER_SETTINGS.zoom,
 				false, true,
@@ -89,7 +89,7 @@ public class MapAlignerUI extends GuiSubScreen {
 				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - OPTIONS_WIDTH,
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - 2 * MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT - 6,
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
-				I18n.format("gui.bteterrarenderer.maprenderer.size") + ": ", "",
+				I18n.format("gui.bteterrarenderer.settings.size") + ": ", "",
 				1, 5,
 				BTETerraRendererConfig.RENDER_SETTINGS.radius,
 				false, true,
@@ -117,15 +117,15 @@ public class MapAlignerUI extends GuiSubScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		String xAlignString = I18n.format("gui.bteterrarenderer.maprenderer.x_align") + ": "
+		String xAlignString = I18n.format("gui.bteterrarenderer.settings.x_align") + ": "
 				+ BTETerraRendererConfig.RENDER_SETTINGS.xAlign + "m";
-		String zAlignString = I18n.format("gui.bteterrarenderer.maprenderer.z_align") + ": "
+		String zAlignString = I18n.format("gui.bteterrarenderer.settings.z_align") + ": "
 				+ BTETerraRendererConfig.RENDER_SETTINGS.zAlign + "m";
 
 		int imageRight = parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT, imageLeft = imageRight - ALIGNMENT_IMAGE_WIDTH;
 		int imageBottom = parent.height - ALIGNMENT_IMAGE_HEIGHT, imageTop = imageBottom - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
 
-		this.drawCenteredString(this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.map_align"),
+		this.drawCenteredString(this.fontRenderer, I18n.format("gui.bteterrarenderer.settings.map_align"),
 				imageLeft + (ALIGNMENT_IMAGE_WIDTH / 2),
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - 10, 0xFFFFFF);
 

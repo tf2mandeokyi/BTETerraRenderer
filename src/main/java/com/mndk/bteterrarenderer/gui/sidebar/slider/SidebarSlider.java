@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui.sidebar.elem;
+package com.mndk.bteterrarenderer.gui.sidebar.slider;
 
 import com.mndk.bteterrarenderer.gui.components.GuiIntegerSlider;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;

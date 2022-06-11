@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui.sidebar.elem;
+package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;

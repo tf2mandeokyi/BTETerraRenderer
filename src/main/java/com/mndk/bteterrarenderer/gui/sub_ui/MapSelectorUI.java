@@ -93,7 +93,7 @@ public class MapSelectorUI extends GuiSubScreen {
 		Gui.drawRect(LIST_LEFT, LIST_TOP_MARGIN, LIST_LEFT + LIST_WIDTH, c + h * clickableElementList.size(), 0x3F000000);
 		
 		this.drawCenteredString(
-				this.fontRenderer, I18n.format("gui.bteterrarenderer.maprenderer.map_source"),
+				this.fontRenderer, I18n.format("gui.bteterrarenderer.settings.map_source"),
 				LIST_LEFT + LIST_WIDTH / 2, LIST_TOP_MARGIN + LIST_PADDING, 0xFFFFFF
 		);
 		

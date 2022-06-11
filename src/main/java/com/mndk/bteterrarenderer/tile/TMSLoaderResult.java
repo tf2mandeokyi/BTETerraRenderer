@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.tile;
 
-import com.mndk.bteterrarenderer.gui.sidebar.elem.SidebarDropdownCategory;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownCategory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

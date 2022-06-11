@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui.sidebar.elem;
+package com.mndk.bteterrarenderer.gui.sidebar.button;
 
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import net.minecraft.client.gui.GuiButton;

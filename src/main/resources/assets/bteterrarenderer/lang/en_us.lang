@@ -19,3 +19,18 @@ gui.bteterrarenderer.settings.x_align=X Axis
 gui.bteterrarenderer.settings.z_align=Z Axis
 gui.bteterrarenderer.settings.x_align_reset=Reset X
 gui.bteterrarenderer.settings.z_align_reset=Reset Z
+
+gui.bteterrarenderer.new_settings.title=BTETerraRenderer Settings
+
+gui.bteterrarenderer.new_settings.general=General
+gui.bteterrarenderer.new_settings.map_rendering=Rendering
+gui.bteterrarenderer.new_settings.map_y_level=Map Y Level
+gui.bteterrarenderer.new_settings.opacity=Map Opacity
+
+gui.bteterrarenderer.new_settings.map_source=Map Source
+gui.bteterrarenderer.new_settings.map_reload=Reload maps...
+gui.bteterrarenderer.new_settings.map_folder=Open maps folder...
+
+gui.bteterrarenderer.new_settings.map_offset=Map Offset
+gui.bteterrarenderer.new_settings.size=Map Size
+gui.bteterrarenderer.new_settings.zoom=Map Zoom

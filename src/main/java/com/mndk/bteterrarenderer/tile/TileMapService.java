@@ -10,6 +10,7 @@ import com.mndk.bteterrarenderer.tile.url.BingURLConverter;
 import com.mndk.bteterrarenderer.tile.url.DefaultTileURLConverter;
 import com.mndk.bteterrarenderer.tile.url.TileURLConverter;
 import io.netty.buffer.ByteBufInputStream;
+import lombok.Getter;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.buildtheearth.terraplusplus.util.http.Http;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -34,7 +35,9 @@ public class TileMapService {
     public static BufferedImage SOMETHING_WENT_WRONG;
 
 
-    private final String id, name, urlTemplate;
+    @Getter
+    private final String source, id, name;
+    private final String urlTemplate;
     private final TileProjection tileProjection;
     private final TileURLConverter urlConverter;
     private final ExecutorService downloadExecutor;
@@ -46,11 +49,8 @@ public class TileMapService {
 
         String projectionId = (String) jsonObject.get("projection");
         id = fileName + "." + categoryName + "." + id;
-        if(fileName != null && !"".equals(fileName) && !"default".equals(fileName)) {
-            jsonObject.put("name", "[§7" + fileName + "§r] " + jsonObject.get("name"));
-        }
         try {
-            return new TileMapService(id, jsonObject);
+            return new TileMapService(fileName, id, jsonObject);
         } catch(NullPointerException e) {
             throw new Exception(projectionId + " projection doesn't exist!");
         }
@@ -60,8 +60,9 @@ public class TileMapService {
     /**
      * @throws NullPointerException If the projection corresponding to its id does not exist
      */
-    private TileMapService(String id, Map<String, Object> jsonObject) throws NullPointerException {
+    private TileMapService(String source, String id, Map<String, Object> jsonObject) throws NullPointerException {
 
+        this.source = source;
         this.id = id;
         this.name = (String) jsonObject.get("name");
         this.urlTemplate = (String) jsonObject.get("tile_url");
@@ -192,12 +193,6 @@ public class TileMapService {
     }
 
 
-    public String getName() {
-        return name;
-    }
-    public String getId() {
-        return id;
-    }
     @Override
     public String toString() {
         return TileMapService.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + urlTemplate + "}";

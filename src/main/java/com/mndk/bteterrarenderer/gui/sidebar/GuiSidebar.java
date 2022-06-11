@@ -160,6 +160,7 @@ public class GuiSidebar extends GuiScreen {
         }
 
         this.initialMouseX = mouseX; this.initialElementWidth = elementWidth.get();
+        this.validateVerticalSlider();
     }
 
 
@@ -183,8 +184,12 @@ public class GuiSidebar extends GuiScreen {
     @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
-        this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 15;
+        this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 20;
+        this.validateVerticalSlider();
+    }
 
+
+    private void validateVerticalSlider() {
         if(verticalSlider != 0) {
             ScaledResolution scaled = this.getScaledResolution();
 
