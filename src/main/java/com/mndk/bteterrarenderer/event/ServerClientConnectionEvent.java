@@ -19,6 +19,9 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.io.IOException;
+import java.util.Objects;
+
 @Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID)
 public class ServerClientConnectionEvent {
 
@@ -37,11 +40,17 @@ public class ServerClientConnectionEvent {
         EntityPlayer player = event.player;
         World world = event.player.world;
         EarthGeneratorSettings generatorSettings = getEarthGeneratorSettings(world);
-
         if(generatorSettings != null) {
-            BTETerraRenderer.NETWORK_WRAPPER.sendTo(
-                    new ServerWelcomeMessage(generatorSettings), (EntityPlayerMP) player);
+            try {
+                GeographicProjection projection = Objects.requireNonNull(getEarthGeneratorSettings(world)).projection();
+                BTETerraRenderer.NETWORK_WRAPPER.sendTo(
+                        new ServerWelcomeMessage(projection), (EntityPlayerMP) player);
+                return;
+            } catch(IOException e) {
+                BTETerraRenderer.logger.error("Caught IOException while sending projection data", e);
+            }
         }
+        BTETerraRenderer.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessage(), (EntityPlayerMP) player);
     }
 
 

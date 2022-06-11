@@ -1,38 +1,48 @@
 package com.mndk.bteterrarenderer.network;
 
 import io.netty.buffer.ByteBuf;
-import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
+import lombok.Getter;
+import net.buildtheearth.terraplusplus.TerraConstants;
+import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class ServerWelcomeMessage implements IMessage {
 
-    private String earthGeneratorSettings;
+    @Getter
+    private String projectionJson = null;
 
     public ServerWelcomeMessage() {}
 
-    public ServerWelcomeMessage(String earthGeneratorSettings) {
-        this.earthGeneratorSettings = earthGeneratorSettings;
+    public ServerWelcomeMessage(String projectionJson) {
+        this.projectionJson = projectionJson;
     }
 
-    public ServerWelcomeMessage(EarthGeneratorSettings earthGeneratorSettings) {
-        this(earthGeneratorSettings.toString());
+    public ServerWelcomeMessage(GeographicProjection serverProjection) throws IOException {
+        this(TerraConstants.JSON_MAPPER.writeValueAsString(serverProjection));
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         int strLength = buf.readInt();
-        earthGeneratorSettings = buf.readCharSequence(strLength, StandardCharsets.UTF_8).toString();
+        if(strLength != -1) {
+            projectionJson = buf.readCharSequence(strLength, StandardCharsets.UTF_8).toString();
+        }
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(earthGeneratorSettings.getBytes(StandardCharsets.UTF_8).length);
-        buf.writeCharSequence(earthGeneratorSettings, StandardCharsets.UTF_8);
+        if(projectionJson != null) {
+            buf.writeInt(projectionJson.getBytes(StandardCharsets.UTF_8).length);
+            buf.writeCharSequence(projectionJson, StandardCharsets.UTF_8);
+        } else {
+            buf.writeInt(-1);
+        }
     }
 
-    public EarthGeneratorSettings getEarthGeneratorSettings() {
-        return EarthGeneratorSettings.parse(earthGeneratorSettings);
+    public GeographicProjection getProjection() throws IOException {
+        return GeographicProjection.parse(projectionJson);
     }
 }
