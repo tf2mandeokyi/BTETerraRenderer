@@ -6,7 +6,7 @@ import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
-import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
+import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -22,7 +22,7 @@ public class KeyEvent {
 		
 		if(ClientProxy.mapOptionsKey.isPressed()) {
 
-			try { TileMapYamlLoader.refresh(); } catch (Exception e) {
+			try { TMSYamlLoader.refresh(); } catch (Exception e) {
 				ErrorMessageHandler.sendToClient("Error caught while parsing yaml map files! " +
 						"(Reason: " + e.getMessage() + ")");
 				e.printStackTrace();

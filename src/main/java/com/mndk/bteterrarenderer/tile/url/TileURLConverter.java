@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.tms.url;
+package com.mndk.bteterrarenderer.tile.url;
 
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.Setter;
 
 public abstract class TileURLConverter {

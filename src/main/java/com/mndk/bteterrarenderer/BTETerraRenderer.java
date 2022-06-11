@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 @Mod(
 		modid = BTETerraRenderer.MODID,
 		name = BTETerraRenderer.NAME,
-		dependencies = "required-after:terraplusplus;required-after:cubicchunks"
+		dependencies = "required-after:terraplusplus@[1.0.569,)"
 )
 public class BTETerraRenderer {
 

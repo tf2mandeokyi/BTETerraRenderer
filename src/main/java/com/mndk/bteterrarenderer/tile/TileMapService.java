@@ -1,15 +1,14 @@
-package com.mndk.bteterrarenderer.tms;
+package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.projection.Projections;
-import com.mndk.bteterrarenderer.storage.TileMapCache;
-import com.mndk.bteterrarenderer.tms.proj.KakaoTileProjection;
-import com.mndk.bteterrarenderer.tms.proj.TileProjection;
-import com.mndk.bteterrarenderer.tms.proj.WebMercatorProjection;
-import com.mndk.bteterrarenderer.tms.proj.WorldMercatorProjection;
-import com.mndk.bteterrarenderer.tms.url.BingURLConverter;
-import com.mndk.bteterrarenderer.tms.url.DefaultTileURLConverter;
-import com.mndk.bteterrarenderer.tms.url.TileURLConverter;
+import com.mndk.bteterrarenderer.tile.proj.KakaoTileProjection;
+import com.mndk.bteterrarenderer.tile.proj.TileProjection;
+import com.mndk.bteterrarenderer.tile.proj.WebMercatorProjection;
+import com.mndk.bteterrarenderer.tile.proj.WorldMercatorProjection;
+import com.mndk.bteterrarenderer.tile.url.BingURLConverter;
+import com.mndk.bteterrarenderer.tile.url.DefaultTileURLConverter;
+import com.mndk.bteterrarenderer.tile.url.TileURLConverter;
 import io.netty.buffer.ByteBufInputStream;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.buildtheearth.terraplusplus.util.http.Http;
@@ -117,7 +116,7 @@ public class TileMapService {
             double playerX, double playerY, double playerZ,
             int tileDeltaX, int tileDeltaY
     ) {
-        TileMapCache cache = TileMapCache.getInstance();
+        TileImageCache cache = TileImageCache.getInstance();
         int[] tileCoord;
         double[] geoCoord, gameCoord;
 
@@ -171,7 +170,7 @@ public class TileMapService {
 
 
     private void downloadTile(String tileKey, String url) {
-        TileMapCache cache = TileMapCache.getInstance();
+        TileImageCache cache = TileImageCache.getInstance();
         cache.setTileDownloadingState(tileKey, true);
 
         this.downloadExecutor.execute(() -> {
@@ -182,7 +181,7 @@ public class TileMapService {
             } catch(IOException | ExecutionException | InterruptedException e) {
                 image = SOMETHING_WENT_WRONG;
             }
-            TileMapCache.getInstance().addImageToRenderQueue(tileKey, image);
+            TileImageCache.getInstance().addImageToRenderQueue(tileKey, image);
             cache.setTileDownloadingState(tileKey, false);
         });
     }

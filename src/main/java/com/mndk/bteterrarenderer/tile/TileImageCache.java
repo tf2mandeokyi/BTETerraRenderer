@@ -1,7 +1,6 @@
-package com.mndk.bteterrarenderer.storage;
+package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.tms.TileMapService;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 
@@ -11,12 +10,12 @@ import java.util.*;
 /**
  * Cache class that stores tile image data.
  */
-public class TileMapCache {
+public class TileImageCache {
 	
 	
 	
-	public static TileMapCache instance = new TileMapCache(1000 * 60 * 5, 10000);
-	public static TileMapCache getInstance() { return instance; }
+	public static TileImageCache instance = new TileImageCache(1000 * 60 * 5, 10000);
+	public static TileImageCache getInstance() { return instance; }
 
 
 
@@ -26,7 +25,6 @@ public class TileMapCache {
 	}
 
 
-
 	private final int maximumSize;
 	private final Map<String, GLIdWrapper> glTextureIdMap;
 	private final Set<String> downloadingTileKeys;
@@ -34,8 +32,7 @@ public class TileMapCache {
 	private List<Map.Entry<String, BufferedImage>> imageRenderQueue;
 
 
-
-	public TileMapCache(long expireMilliseconds, int maximumSize) {
+	public TileImageCache(long expireMilliseconds, int maximumSize) {
 		this.glTextureIdMap = new HashMap<>();
 		this.downloadingTileKeys = new HashSet<>();
 		this.expireMilliseconds = expireMilliseconds;
@@ -44,14 +41,12 @@ public class TileMapCache {
 	}
 
 
-
 	private int validateAndGetGlId(String tileKey) {
 		synchronized (this) {
 			if (!glTextureIdMap.containsKey(tileKey)) throw new NullPointerException();
 			return glTextureIdMap.get(tileKey).glId;
 		}
 	}
-
 
 
 	public void setTileDownloadingState(String tileKey, boolean state) {
@@ -65,7 +60,6 @@ public class TileMapCache {
 	}
 
 
-
 	public boolean isTileInDownloadingState(String tileKey) {
 		synchronized (downloadingTileKeys) {
 			return downloadingTileKeys.contains(tileKey);
@@ -73,18 +67,16 @@ public class TileMapCache {
 	}
 
 
-
 	public void addTexture(String tileKey, BufferedImage image) {
 		synchronized (this) {
 			if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
-				this.deleteTheOldestData();
+				this.deleteOldest();
 			}
 			int glId = initializeTile(image);
 			glTextureIdMap.put(tileKey, new GLIdWrapper(glId, System.currentTimeMillis()));
 			log("Added texture " + tileKey + " (Size: " + glTextureIdMap.size() + ")");
 		}
 	}
-
 
 
 	public boolean textureExists(String tileKey) {
@@ -94,7 +86,6 @@ public class TileMapCache {
 	}
 
 
-
 	public void bindTexture(String tileKey) {
 		synchronized (this) {
 			int glId = validateAndGetGlId(tileKey);
@@ -102,7 +93,6 @@ public class TileMapCache {
 			GlStateManager.bindTexture(glId);
 		}
 	}
-
 
 
 	private void deleteTexture(String tileKey) {
@@ -117,8 +107,7 @@ public class TileMapCache {
 	}
 
 
-
-	private void deleteTheOldestData() {
+	private void deleteOldest() {
 		String oldestKey = null; long oldest = Long.MAX_VALUE;
 		for (Map.Entry<String, GLIdWrapper> entry : glTextureIdMap.entrySet()) {
 			GLIdWrapper wrapper = entry.getValue();
@@ -131,7 +120,6 @@ public class TileMapCache {
 			this.deleteTexture(oldestKey);
 		}
 	}
-
 
 
 	public void cleanup() {
@@ -152,7 +140,6 @@ public class TileMapCache {
 	}
 
 
-
 	/**
 	 * @return The GL texture id associated with the image texture.
 	 * */
@@ -170,12 +157,10 @@ public class TileMapCache {
 	}
 	
 	
-	
 	public void addImageToRenderQueue(String tileId, BufferedImage image) {
 		imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileId, image));
 	}
-	
-	
+
 	
 	public void cacheAllImagesInQueue() {
 		List<Map.Entry<String, BufferedImage>> newList = new ArrayList<>();
@@ -208,7 +193,6 @@ public class TileMapCache {
 		imageRenderQueue = newList;
 
 	}
-
 
 
 	private static class GLIdWrapper {

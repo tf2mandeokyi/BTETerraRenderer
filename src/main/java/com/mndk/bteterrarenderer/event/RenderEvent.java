@@ -3,8 +3,8 @@ package com.mndk.bteterrarenderer.event;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.projection.Projections;
-import com.mndk.bteterrarenderer.storage.TileMapCache;
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.tile.TileImageCache;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -99,7 +99,7 @@ public class RenderEvent {
 			}
 		}
 
-		TileMapCache.getInstance().cleanup();
+		TileImageCache.getInstance().cleanup();
 
 		GlStateManager.disableBlend();
 		GlStateManager.enableCull();

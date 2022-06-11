@@ -4,8 +4,8 @@ import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.gui.sidebar.elem.*;
-import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -40,7 +40,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                     GetterSetter.from(BTETerraRendererConfig::getTileMapService, BTETerraRendererConfig::setTileMapService),
                     TileMapService::getName
             );
-            dropdown.addCategories(TileMapYamlLoader.result.getCategories());
+            dropdown.addCategories(TMSYamlLoader.result.getCategories());
         }
 
         this.elements.addAll(Arrays.asList(
@@ -82,9 +82,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                                 for(SidebarDropdownCategory<TileMapService> category : dropdown.getCategories()) {
                                     opened.put(category.getName(), category.isOpened());
                                 }
-                                TileMapYamlLoader.refresh();
+                                TMSYamlLoader.refresh();
                                 dropdown.clearCategories();
-                                dropdown.addCategories(TileMapYamlLoader.result.getCategories());
+                                dropdown.addCategories(TMSYamlLoader.result.getCategories());
                                 for(SidebarDropdownCategory<TileMapService> category : dropdown.getCategories()) {
                                     if(opened.get(category.getName())) {
                                         category.setOpened(true);
@@ -100,7 +100,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         (self, mouseButton) -> {
                             try {
                                 if(Desktop.isDesktopSupported()) {
-                                    Desktop.getDesktop().open(TileMapYamlLoader.getMapFilesDirectory());
+                                    Desktop.getDesktop().open(TMSYamlLoader.getMapFilesDirectory());
                                 }
                             } catch(Exception ignored) {}
                         }

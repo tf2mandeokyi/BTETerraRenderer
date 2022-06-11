@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.tms.proj;
+package com.mndk.bteterrarenderer.tile.proj;
 
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;

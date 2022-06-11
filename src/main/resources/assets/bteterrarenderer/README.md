@@ -1,11 +1,11 @@
 # YAML map data file
 
-The map data file that contains custom map objects.
+The map data file containing custom map objects.
 
-You can create your custom map data file at `.../.minecraft/config/bteterrarenderer/maps/`.
-
-(Note: There is no limit to the map data file's name, so name it to whatever you want.)
-
+Notes:
+* Custom map data files should be in `.../.minecraft/config/bteterrarenderer/maps/`.
+* There are no restrictions of naming your data file, so name it whatever you want.
+* If you think you're getting the syntax error, try validating it [here](https://codebeautify.org/yaml-validator)
 
 ## example.yml
 
@@ -26,9 +26,7 @@ categories:
       tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
       projection: webmercator
       max_thread: 2
-      request_headers:
-        User-Agent: bteterrarenderer/1.0 Java/1.8
-
+      
     # ...
 
   # ...
@@ -38,12 +36,11 @@ categories:
 ## Map Object structure
 
 | Key | Value Type | Required? \[`Default`\] | Description |
-|-|-|-|-|
+|---|---|---|---|
 | `name` | String | Yes | Displayed Name. Supports color codes. |
 | `tile_url` | String | Yes | Tile URL. Parameters are dependent to its map projection. |
 | `projection` | String | Yes | Name of the projection. Projections are listed in [here](#Projections). |
 | `max_thread` | Integer | No \[`2`\] | Maximum amount of threads to load data. |
-| `request_headers` | Map<String, String> | No | HTTP request headers. |
 | `default_zoom` | Integer | No \[`18`\] | Default zoom value of the tile map. |
 | `invert_zoom` | Boolean | No \[`false`\] | Whether to invert the zoom system. |
 | `invert_lat` | Boolean | No \[`false`\] | Whether to invert the latitude. |
@@ -51,16 +48,15 @@ categories:
 
 ## Projections
 
-Available projection names are listed here.
-
-If you want a certain projection added, you can either make an issue (or suggestion), or make a PR about it. (Projection map classes are listed at `com.mndk.bteterrarenderer.tms`. They all should be subclass of `TileMapService` and should be registered at `TileMapService.parse()`)
+All available projections are listed here.
 
 ### Basic parameters:
-| Url parameter | Description                          |
-| ------------- | ------------------------------------ |
-| `{x}`         | X-axis parameter.                    |
-| `{y}`         | Y-axis parameter.                    |
-| `{z}`         | The value of the map zoom parameter. |
+| URL parameter | Description |
+|---|---|
+| `{x}` | X-axis parameter. |
+| `{y}` | Y-axis parameter. |
+| `{z}` | The value of the map zoom parameter. |
+| `{random:a,b,c,...}` | Picks string randomly from the given list. |
 
 ### `webmercator` (EPSG:3857, alias: `mercator`)
 
@@ -74,10 +70,20 @@ World Mercator projection. Used for Yandex.Maps tile server.
 
 Web Mercator projection, but for Bing maps.
 
-| tile parameter | description      |
-| -------------- | ---------------- |
-| `{u}`          | Map Tile Quadkey |
+| URL parameter | Description |
+| --- | --- |
+| `{u}` | Map Tile Quadkey |
 
 ### `kakao_wtm` (EPSG:5186)
 
-Tile projection for common Korean maps.
+Tile projection for Kakao Map (Korean map service).
+
+
+## Adding Projections
+
+To add a projection you want in this mod, make a suggestion/PR of it.
+
+Requirements: 
+* Projection classes should be located in the package `com.mndk.bteterrarenderer.tile.proj`
+* They all must be subclasses of `com.mndk.bteterrarenderer.tile.proj.TileProjection`
+* They all should be registered in the static method `com.mndk.bteterrarenderer.tile.TileMapService.getTileProjection()`

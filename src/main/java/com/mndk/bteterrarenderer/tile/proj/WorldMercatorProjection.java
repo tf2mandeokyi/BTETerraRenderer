@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.tms.proj;
+package com.mndk.bteterrarenderer.tile.proj;
 
 import com.mndk.bteterrarenderer.projection.Proj4jProjection;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;

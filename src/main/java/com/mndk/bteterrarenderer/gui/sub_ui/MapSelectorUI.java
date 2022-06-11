@@ -4,9 +4,9 @@ import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.util.ImageUiRenderer;
-import com.mndk.bteterrarenderer.storage.TileMapLoaderResult;
-import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.tile.TMSLoaderResult;
+import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -60,7 +60,7 @@ public class MapSelectorUI extends GuiSubScreen {
 		LIST_WIDTH = 0;
 		clickableElementList.clear();
 		
-		for(TileMapLoaderResult.Category category : TileMapYamlLoader.result.getCategories()) {
+		for(TMSLoaderResult.Category category : TMSYamlLoader.result.getCategories()) {
 			clickableElementList.add(category.getName());
 			for(TileMapService map : category.getMaps()) {
 				clickableElementList.add(map);

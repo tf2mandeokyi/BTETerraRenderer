@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.proxy;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
-import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
+import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -35,7 +35,7 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		try {
-			TileMapYamlLoader.refresh(event.getModConfigurationDirectory().getAbsolutePath());
+			TMSYamlLoader.refresh(event.getModConfigurationDirectory().getAbsolutePath());
 		} catch(Exception e) {
 			BTETerraRenderer.logger.error("Error caught while parsing map yaml files!");
 			e.printStackTrace();

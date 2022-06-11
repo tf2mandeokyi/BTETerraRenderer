@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer;
 
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.storage.TileMapYamlLoader;
-import com.mndk.bteterrarenderer.tms.TileMapService;
+import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraftforge.common.config.Config;
@@ -98,7 +98,7 @@ public class BTETerraRendererConfig {
          * I couldn't put this in the main class, so I made a subclass BTRConfig.ConfigDataCache and put the
          * tms variable here.
          */
-        private static TileMapService tileMapService = TileMapYamlLoader.result.getTileMap(mapServiceId);
+        private static TileMapService tileMapService = TMSYamlLoader.result.getTileMap(mapServiceId);
     }
 
     public static TileMapService getTileMapService() {
@@ -111,7 +111,7 @@ public class BTETerraRendererConfig {
     }
 
     private static void refreshTileMapService() {
-        ConfigDataCache.tileMapService = TileMapYamlLoader.result.getTileMap(mapServiceId);
+        ConfigDataCache.tileMapService = TMSYamlLoader.result.getTileMap(mapServiceId);
     }
 
 

@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.tms.url;
+package com.mndk.bteterrarenderer.tile.url;
 
 public class BingURLConverter extends DefaultTileURLConverter {
 

@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.tms.url;
+package com.mndk.bteterrarenderer.tile.url;
 
 import java.util.Random;
 import java.util.regex.Matcher;

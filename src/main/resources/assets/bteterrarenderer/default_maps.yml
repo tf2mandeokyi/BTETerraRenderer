@@ -7,8 +7,6 @@ categories:
          tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
          projection: webmercator
          max_thread: 2
-         request_headers:
-            User-Agent: bteterrarenderer/1.0 Java/1.8
 
       bing_aerial:
          name: "Bing Maps (Satellite)"

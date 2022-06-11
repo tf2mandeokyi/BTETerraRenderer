@@ -1,7 +1,6 @@
-package com.mndk.bteterrarenderer.storage;
+package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.gui.sidebar.elem.SidebarDropdownCategory;
-import com.mndk.bteterrarenderer.tms.TileMapService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -10,17 +9,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class TileMapLoaderResult {
+public class TMSLoaderResult {
 	
 	private final List<Category> categories;
 	private int totalMapCount;
 	
-	public TileMapLoaderResult() {
+	public TMSLoaderResult() {
 		this.categories = new ArrayList<>();
 		this.totalMapCount = 0;
 	}
 	
-	public TileMapLoaderResult(List<Category> categories) {
+	public TMSLoaderResult(List<Category> categories) {
 		this.categories = categories;
 		this.totalMapCount = 0;
 		for(Category category : categories) {
@@ -56,7 +55,7 @@ public class TileMapLoaderResult {
 		return null;
 	}
 	
-	public void append(TileMapLoaderResult other) {
+	public void append(TMSLoaderResult other) {
 		for(Category category : other.categories) {
 			Category existingCategory = getCategory(category.name);
 			if(existingCategory != null) {

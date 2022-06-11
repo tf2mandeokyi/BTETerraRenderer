@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.tms.proj;
+package com.mndk.bteterrarenderer.tile.proj;
 
 public class WebMercatorProjection extends TileProjection {
 
