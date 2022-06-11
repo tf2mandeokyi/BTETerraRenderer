@@ -111,7 +111,7 @@ public class MapSelectorUI extends GuiSubScreen {
 				);
 			}
 			else if(object instanceof TileMapService) {
-				
+
 				TileMapService map = (TileMapService) object;
 				float u = (currentMapService == null ? 0 :currentMapService.getId().equals(map.getId()) ? 1/8.f : 0) +
 						(isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);

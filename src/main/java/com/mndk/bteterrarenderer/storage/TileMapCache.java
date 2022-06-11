@@ -181,7 +181,7 @@ public class TileMapCache {
 		List<Map.Entry<String, BufferedImage>> newList = new ArrayList<>();
 
 		while(!imageRenderQueue.isEmpty()) {
-			// To prevent ConcurrentModificationException, the code is caching one image at a time.
+			// To prevent ConcurrentModificationException, the code will be caching one image at a time.
 			Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
 			imageRenderQueue.remove(0);
 			if(entry == null) continue;
@@ -189,11 +189,8 @@ public class TileMapCache {
 			String tileKey = entry.getKey();
 			BufferedImage image = entry.getValue();
 
-			if(image == TileMapService.SERVER_RETURNED_ERROR) {
-				
-			}
-			else if(image == TileMapService.SOMETHING_WENT_WRONG) {
-				
+			if(image == TileMapService.SOMETHING_WENT_WRONG) {
+				// TODO
 			}
 			else {
 				try {
