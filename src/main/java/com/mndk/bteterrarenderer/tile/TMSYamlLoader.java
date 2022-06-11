@@ -40,7 +40,9 @@ public class TMSYamlLoader {
 			for (File mapFile : mapFiles) {
 				try {
 					String name = mapFile.getName();
-					result.append(load(name.substring(0, name.length() - 4), new FileReader(mapFile)));
+					FileReader fileReader = new FileReader((mapFile));
+					result.append(load(name, fileReader));
+					fileReader.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -56,7 +58,7 @@ public class TMSYamlLoader {
 	
 
 	@SuppressWarnings("unchecked")
-	private static TMSLoaderResult load(String fileName, Reader fileReader) throws Exception {
+	private static TMSLoaderResult load(String fileName, Reader fileReader) {
 		
 		Map<String, Object> mapData = YAML.load(fileReader);
 		Map<String, Object> categories = (Map<String, Object>) mapData.get("categories");
@@ -72,7 +74,7 @@ public class TMSYamlLoader {
 	}
 	
 	
-	private static TMSLoaderResult loadDefaultMap() throws Exception {
+	private static TMSLoaderResult loadDefaultMap() {
 		return load("default", new InputStreamReader(
 				Objects.requireNonNull(TMSYamlLoader.class.getClassLoader().getResourceAsStream(DEFAULT_MAP_YAML_PATH)),
 				StandardCharsets.UTF_8
@@ -83,11 +85,11 @@ public class TMSYamlLoader {
 	@SuppressWarnings("unchecked")
 	private static TMSLoaderResult.Category getMapCategoryFromMapObject(
 			String categoryName, Map<String, Object> mapList, String mapFile
-	) throws Exception {
+	) {
 		List<TileMapService> mapSet = new ArrayList<>();
 
 		for(Map.Entry<String, Object> map : mapList.entrySet()) {
-			mapSet.add(TileMapService.parse(mapFile, categoryName, map.getKey(), (Map<String, Object>) map.getValue()));
+			mapSet.add(new TileMapService(mapFile, categoryName, map.getKey(), (Map<String, Object>) map.getValue()));
 		}
 		
 		return new TMSLoaderResult.Category(categoryName, mapSet);

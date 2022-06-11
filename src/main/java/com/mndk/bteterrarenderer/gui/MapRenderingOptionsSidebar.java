@@ -47,7 +47,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         if(dropdown == null) {
             dropdown = new SidebarDropdownSelector<>(
                     GetterSetter.from(BTETerraRendererConfig::getTileMapService, BTETerraRendererConfig::setTileMapService),
-                    tms -> "[§7§o" + tms.getSource() + "§r]" + tms.getName()
+                    tms -> "default".equalsIgnoreCase(tms.getSource()) ?
+                            tms.getName() :
+                            "[§7" + tms.getSource() + "§r]\n" + tms.getName()
             );
             dropdown.addCategories(TMSYamlLoader.result.getCategories());
         }

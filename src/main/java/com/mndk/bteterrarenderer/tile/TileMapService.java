@@ -43,17 +43,9 @@ public class TileMapService {
     private final ExecutorService downloadExecutor;
 
 
-    public static TileMapService parse(
-            String fileName, String categoryName, String id, Map<String, Object> jsonObject
-    ) throws Exception {
-
-        String projectionId = (String) jsonObject.get("projection");
-        id = fileName + "." + categoryName + "." + id;
-        try {
-            return new TileMapService(fileName, id, jsonObject);
-        } catch(NullPointerException e) {
-            throw new Exception(projectionId + " projection doesn't exist!");
-        }
+    public TileMapService(String fileName, String categoryName, String id, Map<String, Object> jsonObject)
+            throws NullPointerException {
+        this(fileName, fileName + "." + categoryName + "." + id, jsonObject);
     }
 
 

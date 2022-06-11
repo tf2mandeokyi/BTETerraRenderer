@@ -29,7 +29,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     private final List<SidebarDropdownCategory<T>> categories;
     private boolean opened = false;
 
-    private int height, elementHeight;
+    private int closedHeight, singleLineElementHeight, width, innerWidth;
 
 
     public SidebarDropdownSelector(GetterSetter<T> value, Function<T, String> nameGetter) {
@@ -61,124 +61,122 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.height = fontRenderer.FONT_HEIGHT + VERTICAL_PADDING * 2;
-        this.elementHeight = fontRenderer.FONT_HEIGHT + ELEMENT_VERTICAL_MARGIN * 2;
-    }
-
-
-    private int getShownElementLength() {
-        int result = 0;
-        for(SidebarDropdownCategory<T> category : categories) {
-            result++;
-            if(category.isOpened()) {
-                result += category.getItems().size();
-            }
-        }
-        return result;
+        this.closedHeight = fontRenderer.FONT_HEIGHT + VERTICAL_PADDING * 2;
+        this.singleLineElementHeight = fontRenderer.FONT_HEIGHT + ELEMENT_VERTICAL_MARGIN * 2;
+        this.width = parent.elementWidth.get();
+        this.innerWidth = width - HORIZONTAL_PADDING * 2;
     }
 
 
     @Override
     public int getHeight() {
-        return opened ?
-                this.height + (getShownElementLength() * this.elementHeight) + DROPDOWN_VERTICAL_PADDING :
-                this.height;
+        if(!opened) return closedHeight;
+        int dy = 0;
+        for(SidebarDropdownCategory<T> category : categories) {
+            dy += singleLineElementHeight;
+            if(category.isOpened()) {
+                for(T item : category.getItems()) {
+                    dy += fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                            + ELEMENT_VERTICAL_MARGIN * 2;
+                }
+            }
+        }
+        return this.closedHeight + dy + DROPDOWN_VERTICAL_PADDING;
     }
 
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 
-        int width = parent.elementWidth.get();
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
         // Background
-        Gui.drawRect(0, 0, width, height, 0x80000000);
+        Gui.drawRect(0, 0, width, closedHeight, 0x80000000);
         if(opened) {
-            Gui.drawRect(0, height, width, getHeight(), 0xA0000000);
+            Gui.drawRect(0, closedHeight, width, getHeight(), 0xA0000000);
         }
 
         // Dropdown arrow
         this.drawDropdownArrow(VERTICAL_PADDING, rectColor, opened);
 
         // White Border
-        Gui.drawRect(-1, -1, 0, height + 1, rectColor);
+        Gui.drawRect(-1, -1, 0, closedHeight + 1, rectColor);
         Gui.drawRect(-1, -1, width, 0, rectColor);
-        Gui.drawRect(width, -1, width + 1, height + 1, rectColor);
-        Gui.drawRect(-1, height, width + 1, height + 1, rectColor);
+        Gui.drawRect(width, -1, width + 1, closedHeight + 1, rectColor);
+        Gui.drawRect(-1, closedHeight, width + 1, closedHeight + 1, rectColor);
 
         // Current selection
         T currentValue = value.get();
 
         if(currentValue != null) {
-            String currentName = nameGetter.apply(currentValue);
-            int limit = width - 2 * HORIZONTAL_PADDING - fontRenderer.FONT_HEIGHT;
+            String currentName = nameGetter.apply(currentValue).replace("\n", " ");
+            int limit = innerWidth - fontRenderer.FONT_HEIGHT;
             // Handle overflow
-            if(this.fontRenderer.getStringWidth(currentName) > limit) {
-                currentName = this.fontRenderer.trimStringToWidth(currentName, limit);
+            if(fontRenderer.getStringWidth(currentName) > limit) {
+                currentName = fontRenderer.trimStringToWidth(currentName, limit);
             }
             this.drawString(fontRenderer, currentName, HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
         }
 
         // Dropdown
         if(opened) {
-            int i = 0;
-            int yStart = height + DROPDOWN_VERTICAL_PADDING;
+            int totalHeight = 0;
+            int yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
 
             for(int j = 0; j < categories.size(); ++j) {
                 SidebarDropdownCategory<T> category = categories.get(j);
                 String categoryName = category.getName();
-                int categoryColor = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFFFA0 : 0xFFFFFFFF;
+                int categoryColor = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight) 
+                        ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
                 // Category name
-                this.drawCenteredString(this.fontRenderer, categoryName,
+                this.drawCenteredString(fontRenderer, categoryName,
                         width / 2,
-                        yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
+                        yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
                         categoryColor
                 );
 
                 // Dropdown arrow
                 this.drawDropdownArrow(
-                        yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
+                        yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
                         categoryColor,
                         category.isOpened()
                 );
-                ++i;
+                totalHeight += singleLineElementHeight;
 
                 // Items
                 if(category.isOpened()) {
                     for (T item : category.getItems()) {
                         String name = nameGetter.apply(item);
-                        int color = isMouseOnIndex(mouseX, mouseY, i) ? 0xFFFFA0 : 0xFFFFFF;
 
                         // Handle overflow
-                        if(this.fontRenderer.getStringWidth(name) > width - 2 * HORIZONTAL_PADDING) {
-                            name = this.fontRenderer.trimStringToWidth(name, width - 2 * HORIZONTAL_PADDING);
-                        }
+                        int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                                + ELEMENT_VERTICAL_MARGIN * 2;
+                        int color = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height) 
+                                ? 0xFFFFA0 : 0xFFFFFF;
 
                         // Blue background
                         if (item.equals(currentValue)) {
                             Gui.drawRect(
-                                    0, yStart + elementHeight * i,
-                                    width, yStart + elementHeight * (i + 1),
+                                    0, yStart + totalHeight,
+                                    width, yStart + totalHeight + height,
                                     0xDFA0AFFF
                             );
                         }
 
                         // Item text
-                        this.drawString(
-                                this.fontRenderer, name,
-                                HORIZONTAL_PADDING, yStart + elementHeight * i + ELEMENT_VERTICAL_MARGIN,
-                                color
+                        fontRenderer.drawSplitString(
+                                name, HORIZONTAL_PADDING, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
+                                innerWidth, color
                         );
-                        ++i;
+                        totalHeight += height;
                     }
                 }
                 if(j != categories.size() - 1) {
-                    // hr
+                    // horizontal line
                     Gui.drawRect(
-                            0, yStart + elementHeight * i,
-                            width, yStart + elementHeight * i + 1,
+                            0, yStart + totalHeight,
+                            width, yStart + totalHeight + 1,
                             0xA0FFFFFF
                     );
                 }
@@ -197,8 +195,8 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         float blue = (float)(colorARGB & 255) / 255.0F;
 
         int bottom = top + fontRenderer.FONT_HEIGHT;
-        int right = parent.elementWidth.get() - HORIZONTAL_PADDING;
-        int left = parent.elementWidth.get() - HORIZONTAL_PADDING - fontRenderer.FONT_HEIGHT;
+        int right = width - HORIZONTAL_PADDING;
+        int left = width - HORIZONTAL_PADDING - fontRenderer.FONT_HEIGHT;
 
         if(flip) {
             int temp = top; top = bottom; bottom = temp;
@@ -231,20 +229,22 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             return true;
         }
         else {
-            int i = 0;
+            int totalHeight = 0;
             for(SidebarDropdownCategory<T> category : categories) {
-                if(isMouseOnIndex(mouseX, mouseY, i)) {
+                if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight)) {
                     category.setOpened(!category.isOpened());
                     return true;
                 }
-                i++;
+                totalHeight += singleLineElementHeight;
                 if(category.isOpened()) {
                     for(T item : category.getItems()) {
-                        if(isMouseOnIndex(mouseX, mouseY, i)) {
+                        int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                                + ELEMENT_VERTICAL_MARGIN * 2;
+                        if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height)) {
                             value.set(item);
                             return true;
                         }
-                        ++i;
+                        totalHeight += height;
                     }
                 }
             }
@@ -254,21 +254,26 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
 
     private boolean mouseInBox(int mouseX, int mouseY) {
-        return mouseX >= 0 && mouseX <= parent.elementWidth.get() && mouseY >= 0 && mouseY <= height;
+        return mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= closedHeight;
     }
 
 
-    private boolean isMouseOnIndex(int mouseX, int mouseY, int index) {
+    private boolean isMouseOnIndex(int mouseX, int mouseY, int yMin, int yMax) {
         if(!opened) return false;
 
-        int yStart = height + DROPDOWN_VERTICAL_PADDING;
+        int yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
 
-        return mouseX >= 0 && mouseX <= parent.elementWidth.get() &&
-                mouseY >= yStart + elementHeight * index && mouseY < yStart + elementHeight * (index + 1);
+        return mouseX >= 0 && mouseX <= width &&
+                mouseY >= yStart + yMin && mouseY < yStart + yMax;
     }
 
 
-    @Override public void onWidthChange(int newWidth) {}
+    @Override public void onWidthChange(int newWidth) {
+        this.width = newWidth;
+        this.innerWidth = newWidth - HORIZONTAL_PADDING * 2;
+    }
+
+
     @Override public void updateScreen() {}
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void mouseReleased(int mouseX, int mouseY, int state) {}

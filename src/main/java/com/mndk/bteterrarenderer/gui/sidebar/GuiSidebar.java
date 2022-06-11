@@ -184,7 +184,7 @@ public class GuiSidebar extends GuiScreen {
     @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
-        this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 20;
+        this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 30;
         this.validateVerticalSlider();
     }
 
