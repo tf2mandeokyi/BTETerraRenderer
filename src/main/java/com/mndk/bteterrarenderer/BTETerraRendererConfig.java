@@ -17,6 +17,7 @@ public class BTETerraRendererConfig {
 
     @Config.Name("do_render")
     @Config.Comment("Set to true/false to enable/disable the map overlay.")
+    @Getter @Setter
     public static boolean doRender = true;
 
 

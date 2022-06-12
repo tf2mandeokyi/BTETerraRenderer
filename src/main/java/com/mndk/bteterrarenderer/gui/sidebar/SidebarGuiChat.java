@@ -85,9 +85,7 @@ public class SidebarGuiChat extends GuiChat {
     }
 
 
-    public boolean mouseClickResponse(int mouseX, int mouseY, int mouseButton) throws IOException {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-
+    public boolean mouseClickResponse(int mouseX, int mouseY, int mouseButton) {
         if (mouseButton == 0) {
             ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
             if (itextcomponent != null) return this.handleComponentClick(itextcomponent);

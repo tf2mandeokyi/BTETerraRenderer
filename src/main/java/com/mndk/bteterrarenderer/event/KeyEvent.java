@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class KeyEvent {
 
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent()
+	@SubscribeEvent
 	public static void onKeyEvent(InputEvent.KeyInputEvent event) {
 		
 		if(ClientProxy.mapOptionsKey.isPressed()) {
