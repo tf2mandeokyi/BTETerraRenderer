@@ -11,6 +11,7 @@ import com.mndk.bteterrarenderer.tile.url.DefaultTileURLConverter;
 import com.mndk.bteterrarenderer.tile.url.TileURLConverter;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.buildtheearth.terraplusplus.util.http.Http;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -23,7 +24,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -109,16 +111,13 @@ public class TileMapService {
             double playerX, double playerY, double playerZ,
             int tileDeltaX, int tileDeltaY
     ) {
-        TileImageCache cache = TileImageCache.getInstance();
-        int[] tileCoord;
-        double[] geoCoord, gameCoord;
-
         try {
-            geoCoord = Projections.getServerProjection().toGeo(playerX, playerZ);
-            tileCoord = this.tileProjection.geoCoordToTileCoord(geoCoord[0], geoCoord[1], relativeZoom);
+            double[] gameCoord, geoCoord = Projections.getServerProjection().toGeo(playerX, playerZ);
+            int[] tileCoord = this.tileProjection.geoCoordToTileCoord(geoCoord[0], geoCoord[1], relativeZoom);
             int tileX = tileCoord[0] + tileDeltaX, tileY = tileCoord[1] + tileDeltaY;
             final String tileKey = this.genTileKey(tileX, tileY, relativeZoom);
 
+            TileImageCache cache = TileImageCache.getInstance();
             cache.cacheAllImagesInQueue();
 
             // Return if the requested tile is still in the downloading state
@@ -156,7 +155,7 @@ public class TileMapService {
 
         } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {
-            BTETerraRenderer.logger.warn("Caught an Exception while rendering tile images", e);
+            BTETerraRenderer.logger.warn("Caught exception while rendering tile images", e);
         }
 
     }
@@ -165,18 +164,7 @@ public class TileMapService {
     private void downloadTile(String tileKey, String url) {
         TileImageCache cache = TileImageCache.getInstance();
         cache.setTileDownloadingState(tileKey, true);
-
-        this.downloadExecutor.execute(() -> {
-            BufferedImage image;
-            try {
-                ByteBufInputStream stream = new ByteBufInputStream(Http.get(url).get());
-                image = ImageIO.read(stream);
-            } catch(IOException | ExecutionException | InterruptedException e) {
-                image = SOMETHING_WENT_WRONG;
-            }
-            TileImageCache.getInstance().addImageToRenderQueue(tileKey, image);
-            cache.setTileDownloadingState(tileKey, false);
-        });
+        this.downloadExecutor.execute(new TileDownloadingTask(downloadExecutor, tileKey, url, 0));
     }
 
 
@@ -200,6 +188,47 @@ public class TileMapService {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+
+    @RequiredArgsConstructor
+    private static class TileDownloadingTask implements Runnable {
+
+        private static final Timer TIMER = new Timer();
+
+        private final ExecutorService es;
+        private final String tileKey, url;
+        private final int retry;
+
+        @Override
+        public void run() {
+            TileImageCache cache = TileImageCache.getInstance();
+            BufferedImage image;
+            boolean shouldRetry = false;
+
+            try {
+                ByteBufInputStream stream = new ByteBufInputStream(Http.get(url).get());
+                image = ImageIO.read(stream);
+            } catch (Exception e) {
+                BTETerraRenderer.logger.error("Caught an exception while downloading a tile image (" +
+                                "TileKey=" + tileKey + ", Retry #" + (retry+1) + ")", e);
+                image = null;
+                shouldRetry = true;
+            }
+            cache.addImageToRenderQueue(tileKey, image);
+            cache.setTileDownloadingState(tileKey, false);
+
+            if(shouldRetry && retry < 3) {
+                TIMER.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        cache.setTileDownloadingState(tileKey, true);
+                        es.execute(new TileDownloadingTask(es, tileKey, url, retry + 1));
+                    }
+                }, 1000);
+            }
+        }
+    }
+
 
     static {
         try {

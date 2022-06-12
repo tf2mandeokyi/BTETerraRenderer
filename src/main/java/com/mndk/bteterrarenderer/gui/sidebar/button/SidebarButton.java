@@ -53,7 +53,7 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override public void updateScreen() {}
-    @Override public void keyTyped(char key, int keyCode) {}
+    @Override public boolean keyTyped(char key, int keyCode) { return false; }
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
 }

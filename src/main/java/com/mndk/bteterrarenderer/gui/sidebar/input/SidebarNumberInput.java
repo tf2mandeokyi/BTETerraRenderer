@@ -4,8 +4,6 @@ import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
-import java.io.IOException;
-
 public class SidebarNumberInput extends GuiSidebarElement {
 
     private final GetterSetter<Double> value;
@@ -37,14 +35,14 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
        textField.mouseClicked(mouseX, mouseY, mouseButton);
        return false;
     }
 
     @Override
-    public void keyTyped(char key, int keyCode) throws IOException {
-        textField.textboxKeyTyped(key, keyCode);
+    public boolean keyTyped(char key, int keyCode) {
+        return textField.textboxKeyTyped(key, keyCode);
     }
 
     @Override public int getHeight() { return 20; }

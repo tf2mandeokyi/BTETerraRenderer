@@ -6,8 +6,6 @@ import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 
-import java.io.IOException;
-
 public class SidebarMapAligner extends GuiSidebarElement {
 
 
@@ -80,7 +78,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
         xInput.mouseClicked(mouseX, mouseY, mouseButton);
         zInput.mouseClicked(mouseX, mouseY, mouseButton);
         if(isMouseInAlignBox(mouseX, mouseY) && mouseButton == 0) {
@@ -123,7 +121,9 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
 
     @Override
-    public void keyTyped(char key, int keyCode) throws IOException {
-        xInput.textboxKeyTyped(key, keyCode); zInput.textboxKeyTyped(key, keyCode);
+    public boolean keyTyped(char key, int keyCode) {
+        boolean result = xInput.textboxKeyTyped(key, keyCode);
+        if(zInput.textboxKeyTyped(key, keyCode)) result = true;
+        return result;
     }
 }

@@ -55,14 +55,14 @@ public class BTETerraRendererConfig {
         public int zoom = 0;
 
         @Config.Name("size")
-        @Config.RangeInt(min = 1, max = 5)
-        @Config.SlidingOption
+        @Config.RangeInt(min = 1, max = 40)
         public int radius = 3;
 
         @Config.Name("y_diff_limit")
         @Config.Comment({
-                "If the difference between the player's y coordinate and the tile's y coordinate",
-                "reaches the limit, then the map will not be rendered."
+                "Puts limit on how far the map will be rendered from the player.",
+                "If the difference between the player's y coordinate and the map's y coordinate",
+                "exceeds the given limit, then the map rendering will be automatically stopped."
         })
         public double yDiffLimit = 1000;
 

@@ -1,18 +1,21 @@
 package com.mndk.bteterrarenderer.commands;
 
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
-
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.IClientCommand;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Deprecated
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class OpenConfigCommand extends CommandBase implements IClientCommand {
 
 	@Override
-	public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) throws CommandException {
+	public void execute(MinecraftServer var1, ICommandSender var2, String[] var3) {
 		MapRenderingOptionsUI.open(50); // TODO make a rendering scheduler or something to make this work
 	}
 

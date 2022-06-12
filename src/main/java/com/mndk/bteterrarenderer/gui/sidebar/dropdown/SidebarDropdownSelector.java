@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -223,7 +222,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if(mouseInBox(mouseX, mouseY)) {
             opened = !opened;
             return true;
@@ -277,6 +276,5 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     @Override public void updateScreen() {}
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
-
-    @Override public void keyTyped(char key, int keyCode) throws IOException {}
+    @Override public boolean keyTyped(char key, int keyCode) { return false; }
 }

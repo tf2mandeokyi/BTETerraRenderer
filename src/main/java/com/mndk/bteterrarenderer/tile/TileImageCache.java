@@ -12,11 +12,9 @@ import java.util.*;
  */
 public class TileImageCache {
 	
-	
-	
-	public static TileImageCache instance = new TileImageCache(1000 * 60 * 5, 10000);
-	public static TileImageCache getInstance() { return instance; }
 
+	public static final TileImageCache instance = new TileImageCache(1000 * 60 * 5, 10000);
+	public static TileImageCache getInstance() { return instance; }
 
 
 	private static final boolean DEBUG = false;
@@ -72,7 +70,13 @@ public class TileImageCache {
 			if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
 				this.deleteOldest();
 			}
-			int glId = initializeTile(image);
+			this.addTexture(tileKey, initializeTile(image));
+		}
+	}
+
+
+	public void addTexture(String tileKey, int glId) {
+		synchronized (this) {
 			glTextureIdMap.put(tileKey, new GLIdWrapper(glId, System.currentTimeMillis()));
 			log("Added texture " + tileKey + " (Size: " + glTextureIdMap.size() + ")");
 		}
@@ -174,19 +178,14 @@ public class TileImageCache {
 			String tileKey = entry.getKey();
 			BufferedImage image = entry.getValue();
 
-			if(image == TileMapService.SOMETHING_WENT_WRONG) {
-				// TODO
-			}
-			else {
-				try {
-					if (entry.getValue() != null) {
-						this.addTexture(tileKey, image);
-					}
-				} catch(Exception e) {
-					e.printStackTrace();
-					// Put the image data back to the queue if something went wrong
-					newList.add(new AbstractMap.SimpleEntry<>(tileKey, image));
+			try {
+				if (entry.getValue() != null) {
+					this.addTexture(tileKey, image);
 				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				// Put the image data back to the queue if something went wrong
+				newList.add(new AbstractMap.SimpleEntry<>(tileKey, image));
 			}
 		}
 

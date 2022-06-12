@@ -3,8 +3,6 @@ package com.mndk.bteterrarenderer.gui.sidebar;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 
-import java.io.IOException;
-
 public abstract class GuiSidebarElement extends Gui {
 
     public GuiSidebar parent;
@@ -30,10 +28,10 @@ public abstract class GuiSidebarElement extends Gui {
     public abstract void updateScreen();
     public abstract void drawScreen(int mouseX, int mouseY, float partialTicks);
 
-    public abstract boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException;
+    public abstract boolean mouseClicked(int mouseX, int mouseY, int mouseButton);
     public abstract void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick);
     public abstract void mouseReleased(int mouseX, int mouseY, int state);
 
-    public abstract void keyTyped(char key, int keyCode) throws IOException;
+    public abstract boolean keyTyped(char key, int keyCode);
 }
 

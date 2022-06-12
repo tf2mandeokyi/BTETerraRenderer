@@ -59,13 +59,13 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 // ===========================================================================================
                 new SidebarText(
                         I18n.format("gui.bteterrarenderer.new_settings.title"),
-                        SidebarText.TextAlignment.CENTER
+                        SidebarText.TextAlign.CENTER
                 ),
                 // ===========================================================================================
                 blank,
                 new SidebarText(
                         I18n.format("gui.bteterrarenderer.new_settings.general"),
-                        SidebarText.TextAlignment.LEFT
+                        SidebarText.TextAlign.LEFT
                 ),
                 hl,
                 // -------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 ),
                 // ===========================================================================================
                 blank,
-                new SidebarText(I18n.format("gui.bteterrarenderer.new_settings.map_source"), SidebarText.TextAlignment.LEFT),
+                new SidebarText(I18n.format("gui.bteterrarenderer.new_settings.map_source"), SidebarText.TextAlign.LEFT),
                 hl,
                 // -------------------------------------------------------------------------------------------
                 dropdown,
@@ -124,7 +124,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 ),
                 // ===========================================================================================
                 blank,
-                new SidebarText(I18n.format("gui.bteterrarenderer.new_settings.map_offset"), SidebarText.TextAlignment.LEFT),
+                new SidebarText(I18n.format("gui.bteterrarenderer.new_settings.map_offset"), SidebarText.TextAlign.LEFT),
                 hl,
                 // -------------------------------------------------------------------------------------------
                 new SidebarSlider(

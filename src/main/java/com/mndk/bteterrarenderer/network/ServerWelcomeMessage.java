@@ -42,7 +42,7 @@ public class ServerWelcomeMessage implements IMessage {
         }
     }
 
-    public GeographicProjection getProjection() throws IOException {
+    public GeographicProjection getProjection() {
         return GeographicProjection.parse(projectionJson);
     }
 }

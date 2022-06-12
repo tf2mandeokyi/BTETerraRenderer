@@ -2,24 +2,23 @@ package com.mndk.bteterrarenderer.gui.sidebar.decorator;
 
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
-import java.io.IOException;
 import java.util.List;
 
 public class SidebarText extends GuiSidebarElement {
 
     public final String displayString;
-    public final TextAlignment alignment;
+    public final TextAlign align;
     public final int color;
     private List<String> formattedStringList;
 
-    public SidebarText(String displayString, TextAlignment alignment, int color) {
+    public SidebarText(String displayString, TextAlign align, int color) {
         this.displayString = displayString;
         this.color = color;
-        this.alignment = alignment;
+        this.align = align;
     }
 
-    public SidebarText(String displayString, TextAlignment alignment) {
-        this(displayString, alignment, 0xFFFFFF);
+    public SidebarText(String displayString, TextAlign align) {
+        this(displayString, align, 0xFFFFFF);
     }
 
     @Override
@@ -42,20 +41,20 @@ public class SidebarText extends GuiSidebarElement {
 
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
-            if(alignment == TextAlignment.LEFT) {
+            if(align == TextAlign.LEFT) {
                 this.drawString(
                         fontRenderer, line,
                         0, i * fontRenderer.FONT_HEIGHT, 0xFFFFFF
                 );
             }
-            else if(alignment == TextAlignment.RIGHT) {
+            else if(align == TextAlign.RIGHT) {
                 this.drawString(
                         fontRenderer, line,
                         parent.elementWidth.get() - fontRenderer.getStringWidth(line),
                         i * fontRenderer.FONT_HEIGHT, 0xFFFFFF
                 );
             }
-            else if(alignment == TextAlignment.CENTER){
+            else if(align == TextAlign.CENTER){
                 this.drawCenteredString(
                         fontRenderer, line,
                         parent.elementWidth.get() / 2, i * fontRenderer.FONT_HEIGHT, 0xFFFFFF
@@ -66,12 +65,12 @@ public class SidebarText extends GuiSidebarElement {
 
 
     @Override public void updateScreen() {}
-    @Override public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException { return false; }
-    @Override public void keyTyped(char key, int keyCode) {}
+    @Override public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) { return false; }
+    @Override public boolean keyTyped(char key, int keyCode) { return false; }
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
 
-    public enum TextAlignment {
+    public enum TextAlign {
         LEFT, CENTER, RIGHT
     }
 }

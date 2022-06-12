@@ -1,11 +1,14 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.util.GetterSetter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.SoundEvents;
 import org.lwjgl.input.Mouse;
 
@@ -17,16 +20,18 @@ public class GuiSidebar extends GuiScreen {
 
 
     protected final List<GuiSidebarElement> elements;
-    public SidebarSide side;
-    public final int paddingSide;
-    public final int paddingTopBottom;
-    public final int elementDistance;
-    public int verticalSlider;
+    private SidebarSide side;
+    private final int paddingSide;
+    private final int paddingTopBottom;
+    private final int elementDistance;
+    private int verticalSlider;
 
-    public GetterSetter<Integer> elementWidth;
+    public final GetterSetter<Integer> elementWidth;
 
     private int totalHeight;
     private boolean widthChangingState;
+
+    private final SidebarGuiChat guiChat;
 
     private int initialMouseX = 0, initialElementWidth;
 
@@ -43,6 +48,7 @@ public class GuiSidebar extends GuiScreen {
         this.elementDistance = elementDistance;
         this.verticalSlider = 0;
         this.widthChangingState = false;
+        this.guiChat = new SidebarGuiChat();
 
         this.elementWidth = elementWidth;
     }
@@ -56,6 +62,8 @@ public class GuiSidebar extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
+        this.guiChat.initGui(this.mc, this.getScaledResolution());
+        this.guiChat.changeSideMargin(side, this.elementWidth.get() + 2 * this.paddingSide);
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
             element.initGui(this, this.fontRenderer);
@@ -70,12 +78,19 @@ public class GuiSidebar extends GuiScreen {
             if(element == null) continue;
             element.updateScreen();
         }
+        if(this.guiChat.isOpened()) {
+            this.guiChat.updateScreen();
+        }
     }
 
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        if(this.guiChat.isOpened()) {
+            this.guiChat.drawScreen(mouseX, mouseY, partialTicks);
+        }
 
         this.drawSidebarBackground(mouseX);
 
@@ -136,6 +151,12 @@ public class GuiSidebar extends GuiScreen {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
+        if(this.guiChat.isOpened()) {
+            if(this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton)) {
+                return;
+            }
+        }
+
         int sidebarWidth = elementWidth.get() + 2 * this.paddingSide;
         if(side == SidebarSide.RIGHT) {
             sidebarWidth = this.getScaledResolution().getScaledWidth() - sidebarWidth;
@@ -152,15 +173,15 @@ public class GuiSidebar extends GuiScreen {
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
                 if(element.mouseClicked(mx, mouseY - currentHeight, mouseButton)) {
-                    this.mc.getSoundHandler().
-                            playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                    this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(
+                            SoundEvents.UI_BUTTON_CLICK, 1.0F
+                    ));
                 }
                 currentHeight += element.getHeight() + this.elementDistance;
             }
         }
 
         this.initialMouseX = mouseX; this.initialElementWidth = elementWidth.get();
-        this.validateVerticalSlider();
     }
 
 
@@ -184,8 +205,28 @@ public class GuiSidebar extends GuiScreen {
     @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
-        this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 30;
-        this.validateVerticalSlider();
+        if(this.guiChat.isOpened() && !this.mouseOnSidebar(Mouse.getEventX() * this.width / this.mc.displayWidth)) {
+            this.guiChat.handleMouseInput();
+        } else {
+            this.verticalSlider -= Math.signum(Mouse.getEventDWheel()) * 30;
+            this.validateVerticalSlider();
+        }
+    }
+
+
+    private boolean mouseOnSidebar(int mouseX) {
+        ScaledResolution scaled = this.getScaledResolution();
+        int left, right;
+
+        if(this.side == SidebarSide.LEFT) {
+            left = 0;
+            right =  elementWidth.get() + 2 * this.paddingSide;
+        }
+        else {
+            left = scaled.getScaledWidth() - elementWidth.get() - 2 * this.paddingSide;
+            right = scaled.getScaledWidth();
+        }
+        return mouseX >= left && mouseX <= right;
     }
 
 
@@ -216,9 +257,28 @@ public class GuiSidebar extends GuiScreen {
     @Override
     protected void keyTyped(char key, int keyCode) throws IOException {
         super.keyTyped(key, keyCode);
-        for(GuiSidebarElement element : elements) {
-            if(element == null) continue;
-            element.keyTyped(key, keyCode);
+        if(this.guiChat.isOpened() && this.guiChat.keyTypedResponse(key, keyCode)) {
+            return;
+        }
+
+        boolean response = false;
+        for (GuiSidebarElement element : elements) {
+            if (element == null) continue;
+            if (element.keyTyped(key, keyCode)) response = true;
+        }
+        if (!response) {
+            GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
+            if(gameSettings.keyBindChat.getKeyCode() == keyCode) {
+                this.guiChat.setText("", true);
+            }
+            else if(gameSettings.keyBindCommand.getKeyCode() == keyCode) {
+                this.guiChat.setText("/", true);
+            }
+            else {
+                return;
+            }
+            this.guiChat.setOpened(true);
+            BTETerraRenderer.logger.info("Chat opened");
         }
     }
 
@@ -227,16 +287,18 @@ public class GuiSidebar extends GuiScreen {
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         if(widthChangingState) {
             int dMouseX = mouseX - initialMouseX;
-            int newWidth = initialElementWidth + (side == SidebarSide.LEFT ? dMouseX : -dMouseX);
-            if(newWidth > 270) newWidth = 270;
-            if(newWidth < 130) newWidth = 130;
+            int newElementWidth = initialElementWidth + (side == SidebarSide.LEFT ? dMouseX : -dMouseX);
+            if(newElementWidth > 270) newElementWidth = 270;
+            if(newElementWidth < 130) newElementWidth = 130;
 
-            elementWidth.set(newWidth);
+            elementWidth.set(newElementWidth);
 
             for(GuiSidebarElement element : elements) {
                 if(element == null) continue;
                 element.onWidthChange(elementWidth.get());
             }
+
+            this.guiChat.changeSideMargin(side, newElementWidth + 2 * this.paddingSide);
         }
         else {
             int mx = mouseX - this.getTranslateX();
@@ -250,8 +312,14 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
+    @Override
+    public void onGuiClosed() {
+        this.guiChat.setOpened(false);
+    }
+
+
     private ScaledResolution getScaledResolution() {
-        return new ScaledResolution(mc);
+        return new ScaledResolution(this.mc);
     }
 
 }

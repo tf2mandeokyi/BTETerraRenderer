@@ -13,7 +13,7 @@ public class Projections {
 	}
 
 	public static void setServerProjection(GeographicProjection proj) {
-		SERVER_PROJECTION = proj;
+		SERVER_PROJECTION = proj == null ? BTE : proj;
 	}
 
 	public static GeographicProjection getServerProjection() {

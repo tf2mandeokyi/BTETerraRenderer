@@ -6,7 +6,6 @@ import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraftforge.fml.client.config.GuiSlider;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 
 public class SidebarSlider extends GuiSidebarElement {
 
@@ -85,7 +84,7 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
         return this.slider.mousePressed(parent.mc, mouseX, mouseY);
     }
 
@@ -95,5 +94,5 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-    @Override public void keyTyped(char key, int keyCode) throws IOException {}
+    @Override public boolean keyTyped(char key, int keyCode) { return false; }
 }
