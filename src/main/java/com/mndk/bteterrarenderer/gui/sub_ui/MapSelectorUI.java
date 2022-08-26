@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.gui.sub_ui;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
-import com.mndk.bteterrarenderer.gui.util.ImageUiRenderer;
+import com.mndk.bteterrarenderer.gui.util.ImageUIRenderer;
 import com.mndk.bteterrarenderer.tile.TMSLoaderResult;
 import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
@@ -116,7 +116,7 @@ public class MapSelectorUI extends GuiSubScreen {
 				float u = (currentMapService == null ? 0 :currentMapService.getId().equals(map.getId()) ? 1/8.f : 0) +
 						(isMouseOnIndex(mouseX, mouseY, i) ? 1/16.f : 0);
 				
-				ImageUiRenderer.drawImage(RADIO_BUTTON_IMAGE,
+				ImageUIRenderer.drawImage(RADIO_BUTTON_IMAGE,
 						LIST_LEFT + LIST_PADDING,
 						c + h * i - 8,
 						0,

@@ -89,6 +89,10 @@ public class SidebarGuiChat extends GuiChat {
         if (mouseButton == 0) {
             ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
             if (itextcomponent != null) return this.handleComponentClick(itextcomponent);
+
+            this.inputField.setFocused(
+                    mouseX >= this.left && mouseX <= this.right && mouseY >= this.height - 16 && mouseY <= this.height
+            );
         }
 
         return this.inputField.mouseClicked(mouseX, mouseY, mouseButton);

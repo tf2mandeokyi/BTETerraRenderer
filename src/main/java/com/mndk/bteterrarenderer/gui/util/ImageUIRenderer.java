@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-public class ImageUiRenderer {
+public class ImageUIRenderer {
 
 	public static void drawImage(ResourceLocation res, int x, int y, float zLevel, int w, int h, float u1, float v1, float u2, float v2) {
 
