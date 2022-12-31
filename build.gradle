@@ -93,7 +93,7 @@ dependencies {
     }
     compile 'com.github.BuildTheEarth:terraplusplus:15747b869204f31e7ecac57bac32d65d55939840'
 
-    shade 'org.yaml:snakeyaml:1.30'
+    shade 'org.yaml:snakeyaml:1.33'
     shade 'org.osgeo:proj4j:0.1.0'
 
     testCompile "junit:junit:4.13.2"

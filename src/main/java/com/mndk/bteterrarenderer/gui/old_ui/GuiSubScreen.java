@@ -1,6 +1,5 @@
-package com.mndk.bteterrarenderer.gui.sub_ui;
+package com.mndk.bteterrarenderer.gui.old_ui;
 
-import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;

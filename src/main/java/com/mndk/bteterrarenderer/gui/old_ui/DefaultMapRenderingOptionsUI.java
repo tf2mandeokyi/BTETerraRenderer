@@ -1,7 +1,6 @@
-package com.mndk.bteterrarenderer.gui.sub_ui;
+package com.mndk.bteterrarenderer.gui.old_ui;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;

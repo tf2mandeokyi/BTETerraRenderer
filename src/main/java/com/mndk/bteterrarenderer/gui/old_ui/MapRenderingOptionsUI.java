@@ -1,9 +1,6 @@
-package com.mndk.bteterrarenderer.gui;
+package com.mndk.bteterrarenderer.gui.old_ui;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.gui.sub_ui.DefaultMapRenderingOptionsUI;
-import com.mndk.bteterrarenderer.gui.sub_ui.MapAlignerUI;
-import com.mndk.bteterrarenderer.gui.sub_ui.MapSelectorUI;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

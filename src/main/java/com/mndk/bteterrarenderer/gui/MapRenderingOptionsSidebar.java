@@ -90,7 +90,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         );
         SidebarMapAligner mapAligner = new SidebarMapAligner(
                 GetterSetter.from(RENDER_SETTINGS::getXAlign, RENDER_SETTINGS::setXAlign),
-                GetterSetter.from(RENDER_SETTINGS::getZAlign, RENDER_SETTINGS::setZAlign)
+                GetterSetter.from(RENDER_SETTINGS::getZAlign, RENDER_SETTINGS::setZAlign),
+                GetterSetter.from(RENDER_SETTINGS::isLockNorth, RENDER_SETTINGS::setLockNorth)
         );
 
 

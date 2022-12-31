@@ -17,7 +17,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override
-	public void execute(MinecraftServer arg0, ICommandSender arg1, String[] arg2) {
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
 		BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
 		BTETerraRendererConfig.save();
 	}

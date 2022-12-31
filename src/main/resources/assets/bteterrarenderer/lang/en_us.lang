@@ -34,3 +34,4 @@ gui.bteterrarenderer.new_settings.map_folder=Open maps folder...
 gui.bteterrarenderer.new_settings.map_offset=Map Offset
 gui.bteterrarenderer.new_settings.size=Map Size
 gui.bteterrarenderer.new_settings.zoom=Map Zoom
+gui.bteterrarenderer.new_settings.lock_north=Lock North

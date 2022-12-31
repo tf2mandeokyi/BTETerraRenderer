@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
-import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
+import com.mndk.bteterrarenderer.gui.old_ui.MapRenderingOptionsUI;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
 import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
 import net.minecraftforge.fml.common.Mod;

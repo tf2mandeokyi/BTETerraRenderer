@@ -39,6 +39,10 @@ public class BTETerraRendererConfig {
         @Config.Comment("The amount of which the map is offset along the Z-axis")
         public double zAlign = 0;
 
+        @Config.Name("lock_north")
+        @Config.Comment("Whether to lock the direction of the map aligner to north")
+        public boolean lockNorth = false;
+
         @Config.Name("y_axis")
         @Config.Comment("The y-coordinate at which the map is rendered")
         public double yAxis = 4;

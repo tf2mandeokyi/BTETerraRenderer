@@ -1,9 +1,8 @@
-package com.mndk.bteterrarenderer.gui.sub_ui;
+package com.mndk.bteterrarenderer.gui.old_ui;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.gui.MapRenderingOptionsUI;
-import com.mndk.bteterrarenderer.gui.util.ImageUIRenderer;
+import com.mndk.bteterrarenderer.util.gui.GuiUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
@@ -140,7 +139,7 @@ public class MapAlignerUI extends GuiSubScreen {
 				imageTop + ((ALIGNMENT_IMAGE_HEIGHT - this.fontRenderer.FONT_HEIGHT) / 2), 0xFFFFFF);
 
 		// Alignment image
-		ImageUIRenderer.drawImage(ALIGNMENT_IMAGE_RELOC, imageLeft, imageTop, this.zLevel, ALIGNMENT_IMAGE_WIDTH,
+		GuiUtils.drawImage(ALIGNMENT_IMAGE_RELOC, imageLeft, imageTop, this.zLevel, ALIGNMENT_IMAGE_WIDTH,
 				ALIGNMENT_IMAGE_HEIGHT);
 
 		// Alignment marker
@@ -152,7 +151,7 @@ public class MapAlignerUI extends GuiSubScreen {
 				marker_pos_y = (int) (y1 + parent.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT);
 
 		// Alignment marker
-		ImageUIRenderer.drawCenteredImage(ALIGNMENT_MARKER_RELOC, marker_pos_x, marker_pos_y, this.zLevel, 4, 4);
+		GuiUtils.drawCenteredImage(ALIGNMENT_MARKER_RELOC, marker_pos_x, marker_pos_y, this.zLevel, 4, 4);
 	}
 
 

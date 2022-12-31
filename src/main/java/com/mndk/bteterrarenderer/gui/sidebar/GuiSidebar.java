@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -278,7 +277,6 @@ public class GuiSidebar extends GuiScreen {
                 return;
             }
             this.guiChat.setOpened(true);
-            BTETerraRenderer.logger.info("Chat opened");
         }
     }
 
@@ -318,7 +316,7 @@ public class GuiSidebar extends GuiScreen {
     }
 
 
-    private ScaledResolution getScaledResolution() {
+    public ScaledResolution getScaledResolution() {
         return new ScaledResolution(this.mc);
     }
 
