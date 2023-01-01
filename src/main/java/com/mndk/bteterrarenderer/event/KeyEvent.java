@@ -5,8 +5,9 @@ import com.mndk.bteterrarenderer.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.chat.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.gui.old_ui.MapRenderingOptionsUI;
+import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.proxy.ClientProxy;
-import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -22,10 +23,11 @@ public class KeyEvent {
 		
 		if(ClientProxy.mapOptionsKey.isPressed()) {
 
-			try { TMSYamlLoader.refresh(); } catch (Exception e) {
-				ErrorMessageHandler.sendToClient("Error caught while parsing yaml map files! " +
-						"(Reason: " + e.getMessage() + ")");
-				e.printStackTrace();
+			try {
+				ProjectionYamlLoader.INSTANCE.refresh();
+				TMSYamlLoader.INSTANCE.refresh();
+			} catch (Exception e) {
+				ErrorMessageHandler.sendToClient("Error caught while parsing yaml map files!", e);
 			}
 
 			if(BTETerraRendererConfig.UI_SETTINGS.oldUi) {

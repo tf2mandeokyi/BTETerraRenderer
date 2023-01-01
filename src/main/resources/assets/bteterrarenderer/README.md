@@ -85,5 +85,5 @@ To add a projection you want in this mod, make a suggestion/PR of it.
 
 Requirements: 
 * Projection classes should be located in the package `com.mndk.bteterrarenderer.tile.proj`
-* They all must be subclasses of `com.mndk.bteterrarenderer.tile.proj.TileProjection`
+* They all must be subclasses of `com.mndk.bteterrarenderer.projection.TileProjection`
 * They all should be registered in the static method `com.mndk.bteterrarenderer.tile.TileMapService.getTileProjection()`

@@ -13,4 +13,10 @@ public class ErrorMessageHandler {
         BTETerraRenderer.logger.error(message);
     }
 
+    public static void sendToClient(String message, Throwable t) {
+        sendToClient(message);
+        sendToClient("Reason: " + t.getMessage());
+        t.printStackTrace();
+    }
+
 }

@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-public class SidebarDropdownSelector<T> extends GuiSidebarElement {
+public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends GuiSidebarElement {
 
 
     private static final int HORIZONTAL_PADDING = 12;
@@ -25,7 +25,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
     private final GetterSetter<T> value;
     private final Function<T, String> nameGetter;
-    private final List<SidebarDropdownCategory<T>> categories;
+    private final List<DropdownCategory<T>> categories;
     private boolean opened = false;
 
     private int closedHeight, singleLineElementHeight, width, innerWidth;
@@ -38,17 +38,17 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
 
-    public List<SidebarDropdownCategory<T>> getCategories() {
+    public List<DropdownCategory<T>> getCategories() {
         return this.categories;
     }
 
 
-    public void addCategory(SidebarDropdownCategory<T> category) {
+    public void addCategory(DropdownCategory<T> category) {
         this.categories.add(category);
     }
 
 
-    public void addCategories(Collection<? extends SidebarDropdownCategory<T>> categories) {
+    public void addCategories(Collection<? extends DropdownCategory<T>> categories) {
         this.categories.addAll(categories);
     }
 
@@ -71,7 +71,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     public int getHeight() {
         if(!opened) return closedHeight;
         int dy = 0;
-        for(SidebarDropdownCategory<T> category : categories) {
+        for(DropdownCategory<T> category : categories) {
             dy += singleLineElementHeight;
             if(category.isOpened()) {
                 for(T item : category.getItems()) {
@@ -123,7 +123,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             int yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
 
             for(int j = 0; j < categories.size(); ++j) {
-                SidebarDropdownCategory<T> category = categories.get(j);
+                DropdownCategory<T> category = categories.get(j);
                 String categoryName = category.getName();
                 int categoryColor = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight) 
                         ? 0xFFFFFFA0 : 0xFFFFFFFF;
@@ -229,7 +229,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         }
         else {
             int totalHeight = 0;
-            for(SidebarDropdownCategory<T> category : categories) {
+            for(DropdownCategory<T> category : categories) {
                 if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight)) {
                     category.setOpened(!category.isOpened());
                     return true;

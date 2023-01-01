@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.tile.proj;
+package com.mndk.bteterrarenderer.projection;
 
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +45,8 @@ public abstract class TileProjection {
 
         return this.toTileCoord(longitude, latitude, defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));
     }
-
-
     protected abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom)
             throws OutOfProjectionBoundsException;
-
 
 
     /**
@@ -65,11 +62,12 @@ public abstract class TileProjection {
 
         return this.toGeoCoord(tileX, tileY, defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));
     }
-
-
     protected abstract double[] toGeoCoord(int tileX, int tileY, int absoluteZoom)
             throws OutOfProjectionBoundsException;
 
+
+    @Override
+    public abstract TileProjection clone() throws CloneNotSupportedException;
 
 
     public int[] getCornerMatrix(int i) {

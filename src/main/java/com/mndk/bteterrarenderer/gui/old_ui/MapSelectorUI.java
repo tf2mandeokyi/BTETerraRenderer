@@ -2,10 +2,10 @@ package com.mndk.bteterrarenderer.gui.old_ui;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.util.gui.GuiUtils;
-import com.mndk.bteterrarenderer.tile.TMSLoaderResult;
-import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategory;
+import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
+import com.mndk.bteterrarenderer.util.gui.GuiUtils;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -57,9 +57,9 @@ public class MapSelectorUI extends GuiSubScreen {
 		LIST_WIDTH = 0;
 		clickableElementList.clear();
 		
-		for(TMSLoaderResult.Category category : TMSYamlLoader.result.getCategories()) {
+		for(DropdownCategory<TileMapService> category : TMSYamlLoader.INSTANCE.result.getData()) {
 			clickableElementList.add(category.getName());
-			for(TileMapService map : category.getMaps()) {
+			for(TileMapService map : category.getItems()) {
 				clickableElementList.add(map);
 				tempWidth = this.fontRenderer.getStringWidth(map.getName());
 				LIST_WIDTH = Math.max(LIST_WIDTH, tempWidth);

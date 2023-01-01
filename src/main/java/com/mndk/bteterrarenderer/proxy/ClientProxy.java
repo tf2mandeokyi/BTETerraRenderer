@@ -2,7 +2,8 @@ package com.mndk.bteterrarenderer.proxy;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
-import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
+import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -14,8 +15,7 @@ import org.lwjgl.input.Keyboard;
 
 public class ClientProxy extends CommonProxy {
 
-	// TODO delete "sidebarCheck" before release
-	public static KeyBinding mapOptionsKey, mapToggleKey, sidebarCheck;
+	public static KeyBinding mapOptionsKey, mapToggleKey;
 
 	public static void initializeKeys() {
 		ClientRegistry.registerKeyBinding(mapOptionsKey = new KeyBinding(
@@ -35,7 +35,9 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		try {
-			TMSYamlLoader.refresh(event.getModConfigurationDirectory().getAbsolutePath());
+			String modConfigDirectory = event.getModConfigurationDirectory().getAbsolutePath();
+			ProjectionYamlLoader.INSTANCE.refresh(modConfigDirectory);
+			TMSYamlLoader.INSTANCE.refresh(modConfigDirectory);
 		} catch(Exception e) {
 			BTETerraRenderer.logger.error("Error caught while parsing map yaml files!");
 			e.printStackTrace();

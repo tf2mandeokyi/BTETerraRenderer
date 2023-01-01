@@ -1,14 +1,10 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategoryElement;
+import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
-import com.mndk.bteterrarenderer.tile.proj.KakaoTileProjection;
-import com.mndk.bteterrarenderer.tile.proj.TileProjection;
-import com.mndk.bteterrarenderer.tile.proj.WebMercatorProjection;
-import com.mndk.bteterrarenderer.tile.proj.WorldMercatorProjection;
-import com.mndk.bteterrarenderer.tile.url.BingURLConverter;
-import com.mndk.bteterrarenderer.tile.url.DefaultTileURLConverter;
-import com.mndk.bteterrarenderer.tile.url.TileURLConverter;
+import com.mndk.bteterrarenderer.projection.TileProjection;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +18,14 @@ import org.lwjgl.opengl.GL11;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TileMapService {
+public class TileMapService implements DropdownCategoryElement {
 
 
+    public static final int RETRY_COUNT = 1;
     public static final int DEFAULT_ZOOM = 18;
     static final int DEFAULT_MAX_THREAD = 2;
     public static BufferedImage SOMETHING_WENT_WRONG;
@@ -62,8 +56,8 @@ public class TileMapService {
         this.urlTemplate = (String) jsonObject.get("tile_url");
 
         String projectionId = (String) jsonObject.get("projection");
-        this.tileProjection = Objects.requireNonNull(getTileProjection(projectionId));
-        this.urlConverter = getTileURLConverter(projectionId);
+        this.tileProjection = ProjectionYamlLoader.INSTANCE.result.get(projectionId).clone();
+        this.urlConverter = new TileURLConverter();
 
         if(jsonObject.containsKey("default_zoom")) {
             int defaultZoom = (int) jsonObject.get("default_zoom");
@@ -81,26 +75,6 @@ public class TileMapService {
 
         int maxThread = (int) jsonObject.getOrDefault("max_thread", DEFAULT_MAX_THREAD);
         this.downloadExecutor = Executors.newFixedThreadPool(maxThread);
-    }
-
-
-    private static TileProjection getTileProjection(String projectionId) {
-        switch(projectionId.toLowerCase()) {
-            case "webmercator":
-            case "mercator":
-            case "bing": return new WebMercatorProjection();
-            case "worldmercator": return new WorldMercatorProjection();
-            case "kakao_wtm": return new KakaoTileProjection();
-            default: return null;
-        }
-    }
-
-
-    private static TileURLConverter getTileURLConverter(String projectionId) {
-        if ("bing".equalsIgnoreCase(projectionId)) {
-            return new BingURLConverter();
-        }
-        return new DefaultTileURLConverter();
     }
 
 
@@ -202,26 +176,28 @@ public class TileMapService {
         @Override
         public void run() {
             TileImageCache cache = TileImageCache.getInstance();
-            BufferedImage image;
             boolean shouldRetry = false;
 
-            try {
-                ByteBufInputStream stream = new ByteBufInputStream(Http.get(url).get());
-                image = ImageIO.read(stream);
-            } catch (Exception e) {
-                BTETerraRenderer.logger.error("Caught an exception while downloading a tile image (" +
-                                "TileKey=" + tileKey + ", Retry #" + (retry+1) + ")", e);
-                image = null;
-                shouldRetry = true;
+            if (retry >= RETRY_COUNT+1) {
+                cache.addImageToRenderQueue(tileKey, SOMETHING_WENT_WRONG);
+                cache.setTileDownloadingState(tileKey, false);
             }
-            cache.addImageToRenderQueue(tileKey, image);
-            cache.setTileDownloadingState(tileKey, false);
+            else {
+                try {
+                    ByteBufInputStream stream = new ByteBufInputStream(Http.get(url).get());
+                    cache.addImageToRenderQueue(tileKey, ImageIO.read(stream));
+                    cache.setTileDownloadingState(tileKey, false);
+                } catch (Exception e) {
+                    BTETerraRenderer.logger.error("Caught exception while downloading a tile image (" +
+                            "TileKey=" + tileKey + ", Retry #" + (retry + 1) + ")");
+                    shouldRetry = true;
+                }
+            }
 
-            if(shouldRetry && retry < 3) {
+            if (shouldRetry) {
                 TIMER.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        cache.setTileDownloadingState(tileKey, true);
                         es.execute(new TileDownloadingTask(es, tileKey, url, retry + 1));
                     }
                 }, 1000);

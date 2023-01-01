@@ -11,10 +11,11 @@ import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarButton;
 import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarHorizontalLine;
 import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarText;
 import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarText.TextAlign;
-import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownCategory;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategory;
 import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownSelector;
 import com.mndk.bteterrarenderer.gui.sidebar.slider.SidebarSlider;
-import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
+import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraft.client.Minecraft;
@@ -67,7 +68,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 tms -> "default".equalsIgnoreCase(tms.getSource()) ?
                         tms.getName() : "[§7" + tms.getSource() + "§r]\n" + tms.getName()
         );
-        this.mapSourceDropdown.addCategories(TMSYamlLoader.result.getCategories());
+        this.mapSourceDropdown.addCategories(TMSYamlLoader.INSTANCE.result.getData());
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18n.format("gui.bteterrarenderer.new_settings.map_reload"),
                 (self, mouseButton) -> this.reloadMaps()
@@ -127,13 +128,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private void reloadMaps() {
         try {
             Map<String, Boolean> opened = new HashMap<>();
-            for(SidebarDropdownCategory<TileMapService> category : mapSourceDropdown.getCategories()) {
+            for(DropdownCategory<TileMapService> category : mapSourceDropdown.getCategories()) {
                 opened.put(category.getName(), category.isOpened());
             }
-            TMSYamlLoader.refresh();
+
+            ProjectionYamlLoader.INSTANCE.refresh();
+            TMSYamlLoader.INSTANCE.refresh();
+
             mapSourceDropdown.clearCategories();
-            mapSourceDropdown.addCategories(TMSYamlLoader.result.getCategories());
-            for(SidebarDropdownCategory<TileMapService> category : mapSourceDropdown.getCategories()) {
+            mapSourceDropdown.addCategories(TMSYamlLoader.INSTANCE.result.getData());
+            for(DropdownCategory<TileMapService> category : mapSourceDropdown.getCategories()) {
                 if(opened.get(category.getName())) {
                     category.setOpened(true);
                 }
@@ -147,7 +151,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private void openMapsFolder() {
         try {
             if(Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(TMSYamlLoader.getMapFilesDirectory());
+                Desktop.getDesktop().open(TMSYamlLoader.INSTANCE.getMapFilesDirectory());
             }
         } catch(Exception ignored) {}
     }

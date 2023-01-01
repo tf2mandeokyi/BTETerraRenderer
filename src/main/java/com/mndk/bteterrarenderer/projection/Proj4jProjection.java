@@ -28,7 +28,7 @@ public class Proj4jProjection implements GeographicProjection {
 		this.toTargetCrs = ctFactory.createTransform(WGS84, targetCrs);
 	}
 
-	public Proj4jProjection(String crsName, String[] crsParameter) {
+	public Proj4jProjection(String crsName, String crsParameter) {
 		this(crsFactory.createFromParameters(crsName, crsParameter));
 	}
 

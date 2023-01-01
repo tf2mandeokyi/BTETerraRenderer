@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer;
 
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.tile.TMSYamlLoader;
+import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.Getter;
 import lombok.Setter;
@@ -103,7 +103,7 @@ public class BTETerraRendererConfig {
          * I couldn't put this in the main class, so I made a subclass BTRConfig.ConfigDataCache and put the
          * tms variable here.
          */
-        private static TileMapService tileMapService = TMSYamlLoader.result.getTileMap(mapServiceId);
+        private static TileMapService tileMapService = TMSYamlLoader.INSTANCE.result.getTileMap(mapServiceId);
     }
 
     public static TileMapService getTileMapService() {
@@ -116,7 +116,7 @@ public class BTETerraRendererConfig {
     }
 
     private static void refreshTileMapService() {
-        ConfigDataCache.tileMapService = TMSYamlLoader.result.getTileMap(mapServiceId);
+        ConfigDataCache.tileMapService = TMSYamlLoader.INSTANCE.result.getTileMap(mapServiceId);
     }
 
 

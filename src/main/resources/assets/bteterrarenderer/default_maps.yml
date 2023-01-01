@@ -11,13 +11,13 @@ categories:
       bing_aerial:
          name: "Bing Maps (Satellite)"
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill
-         projection: bing
+         projection: webmercator
          max_thread: 2
 
       bing_plain:
          name: "Bing Maps"
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill
-         projection: bing
+         projection: webmercator
          max_thread: 2
 
       yandex_aerial:
@@ -39,7 +39,7 @@ categories:
       kakao_aerial:
          name: "Kakao Map (Satellite)"
          tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_skyview/L{z}/{y}/{x}.jpg
-         projection: kakao_wtm
+         projection: kakaoprojection
          max_thread: 2
          default_zoom: 1
          invert_lat: true
@@ -48,7 +48,7 @@ categories:
       kakao_plain:
          name: "Kakao Map"
          tile_url: http://map{random:0,1,2,3}.daumcdn.net/map_2d/2012tlq/L{z}/{y}/{x}.png
-         projection: kakao_wtm
+         projection: kakaoprojection
          max_thread: 2
          default_zoom: 1
          invert_lat: true
