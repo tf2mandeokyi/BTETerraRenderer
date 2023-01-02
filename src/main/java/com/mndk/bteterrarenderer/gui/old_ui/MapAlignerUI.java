@@ -76,9 +76,9 @@ public class MapAlignerUI extends GuiSubScreen {
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.settings.zoom") + ": ", "",
 				-3, 3,
-				BTETerraRendererConfig.RENDER_SETTINGS.zoom,
+				BTETerraRendererConfig.RENDER_SETTINGS.getZoom(),
 				false, true,
-				slider -> BTETerraRendererConfig.RENDER_SETTINGS.zoom = slider.getValueInt()
+				slider -> BTETerraRendererConfig.RENDER_SETTINGS.setZoom(slider.getValueInt())
 		));
 		
 		
@@ -90,9 +90,9 @@ public class MapAlignerUI extends GuiSubScreen {
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.settings.size") + ": ", "",
 				1, 5,
-				BTETerraRendererConfig.RENDER_SETTINGS.radius,
+				BTETerraRendererConfig.RENDER_SETTINGS.getRadius(),
 				false, true,
-				slider -> BTETerraRendererConfig.RENDER_SETTINGS.radius = slider.getValueInt()
+				slider -> BTETerraRendererConfig.RENDER_SETTINGS.setRadius(slider.getValueInt())
 		));
 	}
 
@@ -101,9 +101,9 @@ public class MapAlignerUI extends GuiSubScreen {
 	@Override
 	public void actionPerformed(GuiButton button) {
 		if (button == xAlignResetButton) {
-			BTETerraRendererConfig.RENDER_SETTINGS.xAlign = 0;
+			BTETerraRendererConfig.RENDER_SETTINGS.setXAlign(0);
 		} else if (button == zAlignResetButton) {
-			BTETerraRendererConfig.RENDER_SETTINGS.zAlign = 0;
+			BTETerraRendererConfig.RENDER_SETTINGS.setZAlign(0);
 		}
 	}
 
@@ -117,9 +117,9 @@ public class MapAlignerUI extends GuiSubScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		String xAlignString = I18n.format("gui.bteterrarenderer.settings.x_align") + ": "
-				+ BTETerraRendererConfig.RENDER_SETTINGS.xAlign + "m";
+				+ BTETerraRendererConfig.RENDER_SETTINGS.getXAlign() + "m";
 		String zAlignString = I18n.format("gui.bteterrarenderer.settings.z_align") + ": "
-				+ BTETerraRendererConfig.RENDER_SETTINGS.zAlign + "m";
+				+ BTETerraRendererConfig.RENDER_SETTINGS.getZAlign() + "m";
 
 		int imageRight = parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT, imageLeft = imageRight - ALIGNMENT_IMAGE_WIDTH;
 		int imageBottom = parent.height - ALIGNMENT_IMAGE_HEIGHT, imageTop = imageBottom - ALIGNMENT_IMAGE_MARGIN_BOTTOM;
@@ -143,9 +143,9 @@ public class MapAlignerUI extends GuiSubScreen {
 				ALIGNMENT_IMAGE_HEIGHT);
 
 		// Alignment marker
-		double x1 = -ALIGNMENT_IMAGE_WIDTH * (BTETerraRendererConfig.RENDER_SETTINGS.xAlign - MAX_IMAGE_ALIGNMENT_VALUE)
+		double x1 = -ALIGNMENT_IMAGE_WIDTH * (BTETerraRendererConfig.RENDER_SETTINGS.getXAlign() - MAX_IMAGE_ALIGNMENT_VALUE)
 				/ IMAGE_ALIGNMENT_VALUE_RANGE,
-				y1 = -ALIGNMENT_IMAGE_HEIGHT * (BTETerraRendererConfig.RENDER_SETTINGS.zAlign - MAX_IMAGE_ALIGNMENT_VALUE)
+				y1 = -ALIGNMENT_IMAGE_HEIGHT * (BTETerraRendererConfig.RENDER_SETTINGS.getZAlign() - MAX_IMAGE_ALIGNMENT_VALUE)
 						/ IMAGE_ALIGNMENT_VALUE_RANGE;
 		int marker_pos_x = (int) (x1 + parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - ALIGNMENT_IMAGE_WIDTH),
 				marker_pos_y = (int) (y1 + parent.height - ALIGNMENT_IMAGE_MARGIN_BOTTOM - ALIGNMENT_IMAGE_HEIGHT);
@@ -194,10 +194,12 @@ public class MapAlignerUI extends GuiSubScreen {
 	private void mouseXYToXZAlign(int mouseX, int mouseY) {
 		int x1 = mouseX - parent.width + ALIGNMENT_IMAGE_MARGIN_RIGHT + ALIGNMENT_IMAGE_WIDTH,
 				y1 = mouseY - parent.height + ALIGNMENT_IMAGE_MARGIN_BOTTOM + ALIGNMENT_IMAGE_HEIGHT;
-		BTETerraRendererConfig.RENDER_SETTINGS.xAlign =
-				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH;
-		BTETerraRendererConfig.RENDER_SETTINGS.zAlign =
-				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT;
+		BTETerraRendererConfig.RENDER_SETTINGS.setXAlign(
+				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * x1 / (float) ALIGNMENT_IMAGE_WIDTH
+		);
+		BTETerraRendererConfig.RENDER_SETTINGS.setZAlign(
+				MAX_IMAGE_ALIGNMENT_VALUE - IMAGE_ALIGNMENT_VALUE_RANGE * y1 / (float) ALIGNMENT_IMAGE_HEIGHT
+		);
 	}
 	
 }

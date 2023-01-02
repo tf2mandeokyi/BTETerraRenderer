@@ -33,7 +33,7 @@ public class RenderEvent {
 		final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-		if(BTETerraRendererConfig.doRender) {
+		if(BTETerraRendererConfig.isDoRender()) {
 			try {
 				renderTiles(BTETerraRendererConfig.getTileMapService(), px, py, pz);
 			} catch(IllegalArgumentException exception) {
@@ -58,7 +58,8 @@ public class RenderEvent {
 
 		BTETerraRendererConfig.RenderSettings settings = BTETerraRendererConfig.RENDER_SETTINGS;
 
-		if(settings.yAxis <= py - settings.yDiffLimit || settings.yAxis >=py + settings.yDiffLimit) {
+		double yDiff = settings.getYAxis() - py;
+		if(Math.abs(yDiff) >= settings.getYDiffLimit()) {
 			return;
 		}
 
@@ -72,16 +73,16 @@ public class RenderEvent {
 
 		GlStateManager.scale(1, 1, 1);
 
-		int size = settings.radius - 1;
+		int size = settings.getRadius() - 1;
 
 		BiConsumer<Integer, Integer> drawTile = (dx, dy) -> {
 			if(Math.abs(dx) > size || Math.abs(dy) > size) return;
 			tms.renderTile(
 					t, builder,
-					settings.zoom,
-					settings.yAxis + 0.1, // Adding .1 to y because of texture-overlapping issue
-					(float) settings.opacity,
-					px + settings.xAlign, py, pz + settings.zAlign,
+					settings.getZoom(),
+					settings.getYAxis() + 0.1, // Adding .1 to y because of texture-overlapping issue
+					(float) settings.getOpacity(),
+					px + settings.getXAlign(), py, pz + settings.getZAlign(),
 					dx, dy
 			);
 		};

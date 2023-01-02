@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer;
 
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
+import com.mndk.bteterrarenderer.tile.TileImageCache;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,14 +16,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class BTETerraRendererConfig {
 
 
-    @Config.Name("do_render")
-    @Config.Comment("Set to true/false to enable/disable the map overlay.")
+    @Config.Ignore
     @Getter @Setter
-    public static boolean doRender = true;
+    private static boolean doRender = false;
+    public static boolean toggleRender() {
+        doRender = !doRender;
+        return doRender;
+    }
 
 
     @Config.Name("map_service_id")
-    public static String mapServiceId = "osm";
+    public static String mapServiceId = "default.Global.osm";
 
 
     @Config.Name("render_settings")
@@ -54,10 +58,14 @@ public class BTETerraRendererConfig {
         public double opacity = 0.7;
 
         @Config.Name("zoom")
-        @Config.Comment("The higher the value is, the more the map's resolution will increase.")
+        @Config.Comment("The higher the value, the more the map's resolution will increase.")
         @Config.RangeInt(min = -3, max = 3)
         @Config.SlidingOption
         public int zoom = 0;
+        public void setZoom(int newZoom) {
+            this.zoom = newZoom;
+            TileImageCache.getInstance().deleteAllRenderQueues();
+        }
 
         @Config.Name("size")
         @Config.RangeInt(min = 1, max = 40)
@@ -113,6 +121,7 @@ public class BTETerraRendererConfig {
     public static void setTileMapService(TileMapService service) {
         ConfigDataCache.tileMapService = service;
         mapServiceId = service.getId();
+        TileImageCache.getInstance().deleteAllRenderQueues();
     }
 
     private static void refreshTileMapService() {

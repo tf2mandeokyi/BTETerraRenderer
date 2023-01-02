@@ -13,6 +13,9 @@ import java.util.*;
 public class TileImageCache {
 	
 
+	private static final int CACHE_AT_A_TIME = 5;
+
+
 	public static final TileImageCache instance = new TileImageCache(1000 * 60 * 5, 10000);
 	public static TileImageCache getInstance() { return instance; }
 
@@ -47,19 +50,23 @@ public class TileImageCache {
 	}
 
 
-	public void setTileDownloadingState(String tileKey, boolean state) {
-		synchronized (downloadingTileKeys) {
-			if(state) {
-				downloadingTileKeys.add(tileKey);
-			} else {
-				downloadingTileKeys.remove(tileKey);
-			}
+	public void tileIsBeingDownloaded(String tileKey) {
+		synchronized (this) {
+			downloadingTileKeys.add(tileKey);
+		}
+	}
+
+
+	public void tileDownloadingComplete(String tileKey, BufferedImage image) {
+		synchronized (this) {
+			downloadingTileKeys.remove(tileKey);
+			imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileKey, image));
 		}
 	}
 
 
 	public boolean isTileInDownloadingState(String tileKey) {
-		synchronized (downloadingTileKeys) {
+		synchronized (this) {
 			return downloadingTileKeys.contains(tileKey);
 		}
 	}
@@ -68,7 +75,7 @@ public class TileImageCache {
 	public void addTexture(String tileKey, BufferedImage image) {
 		synchronized (this) {
 			if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
-				this.deleteOldest();
+				this.deleteOldestTexture();
 			}
 			this.addTexture(tileKey, initializeTile(image));
 		}
@@ -111,7 +118,7 @@ public class TileImageCache {
 	}
 
 
-	private void deleteOldest() {
+	private void deleteOldestTexture() {
 		String oldestKey = null; long oldest = Long.MAX_VALUE;
 		for (Map.Entry<String, GLIdWrapper> entry : glTextureIdMap.entrySet()) {
 			GLIdWrapper wrapper = entry.getValue();
@@ -159,37 +166,39 @@ public class TileImageCache {
 
 		return glTextureId;
 	}
-	
-	
-	public void addImageToRenderQueue(String tileId, BufferedImage image) {
-		imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileId, image));
+
+
+	public void deleteAllRenderQueues() {
+		synchronized (this) {
+			imageRenderQueue.clear();
+		}
 	}
 
 	
 	public void cacheAllImagesInQueue() {
 		List<Map.Entry<String, BufferedImage>> newList = new ArrayList<>();
 
-		while(!imageRenderQueue.isEmpty()) {
-			// To prevent ConcurrentModificationException, the code will be caching one image at a time.
-			Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
-			imageRenderQueue.remove(0);
-			if(entry == null) continue;
-			
-			String tileKey = entry.getKey();
-			BufferedImage image = entry.getValue();
+		synchronized (this) {
+			for (int i = 0; i < CACHE_AT_A_TIME && !imageRenderQueue.isEmpty(); i++) {
+				Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
+				imageRenderQueue.remove(0);
+				if (entry == null) continue;
 
-			try {
-				if (entry.getValue() != null) {
-					this.addTexture(tileKey, image);
+				String tileKey = entry.getKey();
+				BufferedImage image = entry.getValue();
+
+				try {
+					if (entry.getValue() != null) {
+						this.addTexture(tileKey, image);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					// Put the image data back to the queue if something went wrong
+					newList.add(new AbstractMap.SimpleEntry<>(tileKey, image));
 				}
-			} catch(Exception e) {
-				e.printStackTrace();
-				// Put the image data back to the queue if something went wrong
-				newList.add(new AbstractMap.SimpleEntry<>(tileKey, image));
 			}
+			imageRenderQueue = newList;
 		}
-
-		imageRenderQueue = newList;
 
 	}
 

@@ -39,7 +39,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     
     public MapRenderingOptionsSidebar() {
         super(
-                UI_SETTINGS.sidebarSide,
+                UI_SETTINGS.getSidebarSide(),
                 20, 20, 7,
                 GetterSetter.from(UI_SETTINGS::getSidebarWidth, UI_SETTINGS::setSidebarWidth)
         );
@@ -159,7 +159,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if(instance == null) instance = new MapRenderingOptionsSidebar();
-        instance.setSide(UI_SETTINGS.sidebarSide);
+        instance.setSide(UI_SETTINGS.getSidebarSide());
         Minecraft.getMinecraft().displayGuiScreen(instance);
     }
 

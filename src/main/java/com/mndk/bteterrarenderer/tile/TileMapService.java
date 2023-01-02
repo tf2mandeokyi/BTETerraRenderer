@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 public class TileMapService implements DropdownCategoryElement {
 
 
-    public static final int RETRY_COUNT = 1;
+    public static final int RETRY_COUNT = 3;
     public static final int DEFAULT_ZOOM = 18;
     static final int DEFAULT_MAX_THREAD = 2;
     public static BufferedImage SOMETHING_WENT_WRONG;
@@ -137,7 +137,7 @@ public class TileMapService implements DropdownCategoryElement {
 
     private void downloadTile(String tileKey, String url) {
         TileImageCache cache = TileImageCache.getInstance();
-        cache.setTileDownloadingState(tileKey, true);
+        cache.tileIsBeingDownloaded(tileKey);
         this.downloadExecutor.execute(new TileDownloadingTask(downloadExecutor, tileKey, url, 0));
     }
 
@@ -179,14 +179,12 @@ public class TileMapService implements DropdownCategoryElement {
             boolean shouldRetry = false;
 
             if (retry >= RETRY_COUNT+1) {
-                cache.addImageToRenderQueue(tileKey, SOMETHING_WENT_WRONG);
-                cache.setTileDownloadingState(tileKey, false);
+                cache.tileDownloadingComplete(tileKey, SOMETHING_WENT_WRONG);
             }
             else {
                 try {
                     ByteBufInputStream stream = new ByteBufInputStream(Http.get(url).get());
-                    cache.addImageToRenderQueue(tileKey, ImageIO.read(stream));
-                    cache.setTileDownloadingState(tileKey, false);
+                    cache.tileDownloadingComplete(tileKey, ImageIO.read(stream));
                 } catch (Exception e) {
                     BTETerraRenderer.logger.error("Caught exception while downloading a tile image (" +
                             "TileKey=" + tileKey + ", Retry #" + (retry + 1) + ")");
@@ -213,9 +211,6 @@ public class TileMapService implements DropdownCategoryElement {
                             "assets/" + BTETerraRenderer.MODID + "/textures/internal_error_image.png"
                     ))
             );
-
-            // Converting the same image to resource every time might cause a performance issue.
-            // TODO solve this issue
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -30,14 +30,14 @@ public class KeyEvent {
 				ErrorMessageHandler.sendToClient("Error caught while parsing yaml map files!", e);
 			}
 
-			if(BTETerraRendererConfig.UI_SETTINGS.oldUi) {
+			if(BTETerraRendererConfig.UI_SETTINGS.isOldUi()) {
 				MapRenderingOptionsUI.open();
 			} else {
 				MapRenderingOptionsSidebar.open();
 			}
 		}
 		else if(ClientProxy.mapToggleKey.isPressed()) {
-			BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
+			BTETerraRendererConfig.toggleRender();
 			BTETerraRendererConfig.save();
 		}
 	}

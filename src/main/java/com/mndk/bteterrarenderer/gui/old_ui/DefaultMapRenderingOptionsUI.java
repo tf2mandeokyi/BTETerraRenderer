@@ -52,7 +52,7 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)), 
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.settings.map_rendering") + ": " +
-						(BTETerraRendererConfig.doRender ?
+						(BTETerraRendererConfig.isDoRender() ?
 								I18n.format("gui.bteterrarenderer.settings.enabled") :
 								I18n.format("gui.bteterrarenderer.settings.disabled")
 						)
@@ -76,8 +76,8 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
 				GetterSetter.from(
-						() -> BTETerraRendererConfig.RENDER_SETTINGS.yAxis,
-						value -> BTETerraRendererConfig.RENDER_SETTINGS.yAxis = value
+						BTETerraRendererConfig.RENDER_SETTINGS::getYAxis,
+						BTETerraRendererConfig.RENDER_SETTINGS::setYAxis
 				),
 				I18n.format("gui.bteterrarenderer.settings.map_y_level") + ": "
 		);
@@ -90,9 +90,9 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 				LOPTIONS_MARGIN_LEFT, (int) (c + h * (i - count)),
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.settings.opacity") + ": ", "",
-				0, 1, BTETerraRendererConfig.RENDER_SETTINGS.opacity,
+				0, 1, BTETerraRendererConfig.RENDER_SETTINGS.getOpacity(),
 				true, true,
-				slider -> BTETerraRendererConfig.RENDER_SETTINGS.opacity = slider.getValue()
+				slider -> BTETerraRendererConfig.RENDER_SETTINGS.setOpacity(slider.getValue())
 		));
 
 		
@@ -114,9 +114,8 @@ public class DefaultMapRenderingOptionsUI extends GuiSubScreen {
 			Minecraft.getMinecraft().player.closeScreen();
 		}
 		else if(button.equals(this.mapRenderingToggler)) {
-			BTETerraRendererConfig.doRender = !BTETerraRendererConfig.doRender;
 			this.mapRenderingToggler.displayString = I18n.format("gui.bteterrarenderer.settings.map_rendering") + ": " +
-					(BTETerraRendererConfig.doRender ?
+					(BTETerraRendererConfig.toggleRender() ?
 							I18n.format("gui.bteterrarenderer.settings.enabled") :
 							I18n.format("gui.bteterrarenderer.settings.disabled")
 					);
