@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.gui.old_ui;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.gui.components.GuiIntegerSlider;
 import com.mndk.bteterrarenderer.util.gui.GuiUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -69,7 +70,7 @@ public class MapAlignerUI extends GuiSubScreen {
 		
 		
 		// Map zoom slider
-		parent.addButton(new net.minecraftforge.fml.client.config.GuiSlider(
+		parent.addButton(new GuiIntegerSlider(
 				1002,
 				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - OPTIONS_WIDTH,
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT,
@@ -77,22 +78,25 @@ public class MapAlignerUI extends GuiSubScreen {
 				I18n.format("gui.bteterrarenderer.settings.zoom") + ": ", "",
 				-3, 3,
 				BTETerraRendererConfig.RENDER_SETTINGS.getZoom(),
-				false, true,
-				slider -> BTETerraRendererConfig.RENDER_SETTINGS.setZoom(slider.getValueInt())
+				true,
+				BTETerraRendererConfig.RENDER_SETTINGS::setZoom,
+				// Don't make this a lambda! The lambda expression won't follow up the map service update.
+				z -> BTETerraRendererConfig.getTileMapService().getTileProjection().isRelativeZoomAvailable(z)
 		));
 		
 		
 		// Map size slider
-		parent.addButton(new net.minecraftforge.fml.client.config.GuiSlider(
+		parent.addButton(new GuiIntegerSlider(
 				1002,
 				parent.width - ALIGNMENT_IMAGE_MARGIN_RIGHT - OPTIONS_WIDTH,
 				imageTop - ALIGNMENT_RESET_BUTTON_HEIGHT - this.fontRenderer.FONT_HEIGHT - 2 * MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT - 6,
 				OPTIONS_WIDTH, MapRenderingOptionsUI.DEFAULT_BUTTON_HEIGHT, 
 				I18n.format("gui.bteterrarenderer.settings.size") + ": ", "",
-				1, 5,
+				1, 8,
 				BTETerraRendererConfig.RENDER_SETTINGS.getRadius(),
-				false, true,
-				slider -> BTETerraRendererConfig.RENDER_SETTINGS.setRadius(slider.getValueInt())
+				true,
+				BTETerraRendererConfig.RENDER_SETTINGS::setRadius,
+				z -> true
 		));
 	}
 

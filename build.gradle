@@ -6,18 +6,18 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-		classpath "com.github.jengelman.gradle.plugins:shadow:4.0.0"
+		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.0'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = project.mod_version
-group = project.mod_group
-archivesBaseName = project.mod_id
+version = project.modVersion
+group = project.modGroup
+archivesBaseName = project.modId
 
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava.options.encoding = 'UTF-8'
@@ -43,8 +43,7 @@ repositories {
 }
 
 minecraft {
-//    mappings = project.mcp_mappings
-    mappings channel: 'snapshot', version: '20171003-1.12'
+    mappings channel: 'snapshot', version: project.mcp_mappings
 
     runs {
         client {
@@ -60,12 +59,6 @@ minecraft {
     }
 }
 
-//minecraft {
-//    version = project.forge_version
-//    mappings = project.mcp_mappings
-//    runDir = "run"
-//}
-
 configurations {
     shade
     compile.extendsFrom shade
@@ -75,48 +68,32 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
 
-//    deobfProvided('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') {
-//        transitive = false
-//    }
-//    deobfProvided('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') {
-//        transitive = false
-//    }
-//    deobfProvided('com.github.BuildTheEarth:terraplusplus:15747b869204f31e7ecac57bac32d65d55939840') {
-//        transitive = false
-//    }
-
     compile ('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') {
         transitive = false
     }
     compile ('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') {
         transitive = false
     }
-    compile 'com.github.BuildTheEarth:terraplusplus:15747b869204f31e7ecac57bac32d65d55939840'
+    compile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
 
     shade 'org.yaml:snakeyaml:1.33'
     shade 'org.osgeo:proj4j:0.1.0'
 
-    testCompile "junit:junit:4.13.2"
-    testCompile 'com.github.BuildTheEarth:terraplusplus:15747b869204f31e7ecac57bac32d65d55939840'
+    testCompile 'junit:junit:4.13.2'
+    testCompile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
 
     compile 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", "1.12.2"
 
-    // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-
-        // replace version and mcversion
         expand 'version': project.version, 'mcversion': "1.12.2"
     }
-
-    // copy everything else except the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
@@ -136,6 +113,6 @@ reobf {
 
 task relocateShadowJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation) {
 	target = tasks.shadowJar
-	prefix = "${project.mod_group}.${project.mod_id}.dep"
+	prefix = "${project.modGroup}.${project.modId}.dep"
 }
 shadowJar.dependsOn relocateShadowJar

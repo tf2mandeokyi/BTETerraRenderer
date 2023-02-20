@@ -43,7 +43,7 @@ public abstract class TileProjection {
     public final int[] geoCoordToTileCoord(double longitude, double latitude, int relativeZoom)
             throws OutOfProjectionBoundsException {
 
-        return this.toTileCoord(longitude, latitude, defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));
+        return this.toTileCoord(longitude, latitude, relativeZoomToAbsolute(relativeZoom));
     }
     protected abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom)
             throws OutOfProjectionBoundsException;
@@ -60,7 +60,7 @@ public abstract class TileProjection {
     public final double[] tileCoordToGeoCoord(int tileX, int tileY, int relativeZoom)
             throws OutOfProjectionBoundsException {
 
-        return this.toGeoCoord(tileX, tileY, defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));
+        return this.toGeoCoord(tileX, tileY, relativeZoomToAbsolute(relativeZoom));
     }
     protected abstract double[] toGeoCoord(int tileX, int tileY, int absoluteZoom)
             throws OutOfProjectionBoundsException;
@@ -68,6 +68,15 @@ public abstract class TileProjection {
 
     @Override
     public abstract TileProjection clone() throws CloneNotSupportedException;
+
+
+    public final int relativeZoomToAbsolute(int relativeZoom) {
+        return defaultZoom + (invertZoom ? -relativeZoom : relativeZoom);
+    }
+    public final boolean isRelativeZoomAvailable(int relativeZoom) {
+        return this.isAbsoluteZoomAvailable(defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));
+    }
+    public abstract boolean isAbsoluteZoomAvailable(int absoluteZoom);
 
 
     public int[] getCornerMatrix(int i) {

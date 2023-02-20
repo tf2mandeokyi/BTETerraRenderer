@@ -82,12 +82,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         SidebarSlider mapSizeSlider = new SidebarSlider(
                 GetterSetter.from(RENDER_SETTINGS::getRadius, RENDER_SETTINGS::setRadius),
                 I18n.format("gui.bteterrarenderer.new_settings.size") + ": ", "",
-                1, 8
+                1, 8,
+                z -> true
         );
         SidebarSlider mapZoomSlider = new SidebarSlider(
                 GetterSetter.from(RENDER_SETTINGS::getZoom, RENDER_SETTINGS::setZoom),
                 I18n.format("gui.bteterrarenderer.new_settings.zoom") + ": ", "",
-                -3, 3
+                -3, 3,
+                // Don't make this a lambda! The lambda expression won't follow up the map service update.
+                z -> BTETerraRendererConfig.getTileMapService().getTileProjection().isRelativeZoomAvailable(z)
         );
         SidebarMapAligner mapAligner = new SidebarMapAligner(
                 GetterSetter.from(RENDER_SETTINGS::getXAlign, RENDER_SETTINGS::setXAlign),

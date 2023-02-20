@@ -73,6 +73,12 @@ public class YamlTileProjection extends TileProjection {
     }
 
 
+    @Override
+    public boolean isAbsoluteZoomAvailable(int absoluteZoom) {
+        return this.matrices.containsKey(absoluteZoom);
+    }
+
+
     private static class TileMatrix {
 
         final double[] pointOfOrigin, tileSize;

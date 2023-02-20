@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Getter
 public class TileMapService implements DropdownCategoryElement {
 
 
@@ -31,7 +32,6 @@ public class TileMapService implements DropdownCategoryElement {
     public static BufferedImage SOMETHING_WENT_WRONG;
 
 
-    @Getter
     private final String source, id, name;
     private final String urlTemplate;
     private final TileProjection tileProjection;

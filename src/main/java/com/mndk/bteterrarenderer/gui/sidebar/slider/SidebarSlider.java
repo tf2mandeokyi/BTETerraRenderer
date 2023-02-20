@@ -6,6 +6,7 @@ import com.mndk.bteterrarenderer.util.GetterSetter;
 import net.minecraftforge.fml.client.config.GuiSlider;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class SidebarSlider extends GuiSidebarElement {
 
@@ -13,22 +14,30 @@ public class SidebarSlider extends GuiSidebarElement {
 
     private final GetterSetter<Double> doubleValue;
     private final GetterSetter<Integer> intValue;
+    private final Function<Integer, Boolean> allowFunction;
 
     private final String prefix, suffix;
     private final double minValue, maxValue;
     private final boolean isDouble;
 
-    public SidebarSlider(@Nonnull GetterSetter<Double> value, String prefix, String suffix, double minValue, double maxValue) {
+    public SidebarSlider(@Nonnull GetterSetter<Double> value,
+                         String prefix, String suffix,
+                         double minValue, double maxValue) {
         this.doubleValue = value;
         this.prefix = prefix; this.suffix = suffix;
         this.minValue = minValue; this.maxValue = maxValue;
         this.isDouble = true;
 
         this.intValue = null;
+        this.allowFunction = null;
     }
 
-    public SidebarSlider(@Nonnull GetterSetter<Integer> value, String prefix, String suffix, int minValue, int maxValue) {
+    public SidebarSlider(@Nonnull GetterSetter<Integer> value,
+                         String prefix, String suffix,
+                         int minValue, int maxValue,
+                         Function<Integer, Boolean> allowFunction) {
         this.intValue = value;
+        this.allowFunction = allowFunction;
         this.prefix = prefix; this.suffix = suffix;
         this.minValue = minValue; this.maxValue = maxValue;
         this.isDouble = false;
@@ -63,7 +72,8 @@ public class SidebarSlider extends GuiSidebarElement {
                     parent.elementWidth.get(), 20,
                     prefix, suffix,
                     (int) minValue, (int) maxValue, intValue.get(),
-                    true, intValue::set
+                    true, intValue::set,
+                    allowFunction
             );
         }
     }

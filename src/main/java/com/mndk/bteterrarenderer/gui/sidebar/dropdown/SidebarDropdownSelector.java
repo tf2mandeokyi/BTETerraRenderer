@@ -152,7 +152,7 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
                         int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                                 + ELEMENT_VERTICAL_MARGIN * 2;
                         int color = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height) 
-                                ? 0xFFFFA0 : 0xFFFFFF;
+                                ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
                         // Blue background
                         if (item.equals(currentValue)) {
