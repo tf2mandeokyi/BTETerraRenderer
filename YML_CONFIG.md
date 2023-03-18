@@ -46,16 +46,17 @@ categories:
 
 
 ### TMS object structure
-| Key            | Value Type | Required? \[`Default`\] | Description                                                                                    |
-|----------------|------------|-------------------------|------------------------------------------------------------------------------------------------|
-| `name`         | string     | Y                       | Displayed Name. Supports color codes.                                                          |
-| `tile_url`     | string     | Y                       | Tile URL. <br> See [URL parameters](#url-parameters) for its parameters                        |
-| `projection`   | string     | Y                       | Projection name. <br> See [projection configuration](#projection-configuration) for more info  |
-| `max_thread`   | int        | N \[`2`\]               | Maximum amount of threads to load map images                                                   |
-| `default_zoom` | int        | N \[`18`\]              | Default zoom value                                                                             |
-| `invert_zoom`  | boolean    | N \[`false`\]           | Zoom system is inverted when `true`. <br> Useful when lower zoom value means higher resolution |
-| `flip_vert`    | boolean    | N \[`false`\]           | *Flip tiles vertically when `true`.                                                            |
-| `invert_lat`   | boolean    | N \[`false`\]           | *Latitude is inverted when `true`. Will also flip tiles vertically.                            |
+| Key            | Value Type | Required? \[`Default`\] | Description                                                                                        |
+|----------------|------------|-------------------------|----------------------------------------------------------------------------------------------------|
+| `name`         | string     | Y                       | Displayed Name. Supports color codes.                                                              |
+| `tile_url`     | string     | Y                       | Tile URL. <br> See [URL parameters](#url-parameters) for its parameters                            |
+| `projection`   | string     | Y                       | Projection name. <br> See [projection configuration](#tile-projection-configuration) for more info |
+| `max_thread`   | int        | N \[`2`\]               | Maximum amount of threads to load map images                                                       |
+| `default_zoom` | int        | N \[`18`\]              | Default zoom value                                                                                 |
+| `invert_zoom`  | boolean    | N \[`false`\]           | Zoom system is inverted when `true`. <br> Useful when lower zoom value means higher resolution     |
+| `flip_vert`    | boolean    | N \[`false`\]           | *Flip tiles vertically when `true`.                                                                |
+| `invert_lat`   | boolean    | N \[`false`\]           | *Latitude is inverted when `true`. Will also flip tiles vertically.                                |
+
 &ast; Tiles won't be "flipped" when both `flip_vert` and `invert_lat` are true.
 
 ### URL parameters
@@ -68,7 +69,7 @@ categories:
 | `{random:a,b,c,...}` | Picks string randomly from the given list; in this case `a`, `b`, `c` |
 
 
-## Projection configuration
+## Tile projection configuration
 Some map providers will use projections other than the standard `webmercator` projection,<br>
 in order to reduce the amount of distortion happening by using the standard one for their country/region. 
 
@@ -77,6 +78,8 @@ This is fine, as this mod supports custom map projection by making projection co
 Given the coordinate system (such as `epsg`) and the tile matrix, the mod will calculate the tile position<br>
 and display its image accordingly.
 
+The config directory is `.../.minecraft/config/bteterrarenderer/projections/`. Put your projection config files there
+to add custom tile projections.
 
 ### Default projections
 | Projection name   | CRS name                            | Description                                                                           |
@@ -111,10 +114,10 @@ tile_projections:
 
 
 ### Projection object structure
-| Key           | Value Type                            | Required? | Description               |
-|---------------|---------------------------------------|-----------|---------------------------|
-| `projection`  | [CoordinateSystem](#CoordinateSystem) | Y         | Coordinate system object. |
-| `Tile matrix` | [TileMatrixRow](#TileMatrixRow)[]     | Y         | Tile matrix.              |
+| Key           | Value Type                                | Required? | Description               |
+|---------------|-------------------------------------------|-----------|---------------------------|
+| `projection`  | [CoordinateSystem](#CoordinateSystem)     | Y         | Coordinate system object. |
+| `Tile matrix` | Map<int, [TileMatrixRow](#TileMatrixRow)> | Y         | Tile matrix.              |
 
 
 ### CoordinateSystem
