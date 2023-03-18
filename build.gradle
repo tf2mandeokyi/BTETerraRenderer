@@ -76,7 +76,7 @@ dependencies {
     }
     compile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
 
-    shade 'org.yaml:snakeyaml:1.33'
+    shade 'org.yaml:snakeyaml:2.0'
     shade 'org.osgeo:proj4j:0.1.0'
     shade 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
 
