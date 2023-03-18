@@ -76,13 +76,13 @@ dependencies {
     compile ('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') {
         transitive = false
     }
-    compile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
+    compile 'com.github.BuildTheEarth:terraplusplus:v1.1.0'
 
     shade 'org.osgeo:proj4j:0.1.0'
     shade 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
 
     testCompile 'junit:junit:4.13.2'
-    testCompile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
+    testCompile 'com.github.BuildTheEarth:terraplusplus:v1.1.0'
 
     compile 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
