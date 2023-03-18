@@ -2,19 +2,18 @@ package com.mndk.bteterrarenderer;
 
 import com.mndk.bteterrarenderer.network.ServerWelcomeMessage;
 import com.mndk.bteterrarenderer.network.ServerWelcomeMsgHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
-import org.apache.logging.log4j.Logger;
-
+import com.mndk.bteterrarenderer.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.proxy.CommonProxy;
-
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
+import org.apache.logging.log4j.Logger;
 
 @Mod(
 		modid = BTETerraRenderer.MODID,
@@ -55,5 +54,6 @@ public class BTETerraRenderer {
 
 	static {
 		NETWORK_WRAPPER.registerMessage(ServerWelcomeMsgHandler.class, ServerWelcomeMessage.class, 0, Side.CLIENT);
+		Proj4jProjection.registerProjection();
 	}
 }

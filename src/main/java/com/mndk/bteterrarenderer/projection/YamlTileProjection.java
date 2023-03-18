@@ -1,46 +1,28 @@
 package com.mndk.bteterrarenderer.projection;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonCreator;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
+@JsonDeserialize
 public class YamlTileProjection extends TileProjection {
 
 
     private final GeographicProjection projection;
     private final Map<Integer, TileMatrix> matrices;
 
-
-    @SuppressWarnings("unchecked")
-    public YamlTileProjection(Map<String, Object> jsonObject) throws NullPointerException {
-
-        Map<String, Object> projectionObject = (Map<String, Object>) jsonObject.get("projection");
-        Map<Integer, Object> tileMatricesObject = (Map<Integer, Object>) jsonObject.get("tile_matrices");
-
-        switch((String) projectionObject.get("type")) {
-            case "epsg":
-                String name = (String) projectionObject.get("name");
-                String parameter = (String) projectionObject.get("param");
-                this.projection = new Proj4jProjection(name, parameter);
-                break;
-            case "bte":
-                String json = (String) projectionObject.get("json");
-                this.projection = GeographicProjection.parse(json);
-                break;
-            default:
-                throw new RuntimeException("Unknown projection data");
-        }
-
-        this.matrices = new HashMap<>();
-        for(Map.Entry<Integer, Object> entry : tileMatricesObject.entrySet()) {
-            List<Object> matrix = (List<Object>) entry.getValue();
-            this.matrices.put(entry.getKey(), new TileMatrix(matrix));
-        }
+    @JsonCreator
+    public YamlTileProjection(
+            @JsonProperty(value = "projection", required = true) GeographicProjection projection,
+            @JsonProperty(value = "tile_matrices", required = true) Map<Integer, TileMatrix> matrices
+    ) {
+        this.projection = projection;
+        this.matrices = matrices;
     }
 
 
@@ -79,15 +61,19 @@ public class YamlTileProjection extends TileProjection {
     }
 
 
+    @Data
+    @JsonDeserialize
     private static class TileMatrix {
-
         final double[] pointOfOrigin, tileSize;
 
-        TileMatrix(List<Object> jsonList) {
-            this.pointOfOrigin = new double[] { (double) jsonList.get(0), (double) jsonList.get(1) };
-            this.tileSize = new double[] { (double) jsonList.get(2), (double) jsonList.get(3) };
+        @JsonCreator
+        TileMatrix(
+                @JsonProperty(value = "origin", required = true) double[] pointOfOrigin,
+                @JsonProperty(value = "size", required = true) double[] tileSize
+        ) {
+            this.pointOfOrigin = pointOfOrigin;
+            this.tileSize = tileSize;
         }
-
     }
 
 }

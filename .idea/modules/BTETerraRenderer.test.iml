@@ -11,6 +11,10 @@
     </facet>
   </component>
   <component name="McpModuleSettings">
-    <option name="srgType" value="SRG" />
+    <option name="mappingFile" value="D:\Desktop\some_programs\Java\Forge mods\BTETerraRenderer\build\createMcpToSrg\output.tsrg" />
+    <option name="mcpVersion" value="snapshot_20171003-1.12" />
+    <option name="minecraftVersion" value="1.12.2" />
+    <option name="platformVersion" value="14.23.5.2859" />
+    <option name="srgType" value="TSRG" />
   </component>
 </module>

@@ -25,8 +25,13 @@ public class BTETerraRendererConfig {
     }
 
 
+    @Config.Name("map_service_category")
+    @Getter
+    public static String mapServiceCategory = "Global";
+
     @Config.Name("map_service_id")
-    public static String mapServiceId = "default.Global.osm";
+    @Getter
+    public static String mapServiceId = "osm";
 
 
     @Config.Name("render_settings")
@@ -86,10 +91,6 @@ public class BTETerraRendererConfig {
     public static final UISettings UI_SETTINGS = new UISettings();
     @Getter @Setter
     public static class UISettings {
-
-        @Config.Name("Old UI")
-        public boolean oldUi = false;
-
         @Config.Name("sidebar_side")
         public SidebarSide sidebarSide = SidebarSide.RIGHT;
 
@@ -111,21 +112,27 @@ public class BTETerraRendererConfig {
          * I couldn't put this in the main class, so I made a subclass BTRConfig.ConfigDataCache and put the
          * tms variable here.
          */
-        private static TileMapService tileMapService = TMSYamlLoader.INSTANCE.result.getTileMap(mapServiceId);
+        private static TileMapService tileMapService =
+                TMSYamlLoader.INSTANCE.result.getItem(mapServiceCategory, mapServiceId);
     }
 
     public static TileMapService getTileMapService() {
         return ConfigDataCache.tileMapService;
     }
 
-    public static void setTileMapService(TileMapService service) {
-        ConfigDataCache.tileMapService = service;
-        mapServiceId = service.getId();
+    public static boolean isRelativeZoomAvailable(int relativeZoom) {
+        return ConfigDataCache.tileMapService != null && ConfigDataCache.tileMapService.isRelativeZoomAvailable(relativeZoom);
+    }
+
+    public static void setTileMapService(String categoryName, String mapId) {
+        ConfigDataCache.tileMapService = TMSYamlLoader.INSTANCE.result.getItem(categoryName, mapId);
+        mapServiceCategory = categoryName;
+        mapServiceId = mapId;
         TileImageCache.getInstance().deleteAllRenderQueues();
     }
 
-    private static void refreshTileMapService() {
-        ConfigDataCache.tileMapService = TMSYamlLoader.INSTANCE.result.getTileMap(mapServiceId);
+    public static void refreshTileMapService() {
+        ConfigDataCache.tileMapService = TMSYamlLoader.INSTANCE.result.getItem(mapServiceCategory, mapServiceId);
     }
 
 

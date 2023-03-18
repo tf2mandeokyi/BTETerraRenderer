@@ -35,7 +35,11 @@ public class RenderEvent {
 
 		if(BTETerraRendererConfig.isDoRender()) {
 			try {
-				renderTiles(BTETerraRendererConfig.getTileMapService(), px, py, pz);
+				renderTiles(
+						BTETerraRendererConfig.mapServiceCategory + "." + BTETerraRendererConfig.mapServiceId,
+						BTETerraRendererConfig.getTileMapService(),
+						px, py, pz
+				);
 			} catch(IllegalArgumentException exception) {
 				exception.printStackTrace();
 			}
@@ -51,7 +55,7 @@ public class RenderEvent {
 	 * @param py Player's y position
 	 * @param pz Player's z position
 	 */
-	public static void renderTiles(TileMapService tms, double px, double py, double pz) {
+	public static void renderTiles(String tmsId, TileMapService tms, double px, double py, double pz) {
 
 		if(tms == null) return;
 		if(Projections.getServerProjection() == null) return;
@@ -79,7 +83,7 @@ public class RenderEvent {
 			if(Math.abs(dx) > size || Math.abs(dy) > size) return;
 			tms.renderTile(
 					t, builder,
-					settings.getZoom(),
+					settings.getZoom(), tmsId,
 					settings.getYAxis() + 0.1, // Adding .1 to y because of texture-overlapping issue
 					(float) settings.getOpacity(),
 					px + settings.getXAlign(), py, pz + settings.getZAlign(),

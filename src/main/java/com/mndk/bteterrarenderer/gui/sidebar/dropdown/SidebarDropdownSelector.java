@@ -1,19 +1,21 @@
 package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.util.GetterSetter;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends GuiSidebarElement {
+@RequiredArgsConstructor
+public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapProperty> extends GuiSidebarElement {
 
 
     private static final int HORIZONTAL_PADDING = 12;
@@ -23,38 +25,19 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
     private static final int DROPDOWN_VERTICAL_PADDING = 8;
 
 
-    private final GetterSetter<T> value;
+    private final GetterSetter<CategoryMapData<T>> currentCategories;
+    private final Supplier<String> currentCategoryName;
+    private final Supplier<String> currentItemId;
+    private final ItemSetter itemSetter;
     private final Function<T, String> nameGetter;
-    private final List<DropdownCategory<T>> categories;
+
     private boolean opened = false;
 
     private int closedHeight, singleLineElementHeight, width, innerWidth;
 
 
-    public SidebarDropdownSelector(GetterSetter<T> value, Function<T, String> nameGetter) {
-        this.value = value;
-        this.nameGetter = nameGetter;
-        this.categories = new ArrayList<>();
-    }
-
-
-    public List<DropdownCategory<T>> getCategories() {
-        return this.categories;
-    }
-
-
-    public void addCategory(DropdownCategory<T> category) {
-        this.categories.add(category);
-    }
-
-
-    public void addCategories(Collection<? extends DropdownCategory<T>> categories) {
-        this.categories.addAll(categories);
-    }
-
-
-    public void clearCategories() {
-        this.categories.clear();
+    public CategoryMapData<T> getCurrentCategories() {
+        return this.currentCategories.get();
     }
 
 
@@ -71,10 +54,13 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
     public int getHeight() {
         if(!opened) return closedHeight;
         int dy = 0;
-        for(DropdownCategory<T> category : categories) {
+        for(Map.Entry<String, DropdownCategory<T>> entry : currentCategories.get().getCategoryMap().entrySet()) {
             dy += singleLineElementHeight;
+
+            DropdownCategory<T> category = entry.getValue();
+
             if(category.isOpened()) {
-                for(T item : category.getItems()) {
+                for(T item : category.values()) {
                     dy += fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                             + ELEMENT_VERTICAL_MARGIN * 2;
                 }
@@ -87,6 +73,8 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 
+        CategoryMapData<T> categories = currentCategories.get();
+        Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
         // Background
@@ -105,7 +93,7 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
         Gui.drawRect(-1, closedHeight, width + 1, closedHeight + 1, rectColor);
 
         // Current selection
-        T currentValue = value.get();
+        T currentValue = categories.getItem(currentCategoryName.get(), currentItemId.get());
 
         if(currentValue != null) {
             String currentName = nameGetter.apply(currentValue).replace("\n", " ");
@@ -122,10 +110,13 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
             int totalHeight = 0;
             int yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
 
-            for(int j = 0; j < categories.size(); ++j) {
-                DropdownCategory<T> category = categories.get(j);
-                String categoryName = category.getName();
-                int categoryColor = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight) 
+            int j = 0;
+            for(Map.Entry<String, DropdownCategory<T>> categoryEntry : categoryMap.entrySet()) {
+                String categoryName = categoryEntry.getKey();
+                if(categoryName == null) continue;
+
+                DropdownCategory<T> category = categoryEntry.getValue();
+                int categoryColor = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight)
                         ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
                 // Category name
@@ -145,7 +136,11 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
 
                 // Items
                 if(category.isOpened()) {
-                    for (T item : category.getItems()) {
+                    for (Map.Entry<String, T> itemEntry : category.entrySet()) {
+                        String itemId = itemEntry.getKey();
+                        if(itemId == null) continue;
+
+                        T item = itemEntry.getValue();
                         String name = nameGetter.apply(item);
 
                         // Handle overflow
@@ -155,7 +150,7 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
                                 ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
                         // Blue background
-                        if (item.equals(currentValue)) {
+                        if (categoryName.equals(currentCategoryName.get()) && itemId.equals(currentItemId.get())) {
                             Gui.drawRect(
                                     0, yStart + totalHeight,
                                     width, yStart + totalHeight + height,
@@ -171,7 +166,7 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
                         totalHeight += height;
                     }
                 }
-                if(j != categories.size() - 1) {
+                if(j != categoryMap.size() - 1) {
                     // horizontal line
                     Gui.drawRect(
                             0, yStart + totalHeight,
@@ -179,6 +174,7 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
                             0xA0FFFFFF
                     );
                 }
+                j++;
             }
 
 
@@ -228,19 +224,26 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
             return true;
         }
         else {
+            CategoryMapData<T> categories = currentCategories.get();
+            Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
+
             int totalHeight = 0;
-            for(DropdownCategory<T> category : categories) {
+            for(Map.Entry<String, DropdownCategory<T>> categoryEntry : categoryMap.entrySet()) {
+                String categoryName = categoryEntry.getKey();
+                DropdownCategory<T> category = categoryEntry.getValue();
                 if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight)) {
                     category.setOpened(!category.isOpened());
                     return true;
                 }
                 totalHeight += singleLineElementHeight;
                 if(category.isOpened()) {
-                    for(T item : category.getItems()) {
+                    for(Map.Entry<String, T> itemEntry : category.entrySet()) {
+                        String itemId = itemEntry.getKey();
+                        T item = itemEntry.getValue();
                         int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                                 + ELEMENT_VERTICAL_MARGIN * 2;
                         if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height)) {
-                            value.set(item);
+                            itemSetter.set(categoryName, itemId);
                             return true;
                         }
                         totalHeight += height;
@@ -277,4 +280,9 @@ public class SidebarDropdownSelector<T extends DropdownCategoryElement> extends 
     @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
     @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
     @Override public boolean keyTyped(char key, int keyCode) { return false; }
+
+
+    public interface ItemSetter {
+        void set(String categoryName, String itemId);
+    }
 }

@@ -1,8 +1,10 @@
 package com.mndk.bteterrarenderer.proxy;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 public class CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {

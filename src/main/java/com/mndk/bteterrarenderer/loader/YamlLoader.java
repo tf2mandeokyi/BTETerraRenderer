@@ -2,26 +2,20 @@ package com.mndk.bteterrarenderer.loader;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import lombok.Getter;
-import org.yaml.snakeyaml.Yaml;
+import lombok.Setter;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Objects;
 
 public abstract class YamlLoader<T> {
-
-
-    protected static final Yaml YAML = new Yaml();
 
 
     @Getter
     private File mapFilesDirectory;
     private final String folderName;
     private final String defaultYamlPath;
+    @Getter @Setter
     public T result;
 
 
@@ -63,13 +57,7 @@ public abstract class YamlLoader<T> {
     }
 
 
-    protected T load(String fileName, Reader fileReader) {
-        Map<String, Object> data = YAML.load(fileReader);
-        return load(fileName, data);
-    }
-
-
-    private T loadDefault() {
+    private T loadDefault() throws IOException {
         return load("default", new InputStreamReader(
                 Objects.requireNonNull(YamlLoader.class.getClassLoader().getResourceAsStream(defaultYamlPath)),
                 StandardCharsets.UTF_8
@@ -77,7 +65,7 @@ public abstract class YamlLoader<T> {
     }
 
 
-    protected abstract T load(String fileName, Map<String, Object> data);
+    protected abstract T load(String fileName, Reader fileReader) throws IOException;
     protected abstract void addToResult(T originalT, T newT);
 
 }

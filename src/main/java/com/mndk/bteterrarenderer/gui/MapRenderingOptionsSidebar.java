@@ -64,11 +64,13 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // Map source components
         this.mapSourceDropdown = new SidebarDropdownSelector<>(
-                GetterSetter.from(BTETerraRendererConfig::getTileMapService, BTETerraRendererConfig::setTileMapService),
+                GetterSetter.from(TMSYamlLoader.INSTANCE::getResult, TMSYamlLoader.INSTANCE::setResult),
+                BTETerraRendererConfig::getMapServiceCategory,
+                BTETerraRendererConfig::getMapServiceId,
+                BTETerraRendererConfig::setTileMapService,
                 tms -> "default".equalsIgnoreCase(tms.getSource()) ?
-                        tms.getName() : "[§7" + tms.getSource() + "§r]\n" + tms.getName()
+                        tms.getName() : "[§7" + tms.getSource() + "§r]\n§r" + tms.getName()
         );
-        this.mapSourceDropdown.addCategories(TMSYamlLoader.INSTANCE.result.getData());
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18n.format("gui.bteterrarenderer.new_settings.map_reload"),
                 (self, mouseButton) -> this.reloadMaps()
@@ -89,8 +91,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 GetterSetter.from(RENDER_SETTINGS::getZoom, RENDER_SETTINGS::setZoom),
                 I18n.format("gui.bteterrarenderer.new_settings.zoom") + ": ", "",
                 -3, 3,
-                // Don't make this a lambda! The lambda expression won't follow up the map service update.
-                z -> BTETerraRendererConfig.getTileMapService().getTileProjection().isRelativeZoomAvailable(z)
+                BTETerraRendererConfig::isRelativeZoomAvailable
         );
         SidebarMapAligner mapAligner = new SidebarMapAligner(
                 GetterSetter.from(RENDER_SETTINGS::getXAlign, RENDER_SETTINGS::setXAlign),
@@ -131,18 +132,19 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private void reloadMaps() {
         try {
             Map<String, Boolean> opened = new HashMap<>();
-            for(DropdownCategory<TileMapService> category : mapSourceDropdown.getCategories()) {
-                opened.put(category.getName(), category.isOpened());
+            Map<String, DropdownCategory<TileMapService>> categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
+            for(Map.Entry<String, DropdownCategory<TileMapService>> categoryEntry : categoryMap.entrySet()) {
+                opened.put(categoryEntry.getKey(), categoryEntry.getValue().isOpened());
             }
 
             ProjectionYamlLoader.INSTANCE.refresh();
             TMSYamlLoader.INSTANCE.refresh();
+            BTETerraRendererConfig.refreshTileMapService();
 
-            mapSourceDropdown.clearCategories();
-            mapSourceDropdown.addCategories(TMSYamlLoader.INSTANCE.result.getData());
-            for(DropdownCategory<TileMapService> category : mapSourceDropdown.getCategories()) {
-                if(opened.get(category.getName())) {
-                    category.setOpened(true);
+            categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
+            for(Map.Entry<String, DropdownCategory<TileMapService>> categoryEntry : categoryMap.entrySet()) {
+                if(opened.get(categoryEntry.getKey())) {
+                    categoryEntry.getValue().setOpened(true);
                 }
             }
         } catch(Exception e) {

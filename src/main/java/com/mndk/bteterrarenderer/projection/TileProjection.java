@@ -28,7 +28,7 @@ public abstract class TileProjection {
     @Setter
     protected int defaultZoom = TileMapService.DEFAULT_ZOOM;
     @Setter
-    protected boolean invertLatitude = false, invertZoom = false;
+    private boolean invertLatitude = false, invertZoom = false;
 
 
     /**
@@ -43,7 +43,7 @@ public abstract class TileProjection {
     public final int[] geoCoordToTileCoord(double longitude, double latitude, int relativeZoom)
             throws OutOfProjectionBoundsException {
 
-        return this.toTileCoord(longitude, latitude, relativeZoomToAbsolute(relativeZoom));
+        return this.toTileCoord(longitude, invertLatitude ? -latitude : latitude, relativeZoomToAbsolute(relativeZoom));
     }
     protected abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom)
             throws OutOfProjectionBoundsException;
@@ -60,7 +60,9 @@ public abstract class TileProjection {
     public final double[] tileCoordToGeoCoord(int tileX, int tileY, int relativeZoom)
             throws OutOfProjectionBoundsException {
 
-        return this.toGeoCoord(tileX, tileY, relativeZoomToAbsolute(relativeZoom));
+        double[] coord = this.toGeoCoord(tileX, tileY, relativeZoomToAbsolute(relativeZoom));
+        coord[1] = -coord[1];
+        return coord;
     }
     protected abstract double[] toGeoCoord(int tileX, int tileY, int absoluteZoom)
             throws OutOfProjectionBoundsException;

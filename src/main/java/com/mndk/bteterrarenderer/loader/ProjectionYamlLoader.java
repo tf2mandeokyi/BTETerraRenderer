@@ -2,9 +2,14 @@ package com.mndk.bteterrarenderer.loader;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.projection.YamlTileProjection;
+import com.mndk.bteterrarenderer.util.reader.TppDepJacksonYAMLReader;
+import lombok.Data;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.core.type.TypeReference;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 
 public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProjection>> {
@@ -18,23 +23,20 @@ public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProject
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected Map<String, YamlTileProjection> load(String fileName, Map<String, Object> data) {
-
-        if(data == null) return Collections.emptyMap();
-        Map<String, Object> projections = (Map<String, Object>) data.get("tile_projections");
-        Map<String, YamlTileProjection> result = new HashMap<>();
-
-        for(Map.Entry<String, Object> entry : projections.entrySet()) {
-            String projectionName = entry.getKey();
-            Map<String, Object> projectionObject = (Map<String, Object>) entry.getValue();
-            result.put(projectionName, new YamlTileProjection(projectionObject));
-        }
-        return result;
+    protected Map<String, YamlTileProjection> load(String fileName, Reader fileReader) throws IOException {
+        return TppDepJacksonYAMLReader.read(fileReader, new TypeReference<ProjectionYamlFile>() {}).tileProjections;
     }
 
     @Override
     protected void addToResult(Map<String, YamlTileProjection> originalT, Map<String, YamlTileProjection> newT) {
         originalT.putAll(newT);
+    }
+
+
+    @Data
+    @JsonDeserialize
+    static class ProjectionYamlFile {
+        @JsonProperty(value = "tile_projections", required = true)
+        public Map<String, YamlTileProjection> tileProjections;
     }
 }

@@ -1,17 +1,16 @@
 package com.mndk.bteterrarenderer.tile;
 
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 public class TileURLConverter {
 
-    @Setter
-    protected int defaultZoom = TileMapService.DEFAULT_ZOOM;
-    @Setter
-    protected boolean invertZoom = false;
+    protected final int defaultZoom;
+    protected final boolean invertZoom;
 
     public final String convertToUrl(String template, int tileX, int tileY, int relativeZoom) {
         return this.convert(template, tileX, tileY, defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));

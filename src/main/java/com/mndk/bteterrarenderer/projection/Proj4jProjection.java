@@ -1,11 +1,17 @@
 package com.mndk.bteterrarenderer.projection;
 
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Getter;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonCreator;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
+import net.buildtheearth.terraplusplus.config.GlobalParseRegistries;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import org.osgeo.proj4j.*;
 
 /**
  * Proj4j + {@link GeographicProjection}
  */
+@JsonDeserialize
 public class Proj4jProjection implements GeographicProjection {
 
 	private static final CRSFactory crsFactory = new CRSFactory();
@@ -17,18 +23,28 @@ public class Proj4jProjection implements GeographicProjection {
 			"+no_defs"
 	});
 
-	protected final CoordinateReferenceSystem targetCrs;
+	protected transient final CoordinateReferenceSystem targetCrs;
 
-	private final CoordinateTransform toWgs;
-	private final CoordinateTransform toTargetCrs;
+	private transient final CoordinateTransform toWgs;
+	private transient final CoordinateTransform toTargetCrs;
+
+	@Getter
+	private final String name, param;
 
 	public Proj4jProjection(CoordinateReferenceSystem crs) {
 		this.targetCrs = crs;
+		this.name = crs.getName();
+		this.param = crs.getParameterString();
 		this.toWgs = ctFactory.createTransform(targetCrs, WGS84);
 		this.toTargetCrs = ctFactory.createTransform(WGS84, targetCrs);
 	}
 
-	public Proj4jProjection(String crsName, String crsParameter) {
+	@JsonCreator
+	@SuppressWarnings("unused")
+	public Proj4jProjection(
+			@JsonProperty(value = "name", required = true) String crsName,
+			@JsonProperty(value = "param", required = true) String crsParameter
+	) {
 		this(crsFactory.createFromParameters(crsName, crsParameter));
 	}
 
@@ -51,4 +67,11 @@ public class Proj4jProjection implements GeographicProjection {
 		return new double[] {result.x, result.y};
 	}
 
+	public static void registerProjection() {
+		GlobalParseRegistries.PROJECTIONS.putIfAbsent("proj4", Proj4jProjection.class);
+	}
+
+	static {
+		registerProjection();
+	}
 }

@@ -1,12 +1,15 @@
 package com.mndk.bteterrarenderer.tile;
 
+import com.mndk.bteterrarenderer.util.NullValidator;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonCreator;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategoryElement;
+import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.Getter;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import net.buildtheearth.terraplusplus.util.http.Http;
@@ -15,15 +18,18 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.*;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Getter
-public class TileMapService implements DropdownCategoryElement {
+@Data
+public class TileMapService implements CategoryMapData.ICategoryMapProperty {
 
 
     public static final int RETRY_COUNT = 3;
@@ -32,64 +38,64 @@ public class TileMapService implements DropdownCategoryElement {
     public static BufferedImage SOMETHING_WENT_WRONG;
 
 
-    private final String source, id, name;
+    private transient String source = "";
+
+    private final String name;
     private final String urlTemplate;
     private final TileProjection tileProjection;
     private final TileURLConverter urlConverter;
     private final ExecutorService downloadExecutor;
 
 
-    public TileMapService(String fileName, String categoryName, String id, Map<String, Object> jsonObject)
-            throws NullPointerException {
-        this(fileName, fileName + "." + categoryName + "." + id, jsonObject);
-    }
-
-
     /**
      * @throws NullPointerException If the projection corresponding to its id does not exist
      */
-    private TileMapService(String source, String id, Map<String, Object> jsonObject) throws NullPointerException {
+    @JsonCreator
+    private TileMapService(
+            @JsonProperty(value = "name", required = true) String name,
+            @JsonProperty(value = "tile_url", required = true) String urlTemplate,
+            @JsonProperty(value = "projection", required = true) String projectionName,
+            @JsonProperty(value = "max_thread", defaultValue = "2") @Nullable Integer maxThread,
+            @JsonProperty(value = "default_zoom", defaultValue = "18") @Nullable Integer defaultZoom,
+            @JsonProperty(value = "invert_lat", defaultValue = "false") @Nullable Boolean invertLatitude,
+            @JsonProperty(value = "invert_zoom", defaultValue = "false") @Nullable Boolean invertZoom
+    ) throws NullPointerException, CloneNotSupportedException {
 
-        this.source = source;
-        this.id = id;
-        this.name = (String) jsonObject.get("name");
-        this.urlTemplate = (String) jsonObject.get("tile_url");
+        this.name = name;
+        this.urlTemplate = urlTemplate;
 
-        String projectionId = (String) jsonObject.get("projection");
-        this.tileProjection = ProjectionYamlLoader.INSTANCE.result.get(projectionId).clone();
-        this.urlConverter = new TileURLConverter();
+        TileProjection projectionSearchResult = ProjectionYamlLoader.INSTANCE.result.get(projectionName);
+        int _defaultZoom = NullValidator.get(defaultZoom, DEFAULT_ZOOM);
+        boolean _invertZoom = NullValidator.get(invertZoom, false);
 
-        if(jsonObject.containsKey("default_zoom")) {
-            int defaultZoom = (int) jsonObject.get("default_zoom");
-            tileProjection.setDefaultZoom(defaultZoom);
-            urlConverter.setDefaultZoom(defaultZoom);
+        if(projectionSearchResult != null) {
+            this.tileProjection = projectionSearchResult.clone();
+            tileProjection.setDefaultZoom(_defaultZoom);
+            tileProjection.setInvertZoom(_invertZoom);
+            tileProjection.setInvertLatitude(NullValidator.get(invertLatitude, false));
+        } else {
+            BTETerraRenderer.logger.error("Couldn't find tile projection named \"" + projectionName + "\"");
+            this.tileProjection = null;
         }
-        if(jsonObject.containsKey("invert_zoom")) {
-            boolean invertZoom = (boolean) jsonObject.get("invert_zoom");
-            tileProjection.setInvertZoom(invertZoom);
-            urlConverter.setInvertZoom(invertZoom);
-        }
-        if(jsonObject.containsKey("invert_lat"))
-            tileProjection.setInvertLatitude((boolean) jsonObject.get("invert_lat"));
 
-
-        int maxThread = (int) jsonObject.getOrDefault("max_thread", DEFAULT_MAX_THREAD);
-        this.downloadExecutor = Executors.newFixedThreadPool(maxThread);
+        this.urlConverter = new TileURLConverter(_defaultZoom, _invertZoom);
+        this.downloadExecutor = Executors.newFixedThreadPool(NullValidator.get(maxThread, DEFAULT_MAX_THREAD));
     }
 
 
     public void renderTile(
             Tessellator t, BufferBuilder builder,
-            int relativeZoom,
+            int relativeZoom, String tmsId,
             double y, float opacity,
             double playerX, double playerY, double playerZ,
             int tileDeltaX, int tileDeltaY
     ) {
+        if(this.tileProjection == null) return;
         try {
             double[] gameCoord, geoCoord = Projections.getServerProjection().toGeo(playerX, playerZ);
             int[] tileCoord = this.tileProjection.geoCoordToTileCoord(geoCoord[0], geoCoord[1], relativeZoom);
             int tileX = tileCoord[0] + tileDeltaX, tileY = tileCoord[1] + tileDeltaY;
-            final String tileKey = this.genTileKey(tileX, tileY, relativeZoom);
+            final String tileKey = this.genTileKey(tmsId, tileX, tileY, relativeZoom);
 
             TileImageCache cache = TileImageCache.getInstance();
             cache.cacheAllImagesInQueue();
@@ -131,7 +137,6 @@ public class TileMapService implements DropdownCategoryElement {
         } catch(Exception e) {
             BTETerraRenderer.logger.warn("Caught exception while rendering tile images", e);
         }
-
     }
 
 
@@ -142,25 +147,19 @@ public class TileMapService implements DropdownCategoryElement {
     }
 
 
-    public String genTileKey(int tileX, int tileY, int zoom) {
-        return "tilemap_" + this.id + "_" + tileX + "_" + tileY + "_" + zoom;
+    public boolean isRelativeZoomAvailable(int relativeZoom) {
+        return tileProjection != null && tileProjection.isRelativeZoomAvailable(relativeZoom);
+    }
+
+
+    public String genTileKey(String id, int tileX, int tileY, int zoom) {
+        return "tilemap_" + id + "_" + tileX + "_" + tileY + "_" + zoom;
     }
 
 
     @Override
     public String toString() {
-        return TileMapService.class.getName() + "{id=" + id + ", name=" + name + ", tile_url=" + urlTemplate + "}";
-    }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TileMapService that = (TileMapService) o;
-        return id.equals(that.id);
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+        return TileMapService.class.getName() + "{name=" + name + ", tile_url=" + urlTemplate + "}";
     }
 
 
