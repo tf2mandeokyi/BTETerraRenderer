@@ -58,6 +58,7 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
             @JsonProperty(value = "max_thread", defaultValue = "2") @Nullable Integer maxThread,
             @JsonProperty(value = "default_zoom", defaultValue = "18") @Nullable Integer defaultZoom,
             @JsonProperty(value = "invert_lat", defaultValue = "false") @Nullable Boolean invertLatitude,
+            @JsonProperty(value = "flip_vert", defaultValue = "false") @Nullable Boolean flipVertically,
             @JsonProperty(value = "invert_zoom", defaultValue = "false") @Nullable Boolean invertZoom
     ) throws NullPointerException, CloneNotSupportedException {
 
@@ -72,6 +73,7 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
             this.tileProjection = projectionSearchResult.clone();
             tileProjection.setDefaultZoom(_defaultZoom);
             tileProjection.setInvertZoom(_invertZoom);
+            tileProjection.setFlipVertically(NullValidator.get(flipVertically, false));
             tileProjection.setInvertLatitude(NullValidator.get(invertLatitude, false));
         } else {
             BTETerraRenderer.logger.error("Couldn't find tile projection named \"" + projectionName + "\"");

@@ -30,8 +30,7 @@ public class Proj4jProjectionTest {
         "}}");
 
         double[] coord = projection.fromGeo(127, 37);
-        Assert.assertEquals(coord[0], 200000, 0.01);
-        Assert.assertEquals(coord[1], 489012.95569100516, 0.01);
+        Assert.assertArrayEquals(coord, new double[] { 200000, 489012.95569100516 }, 0.01);
     }
 
     static {

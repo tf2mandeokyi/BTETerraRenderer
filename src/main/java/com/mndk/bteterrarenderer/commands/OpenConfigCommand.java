@@ -16,6 +16,7 @@ public class OpenConfigCommand extends CommandBase implements IClientCommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+		// TODO: make this work
 		MapRenderingOptionsSidebar.open();
 	}
 

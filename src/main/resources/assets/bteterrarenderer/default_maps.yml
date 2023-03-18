@@ -42,7 +42,7 @@ categories:
          projection: kakaoprojection
          max_thread: 2
          default_zoom: 1
-         invert_lat: true
+         flip_vert: true
          invert_zoom: true
          
       kakao_plain:
@@ -51,7 +51,7 @@ categories:
          projection: kakaoprojection
          max_thread: 2
          default_zoom: 1
-         invert_lat: true
+         flip_vert: true
          invert_zoom: true
 
       naver_aerial:

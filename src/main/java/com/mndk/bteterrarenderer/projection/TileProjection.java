@@ -28,7 +28,7 @@ public abstract class TileProjection {
     @Setter
     protected int defaultZoom = TileMapService.DEFAULT_ZOOM;
     @Setter
-    private boolean invertLatitude = false, invertZoom = false;
+    private boolean invertLatitude = false, invertZoom = false, flipVertically = false;
 
 
     /**
@@ -82,6 +82,6 @@ public abstract class TileProjection {
 
 
     public int[] getCornerMatrix(int i) {
-        return invertLatitude ? LAT_INVERTED_CORNER_MATRIX[i] : CORNER_MATRIX[i];
+        return invertLatitude ^ flipVertically ? LAT_INVERTED_CORNER_MATRIX[i] : CORNER_MATRIX[i];
     }
 }
