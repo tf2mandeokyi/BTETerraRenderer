@@ -61,7 +61,7 @@ public abstract class TileProjection {
             throws OutOfProjectionBoundsException {
 
         double[] coord = this.toGeoCoord(tileX, tileY, relativeZoomToAbsolute(relativeZoom));
-        coord[1] = -coord[1];
+        if(invertLatitude) coord[1] = -coord[1];
         return coord;
     }
     protected abstract double[] toGeoCoord(int tileX, int tileY, int absoluteZoom)
