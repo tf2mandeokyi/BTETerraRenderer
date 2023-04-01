@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath ('net.minecraftforge.gradle:ForgeGradle:5.1.+') { changing = true }
 		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.0'
     }
 }
@@ -26,39 +26,18 @@ compileJava.options.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
-    maven { // cubicchunks, cubicworldgen, terraplusplus
-        name = "JitPack"
-        url = "https://jitpack.io/"
-    }
-    maven { // leveldb
-        name = "DaPorkchop_"
-        url = "https://maven.daporkchop.net/"
-    }
-    maven { // leveldb
-        name = "OpenCollab Snapshots"
-        url = "https://repo.opencollab.dev/snapshot/"
-    }
-    maven { // jankson
-        name = "elytradev"
-        url = "https://repo.elytradev.com/"
-    }
+    // cubicchunks, cubicworldgen, terraplusplus
+    maven { name = "JitPack"; url = "https://jitpack.io/" }
+    // leveldb
+    maven { name = "DaPorkchop_"; url = "https://maven.daporkchop.net/" }
+    // leveldb
+    maven { name = "OpenCollab Snapshots"; url = "https://repo.opencollab.dev/snapshot/" }
+    // jankson
+    maven { name = "elytradev"; url = "https://repo.elytradev.com/" }
 }
 
 minecraft {
-    mappings channel: 'snapshot', version: project.mcp_mappings
-
-    runs {
-        client {
-            workingDirectory project.file('run/client')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-        server {
-            workingDirectory project.file('run/server')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-    }
+    mappings channel: 'snapshot', version: '20171003-1.12'
 }
 
 configurations {
@@ -67,25 +46,21 @@ configurations {
 }
 
 dependencies {
-
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
 
-    compile ('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') {
-        transitive = false
-    }
-    compile ('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') {
-        transitive = false
-    }
+    compile ('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
+    compile ('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
     compile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
 
     shade 'org.osgeo:proj4j:0.1.0'
     shade 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
 
-    testCompile 'junit:junit:4.13.2'
-    testCompile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
-
     compile 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    testImplementation 'com.github.BuildTheEarth:terraplusplus:f12de26053'
 }
 
 processResources {
@@ -118,3 +93,7 @@ tasks.register('relocateShadowJar', ConfigureShadowRelocation) {
     prefix = "${project.modGroup}.${project.modId}.dep"
 }
 shadowJar.dependsOn relocateShadowJar
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

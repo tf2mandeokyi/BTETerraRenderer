@@ -1,0 +1,85 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow'
+}
+
+version = project.modVersion
+group = project.modGroup
+archivesBaseName = project.modId
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+    maven { // cubicchunks, cubicworldgen, terraplusplus
+        name = "JitPack";
+        url = "https://jitpack.io/"
+    }
+    maven { // leveldb
+        name = "DaPorkchop_";
+        url = "https://maven.daporkchop.net/"
+    }
+    maven { // leveldb
+        name = "OpenCollab Snapshots";
+        url = "https://repo.opencollab.dev/snapshot/"
+    }
+    maven { // jankson
+        name = "elytradev";
+        url = "https://repo.elytradev.com/"
+    }
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+dependencies {
+    shade 'com.github.BuildTheEarth:terraplusplus:f12de26053'
+    shade 'org.osgeo:proj4j:0.1.0'
+    shade 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
+    shade 'io.netty:netty-all:4.1.90.Final'
+
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+}
+
+shadowJar {
+    classifier = null
+    configurations = [project.configurations.shade]
+
+    exclude 'module-info.class'
+}
+build.dependsOn shadowJar
+
+reobf {
+    shadowJar {}
+}
+
+tasks.register('relocateShadowJar', ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+    prefix = "${project.modGroup}.${project.modId}.dep"
+}
+shadowJar.dependsOn relocateShadowJar
+
+test {
+    useJUnitPlatform()
+}
