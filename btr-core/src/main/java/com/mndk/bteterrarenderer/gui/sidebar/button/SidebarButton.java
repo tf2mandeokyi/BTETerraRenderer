@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.gui.sidebar.button;
 
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiButton;
+import com.mndk.bteterrarenderer.connector.gui.IGuiButton;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 public class SidebarButton extends GuiSidebarElement {

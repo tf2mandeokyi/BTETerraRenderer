@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IFontRenderer;
+import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
 
 public abstract class GuiSidebarElement {
 

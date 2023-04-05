@@ -1,13 +1,12 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
+import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.IScaledResolution;
+import com.mndk.bteterrarenderer.connector.gui.AbstractGuiScreen;
+import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.GameSettingsConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.MouseConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.SoundConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.IScaledResolution;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.AbstractGuiScreen;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IFontRenderer;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
 import java.io.IOException;
@@ -16,8 +15,6 @@ import java.util.List;
 
 public class GuiSidebar extends AbstractGuiScreen {
 
-
-    protected final AbstractGuiScreen parent;
     protected final List<GuiSidebarElement> elements;
     private SidebarSide side;
     private final int paddingSide;
@@ -37,11 +34,9 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     public GuiSidebar(
-            AbstractGuiScreen parent, SidebarSide side,
-            int paddingSide, int paddingTopBottom, int elementDistance,
+            SidebarSide side, int paddingSide, int paddingTopBottom, int elementDistance,
             GetterSetter<Integer> elementWidth, boolean guiPausesGame
     ) {
-        this.parent = parent;
         this.elements = new ArrayList<>();
         this.side = side;
         this.paddingSide = paddingSide;
@@ -61,11 +56,11 @@ public class GuiSidebar extends AbstractGuiScreen {
     }
 
     public void initGui() {
-        this.guiChat.initGui(parent.getScaledResolution());
+        this.guiChat.initGui(scaledResolution.get());
         this.guiChat.changeSideMargin(side, this.elementWidth.get() + 2 * this.paddingSide);
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
-            element.initGui(this, parent.getFontRenderer());
+            element.initGui(this, fontRenderer.get());
         }
     }
 
@@ -109,7 +104,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     private void drawSidebarBackground(int mouseX) {
-        IScaledResolution scaled = parent.getScaledResolution();
+        IScaledResolution scaled = scaledResolution.get();
 
         int widthChangeBarX;
 
@@ -150,7 +145,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
         int sidebarWidth = elementWidth.get() + 2 * this.paddingSide;
         if(side == SidebarSide.RIGHT) {
-            sidebarWidth = parent.getScaledResolution().getScaledWidth() - sidebarWidth;
+            sidebarWidth = scaledResolution.get().getScaledWidth() - sidebarWidth;
         }
 
         if(Math.abs(mouseX - sidebarWidth) <= 4) {
@@ -189,7 +184,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     public void handleMouseInput() throws IOException {
-        int mouseX = (int) (MouseConnector.INSTANCE.getEventX() * parent.getWidth() / (double) parent.minecraftDisplayWidth());
+        int mouseX = (int) (MouseConnector.INSTANCE.getEventX() * guiWidth.get() / (double) minecraftDisplayWidth.get());
         if(this.guiChat.isOpened() && !this.mouseOnSidebar(mouseX)) {
             this.guiChat.handleMouseInput();
         } else {
@@ -200,7 +195,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     private boolean mouseOnSidebar(int mouseX) {
-        IScaledResolution scaled = parent.getScaledResolution();
+        IScaledResolution scaled = scaledResolution.get();
         int left, right;
 
         if(this.side == SidebarSide.LEFT) {
@@ -217,7 +212,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
     private void validateVerticalSlider() {
         if(verticalSlider != 0) {
-            IScaledResolution scaled = parent.getScaledResolution();
+            IScaledResolution scaled = scaledResolution.get();
 
             if (this.verticalSlider > this.totalHeight - scaled.getScaledHeight()) {
                 this.verticalSlider = this.totalHeight - scaled.getScaledHeight();
@@ -228,7 +223,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     private int getTranslateX() {
-        IScaledResolution scaled = parent.getScaledResolution();
+        IScaledResolution scaled = scaledResolution.get();
 
         if(this.side == SidebarSide.LEFT) {
             return this.paddingSide;
@@ -264,28 +259,9 @@ public class GuiSidebar extends AbstractGuiScreen {
         }
     }
 
-    @Override
-    public int getWidth() {
-        return parent.getWidth();
-    }
 
     @Override
-    public int minecraftDisplayWidth() {
-        return parent.minecraftDisplayWidth();
-    }
-
-    @Override
-    public IScaledResolution getScaledResolution() {
-        return parent.getScaledResolution();
-    }
-
-    @Override
-    public IFontRenderer getFontRenderer() {
-        return parent.getFontRenderer();
-    }
-
-
-    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+    public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         if(widthChangingState) {
             int dMouseX = mouseX - initialMouseX;
             int newElementWidth = initialElementWidth + (side == SidebarSide.LEFT ? dMouseX : -dMouseX);
@@ -312,11 +288,12 @@ public class GuiSidebar extends AbstractGuiScreen {
         }
     }
 
-
+    @Override
     public void onGuiClosed() {
         this.guiChat.setOpened(false);
     }
 
+    @Override
     public boolean doesGuiPauseGame() {
         return guiPausesGame;
     }

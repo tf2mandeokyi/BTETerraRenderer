@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.decorator;
 
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 public class SidebarHorizontalLine extends GuiSidebarElement {

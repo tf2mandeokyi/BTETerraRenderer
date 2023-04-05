@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import lombok.AllArgsConstructor;
 
 import java.awt.image.BufferedImage;

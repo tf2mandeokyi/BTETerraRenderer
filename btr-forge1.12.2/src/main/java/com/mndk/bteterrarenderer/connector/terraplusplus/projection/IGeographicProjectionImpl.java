@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 public class IGeographicProjectionImpl implements IGeographicProjection {
-    private final GeographicProjection delegate;
+    public final GeographicProjection delegate;
 
     public double[] toGeo(double x, double y) throws Exception {
         return delegate.toGeo(x, y);

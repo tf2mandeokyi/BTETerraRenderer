@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.IScaledResolution;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiChat;
+import com.mndk.bteterrarenderer.connector.graphics.IScaledResolution;
+import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.gui.IGuiChat;
 import lombok.Getter;
 import lombok.Setter;
 

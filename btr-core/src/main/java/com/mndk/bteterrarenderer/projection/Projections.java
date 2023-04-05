@@ -21,6 +21,6 @@ public class Projections {
 	}
 
 	static {
-		BTE = DependencyConnectorSupplier.INSTANCE.getBTEProjection();
+		BTE = DependencyConnectorSupplier.INSTANCE.createBTEProjection();
 	}
 }

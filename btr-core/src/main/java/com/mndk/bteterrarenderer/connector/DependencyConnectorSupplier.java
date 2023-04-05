@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.connector;
 
+import com.mndk.bteterrarenderer.connector.gui.*;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.*;
 import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
 
 import java.io.IOException;
@@ -24,8 +24,7 @@ public interface DependencyConnectorSupplier {
     IResourceLocation newResourceLocation(String modId, String location);
 
     // Terraplusplus
-    void registerProjection(String id, Class<? extends IGeographicProjection> projection);
     String projectionToJson(IGeographicProjection projection) throws IOException;
     IGeographicProjection parse(String projectionJson);
-    IGeographicProjection getBTEProjection();
+    IGeographicProjection createBTEProjection();
 }

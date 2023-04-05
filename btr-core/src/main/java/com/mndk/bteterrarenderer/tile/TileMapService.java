@@ -3,9 +3,9 @@ package com.mndk.bteterrarenderer.tile;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.BufferBuilderConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormatConnectorEnum;
+import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
@@ -106,9 +106,9 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
             }
 
             cache.bindTexture(tileKey);
-            BufferBuilderConnector builder = GraphicsConnector.INSTANCE.getBufferBuilder();
+            IBufferBuilder builder = GraphicsConnector.INSTANCE.getBufferBuilder();
             // begin vertex
-            builder.begin(/* GL_QUADS */ 7, VertexFormatConnectorEnum.POSITION_TEX_COLOR);
+            builder.beginQuads(VertexFormatConnectorEnum.POSITION_TEX_COLOR);
             /*
              *  i=0 ------ i=1
              *   |          |

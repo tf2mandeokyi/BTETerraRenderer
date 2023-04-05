@@ -2,10 +2,9 @@ package com.mndk.bteterrarenderer.gui;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.AbstractGuiScreen;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarBooleanButton;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarButton;
@@ -31,13 +30,12 @@ import java.util.Map;
 
 public class MapRenderingOptionsSidebar extends GuiSidebar {
 
-
+    private static MapRenderingOptionsSidebar INSTANCE;
     private final SidebarDropdownSelector<TileMapService> mapSourceDropdown;
 
-    
-    public MapRenderingOptionsSidebar(AbstractGuiScreen parent) {
+    public MapRenderingOptionsSidebar() {
         super(
-                parent, BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide(),
+                BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide(),
                 20, 20, 7,
                 GetterSetter.from(BTETerraRendererCore.CONFIG.uiSettings::getSidebarWidth, BTETerraRendererCore.CONFIG.uiSettings::setSidebarWidth),
                 false
@@ -131,7 +129,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         ));
     }
 
-
     private void reloadMaps() {
         try {
             Map<String, Boolean> opened = new HashMap<>();
@@ -155,7 +152,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
-
     private void openMapsFolder() {
         try {
             if(Desktop.isDesktopSupported()) {
@@ -164,9 +160,10 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         } catch(Exception ignored) {}
     }
 
-    public void open() {
-        this.setSide(BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide());
-        GuiStaticConnector.INSTANCE.displayGuiScreen(this);
+    public static void open() {
+        if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
+        INSTANCE.setSide(BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide());
+        GuiStaticConnector.INSTANCE.displayGuiScreen(INSTANCE);
     }
 
     @Override

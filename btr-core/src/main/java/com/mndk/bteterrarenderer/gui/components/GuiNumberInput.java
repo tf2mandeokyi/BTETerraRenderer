@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.gui.components;
 
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IFontRenderer;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiTextField;
+import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
+import com.mndk.bteterrarenderer.connector.gui.IGuiTextField;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import com.mndk.bteterrarenderer.util.StringToNumber;
 

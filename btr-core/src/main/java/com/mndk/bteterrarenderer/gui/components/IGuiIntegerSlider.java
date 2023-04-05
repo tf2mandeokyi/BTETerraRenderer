@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.gui.components;
 
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiSlider;
+import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.gui.IGuiSlider;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

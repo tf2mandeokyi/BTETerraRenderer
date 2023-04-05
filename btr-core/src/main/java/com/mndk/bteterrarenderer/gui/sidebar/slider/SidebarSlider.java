@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.gui.sidebar.slider;
 
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiSlider;
+import com.mndk.bteterrarenderer.connector.gui.IGuiSlider;
 import com.mndk.bteterrarenderer.gui.components.IGuiIntegerSlider;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;

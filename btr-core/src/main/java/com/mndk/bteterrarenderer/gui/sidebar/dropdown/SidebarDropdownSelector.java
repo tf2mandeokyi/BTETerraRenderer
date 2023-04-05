@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.BufferBuilderConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GlFactor;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormatConnectorEnum;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
+import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
+import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -198,13 +198,13 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
             temp = right; right = left; left = temp;
         }
 
-        BufferBuilderConnector builder = GraphicsConnector.INSTANCE.getBufferBuilder();
+        IBufferBuilder builder = GraphicsConnector.INSTANCE.getBufferBuilder();
         GraphicsConnector.INSTANCE.glEnableBlend();
         GraphicsConnector.INSTANCE.glDisableTexture2D();
         GraphicsConnector.INSTANCE.glTryBlendFuncSeparate(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA, GlFactor.ONE, GlFactor.ZERO);
         GraphicsConnector.INSTANCE.glColor(red, green, blue, alpha);
 
-        builder.begin(7, VertexFormatConnectorEnum.POSITION);
+        builder.beginQuads(VertexFormatConnectorEnum.POSITION);
         builder.pos(left, top, 0.0D).endVertex();
         builder.pos((left + right) / 2., bottom, 0.0D).endVertex();
         builder.pos((left + right) / 2., bottom, 0.0D).endVertex();

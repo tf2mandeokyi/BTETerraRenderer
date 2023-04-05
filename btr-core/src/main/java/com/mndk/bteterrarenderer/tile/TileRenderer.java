@@ -2,20 +2,22 @@ package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GlFactor;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.projection.Projections;
 
 import java.util.function.BiConsumer;
 
 public class TileRenderer {
 
-    public static void renderTiles(String tmsId, TileMapService tms, double px, double py, double pz) {
+    public static void renderTiles(double px, double py, double pz) {
+
+        BTETerraRendererConfig config = BTETerraRendererCore.CONFIG;
+        BTETerraRendererConfig.RenderSettings settings = config.renderSettings;
+        TileMapService tms = BTETerraRendererConfig.getTileMapService();
 
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
-
-        BTETerraRendererConfig.RenderSettings settings = BTETerraRendererCore.CONFIG.renderSettings;
 
         double yDiff = settings.getYAxis() - py;
         if(Math.abs(yDiff) >= settings.getYDiffLimit()) {
@@ -34,7 +36,8 @@ public class TileRenderer {
         BiConsumer<Integer, Integer> drawTile = (dx, dy) -> {
             if(Math.abs(dx) > size || Math.abs(dy) > size) return;
             tms.renderTile(
-                    settings.getZoom(), tmsId,
+                    settings.getZoom(),
+                    config.mapServiceCategory + "." + config.mapServiceId,
                     settings.getYAxis() + 0.1, // Adding .1 to y because of texture-overlapping issue
                     (float) settings.getOpacity(),
                     px + settings.getXAlign(), py, pz + settings.getZAlign(),

@@ -3,8 +3,6 @@ package com.mndk.bteterrarenderer.projection;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
 import lombok.Getter;
 import org.osgeo.proj4j.*;
 
@@ -12,7 +10,7 @@ import org.osgeo.proj4j.*;
  * Proj4j + GeographicProjection
  */
 @JsonDeserialize
-public class Proj4jProjection implements IGeographicProjection {
+public class Proj4jProjection {
 
 	private static final CRSFactory crsFactory = new CRSFactory();
 	private static final CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
@@ -48,25 +46,15 @@ public class Proj4jProjection implements IGeographicProjection {
 		this(crsFactory.createFromParameters(crsName, crsParameter));
 	}
 
-	@Override
 	public double[] fromGeo(double longitude, double latitude) {
 		ProjCoordinate result = new ProjCoordinate();
 		toTargetCrs.transform(new ProjCoordinate(longitude, latitude), result);
 		return new double[] {result.x, result.y};
 	}
 
-	@Override
 	public double[] toGeo(double x, double z) {
 		ProjCoordinate result = new ProjCoordinate();
 		toWgs.transform(new ProjCoordinate(x, z), result);
 		return new double[] {result.x, result.y};
-	}
-
-	public static void registerProjection() {
-		DependencyConnectorSupplier.INSTANCE.registerProjection("proj4", Proj4jProjection.class);
-	}
-
-	static {
-		registerProjection();
 	}
 }
