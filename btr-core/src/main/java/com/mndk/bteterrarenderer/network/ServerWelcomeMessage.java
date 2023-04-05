@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.network;
 
-import io.netty.buffer.ByteBuf;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.netty.IByteBuf;
+import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
 import lombok.Getter;
-import net.buildtheearth.terraplusplus.TerraConstants;
-import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,18 +18,18 @@ public class ServerWelcomeMessage {
         this.projectionJson = projectionJson;
     }
 
-    public ServerWelcomeMessage(GeographicProjection serverProjection) throws IOException {
-        this(TerraConstants.JSON_MAPPER.writeValueAsString(serverProjection));
+    public ServerWelcomeMessage(IGeographicProjection serverProjection) throws IOException {
+        this(DependencyConnectorSupplier.INSTANCE.projectionToJson(serverProjection));
     }
 
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(IByteBuf buf) {
         int strLength = buf.readInt();
         if(strLength != -1) {
             projectionJson = buf.readCharSequence(strLength, StandardCharsets.UTF_8).toString();
         }
     }
 
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(IByteBuf buf) {
         if(projectionJson != null) {
             buf.writeInt(projectionJson.getBytes(StandardCharsets.UTF_8).length);
             buf.writeCharSequence(projectionJson, StandardCharsets.UTF_8);
@@ -38,7 +38,7 @@ public class ServerWelcomeMessage {
         }
     }
 
-    public GeographicProjection getProjection() {
-        return GeographicProjection.parse(projectionJson);
+    public IGeographicProjection getProjection() {
+        return DependencyConnectorSupplier.INSTANCE.parse(projectionJson);
     }
 }

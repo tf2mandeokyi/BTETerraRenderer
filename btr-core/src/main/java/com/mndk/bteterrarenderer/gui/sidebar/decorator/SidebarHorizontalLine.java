@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.decorator;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 public class SidebarHorizontalLine extends GuiSidebarElement {
@@ -20,7 +20,7 @@ public class SidebarHorizontalLine extends GuiSidebarElement {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        Connectors.GUI.drawRect(0, 0, parent.elementWidth.get(), thickness, color);
+        GuiStaticConnector.INSTANCE.drawRect(0, 0, parent.elementWidth.get(), thickness, color);
     }
 
     @Override protected void init() {}

@@ -1,6 +1,10 @@
 package com.mndk.bteterrarenderer.connector.minecraft;
 
+import com.mndk.bteterrarenderer.connector.ImplFinder;
+
 public interface GameSettingsConnector {
-    char getKeyBindChatCode();
-    char getKeyBindCommandCode();
+    GameSettingsConnector INSTANCE = ImplFinder.search(GameSettingsConnector.class);
+
+    int getKeyBindChatCode();
+    int getKeyBindCommandCode();
 }

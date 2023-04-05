@@ -1,19 +1,67 @@
-plugins {
-    id 'java'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath ('net.minecraftforge.gradle:ForgeGradle:5.1.+') { changing = true }
+    }
 }
 
-group = 'com.mndk'
-version = '1.02.1'
+plugins {
+    id 'net.minecraftforge.gradle'
+    id 'btr.java-conventions'
+}
 
 repositories {
     mavenCentral()
+    // cubicchunks, cubicworldgen, terraplusplus
+    maven { name = "JitPack"; url = "https://jitpack.io/" }
+    // leveldb
+    maven { name = "DaPorkchop_"; url = "https://maven.daporkchop.net/" }
+    // leveldb
+    maven { name = "OpenCollab Snapshots"; url = "https://repo.opencollab.dev/snapshot/" }
+    // jankson
+    maven { name = "elytradev"; url = "https://repo.elytradev.com/" }
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+}
+
+configurations {
+    shadeCore
+    implementation.extendsFrom shadeCore
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+
+    shadeCore fg.deobf(project(':btr-core'))
+
+    implementation fg.deobf('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
+    implementation fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
+    implementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
+    testImplementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
 }
 
-test {
-    useJUnitPlatform()
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", "1.12.2"
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': "1.12.2"
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
+
+shadowJar {
+    classifier = null
+    configurations = [ project.configurations.shadeDep, project.configurations.shadeCore ]
+    exclude 'module-info.class'
+}
+build.dependsOn shadowJar

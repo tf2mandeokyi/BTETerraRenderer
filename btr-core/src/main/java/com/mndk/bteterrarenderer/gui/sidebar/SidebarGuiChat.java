@@ -1,27 +1,29 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiChatConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.ScaledResolutionConnector;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.IScaledResolution;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiChat;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.io.IOException;
 
 public class SidebarGuiChat {
 
     @Getter @Setter
     private boolean opened;
-    private final GuiChatConnector parent;
+    private final IGuiChat parent;
 
     private int left, right;
 
     public SidebarGuiChat() {
-        this.parent = Connectors.SUPPLIER.newGuiChat();
+        this.parent = DependencyConnectorSupplier.INSTANCE.newGuiChat();
         this.opened = false;
     }
 
 
-    public void initGui(ScaledResolutionConnector resolution) {
+    public void initGui(IScaledResolution resolution) {
         this.left = 0;
         this.right = resolution.getScaledWidth();
         parent.setWidth(resolution.getScaledWidth());
@@ -49,7 +51,7 @@ public class SidebarGuiChat {
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        Connectors.GUI.drawRect(
+        GuiStaticConnector.INSTANCE.drawRect(
                 left + 2, parent.getHeight() - 14,
                 right - 2, parent.getHeight() - 2, Integer.MIN_VALUE
         );
@@ -73,7 +75,8 @@ public class SidebarGuiChat {
 
     public boolean mouseClickResponse(int mouseX, int mouseY, int mouseButton) {
         if (mouseButton == 0) {
-            parent.handleMouseClick(mouseX, mouseY, mouseButton);
+            boolean componentClicked = parent.handleMouseClick(mouseX, mouseY, mouseButton);
+            if(componentClicked) return true;
             parent.setInputFieldFocused(
                     mouseX >= this.left && mouseX <= this.right &&
                             mouseY >= parent.getHeight() - 16 && mouseY <= parent.getHeight()
@@ -87,7 +90,7 @@ public class SidebarGuiChat {
         parent.updateScreen();
     }
 
-    public void handleMouseInput() {
+    public void handleMouseInput() throws IOException {
         parent.handleMouseInput();
     }
 }

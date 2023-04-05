@@ -1,9 +1,8 @@
 package com.mndk.bteterrarenderer.loader;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.connector.terraplusplus.JacksonConnector;
 import com.mndk.bteterrarenderer.tile.TileMapService;
-import com.mndk.bteterrarenderer.util.reader.TppDepJacksonYAMLReader;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -19,8 +18,7 @@ public class TMSYamlLoader extends YamlLoader<CategoryMapData<TileMapService>> {
 	}
 
 	protected CategoryMapData<TileMapService> load(String fileName, Reader fileReader) throws IOException {
-		CategoryMapData<TileMapService> result
-				= TppDepJacksonYAMLReader.read(fileReader, new TypeReference<CategoryMapData<TileMapService>>() {});
+		CategoryMapData<TileMapService> result = JacksonConnector.INSTANCE.readYamlTileMapServices(fileReader);
 		result.setSource(fileName);
 		return result;
 	}

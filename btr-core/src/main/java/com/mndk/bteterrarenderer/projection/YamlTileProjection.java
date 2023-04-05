@@ -1,11 +1,10 @@
 package com.mndk.bteterrarenderer.projection;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
 import lombok.Data;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonCreator;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import net.buildtheearth.terraplusplus.projection.GeographicProjection;
-import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 
 import java.util.Map;
 
@@ -13,12 +12,12 @@ import java.util.Map;
 public class YamlTileProjection extends TileProjection {
 
 
-    private final GeographicProjection projection;
+    private final IGeographicProjection projection;
     private final Map<Integer, TileMatrix> matrices;
 
     @JsonCreator
     public YamlTileProjection(
-            @JsonProperty(value = "projection", required = true) GeographicProjection projection,
+            @JsonProperty(value = "projection", required = true) IGeographicProjection projection,
             @JsonProperty(value = "tile_matrices", required = true) Map<Integer, TileMatrix> matrices
     ) {
         this.projection = projection;
@@ -27,19 +26,19 @@ public class YamlTileProjection extends TileProjection {
 
 
     @Override
-    protected int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException {
+    protected int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws Exception {
         double[] coordinate = this.projection.fromGeo(longitude, latitude);
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 
         int tileX = (int) Math.floor((coordinate[0] - matrix.pointOfOrigin[0]) / matrix.tileSize[0]);
         int tileY = (int) Math.floor((matrix.pointOfOrigin[1] - coordinate[1]) / matrix.tileSize[1]);
 
-        return new int[] { tileX, tileY };
+        return new int[]{tileX, tileY};
     }
 
 
     @Override
-    protected double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException {
+    protected double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws Exception {
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 
         double tileCoordinateX = tileX * matrix.tileSize[0] + matrix.pointOfOrigin[0];

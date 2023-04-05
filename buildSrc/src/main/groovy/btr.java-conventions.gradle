@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow'
+}
+
+version = project.modVersion
+group = project.modGroup
+archivesBaseName = project.modId
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    shadeDep
+    implementation.extendsFrom shadeDep
+}
+
+dependencies {
+    shadeDep 'org.osgeo:proj4j:0.1.0'
+    shadeDep "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$project.jacksonVersion"
+    shadeDep 'org.reflections:reflections:0.10.2'
+
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+}
+
+shadowJar {
+    classifier = null
+    configurations = [ project.configurations.shadeDep ]
+    exclude 'module-info.class'
+}
+build.dependsOn shadowJar
+
+reobf {
+    shadowJar {}
+}
+
+tasks.register('relocateShadowDepJar', CustomConfigureShadowRelocation) {
+    target = tasks.shadowJar
+    prefix = "${project.modGroup}.${project.modId}.dep"
+    configurations = [ project.configurations.shadeDep ]
+}
+shadowJar.dependsOn relocateShadowDepJar
+
+test {
+    useJUnitPlatform()
+}

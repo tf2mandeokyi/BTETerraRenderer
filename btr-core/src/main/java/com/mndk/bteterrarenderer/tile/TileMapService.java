@@ -1,25 +1,25 @@
 package com.mndk.bteterrarenderer.tile;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.Connectors;
 import com.mndk.bteterrarenderer.connector.minecraft.graphics.BufferBuilderConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormat;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormatConnectorEnum;
+import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
+import com.mndk.bteterrarenderer.util.ExceptionAnalyzer;
 import com.mndk.bteterrarenderer.util.NullValidator;
-import io.netty.buffer.ByteBufInputStream;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonCreator;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
-import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
-import net.buildtheearth.terraplusplus.util.http.Http;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -106,9 +106,9 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
             }
 
             cache.bindTexture(tileKey);
-            BufferBuilderConnector builder = Connectors.GRAPHICS.getBufferBuilder();
+            BufferBuilderConnector builder = GraphicsConnector.INSTANCE.getBufferBuilder();
             // begin vertex
-            builder.begin(/* GL_QUADS */ 7, VertexFormat.POSITION_TEX_COLOR);
+            builder.begin(/* GL_QUADS */ 7, VertexFormatConnectorEnum.POSITION_TEX_COLOR);
             /*
              *  i=0 ------ i=1
              *   |          |
@@ -126,10 +126,12 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
                         .color(1f, 1f, 1f, opacity)
                         .endVertex();
             }
-            Connectors.GRAPHICS.tessellatorDraw();
+            GraphicsConnector.INSTANCE.tessellatorDraw();
 
-        } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {
+            if(ExceptionAnalyzer.isProjectionBoundsException(e)) {
+               return; // Ignore if the thrown exception is OutOfProjectionBoundsException or something
+            }
             BTETerraRendererCore.logger.warn("Caught exception while rendering tile images", e);
         }
     }
@@ -173,7 +175,7 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
             }
             else {
                 try {
-                    ByteBufInputStream stream = new ByteBufInputStream(Http.get(url).get());
+                    InputStream stream = HttpConnector.INSTANCE.download(url);
                     cache.tileDownloadingComplete(tileKey, ImageIO.read(stream));
                 } catch (Exception e) {
                     BTETerraRendererCore.logger.error("Caught exception while downloading a tile image (" +

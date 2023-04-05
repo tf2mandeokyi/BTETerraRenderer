@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.connector.Connectors;
 import com.mndk.bteterrarenderer.connector.minecraft.graphics.GlFactor;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.projection.Projections;
 
 import java.util.function.BiConsumer;
@@ -22,12 +22,12 @@ public class TileRenderer {
             return;
         }
 
-        Connectors.GRAPHICS.glPushMatrix();
-        Connectors.GRAPHICS.glDisableCull();
-        Connectors.GRAPHICS.glEnableBlend();
-        Connectors.GRAPHICS.glBlendFunc(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA);
+        GraphicsConnector.INSTANCE.glPushMatrix();
+        GraphicsConnector.INSTANCE.glDisableCull();
+        GraphicsConnector.INSTANCE.glEnableBlend();
+        GraphicsConnector.INSTANCE.glBlendFunc(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA);
 
-        Connectors.GRAPHICS.glScale(1, 1, 1);
+        GraphicsConnector.INSTANCE.glScale(1, 1, 1);
 
         int size = settings.getRadius() - 1;
 
@@ -57,9 +57,9 @@ public class TileRenderer {
 
         TileImageCacheManager.getInstance().cleanup();
 
-        Connectors.GRAPHICS.glDisableBlend();
-        Connectors.GRAPHICS.glEnableCull();
-        Connectors.GRAPHICS.glPopMatrix();
+        GraphicsConnector.INSTANCE.glDisableBlend();
+        GraphicsConnector.INSTANCE.glEnableCull();
+        GraphicsConnector.INSTANCE.glPopMatrix();
     }
 
 }

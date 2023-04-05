@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.Connectors;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
 import lombok.AllArgsConstructor;
 
 import java.awt.image.BufferedImage;
@@ -90,7 +90,7 @@ public class TileImageCacheManager {
 		synchronized (this) {
 			int glId = validateAndGetGlId(tileKey);
 			this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
-			Connectors.GRAPHICS.glBindTexture(glId);
+			GraphicsConnector.INSTANCE.glBindTexture(glId);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class TileImageCacheManager {
 			if (glTextureIdMap.containsKey(tileKey)) {
 				int glId = glTextureIdMap.get(tileKey).glId;
 				glTextureIdMap.remove(tileKey);
-				Connectors.GRAPHICS.glDeleteTexture(glId);
+				GraphicsConnector.INSTANCE.glDeleteTexture(glId);
 				log("Deleted texture " + tileKey);
 			}
 		}
@@ -141,13 +141,13 @@ public class TileImageCacheManager {
 	 * */
 	private int initializeTile(BufferedImage image) {
 		int width = image.getWidth(), height = image.getHeight();
-		int glTextureId = Connectors.GRAPHICS.glGenTextures();
+		int glTextureId = GraphicsConnector.INSTANCE.glGenTextures();
 
 		int[] imageData = new int[width * height];
 		image.getRGB(0, 0, width, height, imageData, 0, width);
 
-		Connectors.GRAPHICS.glAllocateTexture(glTextureId, width, height);
-		Connectors.GRAPHICS.glUploadTexture(glTextureId, imageData, width, height);
+		GraphicsConnector.INSTANCE.allocateTexture(glTextureId, width, height);
+		GraphicsConnector.INSTANCE.uploadTexture(glTextureId, imageData, width, height);
 
 		return glTextureId;
 	}

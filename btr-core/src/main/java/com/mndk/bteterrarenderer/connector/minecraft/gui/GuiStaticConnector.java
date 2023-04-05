@@ -1,12 +1,14 @@
 package com.mndk.bteterrarenderer.connector.minecraft.gui;
 
-import com.mndk.bteterrarenderer.connector.minecraft.ResourceLocationConnector;
+import com.mndk.bteterrarenderer.connector.ImplFinder;
+import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 
 public interface GuiStaticConnector {
+    GuiStaticConnector INSTANCE = ImplFinder.search(GuiStaticConnector.class);
 
     void displayGuiScreen(Object gui);
     void drawRect(int x, int y, int w, int h, int color);
-    void drawContinuousTexturedBox(ResourceLocationConnector res,
+    void drawContinuousTexturedBox(IResourceLocation res,
                                    int x, int y, int u, int v,
                                    int width, int height,
                                    int textureWidth, int textureHeight,

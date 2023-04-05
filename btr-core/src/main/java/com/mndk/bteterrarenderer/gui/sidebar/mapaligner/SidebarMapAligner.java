@@ -1,9 +1,13 @@
 package com.mndk.bteterrarenderer.gui.sidebar.mapaligner;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.ResourceLocationConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiCheckBoxConnector;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.connector.minecraft.ClientPlayerConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiCheckBox;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -18,14 +22,14 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
     private static final double MOUSE_DIVIDER = 30;
 
-    private static final ResourceLocationConnector ALIGNMENT_MARKER = Connectors.SUPPLIER.newResourceLocation(
+    private static final IResourceLocation ALIGNMENT_MARKER = DependencyConnectorSupplier.INSTANCE.newResourceLocation(
             BTETerraRendererCore.MODID, "textures/ui/alignment_marker.png"
     );
 
     private GuiNumberInput xInput, zInput;
     private final GetterSetter<Double> xOffset, zOffset;
 
-    private GuiCheckBoxConnector lockNorthCheckBox;
+    private IGuiCheckBox lockNorthCheckBox;
     private final GetterSetter<Boolean> lockNorth;
 
     private int pMouseX = -1, pMouseY = -1;
@@ -55,10 +59,10 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 width / 2 + 3, 0, width / 2 - 3, 20,
                 zOffset, "Z = "
         );
-        this.lockNorthCheckBox = Connectors.SUPPLIER.newCheckBox(
+        this.lockNorthCheckBox = DependencyConnectorSupplier.INSTANCE.newCheckBox(
                 -1,
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT * 2 + ALIGNBOX_HEIGHT,
-                Connectors.I18N.format("gui.bteterrarenderer.new_settings.lock_north"), this.lockNorth.get()
+                I18nConnector.INSTANCE.format("gui.bteterrarenderer.new_settings.lock_north"), this.lockNorth.get()
         );
         this.setPlayerYawRadians();
     }
@@ -66,7 +70,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private void setPlayerYawRadians() {
         this.playerYawRadians = lockNorthCheckBox.isChecked() ?
                 Math.PI :
-                Math.toRadians(Connectors.PLAYER.getRotationYaw());
+                Math.toRadians(ClientPlayerConnector.INSTANCE.getRotationYaw());
     }
 
     @Override
@@ -100,13 +104,13 @@ public class SidebarMapAligner extends GuiSidebarElement {
         int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;
 
         // Enable box clipping
-        Connectors.GRAPHICS.glEnableScissorTest();
-        Connectors.GRAPHICS.glRelativeScissor(
+        GraphicsConnector.INSTANCE.glEnableScissorTest();
+        GraphicsConnector.INSTANCE.glRelativeScissor(
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT,
                 parent.elementWidth.get() - 2 * ALIGNBOX_MARGIN_SIDE, ALIGNBOX_HEIGHT
         );
 
-        Connectors.GUI.drawRect(
+        GuiStaticConnector.INSTANCE.drawRect(
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT,
                 elementWidth - ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT,
                 0xBB000000
@@ -138,7 +142,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         }
 
         // Disable box clipping
-        Connectors.GRAPHICS.glDisableScissorTest();
+        GraphicsConnector.INSTANCE.glDisableScissorTest();
 
         // Center marker
         GuiUtils.drawCenteredImage(ALIGNMENT_MARKER, centerX, centerY, 0, 4, 4);

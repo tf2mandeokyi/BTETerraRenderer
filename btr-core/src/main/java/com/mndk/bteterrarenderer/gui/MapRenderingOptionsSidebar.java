@@ -2,9 +2,10 @@ package com.mndk.bteterrarenderer.gui;
 
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiScreenConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.AbstractGuiScreen;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarBooleanButton;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarButton;
@@ -34,7 +35,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private final SidebarDropdownSelector<TileMapService> mapSourceDropdown;
 
     
-    public MapRenderingOptionsSidebar(GuiScreenConnector parent) {
+    public MapRenderingOptionsSidebar(AbstractGuiScreen parent) {
         super(
                 parent, BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide(),
                 20, 20, 7,
@@ -44,7 +45,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig config = BTETerraRendererCore.CONFIG;
         BTETerraRendererConfig.RenderSettings renderSettings = config.renderSettings;
 
-        I18nConnector i18n = Connectors.I18N;
+        I18nConnector i18n = I18nConnector.INSTANCE;
 
         SidebarBlank blank = new SidebarBlank(10);
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
@@ -150,7 +151,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 }
             }
         } catch(Exception e) {
-            Connectors.ERROR_HANDLER.sendToClient("Caught an error while reloading maps! Reason: " + e.getMessage());
+            ErrorMessageHandler.INSTANCE.sendToClient("Caught an error while reloading maps! Reason: " + e.getMessage());
         }
     }
 
@@ -165,7 +166,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public void open() {
         this.setSide(BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide());
-        Connectors.GUI.displayGuiScreen(this);
+        GuiStaticConnector.INSTANCE.displayGuiScreen(this);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.mndk.bteterrarenderer.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiButtonConnector;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiButton;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 public class SidebarButton extends GuiSidebarElement {
 
-    private GuiButtonConnector button;
+    private IGuiButton button;
     private final String buttonText;
     private final MouseClickedEvent event;
 
@@ -17,7 +17,7 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.button = Connectors.SUPPLIER.newGuiButton(-1, 0, 0, parent.elementWidth.get(), 20, buttonText);
+        this.button = DependencyConnectorSupplier.INSTANCE.newGuiButton(-1, 0, 0, parent.elementWidth.get(), 20, buttonText);
     }
 
     @Override

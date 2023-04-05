@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
+import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
 public class SidebarBooleanButton extends SidebarButton {
@@ -25,8 +25,8 @@ public class SidebarBooleanButton extends SidebarButton {
 
     private static String booleanToFormattedI18n(boolean b) {
         return b ?
-                "§a" + Connectors.I18N.format("options.on") :
-                "§c" + Connectors.I18N.format("options.off");
+                "§a" + I18nConnector.INSTANCE.format("options.on") :
+                "§c" + I18nConnector.INSTANCE.format("options.off");
     }
 
 }

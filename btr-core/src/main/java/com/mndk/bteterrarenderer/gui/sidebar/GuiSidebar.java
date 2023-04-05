@@ -1,20 +1,23 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
 import com.mndk.bteterrarenderer.connector.minecraft.GameSettingsConnector;
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.FontRendererConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiScreenConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.ScaledResolutionConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.MouseConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.SoundConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.IScaledResolution;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.AbstractGuiScreen;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IFontRenderer;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiSidebar extends GuiScreenConnector {
+public class GuiSidebar extends AbstractGuiScreen {
 
 
-    protected final GuiScreenConnector parent;
+    protected final AbstractGuiScreen parent;
     protected final List<GuiSidebarElement> elements;
     private SidebarSide side;
     private final int paddingSide;
@@ -34,7 +37,7 @@ public class GuiSidebar extends GuiScreenConnector {
 
 
     public GuiSidebar(
-            GuiScreenConnector parent, SidebarSide side,
+            AbstractGuiScreen parent, SidebarSide side,
             int paddingSide, int paddingTopBottom, int elementDistance,
             GetterSetter<Integer> elementWidth, boolean guiPausesGame
     ) {
@@ -87,33 +90,33 @@ public class GuiSidebar extends GuiScreenConnector {
 
         int translateX = getTranslateX();
 
-        Connectors.GRAPHICS.glPushAttrib();
-        Connectors.GRAPHICS.glTranslate(translateX, this.paddingTopBottom - verticalSlider, 0);
+        GraphicsConnector.INSTANCE.glPushAttrib();
+        GraphicsConnector.INSTANCE.glTranslate(translateX, this.paddingTopBottom - verticalSlider, 0);
         int currentHeight = this.paddingTopBottom - verticalSlider;
 
         this.totalHeight = this.paddingTopBottom;
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
             element.drawScreen(mouseX - translateX, mouseY - currentHeight, partialTicks);
-            Connectors.GRAPHICS.glTranslate(0, element.getHeight() + this.elementDistance, 0);
+            GraphicsConnector.INSTANCE.glTranslate(0, element.getHeight() + this.elementDistance, 0);
             currentHeight += element.getHeight() + this.elementDistance;
             this.totalHeight += element.getHeight() + this.elementDistance;
         }
         this.totalHeight += this.paddingTopBottom - this.elementDistance;
 
-        Connectors.GRAPHICS.glPopAttrib();
+        GraphicsConnector.INSTANCE.glPopAttrib();
     }
 
 
     private void drawSidebarBackground(int mouseX) {
-        ScaledResolutionConnector scaled = parent.getScaledResolution();
+        IScaledResolution scaled = parent.getScaledResolution();
 
         int widthChangeBarX;
 
         if(this.side == SidebarSide.LEFT) {
             int right = widthChangeBarX = elementWidth.get() + 2 * this.paddingSide;
 
-            Connectors.GUI.drawRect(
+            GuiStaticConnector.INSTANCE.drawRect(
                     0, 0,
                     right, scaled.getScaledHeight(),
                     0x5F000000
@@ -122,7 +125,7 @@ public class GuiSidebar extends GuiScreenConnector {
         else if(this.side == SidebarSide.RIGHT) {
             int left = widthChangeBarX = scaled.getScaledWidth() - elementWidth.get() - 2 * this.paddingSide;
 
-            Connectors.GUI.drawRect(
+            GuiStaticConnector.INSTANCE.drawRect(
                     left, 0,
                     scaled.getScaledWidth(), scaled.getScaledHeight(),
                     0x3F000000
@@ -130,10 +133,10 @@ public class GuiSidebar extends GuiScreenConnector {
         }
         else return;
 
-        Connectors.GUI.drawRect(widthChangeBarX - 1, 0, widthChangeBarX, scaled.getScaledHeight(),
+        GuiStaticConnector.INSTANCE.drawRect(widthChangeBarX - 1, 0, widthChangeBarX, scaled.getScaledHeight(),
                 Math.abs(mouseX - widthChangeBarX) <= 4 ? 0xFFFFFFA0 : 0xFFFFFFFF);
 
-        Connectors.GUI.drawRect(widthChangeBarX, 0, widthChangeBarX + 1, scaled.getScaledHeight(),
+        GuiStaticConnector.INSTANCE.drawRect(widthChangeBarX, 0, widthChangeBarX + 1, scaled.getScaledHeight(),
                 Math.abs(mouseX - widthChangeBarX) <= 4 ? 0xFF3f3f28 : 0xFF383838);
     }
 
@@ -161,7 +164,7 @@ public class GuiSidebar extends GuiScreenConnector {
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
                 if(element.mouseClicked(mx, mouseY - currentHeight, mouseButton)) {
-                    Connectors.SOUND.playClickSound();
+                    SoundConnector.INSTANCE.playClickSound();
                 }
                 currentHeight += element.getHeight() + this.elementDistance;
             }
@@ -186,18 +189,18 @@ public class GuiSidebar extends GuiScreenConnector {
 
 
     public void handleMouseInput() throws IOException {
-        int mouseX = (int) (Connectors.MOUSE.getEventX() * parent.getWidth() / (double) parent.minecraftDisplayWidth());
+        int mouseX = (int) (MouseConnector.INSTANCE.getEventX() * parent.getWidth() / (double) parent.minecraftDisplayWidth());
         if(this.guiChat.isOpened() && !this.mouseOnSidebar(mouseX)) {
             this.guiChat.handleMouseInput();
         } else {
-            this.verticalSlider -= Math.signum(Connectors.MOUSE.getEventDWheel()) * 30;
+            this.verticalSlider -= Math.signum(MouseConnector.INSTANCE.getEventDWheel()) * 30;
             this.validateVerticalSlider();
         }
     }
 
 
     private boolean mouseOnSidebar(int mouseX) {
-        ScaledResolutionConnector scaled = parent.getScaledResolution();
+        IScaledResolution scaled = parent.getScaledResolution();
         int left, right;
 
         if(this.side == SidebarSide.LEFT) {
@@ -214,7 +217,7 @@ public class GuiSidebar extends GuiScreenConnector {
 
     private void validateVerticalSlider() {
         if(verticalSlider != 0) {
-            ScaledResolutionConnector scaled = parent.getScaledResolution();
+            IScaledResolution scaled = parent.getScaledResolution();
 
             if (this.verticalSlider > this.totalHeight - scaled.getScaledHeight()) {
                 this.verticalSlider = this.totalHeight - scaled.getScaledHeight();
@@ -225,7 +228,7 @@ public class GuiSidebar extends GuiScreenConnector {
 
 
     private int getTranslateX() {
-        ScaledResolutionConnector scaled = parent.getScaledResolution();
+        IScaledResolution scaled = parent.getScaledResolution();
 
         if(this.side == SidebarSide.LEFT) {
             return this.paddingSide;
@@ -247,7 +250,7 @@ public class GuiSidebar extends GuiScreenConnector {
             if (element.keyTyped(key, keyCode)) response = true;
         }
         if (!response) {
-            GameSettingsConnector gameSettings = Connectors.GAME_SETTINGS;
+            GameSettingsConnector gameSettings = GameSettingsConnector.INSTANCE;
             if(keyCode == gameSettings.getKeyBindChatCode()) {
                 this.guiChat.setText("", true);
             }
@@ -272,12 +275,12 @@ public class GuiSidebar extends GuiScreenConnector {
     }
 
     @Override
-    public ScaledResolutionConnector getScaledResolution() {
+    public IScaledResolution getScaledResolution() {
         return parent.getScaledResolution();
     }
 
     @Override
-    public FontRendererConnector getFontRenderer() {
+    public IFontRenderer getFontRenderer() {
         return parent.getFontRenderer();
     }
 

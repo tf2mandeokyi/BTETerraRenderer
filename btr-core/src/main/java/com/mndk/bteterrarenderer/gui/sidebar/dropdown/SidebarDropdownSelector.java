@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.GlFactor;
 import com.mndk.bteterrarenderer.connector.minecraft.graphics.BufferBuilderConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormat;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GlFactor;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormatConnectorEnum;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -77,19 +78,19 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
         // Background
-        Connectors.GUI.drawRect(0, 0, width, closedHeight, 0x80000000);
+        GuiStaticConnector.INSTANCE.drawRect(0, 0, width, closedHeight, 0x80000000);
         if(opened) {
-            Connectors.GUI.drawRect(0, closedHeight, width, getHeight(), 0xA0000000);
+            GuiStaticConnector.INSTANCE.drawRect(0, closedHeight, width, getHeight(), 0xA0000000);
         }
 
         // Dropdown arrow
         this.drawDropdownArrow(VERTICAL_PADDING, rectColor, opened);
 
         // White Border
-        Connectors.GUI.drawRect(-1, -1, 0, closedHeight + 1, rectColor);
-        Connectors.GUI.drawRect(-1, -1, width, 0, rectColor);
-        Connectors.GUI.drawRect(width, -1, width + 1, closedHeight + 1, rectColor);
-        Connectors.GUI.drawRect(-1, closedHeight, width + 1, closedHeight + 1, rectColor);
+        GuiStaticConnector.INSTANCE.drawRect(-1, -1, 0, closedHeight + 1, rectColor);
+        GuiStaticConnector.INSTANCE.drawRect(-1, -1, width, 0, rectColor);
+        GuiStaticConnector.INSTANCE.drawRect(width, -1, width + 1, closedHeight + 1, rectColor);
+        GuiStaticConnector.INSTANCE.drawRect(-1, closedHeight, width + 1, closedHeight + 1, rectColor);
 
         // Current selection
         T currentValue = categories.getItem(currentCategoryName.get(), currentItemId.get());
@@ -150,7 +151,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
                         // Blue background
                         if (categoryName.equals(currentCategoryName.get()) && itemId.equals(currentItemId.get())) {
-                            Connectors.GUI.drawRect(
+                            GuiStaticConnector.INSTANCE.drawRect(
                                     0, yStart + totalHeight,
                                     width, yStart + totalHeight + height,
                                     0xDFA0AFFF
@@ -167,7 +168,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
                 }
                 if(j != categoryMap.size() - 1) {
                     // horizontal line
-                    Connectors.GUI.drawRect(
+                    GuiStaticConnector.INSTANCE.drawRect(
                             0, yStart + totalHeight,
                             width, yStart + totalHeight + 1,
                             0xA0FFFFFF
@@ -197,21 +198,21 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
             temp = right; right = left; left = temp;
         }
 
-        BufferBuilderConnector builder = Connectors.GRAPHICS.getBufferBuilder();
-        Connectors.GRAPHICS.glEnableBlend();
-        Connectors.GRAPHICS.glDisableTexture2D();
-        Connectors.GRAPHICS.glTryBlendFuncSeparate(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA, GlFactor.ONE, GlFactor.ZERO);
-        Connectors.GRAPHICS.glColor(red, green, blue, alpha);
+        BufferBuilderConnector builder = GraphicsConnector.INSTANCE.getBufferBuilder();
+        GraphicsConnector.INSTANCE.glEnableBlend();
+        GraphicsConnector.INSTANCE.glDisableTexture2D();
+        GraphicsConnector.INSTANCE.glTryBlendFuncSeparate(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA, GlFactor.ONE, GlFactor.ZERO);
+        GraphicsConnector.INSTANCE.glColor(red, green, blue, alpha);
 
-        builder.begin(7, VertexFormat.POSITION);
+        builder.begin(7, VertexFormatConnectorEnum.POSITION);
         builder.pos(left, top, 0.0D).endVertex();
         builder.pos((left + right) / 2., bottom, 0.0D).endVertex();
         builder.pos((left + right) / 2., bottom, 0.0D).endVertex();
         builder.pos(right, top, 0.0D).endVertex();
-        Connectors.GRAPHICS.tessellatorDraw();
+        GraphicsConnector.INSTANCE.tessellatorDraw();
 
-        Connectors.GRAPHICS.glEnableTexture2D();
-        Connectors.GRAPHICS.glDisableBlend();
+        GraphicsConnector.INSTANCE.glEnableTexture2D();
+        GraphicsConnector.INSTANCE.glDisableBlend();
     }
 
 

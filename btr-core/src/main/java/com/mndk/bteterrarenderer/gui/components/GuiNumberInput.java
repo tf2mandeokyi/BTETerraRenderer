@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.gui.components;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.FontRendererConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiTextFieldConnector;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IFontRenderer;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiTextField;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 import com.mndk.bteterrarenderer.util.StringToNumber;
 
@@ -12,16 +12,16 @@ import com.mndk.bteterrarenderer.util.StringToNumber;
 public class GuiNumberInput {
 
 
-	private final GuiTextFieldConnector parent;
+	private final IGuiTextField parent;
 	protected final GetterSetter<Double> value;
-	protected final FontRendererConnector fontRenderer;
+	protected final IFontRenderer fontRenderer;
 	protected final String prefix;
 	protected int xPos;
 	protected boolean numberValidated = true;
 
 
-	public GuiNumberInput(int componentId, FontRendererConnector fontRenderer, int x, int y, int width, int height, GetterSetter<Double> value, String prefix) {
-		this.parent = Connectors.SUPPLIER.newGuiTextField(componentId, fontRenderer,
+	public GuiNumberInput(int componentId, IFontRenderer fontRenderer, int x, int y, int width, int height, GetterSetter<Double> value, String prefix) {
+		this.parent = DependencyConnectorSupplier.INSTANCE.newGuiTextField(componentId, fontRenderer,
 				x + fontRenderer.getStringWidth(prefix) + 5, y,
 				width - fontRenderer.getStringWidth(prefix) - 5, height
 		);

@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.gui.sidebar.slider;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.gui.GuiSliderConnector;
-import com.mndk.bteterrarenderer.gui.components.GuiIntegerSlider;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IGuiSlider;
+import com.mndk.bteterrarenderer.gui.components.IGuiIntegerSlider;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class SidebarSlider extends GuiSidebarElement {
 
-    private GuiSliderConnector slider;
+    private IGuiSlider slider;
 
     private final GetterSetter<Double> doubleValue;
     private final GetterSetter<Integer> intValue;
@@ -54,7 +54,7 @@ public class SidebarSlider extends GuiSidebarElement {
     protected void init() {
         if(this.isDouble) {
             assert doubleValue != null;
-            this.slider = Connectors.SUPPLIER.newGuiSlider(
+            this.slider = DependencyConnectorSupplier.INSTANCE.newGuiSlider(
                     -1,
                     0, 0,
                     parent.elementWidth.get(), 20,
@@ -66,7 +66,7 @@ public class SidebarSlider extends GuiSidebarElement {
         }
         else {
             assert intValue != null;
-            this.slider = new GuiIntegerSlider(
+            this.slider = new IGuiIntegerSlider(
                     -1,
                     0, 0,
                     parent.elementWidth.get(), 20,

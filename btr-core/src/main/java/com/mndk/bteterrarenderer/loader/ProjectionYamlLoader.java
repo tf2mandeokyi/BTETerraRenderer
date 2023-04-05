@@ -1,12 +1,11 @@
 package com.mndk.bteterrarenderer.loader;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.connector.terraplusplus.JacksonConnector;
 import com.mndk.bteterrarenderer.projection.YamlTileProjection;
-import com.mndk.bteterrarenderer.util.reader.TppDepJacksonYAMLReader;
 import lombok.Data;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.core.type.TypeReference;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -24,7 +23,7 @@ public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProject
 
     @Override
     protected Map<String, YamlTileProjection> load(String fileName, Reader fileReader) throws IOException {
-        return TppDepJacksonYAMLReader.read(fileReader, new TypeReference<ProjectionYamlFile>() {}).tileProjections;
+        return JacksonConnector.INSTANCE.readYamlProjectionFile(fileReader).tileProjections;
     }
 
     @Override
@@ -34,7 +33,7 @@ public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProject
 
     @Data
     @JsonDeserialize
-    static class ProjectionYamlFile {
+    public static class ProjectionYamlFile {
         @JsonProperty(value = "tile_projections", required = true)
         public Map<String, YamlTileProjection> tileProjections;
     }

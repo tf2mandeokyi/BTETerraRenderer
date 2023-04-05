@@ -1,18 +1,18 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-import com.mndk.bteterrarenderer.connector.minecraft.gui.FontRendererConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.gui.IFontRenderer;
 
 public abstract class GuiSidebarElement {
 
     public GuiSidebar parent;
-    protected FontRendererConnector fontRenderer;
+    protected IFontRenderer fontRenderer;
     public boolean hide;
 
     public GuiSidebarElement() {
         this.hide = false;
     }
 
-    public final void initGui(GuiSidebar parent, FontRendererConnector renderer) {
+    public final void initGui(GuiSidebar parent, IFontRenderer renderer) {
         this.parent = parent;
         this.fontRenderer = renderer;
         this.init();

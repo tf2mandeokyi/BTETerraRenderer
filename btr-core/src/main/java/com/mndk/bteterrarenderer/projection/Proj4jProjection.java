@@ -1,18 +1,18 @@
 package com.mndk.bteterrarenderer.projection;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
 import lombok.Getter;
-import net.buildtheearth.terraplusplus.config.GlobalParseRegistries;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonCreator;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.annotation.JsonProperty;
-import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import org.osgeo.proj4j.*;
 
 /**
- * Proj4j + {@link GeographicProjection}
+ * Proj4j + GeographicProjection
  */
 @JsonDeserialize
-public class Proj4jProjection implements GeographicProjection {
+public class Proj4jProjection implements IGeographicProjection {
 
 	private static final CRSFactory crsFactory = new CRSFactory();
 	private static final CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
@@ -56,11 +56,6 @@ public class Proj4jProjection implements GeographicProjection {
 	}
 
 	@Override
-	public double metersPerUnit() {
-		return 0;
-	}
-
-	@Override
 	public double[] toGeo(double x, double z) {
 		ProjCoordinate result = new ProjCoordinate();
 		toWgs.transform(new ProjCoordinate(x, z), result);
@@ -68,7 +63,7 @@ public class Proj4jProjection implements GeographicProjection {
 	}
 
 	public static void registerProjection() {
-		GlobalParseRegistries.PROJECTIONS.putIfAbsent("proj4", Proj4jProjection.class);
+		DependencyConnectorSupplier.INSTANCE.registerProjection("proj4", Proj4jProjection.class);
 	}
 
 	static {

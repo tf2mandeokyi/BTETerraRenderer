@@ -1,4 +1,2 @@
-include 'btr-core'
-include 'btr-forge1.12.2'
-include 'btr-forge1.18.2'
-
+rootProject.name = "BTETerraRenderer"
+include ':btr-core', ':btr-forge1.12.2', ':btr-forge1.18.2'

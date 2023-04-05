@@ -1,26 +1,26 @@
 package com.mndk.bteterrarenderer.projection;
 
-import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
-import net.buildtheearth.terraplusplus.projection.GeographicProjection;
+import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
 
 public class Projections {
 	
-	private static final GeographicProjection BTE;
-	private static GeographicProjection SERVER_PROJECTION;
+	private static final IGeographicProjection BTE;
+	private static IGeographicProjection SERVER_PROJECTION;
 
 	public static void setDefaultBTEProjection() {
 		SERVER_PROJECTION = BTE;
 	}
 
-	public static void setServerProjection(GeographicProjection proj) {
+	public static void setServerProjection(IGeographicProjection proj) {
 		SERVER_PROJECTION = proj == null ? BTE : proj;
 	}
 
-	public static GeographicProjection getServerProjection() {
+	public static IGeographicProjection getServerProjection() {
 		return SERVER_PROJECTION;
 	}
 
 	static {
-		BTE = EarthGeneratorSettings.parse(EarthGeneratorSettings.BTE_DEFAULT_SETTINGS).projection();
+		BTE = DependencyConnectorSupplier.INSTANCE.getBTEProjection();
 	}
 }

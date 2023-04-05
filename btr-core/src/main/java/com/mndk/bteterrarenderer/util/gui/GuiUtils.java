@@ -1,12 +1,12 @@
 package com.mndk.bteterrarenderer.util.gui;
 
-import com.mndk.bteterrarenderer.connector.Connectors;
-import com.mndk.bteterrarenderer.connector.minecraft.ResourceLocationConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.graphics.BufferBuilderConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.graphics.GlFactor;
-import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormat;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormatConnectorEnum;
 
-import static com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormat.POSITION_TEX;
+import static com.mndk.bteterrarenderer.connector.minecraft.graphics.VertexFormatConnectorEnum.POSITION_TEX;
 
 public class GuiUtils {
 
@@ -35,21 +35,21 @@ public class GuiUtils {
         float green = (float)(color >> 8 & 255) / 255.0F;
         float blue = (float)(color & 255) / 255.0F;
 
-        BufferBuilderConnector bufferbuilder = Connectors.GRAPHICS.getBufferBuilder();
-        Connectors.GRAPHICS.glEnableBlend();
-        Connectors.GRAPHICS.glDisableTexture2D();
-        Connectors.GRAPHICS.glTryBlendFuncSeparate(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA, GlFactor.ONE, GlFactor.ZERO);
-        Connectors.GRAPHICS.glColor(red, green, blue, alpha);
+        BufferBuilderConnector bufferbuilder = GraphicsConnector.INSTANCE.getBufferBuilder();
+        GraphicsConnector.INSTANCE.glEnableBlend();
+        GraphicsConnector.INSTANCE.glDisableTexture2D();
+        GraphicsConnector.INSTANCE.glTryBlendFuncSeparate(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA, GlFactor.ONE, GlFactor.ZERO);
+        GraphicsConnector.INSTANCE.glColor(red, green, blue, alpha);
 
-        bufferbuilder.begin(7, VertexFormat.POSITION);
+        bufferbuilder.begin(7, VertexFormatConnectorEnum.POSITION);
         bufferbuilder.pos(x0, y0, 0.0D).endVertex();
         bufferbuilder.pos(x1, y1, 0.0D).endVertex();
         bufferbuilder.pos(x2, y2, 0.0D).endVertex();
         bufferbuilder.pos(x3, y3, 0.0D).endVertex();
 
-        Connectors.GRAPHICS.tessellatorDraw();
-        Connectors.GRAPHICS.glEnableTexture2D();
-        Connectors.GRAPHICS.glDisableBlend();
+        GraphicsConnector.INSTANCE.tessellatorDraw();
+        GraphicsConnector.INSTANCE.glEnableTexture2D();
+        GraphicsConnector.INSTANCE.glDisableBlend();
 
     }
 
@@ -58,11 +58,11 @@ public class GuiUtils {
     }
 
 
-    public static void drawImage(ResourceLocationConnector res, int x, int y, float zLevel, int w, int h, float u1, float v1, float u2, float v2) {
+    public static void drawImage(IResourceLocation res, int x, int y, float zLevel, int w, int h, float u1, float v1, float u2, float v2) {
 
-        if(res != null) Connectors.GRAPHICS.bindTexture(res);
+        if(res != null) GraphicsConnector.INSTANCE.bindTexture(res);
 
-        BufferBuilderConnector bufferBuilder = Connectors.GRAPHICS.getBufferBuilder();
+        BufferBuilderConnector bufferBuilder = GraphicsConnector.INSTANCE.getBufferBuilder();
 
         bufferBuilder.begin(7, POSITION_TEX);
         bufferBuilder.pos(x, y+h, zLevel).tex(u1, v2).endVertex();
@@ -70,16 +70,16 @@ public class GuiUtils {
         bufferBuilder.pos(x+w, y, zLevel).tex(u2, v1).endVertex();
         bufferBuilder.pos(x, y, zLevel).tex(u1, v1).endVertex();
 
-        Connectors.GRAPHICS.tessellatorDraw();
+        GraphicsConnector.INSTANCE.tessellatorDraw();
     }
 
 
-    public static void drawImage(ResourceLocationConnector res, int x, int y, float zLevel, int w, int h) {
+    public static void drawImage(IResourceLocation res, int x, int y, float zLevel, int w, int h) {
         drawImage(res, x, y, zLevel, w, h, 0, 0, 1, 1);
     }
 
 
-    public static void drawCenteredImage(ResourceLocationConnector res, int x, int y, float zLevel, int w, int h) {
+    public static void drawCenteredImage(IResourceLocation res, int x, int y, float zLevel, int w, int h) {
         drawImage(res, x - w/2, y - h/2, zLevel, w, h);
     }
 }
