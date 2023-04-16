@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.projection;
 
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -39,10 +40,10 @@ public abstract class TileProjection {
      * @return Tile coordinate
      * @throws Exception When the player is out of bounds from the projection
      */
-    public final int[] geoCoordToTileCoord(double longitude, double latitude, int relativeZoom) throws Exception {
+    public final int[] geoCoordToTileCoord(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
         return this.toTileCoord(longitude, invertLatitude ? -latitude : latitude, relativeZoomToAbsolute(relativeZoom));
     }
-    protected abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws Exception;
+    protected abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException;
 
 
     /**
@@ -53,12 +54,12 @@ public abstract class TileProjection {
      * @return Geographic coordinate (WGS84)
      * @throws Exception When the tile is out of bounds from the projection
      */
-    public final double[] tileCoordToGeoCoord(int tileX, int tileY, int relativeZoom) throws Exception {
+    public final double[] tileCoordToGeoCoord(int tileX, int tileY, int relativeZoom) throws OutOfProjectionBoundsException {
         double[] coord = this.toGeoCoord(tileX, tileY, relativeZoomToAbsolute(relativeZoom));
         if(invertLatitude) coord[1] = -coord[1];
         return coord;
     }
-    protected abstract double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws Exception;
+    protected abstract double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException;
 
 
     @Override

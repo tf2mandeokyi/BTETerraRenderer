@@ -3,8 +3,8 @@ package com.mndk.bteterrarenderer.gui.components;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
 import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
 import com.mndk.bteterrarenderer.connector.gui.IGuiTextField;
+import com.mndk.bteterrarenderer.util.BtrUtil;
 import com.mndk.bteterrarenderer.util.GetterSetter;
-import com.mndk.bteterrarenderer.util.StringToNumber;
 
 /**
  * Number input field class.
@@ -25,7 +25,7 @@ public class GuiNumberInput {
 				x + fontRenderer.getStringWidth(prefix) + 5, y,
 				width - fontRenderer.getStringWidth(prefix) - 5, height
 		);
-		parent.setText(StringToNumber.formatNicely(value.get(), 3));
+		parent.setText(BtrUtil.formatDoubleNicely(value.get(), 3));
 		parent.setMaxStringLength(50);
 		this.xPos = x;
 		this.value = value;
@@ -49,7 +49,7 @@ public class GuiNumberInput {
 		boolean result = parent.textboxKeyTyped(typedChar, keyCode);
 		if(result) {
 			String currentStr = parent.getText();
-			this.numberValidated = StringToNumber.validate(currentStr);
+			this.numberValidated = BtrUtil.validateDouble(currentStr);
 			parent.setTextColor(numberValidated ? 0xFFFFFF : 0xFF0000);
 			if(numberValidated) {
 				value.set(Double.parseDouble(parent.getText()));
@@ -69,7 +69,7 @@ public class GuiNumberInput {
 
 
 	public void update() {
-		parent.setText(StringToNumber.formatNicely(value.get(), 3));
+		parent.setText(BtrUtil.formatDoubleNicely(value.get(), 3));
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {

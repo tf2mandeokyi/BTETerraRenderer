@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import com.mndk.bteterrarenderer.connector.gui.IGuiTextField;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 

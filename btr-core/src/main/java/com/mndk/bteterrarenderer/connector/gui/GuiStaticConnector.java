@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 
 public interface GuiStaticConnector {
-    GuiStaticConnector INSTANCE = ImplFinder.search(GuiStaticConnector.class);
+    GuiStaticConnector INSTANCE = ImplFinder.search();
 
     void displayGuiScreen(AbstractGuiScreen gui);
     void drawRect(int x, int y, int w, int h, int color);

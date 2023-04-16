@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 
 public interface GraphicsConnector {
-    GraphicsConnector INSTANCE = ImplFinder.search(GraphicsConnector.class);
+    GraphicsConnector INSTANCE = ImplFinder.search();
 
     int glGenTextures();
     void allocateTexture(int glId, int width, int height);

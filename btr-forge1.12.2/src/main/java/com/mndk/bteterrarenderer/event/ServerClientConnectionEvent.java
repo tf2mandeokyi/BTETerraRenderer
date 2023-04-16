@@ -1,15 +1,16 @@
 package com.mndk.bteterrarenderer.event;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.BTETerraRendererMod;
-import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjectionImpl;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.network.ServerWelcomeMessageImpl;
 import com.mndk.bteterrarenderer.projection.Projections;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
+import net.buildtheearth.terraplusplus.TerraConstants;
+import net.buildtheearth.terraplusplus.dep.com.fasterxml.jackson.core.JsonProcessingException;
 import net.buildtheearth.terraplusplus.generator.EarthGenerator;
 import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
-import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
@@ -24,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.io.IOException;
 import java.util.Objects;
 
-@Mod.EventBusSubscriber(modid = BTETerraRendererCore.MODID)
+@Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID)
 public class ServerClientConnectionEvent {
 
 
@@ -44,12 +45,13 @@ public class ServerClientConnectionEvent {
         EarthGeneratorSettings generatorSettings = getEarthGeneratorSettings(world);
         if(generatorSettings != null) {
             try {
-                GeographicProjection projection = Objects.requireNonNull(getEarthGeneratorSettings(world)).projection();
+                net.buildtheearth.terraplusplus.projection.GeographicProjection projection =
+                        Objects.requireNonNull(getEarthGeneratorSettings(world)).projection();
                 BTETerraRendererMod.NETWORK_WRAPPER.sendTo(
                         new ServerWelcomeMessageImpl(projection), (EntityPlayerMP) player);
                 return;
             } catch(IOException e) {
-                BTETerraRendererCore.logger.error("Caught IOException while sending projection data", e);
+                BTETerraRendererConstants.LOGGER.error("Caught IOException while sending projection data", e);
             }
         }
         BTETerraRendererMod.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl(), (EntityPlayerMP) player);
@@ -59,13 +61,13 @@ public class ServerClientConnectionEvent {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public static void onPlayerLoginToLocalServer(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onPlayerLoginToLocalServer(PlayerEvent.PlayerLoggedInEvent event) throws JsonProcessingException {
         World world = event.player.world;
         EarthGeneratorSettings generatorSettings = getEarthGeneratorSettings(world);
 
         if(generatorSettings != null) {
-            GeographicProjection projection = generatorSettings.projection();
-            Projections.setServerProjection(new IGeographicProjectionImpl(projection));
+            String projectionJson = TerraConstants.JSON_MAPPER.writeValueAsString(generatorSettings.projection());
+            Projections.setServerProjection(GeographicProjection.parse(projectionJson));
         }
     }
 

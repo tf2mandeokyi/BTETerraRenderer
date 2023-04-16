@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.tile;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import lombok.AllArgsConstructor;
 
@@ -12,17 +12,15 @@ import java.util.*;
  */
 public class TileImageCacheManager {
 
-	private static final int CACHE_AT_A_TIME = 5;
-
-	private static final TileImageCacheManager instance = new TileImageCacheManager(1000 * 60 * 5, 10000);
-
-	public static TileImageCacheManager getInstance() { return instance; }
+	private static final TileImageCacheManager INSTANCE = new TileImageCacheManager(1000 * 60 * 5, 10000);
+	public static TileImageCacheManager getInstance() { return INSTANCE; }
 
 	private static final boolean DEBUG = false;
-
 	private static void log(String message) {
-		if(DEBUG) BTETerraRendererCore.logger.debug(message);
+		if(DEBUG) BTETerraRendererConstants.LOGGER.debug(message);
 	}
+
+	private static final int CACHE_AT_A_TIME = 5;
 
 	private final int maximumSize;
 	private final Map<String, GLIdWrapper> glTextureIdMap;

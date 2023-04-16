@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.commands;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -18,8 +18,8 @@ public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-		BTETerraRendererCore.CONFIG.toggleRender();
-		BTETerraRendererCore.CONFIG.save();
+		BTRConfigConnector.INSTANCE.toggleRender();
+		BTRConfigConnector.INSTANCE.save();
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.tile;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.projection.Projections;
@@ -12,9 +11,9 @@ public class TileRenderer {
 
     public static void renderTiles(double px, double py, double pz) {
 
-        BTETerraRendererConfig config = BTETerraRendererCore.CONFIG;
-        BTETerraRendererConfig.RenderSettings settings = config.renderSettings;
-        TileMapService tms = BTETerraRendererConfig.getTileMapService();
+        BTRConfigConnector config = BTRConfigConnector.INSTANCE;
+        BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
+        TileMapService tms = BTRConfigConnector.getTileMapService();
 
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
@@ -36,8 +35,8 @@ public class TileRenderer {
         BiConsumer<Integer, Integer> drawTile = (dx, dy) -> {
             if(Math.abs(dx) > size || Math.abs(dy) > size) return;
             tms.renderTile(
-                    settings.getZoom(),
-                    config.mapServiceCategory + "." + config.mapServiceId,
+                    settings.getRelativeZoomValue(),
+                    config.getMapServiceCategory() + "." + config.getMapServiceId(),
                     settings.getYAxis() + 0.1, // Adding .1 to y because of texture-overlapping issue
                     (float) settings.getOpacity(),
                     px + settings.getXAlign(), py, pz + settings.getZAlign(),

@@ -2,12 +2,9 @@ package com.mndk.bteterrarenderer.connector;
 
 import com.mndk.bteterrarenderer.connector.gui.*;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
-
-import java.io.IOException;
 
 public interface DependencyConnectorSupplier {
-    DependencyConnectorSupplier INSTANCE = ImplFinder.search(DependencyConnectorSupplier.class);
+    DependencyConnectorSupplier INSTANCE = ImplFinder.search();
 
     // Minecraft
     IGuiChat newGuiChat();
@@ -22,9 +19,4 @@ public interface DependencyConnectorSupplier {
     IGuiTextField newGuiTextField(int componentId, IFontRenderer fontRenderer,
                                   int x, int y, int width, int height);
     IResourceLocation newResourceLocation(String modId, String location);
-
-    // Terraplusplus
-    String projectionToJson(IGeographicProjection projection) throws IOException;
-    IGeographicProjection parse(String projectionJson);
-    IGeographicProjection createBTEProjection();
 }

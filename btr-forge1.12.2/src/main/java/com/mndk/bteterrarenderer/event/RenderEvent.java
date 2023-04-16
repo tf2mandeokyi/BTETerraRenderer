@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.event;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.tile.TileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod.EventBusSubscriber(modid = BTETerraRendererCore.MODID, value = Side.CLIENT)
+@Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Side.CLIENT)
 public class RenderEvent {
 
 
@@ -26,8 +26,7 @@ public class RenderEvent {
 		final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
-		BTETerraRendererConfig config = BTETerraRendererCore.CONFIG;
-		if(config.isDoRender()) {
+		if(BTRConfigConnector.INSTANCE.isDoRender()) {
 			try {
 				TileRenderer.renderTiles(px, py, pz);
 			} catch(IllegalArgumentException exception) {

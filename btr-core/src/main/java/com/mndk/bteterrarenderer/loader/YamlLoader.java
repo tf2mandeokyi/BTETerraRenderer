@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.loader;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,44 +18,38 @@ public abstract class YamlLoader<T> {
     @Getter @Setter
     public T result;
 
-
     protected YamlLoader(String folderName, String defaultYamlPath) {
         this.folderName = folderName;
         this.defaultYamlPath = defaultYamlPath;
     }
 
-
     public void refresh() throws Exception {
 
-        result = loadDefault();
+        this.result = loadDefault();
 
         if(mapFilesDirectory == null) return;
-
         if(!mapFilesDirectory.exists() && !mapFilesDirectory.mkdirs()) {
             throw new Exception("Map folder creation failed.");
         }
         File[] mapFiles = mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (mapFiles == null) return;
 
-        if (mapFiles != null) {
-            for (File mapFile : mapFiles) {
-                String name = mapFile.getName();
-                try (FileReader fileReader = new FileReader((mapFile))) {
-                    addToResult(result, load(name, fileReader));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        for (File mapFile : mapFiles) {
+            String name = mapFile.getName();
+            try (FileReader fileReader = new FileReader((mapFile))) {
+                addToResult(this.result, load(name, fileReader));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
 
-
     public void refresh(String modConfigDirectory) throws Exception {
         this.mapFilesDirectory = new File(
-                modConfigDirectory + "/" + BTETerraRendererCore.MODID + "/" + folderName
+                modConfigDirectory + "/" + BTETerraRendererConstants.MODID + "/" + folderName
         );
         this.refresh();
     }
-
 
     private T loadDefault() throws IOException {
         return load("default", new InputStreamReader(
@@ -64,8 +58,6 @@ public abstract class YamlLoader<T> {
         ));
     }
 
-
     protected abstract T load(String fileName, Reader fileReader) throws IOException;
     protected abstract void addToResult(T originalT, T newT);
-
 }

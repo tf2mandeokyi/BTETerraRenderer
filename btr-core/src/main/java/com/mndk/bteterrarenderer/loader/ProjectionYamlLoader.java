@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.loader;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.terraplusplus.JacksonConnector;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.projection.YamlTileProjection;
 import lombok.Data;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProjection>> {
 
     public static final ProjectionYamlLoader INSTANCE = new ProjectionYamlLoader(
-            "projections", "assets/" + BTETerraRendererCore.MODID + "/default_projections.yml"
+            "projections", "assets/" + BTETerraRendererConstants.MODID + "/default_projections.yml"
     );
 
     public ProjectionYamlLoader(String folderName, String defaultYamlPath) {
@@ -23,7 +24,8 @@ public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProject
 
     @Override
     protected Map<String, YamlTileProjection> load(String fileName, Reader fileReader) throws IOException {
-        return JacksonConnector.INSTANCE.readYamlProjectionFile(fileReader).tileProjections;
+        return BTETerraRendererConstants.OBJECT_MAPPER.readValue(fileReader, new TypeReference<ProjectionYamlFile>() {})
+                .tileProjections;
     }
 
     @Override
@@ -34,7 +36,13 @@ public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProject
     @Data
     @JsonDeserialize
     public static class ProjectionYamlFile {
-        @JsonProperty(value = "tile_projections", required = true)
-        public Map<String, YamlTileProjection> tileProjections;
+        public final Map<String, YamlTileProjection> tileProjections;
+        @JsonCreator
+        public ProjectionYamlFile(
+                @JsonProperty(value = "tile_projections", required = true)
+                Map<String, YamlTileProjection> tileProjections
+        ) {
+            this.tileProjections = tileProjections;
+        }
     }
 }

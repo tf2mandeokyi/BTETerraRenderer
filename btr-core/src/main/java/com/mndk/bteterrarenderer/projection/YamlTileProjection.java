@@ -3,7 +3,8 @@ package com.mndk.bteterrarenderer.projection;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.connector.terraplusplus.projection.IGeographicProjection;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import lombok.Data;
 
 import java.util.Map;
@@ -12,12 +13,12 @@ import java.util.Map;
 public class YamlTileProjection extends TileProjection {
 
 
-    private final IGeographicProjection projection;
+    private final GeographicProjection projection;
     private final Map<Integer, TileMatrix> matrices;
 
     @JsonCreator
     public YamlTileProjection(
-            @JsonProperty(value = "projection", required = true) IGeographicProjection projection,
+            @JsonProperty(value = "projection", required = true) GeographicProjection projection,
             @JsonProperty(value = "tile_matrices", required = true) Map<Integer, TileMatrix> matrices
     ) {
         this.projection = projection;
@@ -26,7 +27,7 @@ public class YamlTileProjection extends TileProjection {
 
 
     @Override
-    protected int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws Exception {
+    protected int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException {
         double[] coordinate = this.projection.fromGeo(longitude, latitude);
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 
@@ -38,7 +39,7 @@ public class YamlTileProjection extends TileProjection {
 
 
     @Override
-    protected double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws Exception {
+    protected double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException {
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 
         double tileCoordinateX = tileX * matrix.tileSize[0] + matrix.pointOfOrigin[0];

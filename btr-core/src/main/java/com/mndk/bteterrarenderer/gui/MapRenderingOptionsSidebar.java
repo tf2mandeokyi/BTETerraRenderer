@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.gui;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
@@ -35,13 +34,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public MapRenderingOptionsSidebar() {
         super(
-                BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide(),
+                BTRConfigConnector.INSTANCE.getUiSettings().getSidebarSide(),
                 20, 20, 7,
-                GetterSetter.from(BTETerraRendererCore.CONFIG.uiSettings::getSidebarWidth, BTETerraRendererCore.CONFIG.uiSettings::setSidebarWidth),
-                false
+                GetterSetter.from(
+                        BTRConfigConnector.INSTANCE.getUiSettings()::getSidebarWidth,
+                        BTRConfigConnector.INSTANCE.getUiSettings()::setSidebarWidth
+                ), false
         );
-        BTETerraRendererConfig config = BTETerraRendererCore.CONFIG;
-        BTETerraRendererConfig.RenderSettings renderSettings = config.renderSettings;
+        BTRConfigConnector config = BTRConfigConnector.INSTANCE;
+        BTRConfigConnector.RenderSettingsConnector renderSettings = config.getRenderSettings();
 
         I18nConnector i18n = I18nConnector.INSTANCE;
 
@@ -68,7 +69,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 GetterSetter.from(TMSYamlLoader.INSTANCE::getResult, TMSYamlLoader.INSTANCE::setResult),
                 config::getMapServiceCategory,
                 config::getMapServiceId,
-                BTETerraRendererConfig::setTileMapService,
+                BTRConfigConnector::setTileMapService,
                 tms -> "default".equalsIgnoreCase(tms.getSource()) ?
                         tms.getName() : "[§7" + tms.getSource() + "§r]\n§r" + tms.getName()
         );
@@ -89,10 +90,10 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 z -> true
         );
         SidebarSlider mapZoomSlider = new SidebarSlider(
-                GetterSetter.from(renderSettings::getZoom, renderSettings::setZoom),
+                GetterSetter.from(renderSettings::getRelativeZoomValue, renderSettings::setRelativeZoom),
                 i18n.format("gui.bteterrarenderer.new_settings.zoom") + ": ", "",
                 -3, 3,
-                BTETerraRendererConfig::isRelativeZoomAvailable
+                BTRConfigConnector::isRelativeZoomAvailable
         );
         SidebarMapAligner mapAligner = new SidebarMapAligner(
                 GetterSetter.from(renderSettings::getXAlign, renderSettings::setXAlign),
@@ -139,7 +140,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
             ProjectionYamlLoader.INSTANCE.refresh();
             TMSYamlLoader.INSTANCE.refresh();
-            BTETerraRendererConfig.refreshTileMapService();
+            BTRConfigConnector.refreshTileMapService();
 
             categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
             for(Map.Entry<String, DropdownCategory<TileMapService>> categoryEntry : categoryMap.entrySet()) {
@@ -162,13 +163,13 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
-        INSTANCE.setSide(BTETerraRendererCore.CONFIG.uiSettings.getSidebarSide());
+        INSTANCE.setSide(BTRConfigConnector.INSTANCE.getUiSettings().getSidebarSide());
         GuiStaticConnector.INSTANCE.displayGuiScreen(INSTANCE);
     }
 
     @Override
     public void onGuiClosed() {
-        BTETerraRendererCore.CONFIG.save();
+        BTRConfigConnector.INSTANCE.save();
         super.onGuiClosed();
     }
 

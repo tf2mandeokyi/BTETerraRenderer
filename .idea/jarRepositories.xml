@@ -66,5 +66,10 @@
       <option name="name" value="deobfDeps" />
       <option name="url" value="file:/C:/Users/USER/.gradle/caches/minecraft/deobfedDeps/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="SpongePowered" />
+      <option name="name" value="SpongePowered" />
+      <option name="url" value="https://repo.spongepowered.org/maven/" />
+    </remote-repository>
   </component>
 </project>

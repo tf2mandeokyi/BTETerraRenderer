@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.event;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
@@ -12,7 +13,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod.EventBusSubscriber(modid = BTETerraRendererCore.MODID, value = Side.CLIENT)
+@Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Side.CLIENT)
 public class KeyEvent {
 
 	@SideOnly(Side.CLIENT)
@@ -31,8 +32,8 @@ public class KeyEvent {
 			MapRenderingOptionsSidebar.open();
 		}
 		else if(ClientProxy.mapToggleKey.isPressed()) {
-			BTETerraRendererCore.CONFIG.toggleRender();
-			BTETerraRendererCore.CONFIG.save();
+			BTRConfigConnector.INSTANCE.toggleRender();
+			BTRConfigConnector.INSTANCE.save();
 		}
 	}
 

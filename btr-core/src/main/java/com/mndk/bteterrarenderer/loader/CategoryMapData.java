@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.loader;
 
-import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategory;
-import lombok.Getter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategory;
+import lombok.Getter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

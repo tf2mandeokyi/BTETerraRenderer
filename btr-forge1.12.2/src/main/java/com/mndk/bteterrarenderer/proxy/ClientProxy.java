@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.proxy;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
@@ -40,7 +40,7 @@ public class ClientProxy extends CommonProxy {
 			ProjectionYamlLoader.INSTANCE.refresh(modConfigDirectory);
 			TMSYamlLoader.INSTANCE.refresh(modConfigDirectory);
 		} catch(Exception e) {
-			BTETerraRendererCore.logger.error("Error caught while parsing map yaml files!");
+			BTETerraRendererConstants.LOGGER.error("Error caught while parsing map yaml files!");
 			e.printStackTrace();
 		}
 	}

@@ -2,17 +2,17 @@ package com.mndk.bteterrarenderer.tile;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
-import com.mndk.bteterrarenderer.util.ExceptionAnalyzer;
-import com.mndk.bteterrarenderer.util.NullValidator;
+import com.mndk.bteterrarenderer.util.BtrUtil;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Data
-public abstract class TileMapService implements CategoryMapData.ICategoryMapProperty {
+public class TileMapService implements CategoryMapData.ICategoryMapProperty {
 
     public static final int RETRY_COUNT = 3;
     public static final int DEFAULT_MAX_THREAD = 2;
@@ -46,7 +46,7 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
      * @throws NullPointerException If the projection corresponding to its id does not exist
      */
     @JsonCreator
-    private TileMapService(
+    public TileMapService(
             @JsonProperty(value = "name", required = true) String name,
             @JsonProperty(value = "tile_url", required = true) String urlTemplate,
             @JsonProperty(value = "projection", required = true) String projectionName,
@@ -61,22 +61,31 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
         this.urlTemplate = urlTemplate;
 
         TileProjection projectionSearchResult = ProjectionYamlLoader.INSTANCE.result.get(projectionName);
-        int _defaultZoom = NullValidator.get(defaultZoom, DEFAULT_ZOOM);
-        boolean _invertZoom = NullValidator.get(invertZoom, false);
+        int _defaultZoom = BtrUtil.validateNull(defaultZoom, DEFAULT_ZOOM);
+        boolean _invertZoom = BtrUtil.validateNull(invertZoom, false);
 
         if(projectionSearchResult != null) {
             this.tileProjection = projectionSearchResult.clone();
             tileProjection.setDefaultZoom(_defaultZoom);
             tileProjection.setInvertZoom(_invertZoom);
-            tileProjection.setFlipVertically(NullValidator.get(flipVertically, false));
-            tileProjection.setInvertLatitude(NullValidator.get(invertLatitude, false));
+            tileProjection.setFlipVertically(BtrUtil.validateNull(flipVertically, false));
+            tileProjection.setInvertLatitude(BtrUtil.validateNull(invertLatitude, false));
         } else {
-            BTETerraRendererCore.logger.error("Couldn't find tile projection named \"" + projectionName + "\"");
+            BTETerraRendererConstants.LOGGER.error("Couldn't find tile projection named \"" + projectionName + "\"");
             this.tileProjection = null;
         }
 
         this.urlConverter = new TileURLConverter(_defaultZoom, _invertZoom);
-        this.downloadExecutor = Executors.newFixedThreadPool(NullValidator.get(maxThread, DEFAULT_MAX_THREAD));
+        this.downloadExecutor = Executors.newFixedThreadPool(BtrUtil.validateNull(maxThread, DEFAULT_MAX_THREAD));
+    }
+
+    public String getUrlFromGeoCoordinate(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
+        int[] tileCoord = this.tileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
+        return this.getUrlFromTileCoordinate(tileCoord[0], tileCoord[1], relativeZoom);
+    }
+
+    public String getUrlFromTileCoordinate(int tileX, int tileY, int relativeZoom) {
+        return this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
     }
 
     public void renderTile(
@@ -100,7 +109,7 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
 
             if(!cache.textureExists(tileKey)) {
                 // If the requested tile is not loaded, load it in the new thread and return
-                String url = this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
+                String url = this.getUrlFromTileCoordinate(tileX, tileY, relativeZoom);
                 this.downloadTile(tileKey, url);
                 return;
             }
@@ -129,13 +138,12 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
             GraphicsConnector.INSTANCE.tessellatorDraw();
 
         } catch(Exception e) {
-            if(ExceptionAnalyzer.isProjectionBoundsException(e)) {
-               return; // Ignore if the thrown exception is OutOfProjectionBoundsException or something
+            if(e instanceof OutOfProjectionBoundsException) {
+                return; // Ignore if the thrown exception is OutOfProjectionBoundsException or something
             }
-            BTETerraRendererCore.logger.warn("Caught exception while rendering tile images", e);
+            BTETerraRendererConstants.LOGGER.warn("Caught exception while rendering tile images", e);
         }
     }
-
 
     private void downloadTile(String tileKey, String url) {
         TileImageCacheManager cache = TileImageCacheManager.getInstance();
@@ -170,7 +178,7 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
             TileImageCacheManager cache = TileImageCacheManager.getInstance();
             boolean shouldRetry = false;
 
-            if (retry >= RETRY_COUNT+1) {
+            if (retry >= RETRY_COUNT + 1) {
                 cache.tileDownloadingComplete(tileKey, SOMETHING_WENT_WRONG);
             }
             else {
@@ -178,7 +186,7 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
                     InputStream stream = HttpConnector.INSTANCE.download(url);
                     cache.tileDownloadingComplete(tileKey, ImageIO.read(stream));
                 } catch (Exception e) {
-                    BTETerraRendererCore.logger.error("Caught exception while downloading a tile image (" +
+                    BTETerraRendererConstants.LOGGER.error("Caught exception while downloading a tile image (" +
                             "TileKey=" + tileKey + ", Retry #" + (retry + 1) + ")");
                     shouldRetry = true;
                 }
@@ -199,7 +207,7 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
         try {
             SOMETHING_WENT_WRONG = ImageIO.read(
                     Objects.requireNonNull(TileMapService.class.getClassLoader().getResourceAsStream(
-                            "assets/" + BTETerraRendererCore.MODID + "/textures/internal_error_image.png"
+                            "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error_image.png"
                     ))
             );
         } catch (IOException e) {

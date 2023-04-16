@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.mapaligner;
 
-import com.mndk.bteterrarenderer.BTETerraRendererCore;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
@@ -11,7 +11,7 @@ import com.mndk.bteterrarenderer.connector.gui.IGuiCheckBox;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
-import com.mndk.bteterrarenderer.util.gui.GuiUtils;
+import com.mndk.bteterrarenderer.gui.GuiUtils;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -23,7 +23,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private static final double MOUSE_DIVIDER = 30;
 
     private static final IResourceLocation ALIGNMENT_MARKER = DependencyConnectorSupplier.INSTANCE.newResourceLocation(
-            BTETerraRendererCore.MODID, "textures/ui/alignment_marker.png"
+            BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
     );
 
     private GuiNumberInput xInput, zInput;

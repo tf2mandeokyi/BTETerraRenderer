@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer;
 
-import com.mndk.bteterrarenderer.connector.terraplusplus.projection.Proj4jProjectionImpl;
 import com.mndk.bteterrarenderer.network.ServerWelcomeMessageImpl;
 import com.mndk.bteterrarenderer.network.ServerWelcomeMsgHandler;
 import com.mndk.bteterrarenderer.proxy.CommonProxy;
@@ -15,13 +14,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(
-        modid = BTETerraRendererCore.MODID,
-        name = BTETerraRendererCore.NAME,
+        modid = BTETerraRendererConstants.MODID,
+        name = BTETerraRendererConstants.NAME,
         dependencies = "required-after:terraplusplus@[1.0.569,)"
 )
 public class BTETerraRendererMod {
+
     public static final SimpleNetworkWrapper NETWORK_WRAPPER =
-            NetworkRegistry.INSTANCE.newSimpleChannel(BTETerraRendererCore.MODID);
+            NetworkRegistry.INSTANCE.newSimpleChannel(BTETerraRendererConstants.MODID);
 
     @SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.ServerProxy")
     public static CommonProxy proxy;
@@ -48,6 +48,5 @@ public class BTETerraRendererMod {
 
     static {
         NETWORK_WRAPPER.registerMessage(ServerWelcomeMsgHandler.class, ServerWelcomeMessageImpl.class, 0, Side.CLIENT);
-        Proj4jProjectionImpl.registerProjection();
     }
 }
