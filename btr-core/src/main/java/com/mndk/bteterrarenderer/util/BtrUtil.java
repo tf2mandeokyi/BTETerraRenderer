@@ -29,11 +29,7 @@ public class BtrUtil {
     public static String formatDoubleNicely(double value, int maximumDecimalDigit) {
         return value == (long) value ?
                 String.format("%d", (long) value) :
-                String.format(String.format("%%%d.f", maximumDecimalDigit), value);
-    }
-
-    public static String formatDoubleNicely(double value) {
-        return value == (long) value ? String.format("%d", (long) value) : String.format("%f", value);
+                String.format(String.format("%%.%df", maximumDecimalDigit), value);
     }
 
     @SuppressWarnings("unchecked")

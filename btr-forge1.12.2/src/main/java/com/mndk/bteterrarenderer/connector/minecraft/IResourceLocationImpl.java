@@ -7,5 +7,5 @@ import net.minecraft.util.ResourceLocation;
 
 @RequiredArgsConstructor @Getter @Setter
 public class IResourceLocationImpl implements IResourceLocation {
-    private final ResourceLocation resourceLocation;
+    private final ResourceLocation delegate;
 }

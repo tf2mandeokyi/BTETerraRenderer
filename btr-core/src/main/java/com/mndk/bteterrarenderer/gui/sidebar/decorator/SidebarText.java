@@ -55,7 +55,7 @@ public class SidebarText extends GuiSidebarElement {
                 );
             }
             else if(align == TextAlign.CENTER){
-                fontRenderer.drawStringWithShadow(
+                fontRenderer.drawCenteredStringWithShadow(
                         line,
                         parent.elementWidth.get() / 2f, i * fontRenderer.getFontHeight(), 0xFFFFFF
                 );

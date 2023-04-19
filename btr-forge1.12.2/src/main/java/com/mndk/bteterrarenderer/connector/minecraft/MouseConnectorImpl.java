@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.connector.ConnectorImpl;
 import org.lwjgl.input.Mouse;
 
 @ConnectorImpl
+@SuppressWarnings("unused")
 public class MouseConnectorImpl implements MouseConnector {
     public int getEventX() {
         return Mouse.getEventX();

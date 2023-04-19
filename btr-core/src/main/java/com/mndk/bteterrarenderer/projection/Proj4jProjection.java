@@ -40,6 +40,7 @@ public class Proj4jProjection implements GeographicProjection {
 	}
 
 	@JsonCreator
+	@SuppressWarnings("unused")
 	public Proj4jProjection(
 			@JsonProperty(value = "name", required = true) String crsName,
 			@JsonProperty(value = "param", required = true) String crsParameter

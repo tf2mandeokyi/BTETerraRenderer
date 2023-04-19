@@ -5,10 +5,10 @@ import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
 @ConnectorImpl
+@SuppressWarnings("unused")
 public class GuiStaticConnectorImpl implements GuiStaticConnector {
     public void displayGuiScreen(AbstractGuiScreen gui) {
         Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenImpl(gui));
@@ -25,9 +25,8 @@ public class GuiStaticConnectorImpl implements GuiStaticConnector {
                                           int topBorder, int bottomBorder, int leftBorder, int rightBorder,
                                           float zLevel) {
 
-        ResourceLocation resourceLocation = ((IResourceLocationImpl) res).getResourceLocation();
         GuiUtils.drawContinuousTexturedBox(
-                resourceLocation,
+                ((IResourceLocationImpl) res).getDelegate(),
                 x, y, u, v,
                 width, height, textureWidth, textureHeight,
                 topBorder, bottomBorder, leftBorder, rightBorder,

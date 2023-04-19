@@ -6,10 +6,10 @@ public interface IFontRenderer {
     int getFontHeight();
     int getStringWidth(String text);
     int getWordWrappedHeight(String text, int maxLength);
-    int drawStringWithShadow(String text, float x, float y, int color);
+    void drawStringWithShadow(String text, float x, float y, int color);
     void drawSplitString(String str, int x, int y, int wrapWidth, int textColor);
-    default int drawCenteredStringWithShadow(String text, int x, int y, int color) {
-        return this.drawStringWithShadow(text, (float) (x - this.getStringWidth(text) / 2), (float) y, color);
+    default void drawCenteredStringWithShadow(String text, float x, float y, int color) {
+        this.drawStringWithShadow(text, x - this.getStringWidth(text) / 2.0f, y, color);
     }
     String trimStringToWidth(String text, int width);
     List<String> listFormattedStringToWidth(String str, int wrapWidth);

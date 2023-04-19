@@ -6,6 +6,7 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.init.SoundEvents;
 
 @ConnectorImpl
+@SuppressWarnings("unused")
 public class SoundConnectorImpl implements SoundConnector {
     public void playClickSound() {
         Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(

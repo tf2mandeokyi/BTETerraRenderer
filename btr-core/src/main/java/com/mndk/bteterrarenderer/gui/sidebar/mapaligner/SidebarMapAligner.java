@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.ClientPlayerConnector;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.gui.IGuiCheckBox;
+import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxImpl;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -29,7 +29,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private GuiNumberInput xInput, zInput;
     private final GetterSetter<Double> xOffset, zOffset;
 
-    private IGuiCheckBox lockNorthCheckBox;
+    private GuiCheckBoxImpl lockNorthCheckBox;
     private final GetterSetter<Boolean> lockNorth;
 
     private int pMouseX = -1, pMouseY = -1;
@@ -59,8 +59,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 width / 2 + 3, 0, width / 2 - 3, 20,
                 zOffset, "Z = "
         );
-        this.lockNorthCheckBox = DependencyConnectorSupplier.INSTANCE.newCheckBox(
-                -1,
+        this.lockNorthCheckBox = new GuiCheckBoxImpl(
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT * 2 + ALIGNBOX_HEIGHT,
                 I18nConnector.INSTANCE.format("gui.bteterrarenderer.new_settings.lock_north"), this.lockNorth.get()
         );

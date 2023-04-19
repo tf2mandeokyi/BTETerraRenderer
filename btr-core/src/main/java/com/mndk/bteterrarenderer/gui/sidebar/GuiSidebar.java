@@ -137,11 +137,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        if(this.guiChat.isOpened()) {
-            if(this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton)) {
-                return;
-            }
-        }
+        if(this.guiChat.isOpened() && this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton)) return;
 
         int sidebarWidth = elementWidth.get() + 2 * this.paddingSide;
         if(side == SidebarSide.RIGHT) {

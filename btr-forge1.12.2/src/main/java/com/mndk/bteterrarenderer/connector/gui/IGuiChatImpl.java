@@ -1,49 +1,71 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import com.mndk.bteterrarenderer.connector.gui.IGuiChat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
-public class IGuiChatImpl extends GuiChat implements IGuiChat {
+public class IGuiChatImpl implements IGuiChat {
 
-    public void init() {
-        this.mc = Minecraft.getMinecraft();
-        this.itemRender = mc.getRenderItem();
-        this.fontRenderer = mc.fontRenderer;
-        super.initGui();
+    private final OpenGuiChat delegate;
+
+    public IGuiChatImpl() {
+        this.delegate = new OpenGuiChat();
     }
 
-    public int getWidth() { return width; }
-    public int getHeight() { return height; }
-    public String getInputFieldText() { return inputField.getText(); }
-    public boolean isInputFieldFocused() { return inputField.isFocused(); }
+    public void init() {
+        Minecraft mc = Minecraft.getMinecraft();
+        delegate.mc = mc;
+        delegate.setItemRender(mc.getRenderItem());
+        delegate.setFontRenderer(mc.fontRenderer);
+        delegate.initGui();
+    }
 
-    public void setWidth(int width) { this.width = width; }
-    public void setHeight(int height) { this.height = height; }
-    public void setInputFieldX(int x) { inputField.x = x; }
-    public void setInputFieldWidth(int width) { inputField.width = width; }
-    public void setInputFieldFocused(boolean focused) { inputField.setFocused(focused); }
-    public void setText(String newChatText, boolean shouldOverwrite) { super.setText(newChatText, shouldOverwrite); }
+    public int getWidth() { return delegate.width; }
+    public int getHeight() { return delegate.height; }
+    public String getInputFieldText() { return delegate.getInputField().getText(); }
+    public boolean isInputFieldFocused() { return delegate.getInputField().isFocused(); }
 
-    public void drawInputFieldBox() { inputField.drawTextBox(); }
+    public void setWidth(int width) { delegate.width = width; }
+    public void setHeight(int height) { delegate.height = height; }
+    public void setInputFieldX(int x) { delegate.getInputField().x = x; }
+    public void setInputFieldWidth(int width) { delegate.getInputField().width = width; }
+    public void setInputFieldFocused(boolean focused) { delegate.getInputField().setFocused(focused); }
+    public void setText(String newChatText, boolean shouldOverwrite) { delegate.setText(newChatText, shouldOverwrite); }
 
-    public void keyTyped(char typedChar, int keyCode) throws IOException { super.keyTyped(typedChar, keyCode); }
+    public void drawInputFieldBox() { delegate.getInputField().drawTextBox(); }
+    public void sendChatMessage(String s) { delegate.sendChatMessage(s); }
+    public void updateScreen() { delegate.updateScreen(); }
+    public void keyTyped(char typedChar, int keyCode) throws IOException { delegate.keyTyped(typedChar, keyCode); }
+    public void handleMouseInput() throws IOException { delegate.handleMouseInput(); }
+
     public void handleMouseHover(int mouseX, int mouseY, float partialTicks) {
-        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
+        ITextComponent itextcomponent = delegate.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
         if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null) {
-            this.handleComponentHover(itextcomponent, mouseX, mouseY);
+            delegate.handleComponentHover(itextcomponent, mouseX, mouseY);
         }
     }
     public boolean handleMouseClick(int mouseX, int mouseY, int mouseButton) {
-        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
-        if (itextcomponent != null) return this.handleComponentClick(itextcomponent);
+        ITextComponent itextcomponent = delegate.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
+        if (itextcomponent != null) return delegate.handleComponentClick(itextcomponent);
         else return false;
     }
     public boolean inputFieldMouseClicked(int mouseX, int mouseY, int mouseButton) {
-        return inputField.mouseClicked(mouseX, mouseY, mouseButton);
+        return delegate.getInputField().mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    private static class OpenGuiChat extends GuiChat {
+        public GuiTextField getInputField() { return inputField; }
+        public void setItemRender(RenderItem itemRender) { this.itemRender = itemRender; }
+        public void setFontRenderer(FontRenderer fontRenderer) { this.fontRenderer = fontRenderer; }
+        public void setText(@Nonnull String newChatText, boolean shouldOverwrite) { super.setText(newChatText, shouldOverwrite); }
+        public void keyTyped(char typedChar, int keyCode) throws IOException { super.keyTyped(typedChar, keyCode); }
+        public void handleComponentHover(@Nonnull ITextComponent component, int x, int y) { super.handleComponentHover(component, x, y); }
     }
 }

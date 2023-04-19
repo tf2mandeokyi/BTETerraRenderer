@@ -10,7 +10,6 @@ import org.junit.Test;
 
 public class TMSTest {
     private static final CategoryMapData<TileMapService> CATEGORY_MAP_DATA;
-    private final double longitude = 126.97683816936377, latitude = 37.57593302824052;
 
     @Test
     public void givenYamlConfig_testJacksonReadability() {
@@ -20,6 +19,8 @@ public class TMSTest {
     @Test
     public void givenYamlConfig_testOsmUrl() throws OutOfProjectionBoundsException {
         TileMapService osm = CATEGORY_MAP_DATA.getCategory("Global").get("osm");
+        double longitude = 126.97683816936377, latitude = 37.57593302824052;
+
         Assert.assertTrue(osm.getUrlFromGeoCoordinate(longitude, latitude, 1).matches(
                 "https://[abc]\\.tile\\.openstreetmap\\.org/19/447067/203014\\.png"
         ));

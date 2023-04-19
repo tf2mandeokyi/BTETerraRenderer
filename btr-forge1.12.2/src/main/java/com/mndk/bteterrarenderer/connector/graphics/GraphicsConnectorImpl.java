@@ -16,6 +16,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import java.nio.FloatBuffer;
 
 @ConnectorImpl
+@SuppressWarnings("unused")
 public class GraphicsConnectorImpl implements GraphicsConnector {
     public int glGenTextures() {
         return GL11.glGenTextures();
@@ -110,7 +111,7 @@ public class GraphicsConnectorImpl implements GraphicsConnector {
         Tessellator.getInstance().draw();
     }
     public void bindTexture(IResourceLocation res) {
-        ResourceLocation resourceLocation = ((IResourceLocationImpl) res).getResourceLocation();
+        ResourceLocation resourceLocation = ((IResourceLocationImpl) res).getDelegate();
         Minecraft.getMinecraft().renderEngine.bindTexture(resourceLocation);
     }
 }

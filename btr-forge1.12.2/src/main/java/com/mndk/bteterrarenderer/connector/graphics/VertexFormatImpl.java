@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.connector.graphics;
 
-import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 

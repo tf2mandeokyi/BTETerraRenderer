@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
 @ConnectorImpl
+@SuppressWarnings("unused")
 public class HttpConnectorImpl implements HttpConnector {
     public InputStream download(String url) throws ExecutionException, InterruptedException {
         return new ByteBufInputStream(Http.get(url).get());

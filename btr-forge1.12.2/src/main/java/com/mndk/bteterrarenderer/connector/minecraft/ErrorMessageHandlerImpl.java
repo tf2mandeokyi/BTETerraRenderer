@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 
 @ConnectorImpl
+@SuppressWarnings("unused")
 public class ErrorMessageHandlerImpl implements ErrorMessageHandler {
 
     public void sendToClient(String message) {

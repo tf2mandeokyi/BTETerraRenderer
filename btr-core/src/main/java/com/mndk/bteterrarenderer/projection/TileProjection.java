@@ -38,7 +38,7 @@ public abstract class TileProjection {
      * @param latitude Latitude of the player's position
      * @param relativeZoom Tile zoom relative to the default one
      * @return Tile coordinate
-     * @throws Exception When the player is out of bounds from the projection
+     * @throws OutOfProjectionBoundsException When the player is out of bounds from the projection
      */
     public final int[] geoCoordToTileCoord(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
         return this.toTileCoord(longitude, invertLatitude ? -latitude : latitude, relativeZoomToAbsolute(relativeZoom));
@@ -52,7 +52,7 @@ public abstract class TileProjection {
      * @param tileY Tile Y
      * @param relativeZoom Tile zoom relative to the default one
      * @return Geographic coordinate (WGS84)
-     * @throws Exception When the tile is out of bounds from the projection
+     * @throws OutOfProjectionBoundsException When the tile is out of bounds from the projection
      */
     public final double[] tileCoordToGeoCoord(int tileX, int tileY, int relativeZoom) throws OutOfProjectionBoundsException {
         double[] coord = this.toGeoCoord(tileX, tileY, relativeZoomToAbsolute(relativeZoom));

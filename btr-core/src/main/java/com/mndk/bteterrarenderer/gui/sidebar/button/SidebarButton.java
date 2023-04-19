@@ -1,12 +1,11 @@
 package com.mndk.bteterrarenderer.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.gui.IGuiButton;
+import com.mndk.bteterrarenderer.gui.components.GuiButtonImpl;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 public class SidebarButton extends GuiSidebarElement {
 
-    private IGuiButton button;
+    private GuiButtonImpl button;
     private final String buttonText;
     private final MouseClickedEvent event;
 
@@ -17,16 +16,16 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.button = DependencyConnectorSupplier.INSTANCE.newGuiButton(-1, 0, 0, parent.elementWidth.get(), 20, buttonText);
+        this.button = new GuiButtonImpl(0, 0, parent.elementWidth.get(), 20, buttonText);
     }
 
     @Override
     public void onWidthChange(int newWidth) {
-        this.button.setWidth(newWidth);
+        this.button.width = newWidth;
     }
 
     public void setDisplayString(String newString) {
-        this.button.setDisplayString(newString);
+        this.button.text = newString;
     }
 
     @Override

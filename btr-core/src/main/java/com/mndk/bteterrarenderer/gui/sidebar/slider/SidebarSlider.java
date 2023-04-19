@@ -1,8 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.slider;
 
-import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.gui.IGuiSlider;
-import com.mndk.bteterrarenderer.gui.components.IGuiIntegerSlider;
+import com.mndk.bteterrarenderer.gui.components.GuiSliderImpl;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
@@ -10,11 +8,11 @@ import java.util.function.Function;
 
 public class SidebarSlider extends GuiSidebarElement {
 
-    private IGuiSlider slider;
+    private GuiSliderImpl slider;
 
     private final GetterSetter<Double> doubleValue;
     private final GetterSetter<Integer> intValue;
-    private final Function<Integer, Boolean> allowFunction;
+    private final Function<Integer, Boolean> intAllowFunction;
 
     private final String prefix, suffix;
     private final double minValue, maxValue;
@@ -29,15 +27,15 @@ public class SidebarSlider extends GuiSidebarElement {
         this.isDouble = true;
 
         this.intValue = null;
-        this.allowFunction = null;
+        this.intAllowFunction = null;
     }
 
     public SidebarSlider(GetterSetter<Integer> value,
                          String prefix, String suffix,
                          int minValue, int maxValue,
-                         Function<Integer, Boolean> allowFunction) {
+                         Function<Integer, Boolean> intAllowFunction) {
         this.intValue = value;
-        this.allowFunction = allowFunction;
+        this.intAllowFunction = intAllowFunction;
         this.prefix = prefix; this.suffix = suffix;
         this.minValue = minValue; this.maxValue = maxValue;
         this.isDouble = false;
@@ -54,33 +52,31 @@ public class SidebarSlider extends GuiSidebarElement {
     protected void init() {
         if(this.isDouble) {
             assert doubleValue != null;
-            this.slider = DependencyConnectorSupplier.INSTANCE.newGuiSlider(
-                    -1,
+            this.slider = new GuiSliderImpl(
                     0, 0,
                     parent.elementWidth.get(), 20,
                     prefix, suffix,
                     minValue, maxValue, doubleValue.get(),
-                    true, true,
+                    true, true, false,
                     slider -> doubleValue.set(slider.getValue())
             );
         }
         else {
             assert intValue != null;
-            this.slider = new IGuiIntegerSlider(
-                    -1,
+            this.slider = new GuiSliderImpl(
                     0, 0,
                     parent.elementWidth.get(), 20,
                     prefix, suffix,
                     (int) minValue, (int) maxValue, intValue.get(),
-                    true, intValue::set,
-                    allowFunction
+                    false, true, true,
+                    slider -> intValue.set((int) slider.getValue())
             );
         }
     }
 
     @Override
     public void onWidthChange(int newWidth) {
-        this.slider.setWidth(newWidth);
+        this.slider.width = newWidth;
     }
 
     @Override
@@ -90,6 +86,9 @@ public class SidebarSlider extends GuiSidebarElement {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if(this.slider.drawString && this.intAllowFunction != null) {
+            this.slider.packedForegroundColor = intAllowFunction.apply(this.slider.getValueInt()) ? 0 : 0xFF0000;
+        }
         this.slider.drawButton(mouseX, mouseY, partialTicks);
     }
 

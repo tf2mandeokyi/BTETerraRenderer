@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-public interface IGuiTextField extends IGuiObject {
+public interface IGuiTextField {
     
     int getY();
     int getHeight();
