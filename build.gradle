@@ -79,7 +79,7 @@ dependencies {
     compile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
 
     shade 'org.osgeo:proj4j:0.1.0'
-    shade 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
+    shade 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0'
 
     testCompile 'junit:junit:4.13.2'
     testCompile 'com.github.BuildTheEarth:terraplusplus:f12de26053'
