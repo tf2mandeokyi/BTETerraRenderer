@@ -19,7 +19,7 @@ public class ServerWelcomeMessage {
     }
 
     public ServerWelcomeMessage(GeographicProjection serverProjection) throws IOException {
-        this(BTETerraRendererConstants.OBJECT_MAPPER.writeValueAsString(serverProjection));
+        this(BTETerraRendererConstants.JSON_MAPPER.writeValueAsString(serverProjection));
     }
 
     public void fromBytes(ByteBuf buf) {

@@ -1,10 +1,11 @@
 package com.mndk.bteterrarenderer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.mndk.bteterrarenderer.projection.Proj4jProjection;
 import org.apache.logging.log4j.Logger;
-import org.reflections.Reflections;
 
 public class BTETerraRendererConstants {
 
@@ -13,9 +14,15 @@ public class BTETerraRendererConstants {
 
     public static Logger LOGGER;
 
-    public static final Reflections REFLECTIONS = new Reflections("com.mndk." + MODID);
-
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
+    public static final YAMLMapper YAML_MAPPER = YAMLMapper.builder().build();
+    public static final JsonMapper JSON_MAPPER = JsonMapper.builder()
+            .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
+            .configure(JsonReadFeature.ALLOW_JAVA_COMMENTS, true)
+            .configure(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS, true)
+            .configure(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS, true)
+            .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
+            .configure(JsonReadFeature.ALLOW_TRAILING_COMMA, true)
+            .build();
 
     static {
         Proj4jProjection.registerProjection();

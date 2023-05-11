@@ -4,11 +4,10 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
-version = project.modVersion
+version = project.modVersion + "-" + project.minecraftVersion
 group = project.modGroup
 archivesBaseName = project.modId
 
-sourceCompatibility = targetCompatibility = '1.8'
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
@@ -29,20 +28,26 @@ repositories {
 
 configurations {
     shadeDep
+    shadeCore
+    compileAndTestOnly
+
     implementation.extendsFrom shadeDep
+    implementation.extendsFrom shadeCore
+    compileOnly.extendsFrom compileAndTestOnly
+    testImplementation.extendsFrom compileAndTestOnly
 }
 
 dependencies {
     shadeDep 'org.osgeo:proj4j:0.1.0'
     shadeDep 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
     shadeDep 'org.reflections:reflections:0.10.2'
-    // Required for terraplusplus
-    compileOnly 'com.google.guava:guava:31.1-jre'
-    compileOnly 'io.netty:netty-all:4.1.9.Final'
-    compileOnly 'lzma:lzma:0.0.1'
-    shadeDep("net.daporkchop.lib:binary:0.5.5-SNAPSHOT") { exclude group: "io.netty" }
+    shadeDep("net.daporkchop.lib:binary:0.5.5-SNAPSHOT") { exclude group: "io.netty" } // T++
 
     compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
+    compileAndTestOnly 'com.google.guava:guava:31.1-jre' // T++
+    compileAndTestOnly 'io.netty:netty-all:4.1.9.Final' // T++
+    compileAndTestOnly 'lzma:lzma:0.0.1' // T++
+
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
 
@@ -53,7 +58,7 @@ dependencies {
 
 shadowJar {
     classifier = null
-    configurations = [ project.configurations.shadeDep ]
+    configurations = [ project.configurations.shadeDep, project.configurations.shadeCore ]
     exclude 'module-info.class'
 }
 build.dependsOn shadowJar

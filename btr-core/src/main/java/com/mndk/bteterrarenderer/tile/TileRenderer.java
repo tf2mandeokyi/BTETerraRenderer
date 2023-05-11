@@ -4,58 +4,37 @@ import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.projection.Projections;
-
-import java.util.function.BiConsumer;
+import lombok.RequiredArgsConstructor;
 
 public class TileRenderer {
+
+    /**
+     * This variable is to prevent z-fighting from happening.<br>
+     * Setting this lower than 0.1 won't have its effect when the hologram is viewed far away from player<br>
+     * TODO Seems there's another way to prevent z-fighting issue rather than this method
+     */
+    private static final double Y_EPSILON = 0.1;
 
     public static void renderTiles(double px, double py, double pz) {
 
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
         BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
-        TileMapService tms = BTRConfigConnector.getTileMapService();
 
+        TileMapService tms = BTRConfigConnector.getTileMapService();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 
         double yDiff = settings.getYAxis() - py;
-        if(Math.abs(yDiff) >= settings.getYDiffLimit()) {
-            return;
-        }
+        if(Math.abs(yDiff) >= settings.getYDiffLimit()) return;
 
         GraphicsConnector.INSTANCE.glPushMatrix();
         GraphicsConnector.INSTANCE.glDisableCull();
         GraphicsConnector.INSTANCE.glEnableBlend();
         GraphicsConnector.INSTANCE.glBlendFunc(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA);
-
         GraphicsConnector.INSTANCE.glScale(1, 1, 1);
 
-        int size = settings.getRadius() - 1;
-
-        BiConsumer<Integer, Integer> drawTile = (dx, dy) -> {
-            if(Math.abs(dx) > size || Math.abs(dy) > size) return;
-            tms.renderTile(
-                    settings.getRelativeZoomValue(),
-                    config.getMapServiceCategory() + "." + config.getMapServiceId(),
-                    settings.getYAxis() + 0.1, // Adding .1 to y because of texture-overlapping issue
-                    (float) settings.getOpacity(),
-                    px + settings.getXAlign(), py, pz + settings.getZAlign(),
-                    dx, dy
-            );
-        };
-
         // Draw tiles around player with diamond-priority
-        for(int i = 0; i < 2 * size + 1; ++i) {
-            if(i == 0) {
-                drawTile.accept(0, 0);
-            }
-            for(int j = 0; j < i; ++j) {
-                drawTile.accept(-j, j - i);
-                drawTile.accept(j - i, j);
-                drawTile.accept(j, i - j);
-                drawTile.accept(i - j, -j);
-            }
-        }
+        new TileDrawer(tms, settings.getRadius() - 1, px, py, pz).drawWithDiamondPriority();
 
         TileImageCacheManager.getInstance().cleanup();
 
@@ -64,4 +43,40 @@ public class TileRenderer {
         GraphicsConnector.INSTANCE.glPopMatrix();
     }
 
+
+    @RequiredArgsConstructor
+    private static class TileDrawer {
+
+        private final TileMapService tms;
+        private final int size;
+        private final double px, py, pz;
+        private final BTRConfigConnector config = BTRConfigConnector.INSTANCE;
+        private final BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
+
+        public void draw(int dx, int dy) {
+            if(Math.abs(dx) > size || Math.abs(dy) > size) return;
+            tms.renderTile(
+                    settings.getRelativeZoomValue(),
+                    config.getMapServiceCategory() + "." + config.getMapServiceId(),
+                    settings.getYAxis() + Y_EPSILON,
+                    (float) settings.getOpacity(),
+                    px + settings.getXAlign(), py, pz + settings.getZAlign(),
+                    dx, dy
+            );
+        }
+
+        public void drawWithDiamondPriority() {
+            for(int i = 0; i < 2 * this.size + 1; ++i) {
+                if(i == 0) {
+                    this.draw(0, 0);
+                }
+                for(int j = 0; j < i; ++j) {
+                    this.draw(-j, j - i);
+                    this.draw(j - i, j);
+                    this.draw(j, i - j);
+                    this.draw(i - j, -j);
+                }
+            }
+        }
+    }
 }

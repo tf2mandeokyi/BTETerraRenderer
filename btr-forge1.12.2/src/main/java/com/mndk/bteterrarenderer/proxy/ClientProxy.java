@@ -4,7 +4,6 @@ import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -19,17 +18,14 @@ public class ClientProxy extends CommonProxy {
 	public static KeyBinding mapOptionsKey, mapToggleKey;
 
 	public static void initializeKeys() {
-		ClientRegistry.registerKeyBinding(mapOptionsKey = new KeyBinding(
-				I18n.format("key.bteterrarenderer.options_ui"),
-				Keyboard.KEY_GRAVE,
-				I18n.format("key.bteterrarenderer.category"))
-		);
+		mapOptionsKey = registerKey("options_ui", "category", Keyboard.KEY_GRAVE);
+		mapToggleKey = registerKey("toggle", "category", Keyboard.KEY_R);
+	}
 
-		ClientRegistry.registerKeyBinding(mapToggleKey = new KeyBinding(
-				I18n.format("key.bteterrarenderer.toggle"),
-				Keyboard.KEY_R,
-				I18n.format("key.bteterrarenderer.category"))
-		);
+	private static KeyBinding registerKey(String name, String category, int keyCode) {
+		KeyBinding key = new KeyBinding("key." + BTETerraRendererConstants.MODID + "." + name, keyCode, category);
+		ClientRegistry.registerKeyBinding(key);
+		return key;
 	}
 
 	@Override

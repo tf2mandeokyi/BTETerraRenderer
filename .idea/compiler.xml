@@ -10,6 +10,7 @@
         </processorPath>
         <module name="BTETerraRenderer.btr-forge1.12.2.main" />
         <module name="BTETerraRenderer.btr-core.main" />
+        <module name="BTETerraRenderer.btr-forge1.18.2.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8" />

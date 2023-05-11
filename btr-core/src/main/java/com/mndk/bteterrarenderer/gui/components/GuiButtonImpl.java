@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 
 public class GuiButtonImpl extends GuiObjectImpl {
 
-    protected static final IResourceLocation BUTTON_TEXTURES = DependencyConnectorSupplier.INSTANCE.getButtonTextures();
+    protected static final IResourceLocation BUTTON_TEXTURES = DependencyConnectorSupplier.INSTANCE.getWidgetTextures();
     public int x, y, width, height;
     public String text;
     public boolean enabled = true, visible = true;

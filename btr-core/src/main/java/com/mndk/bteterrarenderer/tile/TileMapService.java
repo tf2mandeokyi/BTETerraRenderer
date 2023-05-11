@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
-import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
-import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
@@ -114,10 +112,6 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
                 return;
             }
 
-            cache.bindTexture(tileKey);
-            IBufferBuilder builder = GraphicsConnector.INSTANCE.getBufferBuilder();
-            // begin vertex
-            builder.beginQuads(VertexFormatConnectorEnum.POSITION_TEX_COLOR);
             /*
              *  i=0 ------ i=1
              *   |          |
@@ -125,22 +119,23 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
              *   |          |
              *  i=3 ------ i=2
              */
+            int glId = cache.updateAndGetGlId(tileKey);
+            TileQuad tileQuad = new TileQuad(glId);
             for (int i = 0; i < 4; i++) {
                 int[] mat = this.tileProjection.getCornerMatrix(i);
                 geoCoord = tileProjection.tileCoordToGeoCoord(tileX + mat[0], tileY + mat[1], relativeZoom);
                 gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
-                builder.pos(gameCoord[0] - playerX, y - playerY, gameCoord[1] - playerZ)
-                        .tex(mat[2], mat[3])
-                        .color(1f, 1f, 1f, opacity)
-                        .endVertex();
+                tileQuad.setVertex(i, new TileQuad.VertexInfo(
+                        (float) (gameCoord[0] - playerX), (float) (y - playerY), (float) (gameCoord[1] - playerZ),
+                        mat[2], mat[3],
+                        1f, 1f, 1f, opacity
+                ));
             }
-            GraphicsConnector.INSTANCE.tessellatorDraw();
+            GraphicsConnector.INSTANCE.drawTileQuad(tileQuad);
 
+        } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {
-            if(e instanceof OutOfProjectionBoundsException) {
-                return; // Ignore if the thrown exception is OutOfProjectionBoundsException or something
-            }
             BTETerraRendererConstants.LOGGER.warn("Caught exception while rendering tile images", e);
         }
     }

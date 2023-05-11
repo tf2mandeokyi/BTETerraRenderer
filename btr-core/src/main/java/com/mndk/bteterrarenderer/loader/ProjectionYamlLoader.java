@@ -24,7 +24,7 @@ public class ProjectionYamlLoader extends YamlLoader<Map<String, YamlTileProject
 
     @Override
     protected Map<String, YamlTileProjection> load(String fileName, Reader fileReader) throws IOException {
-        return BTETerraRendererConstants.OBJECT_MAPPER.readValue(fileReader, new TypeReference<ProjectionYamlFile>() {})
+        return BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<ProjectionYamlFile>() {})
                 .tileProjections;
     }
 

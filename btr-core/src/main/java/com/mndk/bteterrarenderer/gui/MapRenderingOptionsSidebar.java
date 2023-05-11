@@ -16,7 +16,6 @@ import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownSelector;
 import com.mndk.bteterrarenderer.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.gui.sidebar.slider.SidebarSlider;
-import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -138,8 +137,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 opened.put(categoryEntry.getKey(), categoryEntry.getValue().isOpened());
             }
 
-            ProjectionYamlLoader.INSTANCE.refresh();
-            TMSYamlLoader.INSTANCE.refresh();
             BTRConfigConnector.refreshTileMapService();
 
             categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
@@ -169,7 +166,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     @Override
     public void onGuiClosed() {
-        BTRConfigConnector.INSTANCE.save();
+        BTRConfigConnector.save();
         super.onGuiClosed();
     }
 

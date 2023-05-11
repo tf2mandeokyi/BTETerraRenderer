@@ -36,70 +36,59 @@ public class TileImageCacheManager {
 		this.imageRenderQueue = new ArrayList<>();
 	}
 
-	private int validateAndGetGlId(String tileKey) {
-		synchronized (this) {
-			if (!glTextureIdMap.containsKey(tileKey)) throw new NullPointerException();
-			return glTextureIdMap.get(tileKey).glId;
-		}
+	private synchronized int validateAndGetGlId(String tileKey) {
+		if (!glTextureIdMap.containsKey(tileKey)) throw new NullPointerException();
+		return glTextureIdMap.get(tileKey).glId;
 	}
 
-	public void tileIsBeingDownloaded(String tileKey) {
-		synchronized (this) {
-			downloadingTileKeys.add(tileKey);
-		}
+	public synchronized void tileIsBeingDownloaded(String tileKey) {
+		downloadingTileKeys.add(tileKey);
 	}
 
-	public void tileDownloadingComplete(String tileKey, BufferedImage image) {
-		synchronized (this) {
-			downloadingTileKeys.remove(tileKey);
-			imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileKey, image));
-		}
+	public synchronized void tileDownloadingComplete(String tileKey, BufferedImage image) {
+		downloadingTileKeys.remove(tileKey);
+		imageRenderQueue.add(new AbstractMap.SimpleEntry<>(tileKey, image));
 	}
 
-	public boolean isTileInDownloadingState(String tileKey) {
-		synchronized (this) {
-			return downloadingTileKeys.contains(tileKey);
-		}
+	public synchronized boolean isTileInDownloadingState(String tileKey) {
+		return downloadingTileKeys.contains(tileKey);
 	}
 
-	public void addTexture(String tileKey, BufferedImage image) {
-		synchronized (this) {
-			if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
-				this.deleteOldestTexture();
-			}
-			this.addTexture(tileKey, initializeTile(image));
+	public synchronized void addTexture(String tileKey, BufferedImage image) {
+		if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
+			this.deleteOldestTexture();
 		}
+		int glId = GraphicsConnector.INSTANCE.allocateAndUploadTileTexture(image);
+		this.addTexture(tileKey, glId);
 	}
 
-	public void addTexture(String tileKey, int glId) {
-		synchronized (this) {
-			glTextureIdMap.put(tileKey, new GLIdWrapper(glId, System.currentTimeMillis()));
-			log("Added texture " + tileKey + " (Size: " + glTextureIdMap.size() + ")");
-		}
+	public synchronized void addTexture(String tileKey, int glId) {
+		glTextureIdMap.put(tileKey, new GLIdWrapper(glId, System.currentTimeMillis()));
+		log("Added texture " + tileKey + " (Size: " + glTextureIdMap.size() + ")");
 	}
 
-	public boolean textureExists(String tileKey) {
-		synchronized (this) {
-			return glTextureIdMap.containsKey(tileKey);
-		}
+	public synchronized boolean textureExists(String tileKey) {
+		return glTextureIdMap.containsKey(tileKey);
 	}
 
-	public void bindTexture(String tileKey) {
-		synchronized (this) {
-			int glId = validateAndGetGlId(tileKey);
-			this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
-			GraphicsConnector.INSTANCE.glBindTexture(glId);
-		}
+//	public synchronized void bindTexture(String tileKey) {
+//		int glId = validateAndGetGlId(tileKey);
+//		this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
+//		GraphicsConnector.INSTANCE.glBindTileTexture(glId);
+//	}
+
+	public synchronized int updateAndGetGlId(String tileKey) {
+		int glId = validateAndGetGlId(tileKey);
+		this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
+		return glId;
 	}
 
-	private void deleteTexture(String tileKey) {
-		synchronized (this) {
-			if (glTextureIdMap.containsKey(tileKey)) {
-				int glId = glTextureIdMap.get(tileKey).glId;
-				glTextureIdMap.remove(tileKey);
-				GraphicsConnector.INSTANCE.glDeleteTexture(glId);
-				log("Deleted texture " + tileKey);
-			}
+	private synchronized void deleteTexture(String tileKey) {
+		if (glTextureIdMap.containsKey(tileKey)) {
+			int glId = glTextureIdMap.get(tileKey).glId;
+			glTextureIdMap.remove(tileKey);
+			GraphicsConnector.INSTANCE.glDeleteTileTexture(glId);
+			log("Deleted texture " + tileKey);
 		}
 	}
 
@@ -134,53 +123,32 @@ public class TileImageCacheManager {
 		}
 	}
 
-	/**
-	 * @return The GL texture id associated with the image texture.
-	 * */
-	private int initializeTile(BufferedImage image) {
-		int width = image.getWidth(), height = image.getHeight();
-		int glTextureId = GraphicsConnector.INSTANCE.glGenTextures();
-
-		int[] imageData = new int[width * height];
-		image.getRGB(0, 0, width, height, imageData, 0, width);
-
-		GraphicsConnector.INSTANCE.allocateTexture(glTextureId, width, height);
-		GraphicsConnector.INSTANCE.uploadTexture(glTextureId, imageData, width, height);
-
-		return glTextureId;
+	public synchronized void deleteAllRenderQueues() {
+		imageRenderQueue.clear();
 	}
 
-	public void deleteAllRenderQueues() {
-		synchronized (this) {
-			imageRenderQueue.clear();
-		}
-	}
-
-	public void cacheAllImagesInQueue() {
+	public synchronized void cacheAllImagesInQueue() {
 		List<Map.Entry<String, BufferedImage>> newList = new ArrayList<>();
 
-		synchronized (this) {
-			for (int i = 0; i < CACHE_AT_A_TIME && !imageRenderQueue.isEmpty(); i++) {
-				Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
-				imageRenderQueue.remove(0);
-				if (entry == null) continue;
+		for (int i = 0; i < CACHE_AT_A_TIME && !imageRenderQueue.isEmpty(); i++) {
+			Map.Entry<String, BufferedImage> entry = imageRenderQueue.get(0);
+			imageRenderQueue.remove(0);
+			if (entry == null) continue;
 
-				String tileKey = entry.getKey();
-				BufferedImage image = entry.getValue();
+			String tileKey = entry.getKey();
+			BufferedImage image = entry.getValue();
 
-				try {
-					if (image != null) {
-						this.addTexture(tileKey, image);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					// Put the image data back to the queue if something went wrong
-					newList.add(entry);
+			try {
+				if (image != null) {
+					this.addTexture(tileKey, image);
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				// Put the image data back to the queue if something went wrong
+				newList.add(entry);
 			}
-			imageRenderQueue = newList;
 		}
-
+		imageRenderQueue = newList;
 	}
 
 	@AllArgsConstructor

@@ -19,7 +19,7 @@ public class TMSYamlLoader extends YamlLoader<CategoryMapData<TileMapService>> {
 
 	protected CategoryMapData<TileMapService> load(String fileName, Reader fileReader) throws IOException {
 		CategoryMapData<TileMapService> result =
-				BTETerraRendererConstants.OBJECT_MAPPER.readValue(fileReader, new TypeReference<CategoryMapData<TileMapService>>() {});
+				BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<CategoryMapData<TileMapService>>() {});
 		result.setSource(fileName);
 		return result;
 	}

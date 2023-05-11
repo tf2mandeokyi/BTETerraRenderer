@@ -2,15 +2,21 @@ package com.mndk.bteterrarenderer.connector.graphics;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.tile.TileQuad;
+
+import java.awt.image.BufferedImage;
 
 public interface GraphicsConnector {
     GraphicsConnector INSTANCE = ImplFinder.search();
 
-    int glGenTextures();
-    void allocateTexture(int glId, int width, int height);
-    void uploadTexture(int glId, int[] imageData, int width, int height);
-    void glBindTexture(int glId);
-    void glDeleteTexture(int glId);
+    /**
+     * Allocates given buffered image.
+     * @param image The buffered image
+     * @return Corresponding glId
+     */
+    int allocateAndUploadTileTexture(BufferedImage image);
+    void drawTileQuad(TileQuad tileQuad);
+    void glDeleteTileTexture(int glId);
     void glPushAttrib();
     void glPopAttrib();
     void glTranslate(float x, float y, float z);

@@ -102,18 +102,16 @@ public class BTRConfigConnectorImpl implements BTRConfigConnector {
         public double sidebarOpacity = 0.5;
     }
 
-    public void save() {
+    public void saveConfig() {
         ConfigManager.sync(BTETerraRendererConstants.MODID, Config.Type.INSTANCE);
-        BTRConfigConnector.refreshTileMapService();
     }
 
     @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID)
     public static class ConfigEventHandler {
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if (event.getModID().equals(BTETerraRendererConstants.MODID)) {
-                BTRConfigConnector.INSTANCE.save();
-            }
+            if (!event.getModID().equals(BTETerraRendererConstants.MODID)) return;
+            BTRConfigConnector.save();
         }
     }
 }

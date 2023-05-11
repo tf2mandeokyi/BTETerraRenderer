@@ -1,54 +1,86 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath ('net.minecraftforge.gradle:ForgeGradle:5.1.+') { changing = true }
-    }
-}
-
 plugins {
-    id 'java'
-    id 'maven-publish'
     id 'net.minecraftforge.gradle'
+    id 'btr.java-conventions'
 }
 
-version = project.modVersion
-group = project.modGroup
-archivesBaseName = project.modId
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
 minecraft {
     mappings channel: 'official', version: '1.18.2'
-}
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+
+        gameTestServer {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'bteterrarenderer', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+    }
+}
 
 repositories {}
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.2.0'
 
-    // Real mod deobf dependency examples - these get remapped to your current mappings
-    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
-    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
-    // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
-
-    // Examples using mod jars from ./libs
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    shadeCore fg.deobf(project(':btr-core'))
+    shadeDep 'lzma:lzma:0.0.1' // Why isn't lzma built-in in 1.18.2 :(
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraftVersion
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+        expand 'version': project.version, 'mcversion': project.minecraftVersion
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'META-INF/mods.toml'
+    }
 }
 
-test {
-    useJUnitPlatform()
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+reobf {
+    shadowJar {}
 }

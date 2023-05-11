@@ -1,7 +1,9 @@
 package com.mndk.bteterrarenderer.config;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
+import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
+import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileImageCacheManager;
 import com.mndk.bteterrarenderer.tile.TileMapService;
@@ -9,7 +11,10 @@ import com.mndk.bteterrarenderer.tile.TileMapService;
 public interface BTRConfigConnector {
     BTRConfigConnector INSTANCE = ImplFinder.search();
 
-    void save();
+    /**
+     * Call {@link #save()} instead of this method
+     */
+    void saveConfig();
     boolean isDoRender();               void setDoRender(boolean doRender);
     String getMapServiceCategory();     void setMapServiceCategory(String mapServiceCategory);
     String getMapServiceId();           void setMapServiceId(String mapServiceId);
@@ -42,6 +47,11 @@ public interface BTRConfigConnector {
         setDoRender(!isDoRender());
     }
 
+    static void save() {
+        INSTANCE.saveConfig();
+        refreshTileMapService();
+    }
+
     static TileMapService getTileMapService() {
         return Storage.TMS_ON_DISPLAY;
     }
@@ -60,11 +70,13 @@ public interface BTRConfigConnector {
     }
 
     static void refreshTileMapService() {
-        Storage.TMS_ON_DISPLAY = getCurrentTileMapService();
-    }
-
-    static TileMapService getCurrentTileMapService() {
-        return TMSYamlLoader.INSTANCE.result.getItem(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
+        try {
+            ProjectionYamlLoader.INSTANCE.refresh();
+            TMSYamlLoader.INSTANCE.refresh();
+        } catch (Exception e) {
+            ErrorMessageHandler.INSTANCE.sendToClient("Error caught while parsing yaml map files!", e);
+        }
+        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItem(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
     }
 
     class Storage {

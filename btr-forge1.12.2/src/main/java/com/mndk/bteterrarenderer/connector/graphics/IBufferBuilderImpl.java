@@ -15,7 +15,7 @@ public class IBufferBuilderImpl implements IBufferBuilder {
         delegate.pos(x, y, z);
         return this;
     }
-    public IBufferBuilderImpl tex(double u, double v) {
+    public IBufferBuilderImpl tex(float u, float v) {
         delegate.tex(u, v);
         return this;
     }

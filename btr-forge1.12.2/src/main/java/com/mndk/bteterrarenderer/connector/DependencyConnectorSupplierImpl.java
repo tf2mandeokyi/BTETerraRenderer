@@ -28,7 +28,7 @@ public class DependencyConnectorSupplierImpl implements DependencyConnectorSuppl
     }
 
     @Override
-    public IResourceLocation getButtonTextures() {
+    public IResourceLocation getWidgetTextures() {
         return BUTTON_TEXTURES;
     }
 

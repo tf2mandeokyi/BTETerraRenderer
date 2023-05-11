@@ -19,7 +19,7 @@ public class ToggleMapCommand extends CommandBase implements IClientCommand {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
 		BTRConfigConnector.INSTANCE.toggleRender();
-		BTRConfigConnector.INSTANCE.save();
+		BTRConfigConnector.save();
 	}
 
 	@Override

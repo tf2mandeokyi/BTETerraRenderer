@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.gui.components.GuiSliderImpl;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class SidebarSlider extends GuiSidebarElement {
 
@@ -12,7 +12,7 @@ public class SidebarSlider extends GuiSidebarElement {
 
     private final GetterSetter<Double> doubleValue;
     private final GetterSetter<Integer> intValue;
-    private final Function<Integer, Boolean> intAllowFunction;
+    private final Predicate<Integer> intValidator;
 
     private final String prefix, suffix;
     private final double minValue, maxValue;
@@ -27,15 +27,15 @@ public class SidebarSlider extends GuiSidebarElement {
         this.isDouble = true;
 
         this.intValue = null;
-        this.intAllowFunction = null;
+        this.intValidator = null;
     }
 
     public SidebarSlider(GetterSetter<Integer> value,
                          String prefix, String suffix,
                          int minValue, int maxValue,
-                         Function<Integer, Boolean> intAllowFunction) {
+                         Predicate<Integer> intValidator) {
         this.intValue = value;
-        this.intAllowFunction = intAllowFunction;
+        this.intValidator = intValidator;
         this.prefix = prefix; this.suffix = suffix;
         this.minValue = minValue; this.maxValue = maxValue;
         this.isDouble = false;
@@ -86,8 +86,8 @@ public class SidebarSlider extends GuiSidebarElement {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        if(this.slider.drawString && this.intAllowFunction != null) {
-            this.slider.packedForegroundColor = intAllowFunction.apply(this.slider.getValueInt()) ? 0 : 0xFF0000;
+        if(this.slider.drawString && this.intValidator != null) {
+            this.slider.packedForegroundColor = intValidator.test(this.slider.getValueInt()) ? 0 : 0xFF0000;
         }
         this.slider.drawButton(mouseX, mouseY, partialTicks);
     }

@@ -31,10 +31,9 @@ public class ServerClientConnectionEvent {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public static void onClientConnects(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+    public static void onClientConnection(FMLNetworkEvent.ClientConnectedToServerEvent event) {
         Projections.setDefaultBTEProjection();
     }
-
 
 
     @SideOnly(Side.SERVER)
@@ -42,11 +41,11 @@ public class ServerClientConnectionEvent {
     public static void onPlayerLoginToServer(PlayerEvent.PlayerLoggedInEvent event) {
         EntityPlayer player = event.player;
         World world = event.player.world;
-        EarthGeneratorSettings generatorSettings = getEarthGeneratorSettings(world);
+        EarthGeneratorSettings generatorSettings = getWorldEarthGeneratorSettings(world);
         if(generatorSettings != null) {
             try {
                 net.buildtheearth.terraplusplus.projection.GeographicProjection projection =
-                        Objects.requireNonNull(getEarthGeneratorSettings(world)).projection();
+                        Objects.requireNonNull(getWorldEarthGeneratorSettings(world)).projection();
                 BTETerraRendererMod.NETWORK_WRAPPER.sendTo(
                         new ServerWelcomeMessageImpl(projection), (EntityPlayerMP) player);
                 return;
@@ -58,12 +57,11 @@ public class ServerClientConnectionEvent {
     }
 
 
-
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public static void onPlayerLoginToLocalServer(PlayerEvent.PlayerLoggedInEvent event) throws JsonProcessingException {
         World world = event.player.world;
-        EarthGeneratorSettings generatorSettings = getEarthGeneratorSettings(world);
+        EarthGeneratorSettings generatorSettings = getWorldEarthGeneratorSettings(world);
 
         if(generatorSettings != null) {
             String projectionJson = TerraConstants.JSON_MAPPER.writeValueAsString(generatorSettings.projection());
@@ -72,17 +70,12 @@ public class ServerClientConnectionEvent {
     }
 
 
-
-    private static EarthGeneratorSettings getEarthGeneratorSettings(World world) {
+    private static EarthGeneratorSettings getWorldEarthGeneratorSettings(World world) {
         IChunkProvider chunkProvider = world.getChunkProvider();
-        if(!(chunkProvider instanceof CubeProviderServer)) {
-            return null;
-        }
+        if(!(chunkProvider instanceof CubeProviderServer)) return null;
 
         ICubeGenerator cubeGenerator = ((CubeProviderServer) chunkProvider).getCubeGenerator();
-        if (!(cubeGenerator instanceof EarthGenerator)) {
-            return null;
-        }
+        if (!(cubeGenerator instanceof EarthGenerator)) return null;
 
         return ((EarthGenerator) cubeGenerator).settings;
     }

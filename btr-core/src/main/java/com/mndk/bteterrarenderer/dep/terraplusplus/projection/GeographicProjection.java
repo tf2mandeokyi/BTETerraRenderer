@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.dep.terraplusplus.projection;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConstants;
 import com.mndk.bteterrarenderer.dep.terraplusplus.config.GlobalParseRegistries;
 import com.mndk.bteterrarenderer.dep.terraplusplus.config.TypedDeserializer;
@@ -30,7 +31,7 @@ import java.util.Map;
 public interface GeographicProjection {
     @SneakyThrows(IOException.class)
     static GeographicProjection parse(@NonNull String config) {
-        return TerraConstants.JSON_MAPPER.readValue(config, GeographicProjection.class);
+        return BTETerraRendererConstants.JSON_MAPPER.readValue(config, GeographicProjection.class);
     }
 
     /**

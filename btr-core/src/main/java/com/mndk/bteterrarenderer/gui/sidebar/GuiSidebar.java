@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.graphics.IScaledResolution;
 import com.mndk.bteterrarenderer.connector.gui.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.GameSettingsConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.KeyBindingsConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.MouseConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.SoundConnector;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -241,11 +241,11 @@ public class GuiSidebar extends AbstractGuiScreen {
             if (element.keyTyped(key, keyCode)) response = true;
         }
         if (!response) {
-            GameSettingsConnector gameSettings = GameSettingsConnector.INSTANCE;
-            if(keyCode == gameSettings.getKeyBindChatCode()) {
+            KeyBindingsConnector gameSettings = KeyBindingsConnector.INSTANCE;
+            if(keyCode == gameSettings.chatOpenKeyCode()) {
                 this.guiChat.setText("", true);
             }
-            else if(keyCode == gameSettings.getKeyBindCommandCode()) {
+            else if(keyCode == gameSettings.commandOpenKeyCode()) {
                 this.guiChat.setText("/", true);
             }
             else {

@@ -3,25 +3,18 @@ plugins {
     id 'btr.java-conventions'
 }
 
-repositories {
-    mavenCentral()
-    // cubicchunks, cubicworldgen, terraplusplus
-    maven { name = "JitPack"; url = "https://jitpack.io/" }
-    // leveldb
-    maven { name = "DaPorkchop_"; url = "https://maven.daporkchop.net/" }
-    // leveldb
-    maven { name = "OpenCollab Snapshots"; url = "https://repo.opencollab.dev/snapshot/" }
-    // jankson
-    maven { name = "elytradev"; url = "https://repo.elytradev.com/" }
-}
+sourceCompatibility = targetCompatibility = '1.8'
 
 minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
 }
 
-configurations {
-    shadeCore
-    implementation.extendsFrom shadeCore
+repositories {
+    mavenCentral()
+    // cubicchunks, cubicworldgen, terraplusplus
+    maven { name = "JitPack"; url = "https://jitpack.io/" }
+    // jankson
+    maven { name = "elytradev"; url = "https://repo.elytradev.com/" }
 }
 
 dependencies {
@@ -39,11 +32,11 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     inputs.property "version", project.version
-    inputs.property "mcversion", "1.12.2"
+    inputs.property "mcversion", project.minecraftVersion
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': "1.12.2"
+        expand 'version': project.version, 'mcversion': project.minecraftVersion
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
@@ -53,10 +46,3 @@ processResources {
 reobf {
     shadowJar {}
 }
-
-shadowJar {
-    classifier = null
-    configurations = [ project.configurations.shadeDep, project.configurations.shadeCore ]
-    exclude 'module-info.class'
-}
-build.dependsOn shadowJar

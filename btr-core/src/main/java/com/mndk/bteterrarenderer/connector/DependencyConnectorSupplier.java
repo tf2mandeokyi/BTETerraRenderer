@@ -11,6 +11,6 @@ public interface DependencyConnectorSupplier {
     IGuiTextField newGuiTextField(int componentId, IFontRenderer fontRenderer,
                                   int x, int y, int width, int height);
     IResourceLocation newResourceLocation(String modId, String location);
-    IResourceLocation getButtonTextures();
+    IResourceLocation getWidgetTextures();
     IFontRenderer getMinecraftFontRenderer();
 }
