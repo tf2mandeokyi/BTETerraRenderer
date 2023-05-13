@@ -1,9 +1,11 @@
 package com.mndk.bteterrarenderer.connector;
 
-import com.mndk.bteterrarenderer.connector.gui.*;
+import com.mndk.bteterrarenderer.connector.gui.IGuiChat;
+import com.mndk.bteterrarenderer.connector.gui.IGuiChatImpl;
+import com.mndk.bteterrarenderer.connector.gui.IGuiTextField;
+import com.mndk.bteterrarenderer.connector.gui.IGuiTextFieldImpl;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 
@@ -17,10 +19,9 @@ public class DependencyConnectorSupplierImpl implements DependencyConnectorSuppl
         return new IGuiChatImpl();
     }
 
-    public IGuiTextField newGuiTextField(int componentId, IFontRenderer fontRenderer,
-                                         int x, int y, int width, int height) {
+    public IGuiTextField newGuiTextField(int componentId, int x, int y, int width, int height) {
 
-        return new IGuiTextFieldImpl(componentId, ((IFontRendererImpl) fontRenderer).getDelegate(), x, y, width, height);
+        return new IGuiTextFieldImpl(componentId, x, y, width, height);
     }
 
     public IResourceLocation newResourceLocation(String modId, String location) {
@@ -30,11 +31,6 @@ public class DependencyConnectorSupplierImpl implements DependencyConnectorSuppl
     @Override
     public IResourceLocation getWidgetTextures() {
         return BUTTON_TEXTURES;
-    }
-
-    @Override
-    public IFontRenderer getMinecraftFontRenderer() {
-        return new IFontRendererImpl(Minecraft.getMinecraft().fontRenderer);
     }
 
     private static class DummyGuiButton extends GuiButton {

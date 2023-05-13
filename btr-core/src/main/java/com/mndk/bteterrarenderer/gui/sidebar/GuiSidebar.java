@@ -4,9 +4,7 @@ import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.graphics.IScaledResolution;
 import com.mndk.bteterrarenderer.connector.gui.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.KeyBindingsConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.MouseConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.SoundConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
 import java.io.IOException;
@@ -60,7 +58,7 @@ public class GuiSidebar extends AbstractGuiScreen {
         this.guiChat.changeSideMargin(side, this.elementWidth.get() + 2 * this.paddingSide);
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
-            element.initGui(this, fontRenderer.get());
+            element.initGui(this);
         }
     }
 
@@ -155,7 +153,7 @@ public class GuiSidebar extends AbstractGuiScreen {
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
                 if(element.mouseClicked(mx, mouseY - currentHeight, mouseButton)) {
-                    SoundConnector.INSTANCE.playClickSound();
+                    MinecraftClientConnector.INSTANCE.playClickSound();
                 }
                 currentHeight += element.getHeight() + this.elementDistance;
             }
@@ -180,11 +178,11 @@ public class GuiSidebar extends AbstractGuiScreen {
 
 
     public void handleMouseInput() throws IOException {
-        int mouseX = (int) (MouseConnector.INSTANCE.getEventX() * guiWidth.get() / (double) minecraftDisplayWidth.get());
+        int mouseX = (int) (MinecraftClientConnector.INSTANCE.getMouseX() * guiWidth.get() / (double) minecraftDisplayWidth.get());
         if(this.guiChat.isOpened() && !this.mouseOnSidebar(mouseX)) {
             this.guiChat.handleMouseInput();
         } else {
-            this.verticalSlider -= Math.signum(MouseConnector.INSTANCE.getEventDWheel()) * 30;
+            this.verticalSlider -= Math.signum(MinecraftClientConnector.INSTANCE.getMouseDWheel()) * 30;
             this.validateVerticalSlider();
         }
     }
@@ -241,11 +239,10 @@ public class GuiSidebar extends AbstractGuiScreen {
             if (element.keyTyped(key, keyCode)) response = true;
         }
         if (!response) {
-            KeyBindingsConnector gameSettings = KeyBindingsConnector.INSTANCE;
-            if(keyCode == gameSettings.chatOpenKeyCode()) {
+            if(keyCode == MinecraftClientConnector.INSTANCE.chatOpenKeyCode()) {
                 this.guiChat.setText("", true);
             }
-            else if(keyCode == gameSettings.commandOpenKeyCode()) {
+            else if(keyCode == MinecraftClientConnector.INSTANCE.commandOpenKeyCode()) {
                 this.guiChat.setText("/", true);
             }
             else {

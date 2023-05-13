@@ -8,9 +8,7 @@ public interface DependencyConnectorSupplier {
 
     // Minecraft
     IGuiChat newGuiChat();
-    IGuiTextField newGuiTextField(int componentId, IFontRenderer fontRenderer,
-                                  int x, int y, int width, int height);
+    IGuiTextField newGuiTextField(int componentId, int x, int y, int width, int height);
     IResourceLocation newResourceLocation(String modId, String location);
     IResourceLocation getWidgetTextures();
-    IFontRenderer getMinecraftFontRenderer();
 }

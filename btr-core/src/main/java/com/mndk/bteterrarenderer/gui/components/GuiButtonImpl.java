@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.gui.components;
 
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
+import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 
 public class GuiButtonImpl extends GuiObjectImpl {
@@ -52,7 +52,7 @@ public class GuiButtonImpl extends GuiObjectImpl {
         else if(!this.enabled)          color = 0xA0A0A0;
         else if(this.hovered)           color = 0xFFFFA0;
 
-        IFontRenderer fontRenderer = DependencyConnectorSupplier.INSTANCE.getMinecraftFontRenderer();
+        FontRendererConnector fontRenderer = FontRendererConnector.INSTANCE;
         String buttonText = this.text;
         int stringWidth = fontRenderer.getStringWidth(buttonText);
         int ellipsisWidth = fontRenderer.getStringWidth("...");

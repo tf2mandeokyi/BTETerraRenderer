@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 public abstract class AbstractGuiScreen {
     protected Supplier<Integer> guiWidth, minecraftDisplayWidth;
     protected Supplier<IScaledResolution> scaledResolution;
-    protected Supplier<IFontRenderer> fontRenderer;
 
     public abstract void initGui();
     public abstract void drawScreen(int mouseX, int mouseY, float partialTicks);

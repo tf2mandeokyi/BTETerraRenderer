@@ -13,7 +13,6 @@ public class AbstractGuiScreenImpl extends GuiScreen {
         delegate.guiWidth = () -> super.width;
         delegate.minecraftDisplayWidth = () -> super.mc.displayWidth;
         delegate.scaledResolution = IScaledResolutionImpl::new;
-        delegate.fontRenderer = () -> new IFontRendererImpl(super.fontRenderer);
     }
 
     public void initGui() {

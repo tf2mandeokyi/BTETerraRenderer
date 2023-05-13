@@ -18,7 +18,7 @@ public class SidebarNumberInput extends GuiSidebarElement {
     @Override
     protected void init() {
         this.textField = new GuiNumberInput(
-                -1, this.fontRenderer,
+                -1,
                 0, 0, parent.elementWidth.get(), 20,
                 this.value, this.text
         );

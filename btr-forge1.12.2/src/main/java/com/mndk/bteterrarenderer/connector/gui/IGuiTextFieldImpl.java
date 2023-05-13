@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
 
 public class IGuiTextFieldImpl implements IGuiTextField {
 
     private final GuiTextField delegate;
 
-    public IGuiTextFieldImpl(int componentId, FontRenderer fontrendererObj, int x, int y, int width, int height) {
-        this.delegate = new GuiTextField(componentId, fontrendererObj, x, y, width, height);
+    public IGuiTextFieldImpl(int componentId, int x, int y, int width, int height) {
+        this.delegate = new GuiTextField(componentId, Minecraft.getMinecraft().fontRenderer, x, y, width, height);
     }
 
     public int getY() { return delegate.y; }

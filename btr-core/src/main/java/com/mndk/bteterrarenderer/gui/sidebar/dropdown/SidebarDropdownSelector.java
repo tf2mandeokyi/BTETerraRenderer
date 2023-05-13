@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
+import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
@@ -43,8 +44,8 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
     @Override
     protected void init() {
-        this.closedHeight = fontRenderer.getFontHeight() + VERTICAL_PADDING * 2;
-        this.singleLineElementHeight = fontRenderer.getFontHeight() + ELEMENT_VERTICAL_MARGIN * 2;
+        this.closedHeight = FontRendererConnector.INSTANCE.getFontHeight() + VERTICAL_PADDING * 2;
+        this.singleLineElementHeight = FontRendererConnector.INSTANCE.getFontHeight() + ELEMENT_VERTICAL_MARGIN * 2;
         this.width = parent.elementWidth.get();
         this.innerWidth = width - HORIZONTAL_PADDING * 2;
     }
@@ -61,7 +62,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
             if(category.isOpened()) {
                 for(T item : category.values()) {
-                    dy += fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                    dy += FontRendererConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                             + ELEMENT_VERTICAL_MARGIN * 2;
                 }
             }
@@ -76,6 +77,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
         CategoryMapData<T> categories = currentCategories.get();
         Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
+        FontRendererConnector fontRenderer = FontRendererConnector.INSTANCE;
 
         // Background
         GuiStaticConnector.INSTANCE.drawRect(0, 0, width, closedHeight, 0x80000000);
@@ -189,9 +191,9 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
         float green = (float)(colorARGB >> 8 & 255) / 255.0F;
         float blue = (float)(colorARGB & 255) / 255.0F;
 
-        int bottom = top + fontRenderer.getFontHeight();
+        int bottom = top + FontRendererConnector.INSTANCE.getFontHeight();
         int right = width - HORIZONTAL_PADDING;
-        int left = width - HORIZONTAL_PADDING - fontRenderer.getFontHeight();
+        int left = width - HORIZONTAL_PADDING - FontRendererConnector.INSTANCE.getFontHeight();
 
         if(flip) {
             int temp = top; top = bottom; bottom = temp;
@@ -239,7 +241,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
                     for(Map.Entry<String, T> itemEntry : category.entrySet()) {
                         String itemId = itemEntry.getKey();
                         T item = itemEntry.getValue();
-                        int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                        int height = FontRendererConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                                 + ELEMENT_VERTICAL_MARGIN * 2;
                         if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height)) {
                             itemSetter.set(categoryName, itemId);

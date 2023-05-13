@@ -1,8 +1,12 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
+import com.mndk.bteterrarenderer.connector.ImplFinder;
+
 import java.util.List;
 
-public interface IFontRenderer {
+public interface FontRendererConnector {
+    FontRendererConnector INSTANCE = ImplFinder.search();
+
     int getFontHeight();
     int getStringWidth(String text);
     int getWordWrappedHeight(String text, int maxLength);

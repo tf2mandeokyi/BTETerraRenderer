@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.gui.sidebar.mapaligner;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.connector.minecraft.ClientPlayerConnector;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxImpl;
@@ -50,12 +50,12 @@ public class SidebarMapAligner extends GuiSidebarElement {
     protected void init() {
         int width = parent.elementWidth.get();
         this.xInput = new GuiNumberInput(
-                -1, fontRenderer,
+                -1,
                 0, 0, width / 2 - 3, 20,
                 xOffset, "X = "
         );
         this.zInput = new GuiNumberInput(
-                -1, fontRenderer,
+                -1,
                 width / 2 + 3, 0, width / 2 - 3, 20,
                 zOffset, "Z = "
         );
@@ -69,7 +69,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private void setPlayerYawRadians() {
         this.playerYawRadians = lockNorthCheckBox.isChecked() ?
                 Math.PI :
-                Math.toRadians(ClientPlayerConnector.INSTANCE.getRotationYaw());
+                Math.toRadians(MinecraftClientConnector.INSTANCE.getPlayerRotationYaw());
     }
 
     @Override

@@ -1,8 +1,7 @@
 package com.mndk.bteterrarenderer.gui.components;
 
-import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +14,7 @@ public class GuiCheckBoxImpl extends GuiButtonImpl {
     public GuiCheckBoxImpl(int x, int y, String text, boolean checked) {
         super(x, y, text);
         this.checked = checked;
-        this.width = BOX_WIDTH + 2 + DependencyConnectorSupplier.INSTANCE.getMinecraftFontRenderer().getStringWidth(text);
+        this.width = BOX_WIDTH + 2 + FontRendererConnector.INSTANCE.getStringWidth(text);
         this.height = BOX_HEIGHT;
     }
 
@@ -37,7 +36,7 @@ public class GuiCheckBoxImpl extends GuiButtonImpl {
         if(packedForegroundColor != 0)  color = packedForegroundColor;
         else if(!this.enabled)          color = 0xA0A0A0;
 
-        IFontRenderer fontRenderer = DependencyConnectorSupplier.INSTANCE.getMinecraftFontRenderer();
+        FontRendererConnector fontRenderer = FontRendererConnector.INSTANCE;
         if (this.checked) {
             fontRenderer.drawCenteredStringWithShadow("x", this.x + BOX_WIDTH / 2f + 1, this.y + 1, 0xE0E0E0);
         }

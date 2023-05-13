@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.config;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
-import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
+import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
@@ -74,7 +74,7 @@ public interface BTRConfigConnector {
             ProjectionYamlLoader.INSTANCE.refresh();
             TMSYamlLoader.INSTANCE.refresh();
         } catch (Exception e) {
-            ErrorMessageHandler.INSTANCE.sendToClient("Error caught while parsing yaml map files!", e);
+            MinecraftClientConnector.INSTANCE.sendErrorMessageToChat("Error caught while parsing yaml map files!", e);
         }
         Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItem(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
     }

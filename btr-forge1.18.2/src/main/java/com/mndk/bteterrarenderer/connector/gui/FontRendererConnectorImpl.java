@@ -5,7 +5,7 @@ import net.minecraft.client.gui.Font;
 
 import java.util.List;
 
-public record IFontRendererImpl(Font delegate) implements IFontRenderer {
+public record FontRendererConnectorImpl(Font delegate) implements FontRendererConnector {
     public int getFontHeight() {
         return delegate.lineHeight;
     }

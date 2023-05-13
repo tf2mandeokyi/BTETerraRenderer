@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.decorator;
 
+import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 import java.util.List;
@@ -23,17 +24,17 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.formattedStringList = fontRenderer.listFormattedStringToWidth(displayString, parent.elementWidth.get());
+        this.formattedStringList = FontRendererConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
     }
 
     @Override
     public void onWidthChange(int newWidth) {
-        this.formattedStringList = fontRenderer.listFormattedStringToWidth(displayString, parent.elementWidth.get());
+        this.formattedStringList = FontRendererConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
     }
 
     @Override
     public int getHeight() {
-        return formattedStringList.size() * fontRenderer.getFontHeight();
+        return formattedStringList.size() * FontRendererConnector.INSTANCE.getFontHeight();
     }
 
     @Override
@@ -42,22 +43,22 @@ public class SidebarText extends GuiSidebarElement {
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
             if(align == TextAlign.LEFT) {
-                fontRenderer.drawStringWithShadow(
+                FontRendererConnector.INSTANCE.drawStringWithShadow(
                         line,
-                        0, i * fontRenderer.getFontHeight(), 0xFFFFFF
+                        0, i * FontRendererConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
             else if(align == TextAlign.RIGHT) {
-                fontRenderer.drawStringWithShadow(
+                FontRendererConnector.INSTANCE.drawStringWithShadow(
                         line,
-                        parent.elementWidth.get() - fontRenderer.getStringWidth(line),
-                        i * fontRenderer.getFontHeight(), 0xFFFFFF
+                        parent.elementWidth.get() - FontRendererConnector.INSTANCE.getStringWidth(line),
+                        i * FontRendererConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
             else if(align == TextAlign.CENTER){
-                fontRenderer.drawCenteredStringWithShadow(
+                FontRendererConnector.INSTANCE.drawCenteredStringWithShadow(
                         line,
-                        parent.elementWidth.get() / 2f, i * fontRenderer.getFontHeight(), 0xFFFFFF
+                        parent.elementWidth.get() / 2f, i * FontRendererConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
         }

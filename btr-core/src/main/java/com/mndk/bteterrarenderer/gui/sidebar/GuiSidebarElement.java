@@ -1,20 +1,16 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
-
 public abstract class GuiSidebarElement {
 
     public GuiSidebar parent;
-    protected IFontRenderer fontRenderer;
     public boolean hide;
 
     public GuiSidebarElement() {
         this.hide = false;
     }
 
-    public final void initGui(GuiSidebar parent, IFontRenderer renderer) {
+    public final void initGui(GuiSidebar parent) {
         this.parent = parent;
-        this.fontRenderer = renderer;
         this.init();
     }
 

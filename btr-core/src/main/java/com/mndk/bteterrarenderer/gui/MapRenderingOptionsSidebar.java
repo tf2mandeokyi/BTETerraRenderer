@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.gui;
 
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.ErrorMessageHandler;
+import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarBooleanButton;
@@ -146,7 +146,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 }
             }
         } catch(Exception e) {
-            ErrorMessageHandler.INSTANCE.sendToClient("Caught an error while reloading maps! Reason: " + e.getMessage());
+            MinecraftClientConnector.INSTANCE.sendErrorMessageToChat("Caught an error while reloading maps! Reason: " + e.getMessage());
         }
     }
 

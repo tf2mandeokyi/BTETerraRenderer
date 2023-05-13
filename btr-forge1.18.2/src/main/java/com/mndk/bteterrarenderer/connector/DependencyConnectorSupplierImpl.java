@@ -1,12 +1,9 @@
 package com.mndk.bteterrarenderer.connector;
 
-import com.mndk.bteterrarenderer.connector.gui.IFontRenderer;
-import com.mndk.bteterrarenderer.connector.gui.IFontRendererImpl;
 import com.mndk.bteterrarenderer.connector.gui.IGuiChat;
 import com.mndk.bteterrarenderer.connector.gui.IGuiTextField;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.TextComponent;
@@ -24,10 +21,9 @@ public class DependencyConnectorSupplierImpl implements DependencyConnectorSuppl
         return null;
     }
 
-    public IGuiTextField newGuiTextField(int componentId, IFontRenderer fontRenderer,
-                                         int x, int y, int width, int height) {
+    public IGuiTextField newGuiTextField(int componentId, int x, int y, int width, int height) {
 
-//        return new IGuiTextFieldImpl(componentId, ((IFontRendererImpl) fontRenderer).delegate(), x, y, width, height); // TODO implement this
+//        return new IGuiTextFieldImpl(componentId, x, y, width, height); // TODO implement this
         return null;
     }
 
@@ -38,11 +34,6 @@ public class DependencyConnectorSupplierImpl implements DependencyConnectorSuppl
     @Override
     public IResourceLocation getWidgetTextures() {
         return WIDGET_TEXTURES;
-    }
-
-    @Override
-    public IFontRenderer getMinecraftFontRenderer() {
-        return new IFontRendererImpl(Minecraft.getInstance().font);
     }
 
     private static class DummyGuiButton extends AbstractWidget {
