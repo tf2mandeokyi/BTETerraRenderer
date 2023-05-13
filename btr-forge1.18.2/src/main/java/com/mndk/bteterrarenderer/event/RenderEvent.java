@@ -14,7 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class RenderEvents {
+public class RenderEvent {
     @SubscribeEvent
     public static void onRenderEvent(final RenderLevelStageEvent event) {
         if(!event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_WEATHER)) return;
@@ -27,8 +27,8 @@ public class RenderEvents {
         GraphicsConnectorImpl.POSE_STACK = new PoseStack();
 
         // While the player is the "rendering center" in 1.12.2,
-        // In 1.18.8 the camera becomes that center instead.
-        // So it's the camera's position that should be given to TileRenderer.renderTiles(), unlike in 1.12.2.
+        // In 1.18.8 it is the camera being that center.
+        // So the camera's position should be given instead to TileRenderer.renderTiles(), unlike in 1.12.2.
         final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         TileRenderer.renderTiles(cameraPos.x, cameraPos.y, cameraPos.z);
 

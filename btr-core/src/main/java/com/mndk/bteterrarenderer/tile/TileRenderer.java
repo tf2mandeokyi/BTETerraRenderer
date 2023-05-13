@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
-import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.projection.Projections;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +9,7 @@ public class TileRenderer {
 
     /**
      * This variable is to prevent z-fighting from happening.<br>
-     * Setting this lower than 0.1 won't have its effect when the hologram is viewed far away from player<br>
-     * TODO Seems there's another way to prevent z-fighting issue rather than this method
+     * Setting this lower than 0.1 won't have its effect when the hologram is viewed far away from player
      */
     private static final double Y_EPSILON = 0.1;
 
@@ -28,18 +26,12 @@ public class TileRenderer {
         if(Math.abs(yDiff) >= settings.getYDiffLimit()) return;
 
         GraphicsConnector.INSTANCE.glPushMatrix();
-        GraphicsConnector.INSTANCE.glDisableCull();
-        GraphicsConnector.INSTANCE.glEnableBlend();
-        GraphicsConnector.INSTANCE.glBlendFunc(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA);
-        GraphicsConnector.INSTANCE.glScale(1, 1, 1);
+        TileGraphicsConnector.INSTANCE.preRender();
 
-        // Draw tiles around player with diamond-priority
         new TileDrawer(tms, settings.getRadius() - 1, px, py, pz).drawWithDiamondPriority();
-
         TileImageCacheManager.getInstance().cleanup();
 
-        GraphicsConnector.INSTANCE.glDisableBlend();
-        GraphicsConnector.INSTANCE.glEnableCull();
+        TileGraphicsConnector.INSTANCE.postRender();
         GraphicsConnector.INSTANCE.glPopMatrix();
     }
 

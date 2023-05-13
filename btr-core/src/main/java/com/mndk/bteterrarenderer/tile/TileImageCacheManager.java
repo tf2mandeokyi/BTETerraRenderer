@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import lombok.AllArgsConstructor;
 
 import java.awt.image.BufferedImage;
@@ -58,7 +57,7 @@ public class TileImageCacheManager {
 		if(this.maximumSize != -1 && glTextureIdMap.size() >= this.maximumSize) {
 			this.deleteOldestTexture();
 		}
-		int glId = GraphicsConnector.INSTANCE.allocateAndUploadTileTexture(image);
+		int glId = TileGraphicsConnector.INSTANCE.allocateAndUploadTileTexture(image);
 		this.addTexture(tileKey, glId);
 	}
 
@@ -71,12 +70,6 @@ public class TileImageCacheManager {
 		return glTextureIdMap.containsKey(tileKey);
 	}
 
-//	public synchronized void bindTexture(String tileKey) {
-//		int glId = validateAndGetGlId(tileKey);
-//		this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
-//		GraphicsConnector.INSTANCE.glBindTileTexture(glId);
-//	}
-
 	public synchronized int updateAndGetGlId(String tileKey) {
 		int glId = validateAndGetGlId(tileKey);
 		this.glTextureIdMap.get(tileKey).lastUpdated = System.currentTimeMillis();
@@ -87,7 +80,7 @@ public class TileImageCacheManager {
 		if (glTextureIdMap.containsKey(tileKey)) {
 			int glId = glTextureIdMap.get(tileKey).glId;
 			glTextureIdMap.remove(tileKey);
-			GraphicsConnector.INSTANCE.glDeleteTileTexture(glId);
+			TileGraphicsConnector.INSTANCE.glDeleteTileTexture(glId);
 			log("Deleted texture " + tileKey);
 		}
 	}

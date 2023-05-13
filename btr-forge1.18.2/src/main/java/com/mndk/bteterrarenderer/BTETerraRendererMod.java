@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.config.BTRConfigConnectorImpl;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplierImpl;
 import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnectorImpl;
+import com.mndk.bteterrarenderer.connector.graphics.TileGraphicsConnectorImpl;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnectorImpl;
 import com.mndk.bteterrarenderer.connector.minecraft.*;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnectorImpl;
@@ -23,6 +24,7 @@ public class BTETerraRendererMod {
         BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererConstants.class);
         ImplFinder.add(
                 BTRConfigConnectorImpl.class,
+                TileGraphicsConnectorImpl.class,
                 GraphicsConnectorImpl.class,
                 GuiStaticConnectorImpl.class,
                 DependencyConnectorSupplierImpl.class,
