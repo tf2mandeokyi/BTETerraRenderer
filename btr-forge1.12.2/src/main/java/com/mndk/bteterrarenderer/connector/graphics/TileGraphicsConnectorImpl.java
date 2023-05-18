@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.connector.graphics;
 
 import com.mndk.bteterrarenderer.connector.ConnectorImpl;
 import com.mndk.bteterrarenderer.tile.TileGraphicsConnector;
-import com.mndk.bteterrarenderer.tile.TileQuad;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -35,14 +34,14 @@ public class TileGraphicsConnectorImpl implements TileGraphicsConnector {
     }
 
     @Override
-    public void drawTileQuad(TileQuad<TileQuad.PosTexColor> tileQuad) {
-        GlStateManager.bindTexture(tileQuad.glId);
+    public void drawTileQuad(GraphicVertices<GraphicVertices.PosTexColor> vertices) {
+        GlStateManager.bindTexture(vertices.glId);
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-        for (TileQuad.PosTexColor vertexInfo : tileQuad) {
+        for (GraphicVertices.PosTexColor vertexInfo : vertices) {
             builder.pos(vertexInfo.x, vertexInfo.y, vertexInfo.z)
                     .tex(vertexInfo.u, vertexInfo.v)
                     .color(vertexInfo.r, vertexInfo.g, vertexInfo.b, vertexInfo.a)

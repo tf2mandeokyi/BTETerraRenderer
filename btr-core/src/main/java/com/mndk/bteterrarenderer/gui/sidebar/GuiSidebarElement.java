@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-public abstract class GuiSidebarElement {
+import com.mndk.bteterrarenderer.gui.components.GuiComponentImpl;
+
+public abstract class GuiSidebarElement extends GuiComponentImpl {
 
     public GuiSidebar parent;
     public boolean hide;
@@ -21,12 +23,12 @@ public abstract class GuiSidebarElement {
     public abstract void onWidthChange(int newWidth);
 
     public abstract void updateScreen();
-    public abstract void drawScreen(int mouseX, int mouseY, float partialTicks);
+    public abstract void drawComponent(double mouseX, double mouseY, float partialTicks);
 
-    public abstract boolean mouseClicked(int mouseX, int mouseY, int mouseButton);
-    public abstract void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick);
-    public abstract void mouseReleased(int mouseX, int mouseY, int state);
+    public abstract boolean mousePressed(double mouseX, double mouseY, int mouseButton);
+    public abstract void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY);
+    public abstract void mouseReleased(double mouseX, double mouseY, int state);
 
-    public abstract boolean keyTyped(char key, int keyCode);
+    public abstract boolean keyTyped(char typedChar, int keyCode);
 }
 

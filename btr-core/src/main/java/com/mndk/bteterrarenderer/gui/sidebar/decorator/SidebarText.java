@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.decorator;
 
-import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
+import com.mndk.bteterrarenderer.connector.gui.FontConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 import java.util.List;
@@ -24,41 +24,41 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.formattedStringList = FontRendererConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
+        this.formattedStringList = FontConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
     }
 
     @Override
     public void onWidthChange(int newWidth) {
-        this.formattedStringList = FontRendererConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
+        this.formattedStringList = FontConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
     }
 
     @Override
     public int getHeight() {
-        return formattedStringList.size() * FontRendererConnector.INSTANCE.getFontHeight();
+        return formattedStringList.size() * FontConnector.INSTANCE.getFontHeight();
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
 
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
             if(align == TextAlign.LEFT) {
-                FontRendererConnector.INSTANCE.drawStringWithShadow(
+                FontConnector.INSTANCE.drawStringWithShadow(
                         line,
-                        0, i * FontRendererConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        0, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
             else if(align == TextAlign.RIGHT) {
-                FontRendererConnector.INSTANCE.drawStringWithShadow(
+                FontConnector.INSTANCE.drawStringWithShadow(
                         line,
-                        parent.elementWidth.get() - FontRendererConnector.INSTANCE.getStringWidth(line),
-                        i * FontRendererConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        parent.elementWidth.get() - FontConnector.INSTANCE.getStringWidth(line),
+                        i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
             else if(align == TextAlign.CENTER){
-                FontRendererConnector.INSTANCE.drawCenteredStringWithShadow(
+                FontConnector.INSTANCE.drawCenteredStringWithShadow(
                         line,
-                        parent.elementWidth.get() / 2f, i * FontRendererConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        parent.elementWidth.get() / 2f, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
         }
@@ -66,10 +66,10 @@ public class SidebarText extends GuiSidebarElement {
 
 
     @Override public void updateScreen() {}
-    @Override public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) { return false; }
-    @Override public boolean keyTyped(char key, int keyCode) { return false; }
-    @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-    @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
+    @Override public boolean mousePressed(double mouseX, double mouseY, int mouseButton) { return false; }
+    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
+    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
+    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
 
     public enum TextAlign {
         LEFT, CENTER, RIGHT

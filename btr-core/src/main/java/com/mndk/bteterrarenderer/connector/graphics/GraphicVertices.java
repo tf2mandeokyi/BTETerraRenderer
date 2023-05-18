@@ -1,14 +1,14 @@
-package com.mndk.bteterrarenderer.tile;
+package com.mndk.bteterrarenderer.connector.graphics;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 
-public class TileQuad<T extends TileQuad.VertexInfo> extends ArrayList<T> {
+public class GraphicVertices<T extends GraphicVertices.VertexInfo> extends ArrayList<T> {
 
     public final int glId;
 
-    public TileQuad(int glId) {
+    public GraphicVertices(int glId) {
         super();
         this.glId = glId;
     }

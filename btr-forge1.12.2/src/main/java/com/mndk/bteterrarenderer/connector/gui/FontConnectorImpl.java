@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import java.util.List;
 
 @ConnectorImpl
-public class FontRendererConnectorImpl implements FontRendererConnector {
+public class FontConnectorImpl implements FontConnector {
     public int getFontHeight() {
         return Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT;
     }
@@ -19,8 +19,8 @@ public class FontRendererConnectorImpl implements FontRendererConnector {
         return Minecraft.getMinecraft().fontRenderer.getWordWrappedHeight(text, maxLength);
     }
 
-    public void drawStringWithShadow(String text, float x, float y, int color) {
-        Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, x, y, color);
+    public int drawStringWithShadow(String text, float x, float y, int color) {
+        return Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, x, y, color);
     }
 
     public void drawSplitString(String str, int x, int y, int wrapWidth, int textColor) {

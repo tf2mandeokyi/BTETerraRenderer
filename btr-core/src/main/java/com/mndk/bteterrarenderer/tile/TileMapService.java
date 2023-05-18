@@ -10,6 +10,7 @@ import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
 import com.mndk.bteterrarenderer.util.BtrUtil;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicVertices;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -119,19 +120,19 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
              *  i=3 ------ i=2
              */
             int glId = cache.updateAndGetGlId(tileKey);
-            TileQuad<TileQuad.PosTexColor> tileQuad = new TileQuad<>(glId);
+            GraphicVertices<GraphicVertices.PosTexColor> vertices = new GraphicVertices<>(glId);
             for (int i = 0; i < 4; i++) {
                 int[] mat = this.tileProjection.getCornerMatrix(i);
                 geoCoord = tileProjection.tileCoordToGeoCoord(tileX + mat[0], tileY + mat[1], relativeZoom);
                 gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
-                tileQuad.add(new TileQuad.PosTexColor(
+                vertices.add(new GraphicVertices.PosTexColor(
                         (float) (gameCoord[0] - playerX), (float) (y - playerY), (float) (gameCoord[1] - playerZ),
                         mat[2], mat[3],
                         1f, 1f, 1f, opacity
                 ));
             }
-            TileGraphicsConnector.INSTANCE.drawTileQuad(tileQuad);
+            TileGraphicsConnector.INSTANCE.drawTileQuad(vertices);
 
         } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {

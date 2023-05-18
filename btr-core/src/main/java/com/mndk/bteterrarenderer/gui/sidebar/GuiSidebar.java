@@ -1,8 +1,9 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
+import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.graphics.IScaledResolution;
-import com.mndk.bteterrarenderer.connector.gui.AbstractGuiScreen;
+import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.util.GetterSetter;
@@ -28,7 +29,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
     private final SidebarGuiChat guiChat;
 
-    private int initialMouseX = 0, initialElementWidth;
+    private int initialElementWidth;
 
 
     public GuiSidebar(
@@ -74,7 +75,7 @@ public class GuiSidebar extends AbstractGuiScreen {
     }
 
 
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void drawScreen(double mouseX, double mouseY, float partialTicks) {
         if(this.guiChat.isOpened()) {
             this.guiChat.drawScreen(mouseX, mouseY, partialTicks);
         }
@@ -90,7 +91,7 @@ public class GuiSidebar extends AbstractGuiScreen {
         this.totalHeight = this.paddingTopBottom;
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
-            element.drawScreen(mouseX - translateX, mouseY - currentHeight, partialTicks);
+            element.drawComponent(mouseX - translateX, mouseY - currentHeight, partialTicks);
             GraphicsConnector.INSTANCE.glTranslate(0, element.getHeight() + this.elementDistance, 0);
             currentHeight += element.getHeight() + this.elementDistance;
             this.totalHeight += element.getHeight() + this.elementDistance;
@@ -101,7 +102,7 @@ public class GuiSidebar extends AbstractGuiScreen {
     }
 
 
-    private void drawSidebarBackground(int mouseX) {
+    private void drawSidebarBackground(double mouseX) {
         IScaledResolution scaled = scaledResolution.get();
 
         int widthChangeBarX;
@@ -134,8 +135,8 @@ public class GuiSidebar extends AbstractGuiScreen {
     }
 
 
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        if(this.guiChat.isOpened() && this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton)) return;
+    public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
+        if(this.guiChat.isOpened() && this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton)) return true;
 
         int sidebarWidth = elementWidth.get() + 2 * this.paddingSide;
         if(side == SidebarSide.RIGHT) {
@@ -146,30 +147,33 @@ public class GuiSidebar extends AbstractGuiScreen {
             widthChangingState = true;
         }
 
+        boolean clicked = false;
         if(!widthChangingState) {
-            int mx = mouseX - this.getTranslateX();
+            double mx = mouseX - this.getTranslateX();
 
             int currentHeight = this.paddingTopBottom - verticalSlider;
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
-                if(element.mouseClicked(mx, mouseY - currentHeight, mouseButton)) {
+                if(element.mousePressed(mx, mouseY - currentHeight, mouseButton)) {
                     MinecraftClientConnector.INSTANCE.playClickSound();
+                    clicked = true;
                 }
                 currentHeight += element.getHeight() + this.elementDistance;
             }
         }
 
-        this.initialMouseX = mouseX; this.initialElementWidth = elementWidth.get();
+        this.initialElementWidth = elementWidth.get();
+        return clicked;
     }
 
 
-    public void mouseReleased(int mouseX, int mouseY, int state) {
-        int mx = mouseX - this.getTranslateX();
+    public void mouseReleased(double mouseX, double mouseY, int mouseButton) {
+        double mx = mouseX - this.getTranslateX();
 
         int currentHeight = this.paddingTopBottom - verticalSlider;
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
-            element.mouseReleased(mx, mouseY - currentHeight, state);
+            element.mouseReleased(mx, mouseY - currentHeight, mouseButton);
             currentHeight += element.getHeight() + this.elementDistance;
         }
 
@@ -228,17 +232,17 @@ public class GuiSidebar extends AbstractGuiScreen {
     }
 
 
-    public void keyTyped(char key, int keyCode) throws IOException {
+    public boolean keyTyped(char key, int keyCode) {
         if(this.guiChat.isOpened() && this.guiChat.keyTypedResponse(key, keyCode)) {
-            return;
+            return true;
         }
 
-        boolean response = false;
+        boolean keyTyped = false;
         for (GuiSidebarElement element : elements) {
             if (element == null) continue;
-            if (element.keyTyped(key, keyCode)) response = true;
+            if (element.keyTyped(key, keyCode)) keyTyped = true;
         }
-        if (!response) {
+        if (!keyTyped) {
             if(keyCode == MinecraftClientConnector.INSTANCE.chatOpenKeyCode()) {
                 this.guiChat.setText("", true);
             }
@@ -246,36 +250,51 @@ public class GuiSidebar extends AbstractGuiScreen {
                 this.guiChat.setText("/", true);
             }
             else {
-                return;
+                return false;
             }
             this.guiChat.setOpened(true);
         }
+        return true;
     }
 
 
     @Override
-    public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+    public boolean keyPressed(InputKey key) {
+        boolean keyPressed = false;
+        for (GuiSidebarElement element : elements) {
+            if (element == null) continue;
+            if (element.keyPressed(key)) keyPressed = true;
+        }
+        return keyPressed;
+    }
+
+
+    @Override
+    public void mouseDragged(double mouseX, double mouseY, int clickedMouseButton, double pMouseX, double pMouseY) {
         if(widthChangingState) {
-            int dMouseX = mouseX - initialMouseX;
-            int newElementWidth = initialElementWidth + (side == SidebarSide.LEFT ? dMouseX : -dMouseX);
+            double dMouseX = mouseX - pMouseX;
+            double newElementWidth = initialElementWidth + (side == SidebarSide.LEFT ? dMouseX : -dMouseX);
             if(newElementWidth > 270) newElementWidth = 270;
             if(newElementWidth < 130) newElementWidth = 130;
 
-            elementWidth.set(newElementWidth);
+            elementWidth.set((int) newElementWidth);
 
             for(GuiSidebarElement element : elements) {
                 if(element == null) continue;
                 element.onWidthChange(elementWidth.get());
             }
 
-            this.guiChat.changeSideMargin(side, newElementWidth + 2 * this.paddingSide);
+            this.guiChat.changeSideMargin(side, (int) newElementWidth + 2 * this.paddingSide);
         }
         else {
-            int mx = mouseX - this.getTranslateX();
+            int tx = this.getTranslateX();
             int currentHeight = this.paddingTopBottom - verticalSlider;
             for (GuiSidebarElement element : elements) {
                 if (element == null) continue;
-                element.mouseClickMove(mx, mouseY - currentHeight, clickedMouseButton, timeSinceLastClick);
+                element.mouseDragged(
+                        mouseX - tx, mouseY - currentHeight, clickedMouseButton,
+                        pMouseX - tx, pMouseY - currentHeight
+                );
                 currentHeight += element.getHeight() + this.elementDistance;
             }
         }

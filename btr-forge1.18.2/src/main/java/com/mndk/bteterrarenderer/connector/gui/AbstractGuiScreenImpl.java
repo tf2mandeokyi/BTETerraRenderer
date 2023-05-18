@@ -1,18 +1,14 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-public class AbstractGuiScreenImpl /*extends GuiScreen*/ { // TODO finish this class
+public class AbstractGuiScreenImpl /*extends Screen*/ { // TODO finish this class
 //    public final AbstractGuiScreen delegate;
-//
+
 //    public AbstractGuiScreenImpl(AbstractGuiScreen delegate) {
+//        super();
 //        this.delegate = delegate;
 //        delegate.guiWidth = () -> super.width;
 //        delegate.minecraftDisplayWidth = () -> super.mc.displayWidth;
 //        delegate.scaledResolution = IScaledResolutionImpl::new;
-//        delegate.fontRenderer = () -> new IFontRendererImpl(super.fontRenderer);
-//        Checkbox a;
-//        Button b;
-//        SliderButton c;
-//        AbstractContainerEventHandler d;
 //    }
 //
 //    public void initGui() {

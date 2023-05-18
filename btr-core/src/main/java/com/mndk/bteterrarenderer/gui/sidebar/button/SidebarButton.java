@@ -21,11 +21,11 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     public void onWidthChange(int newWidth) {
-        this.button.width = newWidth;
+        this.button.setWidth(newWidth);
     }
 
     public void setDisplayString(String newString) {
-        this.button.text = newString;
+        this.button.setText(newString);
     }
 
     @Override
@@ -34,13 +34,13 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.button.drawButton(mouseX, mouseY, partialTicks);
+    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+        this.button.drawComponent(mouseX, mouseY, partialTicks);
     }
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        if(this.button.mousePressed(mouseX, mouseY)) {
+    public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
+        if(this.button.mousePressed(mouseX, mouseY, mouseButton)) {
             this.event.onMouseClicked(this, mouseButton);
             return true;
         }
@@ -53,7 +53,7 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override public void updateScreen() {}
-    @Override public boolean keyTyped(char key, int keyCode) { return false; }
-    @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-    @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
+    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
+    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
+    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
 }

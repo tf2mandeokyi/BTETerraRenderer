@@ -76,7 +76,7 @@ public class SidebarSlider extends GuiSidebarElement {
 
     @Override
     public void onWidthChange(int newWidth) {
-        this.slider.width = newWidth;
+        this.slider.setWidth(newWidth);
     }
 
     @Override
@@ -85,23 +85,23 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
         if(this.slider.drawString && this.intValidator != null) {
             this.slider.packedForegroundColor = intValidator.test(this.slider.getValueInt()) ? 0 : 0xFF0000;
         }
-        this.slider.drawButton(mouseX, mouseY, partialTicks);
+        this.slider.drawComponent(mouseX, mouseY, partialTicks);
     }
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        return this.slider.mousePressed(mouseX, mouseY);
+    public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
+        return this.slider.mousePressed(mouseX, mouseY, mouseButton);
     }
 
     @Override
-    public void mouseReleased(int mouseX, int mouseY, int state) {
-        this.slider.mouseReleased(mouseX, mouseY);
+    public void mouseReleased(double mouseX, double mouseY, int mouseButton) {
+        this.slider.mouseReleased(mouseX, mouseY, mouseButton);
     }
 
-    @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-    @Override public boolean keyTyped(char key, int keyCode) { return false; }
+    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
+    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
 }

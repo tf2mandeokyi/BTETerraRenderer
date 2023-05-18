@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.gui;
+package com.mndk.bteterrarenderer.gui.util;
 
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;

@@ -22,9 +22,9 @@ public interface IGuiChat {
     void sendChatMessage(String s);
 
     void updateScreen();
-    void keyTyped(char typedChar, int keyCode) throws IOException;
+    void keyTyped(char typedChar, int keyCode);
     void handleMouseInput() throws IOException;
-    void handleMouseHover(int mouseX, int mouseY, float partialTicks);
-    boolean handleMouseClick(int mouseX, int mouseY, int mouseButton);
-    boolean inputFieldMouseClicked(int mouseX, int mouseY, int mouseButton);
+    void handleMouseHover(double mouseX, double mouseY, float partialTicks);
+    boolean handleMouseClick(double mouseX, double mouseY, int mouseButton);
+    boolean inputFieldMouseClicked(double mouseX, double mouseY, int mouseButton);
 }

@@ -1,25 +1,25 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.Minecraft;
 
 import java.util.List;
 
-public record FontRendererConnectorImpl(Font delegate) implements FontRendererConnector {
+public record FontConnectorImpl() implements FontConnector {
     public int getFontHeight() {
-        return delegate.lineHeight;
+        return Minecraft.getInstance().font.lineHeight;
     }
 
     public int getStringWidth(String text) {
-        return delegate.width(text);
+        return Minecraft.getInstance().font.width(text);
     }
 
     public int getWordWrappedHeight(String text, int maxLength) {
-        return delegate.wordWrapHeight(text, maxLength);
+        return Minecraft.getInstance().font.wordWrapHeight(text, maxLength);
     }
 
-    public void drawStringWithShadow(String text, float x, float y, int color) {
-        delegate.drawShadow(new PoseStack(), text, x, y, color);
+    public int drawStringWithShadow(String text, float x, float y, int color) {
+        return Minecraft.getInstance().font.drawShadow(new PoseStack(), text, x, y, color);
     }
 
     public void drawSplitString(String str, int x, int y, int wrapWidth, int textColor) {
@@ -27,8 +27,7 @@ public record FontRendererConnectorImpl(Font delegate) implements FontRendererCo
     }
 
     public String trimStringToWidth(String text, int width) {
-//        return delegate.trimStringToWidth(text, width);
-        return null;
+        return Minecraft.getInstance().font.plainSubstrByWidth(text, width);
     }
 
     public List<String> listFormattedStringToWidth(String str, int wrapWidth) {

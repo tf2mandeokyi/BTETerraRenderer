@@ -6,9 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @deprecated This is dumb. class loaders can't even find unloaded impl classes
+ * This is dumb. in 1.18.2 class loaders can't even find unloaded impl classes
+ * <br/>
+ * TODO I should find another method better than this
+ * <br/>
+ * (Won't make this deprecated though, since this works in 1.12.2)
  */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ConnectorImpl {}

@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
-import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
+import com.mndk.bteterrarenderer.connector.gui.FontConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
@@ -44,8 +44,8 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
     @Override
     protected void init() {
-        this.closedHeight = FontRendererConnector.INSTANCE.getFontHeight() + VERTICAL_PADDING * 2;
-        this.singleLineElementHeight = FontRendererConnector.INSTANCE.getFontHeight() + ELEMENT_VERTICAL_MARGIN * 2;
+        this.closedHeight = FontConnector.INSTANCE.getFontHeight() + VERTICAL_PADDING * 2;
+        this.singleLineElementHeight = FontConnector.INSTANCE.getFontHeight() + ELEMENT_VERTICAL_MARGIN * 2;
         this.width = parent.elementWidth.get();
         this.innerWidth = width - HORIZONTAL_PADDING * 2;
     }
@@ -62,7 +62,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
             if(category.isOpened()) {
                 for(T item : category.values()) {
-                    dy += FontRendererConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                    dy += FontConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                             + ELEMENT_VERTICAL_MARGIN * 2;
                 }
             }
@@ -72,12 +72,12 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
 
         CategoryMapData<T> categories = currentCategories.get();
         Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
         int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
-        FontRendererConnector fontRenderer = FontRendererConnector.INSTANCE;
+        FontConnector fontRenderer = FontConnector.INSTANCE;
 
         // Background
         GuiStaticConnector.INSTANCE.drawRect(0, 0, width, closedHeight, 0x80000000);
@@ -191,9 +191,9 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
         float green = (float)(colorARGB >> 8 & 255) / 255.0F;
         float blue = (float)(colorARGB & 255) / 255.0F;
 
-        int bottom = top + FontRendererConnector.INSTANCE.getFontHeight();
+        int bottom = top + FontConnector.INSTANCE.getFontHeight();
         int right = width - HORIZONTAL_PADDING;
-        int left = width - HORIZONTAL_PADDING - FontRendererConnector.INSTANCE.getFontHeight();
+        int left = width - HORIZONTAL_PADDING - FontConnector.INSTANCE.getFontHeight();
 
         if(flip) {
             int temp = top; top = bottom; bottom = temp;
@@ -219,7 +219,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         if(mouseInBox(mouseX, mouseY)) {
             opened = !opened;
             return true;
@@ -241,7 +241,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
                     for(Map.Entry<String, T> itemEntry : category.entrySet()) {
                         String itemId = itemEntry.getKey();
                         T item = itemEntry.getValue();
-                        int height = FontRendererConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                        int height = FontConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                                 + ELEMENT_VERTICAL_MARGIN * 2;
                         if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height)) {
                             itemSetter.set(categoryName, itemId);
@@ -256,12 +256,12 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     }
 
 
-    private boolean mouseInBox(int mouseX, int mouseY) {
+    private boolean mouseInBox(double mouseX, double mouseY) {
         return mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= closedHeight;
     }
 
 
-    private boolean isMouseOnIndex(int mouseX, int mouseY, int yMin, int yMax) {
+    private boolean isMouseOnIndex(double mouseX, double mouseY, int yMin, int yMax) {
         if(!opened) return false;
 
         int yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
@@ -278,9 +278,9 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
 
     @Override public void updateScreen() {}
-    @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-    @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
-    @Override public boolean keyTyped(char key, int keyCode) { return false; }
+    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
+    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
+    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
 
 
     public interface ItemSetter {

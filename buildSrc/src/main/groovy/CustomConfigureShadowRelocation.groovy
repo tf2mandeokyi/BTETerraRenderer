@@ -29,6 +29,6 @@ class CustomConfigureShadowRelocation extends DefaultTask {
                 }
             }
         }
-        packages.each { target.relocate(it, "${project.modGroup}.${project.modId}.dep.${it}") }
+        packages.each { target.relocate(it, "${prefix}.${it}") }
     }
 }

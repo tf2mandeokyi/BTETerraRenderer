@@ -26,10 +26,12 @@ public class BtrUtil {
         return true;
     }
 
-    public static String formatDoubleNicely(double value, int maximumDecimalDigit) {
-        return value == (long) value ?
-                String.format("%d", (long) value) :
-                String.format(String.format("%%.%df", maximumDecimalDigit), value);
+    public static int clamp(int value, int min, int max) {
+        if (value < min) {
+            return min;
+        } else {
+            return Math.min(value, max);
+        }
     }
 
     @SuppressWarnings("unchecked")

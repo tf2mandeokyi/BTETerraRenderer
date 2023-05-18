@@ -19,15 +19,15 @@ public class SidebarHorizontalLine extends GuiSidebarElement {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
         GuiStaticConnector.INSTANCE.drawRect(0, 0, parent.elementWidth.get(), thickness, color);
     }
 
     @Override protected void init() {}
     @Override public void onWidthChange(int newWidth) {}
     @Override public void updateScreen() {}
-    @Override public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) { return false; }
-    @Override public boolean keyTyped(char key, int keyCode) { return false; }
-    @Override public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {}
-    @Override public void mouseReleased(int mouseX, int mouseY, int state) {}
+    @Override public boolean mousePressed(double mouseX, double mouseY, int mouseButton) { return false; }
+    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
+    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
+    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
 }

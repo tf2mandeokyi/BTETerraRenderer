@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicVertices;
 
 import java.awt.image.BufferedImage;
 
@@ -14,7 +15,7 @@ public interface TileGraphicsConnector {
      * @return Corresponding glId
      */
     int allocateAndUploadTileTexture(BufferedImage image);
-    void drawTileQuad(TileQuad<TileQuad.PosTexColor> tileQuad);
+    void drawTileQuad(GraphicVertices<GraphicVertices.PosTexColor> vertices);
     void glDeleteTileTexture(int glId);
     void postRender();
 }

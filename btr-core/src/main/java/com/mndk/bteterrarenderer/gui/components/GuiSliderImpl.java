@@ -2,7 +2,10 @@ package com.mndk.bteterrarenderer.gui.components;
 
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 
-public class GuiSliderImpl extends GuiButtonImpl {
+/**
+ * Copied from 1.18.2's net.minecraft.client.gui.components.AbstractSliderButton
+ */
+public class GuiSliderImpl extends GuiAbstractWidgetImpl {
 
     protected static final String NUMBER_FORMATTER_STRING = "%.4f";
 
@@ -33,27 +36,24 @@ public class GuiSliderImpl extends GuiButtonImpl {
 
 
     @Override
-    protected int getHoverState(boolean mouseOver) { return 0; }
+    protected HoverState getButtonHoverState(boolean mouseOver) { return HoverState.DISABLED; }
 
 
     @Override
-    public void mouseDragged(int mouseX, int mouseY) {
+    public void drawBackground(double mouseX, double mouseY, float partialTicks) {
         if(!this.visible) return;
 
         if(this.dragging) this.updateSliderValue(mouseX);
-        GuiStaticConnector.INSTANCE.drawContinuousTexturedBox(
-                BUTTON_TEXTURES, 
-                this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y, 0, 66,
-                8, this.height, 200, 20,
-                2, 3, 2, 2,
-                this.zLevel
+        GuiStaticConnector.INSTANCE.drawButton(
+                this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y,
+                8, this.height, this.isMouseOnWidget(mouseX, mouseY) ? HoverState.MOUSE_OVER : HoverState.DEFAULT
         );
     }
 
 
     @Override
-    public boolean mousePressed(int mouseX, int mouseY) {
-        if(super.mousePressed(mouseX, mouseY)) {
+    public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
+        if(super.mousePressed(mouseX, mouseY, mouseButton)) {
             this.updateSliderValue(mouseX);
             this.dragging = true;
             return true;
@@ -63,7 +63,7 @@ public class GuiSliderImpl extends GuiButtonImpl {
 
 
     @Override
-    public void mouseReleased(int mouseX, int mouseY) {
+    public void mouseReleased(double mouseX, double mouseY, int mouseButton) {
         this.dragging = false;
     }
 
@@ -76,8 +76,8 @@ public class GuiSliderImpl extends GuiButtonImpl {
     }
 
 
-    public void updateSliderValue(int mouseX) {
-        this.sliderValue = (mouseX - (this.x - 4)) / (double) (this.width - 8);
+    public void updateSliderValue(double mouseX) {
+        this.sliderValue = (mouseX - (this.x + 4)) / (double) (this.width - 8);
         this.updateSlider();
     }
 

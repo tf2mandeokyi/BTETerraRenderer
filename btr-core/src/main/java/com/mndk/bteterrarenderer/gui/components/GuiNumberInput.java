@@ -1,77 +1,85 @@
 package com.mndk.bteterrarenderer.gui.components;
 
-import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.gui.FontRendererConnector;
-import com.mndk.bteterrarenderer.connector.gui.IGuiTextField;
+import com.mndk.bteterrarenderer.connector.gui.FontConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.StringUtil;
 
 /**
  * Number input field class.
  */
-public class GuiNumberInput {
+public class GuiNumberInput extends GuiAbstractWidgetImpl {
 
-
-	private final IGuiTextField parent;
+	private final GuiTextFieldImpl parent;
 	protected final GetterSetter<Double> value;
-	protected final String prefix;
 	protected int xPos;
 	protected boolean numberValidated = true;
 
-
-	public GuiNumberInput(int componentId, int x, int y, int width, int height, GetterSetter<Double> value, String prefix) {
-		this.parent = DependencyConnectorSupplier.INSTANCE.newGuiTextField(componentId,
-				x + FontRendererConnector.INSTANCE.getStringWidth(prefix) + 5, y,
-				width - FontRendererConnector.INSTANCE.getStringWidth(prefix) - 5, height
+	public GuiNumberInput(int x, int y, int width, int height, GetterSetter<Double> value, String prefix) {
+		super(x, y, width, height, prefix);
+		this.parent = new GuiTextFieldImpl(
+				x + FontConnector.INSTANCE.getStringWidth(prefix) + 5, y,
+				width - FontConnector.INSTANCE.getStringWidth(prefix) - 5, height
 		);
-		parent.setText(BtrUtil.formatDoubleNicely(value.get(), 3));
+		parent.setText(StringUtil.formatDoubleNicely(value.get(), 3));
 		parent.setMaxStringLength(50);
 		this.xPos = x;
 		this.value = value;
-		this.prefix = prefix;
 	}
 
 
 	public void setWidth(int newWidth) {
-		parent.setWidth(newWidth - FontRendererConnector.INSTANCE.getStringWidth(prefix) - 5);
+		this.width = newWidth;
+		parent.width = newWidth - FontConnector.INSTANCE.getStringWidth(text) - 5;
 	}
 
 
 	public void setX(int newX) {
 		this.xPos = newX;
-		parent.setX(newX + FontRendererConnector.INSTANCE.getStringWidth(prefix) + 5);
+		parent.x = newX + FontConnector.INSTANCE.getStringWidth(text) + 5;
 	}
 
 
-	public boolean textboxKeyTyped(char typedChar, int keyCode) {
-		boolean result = parent.textboxKeyTyped(typedChar, keyCode);
-		if(result) {
-			String currentStr = parent.getText();
-			this.numberValidated = BtrUtil.validateDouble(currentStr);
-			parent.setTextColor(numberValidated ? 0xFFFFFF : 0xFF0000);
-			if(numberValidated) {
-				value.set(Double.parseDouble(parent.getText()));
-			}
-		}
+	public boolean keyTyped(char typedChar, int keyCode) {
+		boolean result = parent.keyTyped(typedChar, keyCode);
+		if(result) this.updateTextColor();
 		return result;
 	}
 
 
-	public void drawTextBox() {
-		int fontHeight = FontRendererConnector.INSTANCE.getFontHeight();
-		FontRendererConnector.INSTANCE.drawStringWithShadow(prefix,
-				this.xPos, parent.getY() + ((parent.getHeight() - fontHeight) / 2f),
+	public boolean keyPressed(InputKey key) {
+		boolean result = parent.keyPressed(key);
+		if(result) this.updateTextColor();
+		return result;
+	}
+
+
+	private void updateTextColor() {
+		String currentStr = parent.text;
+		this.numberValidated = BtrUtil.validateDouble(currentStr);
+		parent.setTextColor(numberValidated ? 0xFFFFFF : 0xFF0000);
+		if(numberValidated) {
+			value.set(Double.parseDouble(parent.text));
+		}
+	}
+
+
+	public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+		int fontHeight = FontConnector.INSTANCE.getFontHeight();
+		FontConnector.INSTANCE.drawStringWithShadow(text,
+				this.xPos, parent.y + ((parent.height - fontHeight) / 2f),
 				numberValidated ? 0xFFFFFF : 0xFF0000
 		);
-		parent.drawTextBox();
+		parent.drawComponent(mouseX, mouseY, partialTicks);
 	}
 
 
 	public void update() {
-		parent.setText(BtrUtil.formatDoubleNicely(value.get(), 3));
+		parent.setText(StringUtil.formatDoubleNicely(value.get(), 3));
 	}
 
-	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		parent.mouseClicked(mouseX, mouseY, mouseButton);
+	public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
+		return parent.mousePressed(mouseX, mouseY, mouseButton);
 	}
 }

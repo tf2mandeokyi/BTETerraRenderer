@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.connector.graphics;
 
 import com.mndk.bteterrarenderer.tile.TileGraphicsConnector;
-import com.mndk.bteterrarenderer.tile.TileQuad;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -69,13 +68,13 @@ public class TileGraphicsConnectorImpl extends RenderStateShard implements TileG
     }
 
     @Override
-    public void drawTileQuad(TileQuad<TileQuad.PosTexColor> tileQuad) {
+    public void drawTileQuad(GraphicVertices<GraphicVertices.PosTexColor> vertices) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderType renderType = TILE_RENDER_TYPE.apply(RES_LOC_MAP.get(tileQuad.glId));
+        RenderType renderType = TILE_RENDER_TYPE.apply(RES_LOC_MAP.get(vertices.glId));
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         PoseStack.Pose pose = GraphicsConnectorImpl.POSE_STACK.last();
 
-        for (TileQuad.PosTexColor vertexInfo : tileQuad) {
+        for (GraphicVertices.PosTexColor vertexInfo : vertices) {
             vertexConsumer.vertex(pose.pose(), vertexInfo.x, vertexInfo.y, vertexInfo.z)
                     .uv(vertexInfo.u, vertexInfo.v)
                     .color(vertexInfo.r, vertexInfo.g, vertexInfo.b, vertexInfo.a)

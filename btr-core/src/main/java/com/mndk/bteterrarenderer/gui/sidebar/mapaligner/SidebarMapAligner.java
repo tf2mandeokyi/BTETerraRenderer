@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.gui.sidebar.mapaligner;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
+import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
@@ -11,10 +12,9 @@ import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxImpl;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
-import com.mndk.bteterrarenderer.gui.GuiUtils;
+import com.mndk.bteterrarenderer.gui.util.GuiUtils;
 
 public class SidebarMapAligner extends GuiSidebarElement {
-
 
     private static final int ALIGNBOX_MARGIN_VERT = 10;
     private static final int ALIGNBOX_MARGIN_SIDE = 15;
@@ -32,7 +32,6 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private GuiCheckBoxImpl lockNorthCheckBox;
     private final GetterSetter<Boolean> lockNorth;
 
-    private int pMouseX = -1, pMouseY = -1;
     private double playerYawRadians;
     private boolean aligningMode;
 
@@ -50,12 +49,10 @@ public class SidebarMapAligner extends GuiSidebarElement {
     protected void init() {
         int width = parent.elementWidth.get();
         this.xInput = new GuiNumberInput(
-                -1,
                 0, 0, width / 2 - 3, 20,
                 xOffset, "X = "
         );
         this.zInput = new GuiNumberInput(
-                -1,
                 width / 2 + 3, 0, width / 2 - 3, 20,
                 zOffset, "Z = "
         );
@@ -88,9 +85,10 @@ public class SidebarMapAligner extends GuiSidebarElement {
     public void updateScreen() {}
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        xInput.drawTextBox(); zInput.drawTextBox();
-        lockNorthCheckBox.drawButton(mouseX, mouseY, partialTicks);
+    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+        xInput.drawComponent(mouseX, mouseY, partialTicks);
+        zInput.drawComponent(mouseX, mouseY, partialTicks);
+        lockNorthCheckBox.drawComponent(mouseX, mouseY, partialTicks);
         this.drawAlignBox();
     }
 
@@ -148,35 +146,34 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        xInput.mouseClicked(mouseX, mouseY, mouseButton);
-        zInput.mouseClicked(mouseX, mouseY, mouseButton);
+    public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
+        xInput.mousePressed(mouseX, mouseY, mouseButton);
+        zInput.mousePressed(mouseX, mouseY, mouseButton);
 
         if(mouseButton == 0) {
-            if(lockNorthCheckBox.mousePressed(mouseX, mouseY)) {
+            if(lockNorthCheckBox.mousePressed(mouseX, mouseY, mouseButton)) {
                 lockNorth.set(lockNorthCheckBox.isChecked());
                 this.setPlayerYawRadians();
                 return true;
             }
             if(isMouseInAlignBox(mouseX, mouseY)) {
                 aligningMode = true;
-                pMouseX = mouseX; pMouseY = mouseY;
             }
         }
 
         return false;
     }
 
-    private boolean isMouseInAlignBox(int mouseX, int mouseY) {
+    private boolean isMouseInAlignBox(double mouseX, double mouseY) {
         int width = parent.elementWidth.get();
         return mouseX >= 10 && mouseX <= width - 10 &&
                 mouseY >= 20 + ALIGNBOX_MARGIN_VERT && mouseY <= 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT;
     }
 
     @Override
-    public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+    public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
         if(aligningMode) {
-            double dmx = (mouseX - this.pMouseX) / MOUSE_DIVIDER, dmy = (mouseY - this.pMouseY) / MOUSE_DIVIDER;
+            double dmx = (mouseX - pMouseX) / MOUSE_DIVIDER, dmy = (mouseY - pMouseY) / MOUSE_DIVIDER;
 
             double dx = dmx * Math.cos(playerYawRadians) - dmy * Math.sin(playerYawRadians);
             double dz = dmx * Math.sin(playerYawRadians) + dmy * Math.cos(playerYawRadians);
@@ -185,20 +182,25 @@ public class SidebarMapAligner extends GuiSidebarElement {
             this.zOffset.set(dz + this.zOffset.get());
 
             this.xInput.update(); this.zInput.update();
-
-            this.pMouseX = mouseX; this.pMouseY = mouseY;
         }
     }
 
     @Override
-    public void mouseReleased(int mouseX, int mouseY, int state) {
+    public void mouseReleased(double mouseX, double mouseY, int state) {
         this.aligningMode = false;
     }
 
     @Override
-    public boolean keyTyped(char key, int keyCode) {
-        boolean result = xInput.textboxKeyTyped(key, keyCode);
-        if(zInput.textboxKeyTyped(key, keyCode)) result = true;
+    public boolean keyTyped(char typedChar, int keyCode) {
+        boolean result = xInput.keyTyped(typedChar, keyCode);
+        if(zInput.keyTyped(typedChar, keyCode)) result = true;
+        return result;
+    }
+
+    @Override
+    public boolean keyPressed(InputKey key) {
+        boolean result = xInput.keyPressed(key);
+        if(zInput.keyPressed(key)) result = true;
         return result;
     }
 }
