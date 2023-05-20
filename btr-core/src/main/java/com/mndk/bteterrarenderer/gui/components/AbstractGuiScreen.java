@@ -12,12 +12,7 @@ public abstract class AbstractGuiScreen implements GuiEventListenerImpl {
 
     public abstract void initGui();
     public abstract void drawScreen(Object poseStack, double mouseX, double mouseY, float partialTicks);
-    public abstract void updateScreen();
-    public abstract boolean mousePressed(double mouseX, double mouseY, int mouseButton);
-    public abstract boolean mouseReleased(double mouseX, double mouseY, int mouseButton);
-    public abstract boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY);
-    public abstract boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount);
-    public abstract boolean keyTyped(char key, int keyCode);
+    public abstract void tick();
 
     public abstract void onClose();
     public abstract boolean doesScreenPauseGame();

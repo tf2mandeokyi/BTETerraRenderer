@@ -28,18 +28,20 @@ public class GuiNumberInput extends GuiAbstractWidgetImpl {
 		this.value = value;
 	}
 
+	@Override
+	public void tick() {
+		parent.tick();
+	}
 
 	public void setWidth(int newWidth) {
 		this.width = newWidth;
 		parent.width = newWidth - FontConnector.INSTANCE.getStringWidth(text) - 5;
 	}
 
-
 	public void setX(int newX) {
 		this.xPos = newX;
 		parent.x = newX + FontConnector.INSTANCE.getStringWidth(text) + 5;
 	}
-
 
 	public boolean keyTyped(char typedChar, int keyCode) {
 		boolean result = parent.keyTyped(typedChar, keyCode);
@@ -47,13 +49,11 @@ public class GuiNumberInput extends GuiAbstractWidgetImpl {
 		return result;
 	}
 
-
 	public boolean keyPressed(InputKey key) {
 		boolean result = parent.keyPressed(key);
 		if(result) this.updateTextColor();
 		return result;
 	}
-
 
 	private void updateTextColor() {
 		String currentStr = parent.text;
@@ -64,7 +64,6 @@ public class GuiNumberInput extends GuiAbstractWidgetImpl {
 		}
 	}
 
-
 	public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
 		int fontHeight = FontConnector.INSTANCE.getFontHeight();
 		FontConnector.INSTANCE.drawStringWithShadow(poseStack,
@@ -74,7 +73,6 @@ public class GuiNumberInput extends GuiAbstractWidgetImpl {
 		);
 		parent.drawComponent(poseStack, mouseX, mouseY, partialTicks);
 	}
-
 
 	public void update() {
 		parent.setText(StringUtil.formatDoubleNicely(value.get(), 3));

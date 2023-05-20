@@ -25,6 +25,11 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override
+    public void tick() {
+        this.textField.tick();
+    }
+
+    @Override
     public void onWidthChange(double newWidth) {
         this.textField.setWidth((int) newWidth);
     }

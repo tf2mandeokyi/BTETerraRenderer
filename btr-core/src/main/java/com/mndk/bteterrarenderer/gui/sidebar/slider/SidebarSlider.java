@@ -80,8 +80,8 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public void updateScreen() {
-        this.slider.updateSlider();
+    public void tick() {
+        this.slider.tick();
     }
 
     @Override

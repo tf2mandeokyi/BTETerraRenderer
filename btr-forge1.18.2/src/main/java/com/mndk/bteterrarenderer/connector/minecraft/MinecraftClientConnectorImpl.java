@@ -12,7 +12,7 @@ public class MinecraftClientConnectorImpl implements MinecraftClientConnector {
 
     public double getPlayerRotationYaw() {
         LocalPlayer player = Minecraft.getInstance().player;
-        return player != null ? player.getXRot() : 0;
+        return player != null ? player.getYRot() : 0;
     }
 
     public void sendErrorMessageToChat(String message) {

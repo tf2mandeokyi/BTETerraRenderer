@@ -67,7 +67,7 @@ public class GuiStaticConnectorImpl implements GuiStaticConnector {
     }
 
     @Override
-    public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean checked) {
+    public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
         this.drawButton(poseStack, x, y, width, height, GuiAbstractWidgetImpl.HoverState.DISABLED);
         if (checked) {
             FontConnector.INSTANCE.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1, 0xE0E0E0);

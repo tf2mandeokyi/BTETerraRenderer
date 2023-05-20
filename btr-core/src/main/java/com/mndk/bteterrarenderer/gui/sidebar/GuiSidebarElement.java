@@ -21,7 +21,5 @@ public abstract class GuiSidebarElement extends GuiComponentImpl {
     protected abstract void init();
 
     public abstract void onWidthChange(double newWidth);
-
-    public void updateScreen() {}
 }
 

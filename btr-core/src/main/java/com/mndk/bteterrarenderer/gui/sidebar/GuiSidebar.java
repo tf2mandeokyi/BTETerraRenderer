@@ -62,10 +62,10 @@ public class GuiSidebar extends AbstractGuiScreen {
     }
 
 
-    public void updateScreen() {
+    public void tick() {
         for(GuiSidebarElement element : elements) {
             if(element == null) continue;
-            element.updateScreen();
+            element.tick();
         }
         if(this.guiChat.isOpened()) {
             this.guiChat.updateScreen();

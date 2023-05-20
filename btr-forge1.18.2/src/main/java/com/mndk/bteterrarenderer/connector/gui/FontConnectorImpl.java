@@ -25,8 +25,11 @@ public record FontConnectorImpl() implements FontConnector {
     }
 
     public void drawSplitString(Object poseStack, String str, int x, int y, int wrapWidth, int textColor) {
-//        delegate.drawSplitString(str, x, y, wrapWidth, textColor); // TODO implement this
-        Minecraft.getInstance().font.drawShadow((PoseStack) poseStack, "asdf", x, y, textColor);
+        var textList = Minecraft.getInstance().font.getSplitter().splitLines(str, wrapWidth, Style.EMPTY);
+        for(var text : textList) {
+            Minecraft.getInstance().font.drawShadow((PoseStack) poseStack, text.getString(), x, y, textColor);
+            y += Minecraft.getInstance().font.lineHeight;
+        }
     }
 
     public String trimStringToWidth(String text, int width) {

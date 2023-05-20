@@ -25,7 +25,7 @@ public class AbstractGuiScreenImpl extends GuiScreen {
         delegate.drawScreen(null, mouseX, mouseY, partialTicks);
     }
     public void updateScreen() {
-        delegate.updateScreen();
+        delegate.tick();
     }
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         this.pMouseX = mouseX; this.pMouseY = mouseY;

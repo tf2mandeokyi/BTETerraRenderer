@@ -79,11 +79,11 @@ public class GuiSliderImpl extends GuiAbstractWidgetImpl {
 
     public void updateSliderValue(double mouseX) {
         this.sliderValue = (mouseX - (this.x + 4)) / (double) (this.width - 8);
-        this.updateSlider();
+        this.tick();
     }
 
 
-    public void updateSlider() {
+    public void tick() {
         if(this.isIntegerSlider) {
             int intValue = (int) Math.round(this.getValue());
             this.sliderValue = (intValue - this.minValue) / (this.maxValue - this.minValue);

@@ -69,6 +69,12 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
+    public void tick() {
+        xInput.tick();
+        zInput.tick();
+    }
+
+    @Override
     public int getHeight() {
         return 40 + ALIGNBOX_MARGIN_VERT * 2 + ALIGNBOX_HEIGHT;
     }

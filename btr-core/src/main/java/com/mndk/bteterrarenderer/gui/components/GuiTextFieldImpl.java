@@ -26,7 +26,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
     private Integer textColor;
     @Setter
     private int maxStringLength = 32;
-    private int frame; // TODO use this
+    private int frame;
     private final boolean bordered = true;
     private boolean shiftPressed;
     @Getter @Setter
@@ -36,6 +36,10 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
 
     public GuiTextFieldImpl(int x, int y, int width, int height) {
         super(x, y, width, height, "");
+    }
+
+    public void tick() {
+        this.frame++;
     }
 
     public void setText(String text) {
@@ -282,6 +286,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
             i -= 4;
         }
 
+        this.frame = 0;
         FontConnector font = FontConnector.INSTANCE;
         String s = font.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
         this.moveCursorTo(font.trimStringToWidth(s, i).length() + this.displayPos);
