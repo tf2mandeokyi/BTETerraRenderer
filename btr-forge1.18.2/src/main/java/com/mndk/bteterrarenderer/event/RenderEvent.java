@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.event;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
-import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnectorImpl;
 import com.mndk.bteterrarenderer.tile.TileRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -24,14 +23,10 @@ public class RenderEvent {
         LocalPlayer player = mc.player;
         if(player == null) return;
 
-        GraphicsConnectorImpl.POSE_STACK = new PoseStack();
-
         // While the player is the "rendering center" in 1.12.2,
         // In 1.18.8 it is the camera being that center.
         // So the camera's position should be given instead to TileRenderer.renderTiles(), unlike in 1.12.2.
         final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        TileRenderer.renderTiles(cameraPos.x, cameraPos.y, cameraPos.z);
-
-        GraphicsConnectorImpl.POSE_STACK = null;
+        TileRenderer.renderTiles(new PoseStack(), cameraPos.x, cameraPos.y, cameraPos.z);
     }
 }

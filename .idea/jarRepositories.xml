@@ -71,5 +71,10 @@
       <option name="name" value="SpongePowered" />
       <option name="url" value="https://repo.spongepowered.org/maven/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://repo.essential.gg/repository/maven-public" />
+    </remote-repository>
   </component>
 </project>

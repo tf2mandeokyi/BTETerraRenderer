@@ -10,7 +10,7 @@ import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
 import com.mndk.bteterrarenderer.util.BtrUtil;
-import com.mndk.bteterrarenderer.connector.graphics.GraphicVertices;
+import com.mndk.bteterrarenderer.connector.graphics.GraphicsQuad;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -87,6 +87,7 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
     }
 
     public void renderTile(
+            Object poseStack,
             int relativeZoom, String tmsId,
             double y, float opacity,
             double playerX, double playerY, double playerZ,
@@ -120,19 +121,19 @@ public class TileMapService implements CategoryMapData.ICategoryMapProperty {
              *  i=3 ------ i=2
              */
             int glId = cache.updateAndGetGlId(tileKey);
-            GraphicVertices<GraphicVertices.PosTexColor> vertices = new GraphicVertices<>(glId);
+            GraphicsQuad<GraphicsQuad.PosTexColor> quad = new GraphicsQuad<>(glId);
             for (int i = 0; i < 4; i++) {
                 int[] mat = this.tileProjection.getCornerMatrix(i);
                 geoCoord = tileProjection.tileCoordToGeoCoord(tileX + mat[0], tileY + mat[1], relativeZoom);
                 gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
-                vertices.add(new GraphicVertices.PosTexColor(
+                quad.set(i, new GraphicsQuad.PosTexColor(
                         (float) (gameCoord[0] - playerX), (float) (y - playerY), (float) (gameCoord[1] - playerZ),
                         mat[2], mat[3],
                         1f, 1f, 1f, opacity
                 ));
             }
-            TileGraphicsConnector.INSTANCE.drawTileQuad(vertices);
+            TileGraphicsConnector.INSTANCE.drawTileQuad(poseStack, quad);
 
         } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {

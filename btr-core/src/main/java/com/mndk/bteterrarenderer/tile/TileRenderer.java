@@ -13,7 +13,7 @@ public class TileRenderer {
      */
     private static final double Y_EPSILON = 0.1;
 
-    public static void renderTiles(double px, double py, double pz) {
+    public static void renderTiles(Object poseStack, double px, double py, double pz) {
 
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
         BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
@@ -25,14 +25,14 @@ public class TileRenderer {
         double yDiff = settings.getYAxis() - py;
         if(Math.abs(yDiff) >= settings.getYDiffLimit()) return;
 
-        GraphicsConnector.INSTANCE.glPushMatrix();
+        GraphicsConnector.INSTANCE.glPushMatrix(poseStack);
         TileGraphicsConnector.INSTANCE.preRender();
 
-        new TileDrawer(tms, settings.getRadius() - 1, px, py, pz).drawWithDiamondPriority();
+        new TileDrawer(tms, settings.getRadius() - 1, px, py, pz).drawWithDiamondPriority(poseStack);
         TileImageCacheManager.getInstance().cleanup();
 
         TileGraphicsConnector.INSTANCE.postRender();
-        GraphicsConnector.INSTANCE.glPopMatrix();
+        GraphicsConnector.INSTANCE.glPopMatrix(poseStack);
     }
 
 
@@ -45,9 +45,10 @@ public class TileRenderer {
         private final BTRConfigConnector config = BTRConfigConnector.INSTANCE;
         private final BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
 
-        public void draw(int dx, int dy) {
+        public void draw(Object poseStack, int dx, int dy) {
             if(Math.abs(dx) > size || Math.abs(dy) > size) return;
             tms.renderTile(
+                    poseStack,
                     settings.getRelativeZoomValue(),
                     config.getMapServiceCategory() + "." + config.getMapServiceId(),
                     settings.getYAxis() + Y_EPSILON,
@@ -57,16 +58,16 @@ public class TileRenderer {
             );
         }
 
-        public void drawWithDiamondPriority() {
+        public void drawWithDiamondPriority(Object poseStack) {
             for(int i = 0; i < 2 * this.size + 1; ++i) {
                 if(i == 0) {
-                    this.draw(0, 0);
+                    this.draw(poseStack, 0, 0);
                 }
                 for(int j = 0; j < i; ++j) {
-                    this.draw(-j, j - i);
-                    this.draw(j - i, j);
-                    this.draw(j, i - j);
-                    this.draw(i - j, -j);
+                    this.draw(poseStack, -j, j - i);
+                    this.draw(poseStack, j - i, j);
+                    this.draw(poseStack, j, i - j);
+                    this.draw(poseStack, i - j, -j);
                 }
             }
         }

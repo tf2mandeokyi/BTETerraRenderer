@@ -15,12 +15,12 @@ public class SidebarBlank extends GuiSidebarElement {
         return height;
     }
 
-    @Override protected void init() {}
-    @Override public void onWidthChange(int newWidth) {}
-    @Override public void updateScreen() {}
-    @Override public void drawComponent(double mouseX, double mouseY, float partialTicks) { }
-    @Override public boolean mousePressed(double mouseX, double mouseY, int mouseButton) { return false; }
-    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) { }
-    @Override public void mouseReleased(double mouseX, double mouseY, int state) { }
-    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
+    @Override
+    protected void init() {}
+
+    @Override
+    public void onWidthChange(double newWidth) {}
+
+    @Override
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {}
 }

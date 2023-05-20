@@ -12,9 +12,9 @@ public interface MinecraftClientConnector {
 
     void playClickSound();
 
-    int getMouseX();
-    int getMouseDWheel();
-
+    /*
+     * Consider changing these to enum type
+     */
     int chatOpenKeyCode();
     int commandOpenKeyCode();
 }

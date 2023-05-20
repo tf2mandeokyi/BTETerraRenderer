@@ -19,19 +19,19 @@ public class SidebarNumberInput extends GuiSidebarElement {
     @Override
     protected void init() {
         this.textField = new GuiNumberInput(
-                0, 0, parent.elementWidth.get(), 20,
+                0, 0, parent.elementWidth.get().intValue(), 20,
                 this.value, this.text
         );
     }
 
     @Override
-    public void onWidthChange(int newWidth) {
-        this.textField.setWidth(newWidth);
+    public void onWidthChange(double newWidth) {
+        this.textField.setWidth((int) newWidth);
     }
 
     @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
-        textField.drawComponent(mouseX, mouseY, partialTicks);
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+        textField.drawComponent(poseStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -51,8 +51,4 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override public int getHeight() { return 20; }
-
-    @Override public void updateScreen() {}
-    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
-    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
 }

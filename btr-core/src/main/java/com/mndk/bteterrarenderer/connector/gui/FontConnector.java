@@ -10,10 +10,10 @@ public interface FontConnector {
     int getFontHeight();
     int getStringWidth(String text);
     int getWordWrappedHeight(String text, int maxLength);
-    int drawStringWithShadow(String text, float x, float y, int color);
-    void drawSplitString(String str, int x, int y, int wrapWidth, int textColor);
-    default void drawCenteredStringWithShadow(String text, float x, float y, int color) {
-        this.drawStringWithShadow(text, x - this.getStringWidth(text) / 2.0f, y, color);
+    int drawStringWithShadow(Object poseStack, String text, float x, float y, int color);
+    void drawSplitString(Object poseStack, String str, int x, int y, int wrapWidth, int textColor);
+    default void drawCenteredStringWithShadow(Object poseStack, String text, float x, float y, int color) {
+        this.drawStringWithShadow(poseStack, text, x - this.getStringWidth(text) / 2.0f, y, color);
     }
     String trimStringToWidth(String text, int width);
     List<String> listFormattedStringToWidth(String str, int wrapWidth);

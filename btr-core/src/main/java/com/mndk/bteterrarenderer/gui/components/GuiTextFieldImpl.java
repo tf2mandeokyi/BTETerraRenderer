@@ -288,14 +288,14 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
         return true;
     }
 
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
         FontConnector font = FontConnector.INSTANCE;
 
         if (this.isVisible()) {
             if (this.bordered) {
                 int borderColor = this.isFocused() ? BORDER_COLOR_FOCUSED : BORDER_COLOR;
-                GuiStaticConnector.INSTANCE.drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
-                GuiStaticConnector.INSTANCE.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFF000000);
+                GuiStaticConnector.INSTANCE.fillRect(poseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
+                GuiStaticConnector.INSTANCE.fillRect(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF000000);
             }
 
             int i2 = this.textColor != null ? this.textColor : (this.enabled ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR);
@@ -313,7 +313,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
 
             if (!trimmed.isEmpty()) {
                 String s1 = flag ? trimmed.substring(0, j) : trimmed;
-                j1 = font.drawStringWithShadow(s1, (float)l, (float)i1, i2);
+                j1 = font.drawStringWithShadow(poseStack, s1, (float)l, (float)i1, i2);
             }
 
             boolean flag2 = this.cursorPos < this.text.length() || this.text.length() >= this.maxStringLength;
@@ -326,26 +326,26 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
             }
 
             if (!trimmed.isEmpty() && flag && j < trimmed.length()) {
-                font.drawStringWithShadow(trimmed.substring(j), (float)j1, (float)i1, i2);
+                font.drawStringWithShadow(poseStack, trimmed.substring(j), (float)j1, (float)i1, i2);
             }
 
             if (flag1) {
                 if (flag2) {
-                    GuiStaticConnector.INSTANCE.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
+                    GuiStaticConnector.INSTANCE.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, 0xFFD0D0D0);
                 } else {
-                    font.drawStringWithShadow("_", (float)k1, (float)i1, i2);
+                    font.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
                 }
             }
 
             if (k != j) {
                 int l1 = l + font.getStringWidth(trimmed.substring(0, k));
-                this.drawSelectionBox(k1, i1 - 1, l1 - 1, i1 + 1 + 9);
+                this.drawSelectionBox(poseStack, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
             }
 
         }
     }
 
-    private void drawSelectionBox(int startX, int startY, int endX, int endY) {
+    private void drawSelectionBox(Object poseStack, int startX, int startY, int endX, int endY) {
         if (startX < endX) {
             int i = startX;
             startX = endX;
@@ -366,7 +366,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
             startX = this.x + this.width;
         }
 
-        GuiStaticConnector.INSTANCE.drawTextFieldHighlight(startX, startY, endX, endY);
+        GuiStaticConnector.INSTANCE.drawTextFieldHighlight(poseStack, startX, startY, endX, endY);
     }
 
     public int getInnerWidth() {

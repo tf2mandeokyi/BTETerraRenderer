@@ -35,15 +35,6 @@ public class MinecraftClientConnectorImpl implements MinecraftClientConnector {
         ));
     }
 
-    public int getMouseX() {
-        return (int) Minecraft.getInstance().mouseHandler.xpos();
-    }
-
-    public int getMouseDWheel() {
-        // TODO implement this somehow
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
     public int chatOpenKeyCode() {
         return Minecraft.getInstance().options.keyChat.getKey().getValue();
     }

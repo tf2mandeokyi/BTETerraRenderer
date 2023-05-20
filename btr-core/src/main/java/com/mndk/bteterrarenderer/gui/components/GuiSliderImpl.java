@@ -40,11 +40,11 @@ public class GuiSliderImpl extends GuiAbstractWidgetImpl {
 
 
     @Override
-    public void drawBackground(double mouseX, double mouseY, float partialTicks) {
+    public void drawBackground(Object poseStack, double mouseX, double mouseY, float partialTicks) {
         if(!this.visible) return;
 
         if(this.dragging) this.updateSliderValue(mouseX);
-        GuiStaticConnector.INSTANCE.drawButton(
+        GuiStaticConnector.INSTANCE.drawButton(poseStack,
                 this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y,
                 8, this.height, this.isMouseOnWidget(mouseX, mouseY) ? HoverState.MOUSE_OVER : HoverState.DEFAULT
         );
@@ -63,8 +63,9 @@ public class GuiSliderImpl extends GuiAbstractWidgetImpl {
 
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int mouseButton) {
+    public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
         this.dragging = false;
+        return true;
     }
 
 

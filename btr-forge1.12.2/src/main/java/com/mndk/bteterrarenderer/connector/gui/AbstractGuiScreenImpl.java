@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import com.mndk.bteterrarenderer.connector.graphics.IScaledResolutionImpl;
+import com.mndk.bteterrarenderer.connector.graphics.IScaledScreenSizeImpl;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 
@@ -14,15 +15,14 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     public AbstractGuiScreenImpl(AbstractGuiScreen delegate) {
         this.delegate = delegate;
         delegate.guiWidth = () -> super.width;
-        delegate.minecraftDisplayWidth = () -> super.mc.displayWidth;
-        delegate.scaledResolution = IScaledResolutionImpl::new;
+        delegate.screenSize = IScaledScreenSizeImpl::new;
     }
 
     public void initGui() {
         delegate.initGui();
     }
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        delegate.drawScreen(mouseX, mouseY, partialTicks);
+        delegate.drawScreen(null, mouseX, mouseY, partialTicks);
     }
     public void updateScreen() {
         delegate.updateScreen();
@@ -38,7 +38,10 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     }
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
-        delegate.handleMouseInput();
+
+        int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+        int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+        delegate.mouseScrolled(mouseX, mouseY, Mouse.getEventDWheel());
     }
     public void keyTyped(char key, int keyCode) throws IOException {
         super.keyTyped(key, keyCode);
@@ -52,9 +55,9 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     }
 
     public void onGuiClosed() {
-        delegate.onGuiClosed();
+        delegate.onClose();
     }
     public boolean doesGuiPauseGame() {
-        return delegate.doesGuiPauseGame();
+        return delegate.doesScreenPauseGame();
     }
 }

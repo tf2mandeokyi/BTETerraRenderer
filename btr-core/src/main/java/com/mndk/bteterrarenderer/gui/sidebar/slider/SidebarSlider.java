@@ -54,7 +54,7 @@ public class SidebarSlider extends GuiSidebarElement {
             assert doubleValue != null;
             this.slider = new GuiSliderImpl(
                     0, 0,
-                    parent.elementWidth.get(), 20,
+                    parent.elementWidth.get().intValue(), 20,
                     prefix, suffix,
                     minValue, maxValue, doubleValue.get(),
                     true, true, false,
@@ -65,7 +65,7 @@ public class SidebarSlider extends GuiSidebarElement {
             assert intValue != null;
             this.slider = new GuiSliderImpl(
                     0, 0,
-                    parent.elementWidth.get(), 20,
+                    parent.elementWidth.get().intValue(), 20,
                     prefix, suffix,
                     (int) minValue, (int) maxValue, intValue.get(),
                     false, true, true,
@@ -75,8 +75,8 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange(int newWidth) {
-        this.slider.setWidth(newWidth);
+    public void onWidthChange(double newWidth) {
+        this.slider.setWidth((int) newWidth);
     }
 
     @Override
@@ -85,11 +85,11 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
         if(this.slider.drawString && this.intValidator != null) {
             this.slider.packedForegroundColor = intValidator.test(this.slider.getValueInt()) ? 0 : 0xFF0000;
         }
-        this.slider.drawComponent(mouseX, mouseY, partialTicks);
+        this.slider.drawComponent(poseStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -98,10 +98,7 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        this.slider.mouseReleased(mouseX, mouseY, mouseButton);
+    public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
+        return this.slider.mouseReleased(mouseX, mouseY, mouseButton);
     }
-
-    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
-    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
 }

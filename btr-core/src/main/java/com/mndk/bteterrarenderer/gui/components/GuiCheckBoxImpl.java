@@ -19,17 +19,18 @@ public class GuiCheckBoxImpl extends GuiAbstractWidgetImpl {
     }
 
     @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
         if(!this.visible) return;
 
         this.hovered = this.isMouseOnWidget(mouseX, mouseY);
-        GuiStaticConnector.INSTANCE.drawCheckBox(x, y, BOX_WIDTH, height, checked);
+        GuiStaticConnector.INSTANCE.drawCheckBox(poseStack, x, y, BOX_WIDTH, height, this.isFocused(), checked);
+        this.drawBackground(poseStack, mouseX, mouseY, partialTicks);
 
         int color = 0xE0E0E0;
         if(packedForegroundColor != 0)  color = packedForegroundColor;
         else if(!this.enabled)          color = TEXT_COLOR;
 
-        FontConnector.INSTANCE.drawStringWithShadow(text, this.x + BOX_WIDTH + BOX_MARGIN_RIGHT, this.y + 2, color);
+        FontConnector.INSTANCE.drawStringWithShadow(poseStack, text, this.x + BOX_WIDTH + BOX_MARGIN_RIGHT, this.y + 2, color);
     }
 
     @Override

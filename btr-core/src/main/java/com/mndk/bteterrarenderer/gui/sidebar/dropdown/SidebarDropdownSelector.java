@@ -1,9 +1,6 @@
 package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
-import com.mndk.bteterrarenderer.connector.graphics.IBufferBuilder;
-import com.mndk.bteterrarenderer.connector.graphics.GlFactor;
-import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
-import com.mndk.bteterrarenderer.connector.graphics.VertexFormatConnectorEnum;
+import com.mndk.bteterrarenderer.connector.graphics.*;
 import com.mndk.bteterrarenderer.connector.gui.FontConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
@@ -46,7 +43,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     protected void init() {
         this.closedHeight = FontConnector.INSTANCE.getFontHeight() + VERTICAL_PADDING * 2;
         this.singleLineElementHeight = FontConnector.INSTANCE.getFontHeight() + ELEMENT_VERTICAL_MARGIN * 2;
-        this.width = parent.elementWidth.get();
+        this.width = parent.elementWidth.get().intValue();
         this.innerWidth = width - HORIZONTAL_PADDING * 2;
     }
 
@@ -72,7 +69,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
 
     @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
 
         CategoryMapData<T> categories = currentCategories.get();
         Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
@@ -80,19 +77,19 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
         FontConnector fontRenderer = FontConnector.INSTANCE;
 
         // Background
-        GuiStaticConnector.INSTANCE.drawRect(0, 0, width, closedHeight, 0x80000000);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, 0, width, closedHeight, 0x80000000);
         if(opened) {
-            GuiStaticConnector.INSTANCE.drawRect(0, closedHeight, width, getHeight(), 0xA0000000);
+            GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, closedHeight, width, getHeight(), 0xA0000000);
         }
 
         // Dropdown arrow
-        this.drawDropdownArrow(VERTICAL_PADDING, rectColor, opened);
+        this.drawDropdownArrow(poseStack, VERTICAL_PADDING, rectColor, opened);
 
         // White Border
-        GuiStaticConnector.INSTANCE.drawRect(-1, -1, 0, closedHeight + 1, rectColor);
-        GuiStaticConnector.INSTANCE.drawRect(-1, -1, width, 0, rectColor);
-        GuiStaticConnector.INSTANCE.drawRect(width, -1, width + 1, closedHeight + 1, rectColor);
-        GuiStaticConnector.INSTANCE.drawRect(-1, closedHeight, width + 1, closedHeight + 1, rectColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, -1, -1, 0, closedHeight + 1, rectColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, -1, -1, width, 0, rectColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, width, -1, width + 1, closedHeight + 1, rectColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, -1, closedHeight, width + 1, closedHeight + 1, rectColor);
 
         // Current selection
         T currentValue = categories.getItem(currentCategoryName.get(), currentItemId.get());
@@ -104,7 +101,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
             if(fontRenderer.getStringWidth(currentName) > limit) {
                 currentName = fontRenderer.trimStringToWidth(currentName, limit);
             }
-            fontRenderer.drawStringWithShadow(currentName, HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
+            fontRenderer.drawStringWithShadow(poseStack, currentName, HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
         }
 
         // Dropdown
@@ -122,14 +119,14 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
                         ? 0xFFFFFFA0 : 0xFFFFFFFF;
 
                 // Category name
-                fontRenderer.drawCenteredStringWithShadow(
+                fontRenderer.drawCenteredStringWithShadow(poseStack,
                         categoryName,
-                        width / 2, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
+                        width / 2.0f, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
                         categoryColor
                 );
 
                 // Dropdown arrow
-                this.drawDropdownArrow(
+                this.drawDropdownArrow(poseStack,
                         yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
                         categoryColor,
                         category.isOpened()
@@ -153,7 +150,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
                         // Blue background
                         if (categoryName.equals(currentCategoryName.get()) && itemId.equals(currentItemId.get())) {
-                            GuiStaticConnector.INSTANCE.drawRect(
+                            GuiStaticConnector.INSTANCE.fillRect(poseStack,
                                     0, yStart + totalHeight,
                                     width, yStart + totalHeight + height,
                                     0xDFA0AFFF
@@ -161,7 +158,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
                         }
 
                         // Item text
-                        fontRenderer.drawSplitString(
+                        fontRenderer.drawSplitString(poseStack,
                                 name, HORIZONTAL_PADDING, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
                                 innerWidth, color
                         );
@@ -170,7 +167,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
                 }
                 if(j != categoryMap.size() - 1) {
                     // horizontal line
-                    GuiStaticConnector.INSTANCE.drawRect(
+                    GuiStaticConnector.INSTANCE.fillRect(poseStack,
                             0, yStart + totalHeight,
                             width, yStart + totalHeight + 1,
                             0xA0FFFFFF
@@ -184,37 +181,27 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     }
 
 
-    private void drawDropdownArrow(int top, int colorARGB, boolean flip) {
-
-        float alpha = (float)(colorARGB >> 24 & 255) / 255.0F;
-        float red = (float)(colorARGB >> 16 & 255) / 255.0F;
-        float green = (float)(colorARGB >> 8 & 255) / 255.0F;
-        float blue = (float)(colorARGB & 255) / 255.0F;
-
+    private void drawDropdownArrow(Object poseStack, int top, int colorARGB, boolean flip) {
         int bottom = top + FontConnector.INSTANCE.getFontHeight();
         int right = width - HORIZONTAL_PADDING;
         int left = width - HORIZONTAL_PADDING - FontConnector.INSTANCE.getFontHeight();
 
-        if(flip) {
-            int temp = top; top = bottom; bottom = temp;
-            temp = right; right = left; left = temp;
+        if (flip) {
+            int temp = top;
+            top = bottom;
+            bottom = temp;
+            temp = right;
+            right = left;
+            left = temp;
         }
 
-        IBufferBuilder builder = GraphicsConnector.INSTANCE.getBufferBuilder();
-        GraphicsConnector.INSTANCE.glEnableBlend();
-        GraphicsConnector.INSTANCE.glDisableTexture2D();
-        GraphicsConnector.INSTANCE.glTryBlendFuncSeparate(GlFactor.SRC_ALPHA, GlFactor.ONE_MINUS_SRC_ALPHA, GlFactor.ONE, GlFactor.ZERO);
-        GraphicsConnector.INSTANCE.glColor(red, green, blue, alpha);
-
-        builder.beginQuads(VertexFormatConnectorEnum.POSITION);
-        builder.pos(left, top, 0.0D).endVertex();
-        builder.pos((left + right) / 2., bottom, 0.0D).endVertex();
-        builder.pos((left + right) / 2., bottom, 0.0D).endVertex();
-        builder.pos(right, top, 0.0D).endVertex();
-        GraphicsConnector.INSTANCE.tessellatorDraw();
-
-        GraphicsConnector.INSTANCE.glEnableTexture2D();
-        GraphicsConnector.INSTANCE.glDisableBlend();
+        GraphicsQuad<GraphicsQuad.Pos> quad = new GraphicsQuad<>(
+                new GraphicsQuad.Pos(left, top, 0),
+                new GraphicsQuad.Pos((left + right) / 2f, bottom, 0),
+                new GraphicsQuad.Pos((left + right) / 2f, bottom, 0),
+                new GraphicsQuad.Pos(right, top, 0)
+        );
+        GuiStaticConnector.INSTANCE.fillQuad(poseStack, quad, colorARGB);
     }
 
 
@@ -271,16 +258,10 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     }
 
 
-    @Override public void onWidthChange(int newWidth) {
-        this.width = newWidth;
-        this.innerWidth = newWidth - HORIZONTAL_PADDING * 2;
+    @Override public void onWidthChange(double newWidth) {
+        this.width = (int) newWidth;
+        this.innerWidth = (int) (newWidth - HORIZONTAL_PADDING * 2);
     }
-
-
-    @Override public void updateScreen() {}
-    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
-    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
-    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
 
 
     public interface ItemSetter {

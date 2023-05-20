@@ -6,12 +6,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 
 @RequiredArgsConstructor @Getter
-public class IScaledResolutionImpl implements IScaledResolution {
-    private final int scaledWidth, scaledHeight;
-    public IScaledResolutionImpl() {
+public class IScaledScreenSizeImpl implements IScaledScreenSize {
+    private final int width, height;
+    public IScaledScreenSizeImpl() {
         this(new ScaledResolution(Minecraft.getMinecraft()));
     }
-    public IScaledResolutionImpl(ScaledResolution scaledResolution) {
+    public IScaledScreenSizeImpl(ScaledResolution scaledResolution) {
         this(scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
     }
 }

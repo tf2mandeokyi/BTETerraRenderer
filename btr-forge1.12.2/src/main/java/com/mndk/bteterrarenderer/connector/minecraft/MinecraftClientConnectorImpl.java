@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.text.TextComponentString;
-import org.lwjgl.input.Mouse;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
@@ -32,13 +31,6 @@ public class MinecraftClientConnectorImpl implements MinecraftClientConnector {
         Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(
                 SoundEvents.UI_BUTTON_CLICK, 1.0F
         ));
-    }
-
-    public int getMouseX() {
-        return Mouse.getEventX();
-    }
-    public int getMouseDWheel() {
-        return Mouse.getEventDWheel();
     }
 
     public int chatOpenKeyCode() {

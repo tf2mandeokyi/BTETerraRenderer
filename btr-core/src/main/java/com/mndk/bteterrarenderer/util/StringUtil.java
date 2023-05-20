@@ -29,50 +29,6 @@ public class StringUtil {
         return originalPosition;
     }
 
-    /**
-     * Copied from 1.18.2's <code>net.minecraft.client.StringSplitter.getWordPosition()</code>
-     */
-    public static int getWordPosition(String text, int delta, int originalPosition, boolean p_92359_) {
-        int i = originalPosition;
-        boolean flag = delta < 0;
-        int j = Math.abs(delta);
-
-        for(int k = 0; k < j; ++k) {
-            if (flag) {
-                while(p_92359_ && i > 0 && (text.charAt(i - 1) == ' ' || text.charAt(i - 1) == '\n')) {
-                    --i;
-                }
-
-                while(i > 0 && text.charAt(i - 1) != ' ' && text.charAt(i - 1) != '\n') {
-                    --i;
-                }
-            } else {
-                int l = text.length();
-                int i1 = text.indexOf(32, i);
-                int j1 = text.indexOf(10, i);
-                if (i1 == -1 && j1 == -1) {
-                    i = -1;
-                } else if (i1 != -1 && j1 != -1) {
-                    i = Math.min(i1, j1);
-                } else if (i1 != -1) {
-                    i = i1;
-                } else {
-                    i = j1;
-                }
-
-                if (i == -1) {
-                    i = l;
-                } else {
-                    while(p_92359_ && i < l && (text.charAt(i) == ' ' || text.charAt(i) == '\n')) {
-                        ++i;
-                    }
-                }
-            }
-        }
-
-        return i;
-    }
-
     public static String filterMinecraftAllowedCharacters(String text) {
         StringBuilder stringbuilder = new StringBuilder();
 

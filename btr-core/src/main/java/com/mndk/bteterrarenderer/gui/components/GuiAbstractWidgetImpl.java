@@ -33,13 +33,13 @@ public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
         return HoverState.DEFAULT;
     }
 
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
         if(!this.visible) return;
 
         this.hovered = this.isMouseOnWidget(mouseX, mouseY);
         GuiButtonImpl.HoverState hoverState = this.getButtonHoverState(this.hovered);
-        GuiStaticConnector.INSTANCE.drawButton(x, y, width, height, hoverState);
-        this.drawBackground(mouseX, mouseY, partialTicks);
+        GuiStaticConnector.INSTANCE.drawButton(poseStack, x, y, width, height, hoverState);
+        this.drawBackground(poseStack, mouseX, mouseY, partialTicks);
 
         int color = 0xE0E0E0;
         if(packedForegroundColor != 0)  color = packedForegroundColor;
@@ -54,10 +54,10 @@ public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
         if (stringWidth > width - 6 && stringWidth > ellipsisWidth) {
             buttonText = fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
         }
-        fontRenderer.drawCenteredStringWithShadow(buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
+        fontRenderer.drawCenteredStringWithShadow(poseStack, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
     }
 
-    public void drawBackground(double mouseX, double mouseY, float partialTicks) {}
+    public void drawBackground(Object poseStack, double mouseX, double mouseY, float partialTicks) {}
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         return this.enabled && this.visible && this.isMouseOnWidget(mouseX, mouseY);

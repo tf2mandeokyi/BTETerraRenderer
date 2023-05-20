@@ -16,12 +16,12 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.button = new GuiButtonImpl(0, 0, parent.elementWidth.get(), 20, buttonText);
+        this.button = new GuiButtonImpl(0, 0, parent.elementWidth.get().intValue(), 20, buttonText);
     }
 
     @Override
-    public void onWidthChange(int newWidth) {
-        this.button.setWidth(newWidth);
+    public void onWidthChange(double newWidth) {
+        this.button.setWidth((int) newWidth);
     }
 
     public void setDisplayString(String newString) {
@@ -34,8 +34,8 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
-        this.button.drawComponent(mouseX, mouseY, partialTicks);
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+        this.button.drawComponent(poseStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -51,9 +51,4 @@ public class SidebarButton extends GuiSidebarElement {
     public interface MouseClickedEvent {
         void onMouseClicked(SidebarButton self, int mouseButton);
     }
-
-    @Override public void updateScreen() {}
-    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
-    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
-    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
 }

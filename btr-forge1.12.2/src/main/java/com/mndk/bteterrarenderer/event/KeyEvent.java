@@ -16,7 +16,6 @@ public class KeyEvent {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public static void onKeyEvent(InputEvent.KeyInputEvent event) {
-		
 		if(ClientProxy.mapOptionsKey.isPressed()) {
 			BTRConfigConnector.refreshTileMapService();
 			MapRenderingOptionsSidebar.open();

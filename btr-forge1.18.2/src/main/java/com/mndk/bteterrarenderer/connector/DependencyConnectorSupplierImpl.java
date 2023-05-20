@@ -5,13 +5,11 @@ import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl;
 import net.minecraft.resources.ResourceLocation;
 
-@ConnectorImpl
-@SuppressWarnings("unused")
 public class DependencyConnectorSupplierImpl implements DependencyConnectorSupplier {
 
     @Override
     public IGuiChat newGuiChat() {
-        // TODO: Implement this
+        // TODO: Implement or delete this
         return null;
     }
 

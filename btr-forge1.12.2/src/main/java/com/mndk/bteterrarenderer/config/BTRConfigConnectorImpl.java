@@ -93,8 +93,8 @@ public class BTRConfigConnectorImpl implements BTRConfigConnector {
         public SidebarSide sidebarSide = SidebarSide.RIGHT;
 
         @Config.Name("sidebar_width")
-        @Config.RangeInt(min = 130) // It's not necessary for the sidebar to fill more than a half of the game screen
-        public int sidebarWidth = 200;
+        @Config.RangeDouble(min = 130) // It's not necessary for the sidebar to fill more than a half of the game screen
+        public double sidebarWidth = 200;
 
         @Config.Name("sidebar_opacity")
         @Config.RangeDouble(min = 0, max = 1)
@@ -105,6 +105,7 @@ public class BTRConfigConnectorImpl implements BTRConfigConnector {
     public void saveConfig() {
         ConfigManager.sync(BTETerraRendererConstants.MODID, Config.Type.INSTANCE);
     }
+    public void readConfig() {}
 
     @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID)
     public static class ConfigEventHandler {

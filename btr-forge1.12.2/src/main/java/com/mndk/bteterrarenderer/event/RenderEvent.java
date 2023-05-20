@@ -27,7 +27,9 @@ public class RenderEvent {
 		final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);
 
 		try {
-			TileRenderer.renderTiles(px, py, pz);
+			// Since there's no "PoseStack" class in 1.12.2
+			// We'll just pass null here
+			TileRenderer.renderTiles(null, px, py, pz);
 		} catch(IllegalArgumentException exception) {
 			exception.printStackTrace();
 		}

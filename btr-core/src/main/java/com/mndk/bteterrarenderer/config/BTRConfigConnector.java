@@ -15,6 +15,7 @@ public interface BTRConfigConnector {
      * Call {@link #save()} instead of this method
      */
     void saveConfig();
+    void readConfig();
     boolean isDoRender();               void setDoRender(boolean doRender);
     String getMapServiceCategory();     void setMapServiceCategory(String mapServiceCategory);
     String getMapServiceId();           void setMapServiceId(String mapServiceId);
@@ -39,7 +40,7 @@ public interface BTRConfigConnector {
     UISettingsConnector getUiSettings();
     interface UISettingsConnector {
         SidebarSide getSidebarSide();   void setSidebarSide(SidebarSide side);
-        int getSidebarWidth();          void setSidebarWidth(int sidebarWidth);
+        double getSidebarWidth();       void setSidebarWidth(double sidebarWidth);
         double getSidebarOpacity();     void setSidebarOpacity(double sidebarOpacity);
     }
 
@@ -49,6 +50,11 @@ public interface BTRConfigConnector {
 
     static void save() {
         INSTANCE.saveConfig();
+        refreshTileMapService();
+    }
+
+    static void load() {
+        INSTANCE.readConfig();
         refreshTileMapService();
     }
 

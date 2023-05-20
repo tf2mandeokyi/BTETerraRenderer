@@ -18,7 +18,7 @@ public class TileGraphicsConnectorImpl implements TileGraphicsConnector {
     public void preRender() {
         GlStateManager.disableCull();
         GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlFactor.SRC_ALPHA.srcFactor, GlFactor.ONE_MINUS_SRC_ALPHA.dstFactor);
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     }
 
     @Override
@@ -34,17 +34,18 @@ public class TileGraphicsConnectorImpl implements TileGraphicsConnector {
     }
 
     @Override
-    public void drawTileQuad(GraphicVertices<GraphicVertices.PosTexColor> vertices) {
-        GlStateManager.bindTexture(vertices.glId);
+    public void drawTileQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosTexColor> quad) {
+        GlStateManager.bindTexture(quad.glId);
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-        for (GraphicVertices.PosTexColor vertexInfo : vertices) {
-            builder.pos(vertexInfo.x, vertexInfo.y, vertexInfo.z)
-                    .tex(vertexInfo.u, vertexInfo.v)
-                    .color(vertexInfo.r, vertexInfo.g, vertexInfo.b, vertexInfo.a)
+        for (int i = 0; i < 4; i++) {
+            GraphicsQuad.PosTexColor vertex = quad.get(i);
+            builder.pos(vertex.x, vertex.y, vertex.z)
+                    .tex(vertex.u, vertex.v)
+                    .color(vertex.r, vertex.g, vertex.b, vertex.a)
                     .endVertex();
         }
         tessellator.draw();

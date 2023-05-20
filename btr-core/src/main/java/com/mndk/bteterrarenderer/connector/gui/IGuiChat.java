@@ -1,7 +1,5 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import java.io.IOException;
-
 public interface IGuiChat {
 
     void init();
@@ -23,7 +21,7 @@ public interface IGuiChat {
 
     void updateScreen();
     void keyTyped(char typedChar, int keyCode);
-    void handleMouseInput() throws IOException;
+    void handleMouseInput();
     void handleMouseHover(double mouseX, double mouseY, float partialTicks);
     boolean handleMouseClick(double mouseX, double mouseY, int mouseButton);
     boolean inputFieldMouseClicked(double mouseX, double mouseY, int mouseButton);

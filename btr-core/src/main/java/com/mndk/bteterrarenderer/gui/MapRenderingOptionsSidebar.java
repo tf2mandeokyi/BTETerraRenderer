@@ -160,14 +160,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
+        BTRConfigConnector.load();
         INSTANCE.setSide(BTRConfigConnector.INSTANCE.getUiSettings().getSidebarSide());
         GuiStaticConnector.INSTANCE.displayGuiScreen(INSTANCE);
     }
 
     @Override
-    public void onGuiClosed() {
+    public void onClose() {
         BTRConfigConnector.save();
-        super.onGuiClosed();
+        super.onClose();
     }
 
 }

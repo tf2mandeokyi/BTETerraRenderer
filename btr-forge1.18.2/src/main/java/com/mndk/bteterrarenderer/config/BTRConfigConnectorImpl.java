@@ -1,17 +1,19 @@
 package com.mndk.bteterrarenderer.config;
 
-import com.mndk.bteterrarenderer.connector.ConnectorImpl;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-@ConnectorImpl
 public class BTRConfigConnectorImpl implements BTRConfigConnector {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+    public static final ForgeConfigSpec CONFIG_SPEC;
 
+    public static boolean DO_RENDER;
     private static final ForgeConfigSpec.ConfigValue<Boolean> GENERAL_DO_RENDER;
-    private static final ForgeConfigSpec.ConfigValue<String> GENERAL_MAP_SERVICE_CATEGORY;
-    private static final ForgeConfigSpec.ConfigValue<String> GENERAL_MAP_SERVICE_ID;
+
+    public static String MAP_SERVICE_CATEGORY, MAP_SERVICE_ID;
+    private static final ForgeConfigSpec.ConfigValue<String> GENERAL_MAP_SERVICE_CATEGORY, GENERAL_MAP_SERVICE_ID;
 
     private static final RenderSettingsConnector RENDER = new RenderSettingsConnectorImpl();
     private static final ForgeConfigSpec.ConfigValue<Double> RENDER_X_ALIGN;
@@ -25,141 +27,86 @@ public class BTRConfigConnectorImpl implements BTRConfigConnector {
 
     private static final UISettingsConnector UI = new UISettingsConnectorImpl();
     private static final ForgeConfigSpec.ConfigValue<SidebarSide> UI_SIDEBAR_SIDE;
-    private static final ForgeConfigSpec.ConfigValue<Integer> UI_SIDEBAR_WIDTH;
+    private static final ForgeConfigSpec.ConfigValue<Double> UI_SIDEBAR_WIDTH;
     private static final ForgeConfigSpec.ConfigValue<Double> UI_SIDEBAR_OPACITY;
 
     public boolean isDoRender() {
-        return GENERAL_DO_RENDER.get();
+        return DO_RENDER;
     }
-
     public void setDoRender(boolean doRender) {
-        GENERAL_DO_RENDER.set(doRender);
+        DO_RENDER = doRender;
     }
-
     public String getMapServiceCategory() {
-        return GENERAL_MAP_SERVICE_CATEGORY.get();
+        return MAP_SERVICE_CATEGORY;
     }
-
     public void setMapServiceCategory(String mapServiceCategory) {
-        GENERAL_MAP_SERVICE_CATEGORY.set(mapServiceCategory);
+        MAP_SERVICE_CATEGORY = mapServiceCategory;
     }
-
     public String getMapServiceId() {
-        return GENERAL_MAP_SERVICE_ID.get();
+        return MAP_SERVICE_ID;
     }
-
     public void setMapServiceId(String mapServiceId) {
-        GENERAL_MAP_SERVICE_ID.set(mapServiceId);
+        MAP_SERVICE_ID = mapServiceId;
     }
-
     public RenderSettingsConnector getRenderSettings() {
         return RENDER;
     }
-
     public UISettingsConnector getUiSettings() {
         return UI;
     }
 
+    @Getter @Setter
     private static class RenderSettingsConnectorImpl implements RenderSettingsConnector {
-        public double getXAlign() {
-            return RENDER_X_ALIGN.get();
-        }
-
-        public void setXAlign(double xAlign) {
-            RENDER_X_ALIGN.set(xAlign);
-        }
-
-        public double getZAlign() {
-            return RENDER_Z_ALIGN.get();
-        }
-
-        public void setZAlign(double zAlign) {
-            RENDER_Z_ALIGN.set(zAlign);
-        }
-
-        public boolean isLockNorth() {
-            return RENDER_LOCK_NORTH.get();
-        }
-
-        public void setLockNorth(boolean lockNorth) {
-            RENDER_LOCK_NORTH.set(lockNorth);
-        }
-
-        public double getYAxis() {
-            return RENDER_Y_AXIS.get();
-        }
-
-        public void setYAxis(double yAxis) {
-            RENDER_Y_AXIS.set(yAxis);
-        }
-
-        public double getOpacity() {
-            return RENDER_OPACITY.get();
-        }
-
-        public void setOpacity(double opacity) {
-            RENDER_OPACITY.set(opacity);
-        }
-
-        public int getRadius() {
-            return RENDER_RADIUS.get();
-        }
-
-        public void setRadius(int radius) {
-            RENDER_RADIUS.set(radius);
-        }
-
-        public double getYDiffLimit() {
-            return RENDER_Y_DIFF_LIMIT.get();
-        }
-
-        public void setYDiffLimit(double yDiffLimit) {
-            RENDER_Y_DIFF_LIMIT.set(yDiffLimit);
-        }
-
-        public int getRelativeZoomValue() {
-            return RENDER_RELATIVE_ZOOM_VALUE.get();
-        }
-
-        public void setRelativeZoomValue(int relativeZoomValue) {
-            RENDER_RELATIVE_ZOOM_VALUE.set(relativeZoomValue);
-        }
+        public double xAlign, zAlign, opacity;
+        public double yAxis, yDiffLimit;
+        public int radius, relativeZoomValue;
+        public boolean lockNorth;
     }
 
+    @Getter @Setter
     private static class UISettingsConnectorImpl implements UISettingsConnector {
-
-        @Override
-        public SidebarSide getSidebarSide() {
-            return UI_SIDEBAR_SIDE.get();
-        }
-
-        @Override
-        public void setSidebarSide(SidebarSide side) {
-            UI_SIDEBAR_SIDE.set(side);
-        }
-
-        @Override
-        public int getSidebarWidth() {
-            return UI_SIDEBAR_WIDTH.get();
-        }
-
-        @Override
-        public void setSidebarWidth(int sidebarWidth) {
-            UI_SIDEBAR_WIDTH.set(sidebarWidth);
-        }
-
-        @Override
-        public double getSidebarOpacity() {
-            return UI_SIDEBAR_OPACITY.get();
-        }
-
-        @Override
-        public void setSidebarOpacity(double sidebarOpacity) {
-            UI_SIDEBAR_OPACITY.set(sidebarOpacity);
-        }
+        public SidebarSide sidebarSide;
+        public double sidebarWidth;
+        public double sidebarOpacity;
     }
 
-    public void saveConfig() {}
+    public void saveConfig() {
+        GENERAL_DO_RENDER.set(DO_RENDER);
+        GENERAL_MAP_SERVICE_CATEGORY.set(MAP_SERVICE_CATEGORY);
+        GENERAL_MAP_SERVICE_ID.set(MAP_SERVICE_ID);
+
+        RENDER_X_ALIGN.set(RENDER.getXAlign());
+        RENDER_Z_ALIGN.set(RENDER.getZAlign());
+        RENDER_LOCK_NORTH.set(RENDER.isLockNorth());
+        RENDER_Y_AXIS.set(RENDER.getYAxis());
+        RENDER_OPACITY.set(RENDER.getOpacity());
+        RENDER_RADIUS.set(RENDER.getRadius());
+        RENDER_RELATIVE_ZOOM_VALUE.set(RENDER.getRelativeZoomValue());
+        RENDER_Y_DIFF_LIMIT.set(RENDER.getYDiffLimit());
+
+        UI_SIDEBAR_SIDE.set(UI.getSidebarSide());
+        UI_SIDEBAR_WIDTH.set(UI.getSidebarWidth());
+        UI_SIDEBAR_OPACITY.set(UI.getSidebarOpacity());
+    }
+
+    public void readConfig() {
+        DO_RENDER = GENERAL_DO_RENDER.get();
+        MAP_SERVICE_CATEGORY = GENERAL_MAP_SERVICE_CATEGORY.get();
+        MAP_SERVICE_ID = GENERAL_MAP_SERVICE_ID.get();
+
+        RENDER.setXAlign(RENDER_X_ALIGN.get());
+        RENDER.setZAlign(RENDER_Z_ALIGN.get());
+        RENDER.setLockNorth(RENDER_LOCK_NORTH.get());
+        RENDER.setYAxis(RENDER_Y_AXIS.get());
+        RENDER.setOpacity(RENDER_OPACITY.get());
+        RENDER.setRadius(RENDER_RADIUS.get());
+        RENDER.setRelativeZoomValue(RENDER_RELATIVE_ZOOM_VALUE.get());
+        RENDER.setYDiffLimit(RENDER_Y_DIFF_LIMIT.get());
+
+        UI.setSidebarSide(UI_SIDEBAR_SIDE.get());
+        UI.setSidebarWidth(UI_SIDEBAR_WIDTH.get());
+        UI.setSidebarOpacity(UI_SIDEBAR_OPACITY.get());
+    }
 
     static {
         // TODO: Add descriptions
@@ -187,10 +134,10 @@ public class BTRConfigConnectorImpl implements BTRConfigConnector {
         BUILDER.push("UI Settings");
 
         UI_SIDEBAR_SIDE = BUILDER.define("Sidebar Side", SidebarSide.RIGHT);
-        UI_SIDEBAR_WIDTH = BUILDER.defineInRange("Sidebar Width", 200, 130, 270);
+        UI_SIDEBAR_WIDTH = BUILDER.defineInRange("Sidebar Width", 200.0, 130.0, 270.0);
         UI_SIDEBAR_OPACITY = BUILDER.defineInRange("Sidebar Opacity", 0.5, 0.0, 1.0);
 
         BUILDER.pop();
-        SPEC = BUILDER.build();
+        CONFIG_SPEC = BUILDER.build();
     }
 }

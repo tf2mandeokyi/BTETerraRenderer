@@ -24,12 +24,12 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.formattedStringList = FontConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
+        this.formattedStringList = FontConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get().intValue());
     }
 
     @Override
-    public void onWidthChange(int newWidth) {
-        this.formattedStringList = FontConnector.INSTANCE.listFormattedStringToWidth(displayString, parent.elementWidth.get());
+    public void onWidthChange(double newWidth) {
+        this.formattedStringList = FontConnector.INSTANCE.listFormattedStringToWidth(displayString, (int) newWidth);
     }
 
     @Override
@@ -38,38 +38,32 @@ public class SidebarText extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+        int elementWidth = parent.elementWidth.get().intValue();
 
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
             if(align == TextAlign.LEFT) {
-                FontConnector.INSTANCE.drawStringWithShadow(
+                FontConnector.INSTANCE.drawStringWithShadow(poseStack,
                         line,
                         0, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
             else if(align == TextAlign.RIGHT) {
-                FontConnector.INSTANCE.drawStringWithShadow(
+                FontConnector.INSTANCE.drawStringWithShadow(poseStack,
                         line,
-                        parent.elementWidth.get() - FontConnector.INSTANCE.getStringWidth(line),
+                        elementWidth - FontConnector.INSTANCE.getStringWidth(line),
                         i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
             else if(align == TextAlign.CENTER){
-                FontConnector.INSTANCE.drawCenteredStringWithShadow(
+                FontConnector.INSTANCE.drawCenteredStringWithShadow(poseStack,
                         line,
-                        parent.elementWidth.get() / 2f, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        elementWidth / 2f, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
                 );
             }
         }
     }
-
-
-    @Override public void updateScreen() {}
-    @Override public boolean mousePressed(double mouseX, double mouseY, int mouseButton) { return false; }
-    @Override public boolean keyTyped(char typedChar, int keyCode) { return false; }
-    @Override public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
-    @Override public void mouseReleased(double mouseX, double mouseY, int state) {}
 
     public enum TextAlign {
         LEFT, CENTER, RIGHT

@@ -10,7 +10,6 @@ import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 
 public class IGuiChatImpl implements IGuiChat {
 
@@ -44,7 +43,8 @@ public class IGuiChatImpl implements IGuiChat {
     public void sendChatMessage(String s) { delegate.sendChatMessage(s); }
     public void updateScreen() { delegate.updateScreen(); }
     public void keyTyped(char typedChar, int keyCode) { delegate.keyTyped(typedChar, keyCode); }
-    public void handleMouseInput() throws IOException { delegate.handleMouseInput(); }
+    @SneakyThrows
+    public void handleMouseInput() { delegate.handleMouseInput(); }
 
     public void handleMouseHover(double mouseX, double mouseY, float partialTicks) {
         ITextComponent itextcomponent = delegate.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());

@@ -68,16 +68,16 @@ public class TileGraphicsConnectorImpl extends RenderStateShard implements TileG
     }
 
     @Override
-    public void drawTileQuad(GraphicVertices<GraphicVertices.PosTexColor> vertices) {
+    public void drawTileQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosTexColor> quad) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderType renderType = TILE_RENDER_TYPE.apply(RES_LOC_MAP.get(vertices.glId));
+        RenderType renderType = TILE_RENDER_TYPE.apply(RES_LOC_MAP.get(quad.glId));
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-        PoseStack.Pose pose = GraphicsConnectorImpl.POSE_STACK.last();
 
-        for (GraphicVertices.PosTexColor vertexInfo : vertices) {
-            vertexConsumer.vertex(pose.pose(), vertexInfo.x, vertexInfo.y, vertexInfo.z)
-                    .uv(vertexInfo.u, vertexInfo.v)
-                    .color(vertexInfo.r, vertexInfo.g, vertexInfo.b, vertexInfo.a)
+        for (int i = 0; i < 4; i++) {
+            GraphicsQuad.PosTexColor vertex = quad.get(i);
+            vertexConsumer.vertex(((PoseStack) poseStack).last().pose(), vertex.x, vertex.y, vertex.z)
+                    .uv(vertex.u, vertex.v)
+                    .color(vertex.r, vertex.g, vertex.b, vertex.a)
                     .endVertex();
         }
         bufferSource.endBatch();

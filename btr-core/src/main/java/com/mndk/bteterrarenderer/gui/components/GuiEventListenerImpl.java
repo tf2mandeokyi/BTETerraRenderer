@@ -4,8 +4,9 @@ import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 
 public interface GuiEventListenerImpl {
     default boolean mousePressed(double mouseX, double mouseY, int mouseButton) { return false; }
-    default void mouseReleased(double mouseX, double mouseY, int mouseButton) {}
-    default void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {}
+    default boolean mouseReleased(double mouseX, double mouseY, int mouseButton) { return false; }
+    default boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) { return false; }
+    default boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) { return false; }
 
     default boolean keyTyped(char typedChar, int keyCode) { return false; }
     default boolean keyPressed(InputKey key) { return false; }

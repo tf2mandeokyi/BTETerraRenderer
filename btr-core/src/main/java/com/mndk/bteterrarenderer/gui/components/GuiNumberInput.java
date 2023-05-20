@@ -65,13 +65,14 @@ public class GuiNumberInput extends GuiAbstractWidgetImpl {
 	}
 
 
-	public void drawComponent(double mouseX, double mouseY, float partialTicks) {
+	public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
 		int fontHeight = FontConnector.INSTANCE.getFontHeight();
-		FontConnector.INSTANCE.drawStringWithShadow(text,
+		FontConnector.INSTANCE.drawStringWithShadow(poseStack,
+				text,
 				this.xPos, parent.y + ((parent.height - fontHeight) / 2f),
 				numberValidated ? 0xFFFFFF : 0xFF0000
 		);
-		parent.drawComponent(mouseX, mouseY, partialTicks);
+		parent.drawComponent(poseStack, mouseX, mouseY, partialTicks);
 	}
 
 

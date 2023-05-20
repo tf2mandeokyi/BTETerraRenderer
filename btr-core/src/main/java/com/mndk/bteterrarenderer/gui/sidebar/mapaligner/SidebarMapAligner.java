@@ -2,17 +2,16 @@ package com.mndk.bteterrarenderer.gui.sidebar.mapaligner;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplier;
-import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
-import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
+import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxImpl;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.GetterSetter;
-import com.mndk.bteterrarenderer.gui.util.GuiUtils;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -47,7 +46,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        int width = parent.elementWidth.get();
+        int width = parent.elementWidth.get().intValue();
         this.xInput = new GuiNumberInput(
                 0, 0, width / 2 - 3, 20,
                 xOffset, "X = "
@@ -75,25 +74,22 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange(int newWidth) {
-        this.xInput.setWidth(newWidth / 2 - 3);
-        this.zInput.setWidth(newWidth / 2 - 3);
-        this.zInput.setX(newWidth / 2 + 3);
+    public void onWidthChange(double newWidth) {
+        this.xInput.setWidth((int) (newWidth / 2 - 3));
+        this.zInput.setWidth((int) (newWidth / 2 - 3));
+        this.zInput.setX((int) (newWidth / 2 + 3));
     }
 
     @Override
-    public void updateScreen() {}
-
-    @Override
-    public void drawComponent(double mouseX, double mouseY, float partialTicks) {
-        xInput.drawComponent(mouseX, mouseY, partialTicks);
-        zInput.drawComponent(mouseX, mouseY, partialTicks);
-        lockNorthCheckBox.drawComponent(mouseX, mouseY, partialTicks);
-        this.drawAlignBox();
+    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+        xInput.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+        zInput.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+        lockNorthCheckBox.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+        this.drawAlignBox(poseStack);
     }
 
-    private void drawAlignBox() {
-        int elementWidth = parent.elementWidth.get(), boxWidth = elementWidth - ALIGNBOX_MARGIN_SIDE * 2;
+    private void drawAlignBox(Object poseStack) {
+        int elementWidth = parent.elementWidth.get().intValue(), boxWidth = elementWidth - ALIGNBOX_MARGIN_SIDE * 2;
         double alignX = this.xOffset.get(), alignZ = this.zOffset.get();
         int xi = (int) alignX, zi = (int) alignZ;
         int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
@@ -102,12 +98,12 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
         // Enable box clipping
         GraphicsConnector.INSTANCE.glEnableScissorTest();
-        GraphicsConnector.INSTANCE.glRelativeScissor(
+        GraphicsConnector.INSTANCE.glRelativeScissor(poseStack,
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT,
-                parent.elementWidth.get() - 2 * ALIGNBOX_MARGIN_SIDE, ALIGNBOX_HEIGHT
+                elementWidth - 2 * ALIGNBOX_MARGIN_SIDE, ALIGNBOX_HEIGHT
         );
 
-        GuiStaticConnector.INSTANCE.drawRect(
+        GuiStaticConnector.INSTANCE.fillRect(poseStack,
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT,
                 elementWidth - ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT,
                 0xBB000000
@@ -119,7 +115,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
             double diffX = dy * diff, diffY = -dx * diff;
             int color = z == 0 ? 0xFFFF0000 : (z % 5 == 0 ? 0xFFFFFFFF : 0xFF8E8E8E);
 
-            GuiUtils.drawLineDxDy(
+            GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
                     centerX + diffX - dx * 1000, centerY + diffY - dy * 1000,
                     dx * 2000, dy * 2000,
                     1, color
@@ -131,7 +127,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
             double diffX = dx * diff, diffY = dy * diff;
             int color = x == 0 ? 0xFFFF0000 : (x % 5 == 0 ? 0xFFFFFFFF : 0xFF8E8E8E);
 
-            GuiUtils.drawLineDxDy(
+            GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
                     centerX + diffX - dy * 1000, centerY + diffY + dx * 1000,
                     dy * 2000, -dx * 2000,
                     1, color
@@ -142,7 +138,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         GraphicsConnector.INSTANCE.glDisableScissorTest();
 
         // Center marker
-        GuiUtils.drawCenteredImage(ALIGNMENT_MARKER, centerX, centerY, 0, 4, 4);
+        GuiStaticConnector.INSTANCE.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
     }
 
     @Override
@@ -165,13 +161,13 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     private boolean isMouseInAlignBox(double mouseX, double mouseY) {
-        int width = parent.elementWidth.get();
+        int width = parent.elementWidth.get().intValue();
         return mouseX >= 10 && mouseX <= width - 10 &&
                 mouseY >= 20 + ALIGNBOX_MARGIN_VERT && mouseY <= 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT;
     }
 
     @Override
-    public void mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
         if(aligningMode) {
             double dmx = (mouseX - pMouseX) / MOUSE_DIVIDER, dmy = (mouseY - pMouseY) / MOUSE_DIVIDER;
 
@@ -182,12 +178,15 @@ public class SidebarMapAligner extends GuiSidebarElement {
             this.zOffset.set(dz + this.zOffset.get());
 
             this.xInput.update(); this.zInput.update();
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int state) {
+    public boolean mouseReleased(double mouseX, double mouseY, int state) {
         this.aligningMode = false;
+        return true;
     }
 
     @Override
