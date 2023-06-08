@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class TileGraphicsConnectorImpl extends RenderStateShard implements TileGraphicsConnector {
+public class TileGraphicsConnectorImpl18 extends RenderStateShard implements TileGraphicsConnector {
 
     protected static final RenderStateShard.ShaderStateShard POSITION_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
     private static final RenderStateShard.TransparencyStateShard TILE_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
@@ -53,7 +53,7 @@ public class TileGraphicsConnectorImpl extends RenderStateShard implements TileG
 
     private static final Map<Integer, ResourceLocation> RES_LOC_MAP = new HashMap<>();
 
-    public TileGraphicsConnectorImpl() {
+    public TileGraphicsConnectorImpl18() {
         super("", () -> {}, () -> {});
     }
 

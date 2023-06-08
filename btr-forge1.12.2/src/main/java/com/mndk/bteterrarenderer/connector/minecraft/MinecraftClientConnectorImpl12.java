@@ -9,7 +9,7 @@ import net.minecraft.util.text.TextComponentString;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class MinecraftClientConnectorImpl implements MinecraftClientConnector {
+public class MinecraftClientConnectorImpl12 implements MinecraftClientConnector {
     public double getPlayerRotationYaw() {
         return Minecraft.getMinecraft().player.rotationYaw;
     }

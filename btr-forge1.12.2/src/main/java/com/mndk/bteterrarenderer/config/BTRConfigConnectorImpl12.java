@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = BTETerraRendererConstants.MODID)
 @ConnectorImpl
-public class BTRConfigConnectorImpl implements BTRConfigConnector {
+public class BTRConfigConnectorImpl12 implements BTRConfigConnector {
 
     // Do render
     @Config.Ignore

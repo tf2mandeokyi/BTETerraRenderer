@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.connector.gui;
 import com.mndk.bteterrarenderer.connector.ConnectorImpl;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl;
+import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl12;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetImpl;
 import net.minecraft.client.Minecraft;
@@ -17,9 +17,9 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class GuiStaticConnectorImpl implements GuiStaticConnector {
+public class GuiStaticConnectorImpl12 implements GuiStaticConnector {
     public void displayGuiScreen(AbstractGuiScreen gui) {
-        Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenImpl(gui));
+        Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenImpl12(gui));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class GuiStaticConnectorImpl implements GuiStaticConnector {
 
     @Override
     public void drawImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
-        ResourceLocation resourceLocation = ((IResourceLocationImpl) res).getDelegate();
+        ResourceLocation resourceLocation = ((IResourceLocationImpl12) res).getDelegate();
         Minecraft.getMinecraft().renderEngine.bindTexture(resourceLocation);
 
         Tessellator tessellator = Tessellator.getInstance();

@@ -6,6 +6,6 @@ import lombok.Setter;
 import net.minecraft.util.ResourceLocation;
 
 @RequiredArgsConstructor @Getter @Setter
-public class IResourceLocationImpl implements IResourceLocation {
+public class IResourceLocationImpl12 implements IResourceLocation {
     private final ResourceLocation delegate;
 }

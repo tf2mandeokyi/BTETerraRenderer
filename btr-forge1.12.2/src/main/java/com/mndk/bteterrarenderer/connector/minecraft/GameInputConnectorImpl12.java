@@ -7,7 +7,7 @@ import org.lwjgl.input.Keyboard;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class GameInputConnectorImpl implements GameInputConnector {
+public class GameInputConnectorImpl12 implements GameInputConnector {
     @Override
     public boolean isOnMac() {
         return Minecraft.IS_RUNNING_ON_MAC;

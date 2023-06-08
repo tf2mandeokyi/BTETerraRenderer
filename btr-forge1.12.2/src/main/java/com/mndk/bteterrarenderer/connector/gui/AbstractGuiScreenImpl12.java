@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import com.mndk.bteterrarenderer.connector.graphics.IScaledScreenSizeImpl;
+import com.mndk.bteterrarenderer.connector.graphics.IScaledScreenSizeImpl12;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import net.minecraft.client.gui.GuiScreen;
@@ -8,14 +8,14 @@ import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 
-public class AbstractGuiScreenImpl extends GuiScreen {
+public class AbstractGuiScreenImpl12 extends GuiScreen {
     public final AbstractGuiScreen delegate;
     private double pMouseX = 0, pMouseY = 0;
 
-    public AbstractGuiScreenImpl(AbstractGuiScreen delegate) {
+    public AbstractGuiScreenImpl12(AbstractGuiScreen delegate) {
         this.delegate = delegate;
         delegate.guiWidth = () -> super.width;
-        delegate.screenSize = IScaledScreenSizeImpl::new;
+        delegate.screenSize = IScaledScreenSizeImpl12::new;
     }
 
     public void initGui() {

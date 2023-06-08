@@ -7,9 +7,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class ServerWelcomeMsgHandler implements IMessageHandler<ServerWelcomeMessageImpl, IMessage> {
+public class ServerWelcomeMsgHandler implements IMessageHandler<ServerWelcomeMessageImpl12, IMessage> {
     @Override
-    public IMessage onMessage(ServerWelcomeMessageImpl message, MessageContext ctx) {
+    public IMessage onMessage(ServerWelcomeMessageImpl12 message, MessageContext ctx) {
         GeographicProjection proj = message.getProjection();
         BTETerraRendererConstants.LOGGER.info("Received GeographicProjection from the server side: " +
                 message.getProjectionJson());

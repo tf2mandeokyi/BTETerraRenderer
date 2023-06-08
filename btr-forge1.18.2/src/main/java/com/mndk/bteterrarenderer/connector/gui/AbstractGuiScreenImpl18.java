@@ -1,20 +1,21 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import com.mndk.bteterrarenderer.connector.graphics.IScaledScreenSizeImpl;
+import com.mndk.bteterrarenderer.connector.graphics.IScaledScreenSizeImpl18;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
+import org.jetbrains.annotations.NotNull;
 
-public class AbstractGuiScreenImpl extends Screen {
+public class AbstractGuiScreenImpl18 extends Screen {
     public final AbstractGuiScreen delegate;
 
-    protected AbstractGuiScreenImpl(AbstractGuiScreen delegate) {
+    protected AbstractGuiScreenImpl18(AbstractGuiScreen delegate) {
         super(TextComponent.EMPTY);
         this.delegate = delegate;
         delegate.guiWidth = () -> super.width;
-        delegate.screenSize = IScaledScreenSizeImpl::new;
+        delegate.screenSize = IScaledScreenSizeImpl18::new;
     }
 
     protected void init() {
@@ -23,7 +24,7 @@ public class AbstractGuiScreenImpl extends Screen {
     public void tick() {
         delegate.tick();
     }
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         delegate.drawScreen(poseStack, mouseX, mouseY, partialTicks);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
@@ -43,8 +44,9 @@ public class AbstractGuiScreenImpl extends Screen {
         return delegate.mouseScrolled(mouseX, mouseY, scrollAmount);
     }
     public boolean keyPressed(int keyCode, int scanCode, int mods) {
-        super.keyPressed(keyCode, scanCode, mods);
-        return delegate.keyPressed(InputKey.fromGlfwKeyCode(keyCode));
+        boolean superResult = super.keyPressed(keyCode, scanCode, mods);
+        boolean delegateResult = delegate.keyPressed(InputKey.fromGlfwKeyCode(keyCode));
+        return superResult || delegateResult;
     }
     public boolean charTyped(char typedChar, int keyCode) {
         super.charTyped(typedChar, keyCode);

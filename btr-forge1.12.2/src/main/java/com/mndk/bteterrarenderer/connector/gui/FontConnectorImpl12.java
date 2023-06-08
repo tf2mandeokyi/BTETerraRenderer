@@ -7,7 +7,7 @@ import java.util.List;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class FontConnectorImpl implements FontConnector {
+public class FontConnectorImpl12 implements FontConnector {
     public int getFontHeight() {
         return Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT;
     }

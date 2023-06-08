@@ -8,7 +8,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvents;
 
-public class MinecraftClientConnectorImpl implements MinecraftClientConnector {
+public class MinecraftClientConnectorImpl18 implements MinecraftClientConnector {
 
     public double getPlayerRotationYaw() {
         LocalPlayer player = Minecraft.getInstance().player;

@@ -6,13 +6,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import java.io.IOException;
 
-public class ServerWelcomeMessageImpl extends ServerWelcomeMessage implements IMessage {
+public class ServerWelcomeMessageImpl12 extends ServerWelcomeMessage implements IMessage {
 
-    public ServerWelcomeMessageImpl() {
+    public ServerWelcomeMessageImpl12() {
         super();
     }
 
-    public ServerWelcomeMessageImpl(net.buildtheearth.terraplusplus.projection.GeographicProjection bteProjection) throws IOException {
+    public ServerWelcomeMessageImpl12(net.buildtheearth.terraplusplus.projection.GeographicProjection bteProjection) throws IOException {
         super(GeographicProjection.parse(TerraConstants.JSON_MAPPER.writeValueAsString(bteProjection)));
     }
 

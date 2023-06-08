@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class BTRConfigConnectorImpl implements BTRConfigConnector {
+public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec CONFIG_SPEC;
 

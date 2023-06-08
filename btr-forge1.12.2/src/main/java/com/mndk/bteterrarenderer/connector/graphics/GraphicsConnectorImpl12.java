@@ -12,7 +12,7 @@ import java.nio.FloatBuffer;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class GraphicsConnectorImpl implements GraphicsConnector {
+public class GraphicsConnectorImpl12 implements GraphicsConnector {
 
     public void glTranslate(Object poseStack, float x, float y, float z) {
         GlStateManager.translate(x, y, z);

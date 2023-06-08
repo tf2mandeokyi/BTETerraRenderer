@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.event;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.BTETerraRendererMod;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
-import com.mndk.bteterrarenderer.network.ServerWelcomeMessageImpl;
+import com.mndk.bteterrarenderer.network.ServerWelcomeMessageImpl12;
 import com.mndk.bteterrarenderer.projection.Projections;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
@@ -47,13 +47,13 @@ public class ServerClientConnectionEvent {
                 net.buildtheearth.terraplusplus.projection.GeographicProjection projection =
                         Objects.requireNonNull(getWorldEarthGeneratorSettings(world)).projection();
                 BTETerraRendererMod.NETWORK_WRAPPER.sendTo(
-                        new ServerWelcomeMessageImpl(projection), (EntityPlayerMP) player);
+                        new ServerWelcomeMessageImpl12(projection), (EntityPlayerMP) player);
                 return;
             } catch(IOException e) {
                 BTETerraRendererConstants.LOGGER.error("Caught IOException while sending projection data", e);
             }
         }
-        BTETerraRendererMod.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl(), (EntityPlayerMP) player);
+        BTETerraRendererMod.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl12(), (EntityPlayerMP) player);
     }
 
 

@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class TileGraphicsConnectorImpl implements TileGraphicsConnector {
+public class TileGraphicsConnectorImpl12 implements TileGraphicsConnector {
     @Override
     public void preRender() {
         GlStateManager.disableCull();

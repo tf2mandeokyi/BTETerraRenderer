@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.client.Minecraft;
 
 @RequiredArgsConstructor @Getter
-public class IScaledScreenSizeImpl implements IScaledScreenSize {
+public class IScaledScreenSizeImpl18 implements IScaledScreenSize {
     private final int width, height;
-    public IScaledScreenSizeImpl() {
+    public IScaledScreenSizeImpl18() {
         this(Minecraft.getInstance().getWindow());
     }
-    public IScaledScreenSizeImpl(Window window) {
+    public IScaledScreenSizeImpl18(Window window) {
         this(window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
 }

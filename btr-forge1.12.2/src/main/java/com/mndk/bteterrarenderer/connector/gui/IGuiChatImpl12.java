@@ -11,11 +11,11 @@ import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
 
-public class IGuiChatImpl implements IGuiChat {
+public class IGuiChatImpl12 implements IGuiChat {
 
     private final OpenGuiChat delegate;
 
-    public IGuiChatImpl() {
+    public IGuiChatImpl12() {
         this.delegate = new OpenGuiChat();
     }
 

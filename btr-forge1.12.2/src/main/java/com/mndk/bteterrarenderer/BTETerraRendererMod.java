@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer;
 
-import com.mndk.bteterrarenderer.network.ServerWelcomeMessageImpl;
+import com.mndk.bteterrarenderer.network.ServerWelcomeMessageImpl12;
 import com.mndk.bteterrarenderer.network.ServerWelcomeMsgHandler;
 import com.mndk.bteterrarenderer.proxy.CommonProxy;
 import net.minecraftforge.fml.common.Mod;
@@ -47,6 +47,6 @@ public class BTETerraRendererMod {
     }
 
     static {
-        NETWORK_WRAPPER.registerMessage(ServerWelcomeMsgHandler.class, ServerWelcomeMessageImpl.class, 0, Side.CLIENT);
+        NETWORK_WRAPPER.registerMessage(ServerWelcomeMsgHandler.class, ServerWelcomeMessageImpl12.class, 0, Side.CLIENT);
     }
 }

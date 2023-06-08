@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.connector.gui;
 
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl;
+import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl18;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetImpl;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -15,12 +15,12 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 
-public class GuiStaticConnectorImpl implements GuiStaticConnector {
+public class GuiStaticConnectorImpl18 implements GuiStaticConnector {
     private static final ResourceLocation CHECKBOX = new ResourceLocation("textures/gui/checkbox.png");
 
     @Override
     public void displayGuiScreen(AbstractGuiScreen gui) {
-        Minecraft.getInstance().setScreen(new AbstractGuiScreenImpl(gui));
+        Minecraft.getInstance().setScreen(new AbstractGuiScreenImpl18(gui));
     }
 
     @Override
@@ -97,7 +97,7 @@ public class GuiStaticConnectorImpl implements GuiStaticConnector {
     @Override
     public void drawImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, ((IResourceLocationImpl) res).delegate());
+        RenderSystem.setShaderTexture(0, ((IResourceLocationImpl18) res).delegate());
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

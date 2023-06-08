@@ -1,10 +1,10 @@
-package com.mndk.bteterrarenderer.connector;
+package connector;
 
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ImplTest {
+public class Impl12Test {
 
     @Test
     public void testImplFinder() {

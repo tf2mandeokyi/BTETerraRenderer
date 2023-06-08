@@ -8,7 +8,7 @@ import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
-public class GraphicsConnectorImpl implements GraphicsConnector {
+public class GraphicsConnectorImpl18 implements GraphicsConnector {
 
     public void glTranslate(Object poseStack, float x, float y, float z) {
         ((PoseStack) poseStack).translate(x, y, z);

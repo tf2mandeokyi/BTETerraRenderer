@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Style;
 import java.util.ArrayList;
 import java.util.List;
 
-public record FontConnectorImpl() implements FontConnector {
+public record FontConnectorImpl18() implements FontConnector {
     public int getFontHeight() {
         return Minecraft.getInstance().font.lineHeight;
     }

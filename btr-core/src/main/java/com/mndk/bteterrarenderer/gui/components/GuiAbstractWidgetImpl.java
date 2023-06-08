@@ -5,11 +5,11 @@ import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
 /**
  * Copied from both 1.12.2's <code>net.minecraft.client.gui.GuiButton</code>
  * and 1.18.2's <code>net.minecraft.client.gui.components.AbstractWidget</code>
  */
+@Getter @Setter
 public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
 
     protected int x, y, width, height;

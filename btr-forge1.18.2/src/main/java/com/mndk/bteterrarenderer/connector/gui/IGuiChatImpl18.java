@@ -1,6 +1,103 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-public class IGuiChatImpl /*implements IGuiChat*/ {  // TODO finish this class
+public class IGuiChatImpl18 implements IGuiChat {
+
+
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public int getWidth() {
+        return 0;
+    }
+
+    @Override
+    public int getHeight() {
+        return 0;
+    }
+
+    @Override
+    public String getInputFieldText() {
+        return null;
+    }
+
+    @Override
+    public boolean isInputFieldFocused() {
+        return false;
+    }
+
+    @Override
+    public void setWidth(int width) {
+
+    }
+
+    @Override
+    public void setHeight(int height) {
+
+    }
+
+    @Override
+    public void setInputFieldX(int x) {
+
+    }
+
+    @Override
+    public void setInputFieldWidth(int width) {
+
+    }
+
+    @Override
+    public void setInputFieldFocused(boolean focused) {
+
+    }
+
+    @Override
+    public void setText(String newChatText, boolean shouldOverwrite) {
+
+    }
+
+    @Override
+    public void drawInputFieldBox() {
+
+    }
+
+    @Override
+    public void sendChatMessage(String s) {
+
+    }
+
+    @Override
+    public void updateScreen() {
+
+    }
+
+    @Override
+    public void keyTyped(char typedChar, int keyCode) {
+
+    }
+
+    @Override
+    public void handleMouseInput() {
+
+    }
+
+    @Override
+    public void handleMouseHover(double mouseX, double mouseY, float partialTicks) {
+
+    }
+
+    @Override
+    public boolean handleMouseClick(double mouseX, double mouseY, int mouseButton) {
+        return false;
+    }
+
+    @Override
+    public boolean inputFieldMouseClicked(double mouseX, double mouseY, int mouseButton) {
+        return false;
+    }  // TODO finish this class
 
 //    private final OpenGuiChat delegate;
 //
