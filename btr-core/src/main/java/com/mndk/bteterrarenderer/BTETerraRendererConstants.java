@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.mndk.bteterrarenderer.projection.Proj4jProjection;
+import de.javagl.jgltf.model.io.GltfModelReader;
 import org.apache.logging.log4j.Logger;
 
 public class BTETerraRendererConstants {
@@ -23,6 +24,8 @@ public class BTETerraRendererConstants {
             .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
             .configure(JsonReadFeature.ALLOW_TRAILING_COMMA, true)
             .build();
+
+    public static final GltfModelReader GLTF_MODEL_READER = new GltfModelReader();
 
     static {
         Proj4jProjection.registerProjection();

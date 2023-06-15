@@ -1,4 +1,4 @@
-package connector;
+package com.mndk.bteterrarenderer.connector;
 
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import org.junit.Assert;
