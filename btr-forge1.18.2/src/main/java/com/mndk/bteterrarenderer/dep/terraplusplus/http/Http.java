@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.connector.terraplusplus.http;
+package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
 import com.google.common.base.Preconditions;
 import com.mndk.bteterrarenderer.connector.terraplusplus.TerraConfig;

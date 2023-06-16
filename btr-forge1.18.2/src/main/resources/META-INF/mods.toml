@@ -18,7 +18,7 @@ Renders various external maps for BuildTheEarth project.
 [[dependencies.bteterrarenderer]]
     modId="forge"
     mandatory=true
-    versionRange="[40,)"
+    versionRange="[40.0.24,)"
     ordering="NONE"
     side="BOTH"
 

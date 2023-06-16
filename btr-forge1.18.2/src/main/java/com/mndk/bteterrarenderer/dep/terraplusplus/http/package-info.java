@@ -3,4 +3,4 @@
  *
  * @author DaPorkchop_
  */
-package com.mndk.bteterrarenderer.connector.terraplusplus.http;
+package com.mndk.bteterrarenderer.dep.terraplusplus.http;

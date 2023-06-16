@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer;
 
-import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.config.BTRConfigConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplierImpl18;
 import com.mndk.bteterrarenderer.connector.ImplFinder;
@@ -18,17 +17,14 @@ import net.minecraftforge.fml.config.ModConfig;
 import org.apache.logging.log4j.LogManager;
 
 @Mod(BTETerraRendererConstants.MODID)
-public class BTETerraRendererMod {
-    public BTETerraRendererMod() {
+public class BTETerraRendererMod18 {
+    public BTETerraRendererMod18() {
         ModLoadingContext modLoadingContext = ModLoadingContext.get();
         modLoadingContext.registerConfig(ModConfig.Type.CLIENT, BTRConfigConnectorImpl18.CONFIG_SPEC);
-        BTRConfigConnector.load();
     }
 
-    // TODO implement network class
-
     static {
-        BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererConstants.class);
+        BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererMod18.class);
         ImplFinder.add(
                 BTRConfigConnectorImpl18.class,
                 ModelGraphicsConnectorImpl18.class,
