@@ -58,7 +58,7 @@ minecraft {
 repositories {}
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.2.0'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.24'
 
     shadeCore fg.deobf(project(':btr-core'))
     shadeDep 'lzma:lzma:0.0.1' // Why isn't lzma built-in in 1.18.2 :(

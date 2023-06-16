@@ -18,12 +18,12 @@ import net.minecraftforge.fml.relauncher.Side;
         name = BTETerraRendererConstants.NAME,
         dependencies = "required-after:terraplusplus@[1.0.569,)"
 )
-public class BTETerraRendererMod {
+public class BTETerraRendererMod12 {
 
     public static final SimpleNetworkWrapper NETWORK_WRAPPER =
             NetworkRegistry.INSTANCE.newSimpleChannel(BTETerraRendererConstants.MODID);
 
-    @SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.ServerProxy")
+    @SidedProxy(clientSide="com.mndk.bteterrarenderer.proxy.client.ClientProxy", serverSide="com.mndk.bteterrarenderer.proxy.server.ServerProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler

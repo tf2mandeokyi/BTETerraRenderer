@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.connector.terraplusplus;
 
-import com.mndk.bteterrarenderer.connector.terraplusplus.http.Http;
+import com.mndk.bteterrarenderer.dep.terraplusplus.http.Http;
 import io.netty.buffer.ByteBufInputStream;
 
 import java.io.InputStream;

@@ -44,10 +44,8 @@ public abstract class YamlLoader<T> {
         }
     }
 
-    public void refresh(String modConfigDirectory) throws Exception {
-        this.mapFilesDirectory = new File(
-                modConfigDirectory + "/" + BTETerraRendererConstants.MODID + "/" + folderName
-        );
+    public void refresh(File modConfigDirectory) throws Exception {
+        this.mapFilesDirectory = new File(new File(modConfigDirectory, BTETerraRendererConstants.MODID), folderName);
         this.refresh();
     }
 
