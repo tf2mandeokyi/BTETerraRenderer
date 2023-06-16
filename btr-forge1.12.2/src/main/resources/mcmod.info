@@ -1,0 +1,16 @@
+[
+{
+  "modid": "bteterrarenderer",
+  "name": "BTETerraRenderer",
+  "description": "Renders various external maps for BuildTheEarth project.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/bteterrarenderer",
+  "updateUrl": "",
+  "authorList": ["m4ndeokyi"],
+  "credits": "Authored by m4ndeokyi, logo by d1m4 (vicrobex)",
+  "logoFile": "icon.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]

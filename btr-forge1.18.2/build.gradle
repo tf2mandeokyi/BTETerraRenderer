@@ -1,0 +1,86 @@
+plugins {
+    id 'net.minecraftforge.gradle'
+    id 'btr.java-conventions'
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+
+minecraft {
+    mappings channel: 'official', version: '1.18.2'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+
+        gameTestServer {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'bteterrarenderer', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                bteterrarenderer { source sourceSets.main }
+            }
+        }
+    }
+}
+
+repositories {}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.24'
+
+    shadeCore fg.deobf(project(':btr-core'))
+    shadeDep 'lzma:lzma:0.0.1' // Why isn't lzma built-in in 1.18.2 :(
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraftVersion
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+        expand 'version': project.version, 'mcversion': project.minecraftVersion
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'META-INF/mods.toml'
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+reobf {
+    shadowJar {}
+}

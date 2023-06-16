@@ -1,0 +1,48 @@
+plugins {
+    id 'net.minecraftforge.gradle'
+    id 'btr.java-conventions'
+}
+
+sourceCompatibility = targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+}
+
+repositories {
+    mavenCentral()
+    // cubicchunks, cubicworldgen, terraplusplus
+    maven { name = "JitPack"; url = "https://jitpack.io/" }
+    // jankson
+    maven { name = "elytradev"; url = "https://repo.elytradev.com/" }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+
+    shadeCore fg.deobf(project(':btr-core'))
+
+    implementation fg.deobf('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
+    implementation fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
+    implementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
+    testImplementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraftVersion
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': project.minecraftVersion
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+reobf {
+    shadowJar {}
+}
