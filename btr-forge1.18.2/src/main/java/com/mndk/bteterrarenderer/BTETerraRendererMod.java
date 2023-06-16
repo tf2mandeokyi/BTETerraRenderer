@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.config.BTRConfigConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.DependencyConnectorSupplierImpl18;
 import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnectorImpl18;
-import com.mndk.bteterrarenderer.connector.graphics.TileGraphicsConnectorImpl18;
+import com.mndk.bteterrarenderer.connector.graphics.ModelGraphicsConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.gui.FontConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.minecraft.GameInputConnectorImpl18;
@@ -31,7 +31,7 @@ public class BTETerraRendererMod {
         BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererConstants.class);
         ImplFinder.add(
                 BTRConfigConnectorImpl18.class,
-                TileGraphicsConnectorImpl18.class,
+                ModelGraphicsConnectorImpl18.class,
                 GraphicsConnectorImpl18.class,
                 GuiStaticConnectorImpl18.class,
                 DependencyConnectorSupplierImpl18.class,

@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.connector.graphics;
 
-import com.mndk.bteterrarenderer.tile.TileGraphicsConnector;
+import com.mndk.bteterrarenderer.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.tile.ModelGraphicsConnector;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -27,23 +29,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class TileGraphicsConnectorImpl18 extends RenderStateShard implements TileGraphicsConnector {
+public class ModelGraphicsConnectorImpl18 extends RenderStateShard implements ModelGraphicsConnector {
 
     protected static final RenderStateShard.ShaderStateShard POSITION_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
-    private static final RenderStateShard.TransparencyStateShard TILE_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
+    private static final RenderStateShard.TransparencyStateShard MODEL_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     }, () -> {
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
     });
-    private static final Function<ResourceLocation, RenderType> TILE_RENDER_TYPE = Util.memoize(resourceLocation -> {
+    private static final Function<ResourceLocation, RenderType> MODEL_RENDER_TYPE = Util.memoize(resourceLocation -> {
         RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
                 .setOverlayState(RenderStateShard.OVERLAY)
                 .setShaderState(POSITION_TEX_COLOR_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
-                .setTransparencyState(TILE_TRANSPARENCY)
+                .setTransparencyState(MODEL_TRANSPARENCY)
                 .createCompositeState(true);
         return RenderType.create(
                 "bteterrarenderer_tile", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS,
@@ -53,13 +55,13 @@ public class TileGraphicsConnectorImpl18 extends RenderStateShard implements Til
 
     private static final Map<Integer, ResourceLocation> RES_LOC_MAP = new HashMap<>();
 
-    public TileGraphicsConnectorImpl18() {
+    public ModelGraphicsConnectorImpl18() {
         super("", () -> {}, () -> {});
     }
 
     @Override
     @SneakyThrows
-    public int allocateAndUploadTileTexture(BufferedImage image) {
+    public int allocateAndUploadTexture(BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(imageToInputStream(image));
         DynamicTexture texture = new DynamicTexture(nativeImage);
         ResourceLocation resLocation = Minecraft.getInstance().getTextureManager().register("bteterrarenderer-tiles", texture);
@@ -68,23 +70,26 @@ public class TileGraphicsConnectorImpl18 extends RenderStateShard implements Til
     }
 
     @Override
-    public void drawTileQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosTexColor> quad) {
+    public void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderType renderType = TILE_RENDER_TYPE.apply(RES_LOC_MAP.get(quad.glId));
+        RenderType renderType = MODEL_RENDER_TYPE.apply(RES_LOC_MAP.get(model.getTextureGlId()));
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
 
-        for (int i = 0; i < 4; i++) {
-            GraphicsQuad.PosTexColor vertex = quad.get(i);
-            vertexConsumer.vertex(((PoseStack) poseStack).last().pose(), vertex.x, vertex.y, vertex.z)
-                    .uv(vertex.u, vertex.v)
-                    .color(vertex.r, vertex.g, vertex.b, vertex.a)
-                    .endVertex();
+        for(GraphicsQuad<GraphicsQuad.PosTexColor> quad : model.getQuads()) {
+            for (int i = 0; i < 4; i++) {
+                GraphicsQuad.PosTexColor vertex = quad.getVertex(i);
+                vertexConsumer.vertex(((PoseStack) poseStack).last().pose(),
+                                (float) (vertex.x - px), (float) (vertex.y - py), (float) (vertex.z - pz))
+                        .uv(vertex.u, vertex.v)
+                        .color(vertex.r, vertex.g, vertex.b, vertex.a * opacity)
+                        .endVertex();
+            }
+            bufferSource.endBatch();
         }
-        bufferSource.endBatch();
     }
 
     @Override
-    public void glDeleteTileTexture(int glId) {
+    public void glDeleteTexture(int glId) {
         Minecraft.getInstance().getTextureManager().release(RES_LOC_MAP.get(glId));
         RES_LOC_MAP.remove(glId);
     }

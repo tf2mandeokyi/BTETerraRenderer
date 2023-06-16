@@ -17,7 +17,7 @@ import com.mndk.bteterrarenderer.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
-import com.mndk.bteterrarenderer.tile.TileMapService;
+import com.mndk.bteterrarenderer.tile.FlatTileMapService;
 import com.mndk.bteterrarenderer.util.GetterSetter;
 
 import java.awt.*;
@@ -29,7 +29,7 @@ import java.util.Map;
 public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final SidebarDropdownSelector<TileMapService> mapSourceDropdown;
+    private final SidebarDropdownSelector<FlatTileMapService> mapSourceDropdown;
 
     public MapRenderingOptionsSidebar() {
         super(
@@ -132,15 +132,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private void reloadMaps() {
         try {
             Map<String, Boolean> opened = new HashMap<>();
-            Map<String, DropdownCategory<TileMapService>> categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
-            for(Map.Entry<String, DropdownCategory<TileMapService>> categoryEntry : categoryMap.entrySet()) {
+            Map<String, DropdownCategory<FlatTileMapService>> categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
+            for(Map.Entry<String, DropdownCategory<FlatTileMapService>> categoryEntry : categoryMap.entrySet()) {
                 opened.put(categoryEntry.getKey(), categoryEntry.getValue().isOpened());
             }
 
             BTRConfigConnector.refreshTileMapService();
 
             categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
-            for(Map.Entry<String, DropdownCategory<TileMapService>> categoryEntry : categoryMap.entrySet()) {
+            for(Map.Entry<String, DropdownCategory<FlatTileMapService>> categoryEntry : categoryMap.entrySet()) {
                 if(opened.get(categoryEntry.getKey())) {
                     categoryEntry.getValue().setOpened(true);
                 }

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
-import com.mndk.bteterrarenderer.connector.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl18;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
@@ -25,7 +25,7 @@ public class GuiStaticConnectorImpl18 implements GuiStaticConnector {
 
     @Override
     public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.Pos> quad, int color) {
-        GraphicsQuad.Pos v0 = quad.get(0), v1 = quad.get(1), v2 = quad.get(2), v3 = quad.get(3);
+        GraphicsQuad.Pos v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
         Matrix4f matrix = ((PoseStack) poseStack).last().pose();
 
         float a = (float)(color >> 24 & 255) / 255.0F;

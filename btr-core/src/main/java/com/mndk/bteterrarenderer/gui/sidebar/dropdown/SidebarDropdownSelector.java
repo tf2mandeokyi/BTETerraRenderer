@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.gui.sidebar.dropdown;
 
-import com.mndk.bteterrarenderer.connector.graphics.*;
 import com.mndk.bteterrarenderer.connector.gui.FontConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
+import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
 import com.mndk.bteterrarenderer.util.GetterSetter;

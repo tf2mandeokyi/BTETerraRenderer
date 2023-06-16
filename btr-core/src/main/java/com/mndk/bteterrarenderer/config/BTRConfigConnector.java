@@ -5,8 +5,8 @@ import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
-import com.mndk.bteterrarenderer.tile.TileImageCacheManager;
-import com.mndk.bteterrarenderer.tile.TileMapService;
+import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
+import com.mndk.bteterrarenderer.tile.FlatTileMapService;
 
 public interface BTRConfigConnector {
     BTRConfigConnector INSTANCE = ImplFinder.search();
@@ -33,7 +33,7 @@ public interface BTRConfigConnector {
 
         default void setRelativeZoom(int newZoom) {
             this.setRelativeZoomValue(newZoom);
-            TileImageCacheManager.getInstance().deleteAllRenderQueues();
+            GraphicsModelManager.getInstance().clearTextureRenderQueue();
         }
     }
 
@@ -58,7 +58,7 @@ public interface BTRConfigConnector {
         refreshTileMapService();
     }
 
-    static TileMapService getTileMapService() {
+    static FlatTileMapService getTileMapService() {
         return Storage.TMS_ON_DISPLAY;
     }
 
@@ -67,11 +67,11 @@ public interface BTRConfigConnector {
         INSTANCE.setMapServiceCategory(categoryName);
         INSTANCE.setMapServiceId(mapId);
 
-        TileImageCacheManager.getInstance().deleteAllRenderQueues();
+        GraphicsModelManager.getInstance().clearTextureRenderQueue();
     }
 
     static boolean isRelativeZoomAvailable(int relativeZoom) {
-        TileMapService tms = Storage.TMS_ON_DISPLAY;
+        FlatTileMapService tms = Storage.TMS_ON_DISPLAY;
         return tms != null && tms.isRelativeZoomAvailable(relativeZoom);
     }
 
@@ -86,6 +86,6 @@ public interface BTRConfigConnector {
     }
 
     class Storage {
-        public static TileMapService TMS_ON_DISPLAY;
+        public static FlatTileMapService TMS_ON_DISPLAY;
     }
 }

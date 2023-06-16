@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.tile;
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
 import com.mndk.bteterrarenderer.projection.Projections;
+import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
 import lombok.RequiredArgsConstructor;
 
 public class TileRenderer {
@@ -18,7 +19,7 @@ public class TileRenderer {
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
         BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
 
-        TileMapService tms = BTRConfigConnector.getTileMapService();
+        FlatTileMapService tms = BTRConfigConnector.getTileMapService();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 
@@ -26,12 +27,12 @@ public class TileRenderer {
         if(Math.abs(yDiff) >= settings.getYDiffLimit()) return;
 
         GraphicsConnector.INSTANCE.glPushMatrix(poseStack);
-        TileGraphicsConnector.INSTANCE.preRender();
+        ModelGraphicsConnector.INSTANCE.preRender();
 
         new TileDrawer(tms, settings.getRadius() - 1, px, py, pz).drawWithDiamondPriority(poseStack);
-        TileImageCacheManager.getInstance().cleanup();
+        GraphicsModelManager.getInstance().cleanup();
 
-        TileGraphicsConnector.INSTANCE.postRender();
+        ModelGraphicsConnector.INSTANCE.postRender();
         GraphicsConnector.INSTANCE.glPopMatrix(poseStack);
     }
 
@@ -39,7 +40,7 @@ public class TileRenderer {
     @RequiredArgsConstructor
     private static class TileDrawer {
 
-        private final TileMapService tms;
+        private final FlatTileMapService tms;
         private final int size;
         private final double px, py, pz;
         private final BTRConfigConnector config = BTRConfigConnector.INSTANCE;

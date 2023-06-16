@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.projection;
 
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.tile.TileMapService;
+import com.mndk.bteterrarenderer.tile.FlatTileMapService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -26,7 +26,7 @@ public abstract class TileProjection {
 
 
     @Setter
-    protected int defaultZoom = TileMapService.DEFAULT_ZOOM;
+    protected int defaultZoom = FlatTileMapService.DEFAULT_ZOOM;
     @Setter
     private boolean invertLatitude = false, invertZoom = false, flipVertically = false;
 

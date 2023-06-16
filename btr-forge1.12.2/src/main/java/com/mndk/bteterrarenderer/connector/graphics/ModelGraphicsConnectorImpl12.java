@@ -1,7 +1,9 @@
 package com.mndk.bteterrarenderer.connector.graphics;
 
 import com.mndk.bteterrarenderer.connector.ConnectorImpl;
-import com.mndk.bteterrarenderer.tile.TileGraphicsConnector;
+import com.mndk.bteterrarenderer.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.tile.ModelGraphicsConnector;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -13,7 +15,7 @@ import java.awt.image.BufferedImage;
 
 @ConnectorImpl
 @SuppressWarnings("unused")
-public class TileGraphicsConnectorImpl12 implements TileGraphicsConnector {
+public class ModelGraphicsConnectorImpl12 implements ModelGraphicsConnector {
     @Override
     public void preRender() {
         GlStateManager.disableCull();
@@ -22,7 +24,7 @@ public class TileGraphicsConnectorImpl12 implements TileGraphicsConnector {
     }
 
     @Override
-    public int allocateAndUploadTileTexture(BufferedImage image) {
+    public int allocateAndUploadTexture(BufferedImage image) {
         int glId = GL11.glGenTextures();
         int width = image.getWidth(), height = image.getHeight();
         TextureUtil.allocateTexture(glId, width, height);
@@ -34,25 +36,27 @@ public class TileGraphicsConnectorImpl12 implements TileGraphicsConnector {
     }
 
     @Override
-    public void drawTileQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosTexColor> quad) {
-        GlStateManager.bindTexture(quad.glId);
+    public void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
+        GlStateManager.bindTexture(model.getTextureGlId());
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-        for (int i = 0; i < 4; i++) {
-            GraphicsQuad.PosTexColor vertex = quad.get(i);
-            builder.pos(vertex.x, vertex.y, vertex.z)
-                    .tex(vertex.u, vertex.v)
-                    .color(vertex.r, vertex.g, vertex.b, vertex.a)
-                    .endVertex();
+        for(GraphicsQuad<GraphicsQuad.PosTexColor> quad : model.getQuads()) {
+            for (int i = 0; i < 4; i++) {
+                GraphicsQuad.PosTexColor vertex = quad.getVertex(i);
+                builder.pos(vertex.x - px, vertex.y - py, vertex.z - pz)
+                        .tex(vertex.u, vertex.v)
+                        .color(vertex.r, vertex.g, vertex.b, vertex.a * opacity)
+                        .endVertex();
+            }
+            tessellator.draw();
         }
-        tessellator.draw();
     }
 
     @Override
-    public void glDeleteTileTexture(int glId) {
+    public void glDeleteTexture(int glId) {
         GlStateManager.deleteTexture(glId);
     }
 

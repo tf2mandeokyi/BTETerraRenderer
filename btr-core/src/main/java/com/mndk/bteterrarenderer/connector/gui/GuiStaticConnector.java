@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.connector.gui;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
-import com.mndk.bteterrarenderer.connector.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetImpl;
