@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.ogc3d.format.b3dm;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.ogc3d.format.table.BatchTable;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -9,7 +10,6 @@ import io.netty.buffer.Unpooled;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ public class Batched3DModel {
 
 
     public static Batched3DModel from(InputStream input) throws IOException {
-        ByteBuf buf = Unpooled.wrappedBuffer(IOUtils.toByteArray(input));
+        ByteBuf buf = Unpooled.wrappedBuffer(IOUtil.readAllBytes(input));
 
         String magic = buf.readBytes(4).toString(StandardCharsets.UTF_8);
         if(!"b3dm".equals(magic)) throw new IOException("expected b3dm format, found: " + magic);

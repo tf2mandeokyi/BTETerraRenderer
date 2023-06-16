@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.ogc3d.tile.TileContent;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import de.javagl.jgltf.model.*;
 import de.javagl.jgltf.model.v2.MaterialModelV2;
+import lombok.experimental.UtilityClass;
 
 import java.io.PrintStream;
 import java.nio.BufferUnderflowException;
@@ -17,9 +18,14 @@ import java.util.Map;
 /**
  * Debugging purpose only
  */
+@UtilityClass
 public class DebugUtil {
 
-    public static List<TileContent> fetchCoordinateContainingTiles(Tile tile, double[] geoCoordinate, int depth) {
+    public List<TileContent> fetchCoordinateContainingTiles(Tile tile, double[] geoCoordinate) {
+        return fetchCoordinateContainingTiles(tile, geoCoordinate, 0);
+    }
+
+    private List<TileContent> fetchCoordinateContainingTiles(Tile tile, double[] geoCoordinate, int depth) {
         for (int i = 0; i < depth; i++) System.out.print("  ");
         System.out.println("error = " + tile.getGeometricError());
 
@@ -48,7 +54,7 @@ public class DebugUtil {
         return result;
     }
 
-    public static void printOgcObject(StringBuilder outerSB, Object object, int tabs, boolean startWithTabs) {
+    public void printOgcObject(StringBuilder outerSB, Object object, int tabs, boolean startWithTabs) {
         if(object == null) {
             lnTabs(outerSB, startWithTabs ? tabs : 0, "null");
             return;
@@ -179,7 +185,7 @@ public class DebugUtil {
         printOgcObject(sb, o, tabs, false);
     }
 
-    public static void printBinary(PrintStream out, ByteBuffer buffer, int width, int limit) {
+    public void printBinary(PrintStream out, ByteBuffer buffer, int width, int limit) {
         // table head
         out.print("         | ");
         for(int i = 0; i < width; i++) {
