@@ -16,6 +16,7 @@ public class KeyEvent {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
+        // TODO: fix looping when holding the key
         if(KeyMappings.MAP_OPTIONS_KEY.consumeClick()) {
             BTRConfigConnector.refreshTileMapService();
             MapRenderingOptionsSidebar.open();

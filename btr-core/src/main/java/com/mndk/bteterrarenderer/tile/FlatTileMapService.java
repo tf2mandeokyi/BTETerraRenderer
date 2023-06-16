@@ -3,44 +3,39 @@ package com.mndk.bteterrarenderer.tile;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.loader.CategoryMapData;
+import com.mndk.bteterrarenderer.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
+import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
 import com.mndk.bteterrarenderer.util.BtrUtil;
-import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
-import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
+import lombok.*;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Data
-public class FlatTileMapService implements CategoryMapData.ICategoryMapProperty {
+@EqualsAndHashCode(callSuper = false)
+public class FlatTileMapService extends TileMapService {
 
-    public static final int RETRY_COUNT = 3;
     public static final int DEFAULT_MAX_THREAD = 2;
     public static final int DEFAULT_ZOOM = 18;
-    public static BufferedImage SOMETHING_WENT_WRONG;
+    private static final Timer TIMER = new Timer();
 
-    private transient String source = "";
+    @Getter @Setter
+    private transient int relativeZoom = 0, radius = 3;
 
     private final String name;
     private final String urlTemplate;
     private final TileProjection tileProjection;
-    private final TileURLConverter urlConverter;
+    private final FlatTileURLConverter urlConverter;
     private final ExecutorService downloadExecutor;
 
     /**
@@ -76,8 +71,13 @@ public class FlatTileMapService implements CategoryMapData.ICategoryMapProperty 
             this.tileProjection = null;
         }
 
-        this.urlConverter = new TileURLConverter(_defaultZoom, _invertZoom);
+        this.urlConverter = new FlatTileURLConverter(_defaultZoom, _invertZoom);
         this.downloadExecutor = Executors.newFixedThreadPool(BtrUtil.validateNull(maxThread, DEFAULT_MAX_THREAD));
+
+        this.properties.put("Zoom", // TODO: Attach I18n here
+                PropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable));
+        this.properties.put("Radius", // TODO: Attach I18n here
+                PropertyAccessor.of(this::getRadius, this::setRadius));
     }
 
     public String getUrlFromGeoCoordinate(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
@@ -89,65 +89,84 @@ public class FlatTileMapService implements CategoryMapData.ICategoryMapProperty 
         return this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
     }
 
-    public void renderTile(
-            Object poseStack,
-            int relativeZoom, String tmsId,
-            double y, float opacity,
-            double playerX, double playerY, double playerZ,
-            int tileDeltaX, int tileDeltaY
-    ) {
-        if(this.tileProjection == null) return;
+    @Override
+    protected Set<GraphicsModel> getTileModels(Object poseStack, String tmsId,
+                                               double px, double py, double pz) {
+        if(this.tileProjection == null) return null;
+
         try {
-            double[] gameCoord, geoCoord = Projections.getServerProjection().toGeo(playerX, playerZ);
+            Set<GraphicsModel> result = new HashSet<>();
+            double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
             int[] tileCoord = this.tileProjection.geoCoordToTileCoord(geoCoord[0], geoCoord[1], relativeZoom);
-            int tileX = tileCoord[0] + tileDeltaX, tileY = tileCoord[1] + tileDeltaY;
-            final String tileKey = this.genTileKey(tmsId, tileX, tileY, relativeZoom);
 
-            GraphicsModelManager cache = GraphicsModelManager.getInstance();
-            cache.registerAllModelsInQueue();
+            GraphicsModelManager.INSTANCE.registerAllModelsInQueue();
 
-            // Return if the requested tile is still in the downloading state
-            if(cache.isTextureInDownloadingState(tileKey)) return;
-
-            if(cache.modelExists(tileKey)) {
-                GraphicsModel model = cache.updateAndGetModel(tileKey);
-                ModelGraphicsConnector.INSTANCE.drawModel(poseStack, model, playerX, playerY - y, playerZ, opacity);
-                return;
+            for(int i = 0; i < 2 * this.radius + 1; ++i) {
+                if(i == 0) {
+                    this.checkTile(result, tmsId, tileCoord[0], tileCoord[1]);
+                }
+                for(int j = 0; j < i; ++j) {
+                    this.checkTile(result, tmsId, tileCoord, -j, j - i);
+                    this.checkTile(result, tmsId, tileCoord, j - i, +j);
+                    this.checkTile(result, tmsId, tileCoord, j, i - j);
+                    this.checkTile(result, tmsId, tileCoord, i - j, -j);
+                }
             }
 
-            // If the requested tile is not loaded, load it in the new thread
-            /*
-             *  i=0 ------ i=1
-             *   |          |
-             *   |   TILE   |
-             *   |          |
-             *  i=3 ------ i=2
-             */
-            GraphicsQuad<GraphicsQuad.PosTexColor> quad = new GraphicsQuad<>();
-            for (int i = 0; i < 4; i++) {
-                int[] mat = this.tileProjection.getCornerMatrix(i);
-                geoCoord = tileProjection.tileCoordToGeoCoord(tileX + mat[0], tileY + mat[1], relativeZoom);
-                gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
-
-                quad.setVertex(i, new GraphicsQuad.PosTexColor(
-                        gameCoord[0], 0, gameCoord[1],
-                        mat[2], mat[3],
-                        1f, 1f, 1f, 1f
-                ));
-            }
-            String url = this.getUrlFromTileCoordinate(tileX, tileY, relativeZoom);
-            this.downloadTile(tileKey, url, quad);
+            return result;
 
         } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {
             BTETerraRendererConstants.LOGGER.warn("Caught exception while rendering tile images", e);
         }
+        return null;
     }
 
-    private void downloadTile(String tileKey, String url, GraphicsQuad<GraphicsQuad.PosTexColor> quad) {
-        GraphicsModelManager cache = GraphicsModelManager.getInstance();
-        cache.setTextureInDownloadingState(tileKey);
-        this.downloadExecutor.execute(new TileDownloadingTask(downloadExecutor, tileKey, url, quad, 0));
+    private void checkTile(Set<GraphicsModel> set, String tmsId, int[] tileCoord, int dx, int dy)
+            throws OutOfProjectionBoundsException {
+
+        if(Math.abs(dx) > radius || Math.abs(dy) > radius) return;
+        this.checkTile(set, tmsId, tileCoord[0] + dx, tileCoord[1] + dy);
+    }
+
+    private void checkTile(Set<GraphicsModel> set, String tmsId, int tileX, int tileY)
+            throws OutOfProjectionBoundsException {
+
+        String tileKey = this.genTileKey(tmsId, tileX, tileY, relativeZoom);
+
+        // Return if the requested tile is still in the downloading state
+        if(GraphicsModelManager.INSTANCE.isTextureInDownloadingState(tileKey)) return;
+
+        if(GraphicsModelManager.INSTANCE.modelExists(tileKey)) {
+            set.add(GraphicsModelManager.INSTANCE.updateAndGetModel(tileKey));
+            return;
+        }
+
+        // If the requested tile is not loaded, load it in the new thread
+        /*
+         *  i=0 ------ i=1
+         *   |          |
+         *   |   TILE   |
+         *   |          |
+         *  i=3 ------ i=2
+         */
+        GraphicsQuad<GraphicsQuad.PosTexColor> quad = new GraphicsQuad<>();
+        for (int i = 0; i < 4; i++) {
+            int[] mat = this.tileProjection.getCornerMatrix(i);
+            double[] geoCoord = tileProjection.tileCoordToGeoCoord(tileX + mat[0], tileY + mat[1], relativeZoom);
+            double[] gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
+
+            quad.setVertex(i, new GraphicsQuad.PosTexColor(
+                    gameCoord[0], 0, gameCoord[1],
+                    mat[2], mat[3],
+                    1f, 1f, 1f, 1f
+            ));
+        }
+        String url = this.getUrlFromTileCoordinate(tileX, tileY, relativeZoom);
+
+        // download tile
+        GraphicsModelManager.INSTANCE.setTextureInDownloadingState(tileKey);
+        this.downloadExecutor.execute(new TileImageDownloadingTask(tileKey, url, quad, 0));
     }
 
     public boolean isRelativeZoomAvailable(int relativeZoom) {
@@ -164,20 +183,17 @@ public class FlatTileMapService implements CategoryMapData.ICategoryMapProperty 
     }
 
     @RequiredArgsConstructor
-    private static class TileDownloadingTask implements Runnable {
+    protected class TileImageDownloadingTask implements Runnable {
 
-        private static final Timer TIMER = new Timer();
-
-        private final ExecutorService es;
         private final String tileKey, url;
         private final GraphicsQuad<GraphicsQuad.PosTexColor> quad;
         private final int retry;
 
         @Override
         public void run() {
-            GraphicsModelManager cache = GraphicsModelManager.getInstance();
+            GraphicsModelManager cache = GraphicsModelManager.INSTANCE;
 
-            if (retry >= RETRY_COUNT + 1) {
+            if (retry >= DOWNLOAD_RETRY_COUNT + 1) {
                 cache.textureDownloadingComplete(tileKey, SOMETHING_WENT_WRONG, Collections.singletonList(quad));
                 return;
             }
@@ -194,21 +210,9 @@ public class FlatTileMapService implements CategoryMapData.ICategoryMapProperty 
             TIMER.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    es.execute(new TileDownloadingTask(es, tileKey, url, quad, retry + 1));
+                    downloadExecutor.execute(new TileImageDownloadingTask(tileKey, url, quad, retry + 1));
                 }
             }, 1000);
-        }
-    }
-
-    static {
-        try {
-            SOMETHING_WENT_WRONG = ImageIO.read(
-                    Objects.requireNonNull(FlatTileMapService.class.getClassLoader().getResourceAsStream(
-                            "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error_image.png"
-                    ))
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

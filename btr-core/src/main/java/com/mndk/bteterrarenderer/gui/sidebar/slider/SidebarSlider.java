@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.gui.sidebar.slider;
 
 import com.mndk.bteterrarenderer.gui.components.GuiSliderImpl;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 import java.util.function.Predicate;
 
@@ -10,15 +10,15 @@ public class SidebarSlider extends GuiSidebarElement {
 
     private GuiSliderImpl slider;
 
-    private final GetterSetter<Double> doubleValue;
-    private final GetterSetter<Integer> intValue;
+    private final PropertyAccessor<Double> doubleValue;
+    private final PropertyAccessor<Integer> intValue;
     private final Predicate<Integer> intValidator;
 
     private final String prefix, suffix;
     private final double minValue, maxValue;
     private final boolean isDouble;
 
-    public SidebarSlider(GetterSetter<Double> value,
+    public SidebarSlider(PropertyAccessor<Double> value,
                          String prefix, String suffix,
                          double minValue, double maxValue) {
         this.doubleValue = value;
@@ -30,7 +30,7 @@ public class SidebarSlider extends GuiSidebarElement {
         this.intValidator = null;
     }
 
-    public SidebarSlider(GetterSetter<Integer> value,
+    public SidebarSlider(PropertyAccessor<Integer> value,
                          String prefix, String suffix,
                          int minValue, int maxValue,
                          Predicate<Integer> intValidator) {

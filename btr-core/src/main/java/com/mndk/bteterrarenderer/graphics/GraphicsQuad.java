@@ -1,18 +1,22 @@
 package com.mndk.bteterrarenderer.graphics;
 
 import com.mndk.bteterrarenderer.util.BtrUtil;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
 
-    private final T[] vertices;
+    private final Object[] vertices;
 
     public GraphicsQuad() {
-        this.vertices = BtrUtil.uncheckedCast(new Object[4]);
+        this.vertices = new Object[4];
     }
 
     public GraphicsQuad(T v0, T v1, T v2, T v3) {
-        this.vertices = BtrUtil.uncheckedCast(new Object[] { v0, v1, v2, v3 });
+        this.vertices = new Object[] { v0, v1, v2, v3 };
     }
 
     public T getVertex(int index) {

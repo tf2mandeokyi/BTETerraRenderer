@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.loader.CategoryMapData;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -23,7 +23,7 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     private static final int DROPDOWN_VERTICAL_PADDING = 8;
 
 
-    private final GetterSetter<CategoryMapData<T>> currentCategories;
+    private final PropertyAccessor<CategoryMapData<T>> currentCategories;
     private final Supplier<String> currentCategoryName;
     private final Supplier<String> currentItemId;
     private final ItemSetter itemSetter;

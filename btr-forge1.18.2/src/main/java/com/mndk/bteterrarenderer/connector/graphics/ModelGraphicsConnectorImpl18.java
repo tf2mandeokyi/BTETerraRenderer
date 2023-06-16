@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.connector.graphics;
 
 import com.mndk.bteterrarenderer.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
-import com.mndk.bteterrarenderer.tile.ModelGraphicsConnector;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;

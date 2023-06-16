@@ -1,5 +1,7 @@
 package com.mndk.bteterrarenderer.util;
 
+import javax.annotation.Nonnull;
+
 public class BtrUtil {
 
     public static int notNegative(int value, String name) {
@@ -32,6 +34,15 @@ public class BtrUtil {
         } else {
             return Math.min(value, max);
         }
+    }
+
+    public static boolean arrayStartsWith(byte[] array, @Nonnull byte[] start) {
+        if(array == null) return false;
+        if(array.length < start.length) return false;
+        for(int i = 0; i < start.length; i++) {
+            if(array[i] != start[i]) return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")

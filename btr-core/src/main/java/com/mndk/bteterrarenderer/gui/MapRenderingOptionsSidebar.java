@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.gui;
 
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
-import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
+import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarBooleanButton;
 import com.mndk.bteterrarenderer.gui.sidebar.button.SidebarButton;
@@ -18,7 +18,7 @@ import com.mndk.bteterrarenderer.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.FlatTileMapService;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super(
                 BTRConfigConnector.INSTANCE.getUiSettings().getSidebarSide(),
                 20, 20, 7,
-                GetterSetter.from(
+                PropertyAccessor.of(
                         BTRConfigConnector.INSTANCE.getUiSettings()::getSidebarWidth,
                         BTRConfigConnector.INSTANCE.getUiSettings()::setSidebarWidth
                 ), false
@@ -50,22 +50,22 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // General components
         SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
-                GetterSetter.from(config::isDoRender, config::setDoRender),
+                PropertyAccessor.of(config::isDoRender, config::setDoRender),
                 i18n.format("gui.bteterrarenderer.new_settings.map_rendering") + ": "
         );
         SidebarNumberInput yLevelInput = new SidebarNumberInput(
-                GetterSetter.from(renderSettings::getYAxis, renderSettings::setYAxis),
+                PropertyAccessor.of(renderSettings::getYAxis, renderSettings::setYAxis),
                 i18n.format("gui.bteterrarenderer.new_settings.map_y_level") + ": "
         );
         SidebarSlider opacitySlider = new SidebarSlider(
-                GetterSetter.from(renderSettings::getOpacity, renderSettings::setOpacity),
+                PropertyAccessor.of(renderSettings::getOpacity, renderSettings::setOpacity),
                 i18n.format("gui.bteterrarenderer.new_settings.opacity") + ": ", "",
                 0, 1
         );
 
         // Map source components
         this.mapSourceDropdown = new SidebarDropdownSelector<>(
-                GetterSetter.from(TMSYamlLoader.INSTANCE::getResult, TMSYamlLoader.INSTANCE::setResult),
+                PropertyAccessor.of(TMSYamlLoader.INSTANCE::getResult, TMSYamlLoader.INSTANCE::setResult),
                 config::getMapServiceCategory,
                 config::getMapServiceId,
                 BTRConfigConnector::setTileMapService,
@@ -83,21 +83,21 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // Map orientation components
         SidebarSlider mapSizeSlider = new SidebarSlider(
-                GetterSetter.from(renderSettings::getRadius, renderSettings::setRadius),
+                PropertyAccessor.of(renderSettings::getRadius, renderSettings::setRadius),
                 i18n.format("gui.bteterrarenderer.new_settings.size") + ": ", "",
                 1, 8,
                 z -> true
         );
         SidebarSlider mapZoomSlider = new SidebarSlider(
-                GetterSetter.from(renderSettings::getRelativeZoomValue, renderSettings::setRelativeZoom),
+                PropertyAccessor.of(renderSettings::getRelativeZoomValue, renderSettings::setRelativeZoom),
                 i18n.format("gui.bteterrarenderer.new_settings.zoom") + ": ", "",
                 -3, 3,
-                BTRConfigConnector::isRelativeZoomAvailable
+                BTRConfigConnector::isRelativeZoomAvailable // TODO: combine this with PropertyAccessor
         );
         SidebarMapAligner mapAligner = new SidebarMapAligner(
-                GetterSetter.from(renderSettings::getXAlign, renderSettings::setXAlign),
-                GetterSetter.from(renderSettings::getZAlign, renderSettings::setZAlign),
-                GetterSetter.from(renderSettings::isLockNorth, renderSettings::setLockNorth)
+                PropertyAccessor.of(renderSettings::getXAlign, renderSettings::setXAlign),
+                PropertyAccessor.of(renderSettings::getZAlign, renderSettings::setZAlign),
+                PropertyAccessor.of(renderSettings::isLockNorth, renderSettings::setLockNorth)
         );
 
 

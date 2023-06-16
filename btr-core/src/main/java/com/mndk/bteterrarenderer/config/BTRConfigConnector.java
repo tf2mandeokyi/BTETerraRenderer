@@ -2,10 +2,10 @@ package com.mndk.bteterrarenderer.config;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
+import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
-import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
 import com.mndk.bteterrarenderer.tile.FlatTileMapService;
 
 public interface BTRConfigConnector {
@@ -33,7 +33,7 @@ public interface BTRConfigConnector {
 
         default void setRelativeZoom(int newZoom) {
             this.setRelativeZoomValue(newZoom);
-            GraphicsModelManager.getInstance().clearTextureRenderQueue();
+            GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
         }
     }
 
@@ -67,7 +67,7 @@ public interface BTRConfigConnector {
         INSTANCE.setMapServiceCategory(categoryName);
         INSTANCE.setMapServiceId(mapId);
 
-        GraphicsModelManager.getInstance().clearTextureRenderQueue();
+        GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
     }
 
     static boolean isRelativeZoomAvailable(int relativeZoom) {

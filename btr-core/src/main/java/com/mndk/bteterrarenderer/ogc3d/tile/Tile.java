@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +28,25 @@ public class Tile {
     private final Matrix4 transform;
     private final List<TileContent> contents;
     private final List<Tile> children;
+
+
+    public List<TileContent> getGeoCoordinateIntersectingContents(double[] geoCoordinate, boolean recursive) {
+        List<TileContent> result = new ArrayList<>();
+        for(TileContent content : this.contents) {
+            Volume contentVolume = content.getBoundingVolume();
+            if(contentVolume != null && !contentVolume.intersectsGeoCoordinate(geoCoordinate)) continue;
+
+            result.add(content);
+        }
+        if(!recursive) return result;
+
+        for(Tile tile : children) {
+            if(!tile.getBoundingVolume().intersectsGeoCoordinate(geoCoordinate)) continue;
+            result.addAll(tile.getGeoCoordinateIntersectingContents(geoCoordinate, true));
+        }
+        return result;
+    }
+
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

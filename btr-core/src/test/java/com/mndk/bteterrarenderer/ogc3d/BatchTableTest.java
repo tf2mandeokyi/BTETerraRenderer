@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3d;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mndk.bteterrarenderer.ogc3d.format.table.BatchTable;
+import com.mndk.bteterrarenderer.ogc3d.table.BatchTable;
 import org.junit.Assert;
 import org.junit.Test;
 

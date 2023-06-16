@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.gui.components;
 import com.mndk.bteterrarenderer.connector.gui.FontConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.util.BtrUtil;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.StringUtil;
 
 /**
@@ -12,11 +12,11 @@ import com.mndk.bteterrarenderer.util.StringUtil;
 public class GuiNumberInput extends GuiAbstractWidgetImpl {
 
 	private final GuiTextFieldImpl parent;
-	protected final GetterSetter<Double> value;
+	protected final PropertyAccessor<Double> value;
 	protected int xPos;
 	protected boolean numberValidated = true;
 
-	public GuiNumberInput(int x, int y, int width, int height, GetterSetter<Double> value, String prefix) {
+	public GuiNumberInput(int x, int y, int width, int height, PropertyAccessor<Double> value, String prefix) {
 		super(x, y, width, height, prefix);
 		this.parent = new GuiTextFieldImpl(
 				x + FontConnector.INSTANCE.getStringWidth(prefix) + 5, y,

@@ -1,12 +1,12 @@
-package com.mndk.bteterrarenderer.ogc3d.format.b3dm;
+package com.mndk.bteterrarenderer.ogc3d.b3dm;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.ogc3d.format.table.BatchTable;
-import com.mndk.bteterrarenderer.util.IOUtil;
+import com.mndk.bteterrarenderer.ogc3d.OgcFileContent;
+import com.mndk.bteterrarenderer.ogc3d.OgcFileType;
+import com.mndk.bteterrarenderer.ogc3d.table.BatchTable;
 import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.Unpooled;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,17 +18,17 @@ import java.nio.charset.StandardCharsets;
 @Getter
 @Builder
 @ToString
-public class Batched3DModel {
+public class Batched3DModel implements OgcFileContent {
 
     private final int version;
     private final B3dmFeatureTable featureTable;
     private final BatchTable batchTable;
     private final GltfModel gltfModel;
 
+    @Override
+    public OgcFileType getFileType() { return OgcFileType.B3DM; }
 
-    public static Batched3DModel from(InputStream input) throws IOException {
-        ByteBuf buf = Unpooled.wrappedBuffer(IOUtil.readAllBytes(input));
-
+    public static Batched3DModel from(ByteBuf buf) throws IOException {
         String magic = buf.readBytes(4).toString(StandardCharsets.UTF_8);
         if(!"b3dm".equals(magic)) throw new IOException("expected b3dm format, found: " + magic);
 
@@ -60,4 +60,5 @@ public class Batched3DModel {
                 .gltfModel(gltfModel)
                 .build();
     }
+
 }

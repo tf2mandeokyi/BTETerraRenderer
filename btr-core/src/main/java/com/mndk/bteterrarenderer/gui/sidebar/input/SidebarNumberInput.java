@@ -3,15 +3,15 @@ package com.mndk.bteterrarenderer.gui.sidebar.input;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 public class SidebarNumberInput extends GuiSidebarElement {
 
-    private final GetterSetter<Double> value;
+    private final PropertyAccessor<Double> value;
     private final String text;
     private GuiNumberInput textField;
 
-    public SidebarNumberInput(GetterSetter<Double> value, String text) {
+    public SidebarNumberInput(PropertyAccessor<Double> value, String text) {
         this.value = value;
         this.text = text;
     }

@@ -11,7 +11,7 @@ import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxImpl;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -26,16 +26,16 @@ public class SidebarMapAligner extends GuiSidebarElement {
     );
 
     private GuiNumberInput xInput, zInput;
-    private final GetterSetter<Double> xOffset, zOffset;
+    private final PropertyAccessor<Double> xOffset, zOffset;
 
     private GuiCheckBoxImpl lockNorthCheckBox;
-    private final GetterSetter<Boolean> lockNorth;
+    private final PropertyAccessor<Boolean> lockNorth;
 
     private double playerYawRadians;
     private boolean aligningMode;
 
     public SidebarMapAligner(
-            GetterSetter<Double> xOffset, GetterSetter<Double> zOffset, GetterSetter<Boolean> lockNorth
+            PropertyAccessor<Double> xOffset, PropertyAccessor<Double> zOffset, PropertyAccessor<Boolean> lockNorth
     ) {
         this.xOffset = xOffset;
         this.zOffset = zOffset;

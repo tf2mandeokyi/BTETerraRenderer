@@ -1,8 +1,8 @@
-package com.mndk.bteterrarenderer.ogc3d.format.table;
+package com.mndk.bteterrarenderer.ogc3d.table;
 
-import com.mndk.bteterrarenderer.ogc3d.format.table.BinaryVector.Vec2;
-import com.mndk.bteterrarenderer.ogc3d.format.table.BinaryVector.Vec3;
-import com.mndk.bteterrarenderer.ogc3d.format.table.BinaryVector.Vec4;
+import com.mndk.bteterrarenderer.ogc3d.table.BinaryVector.Vec2;
+import com.mndk.bteterrarenderer.ogc3d.table.BinaryVector.Vec3;
+import com.mndk.bteterrarenderer.ogc3d.table.BinaryVector.Vec4;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

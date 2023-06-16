@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
-public class TileURLConverter {
+public class FlatTileURLConverter {
 
     protected final int defaultZoom;
     protected final boolean invertZoom;

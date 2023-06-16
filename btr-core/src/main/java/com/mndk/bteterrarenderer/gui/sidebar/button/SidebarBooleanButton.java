@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.gui.sidebar.button;
 
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 public class SidebarBooleanButton extends SidebarButton {
 
-    private final GetterSetter<Boolean> value;
+    private final PropertyAccessor<Boolean> value;
     private final String prefix;
 
-    public SidebarBooleanButton(GetterSetter<Boolean> value, String prefix) {
+    public SidebarBooleanButton(PropertyAccessor<Boolean> value, String prefix) {
         super(prefix + booleanToFormattedI18n(value.get()), (self, mouseButton) -> {
             value.set(!value.get());
             self.setDisplayString(prefix + booleanToFormattedI18n(value.get()));

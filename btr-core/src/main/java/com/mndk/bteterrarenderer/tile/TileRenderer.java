@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.tile;
 
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.graphics.GraphicsConnector;
-import com.mndk.bteterrarenderer.projection.Projections;
+import com.mndk.bteterrarenderer.connector.graphics.ModelGraphicsConnector;
 import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
-import lombok.RequiredArgsConstructor;
+import com.mndk.bteterrarenderer.projection.Projections;
 
 public class TileRenderer {
 
@@ -15,6 +15,7 @@ public class TileRenderer {
     private static final double Y_EPSILON = 0.1;
 
     public static void renderTiles(Object poseStack, double px, double py, double pz) {
+        if(!BTRConfigConnector.INSTANCE.isDoRender()) return;
 
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
         BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
@@ -29,48 +30,17 @@ public class TileRenderer {
         GraphicsConnector.INSTANCE.glPushMatrix(poseStack);
         ModelGraphicsConnector.INSTANCE.preRender();
 
-        new TileDrawer(tms, settings.getRadius() - 1, px, py, pz).drawWithDiamondPriority(poseStack);
-        GraphicsModelManager.getInstance().cleanup();
+        tms.render(
+                poseStack,
+                config.getMapServiceCategory() + "." + config.getMapServiceId(),
+                px + settings.getXAlign(),
+                py - (settings.getYAxis() + Y_EPSILON), // TODO: move this Y_EPSILON to FlatTileMapService
+                pz + settings.getZAlign(),
+                (float) settings.getOpacity()
+        );
+        GraphicsModelManager.INSTANCE.cleanup();
 
         ModelGraphicsConnector.INSTANCE.postRender();
         GraphicsConnector.INSTANCE.glPopMatrix(poseStack);
-    }
-
-
-    @RequiredArgsConstructor
-    private static class TileDrawer {
-
-        private final FlatTileMapService tms;
-        private final int size;
-        private final double px, py, pz;
-        private final BTRConfigConnector config = BTRConfigConnector.INSTANCE;
-        private final BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
-
-        public void draw(Object poseStack, int dx, int dy) {
-            if(Math.abs(dx) > size || Math.abs(dy) > size) return;
-            tms.renderTile(
-                    poseStack,
-                    settings.getRelativeZoomValue(),
-                    config.getMapServiceCategory() + "." + config.getMapServiceId(),
-                    settings.getYAxis() + Y_EPSILON,
-                    (float) settings.getOpacity(),
-                    px + settings.getXAlign(), py, pz + settings.getZAlign(),
-                    dx, dy
-            );
-        }
-
-        public void drawWithDiamondPriority(Object poseStack) {
-            for(int i = 0; i < 2 * this.size + 1; ++i) {
-                if(i == 0) {
-                    this.draw(poseStack, 0, 0);
-                }
-                for(int j = 0; j < i; ++j) {
-                    this.draw(poseStack, -j, j - i);
-                    this.draw(poseStack, j - i, j);
-                    this.draw(poseStack, j, i - j);
-                    this.draw(poseStack, i - j, -j);
-                }
-            }
-        }
     }
 }

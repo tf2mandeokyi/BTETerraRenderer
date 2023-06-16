@@ -16,11 +16,4 @@ public class TileContent {
     private final Volume boundingVolume;
     @Nullable
     private final Integer group;
-
-    public String getAbsoluteUri(String tilesetSource) {
-        int index = tilesetSource.lastIndexOf('/') + 1;
-        if(index == 0) index = tilesetSource.length();
-        String parentUri = tilesetSource.substring(0, index);
-        return parentUri + this.uri;
-    }
 }

@@ -1,12 +1,10 @@
 package com.mndk.bteterrarenderer.graphics;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@RequiredArgsConstructor
+@Data
 public class GraphicsModel {
     private final int textureGlId;
     private final List<GraphicsQuad<GraphicsQuad.PosTexColor>> quads;

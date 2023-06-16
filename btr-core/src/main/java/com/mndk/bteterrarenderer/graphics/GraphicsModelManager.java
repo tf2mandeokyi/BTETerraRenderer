@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.graphics;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.tile.ModelGraphicsConnector;
+import com.mndk.bteterrarenderer.connector.graphics.ModelGraphicsConnector;
 import lombok.AllArgsConstructor;
 
 import java.awt.image.BufferedImage;
@@ -12,8 +12,7 @@ import java.util.*;
  */
 public class GraphicsModelManager {
 
-	private static final GraphicsModelManager INSTANCE = new GraphicsModelManager(1000 * 60 * 5, 10000);
-	public static GraphicsModelManager getInstance() { return INSTANCE; }
+	public static final GraphicsModelManager INSTANCE = new GraphicsModelManager(1000 * 60 * 5, 10000);
 
 	private static final boolean DEBUG = false;
 	private static void log(String message) {

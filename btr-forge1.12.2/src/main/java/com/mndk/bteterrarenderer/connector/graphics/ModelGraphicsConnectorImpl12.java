@@ -3,7 +3,6 @@ package com.mndk.bteterrarenderer.connector.graphics;
 import com.mndk.bteterrarenderer.connector.ConnectorImpl;
 import com.mndk.bteterrarenderer.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
-import com.mndk.bteterrarenderer.tile.ModelGraphicsConnector;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;

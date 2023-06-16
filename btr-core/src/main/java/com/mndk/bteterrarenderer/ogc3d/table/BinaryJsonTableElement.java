@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.ogc3d.format.table;
+package com.mndk.bteterrarenderer.ogc3d.table;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;

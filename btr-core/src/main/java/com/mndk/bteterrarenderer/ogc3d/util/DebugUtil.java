@@ -5,11 +5,10 @@ import com.mndk.bteterrarenderer.ogc3d.tile.TileContent;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import de.javagl.jgltf.model.*;
 import de.javagl.jgltf.model.v2.MaterialModelV2;
+import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
 
 import java.io.PrintStream;
-import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +19,26 @@ import java.util.Map;
  */
 @UtilityClass
 public class DebugUtil {
+
+    private static final byte[] PRINTABLE = new byte[] {
+            // 1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 00
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 10
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 20
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 30
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 40
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 50
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 60
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, // 70
+            1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, // 80
+            0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, // 90
+            0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // A0
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // B0
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // C0
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // D0
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // E0
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // F0
+    };
 
     public List<TileContent> fetchCoordinateContainingTiles(Tile tile, double[] geoCoordinate) {
         return fetchCoordinateContainingTiles(tile, geoCoordinate, 0);
@@ -54,7 +73,13 @@ public class DebugUtil {
         return result;
     }
 
-    public void printOgcObject(StringBuilder outerSB, Object object, int tabs, boolean startWithTabs) {
+    public void printOgcObject(PrintStream out, Object object) {
+        StringBuilder sb = new StringBuilder();
+        writeOgcObjectString(sb, object, 0, false);
+        out.print(sb);
+    }
+
+    public void writeOgcObjectString(StringBuilder outerSB, Object object, int tabs, boolean startWithTabs) {
         if(object == null) {
             lnTabs(outerSB, startWithTabs ? tabs : 0, "null");
             return;
@@ -68,7 +93,7 @@ public class DebugUtil {
             } else {
                 sb.append("[\n");
                 for (Object item : list) {
-                    printOgcObject(sb, item, tabs + 1, true);
+                    writeOgcObjectString(sb, item, tabs + 1, true);
                 }
                 lnTabs(sb, tabs, "]");
             }
@@ -98,7 +123,7 @@ public class DebugUtil {
             } else {
                 sb.append("[\n");
                 for (Object item : array) {
-                    printOgcObject(sb, item, tabs + 1, true);
+                    writeOgcObjectString(sb, item, tabs + 1, true);
                 }
                 lnTabs(sb, tabs, "]");
             }
@@ -182,36 +207,56 @@ public class DebugUtil {
     private static void lnTabs(StringBuilder sb, int tabs, String s, Object o) {
         for(int i = 0; i < tabs; i++) sb.append("  ");
         sb.append(s);
-        printOgcObject(sb, o, tabs, false);
+        writeOgcObjectString(sb, o, tabs, false);
     }
 
-    public void printBinary(PrintStream out, ByteBuffer buffer, int width, int limit) {
+    public void printBinary(PrintStream out, ByteBuf buf, int width, int limit) {
+        StringBuilder sb = new StringBuilder();
+
         // table head
-        out.print("         | ");
+        sb.append("         | ");
         for(int i = 0; i < width; i++) {
-            out.printf("%02x ", i);
+            sb.append(String.format("%02x ", i));
         }
-        out.println();
+        sb.append("|\n");
 
         // hl
-        out.print("---------+-");
+        sb.append("---------+-");
         for(int i = 0; i < width; i++) {
-            out.print("---");
+            sb.append("---");
         }
-        out.println();
+        sb.append("+-");
+        for(int i = 0; i < width; i++) {
+            sb.append("-");
+        }
+        sb.append("\n");
 
         // table body
-        try {
-            for (int i = 0; i < limit; i++) {
-                byte data = buffer.get();
-                if (i % width == 0) {
-                    out.printf("%08x | ", i);
-                }
-                out.printf("%02x ", data);
-                if (i % width == width - 1 || i == limit - 1) {
-                    out.println();
-                }
+        byte[] row = new byte[width];
+        for (int i = 0, c = 0; i < (limit / width) * width; i++) {
+            if (i % width == 0) {
+                sb.append(String.format("%08x | ", i));
             }
-        } catch(BufferUnderflowException ignored) {}
+
+            if(i < limit && buf.readableBytes() != 0) {
+                byte data = buf.readByte();
+                row[c++] = data;
+                sb.append(String.format("%02x ", data));
+            } else {
+                sb.append("   ");
+            }
+
+            if (i % width == width - 1) {
+                sb.append("| ");
+                for(int j = 0; j < c; j++) {
+                    int unsigned = Byte.toUnsignedInt(row[j]);
+                    if(PRINTABLE[unsigned] == 0) sb.append(".");
+                    else sb.append(String.format("%c", unsigned));
+                }
+                c = 0;
+                sb.append("\n");
+            }
+        }
+        out.print(sb.toString());
     }
 }

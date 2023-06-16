@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.event;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.tile.TileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,12 +13,10 @@ import net.minecraftforge.fml.relauncher.Side;
 public class RenderEvent {
 	@SubscribeEvent
 	public static void onRenderEvent(final RenderWorldLastEvent event) {
-		if(!BTRConfigConnector.INSTANCE.isDoRender()) return;
-
-		EntityPlayer player = Minecraft.getMinecraft().player;
 
 		// "Smooth" player position
 		final float partialTicks = event.getPartialTicks();
+		EntityPlayer player = Minecraft.getMinecraft().player;
 		final double px = player.lastTickPosX + ((player.posX - player.lastTickPosX) * partialTicks);
 		final double py = player.lastTickPosY + ((player.posY - player.lastTickPosY) * partialTicks);
 		final double pz = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * partialTicks);

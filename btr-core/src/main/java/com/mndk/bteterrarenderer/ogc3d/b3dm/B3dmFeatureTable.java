@@ -1,10 +1,10 @@
-package com.mndk.bteterrarenderer.ogc3d.format.b3dm;
+package com.mndk.bteterrarenderer.ogc3d.b3dm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.ogc3d.format.table.BinaryJsonTableElement;
-import com.mndk.bteterrarenderer.ogc3d.format.table.BinaryVector;
+import com.mndk.bteterrarenderer.ogc3d.table.BinaryJsonTableElement;
+import com.mndk.bteterrarenderer.ogc3d.table.BinaryVector;
 import com.mndk.bteterrarenderer.ogc3d.math.Cartesian3;
 import lombok.*;
 

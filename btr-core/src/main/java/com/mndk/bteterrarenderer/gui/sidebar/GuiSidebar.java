@@ -6,7 +6,7 @@ import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
-import com.mndk.bteterrarenderer.util.GetterSetter;
+import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class GuiSidebar extends AbstractGuiScreen {
     private final boolean guiPausesGame;
     private int verticalSlider;
 
-    public final GetterSetter<Double> elementWidth;
+    public final PropertyAccessor<Double> elementWidth;
     private double mouseClickX, initialElementWidth;
 
     private int totalHeight;
@@ -32,7 +32,7 @@ public class GuiSidebar extends AbstractGuiScreen {
 
     public GuiSidebar(
             SidebarSide side, int paddingSide, int paddingTopBottom, int elementDistance,
-            GetterSetter<Double> elementWidth, boolean guiPausesGame
+            PropertyAccessor<Double> elementWidth, boolean guiPausesGame
     ) {
         this.elements = new ArrayList<>();
         this.side = side;

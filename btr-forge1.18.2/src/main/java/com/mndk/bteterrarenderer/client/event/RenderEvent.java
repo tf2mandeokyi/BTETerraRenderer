@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.client.event;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.tile.TileRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -15,8 +14,6 @@ import net.minecraftforge.fml.common.Mod;
 public class RenderEvent {
     @SubscribeEvent
     public static void onRenderEvent(final RenderLevelLastEvent event) {
-        if(!BTRConfigConnector.INSTANCE.isDoRender()) return;
-
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if(player == null) return;

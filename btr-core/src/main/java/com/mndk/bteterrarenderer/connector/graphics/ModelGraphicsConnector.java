@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.tile;
+package com.mndk.bteterrarenderer.connector.graphics;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.graphics.GraphicsModel;
