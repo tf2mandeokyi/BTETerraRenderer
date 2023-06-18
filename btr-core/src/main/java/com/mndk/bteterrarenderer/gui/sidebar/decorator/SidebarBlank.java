@@ -11,8 +11,13 @@ public class SidebarBlank extends GuiSidebarElement {
     }
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
         return height;
+    }
+
+    @Override
+    public int getVisualHeight() {
+        return 0;
     }
 
     @Override
@@ -22,5 +27,5 @@ public class SidebarBlank extends GuiSidebarElement {
     public void onWidthChange(double newWidth) {}
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {}
+    public void drawComponent(Object poseStack) {}
 }

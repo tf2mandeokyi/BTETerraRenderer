@@ -19,11 +19,16 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
     public static final int DOWNLOAD_RETRY_COUNT = 3;
     public static BufferedImage SOMETHING_WENT_WRONG;
 
+    /**
+     * Put a localization key as a key, and a property accessor as a value.
+     * TODO: Save this as a file
+     */
+    @Getter
+    protected transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
+
     @Getter @Setter
     protected transient String source = "";
     private transient final Set<GraphicsModel> modelStage = new HashSet<>();
-    @Getter
-    protected transient final Map<String, PropertyAccessor<?>> properties = new HashMap<>();
 
     public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
         Set<GraphicsModel> models = this.getTileModels(poseStack, tmsId, px, py, pz);
@@ -34,9 +39,12 @@ public abstract class TileMapService implements CategoryMapData.ICategoryMapProp
         }
 
         for(GraphicsModel model : modelStage) {
-            ModelGraphicsConnector.INSTANCE.drawModel(poseStack, model, px, py, pz, opacity);
+            //  - (settings.getFlatMapYAxis() + Y_EPSILON)
+            ModelGraphicsConnector.INSTANCE.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
         }
     }
+
+    protected double getYAlign() { return 0; }
 
     /**
      * @return A list of {@link GraphicsModel}. null if no updates

@@ -14,7 +14,6 @@ public class AbstractGuiScreenImpl18 extends Screen {
     protected AbstractGuiScreenImpl18(AbstractGuiScreen delegate) {
         super(TextComponent.EMPTY);
         this.delegate = delegate;
-        delegate.guiWidth = () -> super.width;
         delegate.screenSize = IScaledScreenSizeImpl18::new;
     }
 

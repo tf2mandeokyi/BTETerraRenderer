@@ -4,6 +4,8 @@ import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
@@ -19,7 +21,7 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
     private static final ForgeConfigSpec.ConfigValue<Double> RENDER_X_ALIGN;
     private static final ForgeConfigSpec.ConfigValue<Double> RENDER_Z_ALIGN;
     private static final ForgeConfigSpec.ConfigValue<Boolean> RENDER_LOCK_NORTH;
-    private static final ForgeConfigSpec.ConfigValue<Double> RENDER_Y_AXIS;
+    private static final ForgeConfigSpec.ConfigValue<Double> RENDER_Y_AXIS; // TODO: Rename this
     private static final ForgeConfigSpec.ConfigValue<Double> RENDER_OPACITY;
     private static final ForgeConfigSpec.ConfigValue<Integer> RENDER_RADIUS;
     private static final ForgeConfigSpec.ConfigValue<Integer> RENDER_RELATIVE_ZOOM_VALUE;
@@ -57,8 +59,8 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
 
     @Getter @Setter
     private static class RenderSettingsConnectorImpl implements RenderSettingsConnector {
-        public double xAlign, zAlign, opacity;
-        public double yAxis, yDiffLimit;
+        public double xAlign, yAlign, zAlign, opacity;
+        public double flatMapYAxis, yDiffLimit;
         public int radius, relativeZoomValue;
         public boolean lockNorth;
     }
@@ -78,7 +80,7 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
         RENDER_X_ALIGN.set(RENDER.getXAlign());
         RENDER_Z_ALIGN.set(RENDER.getZAlign());
         RENDER_LOCK_NORTH.set(RENDER.isLockNorth());
-        RENDER_Y_AXIS.set(RENDER.getYAxis());
+        RENDER_Y_AXIS.set(RENDER.getFlatMapYAxis());
         RENDER_OPACITY.set(RENDER.getOpacity());
         RENDER_RADIUS.set(RENDER.getRadius());
         RENDER_RELATIVE_ZOOM_VALUE.set(RENDER.getRelativeZoomValue());
@@ -97,7 +99,7 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
         RENDER.setXAlign(RENDER_X_ALIGN.get());
         RENDER.setZAlign(RENDER_Z_ALIGN.get());
         RENDER.setLockNorth(RENDER_LOCK_NORTH.get());
-        RENDER.setYAxis(RENDER_Y_AXIS.get());
+        RENDER.setFlatMapYAxis(RENDER_Y_AXIS.get());
         RENDER.setOpacity(RENDER_OPACITY.get());
         RENDER.setRadius(RENDER_RADIUS.get());
         RENDER.setRelativeZoomValue(RENDER_RELATIVE_ZOOM_VALUE.get());
@@ -108,13 +110,17 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
         UI.setSidebarOpacity(UI_SIDEBAR_OPACITY.get());
     }
 
+    public static void register() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CONFIG_SPEC);
+    }
+
     static {
         // TODO: Add descriptions
         // TODO: Make names and default values constant
 
         BUILDER.push("General Settings");
 
-        GENERAL_DO_RENDER = BUILDER.define("Do Render", true); // TODO: set this back to false
+        GENERAL_DO_RENDER = BUILDER.define("Do Render", false);
         GENERAL_MAP_SERVICE_CATEGORY = BUILDER.define("Map Service Category", "Global");
         GENERAL_MAP_SERVICE_ID = BUILDER.define("Map Service ID", "osm");
 
@@ -124,7 +130,7 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
         RENDER_X_ALIGN = BUILDER.define("X Alignment", 0.0);
         RENDER_Z_ALIGN = BUILDER.define("Z Alignment", 0.0);
         RENDER_LOCK_NORTH = BUILDER.define("Lock North", false);
-        RENDER_Y_AXIS = BUILDER.define("Y Axis", 300.0); // TODO: set this back to 4.0
+        RENDER_Y_AXIS = BUILDER.define("Y Axis", 100.0);
         RENDER_OPACITY = BUILDER.defineInRange("Opacity", 0.7, 0.0, 1.0);
         RENDER_RADIUS = BUILDER.defineInRange("Radius", 3, 1, 40);
         RENDER_RELATIVE_ZOOM_VALUE = BUILDER.defineInRange("Zoom Value", 0, -3, 3);

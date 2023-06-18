@@ -9,7 +9,7 @@ import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 @OnlyIn(Dist.CLIENT)
-public class KeyMappings {
+public class KeyMappings18 {
 
     public static KeyMapping MAP_TOGGLE_KEY, MAP_OPTIONS_KEY;
 
@@ -17,12 +17,14 @@ public class KeyMappings {
      * Call this on {@link FMLClientSetupEvent}
      */
     public static void registerKeys() {
-        MAP_TOGGLE_KEY = registerKey("toggle", "category", InputConstants.KEY_R);
-        MAP_OPTIONS_KEY = registerKey("options_ui", "category", InputConstants.KEY_GRAVE);
+        MAP_TOGGLE_KEY = registerKey("toggle", InputConstants.KEY_R);
+        MAP_OPTIONS_KEY = registerKey("options_ui", InputConstants.KEY_GRAVE);
     }
 
-    private static KeyMapping registerKey(String name, String category, int keyCode) {
-        KeyMapping key = new KeyMapping("key." + BTETerraRendererConstants.MODID + "." + name, keyCode, category);
+    private static KeyMapping registerKey(String name, int keyCode) {
+        KeyMapping key = new KeyMapping(
+                "key." + BTETerraRendererConstants.MODID + "." + name, keyCode,
+                "key." + BTETerraRendererConstants.MODID + ".category");
         ClientRegistry.registerKeyBinding(key);
         return key;
     }

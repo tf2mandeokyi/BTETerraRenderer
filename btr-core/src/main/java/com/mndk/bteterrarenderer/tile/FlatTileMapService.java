@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.tile;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.graphics.GraphicsModel;
@@ -13,6 +14,7 @@ import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.RangedIntPropertyAccessor;
 import lombok.*;
 
 import javax.imageio.ImageIO;
@@ -24,6 +26,12 @@ import java.util.concurrent.Executors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class FlatTileMapService extends TileMapService {
+
+    /**
+     * This variable is to prevent z-fighting from happening.<br>
+     * Setting this lower than 0.1 won't have its effect when the hologram is viewed far away from player
+     */
+    private static final double Y_EPSILON = 0.1;
 
     public static final int DEFAULT_MAX_THREAD = 2;
     public static final int DEFAULT_ZOOM = 18;
@@ -74,10 +82,12 @@ public class FlatTileMapService extends TileMapService {
         this.urlConverter = new FlatTileURLConverter(_defaultZoom, _invertZoom);
         this.downloadExecutor = Executors.newFixedThreadPool(BtrUtil.validateNull(maxThread, DEFAULT_MAX_THREAD));
 
-        this.properties.put("Zoom", // TODO: Attach I18n here
-                PropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable));
-        this.properties.put("Radius", // TODO: Attach I18n here
-                PropertyAccessor.of(this::getRadius, this::setRadius));
+        this.properties.add(new PropertyAccessor.Localized<>("zoom", "gui.bteterrarenderer.settings.zoom",
+                RangedIntPropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom,
+                        this::isRelativeZoomAvailable, -4, 4)));
+
+        this.properties.add(new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.size",
+                RangedIntPropertyAccessor.of(this::getRadius, this::setRadius, 1, 10)));
     }
 
     public String getUrlFromGeoCoordinate(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
@@ -87,6 +97,11 @@ public class FlatTileMapService extends TileMapService {
 
     public String getUrlFromTileCoordinate(int tileX, int tileY, int relativeZoom) {
         return this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
+    }
+
+    @Override
+    protected double getYAlign() {
+        return BTRConfigConnector.INSTANCE.getRenderSettings().getFlatMapYAxis() + Y_EPSILON;
     }
 
     @Override

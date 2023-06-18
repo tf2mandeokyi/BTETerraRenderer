@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
-import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetCopy;
 
 public interface GuiStaticConnector {
     GuiStaticConnector INSTANCE = ImplFinder.search();
@@ -52,7 +52,7 @@ public interface GuiStaticConnector {
     }
 
 
-    void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetImpl.HoverState hoverState);
+    void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState);
     void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked);
     void drawTextFieldHighlight(Object poseStack, int startX, int startY, int endX, int endY);
 

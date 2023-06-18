@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.client.event;
 
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.client.KeyMappings;
+import com.mndk.bteterrarenderer.client.KeyMappings18;
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
@@ -25,7 +25,7 @@ public class ClientModEvents {
             BTETerraRendererConstants.LOGGER.error("Error caught while parsing map yaml files!");
             e.printStackTrace();
         }
-        KeyMappings.registerKeys();
+        KeyMappings18.registerKeys();
         BTRConfigConnector.load();
         BTETerraRendererConstants.LOGGER.info("Done setting the mod up");
     }

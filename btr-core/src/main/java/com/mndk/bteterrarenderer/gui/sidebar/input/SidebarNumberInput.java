@@ -35,8 +35,13 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
-        textField.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        return textField.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+    }
+
+    @Override
+    public void drawComponent(Object poseStack) {
+        textField.drawComponent(poseStack);
     }
 
     @Override
@@ -55,5 +60,5 @@ public class SidebarNumberInput extends GuiSidebarElement {
         return textField.keyPressed(key);
     }
 
-    @Override public int getHeight() { return 20; }
+    @Override public int getPhysicalHeight() { return 20; }
 }

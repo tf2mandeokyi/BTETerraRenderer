@@ -23,9 +23,10 @@ public interface BTRConfigConnector {
     RenderSettingsConnector getRenderSettings();
     interface RenderSettingsConnector {
         double getXAlign();             void setXAlign(double xAlign);
+        double getYAlign();             void setYAlign(double yAlign);
         double getZAlign();             void setZAlign(double zAlign);
         boolean isLockNorth();          void setLockNorth(boolean lockNorth);
-        double getYAxis();              void setYAxis(double yAxis);
+        double getFlatMapYAxis();       void setFlatMapYAxis(double yAxis);
         double getOpacity();            void setOpacity(double opacity);
         int getRadius();                void setRadius(int radius);
         double getYDiffLimit();         void setYDiffLimit(double yDiffLimit);
@@ -62,12 +63,13 @@ public interface BTRConfigConnector {
         return Storage.TMS_ON_DISPLAY;
     }
 
-    static void setTileMapService(String categoryName, String mapId) {
-        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItem(categoryName, mapId);
+    static FlatTileMapService setTileMapService(String categoryName, String mapId) {
+        FlatTileMapService result = Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItem(categoryName, mapId);
         INSTANCE.setMapServiceCategory(categoryName);
         INSTANCE.setMapServiceId(mapId);
 
         GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
+        return result;
     }
 
     static boolean isRelativeZoomAvailable(int relativeZoom) {

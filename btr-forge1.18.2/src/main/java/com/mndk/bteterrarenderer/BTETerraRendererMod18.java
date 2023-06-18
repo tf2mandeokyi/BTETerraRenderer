@@ -11,16 +11,13 @@ import com.mndk.bteterrarenderer.connector.minecraft.GameInputConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.minecraft.I18nConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnectorImpl18;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnectorImpl18;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import org.apache.logging.log4j.LogManager;
 
 @Mod(BTETerraRendererConstants.MODID)
 public class BTETerraRendererMod18 {
     public BTETerraRendererMod18() {
-        ModLoadingContext modLoadingContext = ModLoadingContext.get();
-        modLoadingContext.registerConfig(ModConfig.Type.CLIENT, BTRConfigConnectorImpl18.CONFIG_SPEC);
+        BTRConfigConnectorImpl18.register();
     }
 
     static {

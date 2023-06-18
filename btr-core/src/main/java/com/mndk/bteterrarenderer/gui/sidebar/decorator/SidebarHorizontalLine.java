@@ -14,12 +14,12 @@ public class SidebarHorizontalLine extends GuiSidebarElement {
     }
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
         return thickness;
     }
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack) {
         GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, 0, parent.elementWidth.get().intValue(), thickness, color);
     }
 

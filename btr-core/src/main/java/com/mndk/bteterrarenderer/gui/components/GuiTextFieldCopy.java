@@ -15,12 +15,9 @@ import java.util.function.Predicate;
  * Copied from both 1.12.2's <code>net.minecraft.client.gui.GuiTextField</code>
  * and 1.18.2's <code>net.minecraft.client.gui.components.EditBox</code>
  */
-public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
+public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
 
-    private static final int BORDER_COLOR_FOCUSED = 0xFFFFFFFF;
-    private static final int BORDER_COLOR = 0xFFA0A0A0;
-    public static final int ENABLED_TEXT_COLOR = 0xE0E0E0;
-    public static final int DISABLED_TEXT_COLOR = 0x707070;
+    private static final int BACKGROUND_COLOR = 0xFF000000;
 
     @Setter
     private Integer textColor;
@@ -34,7 +31,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
     @Setter
     private Predicate<String> validator = s -> true;
 
-    public GuiTextFieldImpl(int x, int y, int width, int height) {
+    public GuiTextFieldCopy(int x, int y, int width, int height) {
         super(x, y, width, height, "");
     }
 
@@ -160,15 +157,15 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
         return StringUtil.offsetByCodepoints(this.text, this.cursorPos, delta);
     }
 
-    public void moveCursorTo(int p_94193_) {
-        this.setCursorPosition(p_94193_);
+    public void moveCursorTo(int index) {
+        this.setCursorPosition(index);
         if (!this.shiftPressed) {
             this.setHighlightPos(this.cursorPos);
         }
     }
 
-    public void setCursorPosition(int p_94197_) {
-        this.cursorPos = BtrUtil.clamp(p_94197_, 0, this.text.length());
+    public void setCursorPosition(int index) {
+        this.cursorPos = BtrUtil.clamp(index, 0, this.text.length());
     }
 
     public void moveCursorToStart() {
@@ -185,7 +182,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
         if (!this.canConsumeInput()) {
             return false;
         } else {
-            this.shiftPressed = inputConnector.isShiftKeyDown();
+            this.shiftPressed = inputConnector.isShiftKeyDown(); // TODO: Fix shift key not being released
             if (inputConnector.isKeySelectAll(key)) {
                 this.moveCursorToEnd();
                 this.setHighlightPos(0);
@@ -197,14 +194,12 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
                 if (this.enabled) {
                     this.insertText(inputConnector.getClipboardContent());
                 }
-
                 return true;
             } else if (inputConnector.isKeyCut(key)) {
                 inputConnector.setClipboardContent(this.getHighlighted());
                 if (this.enabled) {
                     this.insertText("");
                 }
-
                 return true;
             } else {
                 switch(key) {
@@ -293,17 +288,17 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
         return true;
     }
 
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack) {
         FontConnector font = FontConnector.INSTANCE;
 
         if (this.isVisible()) {
             if (this.bordered) {
-                int borderColor = this.isFocused() ? BORDER_COLOR_FOCUSED : BORDER_COLOR;
+                int borderColor = this.isFocused() ? FOCUSED_BORDER_COLOR : (this.hovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR);
                 GuiStaticConnector.INSTANCE.fillRect(poseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
-                GuiStaticConnector.INSTANCE.fillRect(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF000000);
+                GuiStaticConnector.INSTANCE.fillRect(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
             }
 
-            int i2 = this.textColor != null ? this.textColor : (this.enabled ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR);
+            int i2 = this.textColor != null ? this.textColor : (this.enabled ? NORMAL_TEXT_COLOR : DISABLED_TEXT_COLOR);
             int j = this.cursorPos - this.displayPos;
             int k = this.highlightPos - this.displayPos;
             String trimmed = font.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
@@ -336,7 +331,7 @@ public class GuiTextFieldImpl extends GuiAbstractWidgetImpl {
 
             if (flag1) {
                 if (flag2) {
-                    GuiStaticConnector.INSTANCE.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, 0xFFD0D0D0);
+                    GuiStaticConnector.INSTANCE.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
                 } else {
                     font.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
                 }

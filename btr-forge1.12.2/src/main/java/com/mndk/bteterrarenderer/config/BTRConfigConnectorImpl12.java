@@ -47,6 +47,10 @@ public class BTRConfigConnectorImpl12 implements BTRConfigConnector {
         @Config.Comment("The amount of which the map is offset along the in-game X-axis")
         public double xAlign = 0;
 
+        @Config.Name("align_y")
+        @Config.Comment("The amount of which the map is offset along the in-game Y-axis")
+        public double yAlign = 0;
+
         @Config.Name("align_z")
         @Config.Comment("The amount of which the map is offset along the in-game Z-axis")
         public double zAlign = 0;
@@ -57,7 +61,7 @@ public class BTRConfigConnectorImpl12 implements BTRConfigConnector {
 
         @Config.Name("y_axis")
         @Config.Comment("The in-game y-coordinate value at which the map will be rendered")
-        public double yAxis = 4;
+        public double flatMapYAxis = 4;
 
         @Config.Name("opacity")
         @Config.Comment("The map opacity")

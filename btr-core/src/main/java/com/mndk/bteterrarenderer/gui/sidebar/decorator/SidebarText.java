@@ -19,7 +19,7 @@ public class SidebarText extends GuiSidebarElement {
     }
 
     public SidebarText(String displayString, TextAlign align) {
-        this(displayString, align, 0xFFFFFF);
+        this(displayString, align, NORMAL_TEXT_COLOR);
     }
 
     @Override
@@ -33,12 +33,12 @@ public class SidebarText extends GuiSidebarElement {
     }
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
         return formattedStringList.size() * FontConnector.INSTANCE.getFontHeight();
     }
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public void drawComponent(Object poseStack) {
         int elementWidth = parent.elementWidth.get().intValue();
 
         for(int i = 0; i < formattedStringList.size(); ++i) {
@@ -46,20 +46,20 @@ public class SidebarText extends GuiSidebarElement {
             if(align == TextAlign.LEFT) {
                 FontConnector.INSTANCE.drawStringWithShadow(poseStack,
                         line,
-                        0, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        0, i * FontConnector.INSTANCE.getFontHeight(), NORMAL_TEXT_COLOR
                 );
             }
             else if(align == TextAlign.RIGHT) {
                 FontConnector.INSTANCE.drawStringWithShadow(poseStack,
                         line,
                         elementWidth - FontConnector.INSTANCE.getStringWidth(line),
-                        i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        i * FontConnector.INSTANCE.getFontHeight(), NORMAL_TEXT_COLOR
                 );
             }
-            else if(align == TextAlign.CENTER){
+            else if(align == TextAlign.CENTER) {
                 FontConnector.INSTANCE.drawCenteredStringWithShadow(poseStack,
                         line,
-                        elementWidth / 2f, i * FontConnector.INSTANCE.getFontHeight(), 0xFFFFFF
+                        elementWidth / 2f, i * FontConnector.INSTANCE.getFontHeight(), NORMAL_TEXT_COLOR
                 );
             }
         }

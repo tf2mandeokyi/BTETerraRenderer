@@ -9,76 +9,88 @@ import com.mndk.bteterrarenderer.util.StringUtil;
 /**
  * Number input field class.
  */
-public class GuiNumberInput extends GuiAbstractWidgetImpl {
+public class GuiNumberInput extends GuiAbstractWidgetCopy {
 
-	private final GuiTextFieldImpl parent;
+	private static final int PREFIX_BOX_DISTANCE = 3;
+
+	private final GuiTextFieldCopy delegate;
 	protected final PropertyAccessor<Double> value;
 	protected int xPos;
 	protected boolean numberValidated = true;
 
 	public GuiNumberInput(int x, int y, int width, int height, PropertyAccessor<Double> value, String prefix) {
 		super(x, y, width, height, prefix);
-		this.parent = new GuiTextFieldImpl(
-				x + FontConnector.INSTANCE.getStringWidth(prefix) + 5, y,
-				width - FontConnector.INSTANCE.getStringWidth(prefix) - 5, height
+		this.delegate = new GuiTextFieldCopy(
+				x + FontConnector.INSTANCE.getStringWidth(prefix) + PREFIX_BOX_DISTANCE, y,
+				width - FontConnector.INSTANCE.getStringWidth(prefix) - PREFIX_BOX_DISTANCE, height
 		);
-		parent.setText(StringUtil.formatDoubleNicely(value.get(), 3));
-		parent.setMaxStringLength(50);
+		delegate.setText(StringUtil.formatDoubleNicely(value.get(), 3));
+		delegate.setMaxStringLength(50);
 		this.xPos = x;
 		this.value = value;
 	}
 
 	@Override
 	public void tick() {
-		parent.tick();
+		delegate.tick();
 	}
 
 	public void setWidth(int newWidth) {
 		this.width = newWidth;
-		parent.width = newWidth - FontConnector.INSTANCE.getStringWidth(text) - 5;
+		delegate.width = newWidth - FontConnector.INSTANCE.getStringWidth(text) - PREFIX_BOX_DISTANCE;
 	}
 
 	public void setX(int newX) {
 		this.xPos = newX;
-		parent.x = newX + FontConnector.INSTANCE.getStringWidth(text) + 5;
+		delegate.x = newX + FontConnector.INSTANCE.getStringWidth(text) + PREFIX_BOX_DISTANCE;
 	}
 
 	public boolean keyTyped(char typedChar, int keyCode) {
-		boolean result = parent.keyTyped(typedChar, keyCode);
+		boolean result = delegate.keyTyped(typedChar, keyCode);
 		if(result) this.updateTextColor();
 		return result;
 	}
 
 	public boolean keyPressed(InputKey key) {
-		boolean result = parent.keyPressed(key);
+		boolean result = delegate.keyPressed(key);
 		if(result) this.updateTextColor();
 		return result;
 	}
 
 	private void updateTextColor() {
-		String currentStr = parent.text;
+		String currentStr = delegate.text;
 		this.numberValidated = BtrUtil.validateDouble(currentStr);
-		parent.setTextColor(numberValidated ? 0xFFFFFF : 0xFF0000);
+		delegate.setTextColor(numberValidated ? NORMAL_TEXT_COLOR : ERROR_TEXT_COLOR);
 		if(numberValidated) {
-			value.set(Double.parseDouble(parent.text));
+			value.set(Double.parseDouble(delegate.text));
 		}
 	}
 
-	public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+	@Override
+	public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+		return this.delegate.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+	}
+
+	public void drawComponent(Object poseStack) {
 		int fontHeight = FontConnector.INSTANCE.getFontHeight();
+
+		int color = this.delegate.hovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
+		if(this.delegate.isFocused()) color = GuiTextFieldCopy.FOCUSED_BORDER_COLOR;
+		if(!numberValidated) color = ERROR_TEXT_COLOR;
+
 		FontConnector.INSTANCE.drawStringWithShadow(poseStack,
 				text,
-				this.xPos, parent.y + ((parent.height - fontHeight) / 2f),
-				numberValidated ? 0xFFFFFF : 0xFF0000
+				this.xPos, delegate.y + ((delegate.height - fontHeight) / 2f),
+				color
 		);
-		parent.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+		delegate.drawComponent(poseStack);
 	}
 
 	public void update() {
-		parent.setText(StringUtil.formatDoubleNicely(value.get(), 3));
+		delegate.setText(StringUtil.formatDoubleNicely(value.get(), 3));
 	}
 
 	public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-		return parent.mousePressed(mouseX, mouseY, mouseButton);
+		return delegate.mousePressed(mouseX, mouseY, mouseButton);
 	}
 }

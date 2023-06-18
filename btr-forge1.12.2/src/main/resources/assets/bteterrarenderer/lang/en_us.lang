@@ -2,36 +2,20 @@ key.bteterrarenderer.category=BTETerraRenderer
 key.bteterrarenderer.options_ui=Open Options UI
 key.bteterrarenderer.toggle=Toggle Map Rendering
 
-gui.bteterrarenderer.settings.title=Map Rendering Options
-gui.bteterrarenderer.settings.map_rendering=Map Rendering
-gui.bteterrarenderer.settings.enabled=Enabled
-gui.bteterrarenderer.settings.disabled=Disabled
-gui.bteterrarenderer.settings.map_type=Map Type
-gui.bteterrarenderer.settings.map_source=Map Source
+gui.bteterrarenderer.settings.title=BTETerraRenderer Settings
+
+gui.bteterrarenderer.settings.general=General
+gui.bteterrarenderer.settings.map_rendering=Rendering
 gui.bteterrarenderer.settings.map_y_level=Map Y Level
+gui.bteterrarenderer.settings.y_align=Y Align
 gui.bteterrarenderer.settings.opacity=Map Opacity
+
+gui.bteterrarenderer.settings.map_source=Map Source
+gui.bteterrarenderer.settings.map_settings=Map Settings
+gui.bteterrarenderer.settings.map_reload=Reload maps...
+gui.bteterrarenderer.settings.map_folder=Open maps folder...
+
+gui.bteterrarenderer.settings.map_offset=Map Offset
 gui.bteterrarenderer.settings.zoom=Map Zoom
 gui.bteterrarenderer.settings.size=Map Size
-gui.bteterrarenderer.settings.change_map_source=Change Map Source...
-
-gui.bteterrarenderer.settings.map_align=Map Alignment
-gui.bteterrarenderer.settings.x_align=X Axis
-gui.bteterrarenderer.settings.z_align=Z Axis
-gui.bteterrarenderer.settings.x_align_reset=Reset X
-gui.bteterrarenderer.settings.z_align_reset=Reset Z
-
-gui.bteterrarenderer.new_settings.title=BTETerraRenderer Settings
-
-gui.bteterrarenderer.new_settings.general=General
-gui.bteterrarenderer.new_settings.map_rendering=Rendering
-gui.bteterrarenderer.new_settings.map_y_level=Map Y Level
-gui.bteterrarenderer.new_settings.opacity=Map Opacity
-
-gui.bteterrarenderer.new_settings.map_source=Map Source
-gui.bteterrarenderer.new_settings.map_reload=Reload maps...
-gui.bteterrarenderer.new_settings.map_folder=Open maps folder...
-
-gui.bteterrarenderer.new_settings.map_offset=Map Offset
-gui.bteterrarenderer.new_settings.size=Map Size
-gui.bteterrarenderer.new_settings.zoom=Map Zoom
-gui.bteterrarenderer.new_settings.lock_north=Lock North
+gui.bteterrarenderer.settings.lock_north=Lock North

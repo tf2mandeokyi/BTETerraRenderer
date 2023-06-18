@@ -1,77 +1,45 @@
 package com.mndk.bteterrarenderer.gui.sidebar.slider;
 
-import com.mndk.bteterrarenderer.gui.components.GuiSliderImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiSliderCopy;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.util.BtrUtil;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
-import java.util.function.Predicate;
+public class SidebarSlider<T extends Number> extends GuiSidebarElement {
 
-public class SidebarSlider extends GuiSidebarElement {
+    private GuiSliderCopy slider;
 
-    private GuiSliderImpl slider;
-
-    private final PropertyAccessor<Double> doubleValue;
-    private final PropertyAccessor<Integer> intValue;
-    private final Predicate<Integer> intValidator;
+    private final PropertyAccessor.Ranged<T> value;
 
     private final String prefix, suffix;
-    private final double minValue, maxValue;
-    private final boolean isDouble;
+    private final boolean isInteger;
 
-    public SidebarSlider(PropertyAccessor<Double> value,
-                         String prefix, String suffix,
-                         double minValue, double maxValue) {
-        this.doubleValue = value;
+    public SidebarSlider(PropertyAccessor.Ranged<T> value,
+                         String prefix, String suffix) {
+        this.value = value;
         this.prefix = prefix; this.suffix = suffix;
-        this.minValue = minValue; this.maxValue = maxValue;
-        this.isDouble = true;
 
-        this.intValue = null;
-        this.intValidator = null;
-    }
-
-    public SidebarSlider(PropertyAccessor<Integer> value,
-                         String prefix, String suffix,
-                         int minValue, int maxValue,
-                         Predicate<Integer> intValidator) {
-        this.intValue = value;
-        this.intValidator = intValidator;
-        this.prefix = prefix; this.suffix = suffix;
-        this.minValue = minValue; this.maxValue = maxValue;
-        this.isDouble = false;
-
-        this.doubleValue = null;
+        Class<?> valueClass = value.getPropertyClass();
+        this.isInteger = valueClass != float.class && valueClass != Float.class &&
+                valueClass != double.class && valueClass != Double.class;
     }
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
         return 20;
     }
 
     @Override
     protected void init() {
-        if(this.isDouble) {
-            assert doubleValue != null;
-            this.slider = new GuiSliderImpl(
-                    0, 0,
-                    parent.elementWidth.get().intValue(), 20,
-                    prefix, suffix,
-                    minValue, maxValue, doubleValue.get(),
-                    true, true, false,
-                    slider -> doubleValue.set(slider.getValue())
-            );
-        }
-        else {
-            assert intValue != null;
-            this.slider = new GuiSliderImpl(
-                    0, 0,
-                    parent.elementWidth.get().intValue(), 20,
-                    prefix, suffix,
-                    (int) minValue, (int) maxValue, intValue.get(),
-                    false, true, true,
-                    slider -> intValue.set((int) slider.getValue())
-            );
-        }
+        assert value != null;
+        this.slider = new GuiSliderCopy(
+                0, 0,
+                parent.elementWidth.get().intValue(), 20,
+                prefix, suffix,
+                value.min().doubleValue(), value.max().doubleValue(), value.get().doubleValue(),
+                !this.isInteger, true, this.isInteger,
+                slider -> value.set(BtrUtil.doubleToNumber(value.getPropertyClass(), slider.getValue()))
+        );
     }
 
     @Override
@@ -85,11 +53,22 @@ public class SidebarSlider extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
-        if(this.slider.drawString && this.intValidator != null) {
-            this.slider.packedForegroundColor = intValidator.test(this.slider.getValueInt()) ? 0 : 0xFF0000;
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        return this.slider.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+    }
+
+    @Override
+    public void drawComponent(Object poseStack) {
+        if(this.slider.drawString) {
+            boolean testResult;
+            if(this.isInteger) {
+                testResult = value.available(BtrUtil.doubleToNumber(value.getPropertyClass(), this.slider.getValue()));
+            } else {
+                testResult = this.value.available(BtrUtil.integerToNumber(value.getPropertyClass(), this.slider.getValueInt()));
+            }
+            this.slider.packedForegroundColor = testResult ? NULL_COLOR : ERROR_TEXT_COLOR;
         }
-        this.slider.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+        this.slider.drawComponent(poseStack);
     }
 
     @Override

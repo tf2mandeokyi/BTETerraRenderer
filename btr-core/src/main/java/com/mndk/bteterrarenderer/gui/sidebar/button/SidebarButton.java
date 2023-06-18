@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.gui.components.GuiButtonImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiButtonCopy;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 
 public class SidebarButton extends GuiSidebarElement {
 
-    private GuiButtonImpl button;
+    private GuiButtonCopy button;
     private final String buttonText;
     private final MouseClickedEvent event;
 
@@ -16,7 +16,7 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.button = new GuiButtonImpl(0, 0, parent.elementWidth.get().intValue(), 20, buttonText);
+        this.button = new GuiButtonCopy(0, 0, parent.elementWidth.get().intValue(), 20, buttonText);
     }
 
     @Override
@@ -29,13 +29,18 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
         return 20;
     }
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
-        this.button.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        return this.button.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+    }
+
+    @Override
+    public void drawComponent(Object poseStack) {
+        this.button.drawComponent(poseStack);
     }
 
     @Override

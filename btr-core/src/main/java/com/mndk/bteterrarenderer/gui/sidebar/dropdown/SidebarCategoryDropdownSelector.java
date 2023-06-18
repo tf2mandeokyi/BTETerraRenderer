@@ -12,8 +12,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+// TODO: Fix category being closed after hiding the UI
 @RequiredArgsConstructor
-public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapProperty> extends GuiSidebarElement {
+public class SidebarCategoryDropdownSelector<T extends CategoryMapData.ICategoryMapProperty> extends GuiSidebarElement {
 
 
     private static final int HORIZONTAL_PADDING = 12;
@@ -22,6 +23,13 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     private static final int ELEMENT_VERTICAL_MARGIN = 5;
     private static final int DROPDOWN_VERTICAL_PADDING = 8;
 
+    private static final int MAIN_RECT_BACKGROUND_COLOR = 0x80000000;
+    private static final int MAIN_RECT_NORMAL_BORDER_COLOR = 0xFFFFFFFF;
+
+    private static final int DROPDOWN_BACKGROUND_COLOR = 0xE8080808;
+    private static final int SELECTED_BACKGROUND_COLOR = 0xDFA0AFFF;
+    private static final int CATEGORY_SEPARATOR_LINE_COLOR = 0xA0FFFFFF;
+
 
     private final PropertyAccessor<CategoryMapData<T>> currentCategories;
     private final Supplier<String> currentCategoryName;
@@ -29,9 +37,9 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
     private final ItemSetter itemSetter;
     private final Function<T, String> nameGetter;
 
-    private boolean opened = false;
+    private boolean opened = false, mouseOnMainBox = false;
 
-    private int closedHeight, singleLineElementHeight, width, innerWidth;
+    private int closedHeight, singleLineElementHeight, width, innerWidth, mouseHoverIndex;
 
 
     public CategoryMapData<T> getCurrentCategories() {
@@ -49,37 +57,97 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
 
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
+        return this.closedHeight;
+    }
+
+
+    @Override
+    public int getVisualHeight() {
         if(!opened) return closedHeight;
-        int dy = 0;
+        int totalElementsHeight = 0;
         for(Map.Entry<String, DropdownCategory<T>> entry : currentCategories.get().getCategoryMap().entrySet()) {
-            dy += singleLineElementHeight;
+            totalElementsHeight += singleLineElementHeight;
 
             DropdownCategory<T> category = entry.getValue();
 
             if(category.isOpened()) {
                 for(T item : category.values()) {
-                    dy += FontConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                    totalElementsHeight += FontConnector.INSTANCE.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
                             + ELEMENT_VERTICAL_MARGIN * 2;
                 }
             }
         }
-        return this.closedHeight + dy + DROPDOWN_VERTICAL_PADDING;
+        return this.closedHeight + totalElementsHeight + DROPDOWN_VERTICAL_PADDING;
     }
 
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        this.mouseOnMainBox = mouseInBox(mouseX, mouseY);
+
+        boolean result = !mouseHidden && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY < this.getVisualHeight();
+        if(!opened) return result;
+
+        // Dropdown
+        CategoryMapData<T> categories = currentCategories.get();
+        Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
+        FontConnector fontRenderer = FontConnector.INSTANCE;
+
+        int totalHeight = 0;
+        int hoverIndex = 0;
+        this.mouseHoverIndex = -1;
+        categoryLoop: for(Map.Entry<String, DropdownCategory<T>> categoryEntry : categoryMap.entrySet()) {
+            String categoryName = categoryEntry.getKey();
+            if(categoryName == null) continue;
+
+            DropdownCategory<T> category = categoryEntry.getValue();
+            if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight)) {
+                this.mouseHoverIndex = hoverIndex;
+                break;
+            }
+
+            hoverIndex++;
+            totalHeight += singleLineElementHeight;
+
+            // Items
+            if(!category.isOpened()) continue;
+            for (Map.Entry<String, T> itemEntry : category.entrySet()) {
+                String itemId = itemEntry.getKey();
+                if(itemId == null) continue;
+
+                T item = itemEntry.getValue();
+
+                // Handle overflow
+                int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                        + ELEMENT_VERTICAL_MARGIN * 2;
+                if(isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height)) {
+                    this.mouseHoverIndex = hoverIndex;
+                    break categoryLoop;
+                }
+
+                hoverIndex++;
+                totalHeight += height;
+            }
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public void drawComponent(Object poseStack) {
 
         CategoryMapData<T> categories = currentCategories.get();
         Map<String, DropdownCategory<T>> categoryMap = categories.getCategoryMap();
-        int rectColor = mouseInBox(mouseX, mouseY) ? 0xFFFFFFA0 : 0xFFFFFFFF;
+        int rectColor = this.mouseOnMainBox ? HOVERED_COLOR : MAIN_RECT_NORMAL_BORDER_COLOR;
         FontConnector fontRenderer = FontConnector.INSTANCE;
 
         // Background
-        GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, 0, width, closedHeight, 0x80000000);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, 0, width, closedHeight, MAIN_RECT_BACKGROUND_COLOR);
         if(opened) {
-            GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, closedHeight, width, getHeight(), 0xA0000000);
+            GuiStaticConnector.INSTANCE.fillRect(poseStack, 0, closedHeight, width, getVisualHeight(),
+                    DROPDOWN_BACKGROUND_COLOR);
         }
 
         // Dropdown arrow
@@ -104,79 +172,75 @@ public class SidebarDropdownSelector<T extends CategoryMapData.ICategoryMapPrope
             fontRenderer.drawStringWithShadow(poseStack, currentName, HORIZONTAL_PADDING, VERTICAL_PADDING, rectColor);
         }
 
+        if (!opened) return;
+
         // Dropdown
-        if(opened) {
-            int totalHeight = 0;
-            int yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
+        int totalHeight = 0, yStart = closedHeight + DROPDOWN_VERTICAL_PADDING;
+        int hoverIndex = 0, categoryIndex = 0;
+        for(Map.Entry<String, DropdownCategory<T>> categoryEntry : categoryMap.entrySet()) {
+            String categoryName = categoryEntry.getKey();
+            if(categoryName == null) continue;
 
-            int j = 0;
-            for(Map.Entry<String, DropdownCategory<T>> categoryEntry : categoryMap.entrySet()) {
-                String categoryName = categoryEntry.getKey();
-                if(categoryName == null) continue;
+            DropdownCategory<T> category = categoryEntry.getValue();
+            int categoryColor = mouseHoverIndex == (hoverIndex++) ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 
-                DropdownCategory<T> category = categoryEntry.getValue();
-                int categoryColor = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + singleLineElementHeight)
-                        ? 0xFFFFFFA0 : 0xFFFFFFFF;
+            // Category name
+            fontRenderer.drawCenteredStringWithShadow(poseStack,
+                    categoryName,
+                    width / 2.0f, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
+                    categoryColor
+            );
 
-                // Category name
-                fontRenderer.drawCenteredStringWithShadow(poseStack,
-                        categoryName,
-                        width / 2.0f, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
-                        categoryColor
-                );
+            // Dropdown arrow
+            this.drawDropdownArrow(poseStack,
+                    yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
+                    categoryColor,
+                    category.isOpened()
+            );
+            totalHeight += singleLineElementHeight;
 
-                // Dropdown arrow
-                this.drawDropdownArrow(poseStack,
-                        yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
-                        categoryColor,
-                        category.isOpened()
-                );
-                totalHeight += singleLineElementHeight;
-
+            if(category.isOpened()) {
                 // Items
-                if(category.isOpened()) {
-                    for (Map.Entry<String, T> itemEntry : category.entrySet()) {
-                        String itemId = itemEntry.getKey();
-                        if(itemId == null) continue;
+                for (Map.Entry<String, T> itemEntry : category.entrySet()) {
+                    String itemId = itemEntry.getKey();
+                    if (itemId == null) continue;
 
-                        T item = itemEntry.getValue();
-                        String name = nameGetter.apply(item);
+                    T item = itemEntry.getValue();
+                    String name = nameGetter.apply(item);
 
-                        // Handle overflow
-                        int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
-                                + ELEMENT_VERTICAL_MARGIN * 2;
-                        int color = isMouseOnIndex(mouseX, mouseY, totalHeight, totalHeight + height) 
-                                ? 0xFFFFFFA0 : 0xFFFFFFFF;
+                    // Handle overflow
+                    int height = fontRenderer.getWordWrappedHeight(nameGetter.apply(item), innerWidth)
+                            + ELEMENT_VERTICAL_MARGIN * 2;
+                    int color = mouseHoverIndex == (hoverIndex++) ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 
-                        // Blue background
-                        if (categoryName.equals(currentCategoryName.get()) && itemId.equals(currentItemId.get())) {
-                            GuiStaticConnector.INSTANCE.fillRect(poseStack,
-                                    0, yStart + totalHeight,
-                                    width, yStart + totalHeight + height,
-                                    0xDFA0AFFF
-                            );
-                        }
-
-                        // Item text
-                        fontRenderer.drawSplitString(poseStack,
-                                name, HORIZONTAL_PADDING, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
-                                innerWidth, color
+                    // Selected background
+                    if (categoryName.equals(currentCategoryName.get()) && itemId.equals(currentItemId.get())) {
+                        GuiStaticConnector.INSTANCE.fillRect(poseStack,
+                                0, yStart + totalHeight,
+                                width, yStart + totalHeight + height,
+                                SELECTED_BACKGROUND_COLOR
                         );
-                        totalHeight += height;
                     }
-                }
-                if(j != categoryMap.size() - 1) {
-                    // horizontal line
-                    GuiStaticConnector.INSTANCE.fillRect(poseStack,
-                            0, yStart + totalHeight,
-                            width, yStart + totalHeight + 1,
-                            0xA0FFFFFF
+
+                    // Item text
+                    fontRenderer.drawSplitString(poseStack,
+                            name, HORIZONTAL_PADDING, yStart + totalHeight + ELEMENT_VERTICAL_MARGIN,
+                            innerWidth, color
                     );
+                    totalHeight += height;
                 }
-                j++;
             }
 
-
+            // Category separator line
+            if(categoryIndex != categoryMap.size() - 1) {
+                // horizontal line
+                GuiStaticConnector.INSTANCE.fillRect(poseStack,
+                        0, yStart + totalHeight,
+                        width, yStart + totalHeight + 1,
+                        CATEGORY_SEPARATOR_LINE_COLOR
+                );
+            }
+            categoryIndex++;
         }
     }
 

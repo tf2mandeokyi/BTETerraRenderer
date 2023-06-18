@@ -14,7 +14,6 @@ public class AbstractGuiScreenImpl12 extends GuiScreen {
 
     public AbstractGuiScreenImpl12(AbstractGuiScreen delegate) {
         this.delegate = delegate;
-        delegate.guiWidth = () -> super.width;
         delegate.screenSize = IScaledScreenSizeImpl12::new;
     }
 

@@ -1,50 +1,67 @@
 package com.mndk.bteterrarenderer.util;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public abstract class PropertyAccessor<T> {
+import java.util.function.*;
 
-    private PropertyAccessor() {}
+public interface PropertyAccessor<T> {
 
-    public final void set(T value) {
+    default void set(T value) {
         if(this.available(value)) {
-            this.setValue(value);
+            this.setWithoutCheck(value);
         }
     }
 
-    public abstract T get();
-    protected abstract void setValue(T value);
-    public abstract boolean available(T value);
+    Class<T> getPropertyClass();
+    T get();
+    void setWithoutCheck(T value);
+    boolean available(T value);
 
-    public static <T> PropertyAccessor<T> of(Supplier<T> getter, Consumer<T> setter) {
-        return new PropertyAccessorImpl<>(getter, setter, t -> true);
+    static PropertyAccessor<Integer> of(IntSupplier getter, IntConsumer setter) {
+        return new PropertyAccessorImpl<>(int.class, getter::getAsInt, setter::accept, t -> true);
     }
 
-    public static <T> PropertyAccessor<T> of(Supplier<T> getter, Consumer<T> setter, Predicate<T> predicate) {
-        return new PropertyAccessorImpl<>(getter, setter, predicate);
+    static PropertyAccessor<Double> of(DoubleSupplier getter, DoubleConsumer setter) {
+        return new PropertyAccessorImpl<>(double.class, getter::getAsDouble, setter::accept, t -> true);
     }
 
-    private static class PropertyAccessorImpl<T> extends PropertyAccessor<T> {
+    static <T> PropertyAccessor<T> of(Class<T> type, Supplier<T> getter, Consumer<T> setter) {
+        return new PropertyAccessorImpl<>(type, getter, setter, t -> true);
+    }
 
+    static <T> PropertyAccessor<T> of(Class<T> type, Supplier<T> getter, Consumer<T> setter, Predicate<T> predicate) {
+        return new PropertyAccessorImpl<>(type, getter, setter, predicate);
+    }
+
+    interface Ranged<T extends Number> extends PropertyAccessor<T> {
+        T min();
+        T max();
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    class PropertyAccessorImpl<T> implements PropertyAccessor<T> {
+        @Getter
+        private final Class<T> propertyClass;
         private final Supplier<T> getter;
         private final Consumer<T> setter;
         private final Predicate<T> predicate;
-
-        PropertyAccessorImpl(Supplier<T> getter, Consumer<T> setter, Predicate<T> predicate) {
-            this.getter = getter;
-            this.setter = setter;
-            this.predicate = predicate;
-        }
 
         @Override
         public T get() { return getter.get(); }
 
         @Override
-        protected void setValue(T value) { setter.accept(value); }
+        public void setWithoutCheck(T value) { setter.accept(value); }
 
         @Override
         public boolean available(T value) { return predicate.test(value); }
+    }
+
+    @RequiredArgsConstructor
+    class Localized<T> {
+        public final String key;
+        public final String i18nKey;
+        public final PropertyAccessor<T> delegate;
     }
 }

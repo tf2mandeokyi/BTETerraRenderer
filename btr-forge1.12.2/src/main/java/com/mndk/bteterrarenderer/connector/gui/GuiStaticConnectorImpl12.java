@@ -5,7 +5,8 @@ import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl12;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
-import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetCopy;
+import com.mndk.bteterrarenderer.gui.components.GuiEventListenerCopy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -50,7 +51,7 @@ public class GuiStaticConnectorImpl12 implements GuiStaticConnector {
     }
 
     @Override
-    public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetImpl.HoverState hoverState) {
+    public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
         int i = 0;
         switch(hoverState) {
             case DISABLED:          break;
@@ -68,9 +69,10 @@ public class GuiStaticConnectorImpl12 implements GuiStaticConnector {
 
     @Override
     public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
-        this.drawButton(poseStack, x, y, width, height, GuiAbstractWidgetImpl.HoverState.DISABLED);
+        this.drawButton(poseStack, x, y, width, height, GuiAbstractWidgetCopy.HoverState.DISABLED);
         if (checked) {
-            FontConnector.INSTANCE.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1, 0xE0E0E0);
+            FontConnector.INSTANCE.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1,
+                    GuiEventListenerCopy.NORMAL_TEXT_COLOR);
         }
     }
 

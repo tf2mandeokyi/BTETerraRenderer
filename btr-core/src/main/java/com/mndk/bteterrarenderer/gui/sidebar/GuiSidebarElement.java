@@ -1,22 +1,25 @@
 package com.mndk.bteterrarenderer.gui.sidebar;
 
-import com.mndk.bteterrarenderer.gui.components.GuiComponentImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiComponentCopy;
 
-public abstract class GuiSidebarElement extends GuiComponentImpl {
+public abstract class GuiSidebarElement extends GuiComponentCopy {
 
+    /**
+     * This is initialized during {@link GuiSidebarElement#initComponent} call,
+     * so there's no need to initialize this in the constructor.
+     */
     public GuiSidebar parent;
-    public boolean hide;
+    public boolean hide = false;
 
-    public GuiSidebarElement() {
-        this.hide = false;
-    }
-
-    public final void initGui(GuiSidebar parent) {
+    public final void initComponent(GuiSidebar parent) {
         this.parent = parent;
         this.init();
     }
 
-    public abstract int getHeight();
+    public abstract int getPhysicalHeight();
+    public int getVisualHeight() {
+        return this.getPhysicalHeight();
+    }
 
     protected abstract void init();
 

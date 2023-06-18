@@ -65,7 +65,12 @@ public class SidebarGuiChat {
         parent.setInputFieldWidth(right - left - 4);
     }
 
-    public void drawScreen(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public void mouseHovered(double mouseX, double mouseY, float partialTicks) {
+        if(parent == null) return;
+        parent.handleMouseHover(mouseX, mouseY, partialTicks);
+    }
+
+    public void drawScreen(Object poseStack) {
         if(parent == null) return;
 
         GuiStaticConnector.INSTANCE.fillRect(poseStack,
@@ -73,7 +78,6 @@ public class SidebarGuiChat {
                 right - 2, parent.getHeight() - 2, Integer.MIN_VALUE
         );
         parent.drawInputFieldBox();
-        parent.handleMouseHover(mouseX, mouseY, partialTicks);
     }
 
     public boolean keyTypedResponse(char typedChar, int keyCode) {
@@ -89,7 +93,6 @@ public class SidebarGuiChat {
         parent.keyTyped(typedChar, keyCode);
         return true;
     }
-
 
     public boolean mouseClickResponse(double mouseX, double mouseY, int mouseButton) {
         if(parent == null) return false;

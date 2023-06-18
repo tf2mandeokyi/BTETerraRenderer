@@ -8,7 +8,7 @@ import com.mndk.bteterrarenderer.connector.minecraft.I18nConnector;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.InputKey;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
-import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiCheckBoxCopy;
 import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
@@ -21,6 +21,11 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
     private static final double MOUSE_DIVIDER = 30;
 
+    private static final int ALIGNBOX_BACKGROUND_COLOR = 0xBB000000;
+    private static final int AXIS_LINE_COLOR = 0xFFFF0000;
+    private static final int PRIMARY_LINE_COLOR = 0xFFFFFFFF;
+    private static final int SECONDARY_LINE_COLOR = 0xFF8E8E8E;
+
     private static final IResourceLocation ALIGNMENT_MARKER = DependencyConnectorSupplier.INSTANCE.newResourceLocation(
             BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
     );
@@ -28,11 +33,11 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private GuiNumberInput xInput, zInput;
     private final PropertyAccessor<Double> xOffset, zOffset;
 
-    private GuiCheckBoxImpl lockNorthCheckBox;
+    private GuiCheckBoxCopy lockNorthCheckBox;
     private final PropertyAccessor<Boolean> lockNorth;
 
     private double playerYawRadians;
-    private boolean aligningMode;
+    private boolean aligningMode, alignBoxHovered;
 
     public SidebarMapAligner(
             PropertyAccessor<Double> xOffset, PropertyAccessor<Double> zOffset, PropertyAccessor<Boolean> lockNorth
@@ -55,9 +60,9 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 width / 2 + 3, 0, width / 2 - 3, 20,
                 zOffset, "Z = "
         );
-        this.lockNorthCheckBox = new GuiCheckBoxImpl(
+        this.lockNorthCheckBox = new GuiCheckBoxCopy(
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT * 2 + ALIGNBOX_HEIGHT,
-                I18nConnector.INSTANCE.format("gui.bteterrarenderer.new_settings.lock_north"), this.lockNorth.get()
+                I18nConnector.INSTANCE.format("gui.bteterrarenderer.settings.lock_north"), this.lockNorth.get()
         );
         this.setPlayerYawRadians();
     }
@@ -75,7 +80,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
-    public int getHeight() {
+    public int getPhysicalHeight() {
         return 40 + ALIGNBOX_MARGIN_VERT * 2 + ALIGNBOX_HEIGHT;
     }
 
@@ -87,14 +92,28 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
-        xInput.drawComponent(poseStack, mouseX, mouseY, partialTicks);
-        zInput.drawComponent(poseStack, mouseX, mouseY, partialTicks);
-        lockNorthCheckBox.drawComponent(poseStack, mouseX, mouseY, partialTicks);
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        boolean result = xInput.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+        if(zInput.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden)) result = true;
+        if(lockNorthCheckBox.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden)) result = true;
+
+        this.alignBoxHovered = !mouseHidden && this.mouseInAlignBox(mouseX, mouseY);
+        if(this.alignBoxHovered) result = true;
+        return result;
+    }
+
+    @Override
+    public void drawComponent(Object poseStack) {
+        xInput.drawComponent(poseStack);
+        zInput.drawComponent(poseStack);
+        lockNorthCheckBox.drawComponent(poseStack);
         this.drawAlignBox(poseStack);
     }
 
     private void drawAlignBox(Object poseStack) {
+        // TODO: Fix small grids going on top of the red grids
+        // TODO: Add numbers
+
         int elementWidth = parent.elementWidth.get().intValue(), boxWidth = elementWidth - ALIGNBOX_MARGIN_SIDE * 2;
         double alignX = this.xOffset.get(), alignZ = this.zOffset.get();
         int xi = (int) alignX, zi = (int) alignZ;
@@ -102,24 +121,22 @@ public class SidebarMapAligner extends GuiSidebarElement {
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
         int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;
 
+        int boxN = 20 + ALIGNBOX_MARGIN_VERT, boxS = boxN + ALIGNBOX_HEIGHT;
+        int boxW = ALIGNBOX_MARGIN_SIDE, boxE = elementWidth - ALIGNBOX_MARGIN_SIDE;
+
+        // Box background
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
+
         // Enable box clipping
         GraphicsConnector.INSTANCE.glEnableScissorTest();
         GraphicsConnector.INSTANCE.glRelativeScissor(poseStack,
-                ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT,
-                elementWidth - 2 * ALIGNBOX_MARGIN_SIDE, ALIGNBOX_HEIGHT
-        );
-
-        GuiStaticConnector.INSTANCE.fillRect(poseStack,
-                ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT,
-                elementWidth - ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT,
-                0xBB000000
-        );
+                boxW + 1, boxN + 1, boxE - boxW - 2, boxS - boxN - 2);
 
         // North-South lines
         for(int z = zi - lineCount; z <= zi + lineCount; z++) {
             double diff = (z - alignZ) * MOUSE_DIVIDER;
             double diffX = dy * diff, diffY = -dx * diff;
-            int color = z == 0 ? 0xFFFF0000 : (z % 5 == 0 ? 0xFFFFFFFF : 0xFF8E8E8E);
+            int color = z == 0 ? AXIS_LINE_COLOR : (z % 5 == 0 ? PRIMARY_LINE_COLOR : SECONDARY_LINE_COLOR);
 
             GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
                     centerX + diffX - dx * 1000, centerY + diffY - dy * 1000,
@@ -131,7 +148,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         for(int x = xi - lineCount; x <= xi + lineCount; x++) {
             double diff = (alignX - x) * MOUSE_DIVIDER;
             double diffX = dx * diff, diffY = dy * diff;
-            int color = x == 0 ? 0xFFFF0000 : (x % 5 == 0 ? 0xFFFFFFFF : 0xFF8E8E8E);
+            int color = x == 0 ? AXIS_LINE_COLOR : (x % 5 == 0 ? PRIMARY_LINE_COLOR : SECONDARY_LINE_COLOR);
 
             GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
                     centerX + diffX - dy * 1000, centerY + diffY + dx * 1000,
@@ -142,6 +159,15 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
         // Disable box clipping
         GraphicsConnector.INSTANCE.glDisableScissorTest();
+
+        // Borders
+        int borderColor = this.alignBoxHovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR;
+        if(aligningMode) borderColor = FOCUSED_BORDER_COLOR;
+
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW - 1, boxN - 1, boxW, boxS + 1, borderColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW - 1, boxN - 1, boxE + 1, boxN, borderColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxE, boxN - 1, boxE + 1, boxS + 1, borderColor);
+        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW - 1, boxS, boxE + 1, boxS + 1, borderColor);
 
         // Center marker
         GuiStaticConnector.INSTANCE.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
@@ -158,7 +184,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 this.setPlayerYawRadians();
                 return true;
             }
-            if(isMouseInAlignBox(mouseX, mouseY)) {
+            if(mouseInAlignBox(mouseX, mouseY)) {
                 aligningMode = true;
             }
         }
@@ -166,7 +192,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         return false;
     }
 
-    private boolean isMouseInAlignBox(double mouseX, double mouseY) {
+    private boolean mouseInAlignBox(double mouseX, double mouseY) {
         int width = parent.elementWidth.get().intValue();
         return mouseX >= 10 && mouseX <= width - 10 &&
                 mouseY >= 20 + ALIGNBOX_MARGIN_VERT && mouseY <= 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT;

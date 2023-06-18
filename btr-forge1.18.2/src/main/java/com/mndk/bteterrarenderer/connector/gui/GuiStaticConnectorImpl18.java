@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.connector.minecraft.IResourceLocationImpl18;
 import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
-import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetImpl;
+import com.mndk.bteterrarenderer.gui.components.GuiAbstractWidgetCopy;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -109,7 +109,7 @@ public class GuiStaticConnectorImpl18 implements GuiStaticConnector {
     }
 
     @Override
-    public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetImpl.HoverState hoverState) {
+    public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, AbstractWidget.WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1, 1, 1, 1);

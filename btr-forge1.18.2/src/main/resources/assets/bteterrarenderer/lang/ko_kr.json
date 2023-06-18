@@ -3,37 +3,21 @@
     "key.bteterrarenderer.options_ui": "설정 UI 열기",
     "key.bteterrarenderer.toggle": "지도 렌더링 켜기/끄기",
 
-    "gui.bteterrarenderer.settings.title": "지도 렌더링 설정",
+    "gui.bteterrarenderer.settings.title": "BTETerraRenderer 설정",
+
+    "gui.bteterrarenderer.settings.general": "일반",
     "gui.bteterrarenderer.settings.map_rendering": "지도 렌더링",
-    "gui.bteterrarenderer.settings.enabled": "켜짐",
-    "gui.bteterrarenderer.settings.disabled": "꺼짐",
-    "gui.bteterrarenderer.settings.map_type": "지도 타입",
-    "gui.bteterrarenderer.settings.map_source": "지도 소스",
     "gui.bteterrarenderer.settings.map_y_level": "지도 Y 레벨",
+    "gui.bteterrarenderer.settings.y_align": "Y축 보정",
     "gui.bteterrarenderer.settings.opacity": "지도 불투명도",
-    "gui.bteterrarenderer.settings.zoom": "지도 줌",
+
+    "gui.bteterrarenderer.settings.map_source": "지도 소스",
+    "gui.bteterrarenderer.settings.map_settings": "지도 설정",
+    "gui.bteterrarenderer.settings.map_reload": "새로고침...",
+    "gui.bteterrarenderer.settings.map_folder": "지도 폴더 열기...",
+
+    "gui.bteterrarenderer.settings.map_offset": "지도 보정",
     "gui.bteterrarenderer.settings.size": "지도 크기",
-    "gui.bteterrarenderer.settings.change_map_source": "지도 소스 바꾸기...",
-
-    "gui.bteterrarenderer.settings.map_align": "지도 좌표 조정",
-    "gui.bteterrarenderer.settings.x_align": "X축",
-    "gui.bteterrarenderer.settings.z_align": "Z축",
-    "gui.bteterrarenderer.settings.x_align_reset": "X축 초기화",
-    "gui.bteterrarenderer.settings.z_align_reset": "Z축 초기화",
-
-    "gui.bteterrarenderer.new_settings.title": "BTETerraRenderer 설정",
-
-    "gui.bteterrarenderer.new_settings.general": "일반",
-    "gui.bteterrarenderer.new_settings.map_rendering": "지도 렌더링",
-    "gui.bteterrarenderer.new_settings.map_y_level": "지도 Y 레벨",
-    "gui.bteterrarenderer.new_settings.opacity": "지도 불투명도",
-
-    "gui.bteterrarenderer.new_settings.map_source": "지도 소스",
-    "gui.bteterrarenderer.new_settings.map_reload": "새로고침...",
-    "gui.bteterrarenderer.new_settings.map_folder": "지도 폴더 열기...",
-
-    "gui.bteterrarenderer.new_settings.map_offset": "지도 오프셋",
-    "gui.bteterrarenderer.new_settings.size": "지도 크기",
-    "gui.bteterrarenderer.new_settings.zoom": "지도 줌",
-    "gui.bteterrarenderer.new_settings.lock_north": "북쪽 고정"
+    "gui.bteterrarenderer.settings.zoom": "지도 줌",
+    "gui.bteterrarenderer.settings.lock_north": "북쪽 고정"
 }

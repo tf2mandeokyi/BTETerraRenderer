@@ -8,12 +8,6 @@ import com.mndk.bteterrarenderer.projection.Projections;
 
 public class TileRenderer {
 
-    /**
-     * This variable is to prevent z-fighting from happening.<br>
-     * Setting this lower than 0.1 won't have its effect when the hologram is viewed far away from player
-     */
-    private static final double Y_EPSILON = 0.1;
-
     public static void renderTiles(Object poseStack, double px, double py, double pz) {
         if(!BTRConfigConnector.INSTANCE.isDoRender()) return;
 
@@ -24,7 +18,7 @@ public class TileRenderer {
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 
-        double yDiff = settings.getYAxis() - py;
+        double yDiff = settings.getFlatMapYAxis() - py;
         if(Math.abs(yDiff) >= settings.getYDiffLimit()) return;
 
         GraphicsConnector.INSTANCE.glPushMatrix(poseStack);
@@ -34,7 +28,7 @@ public class TileRenderer {
                 poseStack,
                 config.getMapServiceCategory() + "." + config.getMapServiceId(),
                 px + settings.getXAlign(),
-                py - (settings.getYAxis() + Y_EPSILON), // TODO: move this Y_EPSILON to FlatTileMapService
+                py,
                 pz + settings.getZAlign(),
                 (float) settings.getOpacity()
         );

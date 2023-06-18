@@ -10,7 +10,7 @@ import lombok.Setter;
  * and 1.18.2's <code>net.minecraft.client.gui.components.AbstractWidget</code>
  */
 @Getter @Setter
-public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
+public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
 
     protected int x, y, width, height;
     protected String text;
@@ -19,7 +19,7 @@ public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
     public int packedForegroundColor;
     private boolean focused;
 
-    public GuiAbstractWidgetImpl(int x, int y, int width, int height, String text) {
+    public GuiAbstractWidgetCopy(int x, int y, int width, int height, String text) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -27,24 +27,28 @@ public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
         this.text = text;
     }
 
-    protected GuiButtonImpl.HoverState getButtonHoverState(boolean mouseOver) {
+    protected GuiButtonCopy.HoverState getButtonHoverState(boolean mouseOver) {
         if(!this.enabled) return HoverState.DISABLED;
         else if(mouseOver) return HoverState.MOUSE_OVER;
         return HoverState.DEFAULT;
     }
 
-    public void drawComponent(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    @Override
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        return this.hovered = !mouseHidden && this.isMouseOnWidget(mouseX, mouseY);
+    }
+
+    public void drawComponent(Object poseStack) {
         if(!this.visible) return;
 
-        this.hovered = this.isMouseOnWidget(mouseX, mouseY);
-        GuiButtonImpl.HoverState hoverState = this.getButtonHoverState(this.hovered);
+        GuiButtonCopy.HoverState hoverState = this.getButtonHoverState(this.hovered);
         GuiStaticConnector.INSTANCE.drawButton(poseStack, x, y, width, height, hoverState);
-        this.drawBackground(poseStack, mouseX, mouseY, partialTicks);
+        this.drawBackground(poseStack);
 
-        int color = 0xE0E0E0;
-        if(packedForegroundColor != 0)  color = packedForegroundColor;
-        else if(!this.enabled)           color = 0xA0A0A0;
-        else if(this.hovered)           color = 0xFFFFA0;
+        int color = NORMAL_TEXT_COLOR;
+        if(packedForegroundColor != NULL_COLOR)  color = packedForegroundColor;
+        else if(!this.enabled)           color = DISABLED_TEXT_COLOR;
+        else if(this.hovered)            color = HOVERED_COLOR;
 
         FontConnector fontRenderer = FontConnector.INSTANCE;
         String buttonText = this.text;
@@ -57,7 +61,7 @@ public abstract class GuiAbstractWidgetImpl extends GuiComponentImpl {
         fontRenderer.drawCenteredStringWithShadow(poseStack, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
     }
 
-    public void drawBackground(Object poseStack, double mouseX, double mouseY, float partialTicks) {}
+    public void drawBackground(Object poseStack) {}
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         return this.enabled && this.visible && this.isMouseOnWidget(mouseX, mouseY);

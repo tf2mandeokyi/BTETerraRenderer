@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.connector.gui.GuiStaticConnector;
 /**
  * Copied from 1.18.2's net.minecraft.client.gui.components.AbstractSliderButton
  */
-public class GuiSliderImpl extends GuiAbstractWidgetImpl {
+public class GuiSliderCopy extends GuiAbstractWidgetCopy {
 
     protected static final String NUMBER_FORMATTER_STRING = "%.4f";
 
@@ -16,7 +16,7 @@ public class GuiSliderImpl extends GuiAbstractWidgetImpl {
     public SliderChangeHandler sliderChangeHandler;
 
 
-    public GuiSliderImpl(int x, int y, int width, int height,
+    public GuiSliderCopy(int x, int y, int width, int height,
                          String prefix, String suffix,
                          double minValue, double maxValue, double currentValue,
                          boolean showDecimal, boolean drawString, boolean isIntegerSlider,
@@ -40,13 +40,18 @@ public class GuiSliderImpl extends GuiAbstractWidgetImpl {
 
 
     @Override
-    public void drawBackground(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+        if(this.dragging) this.updateSliderValue(mouseX);
+        return super.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+    }
+
+    @Override
+    public void drawBackground(Object poseStack) {
         if(!this.visible) return;
 
-        if(this.dragging) this.updateSliderValue(mouseX);
         GuiStaticConnector.INSTANCE.drawButton(poseStack,
                 this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y,
-                8, this.height, this.isMouseOnWidget(mouseX, mouseY) ? HoverState.MOUSE_OVER : HoverState.DEFAULT
+                8, this.height, this.hovered ? HoverState.MOUSE_OVER : HoverState.DEFAULT
         );
     }
 
@@ -114,6 +119,6 @@ public class GuiSliderImpl extends GuiAbstractWidgetImpl {
     }
 
     public interface SliderChangeHandler {
-        void handleSliderChange(GuiSliderImpl slider);
+        void handleSliderChange(GuiSliderCopy slider);
     }
 }
