@@ -78,9 +78,7 @@ public abstract class BinaryJsonTableElement<T> {
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
-            if(property == null) return new Deserializer();
-
-            JavaType wrapperType = property.getType();
+            JavaType wrapperType = property != null ? property.getType() : ctxt.getContextualType();
             if(wrapperType == null) return new Deserializer();
 
             JavaType valueType = wrapperType.containedType(0);

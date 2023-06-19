@@ -63,7 +63,7 @@ public abstract class TileProjection {
 
 
     @Override
-    public abstract TileProjection clone() throws CloneNotSupportedException;
+    public abstract TileProjection clone();
 
 
     public final int relativeZoomToAbsolute(int relativeZoom) {

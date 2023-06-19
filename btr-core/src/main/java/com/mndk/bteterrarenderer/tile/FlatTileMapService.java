@@ -1,7 +1,13 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
 import com.mndk.bteterrarenderer.connector.terraplusplus.HttpConnector;
@@ -12,19 +18,21 @@ import com.mndk.bteterrarenderer.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.projection.Projections;
 import com.mndk.bteterrarenderer.projection.TileProjection;
-import com.mndk.bteterrarenderer.util.BtrUtil;
+import com.mndk.bteterrarenderer.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.RangedIntPropertyAccessor;
 import lombok.*;
 
 import javax.imageio.ImageIO;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
+@JsonDeserialize(using = FlatTileMapService.Deserializer.class)
 public class FlatTileMapService extends TileMapService {
 
     /**
@@ -40,47 +48,21 @@ public class FlatTileMapService extends TileMapService {
     @Getter @Setter
     private transient int relativeZoom = 0, radius = 3;
 
-    private final String name;
     private final String urlTemplate;
     private final TileProjection tileProjection;
     private final FlatTileURLConverter urlConverter;
-    private final ExecutorService downloadExecutor;
 
     /**
      * @throws NullPointerException If the projection corresponding to its id does not exist
      */
     @JsonCreator
-    public FlatTileMapService(
-            @JsonProperty(value = "name", required = true) String name,
-            @JsonProperty(value = "tile_url", required = true) String urlTemplate,
-            @JsonProperty(value = "projection", required = true) String projectionName,
-            @JsonProperty(value = "max_thread", defaultValue = "2") Integer maxThread,
-            @JsonProperty(value = "default_zoom", defaultValue = "18") Integer defaultZoom,
-            @JsonProperty(value = "invert_lat", defaultValue = "false") Boolean invertLatitude,
-            @JsonProperty(value = "flip_vert", defaultValue = "false") Boolean flipVertically,
-            @JsonProperty(value = "invert_zoom", defaultValue = "false") Boolean invertZoom
-    ) throws NullPointerException, CloneNotSupportedException {
-
-        this.name = name;
+    public FlatTileMapService(String name, String urlTemplate,
+                              TileProjection tileProjection, FlatTileURLConverter urlConverter,
+                              ExecutorService downloadExecutor) {
+        super(name, downloadExecutor);
         this.urlTemplate = urlTemplate;
-
-        TileProjection projectionSearchResult = ProjectionYamlLoader.INSTANCE.result.get(projectionName);
-        int _defaultZoom = BtrUtil.validateNull(defaultZoom, DEFAULT_ZOOM);
-        boolean _invertZoom = BtrUtil.validateNull(invertZoom, false);
-
-        if(projectionSearchResult != null) {
-            this.tileProjection = projectionSearchResult.clone();
-            tileProjection.setDefaultZoom(_defaultZoom);
-            tileProjection.setInvertZoom(_invertZoom);
-            tileProjection.setFlipVertically(BtrUtil.validateNull(flipVertically, false));
-            tileProjection.setInvertLatitude(BtrUtil.validateNull(invertLatitude, false));
-        } else {
-            BTETerraRendererConstants.LOGGER.error("Couldn't find tile projection named \"" + projectionName + "\"");
-            this.tileProjection = null;
-        }
-
-        this.urlConverter = new FlatTileURLConverter(_defaultZoom, _invertZoom);
-        this.downloadExecutor = Executors.newFixedThreadPool(BtrUtil.validateNull(maxThread, DEFAULT_MAX_THREAD));
+        this.tileProjection = tileProjection;
+        this.urlConverter = urlConverter;
 
         this.properties.add(new PropertyAccessor.Localized<>("zoom", "gui.bteterrarenderer.settings.zoom",
                 RangedIntPropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom,
@@ -192,11 +174,6 @@ public class FlatTileMapService extends TileMapService {
         return "tilemap_" + id + "_" + tileX + "_" + tileY + "_" + zoom;
     }
 
-    @Override
-    public String toString() {
-        return FlatTileMapService.class.getName() + "{name=" + name + ", tile_url=" + urlTemplate + "}";
-    }
-
     @RequiredArgsConstructor
     protected class TileImageDownloadingTask implements Runnable {
 
@@ -228,6 +205,39 @@ public class FlatTileMapService extends TileMapService {
                     downloadExecutor.execute(new TileImageDownloadingTask(tileKey, url, quad, retry + 1));
                 }
             }, 1000);
+        }
+    }
+
+    public static class Deserializer extends JsonDeserializer<FlatTileMapService> {
+        @Override
+        public FlatTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+            JsonNode node = ctxt.readTree(p);
+
+            String name = node.get("name").asText();
+            String urlTemplate = node.get("tile_url").asText();
+
+            int defaultZoom = JsonParserUtil.getOrDefault(node, "default_zoom", DEFAULT_ZOOM);
+            boolean invertZoom = JsonParserUtil.getOrDefault(node, "invert_zoom", false);
+            boolean invertLatitude = JsonParserUtil.getOrDefault(node, "invert_lat", false);
+            boolean flipVertically = JsonParserUtil.getOrDefault(node, "flip_vert", false);
+            int maxThread = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
+
+            String projectionName = node.get("projection").asText();
+            TileProjection projection = ProjectionYamlLoader.INSTANCE.result.get(projectionName);
+            if(projection != null) {
+                projection = projection.clone()
+                        .setDefaultZoom(defaultZoom)
+                        .setInvertZoom(invertZoom)
+                        .setFlipVertically(flipVertically)
+                        .setInvertLatitude(invertLatitude);
+            } else {
+                throw JsonMappingException.from(p, "unknown projection name" + projectionName);
+            }
+
+            FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
+            ExecutorService downloadExecutor = Executors.newFixedThreadPool(maxThread);
+
+            return new FlatTileMapService(name, urlTemplate, projection, urlConverter, downloadExecutor);
         }
     }
 }

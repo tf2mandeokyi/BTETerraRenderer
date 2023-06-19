@@ -4,9 +4,10 @@ import com.mndk.bteterrarenderer.connector.ImplFinder;
 import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
+import com.mndk.bteterrarenderer.loader.CategoryMap;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
-import com.mndk.bteterrarenderer.tile.FlatTileMapService;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 
 public interface BTRConfigConnector {
     BTRConfigConnector INSTANCE = ImplFinder.search();
@@ -59,22 +60,16 @@ public interface BTRConfigConnector {
         refreshTileMapService();
     }
 
-    static FlatTileMapService getTileMapService() {
+    static CategoryMap.Wrapper<TileMapService> getTileMapService() {
         return Storage.TMS_ON_DISPLAY;
     }
 
-    static FlatTileMapService setTileMapService(String categoryName, String mapId) {
-        FlatTileMapService result = Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItem(categoryName, mapId);
-        INSTANCE.setMapServiceCategory(categoryName);
-        INSTANCE.setMapServiceId(mapId);
+    static void setTileMapService(CategoryMap.Wrapper<TileMapService> wrapped) {
+        Storage.TMS_ON_DISPLAY = wrapped;
+        INSTANCE.setMapServiceCategory(wrapped.getParentCategory().getName());
+        INSTANCE.setMapServiceId(wrapped.getId());
 
         GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
-        return result;
-    }
-
-    static boolean isRelativeZoomAvailable(int relativeZoom) {
-        FlatTileMapService tms = Storage.TMS_ON_DISPLAY;
-        return tms != null && tms.isRelativeZoomAvailable(relativeZoom);
     }
 
     static void refreshTileMapService() {
@@ -84,10 +79,10 @@ public interface BTRConfigConnector {
         } catch (Exception e) {
             MinecraftClientConnector.INSTANCE.sendErrorMessageToChat("Error caught while parsing yaml map files!", e);
         }
-        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItem(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
+        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getWrappedItem(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
     }
 
     class Storage {
-        public static FlatTileMapService TMS_ON_DISPLAY;
+        public static CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
     }
 }

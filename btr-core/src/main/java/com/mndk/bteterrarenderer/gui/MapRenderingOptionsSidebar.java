@@ -12,23 +12,21 @@ import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarBlank;
 import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarHorizontalLine;
 import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarText;
 import com.mndk.bteterrarenderer.gui.sidebar.decorator.SidebarText.TextAlign;
-import com.mndk.bteterrarenderer.gui.sidebar.dropdown.DropdownCategory;
-import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarCategoryDropdownSelector;
+import com.mndk.bteterrarenderer.gui.sidebar.dropdown.SidebarDropdownSelector;
 import com.mndk.bteterrarenderer.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.gui.sidebar.slider.SidebarSlider;
-import com.mndk.bteterrarenderer.loader.CategoryMapData;
+import com.mndk.bteterrarenderer.loader.CategoryMap;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.FlatTileMapService;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.RangedDoublePropertyAccessor;
+import lombok.var;
 
 import java.awt.*;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 
 public class MapRenderingOptionsSidebar extends GuiSidebar {
@@ -36,7 +34,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final int ELEMENT_DISTANCE = 7;
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final SidebarCategoryDropdownSelector<FlatTileMapService> mapSourceDropdown;
+    private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService>> mapSourceDropdown;
     private final SidebarElementListComponent tmsPropertyElementList;
     private SidebarNumberInput yAxisInput;
 
@@ -50,20 +48,11 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 ), false
         );
 
-        BTRConfigConnector config = BTRConfigConnector.INSTANCE;
-        BTRConfigConnector.RenderSettingsConnector renderSettings = config.getRenderSettings();
-        I18nConnector i18n = I18nConnector.INSTANCE;
-
         // Map source components
-        CategoryMapData<FlatTileMapService> dummy = new CategoryMapData<>(new LinkedHashMap<>(0));
-        this.mapSourceDropdown = new SidebarCategoryDropdownSelector<>(
-                PropertyAccessor.of(BtrUtil.uncheckedCast(dummy.getClass()),
-                        TMSYamlLoader.INSTANCE::getResult, TMSYamlLoader.INSTANCE::setResult),
-                config::getMapServiceCategory,
-                config::getMapServiceId,
-                this::setTileMapService,
-                tms -> "default".equalsIgnoreCase(tms.getSource()) ?
-                        tms.getName() : "[§7" + tms.getSource() + "§r]\n§r" + tms.getName()
+        this.mapSourceDropdown = new SidebarDropdownSelector<>(
+                PropertyAccessor.of(BtrUtil.uncheckedCast(CategoryMap.Wrapper.class),
+                        this::getWrappedTMS, this::setTileMapService),
+                MapRenderingOptionsSidebar::tmsWrappedToString
         );
         this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE);
     }
@@ -138,50 +127,57 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super.initGui();
     }
 
-    private void setTileMapService(String category, String mapId) {
-        FlatTileMapService tms = BTRConfigConnector.setTileMapService(category, mapId);
-        this.setTileMapService(tms);
+    private CategoryMap.Wrapper<TileMapService> getWrappedTMS() {
+        return BTRConfigConnector.getTileMapService();
     }
 
-    private void setTileMapService(FlatTileMapService tms) {
-        this.tmsPropertyElementList.setProperties(tms.getProperties());
+    private void setTileMapService(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
+        TileMapService tms = tmsWrapped == null ? null : tmsWrapped.getValue();
+        System.out.println(tms);
 
         BTRConfigConnector.RenderSettingsConnector renderSettings = BTRConfigConnector.INSTANCE.getRenderSettings();
         I18nConnector i18n = I18nConnector.INSTANCE;
 
-        // Do not remove this if condition. FlatTileMapService will be generalized into TileMapService soon.
+        if(tms == null) {
+            if(this.yAxisInput != null) this.yAxisInput.hide = true;
+            this.tmsPropertyElementList.hide = true;
+            return;
+        }
+
+        BTRConfigConnector.setTileMapService(tmsWrapped);
+        this.tmsPropertyElementList.setProperties(tms.getProperties());
+        this.tmsPropertyElementList.hide = false;
+
         if(tms instanceof FlatTileMapService) {
             this.yAxisInput = new SidebarNumberInput(
                     PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis),
-                    i18n.format("gui.bteterrarenderer.settings.map_y_level") + ": "
-            );
+                    i18n.format("gui.bteterrarenderer.settings.map_y_level") + ": ");
         } else {
             this.yAxisInput = new SidebarNumberInput(
                     PropertyAccessor.of(renderSettings::getYAlign, renderSettings::setYAlign),
-                    i18n.format("gui.bteterrarenderer.settings.y_align") + ": "
-            );
+                    i18n.format("gui.bteterrarenderer.settings.y_align") + ": ");
         }
     }
 
     private void reloadMaps() {
         try {
-            Map<String, Boolean> opened = new HashMap<>();
-            Map<String, DropdownCategory<FlatTileMapService>> categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
-            for(Map.Entry<String, DropdownCategory<FlatTileMapService>> categoryEntry : categoryMap.entrySet()) {
-                opened.put(categoryEntry.getKey(), categoryEntry.getValue().isOpened());
-            }
-
             BTRConfigConnector.refreshTileMapService();
-
-            categoryMap = mapSourceDropdown.getCurrentCategories().getCategoryMap();
-            for(Map.Entry<String, DropdownCategory<FlatTileMapService>> categoryEntry : categoryMap.entrySet()) {
-                if(opened.get(categoryEntry.getKey())) {
-                    categoryEntry.getValue().setOpened(true);
-                }
-            }
+            this.updateMapSourceDropdown();
         } catch(Exception e) {
             MinecraftClientConnector.INSTANCE.sendErrorMessageToChat("Error reloading maps!", e);
         }
+    }
+
+    private void updateMapSourceDropdown() {
+        var updater = mapSourceDropdown.itemListBuilder();
+
+        CategoryMap<TileMapService> tmsCategoryMap = TMSYamlLoader.INSTANCE.getResult();
+        for(var categoryEntry : tmsCategoryMap.entrySet()) {
+            updater.push(categoryEntry.getKey());
+            categoryEntry.getValue().values().forEach(updater::add);
+            updater.pop();
+        }
+        updater.update();
     }
 
     private void openMapsFolder() {
@@ -194,10 +190,19 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
+    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
+        TileMapService tms = tmsWrapped.getValue();
+        if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
+            return tms.getName();
+        }
+        return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + tms.getName();
+    }
+
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
         BTRConfigConnector.load();
         INSTANCE.setSide(BTRConfigConnector.INSTANCE.getUiSettings().getSidebarSide());
+        INSTANCE.updateMapSourceDropdown();
         INSTANCE.setTileMapService(BTRConfigConnector.getTileMapService());
         GuiStaticConnector.INSTANCE.displayGuiScreen(INSTANCE);
     }
@@ -207,5 +212,4 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTRConfigConnector.save();
         super.onClose();
     }
-
 }

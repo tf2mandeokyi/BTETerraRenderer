@@ -9,6 +9,7 @@ import com.mndk.bteterrarenderer.gui.components.AbstractGuiScreen;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
 // TODO: Add tab key
+// TODO: Add scroll bar
 public class GuiSidebar extends AbstractGuiScreen {
 
     private static final int SIDEBAR_BACKGROUND_COLOR = 0x5F000000;

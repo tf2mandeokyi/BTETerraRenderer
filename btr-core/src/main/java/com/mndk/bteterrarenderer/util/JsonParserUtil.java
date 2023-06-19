@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.util;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,16 @@ public class JsonParserUtil {
     public static double[] readDoubleArray(JsonParser p, boolean readArrayFromStart) throws IOException {
         return readJsonList(p, readArrayFromStart, JsonParser::getDoubleValue)
                 .stream().mapToDouble(Double::doubleValue).toArray();
+    }
+
+    public static int getOrDefault(JsonNode node, String property, int defaultValue) {
+        JsonNode propertyNode = node.get(property);
+        return propertyNode == null ? defaultValue : propertyNode.asInt(defaultValue);
+    }
+
+    public static boolean getOrDefault(JsonNode node, String property, boolean defaultValue) {
+        JsonNode propertyNode = node.get(property);
+        return propertyNode == null ? defaultValue : propertyNode.asBoolean(defaultValue);
     }
 
     public interface JsonParserReadFunction<T> {

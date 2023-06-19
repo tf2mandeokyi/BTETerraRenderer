@@ -2,12 +2,12 @@ package com.mndk.bteterrarenderer.loader;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.tile.FlatTileMapService;
+import com.mndk.bteterrarenderer.tile.TileMapService;
 
 import java.io.IOException;
 import java.io.Reader;
 
-public class TMSYamlLoader extends YamlLoader<CategoryMapData<FlatTileMapService>> {
+public class TMSYamlLoader extends YamlLoader<CategoryMap<TileMapService>> {
 
 	public static final TMSYamlLoader INSTANCE = new TMSYamlLoader(
 			"maps", "assets/" + BTETerraRendererConstants.MODID + "/default_maps.yml"
@@ -17,15 +17,15 @@ public class TMSYamlLoader extends YamlLoader<CategoryMapData<FlatTileMapService
 		super(folderName, defaultYamlPath);
 	}
 
-	protected CategoryMapData<FlatTileMapService> load(String fileName, Reader fileReader) throws IOException {
-		CategoryMapData<FlatTileMapService> result =
-				BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<CategoryMapData<FlatTileMapService>>() {});
+	protected CategoryMap<TileMapService> load(String fileName, Reader fileReader) throws IOException {
+		CategoryMap<TileMapService> result =
+				BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<CategoryMap<TileMapService>>() {});
 		result.setSource(fileName);
 		return result;
 	}
 
 	@Override
-	protected void addToResult(CategoryMapData<FlatTileMapService> originalT, CategoryMapData<FlatTileMapService> newT) {
+	protected void addToResult(CategoryMap<TileMapService> originalT, CategoryMap<TileMapService> newT) {
 		originalT.append(newT);
 	}
 }
