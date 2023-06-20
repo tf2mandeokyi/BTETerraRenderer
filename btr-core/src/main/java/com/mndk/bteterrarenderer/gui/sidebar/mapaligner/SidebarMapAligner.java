@@ -13,6 +13,9 @@ import com.mndk.bteterrarenderer.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 
+import java.util.function.BiConsumer;
+import java.util.function.IntPredicate;
+
 public class SidebarMapAligner extends GuiSidebarElement {
 
     private static final int ALIGNBOX_MARGIN_VERT = 10;
@@ -25,6 +28,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private static final int AXIS_LINE_COLOR = 0xFFFF0000;
     private static final int PRIMARY_LINE_COLOR = 0xFFFFFFFF;
     private static final int SECONDARY_LINE_COLOR = 0xFF8E8E8E;
+    private static final int LINE_LENGTH = 1000;
 
     private static final IResourceLocation ALIGNMENT_MARKER = DependencyConnectorSupplier.INSTANCE.newResourceLocation(
             BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
@@ -111,14 +115,9 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     private void drawAlignBox(Object poseStack) {
-        // TODO: Fix small grids going on top of the red grids
         // TODO: Add numbers
 
-        int elementWidth = parent.elementWidth.get().intValue(), boxWidth = elementWidth - ALIGNBOX_MARGIN_SIDE * 2;
-        double alignX = this.xOffset.get(), alignZ = this.zOffset.get();
-        int xi = (int) alignX, zi = (int) alignZ;
-        int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
-        double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
+        int elementWidth = parent.elementWidth.get().intValue();
         int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;
 
         int boxN = 20 + ALIGNBOX_MARGIN_VERT, boxS = boxN + ALIGNBOX_HEIGHT;
@@ -132,30 +131,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         GraphicsConnector.INSTANCE.glRelativeScissor(poseStack,
                 boxW + 1, boxN + 1, boxE - boxW - 2, boxS - boxN - 2);
 
-        // North-South lines
-        for(int z = zi - lineCount; z <= zi + lineCount; z++) {
-            double diff = (z - alignZ) * MOUSE_DIVIDER;
-            double diffX = dy * diff, diffY = -dx * diff;
-            int color = z == 0 ? AXIS_LINE_COLOR : (z % 5 == 0 ? PRIMARY_LINE_COLOR : SECONDARY_LINE_COLOR);
-
-            GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
-                    centerX + diffX - dx * 1000, centerY + diffY - dy * 1000,
-                    dx * 2000, dy * 2000,
-                    1, color
-            );
-        }
-        // East-West lines
-        for(int x = xi - lineCount; x <= xi + lineCount; x++) {
-            double diff = (alignX - x) * MOUSE_DIVIDER;
-            double diffX = dx * diff, diffY = dy * diff;
-            int color = x == 0 ? AXIS_LINE_COLOR : (x % 5 == 0 ? PRIMARY_LINE_COLOR : SECONDARY_LINE_COLOR);
-
-            GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
-                    centerX + diffX - dy * 1000, centerY + diffY + dx * 1000,
-                    dy * 2000, -dx * 2000,
-                    1, color
-            );
-        }
+        this.drawAlignBoxGrids(poseStack);
 
         // Disable box clipping
         GraphicsConnector.INSTANCE.glDisableScissorTest();
@@ -171,6 +147,44 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
         // Center marker
         GuiStaticConnector.INSTANCE.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
+    }
+
+    private void drawAlignBoxGrids(Object poseStack) {
+        int elementWidth = parent.elementWidth.get().intValue(), boxWidth = elementWidth - ALIGNBOX_MARGIN_SIDE * 2;
+        double alignX = this.xOffset.get(), alignZ = this.zOffset.get();
+        int xi = (int) alignX, zi = (int) alignZ;
+        int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
+        double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
+        int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;
+
+        BiConsumer<Integer, IntPredicate> lineDrawer = (color, p) -> {
+            // North-South lines
+            for(int z = zi - lineCount; z <= zi + lineCount; z++) {
+                double diff = (z - alignZ) * MOUSE_DIVIDER;
+                double diffX = dy * diff, diffY = -dx * diff;
+                if(!p.test(z)) continue;
+
+                GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
+                        centerX + diffX - dx * LINE_LENGTH, centerY + diffY - dy * LINE_LENGTH,
+                        dx * 2*LINE_LENGTH, dy * 2*LINE_LENGTH,
+                        1, color);
+            }
+            // East-West lines
+            for(int x = xi - lineCount; x <= xi + lineCount; x++) {
+                double diff = (alignX - x) * MOUSE_DIVIDER;
+                double diffX = dx * diff, diffY = dy * diff;
+                if(!p.test(x)) continue;
+
+                GuiStaticConnector.INSTANCE.drawLineDxDy(poseStack,
+                        centerX + diffX - dy * 1000, centerY + diffY + dx * 1000,
+                        dy * 2000, -dx * 2000,
+                        1, color);
+            }
+        };
+
+        lineDrawer.accept(SECONDARY_LINE_COLOR, i -> i % 5 != 0);
+        lineDrawer.accept(PRIMARY_LINE_COLOR, i -> i % 5 == 0 && i != 0);
+        lineDrawer.accept(AXIS_LINE_COLOR, i -> i == 0);
     }
 
     @Override

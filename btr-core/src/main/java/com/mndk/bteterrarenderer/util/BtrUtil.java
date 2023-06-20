@@ -15,10 +15,6 @@ public class BtrUtil {
         }
     }
 
-    public static <T> T validateNull(T value, T defaultValue) {
-        return value == null ? defaultValue : value;
-    }
-
     public static boolean validateDouble(String s) {
         try {
             Double.parseDouble(s);
