@@ -36,6 +36,14 @@ public class BtrUtil {
         }
     }
 
+    public static double clamp(double value, double min, double max) {
+        if (value < min) {
+            return min;
+        } else {
+            return Math.min(value, max);
+        }
+    }
+
     public static boolean arrayStartsWith(byte[] array, @Nonnull byte[] start) {
         if(array == null) return false;
         if(array.length < start.length) return false;

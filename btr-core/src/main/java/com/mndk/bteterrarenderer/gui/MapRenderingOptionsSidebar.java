@@ -133,7 +133,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private void setTileMapService(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
         TileMapService tms = tmsWrapped == null ? null : tmsWrapped.getValue();
-        System.out.println(tms);
 
         BTRConfigConnector.RenderSettingsConnector renderSettings = BTRConfigConnector.INSTANCE.getRenderSettings();
         I18nConnector i18n = I18nConnector.INSTANCE;

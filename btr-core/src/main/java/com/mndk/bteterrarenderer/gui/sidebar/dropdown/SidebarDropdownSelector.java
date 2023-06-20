@@ -223,7 +223,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         @Override
         void mouseClicked() {
-            System.out.println(this + ": " + this.mouseHovered);
             if(this.mouseHovered) selectedValue.set(this.value);
         }
     }

@@ -182,7 +182,8 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         if (!this.canConsumeInput()) {
             return false;
         } else {
-            this.shiftPressed = inputConnector.isShiftKeyDown(); // TODO: Fix shift key not being released
+            // TODO: Fix shift key not being released
+            this.shiftPressed = inputConnector.isShiftKeyDown();
             if (inputConnector.isKeySelectAll(key)) {
                 this.moveCursorToEnd();
                 this.setHighlightPos(0);

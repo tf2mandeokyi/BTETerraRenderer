@@ -51,7 +51,6 @@ public class TileTest {
                 "}";
 
         Tile tile = BTETerraRendererConstants.JSON_MAPPER.readValue(json, Tile.class);
-        System.out.println(tile);
         MatcherAssert.assertThat(tile.getBoundingVolume(), CoreMatchers.instanceOf(Region.class));
         Assert.assertEquals(tile.getContents().size(), 2);
         Assert.assertEquals(tile.getTransform(), new Matrix4((r, c) -> c*4+r));

@@ -33,7 +33,7 @@ public class TMSTest {
         CategoryMap.Wrapper<TileMapService> osm = CATEGORY_MAP_DATA.get("Global").get("osm");
 
         Assert.assertEquals("Global", osm.getParentCategory().getName());
-        Assert.assertEquals("default", osm.getParentCategory().getSource());
+        Assert.assertEquals("default", osm.getSource());
     }
 
     static {

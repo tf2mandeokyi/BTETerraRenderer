@@ -139,7 +139,7 @@ public class BTRConfigConnectorImpl18 implements BTRConfigConnector {
         BUILDER.pop();
         BUILDER.push("UI Settings");
 
-        UI_SIDEBAR_SIDE = BUILDER.define("Sidebar Side", SidebarSide.RIGHT);
+        UI_SIDEBAR_SIDE = BUILDER.defineEnum("Sidebar Side", SidebarSide.RIGHT);
         UI_SIDEBAR_WIDTH = BUILDER.defineInRange("Sidebar Width", 200.0, 130.0, 270.0);
         UI_SIDEBAR_OPACITY = BUILDER.defineInRange("Sidebar Opacity", 0.5, 0.0, 1.0);
 
