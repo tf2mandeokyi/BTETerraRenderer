@@ -1,73 +1,106 @@
 package com.mndk.bteterrarenderer.loader;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@JsonSerialize(using = CategoryMap.Serializer.class)
 @JsonDeserialize(using = CategoryMap.Deserializer.class)
-public class CategoryMap<T> extends LinkedHashMap<String, CategoryMap.Category<T>> {
+public class CategoryMap<T> {
 
-	public Wrapper<T> getWrappedItem(String categoryName, String mapId) {
-		Category<T> category = this.get(categoryName);
-		if(category == null) return null;
-		return category.get(mapId);
+	private final Map<String, Category<T>> map = new LinkedHashMap<>();
+
+	public Category<T> getCategory(String categoryName) {
+		return map.get(categoryName);
+	}
+
+	public Set<Map.Entry<String, Category<T>>> getCategories() {
+		return map.entrySet();
+	}
+
+	/**
+	 * @return A wrapper.<br>If the category is not found, all properties of the returned wrapper should be {@code null}.
+	 * <br> If the element is not found, only the id and the value of the wrapper should be {@code null}.
+	 */
+	@Nonnull
+	public Wrapper<T> getItemWrapper(String categoryName, String elementId) {
+		Category<T> category = map.get(categoryName);
+		if(category == null) return new Wrapper<>(null, null, null);
+		Wrapper<T> wrapped = category.get(elementId);
+		return wrapped != null ? wrapped : new Wrapper<>(category, null, null);
+	}
+
+	@Nullable
+	public T getItem(String categoryName, String elementId) {
+		return this.getItemWrapper(categoryName, elementId).getItem();
+	}
+
+	public void setItem(String categoryName, String elementId, @Nonnull T item) {
+		Category<T> category = map.computeIfAbsent(categoryName, Category::new);
+		category.put(elementId, new Wrapper<>(category, elementId, item));
+	}
+
+	public Set<Wrapper<T>> getItemWrappers() {
+		Set<Wrapper<T>> result = new HashSet<>();
+		for(Map.Entry<String, CategoryMap.Category<T>> rawCategory : map.entrySet()) {
+			result.addAll(rawCategory.getValue().values());
+		}
+		return result;
 	}
 
 	public void setSource(String source) {
-		for(Category<T> category : this.values()) {
+		for(Category<T> category : map.values()) {
 			category.setSource(source);
 		}
 	}
 	
 	public void append(CategoryMap<T> other) {
-		for(Map.Entry<String, Category<T>> otherCategoryEntry : other.entrySet()) {
+		for(Map.Entry<String, Category<T>> otherCategoryEntry : other.map.entrySet()) {
 			String otherCategoryName = otherCategoryEntry.getKey();
 			Category<T> otherCategoryObject = otherCategoryEntry.getValue();
 
-			Category<T> existingCategory = this.get(otherCategoryName);
+			Category<T> existingCategory = map.get(otherCategoryName);
 			if(existingCategory != null) {
 				existingCategory.putAll(otherCategoryObject);
 			}
 			else {
-				this.put(otherCategoryName, otherCategoryObject);
-			}
-		}
-	}
-
-	@Getter @Setter @RequiredArgsConstructor
-	public static class Category<T> extends LinkedHashMap<String, Wrapper<T>> {
-		private final String name;
-
-		public void setSource(String source) {
-			for(Wrapper<T> wrapped : this.values()) {
-				wrapped.source = source;
+				map.put(otherCategoryName, otherCategoryObject);
 			}
 		}
 	}
 
 	@Getter
+	@JsonIgnoreProperties
+	@RequiredArgsConstructor
+	public static class Category<T> extends LinkedHashMap<String, Wrapper<T>> {
+		private final String name;
+		public void setSource(String source) {
+			this.values().forEach(wrapped -> wrapped.source = source);
+		}
+	}
+
+	@Getter
+	@JsonIgnoreProperties
 	public static class Wrapper<T> {
-		final Category<T> parentCategory;
+		private final Category<T> parentCategory;
 		private String source;
-		final T value;
-		final String id;
-		private Wrapper(Category<T> parentCategory, String id, T value) {
+		private final T item;
+		private final String id;
+		private Wrapper(Category<T> parentCategory, String id, T item) {
 			this.parentCategory = parentCategory;
 			this.id = id;
-			this.value = value;
+			this.item = item;
 		}
 
 		@Override
@@ -79,6 +112,30 @@ public class CategoryMap<T> extends LinkedHashMap<String, CategoryMap.Category<T
 			if(!Objects.equals(source, wrapper.source)) return false;
 			if(!Objects.equals(parentCategory.name, wrapper.parentCategory.name)) return false;
 			return Objects.equals(id, wrapper.id);
+		}
+	}
+
+	public static class Serializer extends JsonSerializer<CategoryMap<Object>> {
+		@Override
+		public void serialize(CategoryMap<Object> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+			gen.writeStartObject(); // main
+
+			gen.writeFieldName("categories");
+			gen.writeStartObject();
+
+			for(Map.Entry<String, Category<Object>> categoryEntry : value.getCategories()) {
+				gen.writeFieldName(categoryEntry.getKey());
+				gen.writeStartObject();
+
+				for(Map.Entry<String, Wrapper<Object>> wrapperEntry : categoryEntry.getValue().entrySet()) {
+					gen.writeFieldName(wrapperEntry.getKey());
+					gen.writeObject(wrapperEntry.getValue().item);
+				}
+				gen.writeEndObject();
+			}
+			gen.writeEndObject(); // categories
+
+			gen.writeEndObject(); // main
 		}
 	}
 
@@ -119,7 +176,7 @@ public class CategoryMap<T> extends LinkedHashMap<String, CategoryMap.Category<T
 					category.put(valueId, wrapped);
 				}
 
-				result.put(categoryName, category);
+				result.map.put(categoryName, category);
 			}
 
 			return result;

@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.loader;
 
-import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public abstract class YamlLoader<T> {
-
 
     @Getter
     private File mapFilesDirectory;
@@ -45,7 +43,7 @@ public abstract class YamlLoader<T> {
     }
 
     public void refresh(File modConfigDirectory) throws Exception {
-        this.mapFilesDirectory = new File(new File(modConfigDirectory, BTETerraRendererConstants.MODID), folderName);
+        this.mapFilesDirectory = new File(modConfigDirectory, folderName);
         this.refresh();
     }
 

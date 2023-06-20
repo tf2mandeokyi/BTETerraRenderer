@@ -87,8 +87,7 @@ public class FlatTileMapService extends TileMapService {
     }
 
     @Override
-    protected Set<GraphicsModel> getTileModels(Object poseStack, String tmsId,
-                                               double px, double py, double pz) {
+    protected Set<GraphicsModel> getTileModels(Object poseStack, String tmsId, double px, double py, double pz) {
         if(this.tileProjection == null) return null;
 
         try {

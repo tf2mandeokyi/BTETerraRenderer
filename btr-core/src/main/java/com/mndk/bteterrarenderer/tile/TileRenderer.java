@@ -14,7 +14,7 @@ public class TileRenderer {
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
         BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
 
-        TileMapService tms = BTRConfigConnector.getTileMapService().getValue();
+        TileMapService tms = BTRConfigConnector.getTileMapService().getItem();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 

@@ -3,8 +3,7 @@ package com.mndk.bteterrarenderer.client.event;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.client.KeyMappings18;
 import com.mndk.bteterrarenderer.config.BTRConfigConnector;
-import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
-import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
+import com.mndk.bteterrarenderer.loader.ConfigLoaders;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,16 +16,11 @@ import java.io.File;
 public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        try {
-            File modConfigDirectory = new File(Minecraft.getInstance().gameDirectory, "config");
-            ProjectionYamlLoader.INSTANCE.refresh(modConfigDirectory);
-            TMSYamlLoader.INSTANCE.refresh(modConfigDirectory);
-        } catch(Exception e) {
-            BTETerraRendererConstants.LOGGER.error("Error caught while parsing map yaml files!");
-            e.printStackTrace();
-        }
+        File gameConfigDirectory = new File(Minecraft.getInstance().gameDirectory, "config");
+        ConfigLoaders.loadAll(gameConfigDirectory);
+
         KeyMappings18.registerKeys();
         BTRConfigConnector.load();
-        BTETerraRendererConstants.LOGGER.info("Done setting the mod up");
+        BTETerraRendererConstants.LOGGER.info("Mod setup done");
     }
 }

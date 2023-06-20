@@ -34,7 +34,6 @@ public abstract class TileMapService {
 
     /**
      * Put a localization key as a key, and a property accessor as a value.
-     * TODO: Save this as a file
      */
     @Getter
     protected transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
@@ -56,7 +55,6 @@ public abstract class TileMapService {
         }
 
         for(GraphicsModel model : modelStage) {
-            //  - (settings.getFlatMapYAxis() + Y_EPSILON)
             ModelGraphicsConnector.INSTANCE.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
         }
     }

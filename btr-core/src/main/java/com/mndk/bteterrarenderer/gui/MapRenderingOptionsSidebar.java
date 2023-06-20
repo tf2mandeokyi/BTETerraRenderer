@@ -23,10 +23,10 @@ import com.mndk.bteterrarenderer.tile.TileMapService;
 import com.mndk.bteterrarenderer.util.BtrUtil;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.RangedDoublePropertyAccessor;
-import lombok.var;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Map;
 
 
 public class MapRenderingOptionsSidebar extends GuiSidebar {
@@ -132,7 +132,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private void setTileMapService(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
-        TileMapService tms = tmsWrapped == null ? null : tmsWrapped.getValue();
+        TileMapService tms = tmsWrapped == null ? null : tmsWrapped.getItem();
 
         BTRConfigConnector.RenderSettingsConnector renderSettings = BTRConfigConnector.INSTANCE.getRenderSettings();
         I18nConnector i18n = I18nConnector.INSTANCE;
@@ -168,10 +168,11 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private void updateMapSourceDropdown() {
-        var updater = mapSourceDropdown.itemListBuilder();
+        SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService>>.ItemListUpdater updater =
+                mapSourceDropdown.itemListBuilder();
 
         CategoryMap<TileMapService> tmsCategoryMap = TMSYamlLoader.INSTANCE.getResult();
-        for(var categoryEntry : tmsCategoryMap.entrySet()) {
+        for(Map.Entry<String, CategoryMap.Category<TileMapService>> categoryEntry : tmsCategoryMap.getCategories()) {
             updater.push(categoryEntry.getKey());
             categoryEntry.getValue().values().forEach(updater::add);
             updater.pop();
@@ -190,7 +191,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
-        TileMapService tms = tmsWrapped.getValue();
+        TileMapService tms = tmsWrapped.getItem();
         if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
             return tms.getName();
         }

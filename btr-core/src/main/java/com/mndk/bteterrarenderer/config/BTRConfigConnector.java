@@ -1,11 +1,10 @@
 package com.mndk.bteterrarenderer.config;
 
 import com.mndk.bteterrarenderer.connector.ImplFinder;
-import com.mndk.bteterrarenderer.connector.minecraft.MinecraftClientConnector;
 import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
 import com.mndk.bteterrarenderer.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.loader.CategoryMap;
-import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
+import com.mndk.bteterrarenderer.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.tile.TileMapService;
 
@@ -73,13 +72,8 @@ public interface BTRConfigConnector {
     }
 
     static void refreshTileMapService() {
-        try {
-            ProjectionYamlLoader.INSTANCE.refresh();
-            TMSYamlLoader.INSTANCE.refresh();
-        } catch (Exception e) {
-            MinecraftClientConnector.INSTANCE.sendErrorMessageToChat("Error caught while parsing yaml map files!", e);
-        }
-        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getWrappedItem(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
+        ConfigLoaders.loadAll();
+        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItemWrapper(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
     }
 
     class Storage {
