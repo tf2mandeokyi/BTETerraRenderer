@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.tile;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -79,7 +78,7 @@ public abstract class TileMapService {
 
     public static class Deserializer extends JsonDeserializer<TileMapService> {
         @Override
-        public TileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+        public TileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
             if(!node.has("projection") || !node.get("projection").isTextual()) {
                 throw JsonMappingException.from(p, "property \"projection\" missing");

@@ -12,7 +12,7 @@ public class TileRenderer {
         if(!BTRConfigConnector.INSTANCE.isDoRender()) return;
 
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
-        BTRConfigConnector.RenderSettingsConnector settings = config.getRenderSettings();
+        BTRConfigConnector.HologramSettingsConnector settings = config.getHologramSettings();
 
         TileMapService tms = BTRConfigConnector.getTileMapService().getItem();
         if(tms == null) return;

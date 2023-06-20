@@ -60,7 +60,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     @Override
     public void initGui() {
         BTRConfigConnector config = BTRConfigConnector.INSTANCE;
-        BTRConfigConnector.RenderSettingsConnector renderSettings = config.getRenderSettings();
+        BTRConfigConnector.HologramSettingsConnector renderSettings = config.getHologramSettings();
         I18nConnector i18n = I18nConnector.INSTANCE;
 
         // General components
@@ -134,7 +134,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private void setTileMapService(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
         TileMapService tms = tmsWrapped == null ? null : tmsWrapped.getItem();
 
-        BTRConfigConnector.RenderSettingsConnector renderSettings = BTRConfigConnector.INSTANCE.getRenderSettings();
+        BTRConfigConnector.HologramSettingsConnector renderSettings = BTRConfigConnector.INSTANCE.getHologramSettings();
         I18nConnector i18n = I18nConnector.INSTANCE;
 
         if(tms == null) {

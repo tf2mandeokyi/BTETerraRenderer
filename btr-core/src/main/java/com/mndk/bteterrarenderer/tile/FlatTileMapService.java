@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.tile;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -45,8 +44,10 @@ public class FlatTileMapService extends TileMapService {
     public static final int DEFAULT_ZOOM = 18;
     private static final Timer TIMER = new Timer();
 
+    @Getter
+    private transient int relativeZoom = 0;
     @Getter @Setter
-    private transient int relativeZoom = 0, radius = 3;
+    private transient int radius = 3;
 
     private final String urlTemplate;
     private final TileProjection tileProjection;
@@ -72,6 +73,11 @@ public class FlatTileMapService extends TileMapService {
                 RangedIntPropertyAccessor.of(this::getRadius, this::setRadius, 1, 10)));
     }
 
+    public void setRelativeZoom(int newZoom) {
+        this.relativeZoom = newZoom;
+        GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
+    }
+
     public String getUrlFromGeoCoordinate(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
         int[] tileCoord = this.tileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
         return this.getUrlFromTileCoordinate(tileCoord[0], tileCoord[1], relativeZoom);
@@ -83,7 +89,7 @@ public class FlatTileMapService extends TileMapService {
 
     @Override
     protected double getYAlign() {
-        return BTRConfigConnector.INSTANCE.getRenderSettings().getFlatMapYAxis() + Y_EPSILON;
+        return BTRConfigConnector.INSTANCE.getHologramSettings().getFlatMapYAxis() + Y_EPSILON;
     }
 
     @Override
@@ -209,7 +215,7 @@ public class FlatTileMapService extends TileMapService {
 
     public static class Deserializer extends JsonDeserializer<FlatTileMapService> {
         @Override
-        public FlatTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+        public FlatTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
 
             String name = node.get("name").asText();

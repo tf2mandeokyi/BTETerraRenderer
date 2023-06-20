@@ -15,95 +15,84 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @ConnectorImpl
 public class BTRConfigConnectorImpl12 implements BTRConfigConnector {
 
-    // Do render
-    @Config.Ignore
-    private static boolean doRender = false;
-    public boolean isDoRender() { return doRender; }
-    public void setDoRender(boolean b) { doRender = b; }
-
     // Map service category
-    @Config.Name("map_service_category")
+    @Config.Name(MAP_SERVICE_CATEGORY_NAME)
+    @Config.Comment(MAP_SERVICE_CATEGORY_COMMENT)
     public static String mapServiceCategory = "Global";
     public String getMapServiceCategory() { return mapServiceCategory; }
     public void setMapServiceCategory(String s) { mapServiceCategory = s; }
 
     // Map service ID
-    @Config.Name("map_service_id")
+    @Config.Name(MAP_SERVICE_ID_NAME)
+    @Config.Comment(MAP_SERVICE_ID_COMMENT)
     public static String mapServiceId = "osm";
     public String getMapServiceId() { return mapServiceId; }
     public void setMapServiceId(String s) { mapServiceId = s; }
 
     // Render settings
-    @Config.Name("render_settings")
-    @Config.Comment("General render settings")
-    public static final RenderSettingsConnectorImpl RENDER_SETTINGS = new RenderSettingsConnectorImpl();
-    public RenderSettingsConnector getRenderSettings() { return RENDER_SETTINGS; }
+    @Config.Name(HOLOGRAM_SETTINGS_NAME)
+    @Config.Comment(HOLOGRAM_SETTINGS_COMMENT)
+    public static final HologramSettingsConnectorImpl RENDER_SETTINGS = new HologramSettingsConnectorImpl();
+    public HologramSettingsConnector getHologramSettings() { return RENDER_SETTINGS; }
 
     // Render settings class
     @Getter @Setter
-    public static final class RenderSettingsConnectorImpl implements RenderSettingsConnector {
+    public static final class HologramSettingsConnectorImpl implements HologramSettingsConnector {
 
-        @Config.Name("align_x")
-        @Config.Comment("The amount of which the map is offset along the in-game X-axis")
+        @Config.Name(X_ALIGN_NAME)
+        @Config.Comment(X_ALIGN_COMMENT)
         public double xAlign = 0;
 
-        @Config.Name("align_y")
-        @Config.Comment("The amount of which the map is offset along the in-game Y-axis")
+        @Config.Name(Y_ALIGN_NAME)
+        @Config.Comment(Y_ALIGN_COMMENT)
         public double yAlign = 0;
 
-        @Config.Name("align_z")
-        @Config.Comment("The amount of which the map is offset along the in-game Z-axis")
+        @Config.Name(Z_ALIGN_NAME)
+        @Config.Comment(Z_ALIGN_COMMENT)
         public double zAlign = 0;
 
-        @Config.Name("lock_north")
-        @Config.Comment("The map aligner direction will be locked to north if enabled")
+        @Config.Name(LOCK_NORTH_NAME)
+        @Config.Comment(LOCK_NORTH_COMMENT)
         public boolean lockNorth = false;
 
-        @Config.Name("y_axis")
-        @Config.Comment("The in-game y-coordinate value at which the map will be rendered")
+        @Config.Name(FLAT_MAP_Y_AXIS_NAME)
+        @Config.Comment(FLAT_MAP_Y_AXIS_COMMENT)
         public double flatMapYAxis = 4;
 
-        @Config.Name("opacity")
-        @Config.Comment("The map opacity")
+        @Config.Name(OPACITY_NAME)
+        @Config.Comment(OPACITY_COMMENT)
         @Config.RangeDouble(min = 0, max = 1)
         @Config.SlidingOption
         public double opacity = 0.7;
 
-        @Config.Name("zoom")
-        @Config.Comment("The amount of map's resolution to increase; 0 is default")
-        @Config.RangeInt(min = -3, max = 3)
-        @Config.SlidingOption
-        public int relativeZoomValue = 0;
-
-        @Config.Name("size")
-        @Config.RangeInt(min = 1, max = 40)
-        public int radius = 3;
-
-        @Config.Name("y_diff_limit")
-        @Config.Comment("Puts limit on how far along the Y-axis the map will be rendered from the player.")
+        @Config.Name(Y_DIFF_LIMIT_NAME)
+        @Config.Comment(Y_DIFF_LIMIT_COMMENT)
         public double yDiffLimit = 1000;
     }
 
     // UI settings
-    @Config.Name("ui_settings")
-    @Config.Comment("General UI settings")
+    @Config.Name(UI_SETTINGS_NAME)
+    @Config.Comment(UI_SETTINGS_COMMENT)
     public static final UISettingsConnectorImpl UI_SETTINGS = new UISettingsConnectorImpl();
     public UISettingsConnector getUiSettings() { return UI_SETTINGS; }
 
     // UI settings class
     @Getter @Setter
     public static class UISettingsConnectorImpl implements UISettingsConnector {
-        @Config.Name("sidebar_side")
+        @Config.Name(SIDEBAR_SIDE_NAME)
+        @Config.Comment(SIDEBAR_SIDE_COMMENT)
         public SidebarSide sidebarSide = SidebarSide.RIGHT;
 
-        @Config.Name("sidebar_width")
-        @Config.RangeDouble(min = 130) // It's not necessary for the sidebar to fill more than a half of the game screen
+        @Config.Name(SIDEBAR_WIDTH_NAME)
+        @Config.Comment(SIDEBAR_WIDTH_COMMENT)
+        @Config.RangeDouble(min = 130, max = 270)
         public double sidebarWidth = 200;
 
-        @Config.Name("sidebar_opacity")
+        @Config.Name(SIDEBAR_OPACITY_NAME)
+        @Config.Comment(SIDEBAR_OPACITY_COMMENT)
         @Config.RangeDouble(min = 0, max = 1)
         @Config.SlidingOption
-        public double sidebarOpacity = 0.5;
+        public double sidebarOpacity = 0.7;
     }
 
     public void saveConfig() {

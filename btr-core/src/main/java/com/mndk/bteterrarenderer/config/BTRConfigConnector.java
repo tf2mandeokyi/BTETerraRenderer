@@ -16,37 +16,86 @@ public interface BTRConfigConnector {
      */
     void saveConfig();
     void readConfig();
-    boolean isDoRender();               void setDoRender(boolean doRender);
-    String getMapServiceCategory();     void setMapServiceCategory(String mapServiceCategory);
-    String getMapServiceId();           void setMapServiceId(String mapServiceId);
 
-    RenderSettingsConnector getRenderSettings();
-    interface RenderSettingsConnector {
-        double getXAlign();             void setXAlign(double xAlign);
-        double getYAlign();             void setYAlign(double yAlign);
-        double getZAlign();             void setZAlign(double zAlign);
-        boolean isLockNorth();          void setLockNorth(boolean lockNorth);
-        double getFlatMapYAxis();       void setFlatMapYAxis(double yAxis);
-        double getOpacity();            void setOpacity(double opacity);
-        int getRadius();                void setRadius(int radius);
-        double getYDiffLimit();         void setYDiffLimit(double yDiffLimit);
-        int getRelativeZoomValue();     void setRelativeZoomValue(int relativeZoomValue);
-
-        default void setRelativeZoom(int newZoom) {
-            this.setRelativeZoomValue(newZoom);
-            GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
-        }
+    default boolean isDoRender() {
+        return Storage.RENDER;
+    }
+    default void setDoRender(boolean doRender) {
+        Storage.RENDER = doRender;
     }
 
+    String MAP_SERVICE_CATEGORY_NAME = "Map Service Category";
+    String MAP_SERVICE_CATEGORY_COMMENT = "";
+    String getMapServiceCategory();
+    void setMapServiceCategory(String mapServiceCategory);
+
+    String MAP_SERVICE_ID_NAME = "Map Service ID";
+    String MAP_SERVICE_ID_COMMENT = "";
+    String getMapServiceId();
+    void setMapServiceId(String mapServiceId);
+
+    String HOLOGRAM_SETTINGS_NAME = "Hologram Settings";
+    String HOLOGRAM_SETTINGS_COMMENT = "Hologram render settings";
+    HologramSettingsConnector getHologramSettings();
+    interface HologramSettingsConnector {
+        String X_ALIGN_NAME = "X Align";
+        String X_ALIGN_COMMENT = "The amount of which the map is offset on the X-axis";
+        double getXAlign();
+        void setXAlign(double xAlign);
+
+        String Y_ALIGN_NAME = "Y Align";
+        String Y_ALIGN_COMMENT = "The amount of which the map is offset on the Y-axis.\nThis is only used for 3d maps.";
+        double getYAlign();
+        void setYAlign(double yAlign);
+
+        String Z_ALIGN_NAME = "Z Align";
+        String Z_ALIGN_COMMENT = "The amount of which the map is offset on the Z-axis.";
+        double getZAlign();
+        void setZAlign(double zAlign);
+
+        String LOCK_NORTH_NAME = "Lock North";
+        String LOCK_NORTH_COMMENT = "The map aligner direction will be locked to north if this is enabled.";
+        boolean isLockNorth();
+        void setLockNorth(boolean lockNorth);
+
+        String FLAT_MAP_Y_AXIS_NAME = "Flat Map Y Axis";
+        String FLAT_MAP_Y_AXIS_COMMENT = "The in-game Y-coordinate value at which the flat map is rendered.";
+        double getFlatMapYAxis();
+        void setFlatMapYAxis(double yAxis);
+
+        String OPACITY_NAME = "Opacity";
+        String OPACITY_COMMENT = "The map opacity";
+        double getOpacity();
+        void setOpacity(double opacity);
+
+        String Y_DIFF_LIMIT_NAME = "Y Diff Limit";
+        String Y_DIFF_LIMIT_COMMENT = "Puts limit on how far the map is from the player to be rendered.";
+        double getYDiffLimit();
+        void setYDiffLimit(double yDiffLimit);
+    }
+
+    String UI_SETTINGS_NAME = "UI Settings";
+    String UI_SETTINGS_COMMENT = "General UI settings";
     UISettingsConnector getUiSettings();
     interface UISettingsConnector {
-        SidebarSide getSidebarSide();   void setSidebarSide(SidebarSide side);
-        double getSidebarWidth();       void setSidebarWidth(double sidebarWidth);
-        double getSidebarOpacity();     void setSidebarOpacity(double sidebarOpacity);
+        String SIDEBAR_SIDE_NAME = "Sidebar Side";
+        String SIDEBAR_SIDE_COMMENT = "";
+        SidebarSide getSidebarSide();
+        void setSidebarSide(SidebarSide side);
+
+        String SIDEBAR_WIDTH_NAME = "Sidebar Width";
+        String SIDEBAR_WIDTH_COMMENT = "";
+        double getSidebarWidth();
+        void setSidebarWidth(double sidebarWidth);
+
+        String SIDEBAR_OPACITY_NAME = "Sidebar Opacity";
+        String SIDEBAR_OPACITY_COMMENT = "";
+        double getSidebarOpacity();
+        void setSidebarOpacity(double sidebarOpacity);
     }
 
     default void toggleRender() {
-        setDoRender(!isDoRender());
+        Storage.RENDER = !Storage.RENDER;
     }
 
     static void save() {
@@ -77,6 +126,7 @@ public interface BTRConfigConnector {
     }
 
     class Storage {
-        public static CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
+        private static CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
+        private static boolean RENDER = false;
     }
 }
