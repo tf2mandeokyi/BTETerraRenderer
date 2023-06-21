@@ -9,12 +9,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.connector.graphics.ModelGraphicsConnector;
 import com.mndk.bteterrarenderer.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.loader.CategoryMap;
+import com.mndk.bteterrarenderer.graphics.GraphicsModelManager;
 import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.util.PropertyAccessor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
@@ -29,29 +28,24 @@ import java.util.concurrent.ExecutorService;
 public abstract class TileMapService {
 
     public static final int DOWNLOAD_RETRY_COUNT = 3;
-    public static BufferedImage SOMETHING_WENT_WRONG;
-
-    /**
-     * Put a localization key as a key, and a property accessor as a value.
-     */
-    @Getter
-    protected transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
-
-    @Getter @Setter
-    protected transient CategoryMap.Category<TileMapService> category;
-    private transient final Set<GraphicsModel> modelStage = new HashSet<>();
+    protected static ImageIdPair SOMETHING_WENT_WRONG, LOADING;
+    private static boolean BAKED = false;
 
     @Getter
     protected final String name;
     protected final ExecutorService downloadExecutor;
 
-    public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
-        Set<GraphicsModel> models = this.getTileModels(poseStack, tmsId, px, py, pz);
+    /** Put a localization key as a key, and a property accessor as a value. */
+    @Getter
+    protected transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
 
-        if(models != null) {
-            modelStage.removeIf(model -> !models.contains(model));
-            models.stream().filter(model -> !modelStage.contains(model)).forEach(modelStage::add);
-        }
+    private transient Set<GraphicsModel> modelStage = new HashSet<>();
+
+    public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
+        GraphicsModelManager.INSTANCE.bakeModelsInQueue();
+        bakeStaticImages();
+        Set<GraphicsModel> models = this.getTileModels(poseStack, tmsId, px, py, pz);
+        if(models != null) modelStage = models;
 
         for(GraphicsModel model : modelStage) {
             ModelGraphicsConnector.INSTANCE.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
@@ -66,13 +60,26 @@ public abstract class TileMapService {
     @Nullable
     protected abstract Set<GraphicsModel> getTileModels(Object poseStack, String tmsId, double px, double py, double pz);
 
+    private static void bakeStaticImages() {
+        if(BAKED) return;
+        SOMETHING_WENT_WRONG.bake();
+        LOADING.bake();
+        BAKED = true;
+    }
+
     static {
         try {
-            String wrongImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error_image.png";
-            InputStream wrongImage = FlatTileMapService.class.getClassLoader().getResourceAsStream(wrongImagePath);
-            SOMETHING_WENT_WRONG = ImageIO.read(Objects.requireNonNull(wrongImage));
+            ClassLoader loader = FlatTileMapService.class.getClassLoader();
+
+            String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
+            InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);
+            SOMETHING_WENT_WRONG = new ImageIdPair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
+
+            String loadingImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/loading.png";
+            InputStream loadingImageStream = loader.getResourceAsStream(loadingImagePath);
+            LOADING = new ImageIdPair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -92,6 +99,18 @@ public abstract class TileMapService {
             }
 
             throw JsonMappingException.from(p, "unknown projection name" + projectionName);
+        }
+    }
+
+    @RequiredArgsConstructor
+    protected static class ImageIdPair {
+        private final BufferedImage image;
+        @Getter
+        private int id = -1;
+
+        private void bake() {
+            if(this.id != -1) return;
+            this.id = ModelGraphicsConnector.INSTANCE.allocateAndUploadTexture(this.image);
         }
     }
 }

@@ -117,7 +117,7 @@ public interface BTRConfigConnector {
         INSTANCE.setMapServiceCategory(wrapped.getParentCategory().getName());
         INSTANCE.setMapServiceId(wrapped.getId());
 
-        GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
+        GraphicsModelManager.INSTANCE.newQueue();
     }
 
     static void refreshTileMapService() {

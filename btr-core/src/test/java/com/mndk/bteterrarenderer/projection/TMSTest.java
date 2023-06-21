@@ -25,7 +25,8 @@ public class TMSTest {
         Assert.assertNotNull(osm);
 
         double longitude = 126.97683816936377, latitude = 37.57593302824052;
-        Assert.assertTrue(osm.getUrlFromGeoCoordinate(longitude, latitude, 1).matches(
+        int[] tileCoord = osm.getTileProjection().geoCoordToTileCoord(longitude, latitude, 1);
+        Assert.assertTrue(osm.getUrlFromTileCoordinate(tileCoord[0], tileCoord[1], 1).matches(
                 "https://[abc]\\.tile\\.openstreetmap\\.org/19/447067/203014\\.png"
         ));
     }

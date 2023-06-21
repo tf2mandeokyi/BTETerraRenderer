@@ -24,14 +24,10 @@ public class TileRenderer {
         GraphicsConnector.INSTANCE.glPushMatrix(poseStack);
         ModelGraphicsConnector.INSTANCE.preRender();
 
-        tms.render(
-                poseStack,
-                config.getMapServiceCategory() + "." + config.getMapServiceId(),
-                px + settings.getXAlign(),
-                py,
-                pz + settings.getZAlign(),
-                (float) settings.getOpacity()
-        );
+        String tmsId = config.getMapServiceCategory() + "." + config.getMapServiceId();
+        tms.render(poseStack, tmsId,
+                px + settings.getXAlign(), py, pz + settings.getZAlign(),
+                (float) settings.getOpacity());
         GraphicsModelManager.INSTANCE.cleanup();
 
         ModelGraphicsConnector.INSTANCE.postRender();

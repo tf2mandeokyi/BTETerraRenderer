@@ -23,6 +23,7 @@ import com.mndk.bteterrarenderer.util.RangedIntPropertyAccessor;
 import lombok.*;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -50,12 +51,10 @@ public class FlatTileMapService extends TileMapService {
     private transient int radius = 3;
 
     private final String urlTemplate;
+    @Getter
     private final TileProjection tileProjection;
     private final FlatTileURLConverter urlConverter;
 
-    /**
-     * @throws NullPointerException If the projection corresponding to its id does not exist
-     */
     @JsonCreator
     public FlatTileMapService(String name, String urlTemplate,
                               TileProjection tileProjection, FlatTileURLConverter urlConverter,
@@ -73,23 +72,19 @@ public class FlatTileMapService extends TileMapService {
                 RangedIntPropertyAccessor.of(this::getRadius, this::setRadius, 1, 10)));
     }
 
-    public void setRelativeZoom(int newZoom) {
-        this.relativeZoom = newZoom;
-        GraphicsModelManager.INSTANCE.clearTextureRenderQueue();
+    @Override
+    protected double getYAlign() {
+        return BTRConfigConnector.INSTANCE.getHologramSettings().getFlatMapYAxis() + Y_EPSILON;
     }
 
-    public String getUrlFromGeoCoordinate(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
-        int[] tileCoord = this.tileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
-        return this.getUrlFromTileCoordinate(tileCoord[0], tileCoord[1], relativeZoom);
+    public void setRelativeZoom(int newZoom) {
+        if(this.relativeZoom == newZoom) return;
+        this.relativeZoom = newZoom;
+        GraphicsModelManager.INSTANCE.newQueue();
     }
 
     public String getUrlFromTileCoordinate(int tileX, int tileY, int relativeZoom) {
         return this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
-    }
-
-    @Override
-    protected double getYAlign() {
-        return BTRConfigConnector.INSTANCE.getHologramSettings().getFlatMapYAxis() + Y_EPSILON;
     }
 
     @Override
@@ -100,8 +95,6 @@ public class FlatTileMapService extends TileMapService {
             Set<GraphicsModel> result = new HashSet<>();
             double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
             int[] tileCoord = this.tileProjection.geoCoordToTileCoord(geoCoord[0], geoCoord[1], relativeZoom);
-
-            GraphicsModelManager.INSTANCE.registerAllModelsInQueue();
 
             for(int i = 0; i < 2 * this.radius + 1; ++i) {
                 if(i == 0) {
@@ -126,25 +119,38 @@ public class FlatTileMapService extends TileMapService {
 
     private void checkTile(Set<GraphicsModel> set, String tmsId, int[] tileCoord, int dx, int dy)
             throws OutOfProjectionBoundsException {
-
         if(Math.abs(dx) > radius || Math.abs(dy) > radius) return;
         this.checkTile(set, tmsId, tileCoord[0] + dx, tileCoord[1] + dy);
     }
 
     private void checkTile(Set<GraphicsModel> set, String tmsId, int tileX, int tileY)
             throws OutOfProjectionBoundsException {
+        TileKey tileKey = new TileKey(tmsId, tileX, tileY, relativeZoom);
 
-        String tileKey = this.genTileKey(tmsId, tileX, tileY, relativeZoom);
+        // Return if the requested tile is downloaded but not yet ready
+        if(GraphicsModelManager.INSTANCE.isTextureNotReady(tileKey)) {
+            set.add(new GraphicsModel(LOADING.getId(), Collections.singletonList(this.computeTileQuad(tileKey))));
+            return;
+        }
 
-        // Return if the requested tile is still in the downloading state
-        if(GraphicsModelManager.INSTANCE.isTextureInDownloadingState(tileKey)) return;
+        // Return if error
+        if(GraphicsModelManager.INSTANCE.isTextureError(tileKey)) {
+            set.add(new GraphicsModel(SOMETHING_WENT_WRONG.getId(), Collections.singletonList(this.computeTileQuad(tileKey))));
+            return;
+        }
 
         if(GraphicsModelManager.INSTANCE.modelExists(tileKey)) {
             set.add(GraphicsModelManager.INSTANCE.updateAndGetModel(tileKey));
             return;
         }
 
-        // If the requested tile is not loaded, load it in the new thread
+        // If the requested tile is not loaded, download it in the new thread
+        GraphicsModelManager.INSTANCE.setTextureInDownloadingState(tileKey);
+        String url = this.getUrlFromTileCoordinate(tileKey.x, tileKey.y, relativeZoom);
+        this.downloadExecutor.execute(new TileImageDownloadingTask(tileKey, url, this.computeTileQuad(tileKey), 0));
+    }
+
+    private GraphicsQuad<GraphicsQuad.PosTexColor> computeTileQuad(TileKey tileKey) throws OutOfProjectionBoundsException {
         /*
          *  i=0 ------ i=1
          *   |          |
@@ -155,54 +161,53 @@ public class FlatTileMapService extends TileMapService {
         GraphicsQuad<GraphicsQuad.PosTexColor> quad = new GraphicsQuad<>();
         for (int i = 0; i < 4; i++) {
             int[] mat = this.tileProjection.getCornerMatrix(i);
-            double[] geoCoord = tileProjection.tileCoordToGeoCoord(tileX + mat[0], tileY + mat[1], relativeZoom);
+            double[] geoCoord = tileProjection.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], relativeZoom);
             double[] gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
             quad.setVertex(i, new GraphicsQuad.PosTexColor(
                     gameCoord[0], 0, gameCoord[1],
                     mat[2], mat[3],
-                    1f, 1f, 1f, 1f
-            ));
+                    1f, 1f, 1f, 1f));
         }
-        String url = this.getUrlFromTileCoordinate(tileX, tileY, relativeZoom);
-
-        // download tile
-        GraphicsModelManager.INSTANCE.setTextureInDownloadingState(tileKey);
-        this.downloadExecutor.execute(new TileImageDownloadingTask(tileKey, url, quad, 0));
+        return quad;
     }
 
     public boolean isRelativeZoomAvailable(int relativeZoom) {
         return tileProjection != null && tileProjection.isRelativeZoomAvailable(relativeZoom);
     }
 
-    public String genTileKey(String id, int tileX, int tileY, int zoom) {
-        return "tilemap_" + id + "_" + tileX + "_" + tileY + "_" + zoom;
+    @ToString
+    @EqualsAndHashCode
+    @RequiredArgsConstructor
+    private static class TileKey {
+        private final String tmsId;
+        private final int x, y, zoom;
     }
 
     @RequiredArgsConstructor
     protected class TileImageDownloadingTask implements Runnable {
 
-        private final String tileKey, url;
+        private final TileKey tileKey;
+        private final String url;
         private final GraphicsQuad<GraphicsQuad.PosTexColor> quad;
         private final int retry;
 
         @Override
         public void run() {
-            GraphicsModelManager cache = GraphicsModelManager.INSTANCE;
-
-            if (retry >= DOWNLOAD_RETRY_COUNT + 1) {
-                cache.textureDownloadingComplete(tileKey, SOMETHING_WENT_WRONG, Collections.singletonList(quad));
+            if (retry >= DOWNLOAD_RETRY_COUNT) {
+                GraphicsModelManager.INSTANCE.textureDownloadingError(tileKey);
                 return;
             }
 
             try {
                 InputStream stream = HttpConnector.INSTANCE.download(url);
-                cache.textureDownloadingComplete(tileKey, ImageIO.read(stream), Collections.singletonList(quad));
+                BufferedImage image = ImageIO.read(stream);
+                GraphicsModelManager.INSTANCE.textureDownloadingComplete(tileKey, image, Collections.singletonList(quad));
                 return;
-            } catch (Exception e) {
-                BTETerraRendererConstants.LOGGER.error("Caught exception while downloading a tile image (" +
-                        "TileKey=" + tileKey + ", Retry #" + (retry + 1) + ")");
-            }
+            } catch (Exception ignored) {}
+
+            BTETerraRendererConstants.LOGGER.error("Caught exception while downloading a tile image (" +
+                    "TileKey=" + tileKey + ", Retry #" + (retry + 1) + ")");
 
             TIMER.schedule(new TimerTask() {
                 @Override
@@ -236,6 +241,9 @@ public class FlatTileMapService extends TileMapService {
                         .setFlipVertically(flipVertically)
                         .setInvertLatitude(invertLatitude);
             } else {
+                /*
+                 * If the projection corresponding to its id does not exist
+                 */
                 throw JsonMappingException.from(p, "unknown projection name" + projectionName);
             }
 
