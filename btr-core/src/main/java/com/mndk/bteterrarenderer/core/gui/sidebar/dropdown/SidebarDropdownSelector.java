@@ -319,7 +319,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         private void addItem(DropdownItem item) {
             this.validateNonFinalization();
-            if (stack.size() == 0) list.add(item);
+            if (stack.isEmpty()) list.add(item);
             else stack.peek().itemList.add(item);
         }
 
@@ -330,7 +330,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         public void pop() {
             this.validateNonFinalization();
-            if(stack.size() == 0) throw new RuntimeException("stack size == 0");
+            if(stack.isEmpty()) throw new RuntimeException("stack size == 0");
 
             ItemList list = stack.peek();
             ItemList victim = dropdownItems;
@@ -345,7 +345,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         public void update() {
             this.validateNonFinalization();
-            if(stack.size() != 0) throw new RuntimeException("stack size != 0");
+            if(!stack.isEmpty()) throw new RuntimeException("stack size != 0");
 
             dropdownItems.itemList.clear();
             dropdownItems.itemList.addAll(list);

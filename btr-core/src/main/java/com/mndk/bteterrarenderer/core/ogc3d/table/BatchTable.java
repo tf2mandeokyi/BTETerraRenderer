@@ -96,7 +96,7 @@ public class BatchTable implements Iterable<BatchTable.Row> {
         public String toString() {
             StringBuilder s = new StringBuilder("BatchTableElement[");
             s.append("index=").append(rowIndex);
-            if(columnIndexMap.size() != 0) s.append(", ");
+            if(!columnIndexMap.isEmpty()) s.append(", ");
             s.append(columnIndexMap.keySet().stream()
                     .map(c -> c + "=" + this.getByName(c)).collect(Collectors.joining(", ")));
             return s + "]";

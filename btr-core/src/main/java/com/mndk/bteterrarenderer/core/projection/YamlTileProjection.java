@@ -12,7 +12,6 @@ import java.util.Map;
 @JsonDeserialize
 public class YamlTileProjection extends TileProjection {
 
-
     private final GeographicProjection projection;
     private final Map<Integer, TileMatrix> matrices;
 
@@ -63,7 +62,7 @@ public class YamlTileProjection extends TileProjection {
 
     @Data
     @JsonDeserialize
-    private static class TileMatrix {
+    public static class TileMatrix {
         final double[] pointOfOrigin, tileSize;
 
         @JsonCreator

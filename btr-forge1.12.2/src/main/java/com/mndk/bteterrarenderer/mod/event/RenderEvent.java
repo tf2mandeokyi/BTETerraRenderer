@@ -26,7 +26,7 @@ public class RenderEvent {
 			// We'll just pass null here
 			TileRenderer.renderTiles(null, px, py, pz);
 		} catch(IllegalArgumentException exception) {
-			exception.printStackTrace();
+			BTETerraRendererConstants.LOGGER.error("Error while rendering tiles", exception);
 		}
 	}
 }

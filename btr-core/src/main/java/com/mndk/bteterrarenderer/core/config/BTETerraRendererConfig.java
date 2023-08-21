@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.core.loader.TMSYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 
 // TODO: Generalize this. This looks terrible
+@SuppressWarnings("unused")
 public class BTETerraRendererConfig {
     public static final BTETerraRendererConfig INSTANCE = new BTETerraRendererConfig();
 

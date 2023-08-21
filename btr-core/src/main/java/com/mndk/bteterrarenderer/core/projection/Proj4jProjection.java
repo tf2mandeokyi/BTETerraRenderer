@@ -11,6 +11,7 @@ import org.osgeo.proj4j.*;
 /**
  * Proj4j + GeographicProjection
  */
+@Getter
 @JsonDeserialize
 public class Proj4jProjection implements GeographicProjection {
 
@@ -28,7 +29,6 @@ public class Proj4jProjection implements GeographicProjection {
 	private transient final CoordinateTransform toWgs;
 	private transient final CoordinateTransform toTargetCrs;
 
-	@Getter
 	private final String name, param;
 
 	public Proj4jProjection(CoordinateReferenceSystem crs) {

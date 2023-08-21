@@ -7,6 +7,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// TODO: Finish this class
 public class TileImageDownloader extends QueueNodeProcessor<TileImageDownloader.DownloadRequest> {
 
     public static final int DOWNLOAD_RETRY_COUNT = 3;

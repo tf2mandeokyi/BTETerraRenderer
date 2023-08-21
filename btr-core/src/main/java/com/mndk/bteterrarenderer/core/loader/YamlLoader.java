@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.loader;
 
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,9 +8,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+@Getter
 public abstract class YamlLoader<T> {
 
-    @Getter
     private File mapFilesDirectory;
     private final String folderName;
     private final String defaultYamlPath;
@@ -37,7 +38,7 @@ public abstract class YamlLoader<T> {
             try (FileReader fileReader = new FileReader((mapFile))) {
                 addToResult(this.result, load(name, fileReader));
             } catch (Exception e) {
-                e.printStackTrace();
+                BTETerraRendererConstants.LOGGER.error("Error while parsing map file " + mapFile, e);
             }
         }
     }

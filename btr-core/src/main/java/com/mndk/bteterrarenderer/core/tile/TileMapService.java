@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
+@Getter
 @RequiredArgsConstructor
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public abstract class TileMapService {
@@ -31,7 +32,6 @@ public abstract class TileMapService {
     protected static ImageIdPair SOMETHING_WENT_WRONG, LOADING;
     private static boolean BAKED = false;
 
-    @Getter
     protected final String name;
     protected final ExecutorService downloadExecutor;
 

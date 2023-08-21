@@ -149,7 +149,7 @@ public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.Te
 			try {
 				bakeModel(element.key, image, element.quads);
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error("Error while processing queue", e);
 				// Put the image data back to the queue if something went wrong
 				errors.add(element);
 			}

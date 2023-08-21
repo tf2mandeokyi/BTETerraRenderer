@@ -202,7 +202,7 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
             // TODO: Maybe I should consider removing guiChat from sidebar
             this.guiChat.handleMouseInput();
         } else {
-            this.verticalSliderValue -= Math.signum(scrollAmount) * 30;
+            this.verticalSliderValue -= (int) (Math.signum(scrollAmount) * 30);
             this.validateSliderValue();
         }
         return true;

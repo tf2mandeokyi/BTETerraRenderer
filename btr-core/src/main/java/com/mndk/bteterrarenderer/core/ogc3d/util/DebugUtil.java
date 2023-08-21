@@ -49,7 +49,7 @@ public class DebugUtil {
         System.out.println("error = " + tile.getGeometricError());
 
         List<TileContent> tileContents = tile.getContents(), result = new ArrayList<>();
-        if(tileContents.size() != 0) {
+        if(!tileContents.isEmpty()) {
             result.addAll(tileContents);
             for (TileContent content : tileContents) {
                 for (int i = 0; i < depth; i++) System.out.print("  ");
@@ -61,7 +61,7 @@ public class DebugUtil {
         }
 
         List<Tile> children = tile.getChildren();
-        if(children.size() != 0) {
+        if(!children.isEmpty()) {
             for (int j = 0; j < children.size(); j++) {
                 Tile child = children.get(j);
                 if (!child.getBoundingVolume().intersectsGeoCoordinate(geoCoordinate)) continue;
@@ -88,7 +88,7 @@ public class DebugUtil {
         StringBuilder sb = new StringBuilder();
         if(object instanceof List) {
             List<?> list = BtrUtil.uncheckedCast(object);
-            if(list.size() == 0) {
+            if(list.isEmpty()) {
                 sb.append("[]\n");
             } else {
                 sb.append("[\n");
@@ -103,7 +103,7 @@ public class DebugUtil {
         }
         else if(object instanceof Map) {
             Map<?, ?> map = BtrUtil.uncheckedCast(object);
-            if(map.size() == 0) {
+            if(map.isEmpty()) {
                 sb.append("{}\n");
             } else {
                 sb.append("{\n");
@@ -257,6 +257,6 @@ public class DebugUtil {
                 sb.append("\n");
             }
         }
-        out.print(sb.toString());
+        out.print(sb);
     }
 }

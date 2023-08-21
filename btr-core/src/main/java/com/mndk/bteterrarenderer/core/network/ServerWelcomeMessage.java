@@ -8,8 +8,8 @@ import lombok.Getter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+@Getter
 public class ServerWelcomeMessage {
-    @Getter
     private String projectionJson = null;
 
     public ServerWelcomeMessage() {}

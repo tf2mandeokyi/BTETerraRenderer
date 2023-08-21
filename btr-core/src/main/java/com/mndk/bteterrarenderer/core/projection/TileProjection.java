@@ -43,7 +43,7 @@ public abstract class TileProjection {
     public final int[] geoCoordToTileCoord(double longitude, double latitude, int relativeZoom) throws OutOfProjectionBoundsException {
         return this.toTileCoord(longitude, invertLatitude ? -latitude : latitude, relativeZoomToAbsolute(relativeZoom));
     }
-    protected abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException;
+    public abstract int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException;
 
 
     /**

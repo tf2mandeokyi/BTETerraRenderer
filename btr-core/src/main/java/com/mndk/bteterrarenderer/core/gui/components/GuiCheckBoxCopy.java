@@ -5,11 +5,12 @@ import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class GuiCheckBoxCopy extends GuiAbstractWidgetCopy {
     public static final int BOX_WIDTH = 11, BOX_HEIGHT = 11;
     private static final int BOX_MARGIN_RIGHT = 5;
 
-    @Getter @Setter
+    @Setter
     private boolean checked;
 
     public GuiCheckBoxCopy(int x, int y, String text, boolean checked) {
