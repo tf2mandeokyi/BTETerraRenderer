@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.dep.terraplusplus.util.MathUtils;
-import com.mndk.bteterrarenderer.util.BtrUtil;
 import lombok.Getter;
 
 import java.util.Collections;

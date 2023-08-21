@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.ogc3d;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.ogc3d.math.Matrix4;
-import com.mndk.bteterrarenderer.ogc3d.math.volume.Region;
-import com.mndk.bteterrarenderer.ogc3d.tile.Tile;
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.ogc3d.math.Matrix4;
+import com.mndk.bteterrarenderer.core.ogc3d.math.volume.Region;
+import com.mndk.bteterrarenderer.core.ogc3d.tile.Tile;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;

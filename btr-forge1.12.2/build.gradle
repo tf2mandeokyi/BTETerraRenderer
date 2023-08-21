@@ -1,12 +1,28 @@
 plugins {
     id 'net.minecraftforge.gradle'
     id 'btr.java-conventions'
+    id 'org.spongepowered.mixin'
 }
 
 sourceCompatibility = targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'snapshot', version: '20171003-1.12'
+    mappings channel: 'stable', version: '39-1.12'
+
+    runs {
+        client {
+            workingDirectory project.file('run/client')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            arg '-torg.spongepowered.asm.launch.MixinTweaker'
+        }
+        server {
+            workingDirectory project.file('run/server')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES, REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            arg '-torg.spongepowered.asm.launch.MixinTweaker'
+        }
+    }
 }
 
 repositories {
@@ -18,13 +34,15 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+    minecraft "net.minecraftforge:forge:${project.minecraftVersion}-14.23.5.2859"
 
     shadeCore fg.deobf(project(':btr-core'))
 
-    implementation fg.deobf('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
-    implementation fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
-    implementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
+    annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
+
+    compileOnly fg.deobf('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
+    compileOnly fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
+    compileOnly fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
     testImplementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
 }
 
@@ -45,4 +63,19 @@ processResources {
 
 reobf {
     shadowJar {}
+}
+
+mixin {
+    add sourceSets.main, 'mixins.bteterrarenderer.refmap.json' // TODO: Figure out why this is empty
+    config 'mixins.bteterrarenderer.json'
+}
+
+jar {
+    manifest.attributes(
+            "MixinConfigs": 'mixins.bteterrarenderer.json',
+            "ForceLoadAsMod": 'true',
+            "TweakClass": 'org.spongepowered.asm.launch.MixinTweaker',
+            "TweakOrder": 0,
+            "Manifest-Version": 1.0
+    )
 }

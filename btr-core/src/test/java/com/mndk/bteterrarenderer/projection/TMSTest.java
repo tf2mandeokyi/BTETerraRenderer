@@ -1,12 +1,12 @@
 package com.mndk.bteterrarenderer.projection;
 
-import com.mndk.bteterrarenderer.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.loader.CategoryMap;
-import com.mndk.bteterrarenderer.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.loader.TMSYamlLoader;
-import com.mndk.bteterrarenderer.tile.FlatTileMapService;
-import com.mndk.bteterrarenderer.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.loader.CategoryMap;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.loader.TMSYamlLoader;
+import com.mndk.bteterrarenderer.core.tile.FlatTileMapService;
+import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import org.apache.logging.log4j.LogManager;
 import org.junit.Assert;
 import org.junit.Test;

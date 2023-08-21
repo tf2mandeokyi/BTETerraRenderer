@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.projection;
 
+import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.config.GlobalParseRegistries;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import org.junit.Assert;
@@ -34,7 +35,7 @@ public class Proj4ProjectionTest {
 
     static {
         try {
-            Class.forName("com.mndk.bteterrarenderer.BTETerraRendererConstants");
+            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRendererConstants");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

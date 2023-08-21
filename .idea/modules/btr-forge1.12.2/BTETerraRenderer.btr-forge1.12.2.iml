@@ -3,6 +3,7 @@
   <component name="AdditionalModuleElements">
     <content url="file://$MODULE_DIR$/../../../btr-forge1.12.2" dumb="true">
       <excludeFolder url="file://$MODULE_DIR$/../../../btr-forge1.12.2/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../btr-forge1.12.2/run" />
     </content>
   </component>
 </module>

@@ -1,7 +1,8 @@
 package com.mndk.bteterrarenderer.projection;
 
+import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
-import com.mndk.bteterrarenderer.network.ServerWelcomeMessage;
+import com.mndk.bteterrarenderer.core.network.ServerWelcomeMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;

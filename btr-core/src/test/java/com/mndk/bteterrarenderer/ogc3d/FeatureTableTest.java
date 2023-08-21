@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.ogc3d;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.mndk.bteterrarenderer.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.ogc3d.table.BinaryVector;
-import com.mndk.bteterrarenderer.ogc3d.table.BinaryJsonTableElement;
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.ogc3d.table.BinaryVector;
+import com.mndk.bteterrarenderer.core.ogc3d.table.BinaryJsonTableElement;
 import lombok.Builder;
 import lombok.Data;
 import org.junit.Assert;

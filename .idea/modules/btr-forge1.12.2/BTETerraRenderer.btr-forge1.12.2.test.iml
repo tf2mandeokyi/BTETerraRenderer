@@ -12,7 +12,7 @@
   </component>
   <component name="McpModuleSettings">
     <option name="mappingFile" value="D:\Desktop\some_programs\Java\Forge mods\BTETerraRenderer\btr-forge1.12.2\build\createMcpToSrg\output.tsrg" />
-    <option name="mcpVersion" value="snapshot_20171003-1.12" />
+    <option name="mcpVersion" value="stable_39-1.12" />
     <option name="minecraftVersion" value="1.12.2" />
     <option name="platformVersion" value="14.23.5.2859" />
     <option name="srgType" value="TSRG" />

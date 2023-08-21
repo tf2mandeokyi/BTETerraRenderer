@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.projection;
 
-import com.mndk.bteterrarenderer.loader.ProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.ProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.projection.TileProjection;
+import com.mndk.bteterrarenderer.core.projection.YamlTileProjection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +32,7 @@ public class TileProjectionTest {
 
     static {
         try {
-            Class.forName("com.mndk.bteterrarenderer.BTETerraRendererConstants");
+            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRendererConstants");
             ProjectionYamlLoader.INSTANCE.refresh();
             PROJECTION_MAP = ProjectionYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {

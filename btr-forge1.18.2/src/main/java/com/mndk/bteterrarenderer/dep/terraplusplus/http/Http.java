@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
 import com.google.common.base.Preconditions;
-import com.mndk.bteterrarenderer.connector.terraplusplus.TerraConfig;
+import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
