@@ -65,6 +65,9 @@ dependencies {
     shadeDep 'lzma:lzma:0.0.1' // Why isn't lzma built-in in 1.18.2 :(
 
     annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
+    testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')
+    testImplementation fg.deobf('org.spongepowered:mixin:0.8.5')
+    testAnnotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
 }
 
 processResources {
@@ -89,7 +92,7 @@ reobf {
 }
 
 mixin {
-    add sourceSets.main, 'mixins.bteterrarenderer.refmap.json' // TODO: Figure out why this is empty
+    add sourceSets.main, 'mixins.bteterrarenderer.refmap.json'
     config 'mixins.bteterrarenderer.json'
 }
 

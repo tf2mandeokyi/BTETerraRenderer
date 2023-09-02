@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.graphics.ModelGraphicsManager;
+import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelBaker;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 
@@ -14,7 +14,7 @@ public class TileRenderer {
         BTETerraRendererConfig config = BTETerraRendererConfig.INSTANCE;
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HologramConfig.INSTANCE;
 
-        TileMapService tms = config.getTileMapService().getItem();
+        TileMapService<?> tms = config.getTileMapService().getItem();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 
@@ -22,15 +22,15 @@ public class TileRenderer {
         if(Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;
 
         GlGraphicsManager.glPushMatrix(poseStack);
-        ModelGraphicsManager.preRender();
+        GraphicsModelVisualManager.preRender();
 
         String tmsId = config.getMapServiceCategory() + "." + config.getMapServiceId();
         tms.render(poseStack, tmsId,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());
-        GraphicsModelBaker.INSTANCE.cleanup();
+        GraphicsModelBaker.getInstance().cleanup();
 
-        ModelGraphicsManager.postRender();
+        GraphicsModelVisualManager.postRender();
         GlGraphicsManager.glPopMatrix(poseStack);
     }
 }

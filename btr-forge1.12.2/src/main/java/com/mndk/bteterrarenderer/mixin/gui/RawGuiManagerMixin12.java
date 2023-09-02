@@ -25,11 +25,15 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(value = RawGuiManager.class, remap = false)
 public class RawGuiManagerMixin12 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void displayGuiScreen(AbstractGuiScreenCopy gui) {
         Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenCopyImpl12(gui));
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.Pos> quad, int color) {
         GraphicsQuad.Pos v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
@@ -57,6 +61,8 @@ public class RawGuiManagerMixin12 {
         GlStateManager.disableBlend();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
         int i = 0;
@@ -74,6 +80,8 @@ public class RawGuiManagerMixin12 {
         );
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
         drawButton(poseStack, x, y, width, height, GuiAbstractWidgetCopy.HoverState.DISABLED);
@@ -83,6 +91,8 @@ public class RawGuiManagerMixin12 {
         }
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawTextFieldHighlight(Object poseStack, int startX, int startY, int endX, int endY) {
         Tessellator tessellator = Tessellator.getInstance();
@@ -101,6 +111,8 @@ public class RawGuiManagerMixin12 {
         GlStateManager.enableTexture2D();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
         ResourceLocation resourceLocation = ((IResourceLocationImpl12) res).getDelegate();

@@ -10,7 +10,7 @@ import net.minecraftforge.client.IClientCommand;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
- * The command class that toggles the map rendering; client side only.
+ * The command class that toggles the map rendering. client side only.
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault

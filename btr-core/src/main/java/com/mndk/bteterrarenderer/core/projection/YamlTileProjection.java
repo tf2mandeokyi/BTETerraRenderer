@@ -26,7 +26,7 @@ public class YamlTileProjection extends TileProjection {
 
 
     @Override
-    protected int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException {
+    public int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException {
         double[] coordinate = this.projection.fromGeo(longitude, latitude);
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 

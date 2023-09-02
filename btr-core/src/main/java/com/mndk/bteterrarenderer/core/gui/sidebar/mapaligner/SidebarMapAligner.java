@@ -112,7 +112,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     private void drawAlignBox(Object poseStack) {
-        // TODO: Add numbers
+        // TODO v1.03.1: Add numbers
 
         int elementWidth = parent.elementWidth.get().intValue();
         int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;

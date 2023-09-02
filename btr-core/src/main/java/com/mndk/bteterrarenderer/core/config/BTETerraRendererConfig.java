@@ -119,16 +119,16 @@ public class BTETerraRendererConfig {
         refreshTileMapService();
     }
 
-    public CategoryMap.Wrapper<TileMapService> getTileMapService() {
+    public CategoryMap.Wrapper<TileMapService<?>> getTileMapService() {
         return Storage.TMS_ON_DISPLAY;
     }
 
-    public void setTileMapService(CategoryMap.Wrapper<TileMapService> wrapped) {
+    public void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> wrapped) {
         Storage.TMS_ON_DISPLAY = wrapped;
         setMapServiceCategory(wrapped.getParentCategory().getName());
         setMapServiceId(wrapped.getId());
 
-        GraphicsModelBaker.INSTANCE.newQueue();
+        GraphicsModelBaker.getInstance().newQueue();
     }
 
     public void refreshTileMapService() {
@@ -137,6 +137,6 @@ public class BTETerraRendererConfig {
     }
 
     private static class Storage {
-        private static CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
+        private static CategoryMap.Wrapper<TileMapService<?>> TMS_ON_DISPLAY;
     }
 }

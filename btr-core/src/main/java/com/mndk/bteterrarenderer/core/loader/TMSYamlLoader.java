@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import java.io.IOException;
 import java.io.Reader;
 
-public class TMSYamlLoader extends YamlLoader<CategoryMap<TileMapService>> {
+public class TMSYamlLoader extends YamlLoader<CategoryMap<TileMapService<?>>> {
 
 	public static final TMSYamlLoader INSTANCE = new TMSYamlLoader(
 			"maps", "assets/" + BTETerraRendererConstants.MODID + "/default_maps.yml"
@@ -17,15 +17,15 @@ public class TMSYamlLoader extends YamlLoader<CategoryMap<TileMapService>> {
 		super(folderName, defaultYamlPath);
 	}
 
-	protected CategoryMap<TileMapService> load(String fileName, Reader fileReader) throws IOException {
-		CategoryMap<TileMapService> result =
-				BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<CategoryMap<TileMapService>>() {});
+	protected CategoryMap<TileMapService<?>> load(String fileName, Reader fileReader) throws IOException {
+		CategoryMap<TileMapService<?>> result =
+				BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<CategoryMap<TileMapService<?>>>() {});
 		result.setSource(fileName);
 		return result;
 	}
 
 	@Override
-	protected void addToResult(CategoryMap<TileMapService> originalT, CategoryMap<TileMapService> newT) {
+	protected void addToResult(CategoryMap<TileMapService<?>> originalT, CategoryMap<TileMapService<?>> newT) {
 		originalT.append(newT);
 	}
 }

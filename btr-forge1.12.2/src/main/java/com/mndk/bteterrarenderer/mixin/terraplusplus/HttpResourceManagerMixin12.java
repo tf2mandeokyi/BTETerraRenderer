@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 @UtilityClass
 @Mixin(value = HttpResourceManager.class, remap = false)
 public class HttpResourceManagerMixin12 {
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public InputStream download(String url) throws ExecutionException, InterruptedException {
         return new ByteBufInputStream(Http.get(url).get());

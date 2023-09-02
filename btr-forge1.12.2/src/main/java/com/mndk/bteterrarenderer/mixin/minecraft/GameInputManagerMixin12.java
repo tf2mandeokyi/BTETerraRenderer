@@ -13,21 +13,29 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(value = GameInputManager.class, remap = false)
 public class GameInputManagerMixin12 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public boolean isOnMac() {
         return Minecraft.IS_RUNNING_ON_MAC;
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public boolean isKeyDown(InputKey key) {
         return Keyboard.isKeyDown(key.keyboardCode);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public String getClipboardContent() {
         return GuiScreen.getClipboardString();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void setClipboardContent(String content) {
         GuiScreen.setClipboardString(content);

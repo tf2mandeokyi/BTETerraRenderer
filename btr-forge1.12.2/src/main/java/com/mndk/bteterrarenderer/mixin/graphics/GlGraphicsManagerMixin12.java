@@ -17,31 +17,43 @@ import java.nio.FloatBuffer;
 @Mixin(value = GlGraphicsManager.class, remap = false)
 public class GlGraphicsManagerMixin12 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glTranslate(Object poseStack, float x, float y, float z) {
         GlStateManager.translate(x, y, z);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glPushMatrix(Object poseStack) {
         GlStateManager.pushMatrix();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glPopMatrix(Object poseStack) {
         GlStateManager.popMatrix();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glEnableScissorTest() {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glDisableScissorTest() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glRelativeScissor(Object poseStack, int x, int y, int width, int height) {
         Minecraft mc = Minecraft.getMinecraft();

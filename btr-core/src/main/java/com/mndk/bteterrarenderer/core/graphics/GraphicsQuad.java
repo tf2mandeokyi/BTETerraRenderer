@@ -38,5 +38,5 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
         public final float x, y, z;
     }
 
-    public static class VertexInfo {}
+    public static abstract class VertexInfo {}
 }

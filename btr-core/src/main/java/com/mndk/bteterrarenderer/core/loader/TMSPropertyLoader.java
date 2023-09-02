@@ -16,7 +16,7 @@ import java.util.Map;
 public class TMSPropertyLoader {
     private static final String FILE_NAME = "properties.json";
 
-    public static void load(CategoryMap<TileMapService> tmsCategoryMap) throws IOException {
+    public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {
         if(ConfigLoaders.MOD_CONFIG_DIRECTORY == null) {
             BTETerraRendererConstants.LOGGER.warn("Mod config file is null");
             return;
@@ -29,7 +29,7 @@ public class TMSPropertyLoader {
 
         for(CategoryMap.Wrapper<Map<String, Object>> wrappedMap : raw.getItemWrappers()) {
             String categoryName = wrappedMap.getParentCategory().getName(), id = wrappedMap.getId();
-            TileMapService tms = tmsCategoryMap.getItem(categoryName, id);
+            TileMapService<?> tms = tmsCategoryMap.getItem(categoryName, id);
             if(tms == null) continue;
 
             List<PropertyAccessor.Localized<?>> tmsProperties = tms.getProperties();
@@ -46,15 +46,15 @@ public class TMSPropertyLoader {
         }
     }
 
-    public static void save(@Nullable CategoryMap<TileMapService> tmsCategoryMap) throws IOException {
+    public static void save(@Nullable CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {
         if(ConfigLoaders.MOD_CONFIG_DIRECTORY == null) return;
         if(tmsCategoryMap == null) return;
 
         CategoryMap<Map<String, Object>> raw = new CategoryMap<>();
-        for(CategoryMap.Wrapper<TileMapService> tmsWrapped : tmsCategoryMap.getItemWrappers()) {
+        for(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped : tmsCategoryMap.getItemWrappers()) {
             Map<String, Object> propertyValues = new HashMap<>();
 
-            TileMapService tms = tmsWrapped.getItem();
+            TileMapService<?> tms = tmsWrapped.getItem();
             for(PropertyAccessor.Localized<?> tmsProperty : tms.getProperties()) {
                 propertyValues.put(tmsProperty.key, tmsProperty.delegate.get());
             }

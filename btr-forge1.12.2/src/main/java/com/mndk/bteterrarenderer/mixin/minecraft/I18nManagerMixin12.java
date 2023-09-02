@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 @UtilityClass
 @Mixin(value = I18nManager.class, remap = false)
 public class I18nManagerMixin12 {
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public String format(String key, Object... parameters) {
         return I18n.format(key);

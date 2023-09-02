@@ -14,11 +14,15 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(value = MixinDelegateCreator.class, remap = false)
 public class DelegateCreatorMixin12 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public IGuiChat newGuiChat() {
         return new IGuiChatImpl12();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public IResourceLocation newResourceLocation(String modId, String location) {
         return new IResourceLocationImpl12(new ResourceLocation(modId, location));

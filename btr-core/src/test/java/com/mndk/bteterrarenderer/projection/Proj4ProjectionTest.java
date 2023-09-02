@@ -19,7 +19,7 @@ public class Proj4ProjectionTest {
                 "\"param\": \"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs \"" +
         "}}");
 
-        Assert.assertEquals(projection.targetCrs.getName(), "WGS84");
+        Assert.assertEquals(projection.getTargetCrs().getName(), "WGS84");
     }
 
     @Test

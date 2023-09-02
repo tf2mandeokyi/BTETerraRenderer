@@ -39,6 +39,9 @@ dependencies {
     shadeCore fg.deobf(project(':btr-core'))
 
     annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
+    testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')
+    testImplementation fg.deobf('org.spongepowered:mixin:0.8.5')
+    testAnnotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
 
     compileOnly fg.deobf('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
     compileOnly fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
@@ -66,7 +69,7 @@ reobf {
 }
 
 mixin {
-    add sourceSets.main, 'mixins.bteterrarenderer.refmap.json' // TODO: Figure out why this is empty
+    add sourceSets.main, 'mixins.bteterrarenderer.refmap.json'
     config 'mixins.bteterrarenderer.json'
 }
 

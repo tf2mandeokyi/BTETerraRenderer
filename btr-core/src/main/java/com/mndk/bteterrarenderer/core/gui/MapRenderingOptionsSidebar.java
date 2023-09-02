@@ -34,7 +34,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final int ELEMENT_DISTANCE = 7;
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService>> mapSourceDropdown;
+    private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
     private final SidebarElementListComponent tmsPropertyElementList;
     private SidebarNumberInput yAxisInput;
 
@@ -126,12 +126,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super.initGui();
     }
 
-    private CategoryMap.Wrapper<TileMapService> getWrappedTMS() {
+    private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {
         return BTETerraRendererConfig.INSTANCE.getTileMapService();
     }
 
-    private void setTileMapService(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
-        TileMapService tms = tmsWrapped == null ? null : tmsWrapped.getItem();
+    private void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
+        TileMapService<?> tms = tmsWrapped == null ? null : tmsWrapped.getItem();
 
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HologramConfig.INSTANCE;
 
@@ -166,11 +166,11 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private void updateMapSourceDropdown() {
-        SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService>>.ItemListUpdater updater =
+        SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>>.ItemListUpdater updater =
                 mapSourceDropdown.itemListBuilder();
 
-        CategoryMap<TileMapService> tmsCategoryMap = TMSYamlLoader.INSTANCE.getResult();
-        for(Map.Entry<String, CategoryMap.Category<TileMapService>> categoryEntry : tmsCategoryMap.getCategories()) {
+        CategoryMap<TileMapService<?>> tmsCategoryMap = TMSYamlLoader.INSTANCE.getResult();
+        for(Map.Entry<String, CategoryMap.Category<TileMapService<?>>> categoryEntry : tmsCategoryMap.getCategories()) {
             updater.push(categoryEntry.getKey());
             categoryEntry.getValue().values().forEach(updater::add);
             updater.pop();
@@ -194,8 +194,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
-    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
-        TileMapService tms = tmsWrapped.getItem();
+    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
+        TileMapService<?> tms = tmsWrapped.getItem();
         if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
             return tms.getName();
         }

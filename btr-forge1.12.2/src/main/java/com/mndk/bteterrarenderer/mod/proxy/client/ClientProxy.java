@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.proxy.client;
 
-import com.mndk.bteterrarenderer.mod.commands.ToggleMapCommand12;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.mod.commands.ToggleMapCommand12;
 import com.mndk.bteterrarenderer.mod.proxy.CommonProxy;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -29,7 +29,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
-		
+
 		ClientCommandHandler.instance.registerCommand(new ToggleMapCommand12());
 		// ClientCommandHandler.instance.registerCommand(new OpenConfigCommand());
 	}

@@ -72,14 +72,19 @@ public class ModelGraphicsManagerImpl18 extends RenderStateShard {
         RenderType renderType = MODEL_RENDER_TYPE.apply(RES_LOC_MAP.get(model.getTextureGlId()));
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
 
-        for(GraphicsQuad<GraphicsQuad.PosTexColor> quad : model.getQuads()) {
+        for(GraphicsQuad<?> quad : model.getQuads()) {
             for (int i = 0; i < 4; i++) {
-                GraphicsQuad.PosTexColor vertex = quad.getVertex(i);
-                vertexConsumer.vertex(((PoseStack) poseStack).last().pose(),
-                                (float) (vertex.x - px), (float) (vertex.y - py), (float) (vertex.z - pz))
-                        .uv(vertex.u, vertex.v)
-                        .color(vertex.r, vertex.g, vertex.b, vertex.a * opacity)
-                        .endVertex();
+                GraphicsQuad.VertexInfo vertex = quad.getVertex(i);
+                if(vertex instanceof GraphicsQuad.PosTexColor posTexColor) {
+                    vertexConsumer.vertex(((PoseStack) poseStack).last().pose(),
+                                    (float) (posTexColor.x - px), (float) (posTexColor.y - py), (float) (posTexColor.z - pz))
+                            .uv(posTexColor.u, posTexColor.v)
+                            .color(posTexColor.r, posTexColor.g, posTexColor.b, posTexColor.a * opacity)
+                            .endVertex();
+                } else {
+                    // TODO
+                    throw new UnsupportedOperationException("Not implemented");
+                }
             }
             bufferSource.endBatch();
         }

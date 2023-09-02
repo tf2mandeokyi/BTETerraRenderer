@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TMSTest {
-    private static final CategoryMap<TileMapService> CATEGORY_MAP_DATA;
+    private static final CategoryMap<TileMapService<?>> CATEGORY_MAP_DATA;
 
     @Test
     public void givenYamlConfig_testJacksonReadability() {
@@ -33,7 +33,7 @@ public class TMSTest {
 
     @Test
     public void givenYamlConfig_testCategory() {
-        CategoryMap.Wrapper<TileMapService> osm = CATEGORY_MAP_DATA.getItemWrapper("Global", "osm");
+        CategoryMap.Wrapper<TileMapService<?>> osm = CATEGORY_MAP_DATA.getItemWrapper("Global", "osm");
 
         Assert.assertEquals("Global", osm.getParentCategory().getName());
         Assert.assertEquals("default", osm.getSource());

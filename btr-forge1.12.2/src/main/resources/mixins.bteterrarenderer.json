@@ -11,7 +11,7 @@
         "config.BTETerraRendererConfigMixin12$UIConfigMixin",
         "delegate.DelegateCreatorMixin12",
         "graphics.GlGraphicsManagerMixin12",
-        "graphics.ModelGraphicsManagerMixin12",
+        "graphics.GraphicsModelVisualManagerMixin12",
         "gui.FontManagerMixin12",
         "gui.RawGuiManagerMixin12",
         "minecraft.GameInputManagerMixin12",

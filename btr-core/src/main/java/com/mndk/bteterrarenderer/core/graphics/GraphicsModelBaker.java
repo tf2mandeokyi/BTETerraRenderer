@@ -1,21 +1,25 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
+import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.core.util.queue.QueueNodeProcessor;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.image.BufferedImage;
 import java.util.*;
 
 /**
  * Model manager class that stores models & texture data.
  */
-public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.TextureBakeRequest> {
+public class GraphicsModelBaker<Key> extends QueueNodeProcessor<GraphicsModelBaker.ModelBakeRequest<Key>> {
 
-	public static final GraphicsModelBaker INSTANCE =
-			new GraphicsModelBaker(1000 * 60 * 5 /* 5 minutes */, 10000);
+	private static final GraphicsModelBaker<?> INSTANCE =
+			new GraphicsModelBaker<>(1000 * 60 * 20 /* 20 minutes */, 10000);
+
+	public static <ID> GraphicsModelBaker<ID> getInstance() {
+		return BtrUtil.uncheckedCast(INSTANCE);
+	}
 
 	private static final Logger LOGGER = LogManager.getLogger();
 	private static final boolean DEBUG = false;
@@ -26,85 +30,74 @@ public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.Te
 	private static final int BAKE_AT_A_TIME = 5;
 
 	private final int maximumSize;
-	private final Map<Object, GraphicsModelWrapper> registeredModelMap = new HashMap<>();
-	private final Set<Object> downloadingKeys = new HashSet<>();
-	private final Set<Object> bakingKeys = new HashSet<>();
-	private final Set<Object> errorKeys = new HashSet<>();
+	private final Map<Key, GraphicsModelWrapper> bakedModelMap = new HashMap<>();
+	private final Map<Key, ModelBakingState> bakingStateMap = new HashMap<>();
 	private final long expireMilliseconds;
 
-	public GraphicsModelBaker(long expireMilliseconds, int maximumSize) {
+	private GraphicsModelBaker(long expireMilliseconds, int maximumSize) {
 		super(700 /* 0.7 seconds */);
 		this.expireMilliseconds = expireMilliseconds;
 		this.maximumSize = maximumSize;
 	}
 
-	private synchronized GraphicsModel validateAndGetModel(Object modelKey) {
-		if (!registeredModelMap.containsKey(modelKey)) throw new NullPointerException();
-		return registeredModelMap.get(modelKey).model;
+	private synchronized GraphicsModel validateAndGetModel(Key modelKey) {
+		if (!bakedModelMap.containsKey(modelKey)) throw new NullPointerException();
+		return bakedModelMap.get(modelKey).model;
 	}
 
-	public synchronized void setTextureInDownloadingState(Object modelKey) {
-		downloadingKeys.add(modelKey);
+	public synchronized ModelBakingState getModelBakingState(Key modelKey) {
+		if(bakedModelMap.containsKey(modelKey)) {
+			return ModelBakingState.BAKED;
+		}
+		ModelBakingState state = bakingStateMap.get(modelKey);
+		return state != null ? state : ModelBakingState.NOT_BAKED;
 	}
 
-	public synchronized void textureDownloadingError(Object modelKey) {
-		downloadingKeys.remove(modelKey);
-		errorKeys.add(modelKey);
+	public synchronized void setModelInPreparingState(Key modelKey) {
+		bakingStateMap.put(modelKey, ModelBakingState.PREPARING);
 	}
 
-	public synchronized void textureDownloadingComplete(Object modelKey, BufferedImage image,
-														List<GraphicsQuad<GraphicsQuad.PosTexColor>> quads) {
-		downloadingKeys.remove(modelKey);
-		bakingKeys.add(modelKey);
-		this.offerQueue(new TextureBakeRequest(modelKey, image, quads));
+	public synchronized void modelPreparingError(Key modelKey) {
+		bakingStateMap.put(modelKey, ModelBakingState.ERROR);
 	}
 
-	public synchronized boolean isTextureNotReady(Object modelKey) {
-		return downloadingKeys.contains(modelKey) || bakingKeys.contains(modelKey);
-	}
-
-	public synchronized boolean isTextureError(Object modelKey) {
-		return errorKeys.contains(modelKey);
+	public synchronized void modelBakingReady(Key modelKey, PreBakedModel preBakedModel) {
+		bakingStateMap.put(modelKey, ModelBakingState.BAKING);
+		this.offerQueue(new ModelBakeRequest<>(modelKey, preBakedModel));
 	}
 
 	/** Must be called on a render thread */
-	private synchronized void bakeModel(Object modelKey, BufferedImage image,
-									   List<GraphicsQuad<GraphicsQuad.PosTexColor>> quads) {
-		if(this.maximumSize != -1 && registeredModelMap.size() >= this.maximumSize) {
+	private synchronized void bakeModel(Key modelKey, PreBakedModel preBakedModel) {
+		if(this.maximumSize != -1 && bakedModelMap.size() >= this.maximumSize) {
 			this.deleteOldestModel();
 		}
-		int glId = ModelGraphicsManager.allocateAndUploadTexture(image);
-		this.registerModel(modelKey, new GraphicsModel(glId, quads));
+
+		int glId = GraphicsModelVisualManager.allocateAndUploadTexture(preBakedModel.getImage());
+		GraphicsModel model = new GraphicsModel(glId, preBakedModel.getQuads());
+
+		bakingStateMap.remove(modelKey);
+		bakedModelMap.put(modelKey, new GraphicsModelWrapper(model, System.currentTimeMillis()));
+		log("Added texture " + modelKey + " (Size: " + bakedModelMap.size() + ")");
 	}
 
-	private synchronized void registerModel(Object modelKey, GraphicsModel model) {
-		bakingKeys.remove(modelKey);
-		registeredModelMap.put(modelKey, new GraphicsModelWrapper(model, System.currentTimeMillis()));
-		log("Added texture " + modelKey + " (Size: " + registeredModelMap.size() + ")");
-	}
-
-	public synchronized boolean modelExists(Object modelKey) {
-		return registeredModelMap.containsKey(modelKey);
-	}
-
-	public synchronized GraphicsModel updateAndGetModel(Object modelKey) {
+	public synchronized GraphicsModel updateAndGetModel(Key modelKey) {
 		GraphicsModel model = validateAndGetModel(modelKey);
-		this.registeredModelMap.get(modelKey).lastUpdated = System.currentTimeMillis();
+		this.bakedModelMap.get(modelKey).lastUpdated = System.currentTimeMillis();
 		return model;
 	}
 
-	private synchronized void deleteModel(Object modelKey) {
-		if (registeredModelMap.containsKey(modelKey)) {
-			GraphicsModel model = registeredModelMap.get(modelKey).model;
-			registeredModelMap.remove(modelKey);
-			ModelGraphicsManager.glDeleteTexture(model.getTextureGlId());
-			log("Deleted texture " + modelKey + " (Size: " + registeredModelMap.size() + ")");
+	private synchronized void deleteModel(Key modelKey) {
+		if (bakedModelMap.containsKey(modelKey)) {
+			GraphicsModel model = bakedModelMap.get(modelKey).model;
+			bakedModelMap.remove(modelKey);
+			GraphicsModelVisualManager.glDeleteTexture(model.getTextureGlId());
+			log("Deleted texture " + modelKey + " (Size: " + bakedModelMap.size() + ")");
 		}
 	}
 
-	private void deleteOldestModel() {
-		Object oldestKey = null; long oldest = Long.MAX_VALUE;
-		for (Map.Entry<Object, GraphicsModelWrapper> entry : registeredModelMap.entrySet()) {
+	private synchronized void deleteOldestModel() {
+		Key oldestKey = null; long oldest = Long.MAX_VALUE;
+		for (Map.Entry<Key, GraphicsModelWrapper> entry : bakedModelMap.entrySet()) {
 			GraphicsModelWrapper wrapper = entry.getValue();
 			if(wrapper.lastUpdated < oldest) {
 				oldestKey = entry.getKey();
@@ -118,9 +111,9 @@ public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.Te
 
 	public synchronized void cleanup() {
 		long now = System.currentTimeMillis();
-		ArrayList<Object> deleteList = new ArrayList<>();
+		ArrayList<Key> deleteList = new ArrayList<>();
 		synchronized (this) {
-			for (Map.Entry<Object, GraphicsModelWrapper> entry : registeredModelMap.entrySet()) {
+			for (Map.Entry<Key, GraphicsModelWrapper> entry : bakedModelMap.entrySet()) {
 				GraphicsModelWrapper wrapper = entry.getValue();
 				if(wrapper.lastUpdated + this.expireMilliseconds > now) continue;
 				deleteList.add(entry.getKey());
@@ -128,7 +121,7 @@ public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.Te
 		}
 		if(!deleteList.isEmpty()) {
 			log("Cleaning up...");
-			for (Object modelKey : deleteList) {
+			for (Key modelKey : deleteList) {
 				this.deleteModel(modelKey);
 			}
 		}
@@ -136,18 +129,16 @@ public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.Te
 	}
 
 	/** Must be called on a render thread */
-	protected synchronized void processQueue(Queue<TextureBakeRequest> queue) {
-		List<TextureBakeRequest> errors = new ArrayList<>();
+	protected synchronized void processQueue(Queue<ModelBakeRequest<Key>> queue) {
+		List<ModelBakeRequest<Key>> errors = new ArrayList<>();
 
 		for (int i = 0; i < BAKE_AT_A_TIME && !queue.isEmpty(); i++) {
-			TextureBakeRequest element = queue.poll();
+			ModelBakeRequest<Key> element = queue.poll();
 			if (element == null) continue;
-
-			BufferedImage image = element.image;
-			if (image == null) continue;
+			if (element.preBakedModel.getImage() == null) continue;
 
 			try {
-				bakeModel(element.key, image, element.quads);
+				bakeModel(element.key, element.preBakedModel);
 			} catch (Exception e) {
 				LOGGER.error("Error while processing queue", e);
 				// Put the image data back to the queue if something went wrong
@@ -158,10 +149,9 @@ public class GraphicsModelBaker extends QueueNodeProcessor<GraphicsModelBaker.Te
 	}
 
 	@RequiredArgsConstructor
-	public static class TextureBakeRequest {
-		private final Object key;
-		private final BufferedImage image;
-		private final List<GraphicsQuad<GraphicsQuad.PosTexColor>> quads;
+	public static class ModelBakeRequest<Key> {
+		private final Key key;
+		private final PreBakedModel preBakedModel;
 	}
 
 	@AllArgsConstructor
