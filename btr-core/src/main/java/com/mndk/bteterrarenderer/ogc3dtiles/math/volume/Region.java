@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitCube;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,12 +14,16 @@ public class Region extends Volume {
     private final double minHeight, maxHeight;
 
     @Override
-    public boolean containsCartesian(Cartesian3 cartesian, Matrix4 transform) {
-        throw new UnsupportedOperationException("Not implemented");
+    public boolean intersectsSphere(Sphere sphere, Matrix4 thisTransform) {
+		Region[] sphereRegions = sphere.toBoundingRegions();
+		for(Region sphereRegion : sphereRegions) {
+			if(this.intersectsRegion(sphereRegion)) return true;
+		}
+		return false;
     }
 
     @Override
-    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4 transform) {
+    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4 thisTransform) {
         double lonRad = Math.toRadians(coordinateDegrees[0]), latRad = Math.toRadians(coordinateDegrees[1]);
         if(westLon <= eastLon) {
             if(lonRad < westLon || eastLon < lonRad) return false;
@@ -29,6 +33,31 @@ public class Region extends Volume {
 
         return southLat <= latRad && latRad <= northLat;
     }
+
+	public boolean intersectsRegion(Region other) {
+        if(!UnitCube.rangeIntersects(this.minHeight, this.maxHeight, other.minHeight, other.maxHeight))
+            return false;
+		if(!UnitCube.rangeIntersects(this.southLat, this.northLat, other.southLat, other.northLat))
+			return false;
+
+        if(this.westLon < this.eastLon) {
+            if (other.westLon < other.eastLon) return
+                    UnitCube.rangeIntersects(this.westLon, this.eastLon, other.westLon, other.eastLon);
+            else return
+                    UnitCube.rangeIntersects(this.westLon, this.eastLon, other.westLon,       Math.PI) ||
+                    UnitCube.rangeIntersects(this.westLon, this.eastLon,      -Math.PI, other.eastLon);
+        }
+        else {
+            if (other.westLon < other.eastLon) return
+                    UnitCube.rangeIntersects(this.westLon,      Math.PI, other.westLon, other.eastLon) ||
+                    UnitCube.rangeIntersects(    -Math.PI, this.eastLon, other.westLon, other.eastLon);
+            else return
+                    UnitCube.rangeIntersects(this.westLon,      Math.PI, other.westLon,       Math.PI) ||
+                    UnitCube.rangeIntersects(this.westLon,      Math.PI,      -Math.PI, other.eastLon) ||
+                    UnitCube.rangeIntersects(    -Math.PI, this.eastLon, other.westLon,       Math.PI) ||
+                    UnitCube.rangeIntersects(    -Math.PI, this.eastLon,      -Math.PI, other.eastLon);
+        }
+	}
 
     public String toString() {
         return String.format(

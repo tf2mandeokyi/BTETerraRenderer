@@ -27,12 +27,14 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
         vertices[index] = value;
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class PosTexColor extends VertexInfo {
         public final double x, y, z;
         public final float u, v, r, g, b, a;
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class Pos extends VertexInfo {
         public final float x, y, z;

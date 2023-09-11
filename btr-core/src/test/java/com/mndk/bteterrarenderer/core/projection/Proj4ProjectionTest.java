@@ -1,6 +1,5 @@
-package com.mndk.bteterrarenderer.projection;
+package com.mndk.bteterrarenderer.core.projection;
 
-import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.config.GlobalParseRegistries;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import org.junit.Assert;

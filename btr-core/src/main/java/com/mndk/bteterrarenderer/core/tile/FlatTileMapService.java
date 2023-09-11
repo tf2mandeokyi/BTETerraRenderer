@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelBaker;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.ProjectionYamlLoader;
@@ -18,7 +17,6 @@ import com.mndk.bteterrarenderer.core.projection.TileProjection;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedIntPropertyAccessor;
-import com.mndk.bteterrarenderer.dep.terraplusplus.HttpResourceManager;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import lombok.*;
 
@@ -27,10 +25,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,15 +38,17 @@ import java.util.concurrent.Executors;
 @JsonDeserialize(using = FlatTileMapService.Deserializer.class)
 public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKey> {
 
+    @Data
+    public static class TileKey {
+        private final int x, y, relativeZoom;
+    }
+
     /**
      * This variable is to prevent z-fighting from happening.<br>
      * Setting this lower than 0.1 won't have its effect when the hologram is viewed far away from player
      */
     private static final double Y_EPSILON = 0.1;
-
-    public static final int DEFAULT_MAX_THREAD = 2;
     public static final int DEFAULT_ZOOM = 18;
-    private static final Timer TIMER = new Timer();
 
     private transient int relativeZoom = 0;
     @Setter
@@ -81,13 +81,12 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     }
 
     @Override
-    protected List<TileKey> getRenderTileIdList(double px, double py, double pz) {
+    protected List<TileKey> getRenderTileIdList(double longitude, double latitude, double height) {
         if(this.tileProjection == null) return Collections.emptyList();
 
         try {
             List<TileKey> result = new ArrayList<>();
-            double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
-            int[] tileCoord = this.tileProjection.geoCoordToTileCoord(geoCoord[0], geoCoord[1], relativeZoom);
+            int[] tileCoord = this.tileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
 
             for(int i = 0; i < 2 * this.radius + 1; ++i) {
                 if(i == 0) {
@@ -117,12 +116,14 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     }
 
     @Override
-    protected PreBakedModel getPreBakedModel(TileKey tileKey) throws IOException, OutOfProjectionBoundsException {
+    protected List<PreBakedModel> getPreBakedModels(TileKey tileKey) throws IOException, OutOfProjectionBoundsException {
         String url = this.getUrlFromTileCoordinate(tileKey.x, tileKey.y, tileKey.relativeZoom);
-        InputStream stream = HttpResourceManager.download(url);
+        InputStream stream = this.fetchData(tileKey, new URL(url));
+        if(stream == null) return null;
+
         BufferedImage image = ImageIO.read(stream);
         GraphicsQuad<GraphicsQuad.PosTexColor> quad = this.computeTileQuad(tileKey);
-        return new PreBakedModel(image, Collections.singletonList(quad));
+        return Collections.singletonList(new PreBakedModel(image, Collections.singletonList(quad)));
     }
 
     @Nullable
@@ -135,7 +136,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     public void setRelativeZoom(int newZoom) {
         if(this.relativeZoom == newZoom) return;
         this.relativeZoom = newZoom;
-        GraphicsModelBaker.getInstance().newQueue();
+//        GraphicsModelBaker.getInstance().newQueue();
     }
 
     public String getUrlFromTileCoordinate(int tileX, int tileY, int relativeZoom) {
@@ -166,11 +167,6 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
 
     public boolean isRelativeZoomAvailable(int relativeZoom) {
         return tileProjection != null && tileProjection.isRelativeZoomAvailable(relativeZoom);
-    }
-
-    @Data
-    public static class TileKey {
-        private final int x, y, relativeZoom;
     }
 
     public static class Deserializer extends JsonDeserializer<FlatTileMapService> {

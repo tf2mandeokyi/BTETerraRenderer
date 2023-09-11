@@ -1,6 +1,5 @@
-package com.mndk.bteterrarenderer.projection;
+package com.mndk.bteterrarenderer.core.projection;
 
-import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.core.network.ServerWelcomeMessage;
 import io.netty.buffer.ByteBuf;

@@ -66,7 +66,7 @@ public abstract class BinaryJsonTableElement<T> {
                             ctxt.readValue(p, valueType);
                 } else {
                     JavaType innerType = valueType.containedType(0);
-                    List<Object> list = JsonParserUtil.readJsonList(p, false, p1 -> ctxt.readValue(p1, innerType));
+                    List<Object> list = JsonParserUtil.readJsonList(p, p1 -> ctxt.readValue(p1, innerType));
                     content = type.getGenerator().apply(BtrUtil.uncheckedCast(list.toArray(new Object[0])));
                 }
             }

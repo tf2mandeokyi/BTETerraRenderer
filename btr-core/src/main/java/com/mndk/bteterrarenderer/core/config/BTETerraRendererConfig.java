@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.core.config;
 
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelBaker;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
@@ -128,7 +127,7 @@ public class BTETerraRendererConfig {
         setMapServiceCategory(wrapped.getParentCategory().getName());
         setMapServiceId(wrapped.getId());
 
-        GraphicsModelBaker.getInstance().newQueue();
+//        GraphicsModelBaker.getInstance().newQueue();
     }
 
     public void refreshTileMapService() {

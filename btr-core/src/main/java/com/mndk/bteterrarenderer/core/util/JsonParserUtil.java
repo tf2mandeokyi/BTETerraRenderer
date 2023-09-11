@@ -11,27 +11,29 @@ import java.util.List;
 
 public class JsonParserUtil {
 
-    public static <T> List<T> readJsonList(JsonParser p, boolean readFromArrayStart, JsonParserReadFunction<T> f) throws IOException {
-        if(readFromArrayStart) {
-            if (p.nextToken() != JsonToken.START_ARRAY) {
-                throw JsonMappingException.from(p, "expected array start, found: " + p.currentToken());
-            }
+    public static <T> List<T> readJsonList(JsonParser p, JsonParserReadFunction<T> f)
+            throws IOException {
+        if(p.currentToken() == JsonToken.FIELD_NAME) {
+            p.nextToken();
+        }
+        if (p.currentToken() == JsonToken.START_ARRAY) {
+            p.nextToken();
         }
 
-        JsonToken token;
+        JsonToken token = p.currentToken();
         List<T> list = new ArrayList<>();
-        while((token = p.nextToken()) != JsonToken.END_ARRAY) {
+        do {
             if(!token.isNumeric()) {
                 throw JsonMappingException.from(p, "expected number element, found: " + token);
             }
             T value = f.read(p);
             list.add(value);
-        }
+        } while((token = p.nextToken()) != JsonToken.END_ARRAY);
         return list;
     }
 
-    public static double[] readDoubleArray(JsonParser p, boolean readArrayFromStart) throws IOException {
-        return readJsonList(p, readArrayFromStart, JsonParser::getDoubleValue)
+    public static double[] readDoubleArray(JsonParser p) throws IOException {
+        return readJsonList(p, JsonParser::getDoubleValue)
                 .stream().mapToDouble(Double::doubleValue).toArray();
     }
 

@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class ModelGraphicsManagerImpl18 extends RenderStateShard {
+public class GraphicsModelVisualManagerImpl18 extends RenderStateShard {
 
     protected static final RenderStateShard.ShaderStateShard POSITION_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
     private static final RenderStateShard.TransparencyStateShard MODEL_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
@@ -54,7 +54,7 @@ public class ModelGraphicsManagerImpl18 extends RenderStateShard {
 
     private static final Map<Integer, ResourceLocation> RES_LOC_MAP = new HashMap<>();
 
-    public ModelGraphicsManagerImpl18() {
+    public GraphicsModelVisualManagerImpl18() {
         super("", () -> {}, () -> {});
     }
 

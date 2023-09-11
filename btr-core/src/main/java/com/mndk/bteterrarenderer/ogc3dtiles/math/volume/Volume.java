@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Ellipsoidal3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 
 import java.io.IOException;
@@ -17,23 +17,23 @@ import java.io.IOException;
 public abstract class Volume {
 
     // Not sure if this will be used
-    public abstract boolean containsCartesian(Cartesian3 cartesian, Matrix4 transform);
+    public abstract boolean intersectsSphere(Sphere sphere, Matrix4 thisTransform);
 
     /**
      * @param coordinate In degrees.
      * @return Whether the object contains the geo coordinate "ray"
      */
-    public boolean intersectsGeoCoordinateRay(double[] coordinate, Matrix4 transform) {
+    public boolean intersectsGeoCoordinateRay(double[] coordinate, Matrix4 thisTransform) {
         return this.intersectsRay(
-                new Ellipsoidal3(Math.toRadians(coordinate[0]), Math.toRadians(coordinate[1]), -100000)
+                new Spheroid3(Math.toRadians(coordinate[0]), Math.toRadians(coordinate[1]), -100000)
                         .toCartesianCoordinate(),
-                new Ellipsoidal3(Math.toRadians(coordinate[0]), Math.toRadians(coordinate[1]), 0)
+                new Spheroid3(Math.toRadians(coordinate[0]), Math.toRadians(coordinate[1]), 0)
                         .toCartesianCoordinate(),
-                transform
+                thisTransform
         );
     }
 
-    public boolean intersectsRay(Cartesian3 rayStart, Cartesian3 rayEnd, Matrix4 transform) {
+    public boolean intersectsRay(Cartesian3 rayStart, Cartesian3 rayEnd, Matrix4 thisTransform) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -47,7 +47,8 @@ public abstract class Volume {
             }
 
             Volume result;
-            double[] array = JsonParserUtil.readDoubleArray(p, true);
+            p.nextToken();
+            double[] array = JsonParserUtil.readDoubleArray(p);
             switch(fieldName) {
                 case "region": result = Region.fromArray(array); break;
                 case "box": result = Box.fromArray(array); break;

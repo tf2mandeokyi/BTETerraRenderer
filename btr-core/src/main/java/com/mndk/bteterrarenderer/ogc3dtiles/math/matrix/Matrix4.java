@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @JsonDeserialize(using = Matrix4.Deserializer.class)
 public class Matrix4 extends Matrix {
@@ -25,14 +24,10 @@ public class Matrix4 extends Matrix {
         }
     }
 
-    public static Matrix4 fromArray(double[] array, int start, MatrixMajor matrixMajor) {
-        return fromArray(Arrays.copyOfRange(array, start, start+16), matrixMajor);
-    }
-
     static class Deserializer extends JsonDeserializer<Matrix4> {
         @Override
         public Matrix4 deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            double[] array = JsonParserUtil.readDoubleArray(p, false);
+            double[] array = JsonParserUtil.readDoubleArray(p);
             return Matrix4.fromArray(array, MatrixMajor.COLUMN);
         }
     }

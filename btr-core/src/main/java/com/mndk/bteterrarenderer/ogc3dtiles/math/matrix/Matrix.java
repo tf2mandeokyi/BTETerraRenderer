@@ -91,7 +91,7 @@ public class Matrix {
 
             // Divide the i-th row
             double divisor = augumented[i][i];
-            for(int c = i; c <= i + size; c++) {
+            for(int c = i; c < 2 * size; c++) {
                 augumented[i][c] /= divisor;
             }
 
@@ -100,7 +100,7 @@ public class Matrix {
                 if(r == i) continue;
                 double mult = augumented[r][i];
                 if(mult == 0) continue;
-                for(int c = i; c <= i + size; c++) {
+                for(int c = i; c < 2 * size; c++) {
                     augumented[r][c] -= mult * augumented[i][c];
                 }
             }
@@ -119,6 +119,7 @@ public class Matrix {
         return Arrays.deepToString(elements);
     }
 
+    @SuppressWarnings("unused")
     public String toPrettyString() {
         StringBuilder sb = new StringBuilder();
         for(int r = 0; r < rows; r++) {

@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class EllipsoidalMath {
+public class SpheroidalMath {
 
     /**
      * @link <a href="https://gssc.esa.int/navipedia/index.php/Ellipsoidal_and_Cartesian_Coordinates_Conversion">

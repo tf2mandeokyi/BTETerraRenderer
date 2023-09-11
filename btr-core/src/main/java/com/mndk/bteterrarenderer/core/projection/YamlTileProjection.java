@@ -33,7 +33,7 @@ public class YamlTileProjection extends TileProjection {
         int tileX = (int) Math.floor((coordinate[0] - matrix.pointOfOrigin[0]) / matrix.tileSize[0]);
         int tileY = (int) Math.floor((matrix.pointOfOrigin[1] - coordinate[1]) / matrix.tileSize[1]);
 
-        return new int[]{tileX, tileY};
+        return new int[] { tileX, tileY };
     }
 
 

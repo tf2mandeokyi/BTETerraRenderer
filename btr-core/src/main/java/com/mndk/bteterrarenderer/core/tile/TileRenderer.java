@@ -28,7 +28,7 @@ public class TileRenderer {
         tms.render(poseStack, tmsId,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());
-        GraphicsModelBaker.getInstance().cleanup();
+        GraphicsModelBaker.getInstance().cleanUp();
 
         GraphicsModelVisualManager.postRender();
         GlGraphicsManager.glPopMatrix(poseStack);

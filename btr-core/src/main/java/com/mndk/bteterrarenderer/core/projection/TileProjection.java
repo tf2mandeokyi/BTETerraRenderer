@@ -34,8 +34,8 @@ public abstract class TileProjection {
     /**
      * Converts the player's position into the tile coordinates
      *
-     * @param longitude Longitude of the player's position
-     * @param latitude Latitude of the player's position
+     * @param longitude Longitude of the player's position, in degrees
+     * @param latitude Latitude of the player's position, in degrees
      * @param relativeZoom Tile zoom relative to the default one
      * @return Tile coordinate
      * @throws OutOfProjectionBoundsException When the player is out of bounds from the projection

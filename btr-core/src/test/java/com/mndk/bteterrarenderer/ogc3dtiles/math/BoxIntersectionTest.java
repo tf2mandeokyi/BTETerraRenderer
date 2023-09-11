@@ -5,9 +5,9 @@ import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Box;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ShapeIntersectionTest {
+public class BoxIntersectionTest {
     @Test
-    public void givenBox_testIntersection() {
+    public void givenBox_testRayIntersection() {
         Box box = Box.fromArray(new double[] {
                 1.56, 7.71, 5,
                 3.76, -1.15, 1.21,
@@ -19,5 +19,16 @@ public class ShapeIntersectionTest {
                 new Cartesian3(3.72, 4.79, 3.42),
                 Matrix4.IDENTITY
         ));
+    }
+
+    @Test
+    public void givenBox_testUnitSphereIntersection() {
+        Box box = Box.fromArray(new double[] {
+                0.68, 1.49, 0.19,
+                1.05, -0.71, 0.42,
+                0.18, 0.74, 0,
+                -0.14, 0, 0.84
+        });
+        Assert.assertTrue(UnitSphere.checkParallelepipedIntersection(box.boxMatrix));
     }
 }

@@ -1,8 +1,7 @@
-package com.mndk.bteterrarenderer.projection;
+package com.mndk.bteterrarenderer.core.projection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import org.junit.Assert;

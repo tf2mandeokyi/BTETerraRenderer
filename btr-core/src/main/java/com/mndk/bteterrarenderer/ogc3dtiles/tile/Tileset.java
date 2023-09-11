@@ -35,6 +35,5 @@ public class Tileset extends TileData {
         this.properties = properties != null ? properties : new HashMap<>();
         this.geometricError = geometricError;
         this.rootTile = rootTile;
-        this.rootTile.init(this, null);
     }
 }
