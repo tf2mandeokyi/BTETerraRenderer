@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.ogc3dtiles;
+package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
@@ -83,11 +83,11 @@ public class GltfModelConverter {
                     GltfExtensionsUtil.getExtension(meshPrimitiveModel, KHRDracoMeshCompression.class);
             // TODO: Add draco decompression
 
-            ParsedIndex[] parsedIndices = this.parseIndices(meshPrimitiveModel);
+            ParsedPoint[] parsedIndices = this.parseIndices(meshPrimitiveModel);
             return bakeParsedIndices(meshPrimitiveModel, parsedIndices);
         }
 
-        private ParsedIndex[] parseIndices(MeshPrimitiveModel meshPrimitiveModel) {
+        private ParsedPoint[] parseIndices(MeshPrimitiveModel meshPrimitiveModel) {
             AccessorModel positionAccessor = meshPrimitiveModel.getAttributes().get("POSITION");
             AccessorModel textureCoordAccessor = meshPrimitiveModel.getAttributes().get("TEXCOORD_0");
             if(textureCoordAccessor == null) {
@@ -95,9 +95,9 @@ public class GltfModelConverter {
             }
 
             int size = positionAccessor.getCount();
-            ParsedIndex[] parsedIndices = new ParsedIndex[size];
+            ParsedPoint[] parsedIndices = new ParsedPoint[size];
             for(int i = 0; i < size; i++) {
-                parsedIndices[i] = new ParsedIndex(
+                parsedIndices[i] = new ParsedPoint(
                         readPosition(positionAccessor, i),
                         readTexture(textureCoordAccessor, i)
                 );
@@ -131,14 +131,17 @@ public class GltfModelConverter {
             throw new UnsupportedOperationException("Not implemented");
         }
 
-        private PreBakedModel bakeParsedIndices(MeshPrimitiveModel meshPrimitiveModel, ParsedIndex[] indices) {
+        private PreBakedModel bakeParsedIndices(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] indices) {
             // TODO: Add normal
-            List<GraphicsQuad<?>> quadList = new ArrayList<>(indices.length / 3);
+            List<GraphicsQuad<?>> quadList;
             AccessorModel indicesAccessor = meshPrimitiveModel.getIndices();
+            int meshCount = indicesAccessor != null ? indicesAccessor.getCount() : indices.length;
 
             int meshMode = meshPrimitiveModel.getMode();
             if(meshMode == MeshPrimitiveModelModes.TRIANGLES) {
-                for(int i = 0; i < indices.length; i += 3) {
+                quadList = new ArrayList<>(meshCount / 3);
+
+                for(int i = 0; i < meshCount; i += 3) {
                     int[] meshIndices = indicesAccessor != null ? new int[] {
                             readInteger(indicesAccessor, i),
                             readInteger(indicesAccessor, i + 1),
@@ -215,11 +218,11 @@ public class GltfModelConverter {
     }
 
     @Data
-    private class ParsedIndex {
+    private class ParsedPoint {
         private final double[] gamePos;
         private final float[] tex;
 
-        private ParsedIndex(Cartesian3 cartesian, float[] tex) {
+        private ParsedPoint(Cartesian3 cartesian, float[] tex) {
             this.tex = tex;
 
             Spheroid3 spheroid3 = cartesian.transform(transform).toSpheroidalCoordinate();

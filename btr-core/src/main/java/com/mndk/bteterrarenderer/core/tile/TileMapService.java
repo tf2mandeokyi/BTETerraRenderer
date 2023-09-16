@@ -10,6 +10,7 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.graphics.*;
 import com.mndk.bteterrarenderer.core.loader.ProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
+import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.Ogc3dTileMapService;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -63,7 +64,7 @@ public abstract class TileMapService<TileId> {
         List<TileId> renderTileIdList;
         try {
             double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
-            renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], py);
+            renderTileIdList = this.getRenderTileIdList(tmsId, geoCoord[0], geoCoord[1], py);
         } catch(OutOfProjectionBoundsException e) { return; }
 
         for(TileId tileId : renderTileIdList) {
@@ -115,7 +116,7 @@ public abstract class TileMapService<TileId> {
     private void prepareResource(TmsIdPair<TileId> idPair, boolean firstCalling) {
         try {
             if(firstCalling) baker.setResourceInPreparingState(idPair);
-            List<PreBakedModel> preBakedModel = this.getPreBakedModels(idPair.tileId);
+            List<PreBakedModel> preBakedModel = this.getPreBakedModels(idPair);
             if(preBakedModel != null) baker.resourceProcessingReady(idPair, preBakedModel);
         } catch(OutOfProjectionBoundsException e) {
             baker.resourcePreparingError(idPair);
@@ -154,17 +155,18 @@ public abstract class TileMapService<TileId> {
     protected double getYAlign() { return 0; }
 
     /**
+     * @param tmsId Tile map service ID
      * @param longitude Player longitude, in degrees
-     * @param latitude Player latitude, in degrees
-     * @param height Player height, in meters
+     * @param latitude  Player latitude, in degrees
+     * @param height    Player height, in meters
      * @return A list of tile ids
      */
-    protected abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double height);
+    protected abstract List<TileId> getRenderTileIdList(String tmsId, double longitude, double latitude, double height);
     /**
      * @return {@code null} if the model is not ready, i.e. its data is still being fetched
      * */
     @Nullable
-    protected abstract List<PreBakedModel> getPreBakedModels(TileId tileId) throws IOException, OutOfProjectionBoundsException;
+    protected abstract List<PreBakedModel> getPreBakedModels(TmsIdPair<TileId> idPair) throws IOException, OutOfProjectionBoundsException;
     @Nullable
     protected abstract List<GraphicsQuad<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
 
@@ -181,7 +183,7 @@ public abstract class TileMapService<TileId> {
     }
 
     @Data
-    private static class TmsIdPair<TileId> {
+    protected static class TmsIdPair<TileId> {
         private final String tmsId;
         private final TileId tileId;
     }

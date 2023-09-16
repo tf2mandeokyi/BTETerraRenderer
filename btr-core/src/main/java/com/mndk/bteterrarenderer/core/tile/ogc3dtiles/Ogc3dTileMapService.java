@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.tile;
+package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -7,19 +7,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.core.ogc3dtiles.GltfModelConverter;
-import com.mndk.bteterrarenderer.core.ogc3dtiles.tile.TileGlobalKey;
-import com.mndk.bteterrarenderer.core.ogc3dtiles.tile.TileKeyManager;
-import com.mndk.bteterrarenderer.core.ogc3dtiles.tile.TileLocalKey;
+import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
+import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileKeyManager;
+import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.processor.MultiThreadedResourceCacheProcessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
-import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
@@ -46,14 +44,9 @@ import java.util.concurrent.Executors;
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
-    private static final ExecutorService TILE_PARSING_SERVICE = Executors.newCachedThreadPool();
-
     @Setter
     private transient double radius = 40;
-
     private final URL rootTilesetUrl;
-
-    private transient final CachedTileParser<TileGlobalKey> cachedTileParser = new CachedTileParser<>();
 
     public Ogc3dTileMapService(String name, ExecutorService downloadExecutor,
                                URL rootTilesetUrl) {
@@ -65,39 +58,40 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double height) {
+    protected List<TileGlobalKey> getRenderTileIdList(String tmsId, double longitude, double latitude, double height) {
 		if(radius == 0) return Collections.emptyList();
 
         Cartesian3 cartesian = new Spheroid3(Math.toRadians(longitude), Math.toRadians(latitude), height)
                 .toCartesianCoordinate();
         Sphere playerSphere = new Sphere(cartesian, radius);
-        return this.getRecursively(playerSphere);
+        return this.getRecursively(tmsId, playerSphere);
     }
 
     @Nullable
-    private Tileset getRootTileset() {
-        TileGlobalKey key = new TileGlobalKey(new TileLocalKey[0]);
-        ProcessingState state = cachedTileParser.getResourceProcessingState(key);
+    private Tileset getRootTileset(String tmsId) {
+        TmsIdPair<TileGlobalKey> idPair = new TmsIdPair<>(tmsId, TileGlobalKey.ROOT_KEY);
+        ProcessingState state = CachedTileParser.getInstance().getResourceProcessingState(idPair);
         switch(state) {
             case PROCESSED:
-                ParsedData parsedData = cachedTileParser.updateAndGetResource(key);
-                if(!(parsedData.tileData instanceof Tileset)) return null;
-                return (Tileset) parsedData.tileData;
+                ParsedData parsedData = CachedTileParser.getInstance().updateAndGetResource(idPair);
+                if(!(parsedData.getTileData() instanceof Tileset)) return null;
+                return (Tileset) parsedData.getTileData();
             case NOT_PROCESSED:
                 InputStream stream;
                 try {
-                    stream = this.fetchData(key, this.rootTilesetUrl);
+                    stream = this.fetchData(idPair.getTileId(), this.rootTilesetUrl);
                 } catch(IOException e) { return null; }
                 if(stream == null) return null;
 
-                cachedTileParser.resourceProcessingReady(key, new PreParsedData(Matrix4.IDENTITY, stream));
+                CachedTileParser.getInstance().resourceProcessingReady(idPair,
+                        new PreParsedData(Matrix4.IDENTITY, stream));
                 return null;
             default:
                 return null;
         }
     }
 
-    public List<TileGlobalKey> getRecursively(Sphere playerSphere) {
+    public List<TileGlobalKey> getRecursively(String tmsId, Sphere playerSphere) {
         List<TileGlobalKey> result = new ArrayList<>();
 
         @RequiredArgsConstructor
@@ -109,7 +103,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         }
 
         Stack<Node> nodes = new Stack<>();
-        Tileset rootTileset = this.getRootTileset();
+        Tileset rootTileset = this.getRootTileset(tmsId);
         if(rootTileset == null) return Collections.emptyList();
         nodes.add(new Node(rootTileset, this.rootTilesetUrl, new TileLocalKey[0], Matrix4.IDENTITY));
 
@@ -141,13 +135,14 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
                 TileLocalKey[] currentKeys = ArrayUtil.expandOne(parentKeys, localKey, TileLocalKey[]::new);
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
+                TmsIdPair<TileGlobalKey> idPair = new TmsIdPair<>(tmsId, currentKey);
 
                 // Get data from cache
                 ParsedData parsedData;
-                ProcessingState state = cachedTileParser.getResourceProcessingState(currentKey);
+                ProcessingState state = CachedTileParser.getInstance().getResourceProcessingState(idPair);
                 switch(state) {
                     case PROCESSED:
-                        parsedData = cachedTileParser.updateAndGetResource(currentKey);
+                        parsedData = CachedTileParser.getInstance().updateAndGetResource(idPair);
                         break;
                     case NOT_PROCESSED:
                         InputStream stream;
@@ -156,13 +151,14 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                         } catch(IOException e) { continue; }
                         if(stream == null) continue;
 
-                        cachedTileParser.resourceProcessingReady(currentKey, new PreParsedData(currentTransform, stream));
+                        CachedTileParser.getInstance().resourceProcessingReady(idPair,
+                                new PreParsedData(currentTransform, stream));
                         continue;
                     default:
                         continue;
                 }
 
-				TileData tileData = parsedData.tileData;
+				TileData tileData = parsedData.getTileData();
 
                 // TODO: Add case for i3dm
                 if(tileData instanceof TileGltfModel) {
@@ -182,14 +178,14 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected List<PreBakedModel> getPreBakedModels(TileGlobalKey key) {
-        ProcessingState state = cachedTileParser.getResourceProcessingState(key);
+    protected List<PreBakedModel> getPreBakedModels(TmsIdPair<TileGlobalKey> idPair) {
+        ProcessingState state = CachedTileParser.getInstance().getResourceProcessingState(idPair);
         if(state == ProcessingState.ERROR) return Collections.emptyList();
         if(state != ProcessingState.PROCESSED) return null;
 
-        ParsedData parsedData = cachedTileParser.updateAndGetResource(key);
-        TileData tileData = parsedData.tileData;
-        Matrix4 transform = parsedData.transform;
+        ParsedData parsedData = CachedTileParser.getInstance().updateAndGetResource(idPair);
+        TileData tileData = parsedData.getTileData();
+        Matrix4 transform = parsedData.getTransform();
 
         GltfModel gltfModel = getGltfModel(tileData);
         if(gltfModel == null) return null;
@@ -233,32 +229,4 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         }
     }
 
-    private static class CachedTileParser<Key> extends MultiThreadedResourceCacheProcessor<Key, PreParsedData, ParsedData> {
-
-        protected CachedTileParser() {
-            super(TILE_PARSING_SERVICE, 1000 * 60 * 10 /* 10 minutes */, 10000, -1, 100, false);
-        }
-
-        @Override
-        protected ParsedData processResource(PreParsedData preParsedData) throws Exception {
-            Matrix4 transform = preParsedData.transform;
-            InputStream stream = preParsedData.stream;
-            return new ParsedData(transform, TileResourceManager.parse(stream));
-        }
-
-        @Override
-        protected void deleteResource(ParsedData tileData) {}
-    }
-
-    @RequiredArgsConstructor
-    private static class PreParsedData {
-        private final Matrix4 transform;
-        private final InputStream stream;
-    }
-
-    @RequiredArgsConstructor
-    private static class ParsedData {
-        private final Matrix4 transform;
-        private final TileData tileData;
-    }
 }

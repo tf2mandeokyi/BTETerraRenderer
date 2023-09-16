@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner;
 
+import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.util.math.Pos2dQuadUtil;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.GuiCheckBoxCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiNumberInput;
@@ -13,6 +14,7 @@ import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.IntPredicate;
 
@@ -124,13 +126,13 @@ public class SidebarMapAligner extends GuiSidebarElement {
         RawGuiManager.fillRect(poseStack, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
 
         // Enable box clipping
-        GlGraphicsManager.glEnableScissorTest();
-        GlGraphicsManager.glRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
+//        GlGraphicsManager.glEnableScissorTest(); // TODO: Delete scissor test
+//        GlGraphicsManager.glRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
 
-        this.drawAlignBoxGrids(poseStack);
+        this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
 
         // Disable box clipping
-        GlGraphicsManager.glDisableScissorTest();
+//        GlGraphicsManager.glDisableScissorTest();
 
         // Borders
 //        int borderColor = this.alignBoxHovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR;
@@ -145,13 +147,19 @@ public class SidebarMapAligner extends GuiSidebarElement {
         RawGuiManager.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
     }
 
-    private void drawAlignBoxGrids(Object poseStack) {
-        int elementWidth = parent.elementWidth.get().intValue(), boxWidth = elementWidth - ALIGNBOX_MARGIN_SIDE * 2;
+    private void drawAlignBoxGrids(Object poseStack, int boxX, int boxY, int boxWidth, int boxHeight) {
         double alignX = this.xOffset.get(), alignZ = this.zOffset.get();
         int xi = (int) alignX, zi = (int) alignZ;
         int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
-        int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;
+        int centerX = boxX + boxWidth / 2, centerY = boxY + boxHeight / 2;
+
+        GraphicsQuad<GraphicsQuad.Pos> box = new GraphicsQuad<>(
+                new GraphicsQuad.Pos(boxX, boxY, 0),
+                new GraphicsQuad.Pos(boxX+boxWidth, boxY, 0),
+                new GraphicsQuad.Pos(boxX+boxWidth, boxY+boxHeight, 0),
+                new GraphicsQuad.Pos(boxX, boxY+boxHeight, 0)
+        );
 
         BiConsumer<Integer, IntPredicate> lineDrawer = (color, p) -> {
             // North-South lines
@@ -160,10 +168,17 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 double diffX = dy * diff, diffY = -dx * diff;
                 if(!p.test(z)) continue;
 
-                RawGuiManager.drawLineDxDy(poseStack,
+                GraphicsQuad<GraphicsQuad.Pos> line = RawGuiManager.makeLineDxDy(
                         centerX + diffX - dx * LINE_LENGTH, centerY + diffY - dy * LINE_LENGTH,
                         dx * 2*LINE_LENGTH, dy * 2*LINE_LENGTH,
-                        1, color);
+                        1
+                );
+                if(line == null) continue;
+
+                List<GraphicsQuad<GraphicsQuad.Pos>> quadList = Pos2dQuadUtil.clipQuad(box, line);
+                for(GraphicsQuad<GraphicsQuad.Pos> quad : quadList) {
+                    RawGuiManager.fillQuad(poseStack, quad, color);
+                }
             }
             // East-West lines
             for(int x = xi - lineCount; x <= xi + lineCount; x++) {
@@ -171,10 +186,17 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 double diffX = dx * diff, diffY = dy * diff;
                 if(!p.test(x)) continue;
 
-                RawGuiManager.drawLineDxDy(poseStack,
+                GraphicsQuad<GraphicsQuad.Pos> line = RawGuiManager.makeLineDxDy(
                         centerX + diffX - dy * 1000, centerY + diffY + dx * 1000,
                         dy * 2000, -dx * 2000,
-                        1, color);
+                        1
+                );
+                if(line == null) continue;
+
+                List<GraphicsQuad<GraphicsQuad.Pos>> quadList = Pos2dQuadUtil.clipQuad(box, line);
+                for(GraphicsQuad<GraphicsQuad.Pos> quad : quadList) {
+                    RawGuiManager.fillQuad(poseStack, quad, color);
+                }
             }
         };
 

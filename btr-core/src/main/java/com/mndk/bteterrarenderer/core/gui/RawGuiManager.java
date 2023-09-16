@@ -7,6 +7,8 @@ import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 
+import javax.annotation.Nullable;
+
 @UtilityClass
 public class RawGuiManager {
 
@@ -27,8 +29,14 @@ public class RawGuiManager {
         fillQuad(poseStack, quad, color);
     }
     public void drawLine(Object poseStack, double ax, double ay, double bx, double by, double thickness, int color) {
+        GraphicsQuad<GraphicsQuad.Pos> quad = makeLine(ax, ay, bx, by, thickness);
+        if(quad == null) return;
+        RawGuiManager.fillQuad(poseStack, quad, color);
+    }
 
-        if (ax == ay && bx == by) return;
+    @Nullable
+    public GraphicsQuad<GraphicsQuad.Pos> makeLine(double ax, double ay, double bx, double by, double thickness) {
+        if (ax == ay && bx == by) return null;
 
         /*
          *  0-----------------------------1
@@ -44,18 +52,18 @@ public class RawGuiManager {
         double x2 = bx + dx, y2 = by + dy;
         double x3 = bx - dx, y3 = by - dy;
 
-        GraphicsQuad<GraphicsQuad.Pos> quad = new GraphicsQuad<>(
+        return new GraphicsQuad<>(
                 new GraphicsQuad.Pos((float) x0, (float) y0, 0),
                 new GraphicsQuad.Pos((float) x1, (float) y1, 0),
                 new GraphicsQuad.Pos((float) x2, (float) y2, 0),
                 new GraphicsQuad.Pos((float) x3, (float) y3, 0)
         );
-        RawGuiManager.fillQuad(poseStack, quad, color);
-    }
-    public void drawLineDxDy(Object poseStack, double x, double y, double dx, double dy, double thickness, int color) {
-        drawLine(poseStack, x, y, x + dx, y + dy, thickness, color);
     }
 
+    @Nullable
+    public GraphicsQuad<GraphicsQuad.Pos> makeLineDxDy(double x, double y, double dx, double dy, double thickness) {
+        return makeLine(x, y, x + dx, y + dy, thickness);
+    }
 
     public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
         MixinUtil.notOverwritten(poseStack, x, y, width, height, hoverState);

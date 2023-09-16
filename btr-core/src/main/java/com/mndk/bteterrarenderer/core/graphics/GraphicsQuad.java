@@ -29,6 +29,7 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
 
     @ToString
     @RequiredArgsConstructor
+    @EqualsAndHashCode(callSuper = false)
     public static class PosTexColor extends VertexInfo {
         public final double x, y, z;
         public final float u, v, r, g, b, a;
@@ -36,6 +37,7 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
 
     @ToString
     @RequiredArgsConstructor
+    @EqualsAndHashCode(callSuper = false)
     public static class Pos extends VertexInfo {
         public final float x, y, z;
     }

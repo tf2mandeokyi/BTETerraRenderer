@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.ogc3dtiles.tile;
+package com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key;
 
 import lombok.Data;
 

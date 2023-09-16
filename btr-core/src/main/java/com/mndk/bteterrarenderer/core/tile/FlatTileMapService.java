@@ -81,7 +81,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     }
 
     @Override
-    protected List<TileKey> getRenderTileIdList(double longitude, double latitude, double height) {
+    protected List<TileKey> getRenderTileIdList(String tmsId, double longitude, double latitude, double height) {
         if(this.tileProjection == null) return Collections.emptyList();
 
         try {
@@ -116,7 +116,8 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     }
 
     @Override
-    protected List<PreBakedModel> getPreBakedModels(TileKey tileKey) throws IOException, OutOfProjectionBoundsException {
+    protected List<PreBakedModel> getPreBakedModels(TileMapService.TmsIdPair<TileKey> idPair) throws IOException, OutOfProjectionBoundsException {
+        TileKey tileKey = idPair.getTileId();
         String url = this.getUrlFromTileCoordinate(tileKey.x, tileKey.y, tileKey.relativeZoom);
         InputStream stream = this.fetchData(tileKey, new URL(url));
         if(stream == null) return null;

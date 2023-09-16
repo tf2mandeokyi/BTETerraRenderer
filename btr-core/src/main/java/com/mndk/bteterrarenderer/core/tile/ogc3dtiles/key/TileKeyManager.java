@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.ogc3dtiles.tile;
+package com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key;
 
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
