@@ -139,7 +139,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             temp = right; right = left; left = temp;
         }
 
-        GraphicsQuad<GraphicsQuad.Pos> quad = new GraphicsQuad<>(
+        GraphicsQuad<GraphicsQuad.Pos> quad = GraphicsQuad.newPosQuad(
                 new GraphicsQuad.Pos(left, top, 0),
                 new GraphicsQuad.Pos((left + right) / 2f, bottom, 0),
                 new GraphicsQuad.Pos((left + right) / 2f, bottom, 0),

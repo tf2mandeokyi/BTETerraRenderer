@@ -14,12 +14,21 @@ import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import de.javagl.jgltf.model.*;
+import de.javagl.jgltf.model.v1.MaterialModelV1;
+import de.javagl.jgltf.model.v2.MaterialModelV2;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,11 +92,13 @@ public class GltfModelConverter {
                     GltfExtensionsUtil.getExtension(meshPrimitiveModel, KHRDracoMeshCompression.class);
             // TODO: Add draco decompression
 
-            ParsedPoint[] parsedIndices = this.parseIndices(meshPrimitiveModel);
-            return bakeParsedIndices(meshPrimitiveModel, parsedIndices);
+            ParsedPoint[] parsedPoints = this.parsePoints(meshPrimitiveModel);
+            List<GraphicsQuad<?>> quads = this.parsedPointsToQuads(meshPrimitiveModel, parsedPoints);
+            BufferedImage image = this.readMaterialModel(meshPrimitiveModel.getMaterialModel());
+            return new PreBakedModel(image, quads);
         }
 
-        private ParsedPoint[] parseIndices(MeshPrimitiveModel meshPrimitiveModel) {
+        private ParsedPoint[] parsePoints(MeshPrimitiveModel meshPrimitiveModel) {
             AccessorModel positionAccessor = meshPrimitiveModel.getAttributes().get("POSITION");
             AccessorModel textureCoordAccessor = meshPrimitiveModel.getAttributes().get("TEXCOORD_0");
             if(textureCoordAccessor == null) {
@@ -95,15 +106,15 @@ public class GltfModelConverter {
             }
 
             int size = positionAccessor.getCount();
-            ParsedPoint[] parsedIndices = new ParsedPoint[size];
+            ParsedPoint[] parsedPoints = new ParsedPoint[size];
             for(int i = 0; i < size; i++) {
-                parsedIndices[i] = new ParsedPoint(
+                parsedPoints[i] = new ParsedPoint(
                         readPosition(positionAccessor, i),
-                        readTexture(textureCoordAccessor, i)
+                        readTextureCoord(textureCoordAccessor, i)
                 );
             }
 
-            return parsedIndices;
+            return parsedPoints;
         }
 
         private Cartesian3 readPosition(AccessorModel positionAccessor, int index) {
@@ -118,7 +129,7 @@ public class GltfModelConverter {
             return cartesian;
         }
 
-        private float[] readTexture(@Nullable AccessorModel textureCoordAccessor, int index) {
+        private float[] readTextureCoord(@Nullable AccessorModel textureCoordAccessor, int index) {
             // Return random point if the texture coordinate accessor is null
             if(textureCoordAccessor == null) return new float[] { (float) Math.random(), (float) Math.random() };
 
@@ -131,11 +142,10 @@ public class GltfModelConverter {
             throw new UnsupportedOperationException("Not implemented");
         }
 
-        private PreBakedModel bakeParsedIndices(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] indices) {
-            // TODO: Add normal
+        private List<GraphicsQuad<?>> parsedPointsToQuads(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] points) {
             List<GraphicsQuad<?>> quadList;
             AccessorModel indicesAccessor = meshPrimitiveModel.getIndices();
-            int meshCount = indicesAccessor != null ? indicesAccessor.getCount() : indices.length;
+            int meshCount = indicesAccessor != null ? indicesAccessor.getCount() : points.length;
 
             int meshMode = meshPrimitiveModel.getMode();
             if(meshMode == MeshPrimitiveModelModes.TRIANGLES) {
@@ -148,37 +158,65 @@ public class GltfModelConverter {
                             readInteger(indicesAccessor, i + 2)
                     } : new int[] { i, i+1, i+2 };
 
-                    GraphicsQuad.PosTexColor vertex1 = indices[meshIndices[0]].getGraphicsVertex();
-                    GraphicsQuad.PosTexColor vertex2 = indices[meshIndices[1]].getGraphicsVertex();
-                    GraphicsQuad.PosTexColor vertex3 = indices[meshIndices[2]].getGraphicsVertex();
-                    quadList.add(new GraphicsQuad<>(vertex1, vertex2, vertex3, vertex1));
+                    GraphicsQuad.PosTex vertex1 = points[meshIndices[0]].getGraphicsVertex();
+                    GraphicsQuad.PosTex vertex2 = points[meshIndices[1]].getGraphicsVertex();
+                    GraphicsQuad.PosTex vertex3 = points[meshIndices[2]].getGraphicsVertex();
+                    quadList.add(GraphicsQuad.newPosTexQuad(vertex1, vertex2, vertex3, vertex1));
                 }
             } else {
                 throw new RuntimeException("meshMode not supported: " + meshMode);
             }
+            return quadList;
+        }
 
-            // TODO: Add texture reading
-            // TODO: Add compressedImage3DTiles extension
+        private BufferedImage readMaterialModel(MaterialModel materialModel) {
+            BufferedImage image = null;
+            if(materialModel instanceof MaterialModelV1) {
+                throw new UnsupportedOperationException("material model v1 not supported");
+            } else if(materialModel instanceof MaterialModelV2) {
+                MaterialModelV2 materialModelV2 = (MaterialModelV2) materialModel;
 
-            return new PreBakedModel(WHITE_BLANK_IMAGE, quadList);
+                TextureModel textureModel = materialModelV2.getBaseColorTexture();
+                if(textureModel != null) image = this.readImageModel(textureModel.getImageModel());
+                // TODO: read mag/minFilter, wrapS/T from texture
+                // TODO: read emissive, normal, occlusion, and roughness texture from material
+            }
+
+            return image != null ? image : WHITE_BLANK_IMAGE;
+        }
+
+        @Nullable
+        private BufferedImage readImageModel(ImageModel imageModel) {
+            try {
+                ByteBuffer byteBuffer = imageModel.getImageData();
+                ByteBuf nettyBuf = Unpooled.copiedBuffer(byteBuffer);
+                InputStream stream = new ByteBufInputStream(nettyBuf);
+
+                // TODO: Add compressedImage3DTiles extension
+
+                return ImageIO.read(stream);
+            } catch(IOException e) {
+                BTETerraRendererConstants.LOGGER.error(e);
+                return null;
+            }
         }
     }
 
-    private static int readInteger(@Nonnull AccessorModel indicesAccessor, int defaultIndex) {
-        AccessorData indicesData = indicesAccessor.getAccessorData();
-        if(indicesData == null) return defaultIndex;
+    private static int readInteger(@Nonnull AccessorModel accessor, int defaultValue) {
+        AccessorData data = accessor.getAccessorData();
+        if(data == null) return defaultValue;
 
-        if(indicesData instanceof AccessorByteData) {
-            return ((AccessorByteData) indicesData).get(defaultIndex);
+        if(data instanceof AccessorByteData) {
+            return ((AccessorByteData) data).get(defaultValue);
         }
-        else if(indicesData instanceof AccessorShortData) {
-            return ((AccessorShortData) indicesData).get(defaultIndex);
+        else if(data instanceof AccessorShortData) {
+            return ((AccessorShortData) data).get(defaultValue);
         }
-        else if(indicesData instanceof AccessorIntData) {
-            return ((AccessorIntData) indicesData).get(defaultIndex);
+        else if(data instanceof AccessorIntData) {
+            return ((AccessorIntData) data).get(defaultValue);
         }
         else {
-            throw new RuntimeException("unsupported indices type: " + indicesData.getComponentType());
+            throw new RuntimeException("unsupported data type: " + data.getComponentType());
         }
     }
 
@@ -236,11 +274,11 @@ public class GltfModelConverter {
             }
         }
 
-        private GraphicsQuad.PosTexColor getGraphicsVertex() {
+        private GraphicsQuad.PosTex getGraphicsVertex() {
             // Matrix + Projection transformation
-            return new GraphicsQuad.PosTexColor(
-                    gamePos[0], gamePos[1], gamePos[2],
-                    tex[0], tex[1], 1f, 1f, 1f, 1f
+            return new GraphicsQuad.PosTex(
+                    gamePos[0], gamePos[1], gamePos[2], // position
+                    tex[0], tex[1] // texture coordinate
             );
         }
     }

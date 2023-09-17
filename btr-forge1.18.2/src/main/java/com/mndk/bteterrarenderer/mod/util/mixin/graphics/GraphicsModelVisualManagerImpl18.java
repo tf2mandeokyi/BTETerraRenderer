@@ -24,13 +24,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 public class GraphicsModelVisualManagerImpl18 extends RenderStateShard {
 
-    protected static final RenderStateShard.ShaderStateShard POSITION_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
+    protected static final RenderStateShard.ShaderStateShard POS_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
     private static final RenderStateShard.TransparencyStateShard MODEL_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -38,11 +36,11 @@ public class GraphicsModelVisualManagerImpl18 extends RenderStateShard {
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
     });
-    private static final Function<ResourceLocation, RenderType> MODEL_RENDER_TYPE = Util.memoize(resourceLocation -> {
+    private static final Function<ResourceLocation, RenderType> POS_TEX_COLOR_MODEL = Util.memoize(resourceLocation -> {
         RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
                 .setOverlayState(RenderStateShard.OVERLAY)
-                .setShaderState(POSITION_TEX_COLOR_SHADER)
+                .setShaderState(POS_TEX_COLOR_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
                 .setTransparencyState(MODEL_TRANSPARENCY)
                 .createCompositeState(true);
@@ -52,47 +50,44 @@ public class GraphicsModelVisualManagerImpl18 extends RenderStateShard {
         );
     });
 
-    private static final Map<Integer, ResourceLocation> RES_LOC_MAP = new HashMap<>();
-
     public GraphicsModelVisualManagerImpl18() {
         super("", () -> {}, () -> {});
     }
 
     @SneakyThrows
-    public static int allocateAndUploadTexture(BufferedImage image) {
+    public static Object allocateAndGetTextureObject(BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(imageToInputStream(image));
         DynamicTexture texture = new DynamicTexture(nativeImage);
-        ResourceLocation resLocation = Minecraft.getInstance().getTextureManager().register("bteterrarenderer-tiles", texture);
-        RES_LOC_MAP.put(texture.getId(), resLocation);
-        return texture.getId();
+        return Minecraft.getInstance().getTextureManager().register("bteterrarenderer-tiles", texture);
     }
 
     public static void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderType renderType = MODEL_RENDER_TYPE.apply(RES_LOC_MAP.get(model.getTextureGlId()));
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+        ResourceLocation resourceLocation = (ResourceLocation) model.getTextureObject();
+        RenderType posTexColorRenderType = POS_TEX_COLOR_MODEL.apply(resourceLocation);
 
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(posTexColorRenderType);
         for(GraphicsQuad<?> quad : model.getQuads()) {
-            for (int i = 0; i < 4; i++) {
-                GraphicsQuad.VertexInfo vertex = quad.getVertex(i);
-                if(vertex instanceof GraphicsQuad.PosTexColor posTexColor) {
+            if(quad.getVertexClass() == GraphicsQuad.PosTex.class) {
+                for (int i = 0; i < 4; i++) {
+                    GraphicsQuad.PosTex vertex = (GraphicsQuad.PosTex) quad.getVertex(i);
                     vertexConsumer.vertex(((PoseStack) poseStack).last().pose(),
-                                    (float) (posTexColor.x - px), (float) (posTexColor.y - py), (float) (posTexColor.z - pz))
-                            .uv(posTexColor.u, posTexColor.v)
-                            .color(posTexColor.r, posTexColor.g, posTexColor.b, posTexColor.a * opacity)
+                                    (float) (vertex.x - px), (float) (vertex.y - py), (float) (vertex.z - pz))
+                            .uv(vertex.u, vertex.v)
+                            .color(1f, 1f, 1f, opacity)
                             .endVertex();
-                } else {
-                    // TODO
-                    throw new UnsupportedOperationException("Not implemented");
                 }
             }
-            bufferSource.endBatch();
+            else {
+                // TODO
+                throw new UnsupportedOperationException("Not implemented");
+            }
         }
+        bufferSource.endBatch();
     }
 
-    public static void glDeleteTexture(int glId) {
-        Minecraft.getInstance().getTextureManager().release(RES_LOC_MAP.get(glId));
-        RES_LOC_MAP.remove(glId);
+    public static void deleteTexture(Object textureObject) {
+        Minecraft.getInstance().getTextureManager().release((ResourceLocation) textureObject);
     }
 
     public static void preRender() {}

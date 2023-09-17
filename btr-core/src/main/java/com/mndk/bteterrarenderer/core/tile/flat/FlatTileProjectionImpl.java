@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.projection;
+package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,13 +10,13 @@ import lombok.Data;
 import java.util.Map;
 
 @JsonDeserialize
-public class YamlTileProjection extends TileProjection {
+public class FlatTileProjectionImpl extends FlatTileProjection {
 
     private final GeographicProjection projection;
     private final Map<Integer, TileMatrix> matrices;
 
     @JsonCreator
-    public YamlTileProjection(
+    public FlatTileProjectionImpl(
             @JsonProperty(value = "projection", required = true) GeographicProjection projection,
             @JsonProperty(value = "tile_matrices", required = true) Map<Integer, TileMatrix> matrices
     ) {
@@ -49,8 +49,8 @@ public class YamlTileProjection extends TileProjection {
 
 
     @Override
-    public TileProjection clone() {
-        return new YamlTileProjection(this.projection, this.matrices);
+    public FlatTileProjection clone() {
+        return new FlatTileProjectionImpl(this.projection, this.matrices);
     }
 
 

@@ -11,43 +11,17 @@ import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
 
-import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 @UtilityClass
 public class TileKeyManager {
 
-    /**
-     * Finds the content link and its matrix from the given tileset and the local key
-     * @return The content link and its transform matrix
-     */
-    public Map.Entry<TileContentLink, Matrix4> findTileContentLink(Tileset tileset, TileLocalKey localKey,
-                                                                   @Nonnull Matrix4 parentTilesetTransform) {
-        Matrix4 transform = parentTilesetTransform;
+    public List<LocalTileNode> getIntersectionsFromTileset(Tileset tileset, Sphere playerSphere,
+                                                           Matrix4 parentTilesetTransform) {
 
-        Tile currentTile = tileset.getRootTile();
-        int[] indexes = localKey.getTileIndexes();
-        for (int index : indexes) {
-            List<Tile> children = currentTile.getChildren();
-            if (index >= children.size()) return null;
-
-            currentTile = children.get(index);
-            Matrix4 currentTransform = currentTile.getTileLocalTransform();
-            if (currentTransform != null) {
-                transform = transform.multiply(currentTile.getTileLocalTransform()).toMatrix4();
-            }
-        }
-
-        int contentIndex = localKey.getContentIndex();
-        List<TileContentLink> contentLinks = currentTile.getContents();
-        if(contentIndex >= contentLinks.size()) return null;
-        return new AbstractMap.SimpleEntry<>(contentLinks.get(contentIndex), transform);
-    }
-
-    public List<TileLocalKey> getIntersectionsFromTileset(Tileset tileset, Sphere playerSphere,
-                                                          Matrix4 parentTilesetTransform) {
-
-        List<TileLocalKey> result = new ArrayList<>();
+        List<LocalTileNode> result = new ArrayList<>();
 
         @RequiredArgsConstructor
         class Node {
@@ -79,7 +53,11 @@ public class TileKeyManager {
                     TileContentLink contentLink = contentLinks.get(i);
                     Volume volume = contentLink.getBoundingVolume();
                     if(volume != null && !volume.intersectsSphere(playerSphere, currentTransform)) continue;
-                    result.add(new TileLocalKey(currentIndexes, i));
+                    result.add(new LocalTileNode(
+                            new TileLocalKey(currentIndexes, i),
+                            contentLink,
+                            currentTransform
+                    ));
                 }
             }
 

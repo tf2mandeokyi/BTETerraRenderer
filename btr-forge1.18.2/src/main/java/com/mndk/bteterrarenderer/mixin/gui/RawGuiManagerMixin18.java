@@ -24,11 +24,15 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(value = RawGuiManager.class, remap = false)
 public class RawGuiManagerMixin18 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void displayGuiScreen(AbstractGuiScreenCopy gui) {
         Minecraft.getInstance().setScreen(new AbstractGuiScreenImpl18(gui));
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.Pos> quad, int color) {
         GraphicsQuad.Pos v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
@@ -55,6 +59,8 @@ public class RawGuiManagerMixin18 {
         RenderSystem.disableBlend();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -76,6 +82,8 @@ public class RawGuiManagerMixin18 {
         RawGuiManagerImpl18.drawBufferPosTex(bufferbuilder, matrix, x, y, width, height, u1, v1, u2, v2);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawTextFieldHighlight(Object poseStack, int startX, int startY, int endX, int endY) {
         RenderSystem.setShader(GameRenderer::getPositionShader);
@@ -100,6 +108,8 @@ public class RawGuiManagerMixin18 {
         RenderSystem.enableTexture();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -114,6 +124,8 @@ public class RawGuiManagerMixin18 {
         RawGuiManagerImpl18.drawBufferPosTex(bufferbuilder, matrix, x, y, w, h, u1, v1, u2, v2);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

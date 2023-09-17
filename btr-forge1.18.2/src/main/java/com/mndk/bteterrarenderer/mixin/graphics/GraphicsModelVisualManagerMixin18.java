@@ -13,26 +13,36 @@ import java.awt.image.BufferedImage;
 @Mixin(value = GraphicsModelVisualManager.class, remap = false)
 public class GraphicsModelVisualManagerMixin18 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void preRender() {
         GraphicsModelVisualManagerImpl18.preRender();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
-    public int allocateAndUploadTexture(BufferedImage image) {
-        return GraphicsModelVisualManagerImpl18.allocateAndUploadTexture(image);
+    public Object allocateAndGetTextureObject(BufferedImage image) {
+        return GraphicsModelVisualManagerImpl18.allocateAndGetTextureObject(image);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
         GraphicsModelVisualManagerImpl18.drawModel(poseStack, model, px, py, pz, opacity);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
-    public void glDeleteTexture(int glId) {
-        GraphicsModelVisualManagerImpl18.glDeleteTexture(glId);
+    public void deleteTextureObject(Object textureObject) {
+        GraphicsModelVisualManagerImpl18.deleteTexture(textureObject);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void postRender() {
         GraphicsModelVisualManagerImpl18.postRender();

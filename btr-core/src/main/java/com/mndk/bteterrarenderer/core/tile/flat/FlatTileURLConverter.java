@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.tile;
+package com.mndk.bteterrarenderer.core.tile.flat;
 
 import lombok.RequiredArgsConstructor;
 

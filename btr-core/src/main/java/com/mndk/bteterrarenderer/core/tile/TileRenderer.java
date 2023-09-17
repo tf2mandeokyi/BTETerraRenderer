@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.tile;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelBaker;
+import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBaker;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 
 public class TileRenderer {
@@ -28,7 +28,7 @@ public class TileRenderer {
         tms.render(poseStack, tmsId,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());
-        GraphicsModelBaker.getInstance().cleanUp();
+        GraphicsModelTextureBaker.getInstance().cleanUp();
 
         GraphicsModelVisualManager.postRender();
         GlGraphicsManager.glPopMatrix(poseStack);

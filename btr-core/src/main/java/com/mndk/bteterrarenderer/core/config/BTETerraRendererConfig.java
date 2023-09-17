@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.config;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.core.loader.TMSYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 
 // TODO: Generalize this. This looks terrible
@@ -132,7 +132,7 @@ public class BTETerraRendererConfig {
 
     public void refreshTileMapService() {
         ConfigLoaders.loadAll();
-        Storage.TMS_ON_DISPLAY = TMSYamlLoader.INSTANCE.result.getItemWrapper(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
+        Storage.TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE.result.getItemWrapper(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
     }
 
     private static class Storage {

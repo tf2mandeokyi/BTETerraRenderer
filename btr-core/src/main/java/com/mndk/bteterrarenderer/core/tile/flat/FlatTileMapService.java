@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.tile;
+package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,9 +11,10 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.core.loader.ProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.projection.TileProjection;
+import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.tile.TmsIdPair;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedIntPropertyAccessor;
@@ -55,16 +56,16 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     private transient int radius = 3;
 
     private final String urlTemplate;
-    private final TileProjection tileProjection;
+    private final FlatTileProjection flatTileProjection;
     private final FlatTileURLConverter urlConverter;
 
     @JsonCreator
     public FlatTileMapService(String name, String urlTemplate,
-                              TileProjection tileProjection, FlatTileURLConverter urlConverter,
+                              FlatTileProjection flatTileProjection, FlatTileURLConverter urlConverter,
                               ExecutorService downloadExecutor) {
         super(name, downloadExecutor);
         this.urlTemplate = urlTemplate;
-        this.tileProjection = tileProjection;
+        this.flatTileProjection = flatTileProjection;
         this.urlConverter = urlConverter;
 
         this.properties.add(new PropertyAccessor.Localized<>("zoom", "gui.bteterrarenderer.settings.zoom",
@@ -82,11 +83,11 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
 
     @Override
     protected List<TileKey> getRenderTileIdList(String tmsId, double longitude, double latitude, double height) {
-        if(this.tileProjection == null) return Collections.emptyList();
+        if(this.flatTileProjection == null) return Collections.emptyList();
 
         try {
             List<TileKey> result = new ArrayList<>();
-            int[] tileCoord = this.tileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
+            int[] tileCoord = this.flatTileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
 
             for(int i = 0; i < 2 * this.radius + 1; ++i) {
                 if(i == 0) {
@@ -116,21 +117,21 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     }
 
     @Override
-    protected List<PreBakedModel> getPreBakedModels(TileMapService.TmsIdPair<TileKey> idPair) throws IOException, OutOfProjectionBoundsException {
+    protected List<PreBakedModel> getPreBakedModels(TmsIdPair<TileKey> idPair) throws IOException, OutOfProjectionBoundsException {
         TileKey tileKey = idPair.getTileId();
         String url = this.getUrlFromTileCoordinate(tileKey.x, tileKey.y, tileKey.relativeZoom);
         InputStream stream = this.fetchData(tileKey, new URL(url));
         if(stream == null) return null;
 
         BufferedImage image = ImageIO.read(stream);
-        GraphicsQuad<GraphicsQuad.PosTexColor> quad = this.computeTileQuad(tileKey);
+        GraphicsQuad<GraphicsQuad.PosTex> quad = this.computeTileQuad(tileKey);
         return Collections.singletonList(new PreBakedModel(image, Collections.singletonList(quad)));
     }
 
     @Nullable
     @Override
     protected List<GraphicsQuad<?>> getNonTexturedModel(TileKey tileKey) throws OutOfProjectionBoundsException {
-        GraphicsQuad<GraphicsQuad.PosTexColor> quad = this.computeTileQuad(tileKey);
+        GraphicsQuad<GraphicsQuad.PosTex> quad = this.computeTileQuad(tileKey);
         return Collections.singletonList(quad);
     }
 
@@ -144,7 +145,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         return this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
     }
 
-    private GraphicsQuad<GraphicsQuad.PosTexColor> computeTileQuad(TileKey tileKey) throws OutOfProjectionBoundsException {
+    private GraphicsQuad<GraphicsQuad.PosTex> computeTileQuad(TileKey tileKey) throws OutOfProjectionBoundsException {
         /*
          *  i=0 ------ i=1
          *   |          |
@@ -152,22 +153,22 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
          *   |          |
          *  i=3 ------ i=2
          */
-        GraphicsQuad<GraphicsQuad.PosTexColor> quad = new GraphicsQuad<>();
+        GraphicsQuad<GraphicsQuad.PosTex> quad = GraphicsQuad.newPosTexQuad();
         for (int i = 0; i < 4; i++) {
-            int[] mat = this.tileProjection.getCornerMatrix(i);
-            double[] geoCoord = tileProjection.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
+            int[] mat = this.flatTileProjection.getCornerMatrix(i);
+            double[] geoCoord = flatTileProjection.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
             double[] gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
-            quad.setVertex(i, new GraphicsQuad.PosTexColor(
-                    gameCoord[0], 0, gameCoord[1],
-                    mat[2], mat[3],
-                    1f, 1f, 1f, 1f));
+            quad.setVertex(i, new GraphicsQuad.PosTex(
+                    gameCoord[0], 0, gameCoord[1], // position
+                    mat[2], mat[3] // texture coordinate
+            ));
         }
         return quad;
     }
 
     public boolean isRelativeZoomAvailable(int relativeZoom) {
-        return tileProjection != null && tileProjection.isRelativeZoomAvailable(relativeZoom);
+        return flatTileProjection != null && flatTileProjection.isRelativeZoomAvailable(relativeZoom);
     }
 
     public static class Deserializer extends JsonDeserializer<FlatTileMapService> {
@@ -185,7 +186,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
             int maxThread = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
 
             String projectionName = node.get("projection").asText();
-            TileProjection projection = ProjectionYamlLoader.INSTANCE.result.get(projectionName);
+            FlatTileProjection projection = FlatTileProjectionYamlLoader.INSTANCE.result.get(projectionName);
             if(projection != null) {
                 projection = projection.clone()
                         .setDefaultZoom(defaultZoom)

@@ -16,12 +16,16 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(value = MinecraftClientManager.class, remap = false)
 public class MinecraftClientManagerMixin18 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public double getPlayerRotationYaw() {
         LocalPlayer player = Minecraft.getInstance().player;
         return player != null ? player.getYRot() : 0;
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void sendErrorMessageToChat(String message) {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -32,6 +36,8 @@ public class MinecraftClientManagerMixin18 {
         BTETerraRendererConstants.LOGGER.error(message);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void sendErrorMessageToChat(String message, Throwable t) {
         sendErrorMessageToChat(message);
@@ -39,6 +45,8 @@ public class MinecraftClientManagerMixin18 {
         BTETerraRendererConstants.LOGGER.error(message, t);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void playClickSound() {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(
@@ -46,11 +54,15 @@ public class MinecraftClientManagerMixin18 {
         ));
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public int chatOpenKeyCode() {
         return Minecraft.getInstance().options.keyChat.getKey().getValue();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public int commandOpenKeyCode() {
         return Minecraft.getInstance().options.keyCommand.getKey().getValue();

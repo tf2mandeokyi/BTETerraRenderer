@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$/../../../btr-forge1.18.2" dumb="true">
       <excludeFolder url="file://$MODULE_DIR$/../../../btr-forge1.18.2/logs" />
       <excludeFolder url="file://$MODULE_DIR$/../../../btr-forge1.18.2/run" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../btr-forge1.18.2/bin" />
     </content>
   </component>
 </module>

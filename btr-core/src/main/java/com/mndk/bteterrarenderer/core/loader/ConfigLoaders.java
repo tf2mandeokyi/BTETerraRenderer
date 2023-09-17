@@ -13,22 +13,22 @@ public class ConfigLoaders {
         MOD_CONFIG_DIRECTORY = new File(gameConfigDirectory, BTETerraRendererConstants.MODID);
         try {
             BTETerraRendererConfig.INSTANCE.load();
-            ProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
-            TMSYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
-            TMSPropertyLoader.load(TMSYamlLoader.INSTANCE.getResult());
-        } catch (Exception e) {
-            BTETerraRendererConstants.LOGGER.error("Error while parsing map yaml files", e);
+            FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
+            TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
+            TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+        } catch (Throwable t) {
+            BTETerraRendererConstants.LOGGER.error("Error while parsing map yaml files", t);
         }
     }
 
     public static void loadAll() {
         try {
-            TMSPropertyLoader.save(TMSYamlLoader.INSTANCE.getResult());
-            ProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
-            TMSYamlLoader.INSTANCE.refresh();
-            TMSPropertyLoader.load(TMSYamlLoader.INSTANCE.getResult());
-        } catch (Exception e) {
-            BTETerraRendererConstants.LOGGER.error("Error while parsing map yaml files", e);
+            TileMapServicePropertyLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
+            FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
+            TileMapServiceYamlLoader.INSTANCE.refresh();
+            TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+        } catch (Throwable t) {
+            BTETerraRendererConstants.LOGGER.error("Error while parsing map yaml files", t);
         }
     }
 

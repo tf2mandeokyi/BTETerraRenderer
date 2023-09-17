@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TMSPropertyLoader {
+public class TileMapServicePropertyLoader {
     private static final String FILE_NAME = "properties.json";
 
     public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {

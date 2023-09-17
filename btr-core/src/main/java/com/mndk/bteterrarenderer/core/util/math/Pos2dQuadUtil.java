@@ -32,7 +32,7 @@ public class Pos2dQuadUtil {
         for(int i = 1; i < clipResult.length; i++) {
             quadBuffer[bufferLength++] = clipResult[i];
             if(bufferLength == 3) {
-                quadList.add(new GraphicsQuad<>(
+                quadList.add(GraphicsQuad.newPosQuad(
                         clipResult[0], quadBuffer[0], quadBuffer[1], quadBuffer[2]
                 ));
                 quadBuffer[0] = clipResult[i];
@@ -42,7 +42,7 @@ public class Pos2dQuadUtil {
         
         // Add the leftover "triangle"
         if(bufferLength == 2) {
-            quadList.add(new GraphicsQuad<>(
+            quadList.add(GraphicsQuad.newPosQuad(
                     clipResult[0], quadBuffer[0], quadBuffer[1], clipResult[0]
             ));
         }

@@ -154,11 +154,11 @@ public class SidebarMapAligner extends GuiSidebarElement {
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
         int centerX = boxX + boxWidth / 2, centerY = boxY + boxHeight / 2;
 
-        GraphicsQuad<GraphicsQuad.Pos> box = new GraphicsQuad<>(
+        GraphicsQuad<GraphicsQuad.Pos> box = GraphicsQuad.newPosQuad(
                 new GraphicsQuad.Pos(boxX, boxY, 0),
-                new GraphicsQuad.Pos(boxX+boxWidth, boxY, 0),
-                new GraphicsQuad.Pos(boxX+boxWidth, boxY+boxHeight, 0),
-                new GraphicsQuad.Pos(boxX, boxY+boxHeight, 0)
+                new GraphicsQuad.Pos(boxX + boxWidth, boxY, 0),
+                new GraphicsQuad.Pos(boxX + boxWidth, boxY + boxHeight, 0),
+                new GraphicsQuad.Pos(boxX, boxY + boxHeight, 0)
         );
 
         BiConsumer<Integer, IntPredicate> lineDrawer = (color, p) -> {

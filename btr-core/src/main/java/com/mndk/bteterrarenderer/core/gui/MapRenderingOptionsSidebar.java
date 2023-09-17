@@ -15,8 +15,8 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
-import com.mndk.bteterrarenderer.core.loader.TMSYamlLoader;
-import com.mndk.bteterrarenderer.core.tile.FlatTileMapService;
+import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -169,7 +169,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>>.ItemListUpdater updater =
                 mapSourceDropdown.itemListBuilder();
 
-        CategoryMap<TileMapService<?>> tmsCategoryMap = TMSYamlLoader.INSTANCE.getResult();
+        CategoryMap<TileMapService<?>> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();
         for(Map.Entry<String, CategoryMap.Category<TileMapService<?>>> categoryEntry : tmsCategoryMap.getCategories()) {
             updater.push(categoryEntry.getKey());
             categoryEntry.getValue().values().forEach(updater::add);
@@ -180,7 +180,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private void openMapsFolder() {
         try {
-            File directory = TMSYamlLoader.INSTANCE.getMapFilesDirectory();
+            File directory = TileMapServiceYamlLoader.INSTANCE.getMapFilesDirectory();
             if(Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(directory);
                 return;

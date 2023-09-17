@@ -20,7 +20,7 @@ public class RawGuiManager {
         MixinUtil.notOverwritten(poseStack, quad, color);
     }
     public void fillRect(Object poseStack, int x1, int y1, int x2, int y2, int color) {
-        GraphicsQuad<GraphicsQuad.Pos> quad = new GraphicsQuad<>(
+        GraphicsQuad<GraphicsQuad.Pos> quad = GraphicsQuad.newPosQuad(
                 new GraphicsQuad.Pos(x1, y2, 0),
                 new GraphicsQuad.Pos(x2, y2, 0),
                 new GraphicsQuad.Pos(x2, y1, 0),
@@ -52,7 +52,7 @@ public class RawGuiManager {
         double x2 = bx + dx, y2 = by + dy;
         double x3 = bx - dx, y3 = by - dy;
 
-        return new GraphicsQuad<>(
+        return GraphicsQuad.newPosQuad(
                 new GraphicsQuad.Pos((float) x0, (float) y0, 0),
                 new GraphicsQuad.Pos((float) x1, (float) y1, 0),
                 new GraphicsQuad.Pos((float) x2, (float) y2, 0),

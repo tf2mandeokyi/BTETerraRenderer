@@ -7,13 +7,13 @@ import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import java.io.IOException;
 import java.io.Reader;
 
-public class TMSYamlLoader extends YamlLoader<CategoryMap<TileMapService<?>>> {
+public class TileMapServiceYamlLoader extends YamlLoader<CategoryMap<TileMapService<?>>> {
 
-	public static final TMSYamlLoader INSTANCE = new TMSYamlLoader(
+	public static final TileMapServiceYamlLoader INSTANCE = new TileMapServiceYamlLoader(
 			"maps", "assets/" + BTETerraRendererConstants.MODID + "/default_maps.yml"
 	);
 
-	public TMSYamlLoader(String folderName, String defaultYamlPath) {
+	public TileMapServiceYamlLoader(String folderName, String defaultYamlPath) {
 		super(folderName, defaultYamlPath);
 	}
 

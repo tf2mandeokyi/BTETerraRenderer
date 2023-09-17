@@ -14,26 +14,36 @@ import java.util.List;
 @UtilityClass
 @Mixin(value = FontManager.class, remap = false)
 public class FontManagerMixin18 {
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public int getFontHeight() {
         return Minecraft.getInstance().font.lineHeight;
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public int getStringWidth(String text) {
         return Minecraft.getInstance().font.width(text);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public int getWordWrappedHeight(String text, int maxLength) {
         return Minecraft.getInstance().font.wordWrapHeight(text, maxLength);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public int drawStringWithShadow(Object poseStack, String text, float x, float y, int color) {
         return Minecraft.getInstance().font.drawShadow((PoseStack) poseStack, text, x, y, color);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void drawSplitString(Object poseStack, String str, int x, int y, int wrapWidth, int textColor) {
         var textList = Minecraft.getInstance().font.getSplitter().splitLines(str, wrapWidth, Style.EMPTY);
@@ -43,11 +53,15 @@ public class FontManagerMixin18 {
         }
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public String trimStringToWidth(String text, int width) {
         return Minecraft.getInstance().font.plainSubstrByWidth(text, width);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public List<String> listFormattedStringToWidth(String str, int wrapWidth) {
         var textList = Minecraft.getInstance().font.getSplitter().splitLines(str, wrapWidth, Style.EMPTY);

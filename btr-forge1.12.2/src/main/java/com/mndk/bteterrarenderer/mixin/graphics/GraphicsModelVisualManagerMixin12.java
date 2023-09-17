@@ -23,8 +23,8 @@ public class GraphicsModelVisualManagerMixin12 {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public int allocateAndUploadTexture(BufferedImage image) {
-        return GraphicsModelVisualManagerImpl12.allocateAndUploadTexture(image);
+    public Object allocateAndGetTextureObject(BufferedImage image) {
+        return GraphicsModelVisualManagerImpl12.allocateAndGetTextureObject(image);
     }
 
     /** @author m4ndeokyi
@@ -37,8 +37,8 @@ public class GraphicsModelVisualManagerMixin12 {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void glDeleteTexture(int glId) {
-        GraphicsModelVisualManagerImpl12.glDeleteTexture(glId);
+    public void deleteTextureObject(Object textureObject) {
+        GraphicsModelVisualManagerImpl12.deleteTexture(textureObject);
     }
 
     /** @author m4ndeokyi

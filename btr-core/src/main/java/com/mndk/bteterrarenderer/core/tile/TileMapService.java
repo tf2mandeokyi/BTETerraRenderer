@@ -8,15 +8,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.graphics.*;
-import com.mndk.bteterrarenderer.core.loader.ProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
+import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.Ogc3dTileMapService;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +48,7 @@ public abstract class TileMapService<TileId> {
     /** Put a localization key as a key, and a property accessor as a value. */
     @Getter
     protected transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
-    private transient final GraphicsModelBaker<TmsIdPair<TileId>> baker = GraphicsModelBaker.getInstance();
+    private transient final GraphicsModelTextureBaker<TmsIdPair<TileId>> modelTextureBaker = GraphicsModelTextureBaker.getInstance();
 
     public TileMapService(String name, ExecutorService downloadExecutor) {
         this.name = name;
@@ -58,7 +58,7 @@ public abstract class TileMapService<TileId> {
     public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
 
         // Bake images
-        baker.process(5);
+        modelTextureBaker.process(2);
         bakeStaticImages();
 
         List<TileId> renderTileIdList;
@@ -74,28 +74,31 @@ public abstract class TileMapService<TileId> {
 
             try {
                 TmsIdPair<TileId> idPair = new TmsIdPair<>(tmsId, tileId);
-                ProcessingState bakedState = baker.getResourceProcessingState(idPair);
+                ProcessingState bakedState = modelTextureBaker.getResourceProcessingState(idPair);
                 switch (bakedState) {
                     case PROCESSED:
-                        models = baker.updateAndGetResource(idPair);
+                        models = modelTextureBaker.updateAndGetResource(idPair);
                         break;
                     case PREPARING:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
-                            models = Collections.singletonList(new GraphicsModel(LOADING.getId(), nonTexturedModel));
+                            models = Collections.singletonList(
+                                    new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel));
                         }
                         this.prepareResource(idPair, false);
                         break;
                     case PROCESSING:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
-                            models = Collections.singletonList(new GraphicsModel(LOADING.getId(), nonTexturedModel));
+                            models = Collections.singletonList(
+                                    new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel));
                         }
                         break;
                     case ERROR:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
-                            models = Collections.singletonList(new GraphicsModel(SOMETHING_WENT_WRONG.getId(), nonTexturedModel));
+                            models = Collections.singletonList(
+                                    new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), nonTexturedModel));
                         }
                         break;
                     case NOT_PROCESSED:
@@ -115,14 +118,15 @@ public abstract class TileMapService<TileId> {
 
     private void prepareResource(TmsIdPair<TileId> idPair, boolean firstCalling) {
         try {
-            if(firstCalling) baker.setResourceInPreparingState(idPair);
+            if(firstCalling) modelTextureBaker.setResourceInPreparingState(idPair);
             List<PreBakedModel> preBakedModel = this.getPreBakedModels(idPair);
-            if(preBakedModel != null) baker.resourceProcessingReady(idPair, preBakedModel);
+            if(preBakedModel != null) modelTextureBaker.resourceProcessingReady(idPair, preBakedModel);
         } catch(OutOfProjectionBoundsException e) {
-            baker.resourcePreparingError(idPair);
+            modelTextureBaker.resourcePreparingError(idPair);
         } catch(Exception e) {
-            BTETerraRendererConstants.LOGGER.warn("Caught exception while rendering tile: " + idPair.tileId, e);
-            baker.resourcePreparingError(idPair);
+            BTETerraRendererConstants.LOGGER.warn(
+                    "Caught exception while rendering tile: " + idPair.getTileId(), e);
+            modelTextureBaker.resourcePreparingError(idPair);
         }
     }
 
@@ -174,18 +178,12 @@ public abstract class TileMapService<TileId> {
     protected static class StaticImageIdPair {
         private final BufferedImage image;
         @Getter
-        private int id = -1;
+        private Object textureObject = null;
 
         private void bake() {
-            if(this.id != -1) return;
-            this.id = GraphicsModelVisualManager.allocateAndUploadTexture(this.image);
+            if(this.textureObject != null) return;
+            this.textureObject = GraphicsModelVisualManager.allocateAndGetTextureObject(this.image);
         }
-    }
-
-    @Data
-    protected static class TmsIdPair<TileId> {
-        private final String tmsId;
-        private final TileId tileId;
     }
 
     private static void bakeStaticImages() {
@@ -204,7 +202,7 @@ public abstract class TileMapService<TileId> {
             }
 
             String projectionName = node.get("projection").asText();
-            if(ProjectionYamlLoader.INSTANCE.getResult().containsKey(projectionName)) {
+            if(FlatTileProjectionYamlLoader.INSTANCE.getResult().containsKey(projectionName)) {
                 return ctxt.readTreeAsValue(node, FlatTileMapService.class);
             } else if("ogc3dtiles".equals(projectionName)) {
                 return ctxt.readTreeAsValue(node, Ogc3dTileMapService.class);

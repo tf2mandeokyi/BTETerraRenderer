@@ -1,14 +1,13 @@
-package com.mndk.bteterrarenderer.core.projection;
+package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.core.tile.FlatTileMapService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
 @RequiredArgsConstructor
-public abstract class TileProjection {
+public abstract class FlatTileProjection {
 
 
     private static final int[][] CORNER_MATRIX = {
@@ -63,7 +62,7 @@ public abstract class TileProjection {
 
 
     @Override
-    public abstract TileProjection clone();
+    public abstract FlatTileProjection clone();
 
 
     public final int relativeZoomToAbsolute(int relativeZoom) {

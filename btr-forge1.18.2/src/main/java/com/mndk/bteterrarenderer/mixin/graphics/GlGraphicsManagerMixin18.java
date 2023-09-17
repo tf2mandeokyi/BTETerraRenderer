@@ -16,31 +16,43 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(value = GlGraphicsManager.class, remap = false)
 public class GlGraphicsManagerMixin18 {
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glTranslate(Object poseStack, float x, float y, float z) {
         ((PoseStack) poseStack).translate(x, y, z);
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glPushMatrix(Object poseStack) {
         ((PoseStack) poseStack).pushPose();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glPopMatrix(Object poseStack) {
         ((PoseStack) poseStack).popPose();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glEnableScissorTest() {
         GlStateManager._enableScissorTest();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glDisableScissorTest() {
         GlStateManager._disableScissorTest();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Overwrite
     public void glRelativeScissor(Object poseStack, int x, int y, int width, int height) {
         Window window = Minecraft.getInstance().getWindow();

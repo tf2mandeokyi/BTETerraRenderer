@@ -9,15 +9,15 @@ import java.util.List;
 /**
  * Model manager class that stores models & texture data.
  */
-public class GraphicsModelBaker<Key> extends SimpleResourceCacheProcessor<Key, List<PreBakedModel>, List<GraphicsModel>> {
+public class GraphicsModelTextureBaker<Key> extends SimpleResourceCacheProcessor<Key, List<PreBakedModel>, List<GraphicsModel>> {
 
-	private static final GraphicsModelBaker<?> INSTANCE =
-			new GraphicsModelBaker<>(1000 * 60 * 20 /* 20 minutes */, 10000, false);
-	public static <ID> GraphicsModelBaker<ID> getInstance() {
+	private static final GraphicsModelTextureBaker<?> INSTANCE =
+			new GraphicsModelTextureBaker<>(1000 * 60 * 20 /* 20 minutes */, 10000, false);
+	public static <ID> GraphicsModelTextureBaker<ID> getInstance() {
 		return BtrUtil.uncheckedCast(INSTANCE);
 	}
 
-	private GraphicsModelBaker(long expireMilliseconds, int maximumSize, boolean debug) {
+	private GraphicsModelTextureBaker(long expireMilliseconds, int maximumSize, boolean debug) {
 		super(expireMilliseconds, maximumSize, debug);
 	}
 
@@ -25,8 +25,8 @@ public class GraphicsModelBaker<Key> extends SimpleResourceCacheProcessor<Key, L
 	protected List<GraphicsModel> processResource(List<PreBakedModel> preBakedModels) {
 		List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
 		for(PreBakedModel preBakedModel : preBakedModels) {
-			int glId = GraphicsModelVisualManager.allocateAndUploadTexture(preBakedModel.getImage());
-			models.add(new GraphicsModel(glId, preBakedModel.getQuads()));
+			Object textureObject = GraphicsModelVisualManager.allocateAndGetTextureObject(preBakedModel.getImage());
+			models.add(new GraphicsModel(textureObject, preBakedModel.getQuads()));
 		}
 		return models;
 	}
@@ -34,7 +34,7 @@ public class GraphicsModelBaker<Key> extends SimpleResourceCacheProcessor<Key, L
 	@Override
 	protected void deleteResource(List<GraphicsModel> graphicsModels) {
 		for(GraphicsModel model : graphicsModels) {
-			GraphicsModelVisualManager.glDeleteTexture(model.getTextureGlId());
+			GraphicsModelVisualManager.deleteTextureObject(model.getTextureObject());
 		}
 	}
 }

@@ -15,14 +15,14 @@ public class GraphicsModelVisualManager {
      * @param image The buffered image
      * @return Corresponding glId
      */
-    public int allocateAndUploadTexture(BufferedImage image) {
+    public Object allocateAndGetTextureObject(BufferedImage image) {
         return MixinUtil.notOverwritten(image);
     }
     public void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
         MixinUtil.notOverwritten(poseStack, model, px, py, pz, opacity);
     }
-    public void glDeleteTexture(int glId) {
-        MixinUtil.notOverwritten(glId);
+    public void deleteTextureObject(Object textureObject) {
+        MixinUtil.notOverwritten(textureObject);
     }
     public void postRender() {
         MixinUtil.notOverwritten();
