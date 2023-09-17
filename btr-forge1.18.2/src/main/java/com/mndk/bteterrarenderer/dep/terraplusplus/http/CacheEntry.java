@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
-import com.mndk.bteterrarenderer.connector.terraplusplus.TerraConfig;
+import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;

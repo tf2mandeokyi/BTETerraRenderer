@@ -1,11 +1,13 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' } // Forge
+        maven { url = 'https://repo.spongepowered.org/maven' } // Sponge mixin
         jcenter()
         mavenCentral()
     }
     dependencies {
         classpath ('net.minecraftforge.gradle:ForgeGradle:5.1.+') { changing = true }
 		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.0'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }

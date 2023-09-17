@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConstants;
-import com.mndk.bteterrarenderer.util.BtrUtil;
 import lombok.Getter;
 
 import java.util.HashMap;

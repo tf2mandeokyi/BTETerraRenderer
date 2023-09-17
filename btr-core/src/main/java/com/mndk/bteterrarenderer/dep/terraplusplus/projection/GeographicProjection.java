@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.dep.terraplusplus.projection;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.mndk.bteterrarenderer.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConstants;
 import com.mndk.bteterrarenderer.dep.terraplusplus.config.GlobalParseRegistries;
 import com.mndk.bteterrarenderer.dep.terraplusplus.config.TypedDeserializer;

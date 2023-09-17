@@ -1,6 +1,7 @@
 plugins {
     id 'net.minecraftforge.gradle'
     id 'btr.java-conventions'
+    id 'org.spongepowered.mixin'
 }
 
 java {
@@ -62,6 +63,11 @@ dependencies {
 
     shadeCore fg.deobf(project(':btr-core'))
     shadeDep 'lzma:lzma:0.0.1' // Why isn't lzma built-in in 1.18.2 :(
+
+    annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
+    testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')
+    testImplementation fg.deobf('org.spongepowered:mixin:0.8.5')
+    testAnnotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
 }
 
 processResources {
@@ -83,4 +89,19 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 reobf {
     shadowJar {}
+}
+
+mixin {
+    add sourceSets.main, 'mixins.bteterrarenderer.refmap.json'
+    config 'mixins.bteterrarenderer.json'
+}
+
+jar {
+    manifest.attributes(
+            "MixinConfigs": 'mixins.bteterrarenderer.json',
+            "ForceLoadAsMod": 'true',
+            "TweakClass": 'org.spongepowered.asm.launch.MixinTweaker',
+            "TweakOrder": 0,
+            "Manifest-Version": 1.0
+    )
 }

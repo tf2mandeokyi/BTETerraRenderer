@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.projection.transform;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import lombok.Getter;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
+import lombok.Getter;
 
 /**
  * Warps a Geographic projection and applies a transformation to it.
