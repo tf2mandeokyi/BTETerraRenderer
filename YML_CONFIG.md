@@ -19,16 +19,15 @@ The file name could be anything except `default.yml`.
 Object properties are listed in [the structure table](#tms-object-structure).
 
 
-### example_map.yml
+### `example_maps.yml`
+
+See [`default_maps.yml`](btr-core/src/main/resources/assets/bteterrarenderer/default_maps.yml) for more examples
 
 ```yaml
 categories:
-
    # Map category.
    Global:
-
       # Map ID. It should be unique in its category and its file.
-      #
       # FYI: The mod automatically converts the map ID into something like "<category>.<id>".
       # So this ID is converted into "Global.osm"
       osm:
@@ -36,9 +35,7 @@ categories:
          tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
          projection: webmercator
          max_thread: 2
-      
       # ...
-
    # ...
 ```
 
@@ -55,7 +52,9 @@ categories:
 | `flip_vert`    | boolean    | N \[`false`\]           | *Flip tiles vertically when `true`.                                                                |
 | `invert_lat`   | boolean    | N \[`false`\]           | *Latitude is inverted when `true`. It will also flip tiles vertically.                             |
 
-&ast; Tiles won't be "flipped" when both `flip_vert` and `invert_lat` are set to `ttoURL parameters
+&ast; Tiles won't be "flipped" when both `flip_vert` and `invert_lat` are set to `true`
+
+### URL parameters
 | URL parameter        | Description                                                           |
 |----------------------|-----------------------------------------------------------------------|
 | `{x}`                | X-axis parameter.                                                     |
@@ -82,15 +81,15 @@ The config directory is at `.../.minecraft/config/bteterrarenderer/projections/`
 | `kakaoprojection` | `EPSG:5181`                         | Used for Korean map services, such as Kakao Map                                       |
 
 
-### example_projection.yml
+### example_projections.yml
+
+See [`default_projections.yml`](btr-core/src/main/resources/assets/bteterrarenderer/default_projections.yml) for more examples
 
 ```yaml
 tile_projections:
-
    # Projection name.
    # This is global across every projection file, so beware of name clashes.
    webmercator:
-      
       # The coordinate system object
       projection:
          proj4:
