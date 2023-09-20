@@ -40,8 +40,8 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
         return new GraphicsQuad<>(PosTex.class);
     }
 
-    public static GraphicsQuad<Pos> newPosQuad(Pos v0, Pos v1, Pos v2, Pos v3) {
-        return new GraphicsQuad<>(Pos.class, v0, v1, v2, v3);
+    public static GraphicsQuad<PosXY> newPosXYQuad(PosXY v0, PosXY v1, PosXY v2, PosXY v3) {
+        return new GraphicsQuad<>(PosXY.class, v0, v1, v2, v3);
     }
 
     @ToString
@@ -55,8 +55,8 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
     @ToString
     @RequiredArgsConstructor
     @EqualsAndHashCode(callSuper = false)
-    public static class Pos extends VertexInfo {
-        public final float x, y, z;
+    public static class PosXY extends VertexInfo {
+        public final float x, y;
     }
 
     public static abstract class VertexInfo {}

@@ -16,26 +16,21 @@ public class RawGuiManager {
         MixinUtil.notOverwritten(gui);
     }
 
-    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.Pos> quad, int color) {
-        MixinUtil.notOverwritten(poseStack, quad, color);
+    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> quad, int color, float z) {
+        MixinUtil.notOverwritten(poseStack, quad, color, z);
     }
     public void fillRect(Object poseStack, int x1, int y1, int x2, int y2, int color) {
-        GraphicsQuad<GraphicsQuad.Pos> quad = GraphicsQuad.newPosQuad(
-                new GraphicsQuad.Pos(x1, y2, 0),
-                new GraphicsQuad.Pos(x2, y2, 0),
-                new GraphicsQuad.Pos(x2, y1, 0),
-                new GraphicsQuad.Pos(x1, y1, 0)
+        GraphicsQuad<GraphicsQuad.PosXY> quad = GraphicsQuad.newPosXYQuad(
+                new GraphicsQuad.PosXY(x1, y2),
+                new GraphicsQuad.PosXY(x2, y2),
+                new GraphicsQuad.PosXY(x2, y1),
+                new GraphicsQuad.PosXY(x1, y1)
         );
-        fillQuad(poseStack, quad, color);
-    }
-    public void drawLine(Object poseStack, double ax, double ay, double bx, double by, double thickness, int color) {
-        GraphicsQuad<GraphicsQuad.Pos> quad = makeLine(ax, ay, bx, by, thickness);
-        if(quad == null) return;
-        RawGuiManager.fillQuad(poseStack, quad, color);
+        fillQuad(poseStack, quad, color, 0);
     }
 
     @Nullable
-    public GraphicsQuad<GraphicsQuad.Pos> makeLine(double ax, double ay, double bx, double by, double thickness) {
+    public GraphicsQuad<GraphicsQuad.PosXY> makeLine(double ax, double ay, double bx, double by, double thickness) {
         if (ax == ay && bx == by) return null;
 
         /*
@@ -52,16 +47,16 @@ public class RawGuiManager {
         double x2 = bx + dx, y2 = by + dy;
         double x3 = bx - dx, y3 = by - dy;
 
-        return GraphicsQuad.newPosQuad(
-                new GraphicsQuad.Pos((float) x0, (float) y0, 0),
-                new GraphicsQuad.Pos((float) x1, (float) y1, 0),
-                new GraphicsQuad.Pos((float) x2, (float) y2, 0),
-                new GraphicsQuad.Pos((float) x3, (float) y3, 0)
+        return GraphicsQuad.newPosXYQuad(
+                new GraphicsQuad.PosXY((float) x0, (float) y0),
+                new GraphicsQuad.PosXY((float) x1, (float) y1),
+                new GraphicsQuad.PosXY((float) x2, (float) y2),
+                new GraphicsQuad.PosXY((float) x3, (float) y3)
         );
     }
 
     @Nullable
-    public GraphicsQuad<GraphicsQuad.Pos> makeLineDxDy(double x, double y, double dx, double dy, double thickness) {
+    public GraphicsQuad<GraphicsQuad.PosXY> makeLineDxDy(double x, double y, double dx, double dy, double thickness) {
         return makeLine(x, y, x + dx, y + dy, thickness);
     }
 

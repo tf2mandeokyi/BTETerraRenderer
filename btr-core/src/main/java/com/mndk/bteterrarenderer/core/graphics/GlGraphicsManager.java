@@ -14,14 +14,13 @@ public class GlGraphicsManager {
     public void glPopMatrix(Object poseStack) {
         MixinUtil.notOverwritten(poseStack);
     }
-    /* Use polygon intersection instead. this is quite unstable */
-    public void glEnableScissorTest() {
-        MixinUtil.notOverwritten();
+    /**
+     * @return {@code true} if the scissoring was complete, {@code false} otherwise.
+     * */
+    public boolean glEnableRelativeScissor(Object poseStack, int x, int y, int width, int height) {
+        return MixinUtil.notOverwritten(poseStack, x, y, width, height);
     }
     public void glDisableScissorTest() {
         MixinUtil.notOverwritten();
-    }
-    public void glRelativeScissor(Object poseStack, int x, int y, int width, int height) {
-        MixinUtil.notOverwritten(poseStack, x, y, width, height);
     }
 }

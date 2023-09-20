@@ -139,13 +139,13 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             temp = right; right = left; left = temp;
         }
 
-        GraphicsQuad<GraphicsQuad.Pos> quad = GraphicsQuad.newPosQuad(
-                new GraphicsQuad.Pos(left, top, 0),
-                new GraphicsQuad.Pos((left + right) / 2f, bottom, 0),
-                new GraphicsQuad.Pos((left + right) / 2f, bottom, 0),
-                new GraphicsQuad.Pos(right, top, 0)
+        GraphicsQuad<GraphicsQuad.PosXY> quad = GraphicsQuad.newPosXYQuad(
+                new GraphicsQuad.PosXY(left, top),
+                new GraphicsQuad.PosXY((left + right) / 2f, bottom),
+                new GraphicsQuad.PosXY((left + right) / 2f, bottom),
+                new GraphicsQuad.PosXY(right, top)
         );
-        RawGuiManager.fillQuad(poseStack, quad, colorARGB);
+        RawGuiManager.fillQuad(poseStack, quad, colorARGB, 0);
     }
 
     @Override

@@ -34,8 +34,8 @@ public class RawGuiManagerMixin18 {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.Pos> quad, int color) {
-        GraphicsQuad.Pos v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
+    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> quad, int color, float z) {
+        GraphicsQuad.PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
         Matrix4f matrix = ((PoseStack) poseStack).last().pose();
 
         float a = (float)(color >> 24 & 255) / 255.0F;
@@ -49,10 +49,10 @@ public class RawGuiManagerMixin18 {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        bufferbuilder.vertex(matrix, v0.x, v0.y, v0.z).color(r, g, b, a).endVertex();
-        bufferbuilder.vertex(matrix, v1.x, v1.y, v1.z).color(r, g, b, a).endVertex();
-        bufferbuilder.vertex(matrix, v2.x, v2.y, v2.z).color(r, g, b, a).endVertex();
-        bufferbuilder.vertex(matrix, v3.x, v3.y, v3.z).color(r, g, b, a).endVertex();
+        bufferbuilder.vertex(matrix, v0.x, v0.y, z).color(r, g, b, a).endVertex();
+        bufferbuilder.vertex(matrix, v1.x, v1.y, z).color(r, g, b, a).endVertex();
+        bufferbuilder.vertex(matrix, v2.x, v2.y, z).color(r, g, b, a).endVertex();
+        bufferbuilder.vertex(matrix, v3.x, v3.y, z).color(r, g, b, a).endVertex();
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
         RenderSystem.enableTexture();

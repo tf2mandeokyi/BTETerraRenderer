@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner;
 
+import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
-import com.mndk.bteterrarenderer.core.util.math.Pos2dQuadUtil;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
@@ -13,10 +13,6 @@ import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
-
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.IntPredicate;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -70,7 +66,6 @@ public class SidebarMapAligner extends GuiSidebarElement {
                 ALIGNBOX_MARGIN_SIDE, 20 + ALIGNBOX_MARGIN_VERT * 2 + ALIGNBOX_HEIGHT,
                 I18nManager.format("gui.bteterrarenderer.settings.lock_north"), this.lockNorth.get()
         );
-        this.setPlayerYawRadians();
     }
 
     private void setPlayerYawRadians() {
@@ -110,6 +105,8 @@ public class SidebarMapAligner extends GuiSidebarElement {
         xInput.drawComponent(poseStack);
         zInput.drawComponent(poseStack);
         lockNorthCheckBox.drawComponent(poseStack);
+
+        this.setPlayerYawRadians();
         this.drawAlignBox(poseStack);
     }
 
@@ -126,13 +123,11 @@ public class SidebarMapAligner extends GuiSidebarElement {
         RawGuiManager.fillRect(poseStack, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
 
         // Enable box clipping
-//        GlGraphicsManager.glEnableScissorTest(); // TODO: Delete scissor test
-//        GlGraphicsManager.glRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
-
-        this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
-
+        if(GlGraphicsManager.glEnableRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN)) {
+            this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
+        }
         // Disable box clipping
-//        GlGraphicsManager.glDisableScissorTest();
+        GlGraphicsManager.glDisableScissorTest();
 
         // Borders
 //        int borderColor = this.alignBoxHovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR;
@@ -151,58 +146,83 @@ public class SidebarMapAligner extends GuiSidebarElement {
         double alignX = this.xOffset.get(), alignZ = this.zOffset.get();
         int xi = (int) alignX, zi = (int) alignZ;
         int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
-        double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
         int centerX = boxX + boxWidth / 2, centerY = boxY + boxHeight / 2;
 
-        GraphicsQuad<GraphicsQuad.Pos> box = GraphicsQuad.newPosQuad(
-                new GraphicsQuad.Pos(boxX, boxY, 0),
-                new GraphicsQuad.Pos(boxX + boxWidth, boxY, 0),
-                new GraphicsQuad.Pos(boxX + boxWidth, boxY + boxHeight, 0),
-                new GraphicsQuad.Pos(boxX, boxY + boxHeight, 0)
+        GraphicsQuad<GraphicsQuad.PosXY> box = GraphicsQuad.newPosXYQuad(
+                new GraphicsQuad.PosXY(boxX, boxY),
+                new GraphicsQuad.PosXY(boxX + boxWidth, boxY),
+                new GraphicsQuad.PosXY(boxX + boxWidth, boxY + boxHeight),
+                new GraphicsQuad.PosXY(boxX, boxY + boxHeight)
         );
 
-        BiConsumer<Integer, IntPredicate> lineDrawer = (color, p) -> {
-            // North-South lines
-            for(int z = zi - lineCount; z <= zi + lineCount; z++) {
-                double diff = (z - alignZ) * MOUSE_DIVIDER;
-                double diffX = dy * diff, diffY = -dx * diff;
-                if(!p.test(z)) continue;
+        // Secondary lines
+        for(int z = zi - lineCount; z <= zi + lineCount; z++) {
+            if(z % 5 == 0) continue;
+            drawNorthSouthLine(poseStack, box, centerX, centerY, z, SECONDARY_LINE_COLOR);
+        }
+        for(int x = xi - lineCount; x <= xi + lineCount; x++) {
+            if(x % 5 == 0) continue;
+            drawEastWestLine(poseStack, box, centerX, centerY, x, SECONDARY_LINE_COLOR);
+        }
 
-                GraphicsQuad<GraphicsQuad.Pos> line = RawGuiManager.makeLineDxDy(
-                        centerX + diffX - dx * LINE_LENGTH, centerY + diffY - dy * LINE_LENGTH,
-                        dx * 2*LINE_LENGTH, dy * 2*LINE_LENGTH,
-                        1
-                );
-                if(line == null) continue;
+        // Primary lines
+        for(int z = zi - lineCount; z <= zi + lineCount; z++) {
+            if(z % 5 != 0 || z == 0) continue;
+            drawNorthSouthLine(poseStack, box, centerX, centerY, z, PRIMARY_LINE_COLOR);
+        }
+        for(int x = xi - lineCount; x <= xi + lineCount; x++) {
+            if(x % 5 != 0 || x == 0) continue;
+            drawEastWestLine(poseStack, box, centerX, centerY, x, PRIMARY_LINE_COLOR);
+        }
 
-                List<GraphicsQuad<GraphicsQuad.Pos>> quadList = Pos2dQuadUtil.clipQuad(box, line);
-                for(GraphicsQuad<GraphicsQuad.Pos> quad : quadList) {
-                    RawGuiManager.fillQuad(poseStack, quad, color);
-                }
-            }
-            // East-West lines
-            for(int x = xi - lineCount; x <= xi + lineCount; x++) {
-                double diff = (alignX - x) * MOUSE_DIVIDER;
-                double diffX = dx * diff, diffY = dy * diff;
-                if(!p.test(x)) continue;
+        // Axis lines
+        drawNorthSouthLine(poseStack, box, centerX, centerY, 0, AXIS_LINE_COLOR);
+        drawEastWestLine(poseStack, box, centerX, centerY, 0, AXIS_LINE_COLOR);
+    }
 
-                GraphicsQuad<GraphicsQuad.Pos> line = RawGuiManager.makeLineDxDy(
-                        centerX + diffX - dy * 1000, centerY + diffY + dx * 1000,
-                        dy * 2000, -dx * 2000,
-                        1
-                );
-                if(line == null) continue;
+    private void drawNorthSouthLine(Object poseStack,
+                                    GraphicsQuad<GraphicsQuad.PosXY> box, int centerX, int centerY,
+                                    int zIndex, int color) {
+        double alignZ = this.zOffset.get();
+        double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
 
-                List<GraphicsQuad<GraphicsQuad.Pos>> quadList = Pos2dQuadUtil.clipQuad(box, line);
-                for(GraphicsQuad<GraphicsQuad.Pos> quad : quadList) {
-                    RawGuiManager.fillQuad(poseStack, quad, color);
-                }
-            }
-        };
+        double diff = (zIndex - alignZ) * MOUSE_DIVIDER;
+        double diffX = dy * diff, diffY = -dx * diff;
 
-        lineDrawer.accept(SECONDARY_LINE_COLOR, i -> i % 5 != 0);
-        lineDrawer.accept(PRIMARY_LINE_COLOR, i -> i % 5 == 0 && i != 0);
-        lineDrawer.accept(AXIS_LINE_COLOR, i -> i == 0);
+        drawClippedLine(poseStack, box,
+                centerX + diffX - dx * LINE_LENGTH, centerY + diffY - dy * LINE_LENGTH,
+                dx * 2*LINE_LENGTH, dy * 2*LINE_LENGTH,
+                color
+        );
+    }
+
+    private void drawEastWestLine(Object poseStack,
+                                  GraphicsQuad<GraphicsQuad.PosXY> box, int centerX, int centerY,
+                                  int xIndex, int color) {
+        double alignX = this.xOffset.get();
+        double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
+
+        double diff = (alignX - xIndex) * MOUSE_DIVIDER;
+        double diffX = dx * diff, diffY = dy * diff;
+
+        drawClippedLine(poseStack, box,
+                centerX + diffX - dy * LINE_LENGTH, centerY + diffY + dx * LINE_LENGTH,
+                dy * 2*LINE_LENGTH, -dx * 2*LINE_LENGTH,
+                color
+        );
+    }
+
+    private void drawClippedLine(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> box,
+                                 double x, double y, double dx, double dy,
+                                 int color) {
+        GraphicsQuad<GraphicsQuad.PosXY> line = RawGuiManager.makeLineDxDy(x, y, dx, dy, 1);
+        if(line == null) return;
+        RawGuiManager.fillQuad(poseStack, line, color, 0);
+
+//        List<GraphicsQuad<GraphicsQuad.PosXY>> quadList = PosXYQuadUtil.clipQuad(box, line);
+//        for(GraphicsQuad<GraphicsQuad.PosXY> quad : quadList) {
+//            RawGuiManager.fillQuad(poseStack, quad, color, 0);
+//        }
     }
 
     @Override

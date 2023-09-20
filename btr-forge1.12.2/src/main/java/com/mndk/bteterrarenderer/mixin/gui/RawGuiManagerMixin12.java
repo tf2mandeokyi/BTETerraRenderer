@@ -35,8 +35,8 @@ public class RawGuiManagerMixin12 {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.Pos> quad, int color) {
-        GraphicsQuad.Pos v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
+    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> quad, int color, float z) {
+        GraphicsQuad.PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
 
         float a = (float)(color >> 24 & 255) / 255.0F;
         float r = (float)(color >> 16 & 255) / 255.0F;
@@ -51,10 +51,10 @@ public class RawGuiManagerMixin12 {
         GlStateManager.color(r, g, b, a);
 
         bufferBuilder.begin(7, DefaultVertexFormats.POSITION);
-        bufferBuilder.pos(v0.x, v0.y, v0.z).endVertex();
-        bufferBuilder.pos(v1.x, v1.y, v1.z).endVertex();
-        bufferBuilder.pos(v2.x, v2.y, v2.z).endVertex();
-        bufferBuilder.pos(v3.x, v3.y, v3.z).endVertex();
+        bufferBuilder.pos(v0.x, v0.y, z).endVertex();
+        bufferBuilder.pos(v1.x, v1.y, z).endVertex();
+        bufferBuilder.pos(v2.x, v2.y, z).endVertex();
+        bufferBuilder.pos(v3.x, v3.y, z).endVertex();
         tessellator.draw();
 
         GlStateManager.enableTexture2D();

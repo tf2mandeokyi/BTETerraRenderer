@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -41,8 +42,32 @@ public class GlGraphicsManagerMixin12 {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void glEnableScissorTest() {
+    public boolean glEnableRelativeScissor(Object poseStack, int x, int y, int width, int height) {
+        Minecraft mc = Minecraft.getMinecraft();
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        int scaleFactor = scaledResolution.getScaleFactor();
+
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
+        Matrix4f matrix4f = new Matrix4f();
+        matrix4f.load(buffer);
+
+        Vector4f originalStart = new Vector4f(x, y, 0, 1);
+        Vector4f originalEnd = new Vector4f(x+width, y+height, 0, 1);
+        Vector4f start = Matrix4f.transform(matrix4f, originalStart, null);
+        Vector4f end = Matrix4f.transform(matrix4f, originalEnd, null);
+
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        float yTop = mc.displayHeight + scaleFactor * (Math.abs(start.y - end.y) - Math.max(start.y, end.y));
+        if(yTop < 0) return false;
+
+        GL11.glScissor(
+                (int) (scaleFactor * Math.min(start.x, end.x)),
+                (int) (mc.displayHeight - scaleFactor * Math.max(start.y, end.y)),
+                (int) (scaleFactor * Math.abs(start.x - end.x)),
+                (int) (scaleFactor * Math.abs(start.y - end.y))
+        );
+        return true;
     }
 
     /** @author m4ndeokyi
@@ -50,27 +75,6 @@ public class GlGraphicsManagerMixin12 {
     @Overwrite
     public void glDisableScissorTest() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
-    }
-
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
-    public void glRelativeScissor(Object poseStack, int x, int y, int width, int height) {
-        Minecraft mc = Minecraft.getMinecraft();
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
-
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
-        buffer.rewind();
-        Matrix4f matrix4f = new Matrix4f();
-        matrix4f.load(buffer);
-
-        int translateX = (int) matrix4f.m30, translateY = (int) matrix4f.m31;
-        int scaleFactor = scaledResolution.getScaleFactor();
-        GL11.glScissor(
-                scaleFactor * (x + translateX), mc.displayHeight - scaleFactor * (y + translateY + height),
-                scaleFactor * width, scaleFactor * height
-        );
     }
 
 }
