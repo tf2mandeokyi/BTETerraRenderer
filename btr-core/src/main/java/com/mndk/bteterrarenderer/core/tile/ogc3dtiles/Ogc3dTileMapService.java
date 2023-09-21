@@ -51,8 +51,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     private final URL rootTilesetUrl;
     private transient final CachedTileParser<TmsIdPair<TileGlobalKey>> tileParser = CachedTileParser.getInstance();
 
-    public Ogc3dTileMapService(String name, ExecutorService downloadExecutor,
-                               URL rootTilesetUrl) {
+    public Ogc3dTileMapService(String name, ExecutorService downloadExecutor, URL rootTilesetUrl) {
         super(name, downloadExecutor);
         this.rootTilesetUrl = rootTilesetUrl;
     }

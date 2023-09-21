@@ -116,8 +116,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         return Collections.emptyList();
     }
 
-    private void addTile(List<TileKey> list, int[] tileCoord, int dx, int dy)
-            throws OutOfProjectionBoundsException {
+    private void addTile(List<TileKey> list, int[] tileCoord, int dx, int dy) {
         if(Math.abs(dx) > radius || Math.abs(dy) > radius) return;
         list.add(new TileKey(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom));
     }

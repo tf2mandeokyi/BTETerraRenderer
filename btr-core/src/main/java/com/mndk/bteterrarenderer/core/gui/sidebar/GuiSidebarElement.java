@@ -21,6 +21,9 @@ public abstract class GuiSidebarElement extends GuiComponentCopy {
         return this.getPhysicalHeight();
     }
 
+    /**
+     * {@link GuiSidebarElement#parent} is set first before calling this method
+     */
     protected abstract void init();
 
     public abstract void onWidthChange(double newWidth);

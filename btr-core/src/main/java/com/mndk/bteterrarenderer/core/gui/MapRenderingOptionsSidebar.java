@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElementWrapper;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
@@ -24,7 +25,6 @@ import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor
 
 import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +36,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static MapRenderingOptionsSidebar INSTANCE;
     private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
     private final SidebarElementListComponent tmsPropertyElementList;
-    private SidebarNumberInput yAxisInput;
+    private final GuiSidebarElementWrapper yAxisInputWrapper;
 
     public MapRenderingOptionsSidebar() {
         super(
@@ -55,6 +55,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::tmsWrappedToString
         );
         this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE);
+        this.yAxisInputWrapper = new GuiSidebarElementWrapper();
     }
 
     @Override
@@ -100,7 +101,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), SidebarText.TextAlign.LEFT),
                 hl, // ---------------------------------------------------------------------------------------
                 renderingTrigger,
-                yAxisInput,
+                yAxisInputWrapper,
                 opacitySlider,
                 blank,
 
@@ -136,7 +137,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HologramConfig.INSTANCE;
 
         if(tms == null) {
-            if(this.yAxisInput != null) this.yAxisInput.hide = true;
+            this.yAxisInputWrapper.hide = true;
             this.tmsPropertyElementList.hide = true;
             return;
         }
@@ -146,13 +147,13 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         this.tmsPropertyElementList.hide = false;
 
         if(tms instanceof FlatTileMapService) {
-            this.yAxisInput = new SidebarNumberInput(
+            this.yAxisInputWrapper.setElement(new SidebarNumberInput(
                     PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis),
-                    I18nManager.format("gui.bteterrarenderer.settings.map_y_level") + ": ");
+                    I18nManager.format("gui.bteterrarenderer.settings.map_y_level") + ": "));
         } else {
-            this.yAxisInput = new SidebarNumberInput(
+            this.yAxisInputWrapper.setElement(new SidebarNumberInput(
                     PropertyAccessor.of(renderSettings::getYAlign, renderSettings::setYAlign),
-                    I18nManager.format("gui.bteterrarenderer.settings.y_align") + ": ");
+                    I18nManager.format("gui.bteterrarenderer.settings.y_align") + ": "));
         }
     }
 
