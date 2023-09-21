@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.mod.client.KeyMappings18;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
+import com.mndk.bteterrarenderer.mod.config.BTETerraRendererConfigImpl18;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
@@ -18,6 +19,7 @@ public class KeyEvent18 {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if(KeyMappings18.MAP_OPTIONS_KEY.consumeClick()) {
             BTETerraRendererConfig.INSTANCE.refreshTileMapService();
+            BTETerraRendererConfigImpl18.saveRenderState();
             MapRenderingOptionsSidebar.open();
         }
         else if(KeyMappings18.MAP_TOGGLE_KEY.consumeClick()) {

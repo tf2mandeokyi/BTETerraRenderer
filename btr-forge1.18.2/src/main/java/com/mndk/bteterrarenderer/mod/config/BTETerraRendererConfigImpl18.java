@@ -13,6 +13,9 @@ public class BTETerraRendererConfigImpl18 {
 
     public static boolean doRender;
     private static final ForgeConfigSpec.ConfigValue<Boolean> GENERAL_DO_RENDER;
+    public static void saveRenderState() {
+        GENERAL_DO_RENDER.set(doRender);
+    }
 
     public static String mapServiceCategory, mapServiceId;
     private static final ForgeConfigSpec.ConfigValue<String> GENERAL_MAP_SERVICE_CATEGORY;
