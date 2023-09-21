@@ -54,7 +54,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         this::getWrappedTMS, this::setTileMapService),
                 MapRenderingOptionsSidebar::tmsWrappedToString
         );
-        this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE);
+        // Don't make sound, as the main list of the sidebar already makes it
+        this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE, false);
         this.yAxisInputWrapper = new GuiSidebarElementWrapper();
     }
 

@@ -17,6 +17,7 @@ public abstract class MultiThreadedResourceCacheProcessor<Key, Input, Resource>
     private final int retryDelayMilliseconds;
 
     /**
+     * @param maxRetryCount      Max retry count. set this to -1 if no retry restrictions are needed
      * @param expireMilliseconds How long can a cache live without being refreshed
      * @param maximumSize        Maximum cache size
      * @param debug              debug
@@ -50,7 +51,7 @@ public abstract class MultiThreadedResourceCacheProcessor<Key, Input, Resource>
 
         @Override
         public void run() {
-            if(retry >= processor.maxRetryCount) {
+            if(processor.maxRetryCount != -1 && retry >= processor.maxRetryCount) {
                 processor.resourcePreparingError(key);
                 return;
             }

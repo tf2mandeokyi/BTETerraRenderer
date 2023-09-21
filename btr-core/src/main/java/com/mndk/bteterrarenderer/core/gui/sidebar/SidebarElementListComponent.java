@@ -20,9 +20,11 @@ public class SidebarElementListComponent extends GuiSidebarElement {
     private final List<Entry> entryList = new ArrayList<>();
     private final int elementDistance;
     private int totalPhysicalHeight, totalVisualHeight;
+    private final boolean makeSound;
 
-    public SidebarElementListComponent(int elementDistance) {
+    public SidebarElementListComponent(int elementDistance, boolean makeSound) {
         this.elementDistance = elementDistance;
+        this.makeSound = makeSound;
     }
 
     public void set(List<GuiSidebarElement> elements) {
@@ -137,7 +139,7 @@ public class SidebarElementListComponent extends GuiSidebarElement {
 
             int yPos = entry.yPos;
             if(element.mousePressed(mouseX, mouseY - yPos, mouseButton)) {
-                MinecraftClientManager.playClickSound();
+                if(this.makeSound) MinecraftClientManager.playClickSound();
                 return true;
             }
         }

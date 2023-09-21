@@ -65,7 +65,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
     @Override
     protected List<TileGlobalKey> getRenderTileIdList(String tmsId, double longitude, double latitude, double height) {
-		if(radius == 0) return Collections.emptyList();
+        if(radius == 0) return Collections.emptyList();
 
         Cartesian3 cartesian = new Spheroid3(Math.toRadians(longitude), Math.toRadians(latitude), height)
                 .toCartesianCoordinate();

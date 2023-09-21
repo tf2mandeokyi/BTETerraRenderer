@@ -1,17 +1,15 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.gui.components.GuiButtonCopy;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
+import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 // TODO: Add tab key
@@ -47,7 +45,7 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
             SidebarSide side, int elementPaddingSide, int paddingTopBottom, int elementDistance,
             PropertyAccessor<Double> elementWidth, boolean guiPausesGame
     ) {
-        this.elementsComponent = new SidebarElementListComponent(elementDistance);
+        this.elementsComponent = new SidebarElementListComponent(elementDistance, true);
         this.side = side;
         this.elementPaddingSide = elementPaddingSide;
         this.paddingTopBottom = paddingTopBottom;
