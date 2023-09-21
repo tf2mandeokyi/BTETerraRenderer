@@ -19,5 +19,7 @@
     "gui.bteterrarenderer.settings.map_offset": "지도 보정",
     "gui.bteterrarenderer.settings.size": "지도 크기",
     "gui.bteterrarenderer.settings.zoom": "지도 줌",
-    "gui.bteterrarenderer.settings.lock_north": "북쪽 고정"
+    "gui.bteterrarenderer.settings.lock_north": "북쪽 고정",
+
+    "gui.bteterrarenderer.settings.3d_radius": "렌더 거리"
 }

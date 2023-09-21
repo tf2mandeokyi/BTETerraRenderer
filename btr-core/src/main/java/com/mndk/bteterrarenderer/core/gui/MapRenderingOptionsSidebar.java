@@ -92,7 +92,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         SidebarBlank blank = new SidebarBlank(10);
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
 
-        this.elementsComponent.set(Arrays.asList(
+        this.setComponents(
                 // ===========================================================================================
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), SidebarText.TextAlign.CENTER),
                 blank,
@@ -121,7 +121,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 hl, // ---------------------------------------------------------------------------------------
                 mapAligner
                 // ===========================================================================================
-        ));
+        );
 
         super.initGui();
     }

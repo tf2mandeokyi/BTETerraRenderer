@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -67,18 +68,23 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         this.urlTemplate = urlTemplate;
         this.flatTileProjection = flatTileProjection;
         this.urlConverter = urlConverter;
-
-        this.properties.add(new PropertyAccessor.Localized<>("zoom", "gui.bteterrarenderer.settings.zoom",
-                RangedIntPropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom,
-                        this::isRelativeZoomAvailable, -4, 4)));
-
-        this.properties.add(new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.size",
-                RangedIntPropertyAccessor.of(this::getRadius, this::setRadius, 1, 10)));
     }
 
     @Override
     protected double getYAlign() {
         return BTETerraRendererConfig.HologramConfig.INSTANCE.getFlatMapYAxis() + Y_EPSILON;
+    }
+
+    @Override
+    protected List<PropertyAccessor.Localized<?>> makeProperties() {
+        return Arrays.asList(
+                new PropertyAccessor.Localized<>("zoom", "gui.bteterrarenderer.settings.zoom",
+                        RangedIntPropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom,
+                                this::isRelativeZoomAvailable, -4, 4)),
+
+                new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.size",
+                        RangedIntPropertyAccessor.of(this::getRadius, this::setRadius, 1, 10))
+        );
     }
 
     @Override

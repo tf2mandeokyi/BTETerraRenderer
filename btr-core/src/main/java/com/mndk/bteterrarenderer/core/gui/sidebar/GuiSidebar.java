@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.core.gui.components.GuiButtonCopy;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
@@ -8,6 +9,10 @@ import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 // TODO: Add tab key
 public class GuiSidebar extends AbstractGuiScreenCopy {
@@ -23,8 +28,8 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
     private static final int VERTICAL_SLIDER_COLOR_HOVERED = HOVERED_COLOR;
     private static final int VERTICAL_SLIDER_COLOR_CLICKED = FOCUSED_BORDER_COLOR;
 
-    protected final SidebarElementListComponent elementsComponent;
-    private SidebarSide side;
+    private final SidebarElementListComponent elementsComponent;
+    @Setter private SidebarSide side;
     private final int elementPaddingSide;
     private final int paddingTopBottom;
     private final boolean guiPausesGame;
@@ -54,16 +59,15 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         this.elementWidth = elementWidth;
     }
 
-
-    public void setSide(SidebarSide side) {
-        this.side = side;
-    }
-
     @Override
     public void initGui() {
         this.guiChat.initGui(screenSize.get());
         this.guiChat.changeSideMargin(side, (int) (this.elementWidth.get() + 2 * this.elementPaddingSide));
         this.elementsComponent.initComponent(this);
+    }
+
+    protected void setComponents(GuiSidebarElement... elements) {
+        this.elementsComponent.set(Arrays.asList(elements));
     }
 
     @Override

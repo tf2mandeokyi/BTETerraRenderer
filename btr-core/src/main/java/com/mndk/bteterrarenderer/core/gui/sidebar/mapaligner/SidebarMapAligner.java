@@ -218,11 +218,6 @@ public class SidebarMapAligner extends GuiSidebarElement {
         GraphicsQuad<GraphicsQuad.PosXY> line = RawGuiManager.makeLineDxDy(x, y, dx, dy, 1);
         if(line == null) return;
         RawGuiManager.fillQuad(poseStack, line, color, 0);
-
-//        List<GraphicsQuad<GraphicsQuad.PosXY>> quadList = PosXYQuadUtil.clipQuad(box, line);
-//        for(GraphicsQuad<GraphicsQuad.PosXY> quad : quadList) {
-//            RawGuiManager.fillQuad(poseStack, quad, color, 0);
-//        }
     }
 
     @Override

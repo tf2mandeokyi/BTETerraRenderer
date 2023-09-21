@@ -52,6 +52,7 @@ public abstract class MultiThreadedResourceCacheProcessor<Key, Input, Resource>
         public void run() {
             if(retry >= processor.maxRetryCount) {
                 processor.resourcePreparingError(key);
+                return;
             }
 
             try {

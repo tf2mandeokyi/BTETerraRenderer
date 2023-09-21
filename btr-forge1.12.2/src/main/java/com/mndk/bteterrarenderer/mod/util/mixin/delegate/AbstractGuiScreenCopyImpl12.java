@@ -26,7 +26,7 @@ public class AbstractGuiScreenCopyImpl12 extends GuiScreen {
         delegate.tick();
     }
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        // Check if mouse button "pressed" is either scroll up or scroll down
+        // Skip if the "pressed" mouse button is either scroll up or scroll down
         if(mouseButton == 63 || mouseButton == 64) return;
 
         this.pMouseX = mouseX; this.pMouseY = mouseY;

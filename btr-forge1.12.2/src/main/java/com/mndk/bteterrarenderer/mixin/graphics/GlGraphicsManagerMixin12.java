@@ -57,16 +57,16 @@ public class GlGraphicsManagerMixin12 {
         Vector4f start = Matrix4f.transform(matrix4f, originalStart, null);
         Vector4f end = Matrix4f.transform(matrix4f, originalEnd, null);
 
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        float yTop = mc.displayHeight + scaleFactor * (Math.abs(start.y - end.y) - Math.max(start.y, end.y));
-        if(yTop < 0) return false;
+        int scissorX = (int) (scaleFactor * Math.min(start.x, end.x));
+        int scissorY = (int) (mc.displayHeight - scaleFactor * Math.max(start.y, end.y));
+        int scissorWidth = (int) (scaleFactor * Math.abs(start.x - end.x));
+        int scissorHeight = (int) (scaleFactor * Math.abs(start.y - end.y));
 
-        GL11.glScissor(
-                (int) (scaleFactor * Math.min(start.x, end.x)),
-                (int) (mc.displayHeight - scaleFactor * Math.max(start.y, end.y)),
-                (int) (scaleFactor * Math.abs(start.x - end.x)),
-                (int) (scaleFactor * Math.abs(start.y - end.y))
-        );
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        int scissorNorth = scissorY + scissorHeight;
+        if(scissorNorth < 0) return false;
+
+        GL11.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
         return true;
     }
 

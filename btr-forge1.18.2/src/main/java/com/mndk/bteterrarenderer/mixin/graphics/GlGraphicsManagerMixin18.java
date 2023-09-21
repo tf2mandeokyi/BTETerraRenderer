@@ -58,12 +58,15 @@ public class GlGraphicsManagerMixin18 {
         start.transform(matrix);
         end.transform(matrix);
 
-        RenderSystem.enableScissor(
-                (int) (scaleFactorX * Math.min(start.x(), end.x())),
-                (int) (window.getScreenHeight() - scaleFactorY * Math.max(start.y(), end.y())),
-                (int) (scaleFactorX * Math.abs(start.x() - end.x())),
-                (int) (scaleFactorY * Math.abs(start.y() - end.y()))
-        );
+        int scissorX = (int) (scaleFactorX * Math.min(start.x(), end.x()));
+        int scissorY = (int) (window.getScreenHeight() - scaleFactorY * Math.max(start.y(), end.y()));
+        int scissorWidth = (int) (scaleFactorX * Math.abs(start.x() - end.x()));
+        int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
+
+        int scissorNorth = scissorY + scissorHeight;
+        if(scissorNorth < 0) return false;
+
+        RenderSystem.enableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
         return true;
     }
 

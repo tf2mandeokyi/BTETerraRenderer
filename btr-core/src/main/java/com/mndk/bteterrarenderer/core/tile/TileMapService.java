@@ -45,14 +45,18 @@ public abstract class TileMapService<TileId> {
     protected final String name;
     protected transient final TileResourceFetcher<TileId> resourceFetcher;
 
-    /** Put a localization key as a key, and a property accessor as a value. */
+    /**
+     * This property should be configured on the constructor.
+     * One should put localization key as a key, and the property accessor as a value.
+     * */
     @Getter
-    protected transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
+    private transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
     private transient final GraphicsModelTextureBaker<TmsIdPair<TileId>> modelTextureBaker = GraphicsModelTextureBaker.getInstance();
 
     public TileMapService(String name, ExecutorService downloadExecutor) {
         this.name = name;
         this.resourceFetcher = new TileResourceFetcher<>(downloadExecutor);
+        this.properties.addAll(this.makeProperties());
     }
 
     public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
@@ -132,7 +136,7 @@ public abstract class TileMapService<TileId> {
 
     /**
      * Immediately returns the fetched data. If the data is not found, the fetcher fetches it
-     * in a separate thread.
+     * in a separate thread and returns {@code null}.
      * @param tileId The tile id
      * @param url The url
      * @return The data stream. {@code null} if the data is still being fetched
@@ -158,6 +162,11 @@ public abstract class TileMapService<TileId> {
 
     protected double getYAlign() { return 0; }
 
+    /**
+     * This method is called only once on the constructor
+     * @return The property list
+     */
+    protected abstract List<PropertyAccessor.Localized<?>> makeProperties();
     /**
      * @param tmsId Tile map service ID
      * @param longitude Player longitude, in degrees

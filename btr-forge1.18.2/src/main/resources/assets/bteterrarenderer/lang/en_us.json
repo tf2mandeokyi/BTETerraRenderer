@@ -19,5 +19,7 @@
     "gui.bteterrarenderer.settings.map_offset": "Map Offset",
     "gui.bteterrarenderer.settings.zoom": "Map Zoom",
     "gui.bteterrarenderer.settings.size": "Map Size",
-    "gui.bteterrarenderer.settings.lock_north": "Lock North"
+    "gui.bteterrarenderer.settings.lock_north": "Lock North",
+
+    "gui.bteterrarenderer.settings.3d_radius": "Render Radius"
 }

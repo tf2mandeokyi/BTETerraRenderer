@@ -55,9 +55,13 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                                URL rootTilesetUrl) {
         super(name, downloadExecutor);
         this.rootTilesetUrl = rootTilesetUrl;
+    }
 
-        this.properties.add(new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.3d_radius",
-                RangedDoublePropertyAccessor.of(this::getRadius, this::setRadius, 1, 1000)));
+    protected List<PropertyAccessor.Localized<?>> makeProperties() {
+        return Collections.singletonList(
+                new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.3d_radius",
+                        RangedDoublePropertyAccessor.of(this::getRadius, this::setRadius, 1, 1000))
+        );
     }
 
     @Override
@@ -67,7 +71,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         Cartesian3 cartesian = new Spheroid3(Math.toRadians(longitude), Math.toRadians(latitude), height)
                 .toCartesianCoordinate();
         Sphere playerSphere = new Sphere(cartesian, radius);
-        return this.getRecursively(tmsId, playerSphere);
+        return this.getIdListRecursively(tmsId, playerSphere);
     }
 
     @Nullable
@@ -94,7 +98,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         }
     }
 
-    public List<TileGlobalKey> getRecursively(String tmsId, Sphere playerSphere) {
+    public List<TileGlobalKey> getIdListRecursively(String tmsId, Sphere playerSphere) {
         List<TileGlobalKey> result = new ArrayList<>();
 
         @RequiredArgsConstructor
