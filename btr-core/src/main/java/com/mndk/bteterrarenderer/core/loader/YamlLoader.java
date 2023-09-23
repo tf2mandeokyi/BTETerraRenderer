@@ -15,7 +15,7 @@ public abstract class YamlLoader<T> {
     private final String folderName;
     private final String defaultYamlPath;
     @Getter @Setter
-    public T result;
+    protected T result;
 
     protected YamlLoader(String folderName, String defaultYamlPath) {
         this.folderName = folderName;

@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
+import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.TmsIdPair;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileKeyManager;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
-import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -36,9 +36,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 @Getter
 @ToString(callSuper = true)
@@ -46,16 +47,25 @@ import java.util.concurrent.Executors;
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
+    private final Object DEFAULT_QUEUE_KEY = 0;
+
     @Setter
     private transient double radius = 40;
     private final URL rootTilesetUrl;
     private transient final CachedTileParser<TmsIdPair<TileGlobalKey>> tileParser = CachedTileParser.getInstance();
 
-    public Ogc3dTileMapService(String name, ExecutorService downloadExecutor, URL rootTilesetUrl) {
-        super(name, downloadExecutor);
+    public Ogc3dTileMapService(String name, int nThreads, URL rootTilesetUrl) {
+        super(name, nThreads);
         this.rootTilesetUrl = rootTilesetUrl;
+        this.setFetcherQueueKey(DEFAULT_QUEUE_KEY);
     }
 
+    @Override
+    protected Object tileIdToFetcherQueueKey(TileGlobalKey tileGlobalKey) {
+        return DEFAULT_QUEUE_KEY;
+    }
+
+    @Override
     protected List<PropertyAccessor.Localized<?>> makeProperties() {
         return Collections.singletonList(
                 new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.3d_radius",
@@ -86,7 +96,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                 InputStream stream;
                 try {
                     stream = this.fetchData(idPair.getTileId(), this.rootTilesetUrl);
-                } catch(IOException e) { return null; }
+                } catch(Exception e) { return null; }
                 if(stream == null) return null;
 
                 tileParser.resourceProcessingReady(idPair,
@@ -150,7 +160,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                         InputStream stream;
                         try {
                             stream = this.fetchData(currentKey, currentUrl);
-                        } catch(IOException e) { continue; }
+                        } catch(Exception e) { continue; }
                         if(stream == null) continue;
 
                         tileParser.resourceProcessingReady(idPair,
@@ -225,9 +235,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
             URL rootTilesetUrl = new URL(rootTileset);
 
             int maxThread = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
-            ExecutorService downloadExecutor = Executors.newFixedThreadPool(maxThread);
-
-            return new Ogc3dTileMapService(name, downloadExecutor, rootTilesetUrl);
+            return new Ogc3dTileMapService(name, maxThread, rootTilesetUrl);
         }
     }
 

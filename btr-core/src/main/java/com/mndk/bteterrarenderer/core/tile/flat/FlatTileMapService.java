@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Getter
 @ToString(callSuper = true)
@@ -63,11 +61,12 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     @JsonCreator
     public FlatTileMapService(String name, String urlTemplate,
                               FlatTileProjection flatTileProjection, FlatTileURLConverter urlConverter,
-                              ExecutorService downloadExecutor) {
-        super(name, downloadExecutor);
+                              int nThreads) {
+        super(name, nThreads);
         this.urlTemplate = urlTemplate;
         this.flatTileProjection = flatTileProjection;
         this.urlConverter = urlConverter;
+        this.setFetcherQueueKey(this.relativeZoom);
     }
 
     @Override
@@ -122,7 +121,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     }
 
     @Override
-    protected List<PreBakedModel> getPreBakedModels(TmsIdPair<TileKey> idPair) throws IOException, OutOfProjectionBoundsException {
+    protected List<PreBakedModel> getPreBakedModels(TmsIdPair<TileKey> idPair) throws Exception {
         TileKey tileKey = idPair.getTileId();
         String url = this.getUrlFromTileCoordinate(tileKey.x, tileKey.y, tileKey.relativeZoom);
         InputStream stream = this.fetchData(tileKey, new URL(url));
@@ -140,10 +139,15 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         return Collections.singletonList(quad);
     }
 
+    @Override
+    protected Object tileIdToFetcherQueueKey(TileKey tileKey) {
+        return tileKey.relativeZoom;
+    }
+
     public void setRelativeZoom(int newZoom) {
         if(this.relativeZoom == newZoom) return;
         this.relativeZoom = newZoom;
-//        GraphicsModelBaker.getInstance().newQueue();
+        this.setFetcherQueueKey(newZoom);
     }
 
     public String getUrlFromTileCoordinate(int tileX, int tileY, int relativeZoom) {
@@ -191,7 +195,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
             int maxThread = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
 
             String projectionName = node.get("projection").asText();
-            FlatTileProjection projection = FlatTileProjectionYamlLoader.INSTANCE.result.get(projectionName);
+            FlatTileProjection projection = FlatTileProjectionYamlLoader.INSTANCE.getResult().get(projectionName);
             if(projection != null) {
                 projection = projection.clone()
                         .setDefaultZoom(defaultZoom)
@@ -206,9 +210,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
             }
 
             FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
-            ExecutorService downloadExecutor = Executors.newFixedThreadPool(maxThread);
-
-            return new FlatTileMapService(name, urlTemplate, projection, urlConverter, downloadExecutor);
+            return new FlatTileMapService(name, urlTemplate, projection, urlConverter, maxThread);
         }
     }
 }

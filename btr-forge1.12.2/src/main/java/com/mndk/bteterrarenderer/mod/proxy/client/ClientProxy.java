@@ -17,7 +17,7 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		File gameConfigDirectory = event.getModConfigurationDirectory();
-		ConfigLoaders.loadAll(gameConfigDirectory);
+		ConfigLoaders.setDirectoryAndLoadAll(gameConfigDirectory);
 	}
 	
 	@Override

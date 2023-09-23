@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.core.config;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 
@@ -111,14 +110,14 @@ public class BTETerraRendererConfig {
         setDoRender(!isDoRender());
     }
 
-    public void save() {
-        refreshTileMapService();
+    public void saveConfiguration() {
+        refreshCurrentTileMapService();
     }
-    public void load() {
-        refreshTileMapService();
+    public void loadConfiguration() {
+        refreshCurrentTileMapService();
     }
 
-    public CategoryMap.Wrapper<TileMapService<?>> getTileMapService() {
+    public CategoryMap.Wrapper<TileMapService<?>> getTileMapServiceWrapper() {
         return Storage.TMS_ON_DISPLAY;
     }
 
@@ -126,13 +125,12 @@ public class BTETerraRendererConfig {
         Storage.TMS_ON_DISPLAY = wrapped;
         setMapServiceCategory(wrapped.getParentCategory().getName());
         setMapServiceId(wrapped.getId());
-
-//        GraphicsModelBaker.getInstance().newQueue();
     }
 
-    public void refreshTileMapService() {
-        ConfigLoaders.loadAll();
-        Storage.TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE.result.getItemWrapper(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
+    public void refreshCurrentTileMapService() {
+        Storage.TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE
+                .getResult()
+                .getItemWrapper(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
     }
 
     private static class Storage {

@@ -22,9 +22,6 @@ public abstract class SimpleResourceCacheProcessor<Key, Input, Resource>
     }
 
     @Override
-    protected void updateProcessor() {}
-
-    @Override
     protected void offerToProcessor(Key key, Input input) {
         queue.add(new AbstractMap.SimpleEntry<>(key, input));
     }

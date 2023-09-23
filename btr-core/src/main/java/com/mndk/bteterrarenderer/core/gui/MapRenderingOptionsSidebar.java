@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElementWrapper;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
@@ -51,7 +52,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         // Map source components
         this.mapSourceDropdown = new SidebarDropdownSelector<>(
                 PropertyAccessor.of(BtrUtil.uncheckedCast(CategoryMap.Wrapper.class),
-                        this::getWrappedTMS, this::setTileMapService),
+                        this::getWrappedTMS, this::setTileMapServiceWrapper),
                 MapRenderingOptionsSidebar::tmsWrappedToString
         );
         // Don't make sound, as the main list of the sidebar already makes it
@@ -77,7 +78,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         // Map source components
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18nManager.format("gui.bteterrarenderer.settings.map_reload"),
-                (self, mouseButton) -> this.reloadMaps()
+                (self, mouseButton) -> this.reloadMapSources()
         );
         SidebarButton openMapsFolderButton = new SidebarButton(
                 I18nManager.format("gui.bteterrarenderer.settings.map_folder"),
@@ -102,7 +103,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), SidebarText.TextAlign.LEFT),
                 hl, // ---------------------------------------------------------------------------------------
                 renderingTrigger,
-                yAxisInputWrapper,
+                this.yAxisInputWrapper,
                 opacitySlider,
                 blank,
 
@@ -129,10 +130,10 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {
-        return BTETerraRendererConfig.INSTANCE.getTileMapService();
+        return BTETerraRendererConfig.INSTANCE.getTileMapServiceWrapper();
     }
 
-    private void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
+    private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
         TileMapService<?> tms = tmsWrapped == null ? null : tmsWrapped.getItem();
 
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HologramConfig.INSTANCE;
@@ -158,9 +159,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
-    private void reloadMaps() {
+    private void reloadMapSources() {
         try {
-            BTETerraRendererConfig.INSTANCE.refreshTileMapService();
+            ConfigLoaders.loadAll(false);
             this.updateMapSourceDropdown();
         } catch(Exception e) {
             MinecraftClientManager.sendErrorMessageToChat("Error reloading maps!", e);
@@ -206,16 +207,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
-        BTETerraRendererConfig.INSTANCE.load();
+        BTETerraRendererConfig.INSTANCE.loadConfiguration();
         INSTANCE.setSide(BTETerraRendererConfig.UIConfig.INSTANCE.getSidebarSide());
         INSTANCE.updateMapSourceDropdown();
-        INSTANCE.setTileMapService(BTETerraRendererConfig.INSTANCE.getTileMapService());
+        INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.INSTANCE.getTileMapServiceWrapper());
         RawGuiManager.displayGuiScreen(INSTANCE);
     }
 
     @Override
     public void onClose() {
-        BTETerraRendererConfig.INSTANCE.save();
+        BTETerraRendererConfig.INSTANCE.saveConfiguration();
         super.onClose();
     }
 }

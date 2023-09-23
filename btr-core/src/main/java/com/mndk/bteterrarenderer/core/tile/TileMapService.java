@@ -22,28 +22,23 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 
 @Getter
 @RequiredArgsConstructor
 @JsonDeserialize(using = TileMapService.Deserializer.class)
-public abstract class TileMapService<TileId> {
+public abstract class TileMapService<TileId> implements AutoCloseable {
 
-    private static final IOException LIGHT_IOEXCEPTION = new IOException();
-
-    private static final Timer TIMER = new Timer();
     public static final int DEFAULT_MAX_THREAD = 2;
 
-    protected static StaticImageIdPair SOMETHING_WENT_WRONG, LOADING;
+    private static final ImageTexturePair SOMETHING_WENT_WRONG, LOADING;
     private static boolean STATIC_IMAGES_BAKED = false;
 
-    protected final String name;
-    protected transient final TileResourceFetcher<TileId> resourceFetcher;
+    private final String name;
+    private transient final TileResourceFetcher<TileId, Object> resourceFetcher;
 
     /**
      * This property should be configured on the constructor.
@@ -53,15 +48,15 @@ public abstract class TileMapService<TileId> {
     private transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
     private transient final GraphicsModelTextureBaker<TmsIdPair<TileId>> modelTextureBaker = GraphicsModelTextureBaker.getInstance();
 
-    public TileMapService(String name, ExecutorService downloadExecutor) {
+    public TileMapService(String name, int nThreads) {
         this.name = name;
-        this.resourceFetcher = new TileResourceFetcher<>(downloadExecutor);
+        this.resourceFetcher = new TileResourceFetcher<>(nThreads, this::tileIdToFetcherQueueKey);
         this.properties.addAll(this.makeProperties());
     }
 
     public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
 
-        // Bake images
+        // Bake textures
         modelTextureBaker.process(2);
         bakeStaticImages();
 
@@ -126,11 +121,11 @@ public abstract class TileMapService<TileId> {
             List<PreBakedModel> preBakedModel = this.getPreBakedModels(idPair);
             if(preBakedModel != null) modelTextureBaker.resourceProcessingReady(idPair, preBakedModel);
         } catch(OutOfProjectionBoundsException e) {
-            modelTextureBaker.resourcePreparingError(idPair);
+            modelTextureBaker.resourcePreparingError(idPair, e);
         } catch(Exception e) {
             BTETerraRendererConstants.LOGGER.warn(
                     "Caught exception while rendering tile: " + idPair.getTileId(), e);
-            modelTextureBaker.resourcePreparingError(idPair);
+            modelTextureBaker.resourcePreparingError(idPair, e);
         }
     }
 
@@ -143,7 +138,7 @@ public abstract class TileMapService<TileId> {
      * @throws IOException If something went wrong while fetching the data
      */
     @Nullable
-    protected InputStream fetchData(TileId tileId, URL url) throws IOException {
+    protected InputStream fetchData(TileId tileId, URL url) throws Exception {
         ProcessingState fetchState = resourceFetcher.getResourceProcessingState(tileId);
         switch(fetchState) {
             case NOT_PROCESSED:
@@ -154,7 +149,9 @@ public abstract class TileMapService<TileId> {
                 return new ByteBufInputStream(buf);
             case ERROR:
                 // Reason doing this is because calling the IOException constructor is heavy
-                throw LIGHT_IOEXCEPTION;
+                Exception exception = resourceFetcher.getResourceErrorReason(tileId);
+                if(exception != null) throw exception;
+                return null;
             default:
                 return null;
         }
@@ -162,11 +159,23 @@ public abstract class TileMapService<TileId> {
 
     protected double getYAlign() { return 0; }
 
+    public void setFetcherQueueKey(Object fetcherQueueKey) {
+        this.resourceFetcher.setCurrentQueueKey(fetcherQueueKey);
+    }
+
+    @Override
+    public void close() {
+        this.resourceFetcher.close();
+    }
+
+    protected abstract Object tileIdToFetcherQueueKey(TileId tileId);
+
     /**
      * This method is called only once on the constructor
      * @return The property list
      */
     protected abstract List<PropertyAccessor.Localized<?>> makeProperties();
+
     /**
      * @param tmsId Tile map service ID
      * @param longitude Player longitude, in degrees
@@ -175,25 +184,15 @@ public abstract class TileMapService<TileId> {
      * @return A list of tile ids
      */
     protected abstract List<TileId> getRenderTileIdList(String tmsId, double longitude, double latitude, double height);
+
     /**
      * @return {@code null} if the model is not ready, i.e. its data is still being fetched
      * */
     @Nullable
-    protected abstract List<PreBakedModel> getPreBakedModels(TmsIdPair<TileId> idPair) throws IOException, OutOfProjectionBoundsException;
+    protected abstract List<PreBakedModel> getPreBakedModels(TmsIdPair<TileId> idPair) throws Exception;
+
     @Nullable
     protected abstract List<GraphicsQuad<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
-
-    @RequiredArgsConstructor
-    protected static class StaticImageIdPair {
-        private final BufferedImage image;
-        @Getter
-        private Object textureObject = null;
-
-        private void bake() {
-            if(this.textureObject != null) return;
-            this.textureObject = GraphicsModelVisualManager.allocateAndGetTextureObject(this.image);
-        }
-    }
 
     private static void bakeStaticImages() {
         if(STATIC_IMAGES_BAKED) return;
@@ -227,11 +226,11 @@ public abstract class TileMapService<TileId> {
 
             String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
             InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);
-            SOMETHING_WENT_WRONG = new StaticImageIdPair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
+            SOMETHING_WENT_WRONG = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
 
             String loadingImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/loading.png";
             InputStream loadingImageStream = loader.getResourceAsStream(loadingImagePath);
-            LOADING = new StaticImageIdPair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
+            LOADING = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

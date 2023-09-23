@@ -90,7 +90,7 @@ public class BTETerraRendererConfigImpl12 {
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
             if (!event.getModID().equals(BTETerraRendererConstants.MODID)) return;
-            BTETerraRendererConfig.INSTANCE.save();
+            BTETerraRendererConfig.INSTANCE.saveConfiguration();
         }
     }
 }

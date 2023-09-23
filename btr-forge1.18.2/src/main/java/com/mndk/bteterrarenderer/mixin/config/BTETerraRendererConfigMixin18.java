@@ -161,12 +161,12 @@ public class BTETerraRendererConfigMixin18 {
         }
     }
 
-    @Inject(method = "save", at = @At("HEAD"))
+    @Inject(method = "saveConfiguration", at = @At("HEAD"))
     public void onSave(CallbackInfo ci) {
         BTETerraRendererConfigImpl18.saveConfig();
     }
 
-    @Inject(method = "load", at = @At("HEAD"))
+    @Inject(method = "loadConfiguration", at = @At("HEAD"))
     public void onLoad(CallbackInfo ci) {
         BTETerraRendererConfigImpl18.readConfig();
     }

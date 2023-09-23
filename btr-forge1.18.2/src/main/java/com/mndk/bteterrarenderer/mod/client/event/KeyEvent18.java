@@ -18,7 +18,6 @@ public class KeyEvent18 {
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if(KeyMappings18.MAP_OPTIONS_KEY.consumeClick()) {
-            BTETerraRendererConfig.INSTANCE.refreshTileMapService();
             BTETerraRendererConfigImpl18.saveRenderState();
             MapRenderingOptionsSidebar.open();
         }

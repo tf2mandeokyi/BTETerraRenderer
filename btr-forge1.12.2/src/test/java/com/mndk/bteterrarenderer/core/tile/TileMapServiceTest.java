@@ -38,8 +38,8 @@ public class TileMapServiceTest {
     static {
         try {
             BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererConstants.class);
-            ConfigLoaders.loadAll();
-            CATEGORY_MAP_DATA = TileMapServiceYamlLoader.INSTANCE.result;
+            ConfigLoaders.loadAll(false);
+            CATEGORY_MAP_DATA = TileMapServiceYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

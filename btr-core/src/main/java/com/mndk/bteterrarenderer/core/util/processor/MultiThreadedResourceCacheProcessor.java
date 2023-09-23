@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.core.util.processor;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nullable;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -33,11 +34,8 @@ public abstract class MultiThreadedResourceCacheProcessor<Key, Input, Resource>
     }
 
     @Override
-    protected void updateProcessor() {}
-
-    @Override
     protected void offerToProcessor(Key key, Input input) {
-        executorService.execute(new ResourceProcessingTask(key, input, 0));
+        executorService.execute(new ResourceProcessingTask(key, input, 0, null));
     }
 
     @RequiredArgsConstructor
@@ -46,28 +44,32 @@ public abstract class MultiThreadedResourceCacheProcessor<Key, Input, Resource>
         private final Key key;
         private final Input input;
         private final int retry;
+        @Nullable
+        private final Exception exception;
         private final MultiThreadedResourceCacheProcessor<Key, Input, Resource> processor =
                 MultiThreadedResourceCacheProcessor.this;
 
         @Override
         public void run() {
             if(processor.maxRetryCount != -1 && retry >= processor.maxRetryCount) {
-                processor.resourcePreparingError(key);
+                processor.resourcePreparingError(key, exception);
                 return;
             }
 
+            Exception newException;
             try {
                 processor.processResource(key, input);
                 return;
             } catch(Exception e) {
                 BTETerraRendererConstants.LOGGER.error("Caught exception while processing a resource (" +
                         "Key=" + key + ", Retry #" + (retry + 1) + ")", e);
+                newException = e;
             }
 
             TIMER.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    executorService.execute(new ResourceProcessingTask(key, input, retry + 1));
+                    executorService.execute(new ResourceProcessingTask(key, input, retry + 1, newException));
                 }
             }, retryDelayMilliseconds);
         }

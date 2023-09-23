@@ -175,7 +175,7 @@ public class BTETerraRendererConfigMixin12 {
         }
     }
 
-    @Inject(method = "save", at = @At("HEAD"))
+    @Inject(method = "saveConfiguration", at = @At("HEAD"))
     public void onSave(CallbackInfo ci) {
         BTETerraRendererConfigImpl12.saveConfig();
     }

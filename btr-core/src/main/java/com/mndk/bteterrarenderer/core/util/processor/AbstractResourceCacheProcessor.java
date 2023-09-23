@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +19,10 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
     }
 
     private final int maximumSize;
-    private final boolean debug;
+    protected final boolean debug;
     private final long expireMilliseconds;
 
-    private final Map<Key, ProcessedPayloadWrapper<Resource>> resourceWrapperMap = new HashMap<>();
+    private final Map<Key, ResourceWrapper<Resource>> resourceWrapperMap = new HashMap<>();
 
     /**
      * @param expireMilliseconds How long can a cache live without being refreshed
@@ -36,28 +37,30 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
 
     @Nonnull
     public ProcessingState getResourceProcessingState(Key key) {
-        ProcessedPayloadWrapper<Resource> wrapper;
+        ResourceWrapper<Resource> wrapper;
         synchronized(resourceWrapperMap) { wrapper = resourceWrapperMap.get(key); }
         if(wrapper != null) return wrapper.state;
         return ProcessingState.NOT_PROCESSED;
     }
 
-    private void setResourceState(Key key, ProcessingState state) {
-        ProcessedPayloadWrapper<Resource> wrapper;
+    private ResourceWrapper<Resource> setResourceState(Key key, ProcessingState state) {
+        ResourceWrapper<Resource> wrapper;
         synchronized(resourceWrapperMap) { wrapper = resourceWrapperMap.get(key); }
         if(wrapper != null) {
             wrapper.state = state;
         } else synchronized(resourceWrapperMap) {
-            resourceWrapperMap.put(key, new ProcessedPayloadWrapper<>(state, null, -1));
+            resourceWrapperMap.put(key, wrapper = new ResourceWrapper<>(state, null, -1, null));
         }
+        return wrapper;
     }
 
     public void setResourceInPreparingState(Key key) {
         this.setResourceState(key, ProcessingState.PREPARING);
     }
 
-    public void resourcePreparingError(Key key) {
-        this.setResourceState(key, ProcessingState.ERROR);
+    public void resourcePreparingError(Key key, @Nullable Exception exception) {
+        ResourceWrapper<Resource> wrapper = this.setResourceState(key, ProcessingState.ERROR);
+        wrapper.exception = exception;
     }
 
     public void resourceProcessingReady(Key key, Input input) {
@@ -66,7 +69,7 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
     }
 
     protected void processResource(Key key, Input input) throws Exception {
-        ProcessedPayloadWrapper<Resource> wrapper;
+        ResourceWrapper<Resource> wrapper;
         synchronized(resourceWrapperMap) {
             if (this.maximumSize != -1 && resourceWrapperMap.size() >= this.maximumSize) {
                 this.deleteOldestResource();
@@ -83,6 +86,12 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
         }
     }
 
+    @Nullable
+    public Exception getResourceErrorReason(Key key) {
+        ResourceWrapper<Resource> wrapper;
+        synchronized(resourceWrapperMap) { wrapper = resourceWrapperMap.get(key); }
+        return wrapper != null ? wrapper.exception : null;
+    }
 
     /**
      * Returns the resource and refreshes its last updated time
@@ -90,7 +99,7 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
      * @throws NullPointerException If the resource does not exist
      */
     public Resource updateAndGetResource(Key key) {
-        ProcessedPayloadWrapper<Resource> wrapper;
+        ResourceWrapper<Resource> wrapper;
         synchronized(resourceWrapperMap) { wrapper = resourceWrapperMap.get(key); }
         if(wrapper == null) throw new NullPointerException();
         if(wrapper.state != ProcessingState.PROCESSED) throw new NullPointerException();
@@ -101,7 +110,7 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
     }
 
     private void deleteResourceByKey(Key key) {
-        ProcessedPayloadWrapper<Resource> wrapper;
+        ResourceWrapper<Resource> wrapper;
         synchronized(resourceWrapperMap) { wrapper = resourceWrapperMap.get(key); }
         if(wrapper == null) return;
         if(wrapper.state != ProcessingState.PROCESSED) return;
@@ -119,8 +128,8 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
         long oldest = Long.MAX_VALUE;
 
         synchronized(resourceWrapperMap) {
-            for (Map.Entry<Key, ProcessedPayloadWrapper<Resource>> entry : resourceWrapperMap.entrySet()) {
-                ProcessedPayloadWrapper<Resource> wrapper = entry.getValue();
+            for (Map.Entry<Key, ResourceWrapper<Resource>> entry : resourceWrapperMap.entrySet()) {
+                ResourceWrapper<Resource> wrapper = entry.getValue();
                 if (wrapper.state != ProcessingState.PROCESSED) continue;
                 if (wrapper.lastUpdated < oldest) {
                     oldestKey = entry.getKey();
@@ -139,8 +148,8 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
         ArrayList<Key> deleteList = new ArrayList<>();
 
         synchronized(resourceWrapperMap) {
-            for (Map.Entry<Key, ProcessedPayloadWrapper<Resource>> entry : resourceWrapperMap.entrySet()) {
-                ProcessedPayloadWrapper<Resource> wrapper = entry.getValue();
+            for (Map.Entry<Key, ResourceWrapper<Resource>> entry : resourceWrapperMap.entrySet()) {
+                ResourceWrapper<Resource> wrapper = entry.getValue();
                 if (wrapper.state != ProcessingState.PROCESSED) continue;
                 if (wrapper.lastUpdated + this.expireMilliseconds > now) continue;
                 deleteList.add(entry.getKey());
@@ -153,27 +162,8 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
                 this.deleteResourceByKey(key);
             }
         }
-        this.updateProcessor();
     }
 
-//    @Override
-//    protected boolean processElement(CacheProcessRequest<Key, Input> element) {
-//        try {
-//            processResource(element.key, element.input);
-//            return true;
-//        } catch (Exception e) {
-//            LOGGER.error("Error while processing a cache", e);
-//            // Put the input back to the queue if something went wrong
-//            return false;
-//        }
-//    }
-
-//    @Override
-//    protected void onElementProcessingFailed(CacheProcessRequest<Key, Input> element) {
-//        resourcePreparingError(element.key);
-//    }
-
-    protected abstract void updateProcessor();
     protected abstract void offerToProcessor(Key key, Input input);
     /**
      * This method can take time as long as it wants, so try not to synchronize this with other objects
@@ -188,9 +178,12 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
     }
 
     @AllArgsConstructor
-    private static class ProcessedPayloadWrapper<Resource> {
+    private static class ResourceWrapper<Resource> {
         private ProcessingState state;
+        @Nullable
         private Resource resource;
         private long lastUpdated;
+        @Nullable
+        private Exception exception;
     }
 }

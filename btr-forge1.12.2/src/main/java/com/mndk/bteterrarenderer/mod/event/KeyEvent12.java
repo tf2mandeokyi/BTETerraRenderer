@@ -14,12 +14,11 @@ public class KeyEvent12 {
 	@SubscribeEvent
 	public static void onKeyEvent(InputEvent.KeyInputEvent event) {
 		if(KeyMappings12.MAP_OPTIONS_KEY.isPressed()) {
-			BTETerraRendererConfig.INSTANCE.refreshTileMapService();
 			MapRenderingOptionsSidebar.open();
 		}
 		else if(KeyMappings12.MAP_TOGGLE_KEY.isPressed()) {
 			BTETerraRendererConfig.INSTANCE.toggleRender();
-			BTETerraRendererConfig.INSTANCE.save();
+			BTETerraRendererConfig.INSTANCE.saveConfiguration();
 		}
 	}
 }

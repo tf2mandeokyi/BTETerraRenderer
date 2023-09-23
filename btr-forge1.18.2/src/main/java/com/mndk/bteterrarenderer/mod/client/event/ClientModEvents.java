@@ -16,7 +16,7 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         File gameConfigDirectory = new File(Minecraft.getInstance().gameDirectory, "config");
-        ConfigLoaders.loadAll(gameConfigDirectory);
+        ConfigLoaders.setDirectoryAndLoadAll(gameConfigDirectory);
         KeyMappings18.registerKeys();
         BTETerraRendererConstants.LOGGER.info("Mod setup done");
     }
