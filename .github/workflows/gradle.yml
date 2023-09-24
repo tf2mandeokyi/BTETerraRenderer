@@ -5,7 +5,7 @@ name: build
 
 on:
   push:
-    branches: [ master, github-workflow ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -56,7 +56,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Forge 1.12 with Gradle
+      - name: Build ${{ matrix.mod-api-version }} with Gradle
         uses: gradle/gradle-build-action@v2
         with:
           arguments: :btr-${{ matrix.mod-api-version }}:build
