@@ -6,12 +6,12 @@ import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 
 @Mod(BTETerraRendererConstants.MODID)
-public class BTETerraRendererMod18 {
-    public BTETerraRendererMod18() {
+public class BTETerraRendererMod {
+    public BTETerraRendererMod() {
         BTETerraRendererConfigImpl18.register();
     }
 
     static {
-        BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererMod18.class);
+        BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererMod.class);
     }
 }

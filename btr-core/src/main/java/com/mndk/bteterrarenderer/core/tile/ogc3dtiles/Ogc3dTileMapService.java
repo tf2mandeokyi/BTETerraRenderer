@@ -99,8 +99,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                 } catch(Exception e) { return null; }
                 if(stream == null) return null;
 
-                tileParser.resourceProcessingReady(idPair,
-                        new PreParsedData(Matrix4.IDENTITY, stream));
+                tileParser.resourceProcessingReady(idPair, new PreParsedData(Matrix4.IDENTITY, stream));
                 return null;
             default:
                 return null;

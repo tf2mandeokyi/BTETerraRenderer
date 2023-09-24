@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.mod.BTETerraRendererMod12;
+import com.mndk.bteterrarenderer.mod.BTETerraRendererMod;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMessageImpl12;
 import com.mndk.bteterrarenderer.core.projection.Projections;
@@ -46,14 +46,14 @@ public class ServerClientConnectionEvent12 {
             try {
                 net.buildtheearth.terraplusplus.projection.GeographicProjection projection =
                         Objects.requireNonNull(getWorldEarthGeneratorSettings(world)).projection();
-                BTETerraRendererMod12.NETWORK_WRAPPER.sendTo(
+                BTETerraRendererMod.NETWORK_WRAPPER.sendTo(
                         new ServerWelcomeMessageImpl12(projection), (EntityPlayerMP) player);
                 return;
             } catch(IOException e) {
                 BTETerraRendererConstants.LOGGER.error("Caught IOException while sending projection data", e);
             }
         }
-        BTETerraRendererMod12.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl12(), (EntityPlayerMP) player);
+        BTETerraRendererMod.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl12(), (EntityPlayerMP) player);
     }
 
 

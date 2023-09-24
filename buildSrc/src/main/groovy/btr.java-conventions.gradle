@@ -4,7 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
-version = project.modVersion + "-" + project.minecraftVersion
+version = project.modVersion + "-" + project.modLoaderName + project.minecraftVersion
 group = project.modGroup
 archivesBaseName = project.modId
 
@@ -40,7 +40,6 @@ configurations {
 dependencies {
     shadeDep 'org.osgeo:proj4j:0.1.0'
     shadeDep 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
-    shadeDep 'org.reflections:reflections:0.10.2'
     shadeDep 'de.javagl:jgltf-impl-v2:2.0.3'
     shadeDep 'de.javagl:jgltf-model:2.0.3'
     shadeDep("net.daporkchop.lib:binary:0.5.5-SNAPSHOT") { exclude group: "io.netty" } // T++
