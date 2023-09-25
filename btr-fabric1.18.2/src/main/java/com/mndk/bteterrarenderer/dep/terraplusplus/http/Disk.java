@@ -14,8 +14,7 @@ import net.daporkchop.lib.common.function.io.IOPredicate;
 import net.daporkchop.lib.common.function.io.IORunnable;
 import net.daporkchop.lib.common.misc.file.PFiles;
 import net.daporkchop.lib.common.misc.threadfactory.PThreadFactories;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.File;
@@ -52,11 +51,8 @@ public class Disk {
     static {
         File mcRoot;
         try {
-            TerraConfig.LOGGER.info("Detected Minecraft dist: {}", FMLLoader.getDist());
-            TerraConfig.LOGGER.info("Detected Minecraft root dir: {}", FMLLoader.getGamePath().toFile());
-            mcRoot = FMLLoader.getDist().isClient()
-                    ? Minecraft.getInstance().gameDirectory
-                    : FMLLoader.getGamePath().toFile();
+            TerraConfig.LOGGER.info("Detected Minecraft root dir: {}", FabricLoader.getInstance().getGameDir());
+            mcRoot = FabricLoader.getInstance().getGameDir().toFile();
         } catch (NullPointerException e) { //an NPE probably means we're running in a test environment, and FML isn't initialized
             if (!PFiles.checkDirectoryExists(mcRoot = new File("run"))) {
                 mcRoot = new File(".");
