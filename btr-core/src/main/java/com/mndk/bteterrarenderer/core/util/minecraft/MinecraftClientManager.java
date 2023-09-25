@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.util.minecraft;
 
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 
@@ -13,7 +14,9 @@ public class MinecraftClientManager {
         MixinUtil.notOverwritten(message);
     }
     public void sendErrorMessageToChat(String message, Throwable t) {
-        MixinUtil.notOverwritten(message, t);
+        sendErrorMessageToChat(message);
+        sendErrorMessageToChat("Reason: " + t.getMessage());
+        BTETerraRendererConstants.LOGGER.error(message, t);
     }
 
     public void playClickSound() {

@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ModCommandsSetup {
 
     public static void registerClientCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(ToggleMapCommand18.register());
+        dispatcher.register(ToggleMapCommand.register());
 //        dispatcher.register(OpenConfigCommand18.register());
     }
 

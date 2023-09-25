@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.mod.client.KeyMappings18;
+import com.mndk.bteterrarenderer.mod.client.KeyMappings;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +17,7 @@ public class ClientModEvents {
     public static void onClientSetup(FMLClientSetupEvent event) {
         File gameConfigDirectory = new File(Minecraft.getInstance().gameDirectory, "config");
         ConfigLoaders.setDirectoryAndLoadAll(gameConfigDirectory);
-        KeyMappings18.registerKeys();
+        KeyMappings.registerKeys();
         BTETerraRendererConstants.LOGGER.info("Mod setup done");
     }
 }

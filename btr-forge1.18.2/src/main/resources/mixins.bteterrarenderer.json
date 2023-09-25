@@ -6,17 +6,17 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "config.BTETerraRendererConfigMixin18",
-        "config.BTETerraRendererConfigMixin18$HologramConfigMixin",
-        "config.BTETerraRendererConfigMixin18$UIConfigMixin",
-        "delegate.DelegateCreatorMixin18",
-        "graphics.GlGraphicsManagerMixin18",
-        "graphics.GraphicsModelVisualManagerMixin18",
-        "gui.FontManagerMixin18",
-        "gui.RawGuiManagerMixin18",
-        "minecraft.GameInputManagerMixin18",
-        "minecraft.I18nManagerMixin18",
-        "minecraft.MinecraftClientManagerMixin18",
-        "terraplusplus.HttpResourceManagerMixin18"
+        "config.BTETerraRendererConfigMixin",
+        "config.BTETerraRendererConfigMixin$HologramConfigMixin",
+        "config.BTETerraRendererConfigMixin$UIConfigMixin",
+        "delegate.DelegateCreatorMixin",
+        "graphics.GlGraphicsManagerMixin",
+        "graphics.GraphicsModelVisualManagerMixin",
+        "gui.FontManagerMixin",
+        "gui.RawGuiManagerMixin",
+        "minecraft.GameInputManagerMixin",
+        "minecraft.I18nManagerMixin",
+        "minecraft.MinecraftClientManagerMixin",
+        "terraplusplus.HttpResourceManagerMixin"
     ]
 }

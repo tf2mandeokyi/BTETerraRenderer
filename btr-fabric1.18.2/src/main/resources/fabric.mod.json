@@ -23,6 +23,7 @@
     "mixins": [
         "mixins.bteterrarenderer.json"
     ],
+    "accessWidener": "bteterrarenderer.accesswidener",
     "depends": {
         "fabricloader": ">=0.14.22",
         "fabric": "*",

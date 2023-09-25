@@ -32,6 +32,10 @@ processResources {
     }
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/bteterrarenderer.accesswidener")
+}
+
 assemble.dependsOn shadowJar
 
 tasks.withType(JavaCompile).configureEach {
