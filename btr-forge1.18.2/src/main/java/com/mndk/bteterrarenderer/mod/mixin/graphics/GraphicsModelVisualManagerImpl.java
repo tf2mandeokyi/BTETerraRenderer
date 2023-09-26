@@ -49,7 +49,7 @@ public class GraphicsModelVisualManagerImpl {
                 .createCompositeState(true);
         return RenderType.create(
                 "bteterrarenderer_tile", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS,
-                256, true, false, compositeState
+                0x100000, true, false, compositeState
         );
     });
 
@@ -81,7 +81,6 @@ public class GraphicsModelVisualManagerImpl {
                 throw new UnsupportedOperationException("Not implemented");
             }
         }
-        bufferSource.endBatch();
     }
 
     public void deleteTexture(ResourceLocation textureObject) {
@@ -89,6 +88,9 @@ public class GraphicsModelVisualManagerImpl {
     }
 
     public void preRender() {}
-    public void postRender() {}
+    public void postRender() {
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        bufferSource.endBatch();
+    }
 
 }

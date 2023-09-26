@@ -39,7 +39,7 @@ public class GraphicsModelVisualManagerImpl {
                 .build(true);
         return RenderLayer.of(
                 "bteterrarenderer_tile", VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS,
-                256, true, false, textures
+                0x100000, true, false, textures
         );
     });
 

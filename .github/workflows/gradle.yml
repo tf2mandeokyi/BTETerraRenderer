@@ -31,7 +31,7 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: Run core project tests
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@2.4.2
         with:
           arguments: :btr-core:test
 
@@ -57,7 +57,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build ${{ matrix.mod-api-version }} with Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@2.4.2
         with:
           arguments: :btr-${{ matrix.mod-api-version }}:build
 

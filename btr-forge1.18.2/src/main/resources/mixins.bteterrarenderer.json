@@ -7,8 +7,6 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "config.BTETerraRendererConfigMixin",
-        "config.BTETerraRendererConfigMixin$HologramConfigMixin",
-        "config.BTETerraRendererConfigMixin$UIConfigMixin",
         "delegate.DelegateCreatorMixin",
         "graphics.GlGraphicsManagerMixin",
         "graphics.GraphicsModelVisualManagerMixin",
