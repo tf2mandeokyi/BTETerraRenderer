@@ -25,20 +25,24 @@ import java.awt.image.BufferedImage;
 import java.util.function.Function;
 
 @UtilityClass
-public class GraphicsModelVisualManagerImpl extends RenderStateShard {
+public class GraphicsModelVisualManagerImpl {
 
-    private final RenderStateShard.ShaderStateShard POS_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
-    private final RenderStateShard.TransparencyStateShard MODEL_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
+    // Could've just used access transformer for these variables, but I didn't feel like it...
+    private static final RenderStateShard.CullStateShard NO_CULL = new RenderStateShard.CullStateShard(false);
+    private static final RenderStateShard.OverlayStateShard OVERLAY = new RenderStateShard.OverlayStateShard(true);
+
+    private static final RenderStateShard.ShaderStateShard POS_TEX_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
+    private static final RenderStateShard.TransparencyStateShard MODEL_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("bteterrarenderer_tile_transparency", () -> {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     }, () -> {
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
     });
-    private final Function<ResourceLocation, RenderType> POS_TEX_COLOR_MODEL = Util.memoize(resourceLocation -> {
+    private static final Function<ResourceLocation, RenderType> POS_TEX_COLOR_MODEL = Util.memoize(resourceLocation -> {
         RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
-                .setCullState(RenderStateShard.NO_CULL)
-                .setOverlayState(RenderStateShard.OVERLAY)
+                .setCullState(NO_CULL)
+                .setOverlayState(OVERLAY)
                 .setShaderState(POS_TEX_COLOR_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
                 .setTransparencyState(MODEL_TRANSPARENCY)
