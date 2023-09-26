@@ -49,7 +49,7 @@ public class GraphicsModelVisualManagerImpl {
                 .createCompositeState(true);
         return RenderType.create(
                 "bteterrarenderer_tile", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS,
-                0x100000, true, false, compositeState
+                256, true, false, compositeState
         );
     });
 
