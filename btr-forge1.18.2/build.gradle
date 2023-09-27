@@ -62,7 +62,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraftVersion}-${project.forgeVersion}"
 
     shadeCore fg.deobf(project(':btr-core'))
-    shadeDep 'lzma:lzma:0.0.1' // Why isn't lzma built-in in 1.18.2 :(
+    shadeCore fg.deobf(project(':btr-vanilladep'))
 
     annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
     testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')

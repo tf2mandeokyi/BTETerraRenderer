@@ -22,6 +22,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
 
     shadeCore project(':btr-core')
+    shadeCore project(':btr-vanilladep')
 }
 
 processResources {

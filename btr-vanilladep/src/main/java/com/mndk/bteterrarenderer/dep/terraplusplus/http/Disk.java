@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
+import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -14,8 +15,6 @@ import net.daporkchop.lib.common.function.io.IOPredicate;
 import net.daporkchop.lib.common.function.io.IORunnable;
 import net.daporkchop.lib.common.misc.file.PFiles;
 import net.daporkchop.lib.common.misc.threadfactory.PThreadFactories;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.File;
@@ -50,18 +49,7 @@ public class Disk {
     private final Path TMP_FILE;
 
     static {
-        File mcRoot;
-        try {
-            TerraConfig.LOGGER.info("Detected Minecraft dist: {}", FMLLoader.getDist());
-            TerraConfig.LOGGER.info("Detected Minecraft root dir: {}", FMLLoader.getGamePath().toFile());
-            mcRoot = FMLLoader.getDist().isClient()
-                    ? Minecraft.getInstance().gameDirectory
-                    : FMLLoader.getGamePath().toFile();
-        } catch (NullPointerException e) { //an NPE probably means we're running in a test environment, and FML isn't initialized
-            if (!PFiles.checkDirectoryExists(mcRoot = new File("run"))) {
-                mcRoot = new File(".");
-            }
-        }
+        File mcRoot = getMinecraftRoot();
         CACHE_ROOT = PFiles.ensureDirectoryExists(new File(mcRoot, "terraplusplus/cache")).toPath();
 
         TMP_FILE = CACHE_ROOT.resolve("tmp");
@@ -69,6 +57,10 @@ public class Disk {
 
         //periodically prune the cache
         DISK_EXECUTOR.scheduleWithFixedDelay((IORunnable) Disk::pruneCache, 1L, 60L, TimeUnit.MINUTES);
+    }
+
+    public File getMinecraftRoot() {
+        return MixinUtil.notOverwritten();
     }
 
     /**

@@ -26,8 +26,7 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import net.daporkchop.lib.common.function.throwing.EFunction;
 import net.daporkchop.lib.common.misc.threadfactory.PThreadFactories;
-import net.daporkchop.lib.common.ref.Ref;
-import net.daporkchop.lib.common.ref.ThreadRef;
+import net.daporkchop.lib.common.reference.cache.Cached;
 
 import javax.net.ssl.SSLException;
 import java.net.MalformedURLException;
@@ -74,7 +73,7 @@ public class Http {
 
     protected final int MAX_CONTENT_LENGTH = Integer.MAX_VALUE; //impossibly large, no requests will actually be this big but whatever
 
-    protected static final Ref<Matcher> URL_FORMATTING_MATCHER_CACHE = ThreadRef.regex(Pattern.compile("\\$\\{([a-z0-9.]+)}"));
+    protected static final Cached<Matcher> URL_FORMATTING_MATCHER_CACHE = Cached.regex(Pattern.compile("\\$\\{([a-z0-9.]+)}"));
 
     static {
         try {
@@ -125,7 +124,7 @@ public class Http {
 
                 try {
                     if (cachedData != null //we found something in the cache
-                        && cachedData.readByte() == CacheEntry.CACHE_VERSION) { //cache file isn't old...
+                            && cachedData.readByte() == CacheEntry.CACHE_VERSION) { //cache file isn't old...
                         CacheEntry cacheEntry = new CacheEntry(cachedData);
 
                         long now = System.currentTimeMillis();

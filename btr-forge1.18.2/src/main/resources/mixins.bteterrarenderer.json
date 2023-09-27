@@ -1,20 +1,21 @@
 {
-    "required": true,
-    "minVersion": "0.7.10",
-    "package": "com.mndk.bteterrarenderer.mixin",
-    "refmap": "mixins.bteterrarenderer.refmap.json",
-    "target": "@env(DEFAULT)",
-    "compatibilityLevel": "JAVA_8",
-    "mixins": [
-        "config.BTETerraRendererConfigMixin",
-        "delegate.DelegateCreatorMixin",
-        "graphics.GlGraphicsManagerMixin",
-        "graphics.GraphicsModelVisualManagerMixin",
-        "gui.FontManagerMixin",
-        "gui.RawGuiManagerMixin",
-        "minecraft.GameInputManagerMixin",
-        "minecraft.I18nManagerMixin",
-        "minecraft.MinecraftClientManagerMixin",
-        "terraplusplus.HttpResourceManagerMixin"
-    ]
+  "required": true,
+  "minVersion": "0.7.10",
+  "package": "com.mndk.bteterrarenderer.mixin",
+  "refmap": "mixins.bteterrarenderer.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "config.BTETerraRendererConfigMixin",
+    "delegate.DelegateCreatorMixin",
+    "graphics.GlGraphicsManagerMixin",
+    "graphics.GraphicsModelVisualManagerMixin",
+    "gui.FontManagerMixin",
+    "gui.RawGuiManagerMixin",
+    "minecraft.GameInputManagerMixin",
+    "minecraft.I18nManagerMixin",
+    "minecraft.MinecraftClientManagerMixin",
+    "terraplusplus.HttpDiskMixin",
+    "terraplusplus.HttpResourceManagerMixin"
+  ]
 }

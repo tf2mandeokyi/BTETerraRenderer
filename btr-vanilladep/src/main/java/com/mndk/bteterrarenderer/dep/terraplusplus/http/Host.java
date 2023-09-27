@@ -25,9 +25,14 @@ class Host {
         this.authority = url.getAuthority();
 
         switch (url.getProtocol()) {
-            case "http" -> this.ssl = false;
-            case "https" -> this.ssl = true;
-            default -> throw new IllegalArgumentException("unsupported protocol: " + url.getProtocol());
+            case "http":
+                this.ssl = false;
+                break;
+            case "https":
+                this.ssl = true;
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported protocol: " + url.getProtocol());
         }
     }
 

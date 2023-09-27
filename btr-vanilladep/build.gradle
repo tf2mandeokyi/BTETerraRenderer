@@ -1,0 +1,17 @@
+/*
+* This project is only for 1.18 versions or higher, as T++ isn't implemented for them
+* */
+
+plugins {
+    id 'java'
+    id 'btr.java-conventions'
+}
+
+sourceCompatibility = targetCompatibility = '1.8'
+
+dependencies {
+    shadeCore project(':btr-core')
+    shadeDep 'lzma:lzma:0.0.1'
+
+    compileOnly 'commons-codec:commons-codec:1.16.0'
+}

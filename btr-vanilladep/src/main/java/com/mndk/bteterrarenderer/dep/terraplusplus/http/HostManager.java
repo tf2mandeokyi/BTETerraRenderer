@@ -37,6 +37,7 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.mndk.bteterrarenderer.dep.terraplusplus.http.Http.*;
 import static net.daporkchop.lib.common.util.PValidation.*;
 
 /**
@@ -59,7 +60,7 @@ final class HostManager extends Host {
     public HostManager(@NonNull Host host) {
         super(host);
 
-        this.bootstrap = Http.DEFAULT_BOOTSTRAP.clone()
+        this.bootstrap = DEFAULT_BOOTSTRAP.clone()
                 .handler(new Initializer(new Handler()))
                 .remoteAddress(this.host, this.port)
                 .attr(ATTR_REQUEST, null);
@@ -72,7 +73,7 @@ final class HostManager extends Host {
      * @param callback a {@link Callback} that will be notified once the request is completed
      */
     public void submit(@NonNull String path, @NonNull Callback callback, @NonNull HttpHeaders headers) {
-        Http.NETWORK_EVENT_LOOP.submit(() -> { //force execution on network thread
+        NETWORK_EVENT_LOOP.submit(() -> { //force execution on network thread
             this.pendingRequests.add(new Request(path, callback, headers)); //add to request queue
 
             this.tryWorkOffQueue();
@@ -101,7 +102,7 @@ final class HostManager extends Host {
 
         for (Channel channel : this.channels) {
             if (channel.attr(ATTR_REQUEST).compareAndSet(null, request)) { //the channel is currently inactive
-                channel.pipeline().addFirst("read_timeout", new ReadTimeoutHandler(Http.TIMEOUT, TimeUnit.SECONDS));
+                channel.pipeline().addFirst("read_timeout", new ReadTimeoutHandler(TIMEOUT, TimeUnit.SECONDS));
                 channel.writeAndFlush(request.toNetty()); //send request
                 this.activeRequests++;
                 return true;
@@ -230,7 +231,7 @@ final class HostManager extends Host {
             request.headers()
                     .set(this.headers)
                     .set(HttpHeaderNames.HOST, HostManager.this.authority)
-                    .set(HttpHeaderNames.USER_AGENT, PStrings.fastFormat("%s/%s CubicChunks/%s", "terraplusplus", "(btr_shaded)", "unknown"));
+                    .set(HttpHeaderNames.USER_AGENT, PStrings.fastFormat("%s/%s CubicChunks/%s", "terraplusplus", "bteterrarenderer_shaded", "unknown"));
             HttpUtil.setKeepAlive(request, true);
             return request;
         }
@@ -248,7 +249,7 @@ final class HostManager extends Host {
 
         @Override
         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(new WriteTimeoutHandler(Http.TIMEOUT, TimeUnit.SECONDS));
+            ch.pipeline().addLast(new WriteTimeoutHandler(TIMEOUT, TimeUnit.SECONDS));
 
             if (HostManager.this.ssl) {
                 ch.pipeline().addLast(Http.SSL_CONTEXT.newHandler(ch.alloc(), HostManager.this.host, HostManager.this.port));
