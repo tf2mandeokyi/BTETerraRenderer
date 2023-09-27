@@ -20,10 +20,6 @@ public class GraphicsModelVisualManagerImpl {
         GlStateManager.disableCull();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
     }
 
     public AtomicInteger allocateAndGetTextureObject(BufferedImage image) {
@@ -44,6 +40,8 @@ public class GraphicsModelVisualManagerImpl {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
 
+        // Don't ever move this begin() call to preRender()
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
         for(GraphicsQuad<?> quad : model.getQuads()) {
             if(quad.getVertexClass() == GraphicsQuad.PosTex.class) {
                 for (int i = 0; i < 4; i++) {
@@ -59,6 +57,7 @@ public class GraphicsModelVisualManagerImpl {
                 throw new UnsupportedOperationException("Not implemented");
             }
         }
+        tessellator.draw();
     }
 
     public void deleteTexture(Object textureObject) {
@@ -67,9 +66,6 @@ public class GraphicsModelVisualManagerImpl {
     }
 
     public void postRender() {
-        Tessellator tessellator = Tessellator.getInstance();
-        tessellator.draw();
-
         GlStateManager.disableBlend();
         GlStateManager.enableCull();
     }
