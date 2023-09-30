@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.event;
+package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
@@ -10,7 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Dist.CLIENT)
-public class ServerClientConnectionEvent {
+public class ClientOngoingConnectionEvents {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent

@@ -1,8 +1,8 @@
-package com.mndk.bteterrarenderer.mod.proxy.client;
+package com.mndk.bteterrarenderer.mod.client;
 
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.mod.commands.ToggleMapCommand;
-import com.mndk.bteterrarenderer.mod.proxy.CommonProxy;
+import com.mndk.bteterrarenderer.mod.client.commands.ToggleMapCommand;
+import com.mndk.bteterrarenderer.mod.CommonProxy;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

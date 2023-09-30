@@ -1,9 +1,9 @@
-package com.mndk.bteterrarenderer.mod.event;
+package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
-import com.mndk.bteterrarenderer.mod.proxy.client.KeyMappings;
+import com.mndk.bteterrarenderer.mod.client.KeyMappings;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;

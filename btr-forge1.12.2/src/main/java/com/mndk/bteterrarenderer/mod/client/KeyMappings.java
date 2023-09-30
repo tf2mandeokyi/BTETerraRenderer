@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.proxy.client;
+package com.mndk.bteterrarenderer.mod.client;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import net.minecraft.client.settings.KeyBinding;

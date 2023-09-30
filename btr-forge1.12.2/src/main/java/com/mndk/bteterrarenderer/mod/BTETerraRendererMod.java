@@ -3,7 +3,6 @@ package com.mndk.bteterrarenderer.mod;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMessageImpl;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMsgHandler;
-import com.mndk.bteterrarenderer.mod.proxy.CommonProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -24,7 +23,7 @@ public class BTETerraRendererMod {
     public static final SimpleNetworkWrapper NETWORK_WRAPPER =
             NetworkRegistry.INSTANCE.newSimpleChannel(BTETerraRendererConstants.MODID);
 
-    @SidedProxy(clientSide="com.mndk.bteterrarenderer.mod.proxy.client.ClientProxy", serverSide="com.mndk.bteterrarenderer.mod.proxy.server.ServerProxy")
+    @SidedProxy(clientSide="com.mndk.bteterrarenderer.mod.client.ClientProxy", serverSide="com.mndk.bteterrarenderer.mod.server.ServerProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler

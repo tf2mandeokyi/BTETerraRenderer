@@ -6,20 +6,19 @@
   "mixins": [
     "config.BTETerraRendererConfigMixin",
     "delegate.DelegateCreatorMixin",
+    "minecraft.I18nManagerMixin",
+    "terraplusplus.HttpDiskMixin",
+    "terraplusplus.HttpResourceManagerMixin"
+  ],
+  "client": [
     "graphics.GlGraphicsManagerMixin",
     "graphics.GraphicsModelVisualManagerMixin",
     "gui.FontManagerMixin",
     "gui.RawGuiManagerMixin",
     "minecraft.GameInputManagerMixin",
-    "minecraft.I18nManagerMixin",
-    "minecraft.MinecraftClientManagerMixin",
-    "terraplusplus.HttpDiskMixin",
-    "terraplusplus.HttpResourceManagerMixin"
+    "minecraft.MinecraftClientManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "client": [
-    "graphics.GameRendererMixin"
-  ]
+  }
 }

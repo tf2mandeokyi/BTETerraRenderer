@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.command;
+package com.mndk.bteterrarenderer.mod.client.command;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mojang.brigadier.CommandDispatcher;

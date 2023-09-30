@@ -10,13 +10,15 @@
         "config.BTETerraRendererConfigMixin$HologramConfigMixin",
         "config.BTETerraRendererConfigMixin$UIConfigMixin",
         "delegate.DelegateCreatorMixin",
+        "minecraft.I18nManagerMixin",
+        "terraplusplus.HttpResourceManagerMixin"
+    ],
+    "client": [
         "graphics.GlGraphicsManagerMixin",
         "graphics.GraphicsModelVisualManagerMixin",
         "gui.FontManagerMixin",
         "gui.RawGuiManagerMixin",
         "minecraft.GameInputManagerMixin",
-        "minecraft.I18nManagerMixin",
-        "minecraft.MinecraftClientManagerMixin",
-        "terraplusplus.HttpResourceManagerMixin"
+        "minecraft.MinecraftClientManagerMixin"
     ]
 }

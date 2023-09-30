@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.event;
+package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;

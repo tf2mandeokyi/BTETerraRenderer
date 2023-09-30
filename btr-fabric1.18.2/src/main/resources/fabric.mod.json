@@ -18,6 +18,9 @@
     "entrypoints": {
         "main": [
             "com.mndk.bteterrarenderer.mod.BTETerraRendererMod"
+        ],
+        "client": [
+            "com.mndk.bteterrarenderer.mod.client.BTETerraRendererClientMod"
         ]
     },
     "mixins": [

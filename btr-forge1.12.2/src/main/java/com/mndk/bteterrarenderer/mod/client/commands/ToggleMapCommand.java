@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.mod.commands;
+package com.mndk.bteterrarenderer.mod.client.commands;
 
-import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -9,29 +9,30 @@ import net.minecraftforge.client.IClientCommand;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-@Deprecated
-@ParametersAreNonnullByDefault
+/**
+ * The command class that toggles the map rendering. client side only.
+ */
 @MethodsReturnNonnullByDefault
-public class OpenConfigCommand extends CommandBase implements IClientCommand {
+@ParametersAreNonnullByDefault
+public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-		// TODO: make this work
-		MapRenderingOptionsSidebar.open();
+		BTETerraRendererConfig.INSTANCE.toggleRender();
 	}
 
 	@Override
 	public String getName() {
-		return "openbtrcfg";
+		return "togglebtrmap";
 	}
 
 	@Override
-	public String getUsage(ICommandSender var1) {
-		return "openbtrcfg";
+	public String getUsage(ICommandSender arg0) {
+		return "togglebtrmap";
 	}
 
 	@Override
-	public boolean allowUsageWithoutPrefix(ICommandSender var1, String var2) {
+	public boolean allowUsageWithoutPrefix(ICommandSender arg0, String arg1) {
 		return false;
 	}
 	

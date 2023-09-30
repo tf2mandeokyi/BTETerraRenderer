@@ -1,23 +1,25 @@
-package com.mndk.bteterrarenderer.mod.command;
+package com.mndk.bteterrarenderer.mod.client.command;
 
-import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 
-public class ToggleMapCommand implements Command<CommandSourceStack> {
+@Deprecated
+public class OpenConfigCommand implements Command<CommandSourceStack> {
 
-    private static final ToggleMapCommand COMMAND = new ToggleMapCommand();
+    private static final OpenConfigCommand COMMAND = new OpenConfigCommand();
 
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
-        return Commands.literal("togglebtrmap").executes(COMMAND);
+        // TODO: make this work
+        return Commands.literal("openbtrcfg").executes(COMMAND);
     }
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
-        BTETerraRendererConfig.INSTANCE.toggleRender();
+        MapRenderingOptionsSidebar.open();
         return 0;
     }
 }
