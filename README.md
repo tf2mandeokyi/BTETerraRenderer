@@ -1,4 +1,4 @@
-![Logo](common/src/main/resources/assets/bteterrarenderer/textures/icon.png)
+![Logo](core/src/main/resources/assets/bteterrarenderer/textures/icon.png)
 # BTETerraRenderer
 ![example workflow](https://github.com/tf2mandeokyi/BTETerraRenderer/actions/workflows/gradle.yml/badge.svg) [![Discord Chat](https://img.shields.io/discord/804025113216548874.svg)](https://discord.gg/4gjrwWH2gS)
 
@@ -26,8 +26,6 @@ Logo by [vicrobex](https://github.com/vicrobex)
 You can add other map services by editing the configuration files.<br>
 See [API Documentation](YML_CONFIG.md) for more information.
 
-
-
 ## How to use
 
 1. [Download](https://github.com/tf2mandeokyi/BTETerraRenderer/releases) the latest version of the mod
@@ -36,4 +34,11 @@ See [API Documentation](YML_CONFIG.md) for more information.
 4. In game, press **` (Grave)** to open render settings UI, and press **R** to toggle map rendering
 
 ![Reference screenshot](docs/screenshot0.png "Location: Seattle, USA")
-(The UI shown above is currently unavailable, as it's in the beta version)
+
+## Building
+
+```bash
+./gradlew :core:build
+./gradlew :<version>:build
+```
+The `<version>` can be any Minecraft version this project supports. (ex: `forge1.12.2`)

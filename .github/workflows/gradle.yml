@@ -56,6 +56,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Build core with Gradle
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: :core:build
+
       - name: Build ${{ matrix.mod-api-version }} with Gradle
         uses: gradle/gradle-build-action@v2.4.2
         with:
