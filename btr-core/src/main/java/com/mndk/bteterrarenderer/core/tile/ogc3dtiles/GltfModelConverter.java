@@ -8,7 +8,6 @@ import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBou
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.CesiumRTC;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
-import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.KHRDracoMeshCompression;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttributes;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
@@ -88,10 +87,6 @@ public class GltfModelConverter {
         }
 
         private PreBakedModel convertMeshPrimitiveModel(MeshPrimitiveModel meshPrimitiveModel) {
-            KHRDracoMeshCompression draco =
-                    GltfExtensionsUtil.getExtension(meshPrimitiveModel, KHRDracoMeshCompression.class);
-            // TODO: Add draco decompression
-
             ParsedPoint[] parsedPoints = this.parsePoints(meshPrimitiveModel);
             List<GraphicsQuad<?>> quads = this.parsedPointsToQuads(meshPrimitiveModel, parsedPoints);
             BufferedImage image = this.readMaterialModel(meshPrimitiveModel.getMaterialModel());
@@ -265,6 +260,7 @@ public class GltfModelConverter {
 
             Spheroid3 spheroid3 = cartesian.transform(transform).toSpheroidalCoordinate();
             try {
+                // Matrix + Projection transformation
                 double[] gameXY = projection.fromGeo(spheroid3.getLongitudeDegrees(), spheroid3.getLatitudeDegrees());
                 this.gamePos = new double[] { gameXY[0], spheroid3.getHeight(), gameXY[1] };
             } catch(OutOfProjectionBoundsException e) {
@@ -275,7 +271,6 @@ public class GltfModelConverter {
         }
 
         private GraphicsQuad.PosTex getGraphicsVertex() {
-            // Matrix + Projection transformation
             return new GraphicsQuad.PosTex(
                     gamePos[0], gamePos[1], gamePos[2], // position
                     tex[0], tex[1] // texture coordinate

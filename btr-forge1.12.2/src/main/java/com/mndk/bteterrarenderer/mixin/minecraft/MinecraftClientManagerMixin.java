@@ -41,17 +41,17 @@ public class MinecraftClientManagerMixin {
         ));
     }
 
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
-    public int chatOpenKeyCode() {
-        return Minecraft.getMinecraft().gameSettings.keyBindChat.getKeyCode();
-    }
-
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
-    public int commandOpenKeyCode() {
-        return Minecraft.getMinecraft().gameSettings.keyBindCommand.getKeyCode();
-    }
+//    /** @author m4ndeokyi
+//     *  @reason mixin overwrite */
+//    @Overwrite
+//    public int chatOpenKeyCode() {
+//        return Minecraft.getMinecraft().gameSettings.keyBindChat.getKeyCode();
+//    }
+//
+//    /** @author m4ndeokyi
+//     *  @reason mixin overwrite */
+//    @Overwrite
+//    public int commandOpenKeyCode() {
+//        return Minecraft.getMinecraft().gameSettings.keyBindCommand.getKeyCode();
+//    }
 }

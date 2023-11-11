@@ -18,3 +18,7 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
+
+// TODO: Check out https://gitlab.com/jeseibel/minecraft-lod-mod/-/blob/main/build.gradle?ref_type=heads
+// TODO: Use Manifold
+//   Examples: https://codeberg.org/PORTB/UnifiedKeybinds

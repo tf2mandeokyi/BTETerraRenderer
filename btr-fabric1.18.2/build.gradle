@@ -3,14 +3,21 @@ plugins {
     id 'btr.java-conventions'
 }
 
-java {
-    withSourcesJar()
+repositories {}
 
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "${project.modId}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
 }
 
-repositories {
+configurations {
+    modImplementation.extendsFrom shadowCore
 }
 
 dependencies {
@@ -19,8 +26,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loaderVersion}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
 
-    shadeCore project(':btr-core')
-    shadeCore project(':btr-vanilladep')
+    shadowCore project(':btr-core')
+    shadowCore project(':btr-vanilladep')
 }
 
 processResources {
@@ -31,14 +38,20 @@ processResources {
     }
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/bteterrarenderer.accesswidener")
+remapJar {
+    dependsOn("shadowJar")
+    inputFile = shadowJar.archiveFile
 }
 
-assemble.dependsOn shadowJar
-
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+    it.options.release.set 17
+}
+
+java {
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {}

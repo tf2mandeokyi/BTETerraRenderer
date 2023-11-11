@@ -24,9 +24,12 @@
         ]
     },
     "mixins": [
-        "mixins.bteterrarenderer.json"
+        "mixins.bteterrarenderer.json",
+        {
+            "config": "mixins.bteterrarenderer.client.json",
+            "environment": "client"
+        }
     ],
-    "accessWidener": "bteterrarenderer.accesswidener",
     "depends": {
         "fabricloader": ">=0.14.22",
         "fabric": "*",

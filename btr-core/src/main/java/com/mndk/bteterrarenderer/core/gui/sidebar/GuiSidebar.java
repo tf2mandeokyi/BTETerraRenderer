@@ -6,7 +6,6 @@ import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.util.BtrUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import lombok.Setter;
 
@@ -269,14 +268,15 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         if (keyTyped) return true;
 
         if(this.guiChat.isAvailable()) {
-            if(keyCode == MinecraftClientManager.chatOpenKeyCode()) {
-                this.guiChat.setText("", true);
-                return true;
-            }
-            else if(keyCode == MinecraftClientManager.commandOpenKeyCode()) {
-                this.guiChat.setText("/", true);
-                return true;
-            }
+            // TODO: Maybe delete this
+//            if(MinecraftClientManager.matchesChatOpenKeyCode(keyCode)) {
+//                this.guiChat.setText("", true);
+//                return true;
+//            }
+//            else if(MinecraftClientManager.matchesCommandOpenKeyCode(keyCode)) {
+//                this.guiChat.setText("/", true);
+//                return true;
+//            }
         }
         return false;
     }

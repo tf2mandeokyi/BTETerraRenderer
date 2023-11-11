@@ -27,22 +27,22 @@ repositories {
 }
 
 configurations {
-    shadeDep
-    shadeCore
+    shadowDep
+    shadowCore
     compileAndTestOnly
 
-    implementation.extendsFrom shadeDep
-    implementation.extendsFrom shadeCore
+    implementation.extendsFrom shadowDep
+    implementation.extendsFrom shadowCore
     compileOnly.extendsFrom compileAndTestOnly
     testImplementation.extendsFrom compileAndTestOnly
 }
 
 dependencies {
-    shadeDep 'org.osgeo:proj4j:0.1.0'
-    shadeDep 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
-    shadeDep 'de.javagl:jgltf-impl-v2:2.0.3'
-    shadeDep 'de.javagl:jgltf-model:2.0.3'
-    shadeDep("net.daporkchop.lib:binary:0.5.7-SNAPSHOT") { exclude group: "io.netty" } // T++
+    shadowDep 'org.osgeo:proj4j:0.1.0'
+    shadowDep 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
+    shadowDep 'de.javagl:jgltf-impl-v2:2.0.3'
+    shadowDep 'de.javagl:jgltf-model:2.0.3'
+    shadowDep("net.daporkchop.lib:binary:0.5.7-SNAPSHOT") { exclude group: "io.netty" } // T++
 
     compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
     compileAndTestOnly 'com.google.guava:guava:31.1-jre' // T++
@@ -62,7 +62,7 @@ dependencies {
 
 shadowJar {
     archiveClassifier.set(null)
-    configurations = [ project.configurations.shadeDep, project.configurations.shadeCore ]
+    configurations = [ project.configurations.shadowDep, project.configurations.shadowCore ]
     exclude 'module-info.class'
 }
 build.dependsOn shadowJar
@@ -70,7 +70,7 @@ build.dependsOn shadowJar
 tasks.register('relocateShadowDepJar', CustomConfigureShadowRelocation) {
     target = tasks.shadowJar
     prefix = "${project.modGroup}.${project.modId}.dep"
-    configurations = [ project.configurations.shadeDep ]
+    configurations = [ project.configurations.shadowDep ]
 }
 shadowJar.dependsOn relocateShadowDepJar
 

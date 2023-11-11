@@ -23,13 +23,13 @@ public class MinecraftClientManager {
         MixinUtil.notOverwritten();
     }
 
-    /*
-     * Consider changing these to enum type
-     */
-    public int chatOpenKeyCode() {
-        return MixinUtil.notOverwritten();
-    }
-    public int commandOpenKeyCode() {
-        return MixinUtil.notOverwritten();
-    }
+//    /*
+//     * Consider changing these to enum type
+//     */
+//    public boolean matchesChatOpenKeyCode(int keyCode) {
+//        return MixinUtil.notOverwritten(keyCode);
+//    }
+//    public boolean matchesCommandOpenKeyCode(int keyCode) {
+//        return MixinUtil.notOverwritten(keyCode);
+//    }
 }
