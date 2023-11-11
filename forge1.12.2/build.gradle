@@ -1,6 +1,5 @@
 plugins {
     id 'net.minecraftforge.gradle'
-    id 'btr.java-conventions'
     id 'org.spongepowered.mixin'
 }
 
@@ -25,18 +24,10 @@ minecraft {
     }
 }
 
-repositories {
-    mavenCentral()
-    // cubicchunks, cubicworldgen, terraplusplus
-    maven { name = "JitPack"; url = "https://jitpack.io/" }
-    // jankson
-    maven { name = "elytradev"; url = "https://repo.elytradev.com/" }
-}
-
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraftVersion}-${project.forgeVersion}"
 
-    shadowCore fg.deobf(project(':btr-core'))
+    shadowDep fg.deobf(project(':core'))
 
     annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
     testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')
@@ -47,21 +38,6 @@ dependencies {
     compileOnly fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
     compileOnly fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
     testImplementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
-}
-
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraftVersion
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraftVersion
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
 }
 
 reobf {

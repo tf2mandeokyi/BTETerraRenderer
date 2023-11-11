@@ -21,7 +21,7 @@ Object properties are listed in [the structure table](#tms-object-structure).
 
 ### `example_maps.yml`
 
-See [`default_maps.yml`](btr-core/src/main/resources/assets/bteterrarenderer/default_maps.yml) for more examples
+See [`default_maps.yml`](common/src/main/resources/assets/bteterrarenderer/default_maps.yml) for more examples
 
 ```yaml
 categories:
@@ -83,7 +83,7 @@ The config directory is at `.../.minecraft/config/bteterrarenderer/projections/`
 
 ### example_projections.yml
 
-See [`default_projections.yml`](btr-core/src/main/resources/assets/bteterrarenderer/default_projections.yml) for more examples
+See [`default_projections.yml`](common/src/main/resources/assets/bteterrarenderer/default_projections.yml) for more examples
 
 ```yaml
 tile_projections:

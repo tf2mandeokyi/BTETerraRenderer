@@ -1,4 +1,4 @@
-![Logo](btr-core/src/main/resources/assets/bteterrarenderer/textures/icon.png)
+![Logo](common/src/main/resources/assets/bteterrarenderer/textures/icon.png)
 # BTETerraRenderer
 ![example workflow](https://github.com/tf2mandeokyi/BTETerraRenderer/actions/workflows/gradle.yml/badge.svg) [![Discord Chat](https://img.shields.io/discord/804025113216548874.svg)](https://discord.gg/4gjrwWH2gS)
 

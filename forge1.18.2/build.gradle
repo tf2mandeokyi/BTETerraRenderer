@@ -1,6 +1,6 @@
 plugins {
     id 'net.minecraftforge.gradle'
-    id 'btr.java-conventions'
+//    id 'btr.java-conventions'
     id 'org.spongepowered.mixin'
 }
 
@@ -61,8 +61,7 @@ repositories {}
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraftVersion}-${project.forgeVersion}"
 
-    shadowCore fg.deobf(project(':btr-core'))
-    shadowCore fg.deobf(project(':btr-vanilladep'))
+    shadowDep fg.deobf(project(':core'))
 
     annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
     testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')
@@ -70,20 +69,20 @@ dependencies {
     testAnnotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
 }
 
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraftVersion
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-        expand 'version': project.version, 'mcversion': project.minecraftVersion
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
-    }
-}
+//processResources {
+//    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+//
+//    inputs.property "version", project.version
+//    inputs.property "mcversion", project.minecraftVersion
+//
+//    from(sourceSets.main.resources.srcDirs) {
+//        include 'META-INF/mods.toml'
+//        expand 'version': project.version, 'mcversion': project.minecraftVersion
+//    }
+//    from(sourceSets.main.resources.srcDirs) {
+//        exclude 'META-INF/mods.toml'
+//    }
+//}
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 

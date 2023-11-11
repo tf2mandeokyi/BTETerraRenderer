@@ -314,6 +314,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         public void add(T item) {
             this.validateNonFinalization();
+            if(item == null) return;
             this.addItem(new ValueWrapper(item));
         }
 

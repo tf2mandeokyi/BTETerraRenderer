@@ -33,7 +33,7 @@ jobs:
       - name: Run core project tests
         uses: gradle/gradle-build-action@v2.4.2
         with:
-          arguments: :btr-core:test
+          arguments: :core:test
 
   build:
     runs-on: ubuntu-latest
@@ -59,10 +59,10 @@ jobs:
       - name: Build ${{ matrix.mod-api-version }} with Gradle
         uses: gradle/gradle-build-action@v2.4.2
         with:
-          arguments: :btr-${{ matrix.mod-api-version }}:build
+          arguments: :${{ matrix.mod-api-version }}:build
 
       - uses: actions/upload-artifact@v3
         with:
           name: Build result - ${{ matrix.mod-api-version }}
           path: |
-            btr-${{ matrix.mod-api-version }}/build/libs/*.jar
+            ${{ matrix.mod-api-version }}/build/libs/*.jar

@@ -10,7 +10,6 @@ pluginManagement {
 }
 
 rootProject.name = "BTETerraRenderer"
-include ':btr-core'
-include ':btr-vanilladep'
-include ':btr-forge1.12.2', ':btr-forge1.18.2'
-include ':btr-fabric1.18.2'
+include ':core'
+include ':forge1.12.2', ':forge1.18.2'
+include ':fabric1.18.2'

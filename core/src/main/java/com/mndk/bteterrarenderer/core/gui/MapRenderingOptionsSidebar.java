@@ -199,6 +199,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
         TileMapService<?> tms = tmsWrapped.getItem();
+        if(tms == null) {
+            return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
+        }
         if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
             return tms.getName();
         }
