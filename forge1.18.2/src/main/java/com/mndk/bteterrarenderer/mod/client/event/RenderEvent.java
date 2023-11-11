@@ -19,7 +19,7 @@ public class RenderEvent {
         if(player == null) return;
 
         // While the player is the "rendering center" in 1.12.2,
-        // In 1.18.8 it is the camera being that center.
+        // In 1.18.2 it is the camera being that center.
         // So the camera's position should be given instead to TileRenderer.renderTiles(), unlike in 1.12.2.
         final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         Minecraft.getInstance().getProfiler().push("hologram_render");

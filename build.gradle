@@ -21,8 +21,10 @@ buildscript {
 
 subprojects { p ->
 
+    //noinspection GroovyUnusedAssignment
     def isCoreSubProject = p == project(':core')
     def isForgeSubProject = project.name.startsWith('forge')
+    //noinspection GroovyUnusedAssignment
     def isFabricSubProject = project.name.startsWith('fabric')
 
     apply plugin: 'java'
@@ -38,17 +40,26 @@ subprojects { p ->
     }
 
     dependencies {
-        shadowDep 'org.osgeo:proj4j:0.1.0'
-        shadowDep 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
-        shadowDep 'de.javagl:jgltf-impl-v2:2.0.3'
-        shadowDep 'de.javagl:jgltf-model:2.0.3'
-        shadowDep("net.daporkchop.lib:binary:0.5.7-SNAPSHOT") { exclude group: "io.netty" } // T++
+        // We should use shadowDep(group: ..., name: ..., version: ...) instead of shadowDep('group:name:version')
+        // since fabric's "include" configuration doesn't allow us to do that
+        // ps: fabric ruined it all
+        shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
+        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.14.2')
+        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2')
+        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2')
+        shadowDep(group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.14.2')
+        shadowDep(group: 'de.javagl', name: 'jgltf-impl-v2', version: '2.0.3')
+        shadowDep(group: 'de.javagl', name: 'jgltf-model', version: '2.0.3')
+        shadowDep(group: 'net.daporkchop.lib', name: 'common', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
+        shadowDep(group: 'net.daporkchop.lib', name: 'binary', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
+        shadowDep(group: 'net.daporkchop.lib', name: 'unsafe', version: '0.5.7-SNAPSHOT')
+        shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
         if(p != project(':forge1.12.2')) {
-            shadowDep 'lzma:lzma:0.0.1'
+            shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
 
-        compileOnly 'commons-codec:commons-codec:1.16.0' // T++
         compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
+        compileAndTestOnly 'commons-codec:commons-codec:1.16.0' // T++
         compileAndTestOnly 'com.google.guava:guava:31.1-jre' // T++
         compileAndTestOnly 'io.netty:netty-all:4.1.9.Final' // T++
         compileAndTestOnly 'lzma:lzma:0.0.1' // T++
@@ -68,8 +79,8 @@ subprojects { p ->
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
         def resourceTargets = [
-                'mcmod.info', // Forge < 1.13?
-                'META-INF/mods.toml', // Forge >= 1.13?
+                'mcmod.info', // Forge <= 1.12.2
+                'META-INF/mods.toml', // Forge >= 1.13
                 'fabric.mod.json' // Fabric
         ]
         def intoTargets = [ "$buildDir/resources/main/" ]
@@ -77,6 +88,7 @@ subprojects { p ->
         def replaceProperties = [
                 version:    rootProject.modVersion,
                 mcversion:  project.minecraftVersion
+                // TODO: Add mod name and descriptions here
         ]
 
         inputs.properties replaceProperties
@@ -95,20 +107,23 @@ subprojects { p ->
         }
     }
 
-    shadowJar {
-        configurations = [ project.configurations.shadowDep ]
+    if(isForgeSubProject) {
+        shadowJar {
+            configurations = [project.configurations.shadowDep]
 
-        def librariesLocation = "${project.modGroup}.${project.modId}.dep"
-        relocate 'com.fasterxml.jackson',   "${librariesLocation}.jackson"
-        relocate 'de.javagl.jgltf',         "${librariesLocation}.jgltf"
-        relocate 'net.daporkchop.lib',      "${librariesLocation}.porklib"
-        relocate 'org.osgeo.proj4j',        "${librariesLocation}.proj4j"
-        relocate 'org.yaml.snakeyaml',      "${librariesLocation}.snakeyaml"
+            def librariesLocation = "${project.modGroup}.${project.modId}.dep"
+            relocate 'com.fasterxml.jackson', "${librariesLocation}.jackson"
+            relocate 'de.javagl.jgltf', "${librariesLocation}.jgltf"
+            relocate 'net.daporkchop.lib', "${librariesLocation}.porklib"
+            relocate 'org.osgeo.proj4j', "${librariesLocation}.proj4j"
+            relocate 'org.yaml.snakeyaml', "${librariesLocation}.snakeyaml"
 
-        archiveClassifier.set(null)
-        exclude '**/module-info.class'
+            archiveClassifier.set(null)
+            // Java 8 bug: Minecraft will ignore the mod file if 'module-info.class' is included
+            exclude '**/module-info.class'
+        }
+        build.dependsOn shadowJar
     }
-    build.dependsOn shadowJar
 }
 
 allprojects { p ->

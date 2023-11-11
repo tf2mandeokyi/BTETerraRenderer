@@ -1,7 +1,3 @@
-plugins {
-//    id 'btr.java-conventions'
-}
-
 sourceCompatibility = targetCompatibility = '1.8'
 
 dependencies {
