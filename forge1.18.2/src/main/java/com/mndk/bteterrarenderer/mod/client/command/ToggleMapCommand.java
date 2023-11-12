@@ -17,7 +17,7 @@ public class ToggleMapCommand implements Command<CommandSourceStack> {
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
-        BTETerraRendererConfig.INSTANCE.toggleRender();
+        BTETerraRendererConfig.toggleRender();
         return 0;
     }
 }

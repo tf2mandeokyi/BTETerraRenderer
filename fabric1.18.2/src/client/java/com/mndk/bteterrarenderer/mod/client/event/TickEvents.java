@@ -16,7 +16,7 @@ public class TickEvents {
 
     public void onStartTick(MinecraftClient ignored) {
         while(KeyBindings.MAP_TOGGLE_KEY.wasPressed()) {
-            BTETerraRendererConfig.INSTANCE.toggleRender();
+            BTETerraRendererConfig.toggleRender();
         }
         if(KeyBindings.MAP_OPTIONS_KEY.wasPressed()) {
             MapRenderingOptionsSidebar.open();

@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;

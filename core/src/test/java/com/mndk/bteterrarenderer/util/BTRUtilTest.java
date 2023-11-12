@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.core.util.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BtrUtilTest {
+public class BTRUtilTest {
 
     @Test
     public void testDoubleFormatter() {

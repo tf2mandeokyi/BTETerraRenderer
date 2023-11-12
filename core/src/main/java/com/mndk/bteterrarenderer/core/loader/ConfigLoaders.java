@@ -11,11 +11,12 @@ public class ConfigLoaders {
 
     public static void setDirectoryAndLoadAll(File gameConfigDirectory) {
         MOD_CONFIG_DIRECTORY = new File(gameConfigDirectory, BTETerraRendererConstants.MODID);
+        BTETerraRendererConfig.initialize();
         try {
             FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
             TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
             TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
-            BTETerraRendererConfig.INSTANCE.loadConfiguration();
+            BTETerraRendererConfig.load();
         } catch (Throwable t) {
             BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
         }
@@ -27,7 +28,7 @@ public class ConfigLoaders {
             FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
             TileMapServiceYamlLoader.INSTANCE.refresh();
             TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
-            if(loadConfiguration) BTETerraRendererConfig.INSTANCE.loadConfiguration();
+            if(loadConfiguration) BTETerraRendererConfig.load();
         } catch (Throwable t) {
             BTETerraRendererConstants.LOGGER.error("Error while parsing map yaml files", t);
         }

@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.core.util.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
 
@@ -208,15 +208,15 @@ public class SidebarElementListComponent extends GuiSidebarElement {
         String localized = I18nManager.format(property.i18nKey);
 
         if(Number.class.isAssignableFrom(propertyClass)) {
-            PropertyAccessor<Number> numberProperty = BtrUtil.uncheckedCast(property.delegate);
+            PropertyAccessor<Number> numberProperty = BTRUtil.uncheckedCast(property.delegate);
             if(numberProperty instanceof PropertyAccessor.Ranged) {
-                PropertyAccessor.Ranged<Number> rangedNumberProperty = BtrUtil.uncheckedCast(numberProperty);
+                PropertyAccessor.Ranged<Number> rangedNumberProperty = BTRUtil.uncheckedCast(numberProperty);
                 return new SidebarSlider<>(rangedNumberProperty, localized + ": ", "");
             }
 
             PropertyAccessor<Double> propertyWrapper = PropertyAccessor.of(
                     () -> numberProperty.get().doubleValue(),
-                    v  -> numberProperty.set(BtrUtil.doubleToNumber(numberProperty.getPropertyClass(), v))
+                    v  -> numberProperty.set(BTRUtil.doubleToNumber(numberProperty.getPropertyClass(), v))
             );
             return new SidebarNumberInput(propertyWrapper, localized);
         }

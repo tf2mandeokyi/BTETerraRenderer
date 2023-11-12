@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -38,7 +38,7 @@ public class TileMapServicePropertyLoader {
                 String key = tmsProperty.key;
                 if(!propertyValues.containsKey(key)) continue;
                 try {
-                    tmsProperty.delegate.set(BtrUtil.uncheckedCast(propertyValues.get(key)));
+                    tmsProperty.delegate.set(BTRUtil.uncheckedCast(propertyValues.get(key)));
                 } catch(Exception e) {
                     BTETerraRendererConstants.LOGGER.info(e);
                 }

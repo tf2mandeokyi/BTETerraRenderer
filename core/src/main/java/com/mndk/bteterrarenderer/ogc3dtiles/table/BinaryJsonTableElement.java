@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import lombok.ToString;
 
@@ -67,7 +67,7 @@ public abstract class BinaryJsonTableElement<T> {
                 } else {
                     JavaType innerType = valueType.containedType(0);
                     List<Object> list = JsonParserUtil.readJsonList(p, p1 -> ctxt.readValue(p1, innerType));
-                    content = type.getGenerator().apply(BtrUtil.uncheckedCast(list.toArray(new Object[0])));
+                    content = type.getGenerator().apply(BTRUtil.uncheckedCast(list.toArray(new Object[0])));
                 }
             }
             else {
@@ -97,7 +97,7 @@ public abstract class BinaryJsonTableElement<T> {
         }
 
         public T getValue(byte[] binaryData, int additionalOffset) {
-            return BtrUtil.uncheckedCast(content);
+            return BTRUtil.uncheckedCast(content);
         }
     }
 
@@ -113,7 +113,7 @@ public abstract class BinaryJsonTableElement<T> {
             buffer.position(byteOffset + additionalOffset);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-            return BtrUtil.uncheckedCast(type.readBinary(buffer, componentType));
+            return BTRUtil.uncheckedCast(type.readBinary(buffer, componentType));
         }
     }
 

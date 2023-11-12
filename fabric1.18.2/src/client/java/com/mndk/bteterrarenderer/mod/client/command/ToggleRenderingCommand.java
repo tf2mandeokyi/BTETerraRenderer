@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 public class ToggleRenderingCommand implements Command<FabricClientCommandSource> {
     @Override
     public int run(CommandContext<FabricClientCommandSource> context) {
-        BTETerraRendererConfig.INSTANCE.toggleRender();
+        BTETerraRendererConfig.toggleRender();
         return 1;
     }
 }

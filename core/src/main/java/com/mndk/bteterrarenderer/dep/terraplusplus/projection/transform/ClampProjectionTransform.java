@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class ClampProjectionTransform extends ProjectionTransform {
             @JsonProperty(value = "minY", required = true) double minY,
             @JsonProperty(value = "maxY", required = true) double maxY) {
         super(delegate);
-        BtrUtil.checkArgument(Double.isFinite(minX) && Double.isFinite(maxX) && Double.isFinite(minY) && Double.isFinite(maxY), "Projection bounds must be finite doubles");
+        BTRUtil.checkArgument(Double.isFinite(minX) && Double.isFinite(maxX) && Double.isFinite(minY) && Double.isFinite(maxY), "Projection bounds must be finite doubles");
         this.minX = minX;
         this.maxX = maxX;
         this.minY = minY;

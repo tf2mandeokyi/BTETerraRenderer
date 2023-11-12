@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.processor.MultiThreadedResourceCacheProcessor;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
@@ -14,7 +14,7 @@ public class CachedTileParser<Key> extends MultiThreadedResourceCacheProcessor<K
     private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
     private static final CachedTileParser<?> INSTANCE = new CachedTileParser<>(SERVICE);
     public static <T> CachedTileParser<T> getInstance() {
-        return BtrUtil.uncheckedCast(INSTANCE);
+        return BTRUtil.uncheckedCast(INSTANCE);
     }
 
 

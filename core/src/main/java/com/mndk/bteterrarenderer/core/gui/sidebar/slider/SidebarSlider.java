@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.slider;
 
 import com.mndk.bteterrarenderer.core.gui.components.GuiSliderCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
 public class SidebarSlider<T extends Number> extends GuiSidebarElement {
@@ -38,7 +38,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
                 prefix, suffix,
                 value.min().doubleValue(), value.max().doubleValue(), value.get().doubleValue(),
                 !this.isInteger, true, this.isInteger,
-                slider -> value.set(BtrUtil.doubleToNumber(value.getPropertyClass(), slider.getValue()))
+                slider -> value.set(BTRUtil.doubleToNumber(value.getPropertyClass(), slider.getValue()))
         );
     }
 
@@ -62,9 +62,9 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
         if(this.slider.drawString) {
             boolean testResult;
             if(this.isInteger) {
-                testResult = value.available(BtrUtil.doubleToNumber(value.getPropertyClass(), this.slider.getValue()));
+                testResult = value.available(BTRUtil.doubleToNumber(value.getPropertyClass(), this.slider.getValue()));
             } else {
-                testResult = this.value.available(BtrUtil.integerToNumber(value.getPropertyClass(), this.slider.getValueInt()));
+                testResult = this.value.available(BTRUtil.integerToNumber(value.getPropertyClass(), this.slider.getValueInt()));
             }
             this.slider.packedForegroundColor = testResult ? NULL_COLOR : ERROR_TEXT_COLOR;
         }

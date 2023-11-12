@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.components;
 
 import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 
@@ -59,7 +59,7 @@ public class GuiNumberInput extends GuiAbstractWidgetCopy {
 
 	private void updateTextColor() {
 		String currentStr = delegate.text;
-		this.numberValidated = BtrUtil.validateDouble(currentStr);
+		this.numberValidated = BTRUtil.validateDouble(currentStr);
 		delegate.setTextColor(numberValidated ? NORMAL_TEXT_COLOR : ERROR_TEXT_COLOR);
 		if(numberValidated) {
 			value.set(Double.parseDouble(delegate.text));

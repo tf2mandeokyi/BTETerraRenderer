@@ -71,7 +71,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
 
     @Override
     protected double getYAlign() {
-        return BTETerraRendererConfig.HologramConfig.INSTANCE.getFlatMapYAxis() + Y_EPSILON;
+        return BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON;
     }
 
     @Override

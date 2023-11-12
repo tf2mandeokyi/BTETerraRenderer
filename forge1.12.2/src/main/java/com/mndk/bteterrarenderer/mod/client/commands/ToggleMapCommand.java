@@ -18,7 +18,7 @@ public class ToggleMapCommand extends CommandBase implements IClientCommand {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-		BTETerraRendererConfig.INSTANCE.toggleRender();
+		BTETerraRendererConfig.toggleRender();
 	}
 
 	@Override

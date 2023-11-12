@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.util.input.GameInputManager;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -165,7 +165,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     }
 
     public void setCursorPosition(int index) {
-        this.cursorPos = BtrUtil.clamp(index, 0, this.text.length());
+        this.cursorPos = BTRUtil.clamp(index, 0, this.text.length());
     }
 
     public void moveCursorToStart() {

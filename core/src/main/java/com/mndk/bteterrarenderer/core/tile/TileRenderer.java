@@ -9,12 +9,12 @@ import com.mndk.bteterrarenderer.core.projection.Projections;
 public class TileRenderer {
 
     public static void renderTiles(Object poseStack, double px, double py, double pz) {
-        if(!BTETerraRendererConfig.INSTANCE.isDoRender()) return;
+        if(!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
 
-        BTETerraRendererConfig config = BTETerraRendererConfig.INSTANCE;
-        BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HologramConfig.INSTANCE;
+        BTETerraRendererConfig.GeneralConfig generalConfig = BTETerraRendererConfig.GENERAL;
+        BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
 
-        TileMapService<?> tms = config.getTileMapServiceWrapper().getItem();
+        TileMapService<?> tms = BTETerraRendererConfig.getTileMapServiceWrapper().getItem();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 
@@ -24,7 +24,7 @@ public class TileRenderer {
         GlGraphicsManager.glPushMatrix(poseStack);
         GraphicsModelVisualManager.preRender();
 
-        String tmsId = config.getMapServiceCategory() + "." + config.getMapServiceId();
+        String tmsId = generalConfig.getMapServiceCategory() + "." + generalConfig.getMapServiceId();
         tms.render(poseStack, tmsId,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());

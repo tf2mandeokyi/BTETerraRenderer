@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConstants;
 import lombok.Getter;
 
@@ -45,8 +45,8 @@ public class StereographicProjection implements GeographicProjection {
         this.centerY = modDegrees(centerY != null ? centerY : 0.0d, 180.0d);
         this.radius = radius != null ? radius : 90.0d;
 
-        BtrUtil.checkArgument(this.radius > 0.0d, "radius must be positive!");
-        BtrUtil.checkArgument(this.radius < 180.0d, "radius must be less than 180!");
+        BTRUtil.checkArgument(this.radius > 0.0d, "radius must be positive!");
+        BTRUtil.checkArgument(this.radius < 180.0d, "radius must be less than 180!");
     }
 
     @Override

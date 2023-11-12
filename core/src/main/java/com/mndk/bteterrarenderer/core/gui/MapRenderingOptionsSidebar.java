@@ -20,7 +20,7 @@ import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 
@@ -41,17 +41,17 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public MapRenderingOptionsSidebar() {
         super(
-                BTETerraRendererConfig.UIConfig.INSTANCE.getSidebarSide(),
+                BTETerraRendererConfig.UI.getSidebarSide(),
                 20, 20, ELEMENT_DISTANCE,
                 PropertyAccessor.of(
-                        BTETerraRendererConfig.UIConfig.INSTANCE::getSidebarWidth,
-                        BTETerraRendererConfig.UIConfig.INSTANCE::setSidebarWidth
+                        BTETerraRendererConfig.UI::getSidebarWidth,
+                        BTETerraRendererConfig.UI::setSidebarWidth
                 ), false
         );
 
         // Map source components
         this.mapSourceDropdown = new SidebarDropdownSelector<>(
-                PropertyAccessor.of(BtrUtil.uncheckedCast(CategoryMap.Wrapper.class),
+                PropertyAccessor.of(BTRUtil.uncheckedCast(CategoryMap.Wrapper.class),
                         this::getWrappedTMS, this::setTileMapServiceWrapper),
                 MapRenderingOptionsSidebar::tmsWrappedToString
         );
@@ -62,16 +62,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     @Override
     public void initGui() {
-        BTETerraRendererConfig config = BTETerraRendererConfig.INSTANCE;
-        BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HologramConfig.INSTANCE;
+        BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
 
         // General components
         SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
-                PropertyAccessor.of(boolean.class, config::isDoRender, config::setDoRender),
+                PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
                 I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
         );
         SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
-                RangedDoublePropertyAccessor.of(renderSettings::getOpacity, renderSettings::setOpacity, 0, 1),
+                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
                 I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
         );
 
@@ -87,9 +86,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // Map orientation components
         SidebarMapAligner mapAligner = new SidebarMapAligner(
-                PropertyAccessor.of(double.class, renderSettings::getXAlign, renderSettings::setXAlign),
-                PropertyAccessor.of(double.class, renderSettings::getZAlign, renderSettings::setZAlign),
-                PropertyAccessor.of(boolean.class, renderSettings::isLockNorth, renderSettings::setLockNorth)
+                PropertyAccessor.of(double.class, hologramSettings::getXAlign, hologramSettings::setXAlign),
+                PropertyAccessor.of(double.class, hologramSettings::getZAlign, hologramSettings::setZAlign),
+                PropertyAccessor.of(boolean.class, hologramSettings::isLockNorth, hologramSettings::setLockNorth)
         );
 
         SidebarBlank blank = new SidebarBlank(10);
@@ -130,13 +129,13 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {
-        return BTETerraRendererConfig.INSTANCE.getTileMapServiceWrapper();
+        return BTETerraRendererConfig.getTileMapServiceWrapper();
     }
 
     private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
         TileMapService<?> tms = tmsWrapped == null ? null : tmsWrapped.getItem();
 
-        BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HologramConfig.INSTANCE;
+        BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;
@@ -144,7 +143,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
             return;
         }
 
-        BTETerraRendererConfig.INSTANCE.setTileMapService(tmsWrapped);
+        BTETerraRendererConfig.setTileMapService(tmsWrapped);
         this.tmsPropertyElementList.setProperties(tms.getProperties());
         this.tmsPropertyElementList.hide = false;
 
@@ -210,16 +209,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
-        BTETerraRendererConfig.INSTANCE.loadConfiguration();
-        INSTANCE.setSide(BTETerraRendererConfig.UIConfig.INSTANCE.getSidebarSide());
+        BTETerraRendererConfig.load();
+        INSTANCE.setSide(BTETerraRendererConfig.UI.getSidebarSide());
         INSTANCE.updateMapSourceDropdown();
-        INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.INSTANCE.getTileMapServiceWrapper());
+        INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.getTileMapServiceWrapper());
         RawGuiManager.displayGuiScreen(INSTANCE);
     }
 
     @Override
     public void onClose() {
-        BTETerraRendererConfig.INSTANCE.saveConfiguration();
+        BTETerraRendererConfig.save();
         super.onClose();
     }
 }

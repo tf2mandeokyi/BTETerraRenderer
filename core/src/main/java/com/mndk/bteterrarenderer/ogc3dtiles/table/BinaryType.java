@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.table;
 
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +35,7 @@ public enum BinaryType {
             resultArray[i] = type.readBinary(buffer);
         }
 
-        return generator.apply(BtrUtil.uncheckedCast(resultArray));
+        return generator.apply(BTRUtil.uncheckedCast(resultArray));
     }
 
     public int getBinarySize(BinaryComponentType type) {

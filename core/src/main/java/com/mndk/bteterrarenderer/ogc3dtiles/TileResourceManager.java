@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
@@ -32,18 +32,18 @@ public class TileResourceManager {
         byte[] byteArray = IOUtil.readAllBytes(stream);
 
         TileData result;
-        if(BtrUtil.arrayStartsWith(byteArray, B3DM_START)) {
+        if(BTRUtil.arrayStartsWith(byteArray, B3DM_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
             result = Batched3DModel.from(buf);
         }
-        else if(BtrUtil.arrayStartsWith(byteArray, I3DM_START)) {
+        else if(BTRUtil.arrayStartsWith(byteArray, I3DM_START)) {
             throw new UnsupportedOperationException("i3dm not yet implemented");
         }
-        else if(BtrUtil.arrayStartsWith(byteArray, GLTF_START)) {
+        else if(BTRUtil.arrayStartsWith(byteArray, GLTF_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
             result = TileGltfModel.from(buf);
         }
-        else if (BtrUtil.arrayStartsWith(byteArray, UTF8_BOM)) {
+        else if (BTRUtil.arrayStartsWith(byteArray, UTF8_BOM)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray, 3, byteArray.length - 3);
             result = BTETerraRendererConstants.JSON_MAPPER
                     .readValue((InputStream) new ByteBufInputStream(buf), Tileset.class);

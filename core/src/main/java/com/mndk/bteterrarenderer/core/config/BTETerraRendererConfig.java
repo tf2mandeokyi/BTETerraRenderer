@@ -1,151 +1,131 @@
 package com.mndk.bteterrarenderer.core.config;
 
+import com.mndk.bteterrarenderer.core.config.annotation.*;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import lombok.Getter;
+import lombok.Setter;
 
 @SuppressWarnings("unused")
 public class BTETerraRendererConfig {
-    public static final BTETerraRendererConfig INSTANCE = new BTETerraRendererConfig();
 
-    public static final String DO_RENDER_NAME = "Do Render";
-    public static final String DO_RENDER_COMMENT = "Maps will be rendered if enabled";
-    /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-    public static boolean doRender = false;
-    public boolean isDoRender() { return doRender; }
-    public void setDoRender(boolean doRender) { BTETerraRendererConfig.doRender = doRender; }
+    @ConfigIgnore
+    public static final ConfigSaveLoader SAVE_LOADER_INSTANCE = ConfigSaveLoader.makeSaveLoader(BTETerraRendererConfig.class);
 
-    public static final String MAP_SERVICE_CATEGORY_NAME = "Map Service Category";
-    public static final String MAP_SERVICE_CATEGORY_COMMENT = "";
-    /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-    public static String mapServiceCategory = "Global";
-    public String getMapServiceCategory() { return mapServiceCategory; }
-    public void setMapServiceCategory(String mapServiceCategory) { BTETerraRendererConfig.mapServiceCategory = mapServiceCategory; }
+    @ConfigName("General Settings")
+    @ConfigComment({
+            "General settings.",
+            "Use this block to select which map to render."
+    })
+    public static final GeneralConfig GENERAL = new GeneralConfig();
+    @Getter @Setter @ConfigurableClass
+    public static class GeneralConfig {
 
-    public static final String MAP_SERVICE_ID_NAME = "Map Service ID";
-    public static final String MAP_SERVICE_ID_COMMENT = "";
-    /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-    public static String mapServiceId = "osm";
-    public String getMapServiceId() { return mapServiceId; }
-    public void setMapServiceId(String mapServiceId) { BTETerraRendererConfig.mapServiceId = mapServiceId; }
+        @ConfigName("Map Service Category")
+        public String mapServiceCategory = "Global";
 
-    public static final String HOLOGRAM_CONFIG_NAME = "Hologram Settings";
-    public static final String HOLOGRAM_CONFIG_COMMENT = "Hologram render settings";
+        @ConfigName("Map Service ID")
+        public String mapServiceId = "osm";
+    }
+
+    @ConfigName("Hologram Settings")
+    @ConfigComment({
+            "Hologram settings.",
+            "Contains hologram related settings. (duh)"
+    })
+    public static final HologramConfig HOLOGRAM = new HologramConfig();
+    @Getter @Setter @ConfigurableClass
     public static class HologramConfig {
-        public static final HologramConfig INSTANCE = new HologramConfig();
 
-        public static final String X_ALIGN_NAME = "X Align";
-        public static final String X_ALIGN_COMMENT = "The amount of which the map is offset on the X-axis";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double xAlign = 0.0;
-        public double getXAlign() { return xAlign; }
-        public void setXAlign(double xAlign) { HologramConfig.xAlign = xAlign; }
+        @ConfigName("Do Render")
+        @ConfigComment("Maps will be rendered if enabled")
+        public boolean doRender = false;
 
-        public static final String Y_ALIGN_NAME = "Y Align";
-        public static final String Y_ALIGN_COMMENT = "The amount of which the map is offset on the Y-axis.\nThis is only used for 3d maps.";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double yAlign = 0.0;
-        public double getYAlign() { return yAlign; }
-        public void setYAlign(double yAlign) { HologramConfig.yAlign = yAlign; }
+        @ConfigName("X Align")
+        @ConfigComment("The amount of which the map is offset on the X-axis")
+        public double xAlign = 0.0;
 
-        public static final String Z_ALIGN_NAME = "Z Align";
-        public static final String Z_ALIGN_COMMENT = "The amount of which the map is offset on the Z-axis.";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double zAlign = 0.0;
-        public double getZAlign() { return zAlign; }
-        public void setZAlign(double zAlign) { HologramConfig.zAlign = zAlign; }
+        @ConfigName("Y Align")
+        @ConfigComment("The amount of which the map is offset on the Y-axis.\nThis is only used for 3d maps.")
+        public double yAlign = 0.0;
 
-        public static final String LOCK_NORTH_NAME = "Lock North";
-        public static final String LOCK_NORTH_COMMENT = "The map aligner direction will be locked to north if this is enabled.";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static boolean lockNorth = false;
-        public boolean isLockNorth() { return lockNorth; }
-        public void setLockNorth(boolean lockNorth) { HologramConfig.lockNorth = lockNorth; }
+        @ConfigName("Z Align")
+        @ConfigComment("The amount of which the map is offset on the Z-axis.")
+        public double zAlign = 0.0;
 
-        public static final String FLAT_MAP_Y_AXIS_NAME = "Flat Map Y Axis";
-        public static final String FLAT_MAP_Y_AXIS_COMMENT = "The in-game Y-coordinate value at which the flat map is rendered.";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double flatMapYAxis = 4;
-        public double getFlatMapYAxis() { return flatMapYAxis; }
-        public void setFlatMapYAxis(double flatMapYAxis) { HologramConfig.flatMapYAxis = flatMapYAxis; }
+        @ConfigName("Lock North")
+        @ConfigComment("The map aligner direction will be locked to north if this is enabled.")
+        public boolean lockNorth = false;
 
-        public static final String OPACITY_NAME = "Opacity";
-        public static final String OPACITY_COMMENT = "The map opacity";
-        public static final double OPACITY_MIN = 0;
-        public static final double OPACITY_MAX = 1;
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double opacity = 0.7;
-        public double getOpacity() { return opacity; }
-        public void setOpacity(double opacity) { HologramConfig.opacity = opacity; }
+        @ConfigName("Flat Map Y Axis")
+        @ConfigComment("The in-game Y-coordinate value at which the flat map is rendered.")
+        public double flatMapYAxis = 4;
 
-        public static final String Y_DIFF_LIMIT_NAME = "Y Diff Limit";
-        public static final String Y_DIFF_LIMIT_COMMENT = "Puts limit on how far the map is from the player to be rendered.";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double yDiffLimit = 1000;
-        public double getYDiffLimit() { return yDiffLimit; }
-        public void setYDiffLimit(double yDiffLimit) { HologramConfig.yDiffLimit = yDiffLimit; }
+        @ConfigName("Opacity")
+        @ConfigComment("The map opacity")
+        @ConfigRangeDouble(min = 0, max = 1)
+        @ConfigSlidingOption
+        public double opacity = 0.7;
+
+        @ConfigName("Y Diff Limit")
+        @ConfigComment("Puts limit on how far the map is from the player to be rendered.")
+        public double yDiffLimit = 1000;
     }
 
-    public static final String UI_CONFIG_NAME = "UI Settings";
-    public static final String UI_CONFIG_COMMENT = "General UI settings";
+    @ConfigName("UI Settings")
+    public static final UIConfig UI = new UIConfig();
+    @Getter @Setter @ConfigurableClass
     public static class UIConfig {
-        public static final UIConfig INSTANCE = new UIConfig();
 
-        public static final String SIDEBAR_SIDE_NAME = "Sidebar Side";
-        public static final String SIDEBAR_SIDE_COMMENT = "";
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static SidebarSide sidebarSide = SidebarSide.RIGHT;
-        public SidebarSide getSidebarSide() { return sidebarSide; }
-        public void setSidebarSide(SidebarSide side) { UIConfig.sidebarSide = side; }
+        @ConfigName("Sidebar Side")
+        @ConfigComment("Sets the location of the sidebar.")
+        public SidebarSide sidebarSide = SidebarSide.RIGHT;
 
-        public static final String SIDEBAR_WIDTH_NAME = "Sidebar Width";
-        public static final String SIDEBAR_WIDTH_COMMENT = "";
-        public static final double SIDEBAR_WIDTH_MIN = 130;
-        public static final double SIDEBAR_WIDTH_MAX = 270;
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double sidebarWidth = 200;
-        public double getSidebarWidth() { return sidebarWidth; }
-        public void setSidebarWidth(double sidebarWidth) { UIConfig.sidebarWidth = sidebarWidth; }
+        @ConfigName("Sidebar Width")
+        @ConfigComment("Sets the width of the sidebar.")
+        @ConfigRangeDouble(min = 130, max = 270)
+        public double sidebarWidth = 200;
 
-        public static final String SIDEBAR_OPACITY_NAME = "Sidebar Opacity";
-        public static final String SIDEBAR_OPACITY_COMMENT = "";
-        public static final double SIDEBAR_OPACITY_MIN = 0;
-        public static final double SIDEBAR_OPACITY_MAX = 1;
-        /** Do not use this on the core project! This is only for modded projects. Use getter/setter instead */
-        public static double sidebarOpacity = 0.7;
-        public double getSidebarOpacity() { return sidebarOpacity; }
-        public void setSidebarOpacity(double sidebarOpacity) { UIConfig.sidebarOpacity = sidebarOpacity; }
+        @ConfigName("Sidebar Opacity")
+        @ConfigComment("Sets the opacity of the sidebar.")
+        @ConfigRangeDouble(min = 0, max = 1)
+        @ConfigSlidingOption
+        public double sidebarOpacity = 0.7;
     }
 
-    public void toggleRender() {
-        setDoRender(!isDoRender());
+    public static void toggleRender() {
+        HOLOGRAM.setDoRender(!HOLOGRAM.isDoRender());
     }
 
-    public void saveConfiguration() {
+    public static void initialize() {
+        SAVE_LOADER_INSTANCE.initialize();
+    }
+
+    public static void save() {
+        BTETerraRendererConfig.SAVE_LOADER_INSTANCE.save();
         refreshCurrentTileMapService();
     }
-    public void loadConfiguration() {
+    public static void load() {
+        BTETerraRendererConfig.SAVE_LOADER_INSTANCE.load();
         refreshCurrentTileMapService();
     }
 
-    public CategoryMap.Wrapper<TileMapService<?>> getTileMapServiceWrapper() {
-        return Storage.TMS_ON_DISPLAY;
+    @ConfigIgnore
+    private static CategoryMap.Wrapper<TileMapService<?>> TMS_ON_DISPLAY;
+    public static CategoryMap.Wrapper<TileMapService<?>> getTileMapServiceWrapper() {
+        return TMS_ON_DISPLAY;
     }
 
-    public void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> wrapped) {
-        Storage.TMS_ON_DISPLAY = wrapped;
-        setMapServiceCategory(wrapped.getParentCategory().getName());
-        setMapServiceId(wrapped.getId());
+    public static void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> wrapped) {
+        TMS_ON_DISPLAY = wrapped;
+        GENERAL.setMapServiceCategory(wrapped.getParentCategory().getName());
+        GENERAL.setMapServiceId(wrapped.getId());
     }
 
-    public void refreshCurrentTileMapService() {
-        Storage.TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE
-                .getResult()
-                .getItemWrapper(INSTANCE.getMapServiceCategory(), INSTANCE.getMapServiceId());
-    }
-
-    private static class Storage {
-        private static CategoryMap.Wrapper<TileMapService<?>> TMS_ON_DISPLAY;
+    public static void refreshCurrentTileMapService() {
+        TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE.getResult()
+                .getItemWrapper(GENERAL.getMapServiceCategory(), GENERAL.getMapServiceId());
     }
 }

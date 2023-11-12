@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.Getter;
 
 /**
@@ -32,8 +32,8 @@ public class ScaleProjectionTransform extends ProjectionTransform {
             @JsonProperty(value = "x", required = true) double x,
             @JsonProperty(value = "y", required = true) double y) {
         super(delegate);
-        BtrUtil.checkArgument(Double.isFinite(x) && Double.isFinite(y), "Projection scales should be finite");
-        BtrUtil.checkArgument(x != 0 && y != 0, "Projection scale cannot be 0!");
+        BTRUtil.checkArgument(Double.isFinite(x) && Double.isFinite(y), "Projection scales should be finite");
+        BTRUtil.checkArgument(x != 0 && y != 0, "Projection scale cannot be 0!");
         this.x = x;
         this.y = y;
     }

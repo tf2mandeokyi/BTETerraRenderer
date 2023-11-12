@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.util;
 
 import javax.annotation.Nonnull;
 
-public class BtrUtil {
+public class BTRUtil {
 
     public static int notNegative(int value, String name) {
         checkArgument(value >= 0, name + " must not be negative");
@@ -50,22 +50,22 @@ public class BtrUtil {
     }
 
     public static <T extends Number> T doubleToNumber(Class<T> clazz, double value) {
-        if(clazz == double.class || clazz == Double.class) return BtrUtil.uncheckedCast(value);
-        else if(clazz == float.class || clazz == Float.class) return BtrUtil.uncheckedCast((float) value);
-        else if(clazz == long.class || clazz == Long.class) return BtrUtil.uncheckedCast((long) value);
-        else if(clazz == int.class || clazz == Integer.class) return BtrUtil.uncheckedCast((int) value);
-        else if(clazz == short.class || clazz == Short.class) return BtrUtil.uncheckedCast((short) value);
-        else if(clazz == byte.class || clazz == Byte.class) return BtrUtil.uncheckedCast((byte) value);
+        if(clazz == double.class || clazz == Double.class) return BTRUtil.uncheckedCast(value);
+        else if(clazz == float.class || clazz == Float.class) return BTRUtil.uncheckedCast((float) value);
+        else if(clazz == long.class || clazz == Long.class) return BTRUtil.uncheckedCast((long) value);
+        else if(clazz == int.class || clazz == Integer.class) return BTRUtil.uncheckedCast((int) value);
+        else if(clazz == short.class || clazz == Short.class) return BTRUtil.uncheckedCast((short) value);
+        else if(clazz == byte.class || clazz == Byte.class) return BTRUtil.uncheckedCast((byte) value);
         else throw new RuntimeException("Not a number class: " + clazz);
     }
 
     public static <T extends Number> T integerToNumber(Class<T> clazz, int value) {
-        if(clazz == double.class || clazz == Double.class) return BtrUtil.uncheckedCast((double) value);
-        else if(clazz == float.class || clazz == Float.class) return BtrUtil.uncheckedCast((float) value);
-        else if(clazz == long.class || clazz == Long.class) return BtrUtil.uncheckedCast((long) value);
-        else if(clazz == int.class || clazz == Integer.class) return BtrUtil.uncheckedCast(value);
-        else if(clazz == short.class || clazz == Short.class) return BtrUtil.uncheckedCast((short) value);
-        else if(clazz == byte.class || clazz == Byte.class) return BtrUtil.uncheckedCast((byte) value);
+        if(clazz == double.class || clazz == Double.class) return BTRUtil.uncheckedCast((double) value);
+        else if(clazz == float.class || clazz == Float.class) return BTRUtil.uncheckedCast((float) value);
+        else if(clazz == long.class || clazz == Long.class) return BTRUtil.uncheckedCast((long) value);
+        else if(clazz == int.class || clazz == Integer.class) return BTRUtil.uncheckedCast(value);
+        else if(clazz == short.class || clazz == Short.class) return BTRUtil.uncheckedCast((short) value);
+        else if(clazz == byte.class || clazz == Byte.class) return BTRUtil.uncheckedCast((byte) value);
         else throw new RuntimeException("Not a number class: " + clazz);
     }
 

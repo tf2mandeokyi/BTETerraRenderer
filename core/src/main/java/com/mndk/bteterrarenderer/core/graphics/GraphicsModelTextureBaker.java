@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.processor.SimpleResourceCacheProcessor;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class GraphicsModelTextureBaker<Key> extends SimpleResourceCacheProcessor
 	private static final GraphicsModelTextureBaker<?> INSTANCE =
 			new GraphicsModelTextureBaker<>(1000 * 60 * 20 /* 20 minutes */, 10000, false);
 	public static <ID> GraphicsModelTextureBaker<ID> getInstance() {
-		return BtrUtil.uncheckedCast(INSTANCE);
+		return BTRUtil.uncheckedCast(INSTANCE);
 	}
 
 	private GraphicsModelTextureBaker(long expireMilliseconds, int maximumSize, boolean debug) {

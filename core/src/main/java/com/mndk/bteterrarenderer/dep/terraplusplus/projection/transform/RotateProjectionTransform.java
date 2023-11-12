@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.Getter;
 
 import static java.lang.Math.*;
@@ -33,7 +33,7 @@ public class RotateProjectionTransform extends ProjectionTransform {
             @JsonProperty(value = "delegate", required = true) GeographicProjection delegate,
             @JsonProperty(value = "by", required = true) double by) {
         super(delegate);
-        BtrUtil.checkArgument(Double.isFinite(by), "Projection rotation must be a finite double");
+        BTRUtil.checkArgument(Double.isFinite(by), "Projection rotation must be a finite double");
         this.by = by;
 
         this.sin = Math.sin(toRadians(by));

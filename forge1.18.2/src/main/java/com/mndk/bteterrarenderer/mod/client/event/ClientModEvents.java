@@ -18,6 +18,7 @@ public class ClientModEvents {
         File gameConfigDirectory = new File(Minecraft.getInstance().gameDirectory, "config");
         ConfigLoaders.setDirectoryAndLoadAll(gameConfigDirectory);
         KeyMappings.registerKeys();
+
         BTETerraRendererConstants.LOGGER.info("Mod setup done");
     }
 }

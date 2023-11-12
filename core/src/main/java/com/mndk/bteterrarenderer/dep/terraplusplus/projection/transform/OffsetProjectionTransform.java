@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.Getter;
 
 /**
@@ -30,7 +30,7 @@ public class OffsetProjectionTransform extends ProjectionTransform {
             @JsonProperty(value = "dx", required = true) double dx,
             @JsonProperty(value = "dy", required = true) double dy) {
         super(delegate);
-        BtrUtil.checkArgument(Double.isFinite(dx) && Double.isFinite(dy), "Projection offsets have to be finite doubles");
+        BTRUtil.checkArgument(Double.isFinite(dx) && Double.isFinite(dy), "Projection offsets have to be finite doubles");
         this.dx = dx;
         this.dy = dy;
     }

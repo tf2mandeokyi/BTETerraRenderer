@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
@@ -293,7 +293,7 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         if(this.widthChangingState) {
             double dMouseX = mouseX - mouseClickX;
             if(side == SidebarSide.RIGHT) dMouseX = -dMouseX;
-            double newElementWidth = BtrUtil.clamp(initialElementWidth + dMouseX, 130, 270);
+            double newElementWidth = BTRUtil.clamp(initialElementWidth + dMouseX, 130, 270);
 
             elementWidth.set(newElementWidth);
             this.elementsComponent.onWidthChange(newElementWidth);
@@ -307,7 +307,7 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
 
             double dMouseY = mouseY - mouseClickY;
             double dValue = dMouseY * totalHeight / (screenHeight - 2);
-            double newVerticalSliderValue = BtrUtil.clamp(initialVerticalSliderValue + dValue,
+            double newVerticalSliderValue = BTRUtil.clamp(initialVerticalSliderValue + dValue,
                     0, Math.max(totalHeight - screenHeight, 0));
 
             this.verticalSliderValue = (int) newVerticalSliderValue;

@@ -17,8 +17,8 @@ public class KeyEvent {
 			MapRenderingOptionsSidebar.open();
 		}
 		else if(KeyMappings.MAP_TOGGLE_KEY.isPressed()) {
-			BTETerraRendererConfig.INSTANCE.toggleRender();
-			BTETerraRendererConfig.INSTANCE.saveConfiguration();
+			BTETerraRendererConfig.toggleRender();
+			BTETerraRendererConfig.save();
 		}
 	}
 }

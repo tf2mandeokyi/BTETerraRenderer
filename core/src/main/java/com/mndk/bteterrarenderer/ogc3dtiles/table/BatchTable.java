@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -41,7 +41,7 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     private void addColumn(int batchModelCount, String columnName, BinaryJsonTableElement<?> tableElement, byte[] binary) {
         Object[] column;
         if(tableElement instanceof BinaryJsonTableElement.Value) {
-            column = BtrUtil.<List<Object>>uncheckedCast(((BinaryJsonTableElement.Value<?>) tableElement).content)
+            column = BTRUtil.<List<Object>>uncheckedCast(((BinaryJsonTableElement.Value<?>) tableElement).content)
                     .toArray();
         }
         else if(tableElement instanceof BinaryJsonTableElement.BinaryValue) {

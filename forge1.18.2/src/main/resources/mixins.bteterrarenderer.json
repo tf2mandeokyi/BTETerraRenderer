@@ -6,7 +6,7 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "config.BTETerraRendererConfigMixin",
+      "config.ConfigSaveLoaderMixin",
     "delegate.DelegateCreatorMixin",
     "graphics.GlGraphicsManagerMixin",
     "graphics.GraphicsModelVisualManagerMixin",

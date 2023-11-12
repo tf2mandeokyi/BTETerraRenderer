@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.dep.terraplusplus.util.MathUtils;
@@ -35,7 +35,7 @@ public class WebMercatorProjection implements GeographicProjection {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public WebMercatorProjection(@JsonProperty("zoom") Integer zoom) {
-        this.zoom = zoom != null ? BtrUtil.notNegative(zoom, "zoom") : 0;
+        this.zoom = zoom != null ? BTRUtil.notNegative(zoom, "zoom") : 0;
 
         this.scaleTo = 1.0d / (256 << this.zoom);
         this.scaleFrom = 256 << this.zoom;

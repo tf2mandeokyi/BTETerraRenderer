@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
-import com.mndk.bteterrarenderer.core.util.BtrUtil;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class GraphicsQuad<T extends GraphicsQuad.VertexInfo> {
     }
 
     public T getVertex(int index) {
-        return BtrUtil.uncheckedCast(vertices[index]);
+        return BTRUtil.uncheckedCast(vertices[index]);
     }
 
     public void setVertex(int index, T value) {

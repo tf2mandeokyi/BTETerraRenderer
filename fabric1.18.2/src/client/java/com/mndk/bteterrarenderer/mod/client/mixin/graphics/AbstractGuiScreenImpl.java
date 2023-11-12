@@ -1,8 +1,8 @@
-package com.mndk.bteterrarenderer.mod.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.util.input.InputKey;
-import com.mndk.bteterrarenderer.mod.mixin.delegate.IScaledScreenSizeImpl;
+import com.mndk.bteterrarenderer.mod.client.mixin.delegate.IScaledScreenSizeImpl;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
