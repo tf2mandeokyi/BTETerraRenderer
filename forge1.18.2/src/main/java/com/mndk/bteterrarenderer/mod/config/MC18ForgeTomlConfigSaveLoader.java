@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.config;
 
-import com.mndk.bteterrarenderer.core.config.AbstractConfigBuilder;
+import com.mndk.bteterrarenderer.core.config.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.config.ConfigPropertyConnection;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeDouble;
@@ -15,13 +15,13 @@ import java.lang.reflect.Field;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MC18ForgeTomlConfigBuilder extends AbstractConfigBuilder {
+public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
 
-    private final ForgeConfigSpec.Builder builder;
+    private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
     private ForgeConfigSpec.ConfigValue<Boolean> doRenderConfig;
 
-    public MC18ForgeTomlConfigBuilder() {
-        builder = new ForgeConfigSpec.Builder();
+    public MC18ForgeTomlConfigSaveLoader(Class<?> configClass) {
+        super(configClass);
     }
 
     @Override
@@ -63,10 +63,14 @@ public class MC18ForgeTomlConfigBuilder extends AbstractConfigBuilder {
             doRenderConfig = BTRUtil.uncheckedCast(configValue);
         }
 
-        return new ConfigPropertyConnection(
-                () -> configValue.set(BTRUtil.uncheckedCast(getter.get())),
-                () -> setter.accept(configValue.get())
-        );
+        return new ConfigPropertyConnection() {
+            public void save() {
+                configValue.set(BTRUtil.uncheckedCast(getter.get()));
+            }
+            public void load() {
+                setter.accept(configValue.get());
+            }
+        };
     }
 
     public void saveRenderState() {
@@ -81,8 +85,8 @@ public class MC18ForgeTomlConfigBuilder extends AbstractConfigBuilder {
     }
 
     @Override
-    protected void saveAll() {}
+    protected void saveToFile() {}
 
     @Override
-    protected void loadAll() {}
+    protected void loadFromFile() {}
 }

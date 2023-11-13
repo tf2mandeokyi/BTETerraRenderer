@@ -15,19 +15,19 @@ import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class DefaultYamlConfigBuilder extends AbstractConfigBuilder {
+public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
 
     /**
      * This needs to be a getter, since the mod config directory might not have been initialized
      * before using this property.
      */
     private final Supplier<File> fileGetter;
-    private final Map<String, Object> map;
+    private final Map<String, Object> map = new HashMap<>();
     private final Stack<Map<String, Object>> mapStack = new Stack<>();
 
-    public DefaultYamlConfigBuilder(Supplier<File> fileGetter) {
+    public DefaultYamlConfigSaveLoader(Class<?> configClass, Supplier<File> fileGetter) {
+        super(configClass);
         this.fileGetter = fileGetter;
-        this.map = new HashMap<>();
         this.mapStack.add(map);
     }
 
@@ -48,17 +48,21 @@ public class DefaultYamlConfigBuilder extends AbstractConfigBuilder {
                                                               Supplier<?> getter, Consumer<Object> setter, Object defaultValue) {
         final Map<String, Object> top = mapStack.peek();
         top.put(name, defaultValue);
-        return new ConfigPropertyConnection(
-                () -> top.put(name, getter.get()), // save
-                () -> setter.accept(top.get(name)) // load
-        );
+        return new ConfigPropertyConnection() {
+            public void save() {
+                top.put(name, getter.get());
+            }
+            public void load() {
+                setter.accept(top.get(name));
+            }
+        };
     }
 
     @Override
     protected void postInitialization() {}
 
     @Override
-    protected void saveAll() {
+    protected void saveToFile() {
         try {
             BTETerraRendererConstants.YAML_MAPPER.writeValue(this.fileGetter.get(), this.map);
         } catch (JsonProcessingException e) {
@@ -69,7 +73,7 @@ public class DefaultYamlConfigBuilder extends AbstractConfigBuilder {
     }
 
     @Override
-    protected void loadAll() {
+    protected void loadFromFile() {
         Map<String, Object> readResult;
         try {
             TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};

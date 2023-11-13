@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.config;
 
-import com.mndk.bteterrarenderer.core.config.AbstractConfigBuilder;
+import com.mndk.bteterrarenderer.core.config.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.core.config.ConfigPropertyConnection;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeDouble;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeInt;
@@ -21,12 +21,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MC12ForgeCfgConfigBuilder extends AbstractConfigBuilder {
+public class MC12ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
 
     private final Configuration configuration;
     private final Stack<String> categoryNameStack = new Stack<>();
 
-    public MC12ForgeCfgConfigBuilder(String modId) {
+    public MC12ForgeCfgConfigSaveLoader(Class<?> configClass, String modId) {
+        super(configClass);
         File configDir = Loader.instance().getConfigDir();
         File configFile = new File(configDir, modId + ".cfg");
         this.configuration = new Configuration(configFile);
@@ -51,7 +52,8 @@ public class MC12ForgeCfgConfigBuilder extends AbstractConfigBuilder {
     }
 
     @Override
-    protected ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment, Supplier<?> getter, Consumer<Object> setter, Object defaultValue) {
+    protected ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
+                                                              Supplier<?> getter, Consumer<Object> setter, Object defaultValue) {
         String wholePath = this.getCategoryWholePath();
         Class<?> clazz = field.getType();
         List<Consumer<Property>> propertyConsumers = new ArrayList<>();
@@ -100,30 +102,30 @@ public class MC12ForgeCfgConfigBuilder extends AbstractConfigBuilder {
             propertyConsumers.add(p -> p.setHasSlidingControl(true));
         }
 
-        return new ConfigPropertyConnection(
-                () -> {
-                    Property p = propertyGetter.get();
-                    for(Consumer<Property> propertyConsumer : propertyConsumers) propertyConsumer.accept(p);
-                    p.set(String.valueOf(getter.get()));
-                },
-                () -> {
-                    Property p = propertyGetter.get();
-                    for(Consumer<Property> propertyConsumer : propertyConsumers) propertyConsumer.accept(p);
-                    setter.accept(finalPropertyFunction.apply(p));
-                }
-        );
+        return new ConfigPropertyConnection() {
+            public void save() {
+                Property p = propertyGetter.get();
+                for (Consumer<Property> propertyConsumer : propertyConsumers) propertyConsumer.accept(p);
+                p.set(String.valueOf(getter.get()));
+            }
+            public void load() {
+                Property p = propertyGetter.get();
+                for (Consumer<Property> propertyConsumer : propertyConsumers) propertyConsumer.accept(p);
+                setter.accept(finalPropertyFunction.apply(p));
+            }
+        };
     }
 
     @Override
     protected void postInitialization() {}
 
     @Override
-    protected void saveAll() {
+    protected void saveToFile() {
         this.configuration.save();
     }
 
     @Override
-    protected void loadAll() {
+    protected void loadFromFile() {
         this.configuration.load();
     }
 }

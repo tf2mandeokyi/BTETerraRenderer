@@ -1,8 +1,13 @@
 package com.mndk.bteterrarenderer.core.config;
 
-import com.mndk.bteterrarenderer.core.config.annotation.*;
+import com.mndk.bteterrarenderer.core.config.annotation.ConfigComment;
+import com.mndk.bteterrarenderer.core.config.annotation.ConfigIgnore;
+import com.mndk.bteterrarenderer.core.config.annotation.ConfigName;
+import com.mndk.bteterrarenderer.core.config.annotation.ConfigurableClass;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -12,8 +17,53 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-// TODO: Name this to something else
-public abstract class AbstractConfigBuilder {
+public abstract class AbstractConfigSaveLoader {
+
+    public static <C> AbstractConfigSaveLoader makeSaveLoader(Class<C> configClass) {
+        return new DefaultYamlConfigSaveLoader(
+                configClass, () -> new File(ConfigLoaders.MOD_CONFIG_DIRECTORY, "config.yml"));
+    }
+
+    private boolean initialized = false;
+    private final Class<?> configClass;
+    private List<ConfigPropertyConnection> connections = null;
+
+    public AbstractConfigSaveLoader(Class<?> configClass) {
+        this.configClass = configClass;
+    }
+
+    /**
+     * Do not use this method in the constructor.
+     */
+    public void initialize() {
+        if(this.initialized) return;
+
+        try {
+            this.connections = this.getConnections(configClass);
+            this.postInitialization();
+            this.initialized = true;
+        } catch(IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public final void save() {
+        if(!this.initialized) this.initialize();
+
+        for(ConfigPropertyConnection connection : this.connections) {
+            connection.save();
+        }
+        this.saveToFile();
+    }
+
+    public final void load() {
+        if(!this.initialized) this.initialize();
+
+        this.loadFromFile();
+        for(ConfigPropertyConnection connection : this.connections) {
+            connection.load();
+        }
+    }
 
     public final List<ConfigPropertyConnection> getConnections(Class<?> clazz) throws IllegalAccessException {
         Field[] fields = clazz.getDeclaredFields();
@@ -73,6 +123,7 @@ public abstract class AbstractConfigBuilder {
     protected abstract ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
                                                                        Supplier<?> getter, Consumer<Object> setter, Object defaultValue);
     protected abstract void postInitialization();
-    protected abstract void saveAll();
-    protected abstract void loadAll();
+    protected abstract void saveToFile();
+    protected abstract void loadFromFile();
+
 }

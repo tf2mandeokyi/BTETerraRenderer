@@ -12,7 +12,7 @@ import lombok.Setter;
 public class BTETerraRendererConfig {
 
     @ConfigIgnore
-    public static final ConfigSaveLoader SAVE_LOADER_INSTANCE = ConfigSaveLoader.makeSaveLoader(BTETerraRendererConfig.class);
+    public static final AbstractConfigSaveLoader SAVE_LOADER_INSTANCE = AbstractConfigSaveLoader.makeSaveLoader(BTETerraRendererConfig.class);
 
     @ConfigName("General Settings")
     @ConfigComment({

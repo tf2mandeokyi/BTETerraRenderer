@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.mod.client.KeyMappings;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
-import com.mndk.bteterrarenderer.mod.config.MC18ForgeTomlConfigBuilder;
+import com.mndk.bteterrarenderer.mod.config.MC18ForgeTomlConfigSaveLoader;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
@@ -19,7 +19,7 @@ public class KeyEvent {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if(KeyMappings.MAP_OPTIONS_KEY.consumeClick()) {
             // I don't like this
-            ((MC18ForgeTomlConfigBuilder) BTETerraRendererConfig.SAVE_LOADER_INSTANCE.getConfigBuilder()).saveRenderState();
+            ((MC18ForgeTomlConfigSaveLoader) BTETerraRendererConfig.SAVE_LOADER_INSTANCE).saveRenderState();
             MapRenderingOptionsSidebar.open();
         }
         else if(KeyMappings.MAP_TOGGLE_KEY.consumeClick()) {
