@@ -1,14 +1,11 @@
 plugins {
     id 'net.minecraftforge.gradle'
-//    id 'btr.java-conventions'
     id 'org.spongepowered.mixin'
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
-
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
 minecraft {
     mappings channel: 'official', version: "${project.mappingsVersion}"
@@ -18,7 +15,6 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
             mods {
                 bteterrarenderer { source sourceSets.main }
             }
@@ -28,7 +24,6 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
             mods {
                 bteterrarenderer { source sourceSets.main }
             }
@@ -38,7 +33,6 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-//            property 'forge.enabledGameTestNamespaces', 'bteterrarenderer'
             mods {
                 bteterrarenderer { source sourceSets.main }
             }
@@ -56,33 +50,9 @@ minecraft {
     }
 }
 
-repositories {}
-
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraftVersion}-${project.forgeVersion}"
-
-    shadowDep fg.deobf(project(':core'))
-
-    annotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
-    testImplementation fg.deobf('org.spongepowered:lwts:1.0.0')
-    testImplementation fg.deobf('org.spongepowered:mixin:0.8.5')
-    testAnnotationProcessor fg.deobf('org.spongepowered:mixin:0.8.5:processor')
 }
-
-//processResources {
-//    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-//
-//    inputs.property "version", project.version
-//    inputs.property "mcversion", project.minecraftVersion
-//
-//    from(sourceSets.main.resources.srcDirs) {
-//        include 'META-INF/mods.toml'
-//        expand 'version': project.version, 'mcversion': project.minecraftVersion
-//    }
-//    from(sourceSets.main.resources.srcDirs) {
-//        exclude 'META-INF/mods.toml'
-//    }
-//}
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 

@@ -58,6 +58,10 @@ subprojects { p ->
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
 
+        if(isForgeSubProject || isFabricSubProject) {
+            shadowDep project(':core')
+        }
+
         compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
         compileAndTestOnly 'commons-codec:commons-codec:1.16.0' // T++
         compileAndTestOnly 'com.google.guava:guava:31.1-jre' // T++
@@ -67,6 +71,13 @@ subprojects { p ->
         compileOnly 'org.projectlombok:lombok:1.18.26'
         testCompileOnly 'org.projectlombok:lombok:1.18.26'
         annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+        if(isForgeSubProject) {
+            annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+            testImplementation 'org.spongepowered:lwts:1.0.0'
+            testImplementation 'org.spongepowered:mixin:0.8.5'
+            testAnnotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+        }
 
         testImplementation 'junit:junit:4.13.2'
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
@@ -107,6 +118,9 @@ subprojects { p ->
         }
     }
 
+    // Since we're going to do jar-in-jar for fabric,
+    // we don't also need to "relocate" dependencies on there.
+    // only forge needs the relocations
     if(isForgeSubProject) {
         shadowJar {
             configurations = [project.configurations.shadowDep]
@@ -154,4 +168,24 @@ allprojects { p ->
         maven { url "https://repo.elytradev.com/" }
     }
 
+    if(p != project(':forge1.12.2') && p != project(':core')) {
+        tasks.withType(JavaCompile).configureEach {
+            it.options.release.set 17
+        }
+
+        java {
+            toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+            sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+        }
+    }
+    else {
+        java {
+            sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+        }
+    }
+
+    tasks.register('printJavaVersion') {
+        println("Java version set to $sourceCompatibility for $p")
+    }
+    build.finalizedBy printJavaVersion
 }
