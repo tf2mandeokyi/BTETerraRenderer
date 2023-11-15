@@ -2,6 +2,8 @@
     "key.bteterrarenderer.category": "BTETerraRenderer",
     "key.bteterrarenderer.options_ui": "설정 UI 열기",
     "key.bteterrarenderer.toggle": "지도 렌더링 켜기/끄기",
+    "key.bteterrarenderer.move_up": "지도 위로 올리기",
+    "key.bteterrarenderer.move_down": "지도 아래로 내리기",
 
     "gui.bteterrarenderer.settings.title": "BTETerraRenderer 설정",
 

@@ -2,10 +2,10 @@
 # BTETerraRenderer
 ![example workflow](https://github.com/tf2mandeokyi/BTETerraRenderer/actions/workflows/gradle.yml/badge.svg) [![Discord Chat](https://img.shields.io/discord/804025113216548874.svg)](https://discord.gg/4gjrwWH2gS)
 
-The map renderer tool for BuildTheEarth project that renders external maps,
-such as [Bing maps](https://www.bing.com/maps) and [OpenStreetMap](http://openstreetmap.org/), as a hologram.
+The map hologram rendering tool for BuildTheEarth project that renders external maps,
+such as [Bing maps](https://www.bing.com/maps) and [OpenStreetMap](http://openstreetmap.org/).
 
-It is made to help builders build accurate road details and building tops easily.
+This mod can help builders easily map accurate road details and building tops.
 
 Logo by [vicrobex](https://github.com/vicrobex)
 
@@ -31,7 +31,17 @@ See [API Documentation](YML_CONFIG.md) for more information.
 1. [Download](https://github.com/tf2mandeokyi/BTETerraRenderer/releases) the latest version of the mod
 2. Put the mod in mods folder
 3. Run Minecraft
-4. In game, press **` (Grave)** to open render settings UI, and press **R** to toggle map rendering
+
+### Controls
+
+| Key               | Description                               |
+|-------------------|-------------------------------------------|
+| `` ` ``(Backtick) | Opens render settings UI                  |
+| `R`               | Toggles map rendering                     |
+| `Y`               | Moves map up along Y-axis by 0.5 blocks   |
+| `I`               | Moves map down along Y-axis by 0.5 blocks | 
+
+## Screenshot
 
 ![Reference screenshot](docs/screenshot0.png "Location: Seattle, USA")
 
@@ -41,4 +51,4 @@ See [API Documentation](YML_CONFIG.md) for more information.
 ./gradlew :core:build
 ./gradlew :<version>:build
 ```
-The `<version>` can be any Minecraft version this project supports. (ex: `forge1.12.2`)
+The `<version>` can be any Minecraft version that this project supports (ex: `forge1.12.2`)
