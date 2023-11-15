@@ -18,8 +18,6 @@ public class KeyBindings {
             BTETerraRendererConfig.toggleRender();
         }
         if(KeyBindings.MAP_OPTIONS_KEY.wasPressed()) {
-            // I don't like this
-            BTETerraRendererConfig.SAVE_LOADER_INSTANCE.saveRenderState();
             MapRenderingOptionsSidebar.open();
         }
     }

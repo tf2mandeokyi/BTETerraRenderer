@@ -6,7 +6,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        "${project.modId}" {
+        bteterrarenderer {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }

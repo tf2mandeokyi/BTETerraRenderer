@@ -1,8 +1,7 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.core.projection.Projections;
+import com.mndk.bteterrarenderer.core.event.ClientConnectionEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -15,8 +14,7 @@ public class ClientOngoingConnectionEvents {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onClientConnection(ClientPlayerNetworkEvent.LoggedInEvent event) {
-        Projections.setDefaultBTEProjection();
-        ConfigLoaders.loadAll(true);
+        ClientConnectionEvents.onJoin();
     }
 
 }

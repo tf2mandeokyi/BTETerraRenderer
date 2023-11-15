@@ -209,7 +209,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
-        BTETerraRendererConfig.load();
+        BTETerraRendererConfig.save();
         INSTANCE.setSide(BTETerraRendererConfig.UI.getSidebarSide());
         INSTANCE.updateMapSourceDropdown();
         INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.getTileMapServiceWrapper());

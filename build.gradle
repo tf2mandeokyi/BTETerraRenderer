@@ -110,9 +110,18 @@ subprojects { p ->
         def intoTargets = [ "$buildDir/resources/main/" ]
 
         def replaceProperties = [
-                version:    rootProject.modVersion,
-                mcversion:  project.minecraftVersion
-                // TODO: Add mod name and descriptions here
+                // Version properties
+                version:        rootProject.mod_version,
+                mcversion:      project.minecraftVersion,
+                // Mod config file properties
+                authors:        rootProject.mod_authors,
+                displayName:    rootProject.mod_displayName,
+                description:    rootProject.mod_description,
+                url:            rootProject.mod_url,
+                sourceUrl:      rootProject.mod_sourceUrl,
+                discordUrl:     rootProject.mod_discordUrl,
+                credits:        rootProject.mod_credits,
+                license:        rootProject.mod_license
         ]
 
         inputs.properties replaceProperties
@@ -138,7 +147,7 @@ subprojects { p ->
         shadowJar {
             configurations = [project.configurations.shadowDep]
 
-            def librariesLocation = "${project.modGroup}.${project.modId}.dep"
+            def librariesLocation = "${project.mod_group}.${project.mod_id}.dep"
             relocate 'com.fasterxml.jackson', "${librariesLocation}.jackson"
             relocate 'de.javagl.jgltf', "${librariesLocation}.jgltf"
             relocate 'net.daporkchop.lib', "${librariesLocation}.porklib"
@@ -158,9 +167,9 @@ allprojects { p ->
     apply plugin: 'java'
     apply plugin: 'maven-publish'
 
-    version = "${rootProject.modVersion}-${project.name}"
-    group = rootProject.modGroup
-    archivesBaseName = rootProject.modId
+    version = "${rootProject.mod_version}-${project.name}" // ex: 1.03-forge1.12.2
+    group = rootProject.mod_group
+    archivesBaseName = rootProject.mod_id
 
     compileJava.options.encoding = 'UTF-8'
 

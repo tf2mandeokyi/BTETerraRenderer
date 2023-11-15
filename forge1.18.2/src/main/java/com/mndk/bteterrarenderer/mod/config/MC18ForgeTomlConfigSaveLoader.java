@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.mod.config;
 
 import com.mndk.bteterrarenderer.core.config.AbstractConfigSaveLoader;
-import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.config.ConfigPropertyConnection;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeDouble;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeInt;
@@ -18,7 +17,6 @@ import java.util.function.Supplier;
 public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
 
     private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-    private ForgeConfigSpec.ConfigValue<Boolean> doRenderConfig;
 
     public MC18ForgeTomlConfigSaveLoader(Class<?> configClass) {
         super(configClass);
@@ -58,11 +56,6 @@ public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
             configValue = builder.define(name, defaultValue);
         }
 
-        // I don't like this
-        if("Do Render".equals(name)) {
-            doRenderConfig = BTRUtil.uncheckedCast(configValue);
-        }
-
         return new ConfigPropertyConnection() {
             public void save() {
                 configValue.set(BTRUtil.uncheckedCast(getter.get()));
@@ -71,12 +64,6 @@ public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
                 setter.accept(configValue.get());
             }
         };
-    }
-
-    @Override
-    public void saveRenderState() {
-        // I don't like this
-        doRenderConfig.set(BTETerraRendererConfig.HOLOGRAM.doRender);
     }
 
     @Override

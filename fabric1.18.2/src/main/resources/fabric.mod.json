@@ -2,17 +2,15 @@
     "schemaVersion": 1,
     "id": "bteterrarenderer",
     "version": "${version}",
-    "name": "BTETerraRenderer",
-    "description": "Renders various external maps for BuildTheEarth project.",
-    "authors": [
-        "m4ndeokyi"
-    ],
+    "name": "${displayName}",
+    "description": "${description}",
+    "authors": [ "${authors}" ],
     "contact": {
-        "homepage": "https://www.curseforge.com/minecraft/mc-mods/bteterrarenderer",
-        "sources": "https://github.com/tf2mandeokyi/BTETerraRenderer"
+        "homepage": "${url}",
+        "sources": "${sourceUrl}"
     },
 
-    "license": "CC0-1.0",
+    "license": "${license}",
     "icon": "assets/bteterrarenderer/textures/icon.png",
     "environment": "*",
     "entrypoints": {
@@ -39,7 +37,7 @@
     "custom": {
         "modmenu": {
             "links": {
-                "modmenu.discord": "https://discord.gg/4gjrwWH2gS"
+                "modmenu.discord": "${discordUrl}"
             }
         }
     },

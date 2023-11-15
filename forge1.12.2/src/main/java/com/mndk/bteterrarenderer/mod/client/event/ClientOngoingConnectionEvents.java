@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.event.ClientConnectionEvents;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.mod.CommonProxy;
@@ -19,7 +20,7 @@ public class ClientOngoingConnectionEvents {
 
     @SubscribeEvent
     public static void onClientConnection(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-        Projections.setDefaultBTEProjection();
+        ClientConnectionEvents.onJoin();
     }
 
     @SubscribeEvent

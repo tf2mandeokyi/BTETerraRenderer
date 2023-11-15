@@ -1,18 +1,18 @@
 modLoader="javafml"
 loaderVersion="[40,)"
 license="Apache-2.0"
-issueTrackerURL="https://discord.gg/4gjrwWH2gS"
-displayURL="https://github.com/tf2mandeokyi/BTETerraRenderer/"
+issueTrackerURL="${discordUrl}"
+displayURL="${sourceUrl}"
 
 [[mods]]
 modId="bteterrarenderer"
 version="${version}"
-displayName="BTETerraRenderer"
-logoFile="bteterrarenderer-icon.png"
-credits="Authored by m4ndeokyi, logo by d1m4 (vicrobex)"
-authors="m4ndeokyi"
+displayName="${displayName}"
+logoFile="assets/bteterrarenderer/textures/icon.png"
+credits="${credits}"
+authors="${authors}"
 description='''
-Renders various external maps for BuildTheEarth project.
+${description}
 '''
 
 [[dependencies.bteterrarenderer]]

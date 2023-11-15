@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.mod.client.command.CommandsRegisterer;
-import com.mndk.bteterrarenderer.mod.client.event.ClientConnectionEvents;
+import com.mndk.bteterrarenderer.mod.client.event.ClientOngoingConnectionEvents;
 import com.mndk.bteterrarenderer.mod.client.event.RenderEvents;
 import com.mndk.bteterrarenderer.mod.client.event.TickEvents;
 import net.fabricmc.api.ClientModInitializer;
@@ -20,7 +20,7 @@ public class BTETerraRendererClientMod implements ClientModInitializer {
         // Events
         RenderEvents.registerEvents();
         TickEvents.registerEvents();
-        ClientConnectionEvents.registerEvents();
+        ClientOngoingConnectionEvents.registerEvents();
 
         BTETerraRendererConstants.LOGGER.info("Client Mod BTETerraRenderer initialized");
     }
