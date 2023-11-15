@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 buildscript {
     repositories {
         maven {
@@ -24,8 +26,15 @@ subprojects { p ->
     //noinspection GroovyUnusedAssignment
     def isCoreSubProject = p == project(':core')
     def isForgeSubProject = project.name.startsWith('forge')
-    //noinspection GroovyUnusedAssignment
     def isFabricSubProject = project.name.startsWith('fabric')
+
+    // Match version
+    def mcVersionPattern = Pattern.compile('[a-zA-Z]+(\\d+)\\.(\\d+)(\\.(\\d+))?')
+    def mcVersionMatcher = mcVersionPattern.matcher(project.name)
+    def mcVersionMiddle
+    while(mcVersionMatcher.find()) {
+        mcVersionMiddle = Integer.parseInt(mcVersionMatcher.group(2))
+    }
 
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -57,7 +66,7 @@ subprojects { p ->
         if(p != project(':forge1.12.2')) {
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
-        if(p == project(':fabric1.19.4')) {
+        if(isFabricSubProject && mcVersionMiddle >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
         }

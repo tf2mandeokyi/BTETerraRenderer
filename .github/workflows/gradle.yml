@@ -41,7 +41,12 @@ jobs:
 
     strategy:
       matrix:
-        mod-api-version: ['forge1.12.2', 'forge1.18.2', 'fabric1.18.2', 'fabric1.19.4']
+        mod-api-version:
+          - 'forge1.12.2'
+          - 'forge1.18.2'
+          - 'fabric1.18.2'
+          - 'fabric1.19.4'
+          - 'fabric1.20.2'
 
     steps:
       - name: Check out repo
