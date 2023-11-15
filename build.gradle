@@ -57,6 +57,10 @@ subprojects { p ->
         if(p != project(':forge1.12.2')) {
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
+        if(p == project(':fabric1.19.4')) {
+            shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
+            shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
+        }
 
         if(isForgeSubProject || isFabricSubProject) {
             shadowDep project(':core')

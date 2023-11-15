@@ -1,0 +1,47 @@
+{
+    "schemaVersion": 1,
+    "id": "bteterrarenderer",
+    "version": "${version}",
+    "name": "BTETerraRenderer",
+    "description": "Renders various external maps for BuildTheEarth project.",
+    "authors": [
+        "m4ndeokyi"
+    ],
+    "contact": {
+        "homepage": "https://www.curseforge.com/minecraft/mc-mods/bteterrarenderer",
+        "sources": "https://github.com/tf2mandeokyi/BTETerraRenderer"
+    },
+
+    "license": "CC0-1.0",
+    "icon": "assets/bteterrarenderer/textures/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "com.mndk.bteterrarenderer.mod.BTETerraRendererMod"
+        ],
+        "client": [
+            "com.mndk.bteterrarenderer.mod.client.BTETerraRendererClientMod"
+        ]
+    },
+    "mixins": [
+        "mixins.bteterrarenderer.json",
+        {
+            "config": "mixins.bteterrarenderer.client.json",
+            "environment": "client"
+        }
+    ],
+    "depends": {
+        "fabricloader": ">=0.14.24",
+        "fabric": "*",
+        "minecraft": "~1.19.4",
+        "java": ">=17"
+    },
+    "custom": {
+        "modmenu": {
+            "links": {
+                "modmenu.discord": "https://discord.gg/4gjrwWH2gS"
+            }
+        }
+    },
+    "suggests": {}
+}
