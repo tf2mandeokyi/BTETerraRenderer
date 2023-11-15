@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mixin.minecraft;
 
-import com.mndk.bteterrarenderer.core.util.input.GameInputManager;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.GameInputManager;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

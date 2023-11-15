@@ -11,7 +11,7 @@ import com.mndk.bteterrarenderer.core.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
 
 public class SidebarMapAligner extends GuiSidebarElement {
@@ -148,40 +148,40 @@ public class SidebarMapAligner extends GuiSidebarElement {
         int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
         int centerX = boxX + boxWidth / 2, centerY = boxY + boxHeight / 2;
 
-        GraphicsQuad<GraphicsQuad.PosXY> box = GraphicsQuad.newPosXYQuad(
-                new GraphicsQuad.PosXY(boxX, boxY),
-                new GraphicsQuad.PosXY(boxX + boxWidth, boxY),
-                new GraphicsQuad.PosXY(boxX + boxWidth, boxY + boxHeight),
-                new GraphicsQuad.PosXY(boxX, boxY + boxHeight)
-        );
+//        GraphicsQuad<GraphicsQuad.PosXY> box = GraphicsQuad.newPosXYQuad(
+//                new GraphicsQuad.PosXY(boxX, boxY),
+//                new GraphicsQuad.PosXY(boxX + boxWidth, boxY),
+//                new GraphicsQuad.PosXY(boxX + boxWidth, boxY + boxHeight),
+//                new GraphicsQuad.PosXY(boxX, boxY + boxHeight)
+//        );
 
         // Secondary lines
         for(int z = zi - lineCount; z <= zi + lineCount; z++) {
             if(z % 5 == 0) continue;
-            drawNorthSouthLine(poseStack, box, centerX, centerY, z, SECONDARY_LINE_COLOR);
+            drawNorthSouthLine(poseStack, centerX, centerY, z, SECONDARY_LINE_COLOR);
         }
         for(int x = xi - lineCount; x <= xi + lineCount; x++) {
             if(x % 5 == 0) continue;
-            drawEastWestLine(poseStack, box, centerX, centerY, x, SECONDARY_LINE_COLOR);
+            drawEastWestLine(poseStack, centerX, centerY, x, SECONDARY_LINE_COLOR);
         }
 
         // Primary lines
         for(int z = zi - lineCount; z <= zi + lineCount; z++) {
             if(z % 5 != 0 || z == 0) continue;
-            drawNorthSouthLine(poseStack, box, centerX, centerY, z, PRIMARY_LINE_COLOR);
+            drawNorthSouthLine(poseStack, centerX, centerY, z, PRIMARY_LINE_COLOR);
         }
         for(int x = xi - lineCount; x <= xi + lineCount; x++) {
             if(x % 5 != 0 || x == 0) continue;
-            drawEastWestLine(poseStack, box, centerX, centerY, x, PRIMARY_LINE_COLOR);
+            drawEastWestLine(poseStack, centerX, centerY, x, PRIMARY_LINE_COLOR);
         }
 
         // Axis lines
-        drawNorthSouthLine(poseStack, box, centerX, centerY, 0, AXIS_LINE_COLOR);
-        drawEastWestLine(poseStack, box, centerX, centerY, 0, AXIS_LINE_COLOR);
+        drawNorthSouthLine(poseStack, centerX, centerY, 0, AXIS_LINE_COLOR);
+        drawEastWestLine(poseStack, centerX, centerY, 0, AXIS_LINE_COLOR);
     }
 
     private void drawNorthSouthLine(Object poseStack,
-                                    GraphicsQuad<GraphicsQuad.PosXY> box, int centerX, int centerY,
+                                    int centerX, int centerY,
                                     int zIndex, int color) {
         double alignZ = this.zOffset.get();
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
@@ -189,7 +189,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         double diff = (zIndex - alignZ) * MOUSE_DIVIDER;
         double diffX = dy * diff, diffY = -dx * diff;
 
-        drawClippedLine(poseStack, box,
+        drawLine(poseStack,
                 centerX + diffX - dx * LINE_LENGTH, centerY + diffY - dy * LINE_LENGTH,
                 dx * 2*LINE_LENGTH, dy * 2*LINE_LENGTH,
                 color
@@ -197,7 +197,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     private void drawEastWestLine(Object poseStack,
-                                  GraphicsQuad<GraphicsQuad.PosXY> box, int centerX, int centerY,
+                                  int centerX, int centerY,
                                   int xIndex, int color) {
         double alignX = this.xOffset.get();
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
@@ -205,16 +205,16 @@ public class SidebarMapAligner extends GuiSidebarElement {
         double diff = (alignX - xIndex) * MOUSE_DIVIDER;
         double diffX = dx * diff, diffY = dy * diff;
 
-        drawClippedLine(poseStack, box,
+        drawLine(poseStack,
                 centerX + diffX - dy * LINE_LENGTH, centerY + diffY + dx * LINE_LENGTH,
                 dy * 2*LINE_LENGTH, -dx * 2*LINE_LENGTH,
                 color
         );
     }
 
-    private void drawClippedLine(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> box,
-                                 double x, double y, double dx, double dy,
-                                 int color) {
+    private void drawLine(Object poseStack,
+                          double x, double y, double dx, double dy,
+                          int color) {
         GraphicsQuad<GraphicsQuad.PosXY> line = RawGuiManager.makeLineDxDy(x, y, dx, dy, 1);
         if(line == null) return;
         RawGuiManager.fillQuad(poseStack, line, color, 0);

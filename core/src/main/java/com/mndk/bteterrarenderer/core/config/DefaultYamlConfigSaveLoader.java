@@ -59,6 +59,9 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
     }
 
     @Override
+    public void saveRenderState() {}
+
+    @Override
     protected void postInitialization() {}
 
     @Override

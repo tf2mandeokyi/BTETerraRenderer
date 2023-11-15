@@ -73,6 +73,7 @@ public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
         };
     }
 
+    @Override
     public void saveRenderState() {
         // I don't like this
         doRenderConfig.set(BTETerraRendererConfig.HOLOGRAM.doRender);

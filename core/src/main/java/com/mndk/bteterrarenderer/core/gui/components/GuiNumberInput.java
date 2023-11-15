@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.components;
 
 import com.mndk.bteterrarenderer.core.gui.FontManager;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.StringUtil;

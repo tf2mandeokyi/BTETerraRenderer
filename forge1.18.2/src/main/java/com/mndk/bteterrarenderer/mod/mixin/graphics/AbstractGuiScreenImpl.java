@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.mixin.graphics;
 
 import com.mndk.bteterrarenderer.mod.mixin.delegate.IScaledScreenSizeImpl;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;

@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.mixin.delegate;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Mouse;
 

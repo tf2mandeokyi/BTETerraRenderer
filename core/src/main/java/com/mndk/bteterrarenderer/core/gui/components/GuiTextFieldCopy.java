@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.core.gui.components;
 
 import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.core.util.input.GameInputManager;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.GameInputManager;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import lombok.Getter;
@@ -119,6 +119,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         return this.getWordPosition(delta, cursorPos, true);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private int getWordPosition(int delta, int cursorPos, boolean p_94143_) {
         int i = cursorPos;
         boolean flag = delta < 0;
@@ -248,6 +249,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean canConsumeInput() {
         return this.isVisible() && this.isFocused() && this.enabled;
     }

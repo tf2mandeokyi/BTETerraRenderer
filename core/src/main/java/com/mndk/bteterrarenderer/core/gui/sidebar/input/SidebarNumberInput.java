@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.input;
 
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;

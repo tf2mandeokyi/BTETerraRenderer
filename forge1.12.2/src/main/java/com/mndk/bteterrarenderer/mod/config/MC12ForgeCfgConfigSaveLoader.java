@@ -117,6 +117,9 @@ public class MC12ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
     }
 
     @Override
+    public void saveRenderState() {}
+
+    @Override
     protected void postInitialization() {}
 
     @Override

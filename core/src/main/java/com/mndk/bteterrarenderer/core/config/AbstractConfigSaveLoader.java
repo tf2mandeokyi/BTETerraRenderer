@@ -122,6 +122,8 @@ public abstract class AbstractConfigSaveLoader {
     protected abstract void onPop();
     protected abstract ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
                                                                        Supplier<?> getter, Consumer<Object> setter, Object defaultValue);
+    /** It's not required to implement this unless you're in forge >= 1.18.2 */
+    public abstract void saveRenderState();
     protected abstract void postInitialization();
     protected abstract void saveToFile();
     protected abstract void loadFromFile();

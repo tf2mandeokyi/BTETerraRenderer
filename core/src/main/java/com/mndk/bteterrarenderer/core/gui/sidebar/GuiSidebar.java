@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import lombok.Setter;
 

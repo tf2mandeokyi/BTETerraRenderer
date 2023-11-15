@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 import com.google.common.collect.Lists;
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;

@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client;
 
+import com.mndk.bteterrarenderer.core.input.KeyBindings;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.mod.client.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.mod.CommonProxy;
@@ -23,7 +24,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
-		KeyMappings.registerKeys();
+		KeyBindings.registerAll();
 	}
 	
 	@Override

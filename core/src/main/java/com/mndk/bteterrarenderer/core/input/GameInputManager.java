@@ -1,9 +1,9 @@
-package com.mndk.bteterrarenderer.core.util.input;
+package com.mndk.bteterrarenderer.core.input;
 
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 
-import static com.mndk.bteterrarenderer.core.util.input.InputKey.*;
+import static com.mndk.bteterrarenderer.core.input.InputKey.*;
 
 @UtilityClass
 public class GameInputManager {
@@ -33,6 +33,7 @@ public class GameInputManager {
         return isKeyDown(KEY_LEFT_SHIFT) || isKeyDown(KEY_RIGHT_SHIFT);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isAltKeyDown() {
         return isKeyDown(KEY_LEFT_ALT) || isKeyDown(KEY_RIGHT_ALT);
     }

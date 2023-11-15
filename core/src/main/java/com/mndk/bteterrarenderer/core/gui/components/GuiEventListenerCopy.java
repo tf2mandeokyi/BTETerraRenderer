@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.components;
 
-import com.mndk.bteterrarenderer.core.util.input.InputKey;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 
 public interface GuiEventListenerCopy {
     int HOVERED_COLOR = 0xFFFFFFA0;

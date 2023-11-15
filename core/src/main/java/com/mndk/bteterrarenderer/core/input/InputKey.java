@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.util.input;
+package com.mndk.bteterrarenderer.core.input;
 
 import java.util.HashMap;
 import java.util.Map;

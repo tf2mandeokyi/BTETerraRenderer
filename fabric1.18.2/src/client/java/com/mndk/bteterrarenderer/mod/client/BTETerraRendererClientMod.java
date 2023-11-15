@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mod.client;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.input.KeyBindings;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.mod.client.command.CommandsRegisterer;
 import com.mndk.bteterrarenderer.mod.client.event.ClientConnectionEvents;
@@ -14,7 +15,7 @@ public class BTETerraRendererClientMod implements ClientModInitializer {
     public void onInitializeClient() {
         ConfigLoaders.setDirectoryAndLoadAll(FabricLoader.getInstance().getConfigDir().toFile());
         CommandsRegisterer.register();
-        KeyBindings.registerKeys();
+        KeyBindings.registerAll();
 
         // Events
         RenderEvents.registerEvents();
