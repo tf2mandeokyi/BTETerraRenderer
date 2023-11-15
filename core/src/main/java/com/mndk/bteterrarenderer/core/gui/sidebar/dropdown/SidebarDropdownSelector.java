@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.dropdown;
 
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
@@ -139,11 +140,11 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             temp = right; right = left; left = temp;
         }
 
-        GraphicsQuad<GraphicsQuad.PosXY> quad = GraphicsQuad.newPosXYQuad(
-                new GraphicsQuad.PosXY(left, top),
-                new GraphicsQuad.PosXY((left + right) / 2f, bottom),
-                new GraphicsQuad.PosXY((left + right) / 2f, bottom),
-                new GraphicsQuad.PosXY(right, top)
+        GraphicsQuad<PosXY> quad = GraphicsQuad.newPosXY(
+                new PosXY(left, top),
+                new PosXY((left + right) / 2f, bottom),
+                new PosXY((left + right) / 2f, bottom),
+                new PosXY(right, top)
         );
         RawGuiManager.fillQuad(poseStack, quad, colorARGB, 0);
     }

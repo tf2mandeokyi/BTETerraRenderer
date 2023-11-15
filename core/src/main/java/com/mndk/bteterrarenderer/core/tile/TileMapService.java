@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.graphics.*;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
@@ -25,7 +26,10 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Getter
 @RequiredArgsConstructor
@@ -69,7 +73,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         for(TileId tileId : renderTileIdList) {
 
             List<GraphicsModel> models = null;
-            List<GraphicsQuad<?>> nonTexturedModel;
+            List<GraphicsShape<?>> nonTexturedModel;
 
             try {
                 TmsIdPair<TileId> idPair = new TmsIdPair<>(tmsId, tileId);
@@ -192,7 +196,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     protected abstract List<PreBakedModel> getPreBakedModels(TmsIdPair<TileId> idPair) throws Exception;
 
     @Nullable
-    protected abstract List<GraphicsQuad<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
+    protected abstract List<GraphicsShape<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
 
     private static void bakeStaticImages() {
         if(STATIC_IMAGES_BAKED) return;
@@ -227,10 +231,12 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
             InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);
             SOMETHING_WENT_WRONG = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
+            errorImageStream.close();
 
             String loadingImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/loading.png";
             InputStream loadingImageStream = loader.getResourceAsStream(loadingImagePath);
             LOADING = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
+            loadingImageStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

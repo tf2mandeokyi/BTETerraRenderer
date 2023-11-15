@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mixin.gui;
 
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.AbstractGuiScreenCopyImpl;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.OpenDummyGuiButton;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
@@ -35,8 +36,8 @@ public class RawGuiManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> quad, int color, float z) {
-        GraphicsQuad.PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
+    public void fillQuad(Object poseStack, GraphicsQuad<PosXY> quad, int color, float z) {
+        PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
 
         float a = (float)(color >> 24 & 255) / 255.0F;
         float r = (float)(color >> 16 & 255) / 255.0F;

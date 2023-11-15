@@ -76,6 +76,7 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
     @RequiredArgsConstructor
     private class SingleThreadTask implements Runnable {
         private final int index;
+        @SuppressWarnings({ "InfiniteLoopStatement", "BusyWait" })
         public void run() {
             if(debug) BTETerraRendererConstants.LOGGER.info("Thread #" + index + " started");
             try {

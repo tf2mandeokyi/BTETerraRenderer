@@ -1,8 +1,10 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
@@ -88,9 +90,9 @@ public class GltfModelConverter {
 
         private PreBakedModel convertMeshPrimitiveModel(MeshPrimitiveModel meshPrimitiveModel) {
             ParsedPoint[] parsedPoints = this.parsePoints(meshPrimitiveModel);
-            List<GraphicsQuad<?>> quads = this.parsedPointsToQuads(meshPrimitiveModel, parsedPoints);
+            List<GraphicsShape<?>> shapes = this.parsedPointsToShapes(meshPrimitiveModel, parsedPoints);
             BufferedImage image = this.readMaterialModel(meshPrimitiveModel.getMaterialModel());
-            return new PreBakedModel(image, quads);
+            return new PreBakedModel(image, shapes);
         }
 
         private ParsedPoint[] parsePoints(MeshPrimitiveModel meshPrimitiveModel) {
@@ -137,14 +139,14 @@ public class GltfModelConverter {
             throw new UnsupportedOperationException("Not implemented");
         }
 
-        private List<GraphicsQuad<?>> parsedPointsToQuads(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] points) {
-            List<GraphicsQuad<?>> quadList;
+        private List<GraphicsShape<?>> parsedPointsToShapes(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] points) {
+            List<GraphicsShape<?>> shapeList;
             AccessorModel indicesAccessor = meshPrimitiveModel.getIndices();
             int meshCount = indicesAccessor != null ? indicesAccessor.getCount() : points.length;
 
             int meshMode = meshPrimitiveModel.getMode();
             if(meshMode == MeshPrimitiveModelModes.TRIANGLES) {
-                quadList = new ArrayList<>(meshCount / 3);
+                shapeList = new ArrayList<>(meshCount / 3);
 
                 for(int i = 0; i < meshCount; i += 3) {
                     int[] meshIndices = indicesAccessor != null ? new int[] {
@@ -153,15 +155,15 @@ public class GltfModelConverter {
                             readInteger(indicesAccessor, i + 2)
                     } : new int[] { i, i+1, i+2 };
 
-                    GraphicsQuad.PosTex vertex1 = points[meshIndices[0]].getGraphicsVertex();
-                    GraphicsQuad.PosTex vertex2 = points[meshIndices[1]].getGraphicsVertex();
-                    GraphicsQuad.PosTex vertex3 = points[meshIndices[2]].getGraphicsVertex();
-                    quadList.add(GraphicsQuad.newPosTexQuad(vertex1, vertex2, vertex3, vertex1));
+                    PosTex vertex1 = points[meshIndices[0]].getGraphicsVertex();
+                    PosTex vertex2 = points[meshIndices[1]].getGraphicsVertex();
+                    PosTex vertex3 = points[meshIndices[2]].getGraphicsVertex();
+                    shapeList.add(GraphicsTriangle.newPosTex(vertex1, vertex2, vertex3));
                 }
             } else {
                 throw new RuntimeException("meshMode not supported: " + meshMode);
             }
-            return quadList;
+            return shapeList;
         }
 
         private BufferedImage readMaterialModel(MaterialModel materialModel) {
@@ -270,8 +272,8 @@ public class GltfModelConverter {
             }
         }
 
-        private GraphicsQuad.PosTex getGraphicsVertex() {
-            return new GraphicsQuad.PosTex(
+        private PosTex getGraphicsVertex() {
+            return new PosTex(
                     gamePos[0], gamePos[1], gamePos[2], // position
                     tex[0], tex[1] // texture coordinate
             );

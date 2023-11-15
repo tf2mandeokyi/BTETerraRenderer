@@ -9,8 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
+import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
@@ -128,14 +130,14 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         if(stream == null) return null;
 
         BufferedImage image = ImageIO.read(stream);
-        GraphicsQuad<GraphicsQuad.PosTex> quad = this.computeTileQuad(tileKey);
+        GraphicsQuad<PosTex> quad = this.computeTileQuad(tileKey);
         return Collections.singletonList(new PreBakedModel(image, Collections.singletonList(quad)));
     }
 
     @Nullable
     @Override
-    protected List<GraphicsQuad<?>> getNonTexturedModel(TileKey tileKey) throws OutOfProjectionBoundsException {
-        GraphicsQuad<GraphicsQuad.PosTex> quad = this.computeTileQuad(tileKey);
+    protected List<GraphicsShape<?>> getNonTexturedModel(TileKey tileKey) throws OutOfProjectionBoundsException {
+        GraphicsQuad<PosTex> quad = this.computeTileQuad(tileKey);
         return Collections.singletonList(quad);
     }
 
@@ -154,7 +156,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         return this.urlConverter.convertToUrl(this.urlTemplate, tileX, tileY, relativeZoom);
     }
 
-    private GraphicsQuad<GraphicsQuad.PosTex> computeTileQuad(TileKey tileKey) throws OutOfProjectionBoundsException {
+    private GraphicsQuad<PosTex> computeTileQuad(TileKey tileKey) throws OutOfProjectionBoundsException {
         /*
          *  i=0 ------ i=1
          *   |          |
@@ -162,13 +164,13 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
          *   |          |
          *  i=3 ------ i=2
          */
-        GraphicsQuad<GraphicsQuad.PosTex> quad = GraphicsQuad.newPosTexQuad();
+        GraphicsQuad<PosTex> quad = GraphicsQuad.newPosTex();
         for (int i = 0; i < 4; i++) {
             int[] mat = this.flatTileProjection.getCornerMatrix(i);
             double[] geoCoord = flatTileProjection.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
             double[] gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
-            quad.setVertex(i, new GraphicsQuad.PosTex(
+            quad.setVertex(i, new PosTex(
                     gameCoord[0], 0, gameCoord[1], // position
                     mat[2], mat[3] // texture coordinate
             ));

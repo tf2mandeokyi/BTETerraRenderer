@@ -1,7 +1,8 @@
 package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -13,13 +14,15 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 @UtilityClass
 public class GraphicsModelVisualManagerImpl {
 
-    private final BufferBuilder BUFFER_QUAD_PTC = new BufferBuilder(0x200000);
+    private final BufferBuilder BUFFER_BUILDER = new BufferBuilder(0x200000);
 
     public void preRender() {
         RenderSystem.disableCull();
@@ -35,32 +38,39 @@ public class GraphicsModelVisualManagerImpl {
     }
 
     public void drawModel(DrawContext drawContext, GraphicsModel model, double px, double py, double pz, float opacity) {
-
-        // Initialize buffers
-        BUFFER_QUAD_PTC.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        // Draw
-        for(GraphicsQuad<?> quad : model.getQuads()) {
-            if(quad.getVertexClass() == GraphicsQuad.PosTex.class) {
-                for (int i = 0; i < 4; i++) {
-                    GraphicsQuad.PosTex vertex = (GraphicsQuad.PosTex) quad.getVertex(i);
-                    BUFFER_QUAD_PTC.vertex(drawContext.getMatrices().peek().getPositionMatrix(),
-                                    (float) (vertex.x - px), (float) (vertex.y - py), (float) (vertex.z - pz))
-                            .texture(vertex.u, vertex.v)
-                            .color(1f, 1f, 1f, opacity)
-                            .next();
-                }
-            }
-            else {
-                // TODO
-                throw new UnsupportedOperationException("Not implemented");
-            }
-        }
-
         RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         RenderSystem.setShaderTexture(0, (Identifier) model.getTextureObject());
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
 
-        BufferRenderer.drawWithGlobalProgram(BUFFER_QUAD_PTC.end());
+        if(!model.getQuads().isEmpty()) {
+            BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+            drawShapeList(matrix, model.getQuads(), px, py, pz, opacity);
+            BufferRenderer.drawWithGlobalProgram(BUFFER_BUILDER.end());
+        }
+        if(!model.getTriangles().isEmpty()) {
+            BUFFER_BUILDER.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
+            drawShapeList(matrix, model.getTriangles(), px, py, pz, opacity);
+            BufferRenderer.drawWithGlobalProgram(BUFFER_BUILDER.end());
+        }
+    }
+
+    private void drawShapeList(Matrix4f matrix, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
+        for(GraphicsShape<?> shape : shapes) {
+            if(shape.getVertexClass() != PosTex.class) {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            for (int i = 0; i < shape.getVerticesCount(); i++) {
+                PosTex vertex = (PosTex) shape.getVertex(i);
+                float x = (float) (vertex.x - px);
+                float y = (float) (vertex.y - py);
+                float z = (float) (vertex.z - pz);
+                BUFFER_BUILDER.vertex(matrix, x, y, z)
+                        .texture(vertex.u, vertex.v)
+                        .color(1f, 1f, 1f, opacity)
+                        .next();
+            }
+        }
     }
 
     public void deleteTexture(Identifier textureObject) {

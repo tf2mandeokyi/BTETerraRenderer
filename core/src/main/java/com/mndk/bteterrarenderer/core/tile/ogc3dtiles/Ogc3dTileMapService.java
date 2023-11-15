@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
@@ -220,7 +220,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
     @Nullable
     @Override
-    protected List<GraphicsQuad<?>> getNonTexturedModel(TileGlobalKey o) {
+    protected List<GraphicsShape<?>> getNonTexturedModel(TileGlobalKey o) {
         return null;
     }
 

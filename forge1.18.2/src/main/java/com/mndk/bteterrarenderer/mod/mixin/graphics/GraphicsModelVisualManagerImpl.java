@@ -1,7 +1,8 @@
 package com.mndk.bteterrarenderer.mod.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -10,6 +11,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix4f;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import net.minecraft.Util;
@@ -22,12 +24,13 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.function.Function;
 
 @UtilityClass
 public class GraphicsModelVisualManagerImpl {
 
-    // Could've just used access transformer for these variables, but I didn't feel like it...
+    // I hate this
     private static final RenderStateShard.CullStateShard NO_CULL = new RenderStateShard.CullStateShard(false);
     private static final RenderStateShard.OverlayStateShard OVERLAY = new RenderStateShard.OverlayStateShard(true);
 
@@ -39,7 +42,7 @@ public class GraphicsModelVisualManagerImpl {
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
     });
-    private static final Function<ResourceLocation, RenderType> POS_TEX_COLOR_MODEL = Util.memoize(resourceLocation -> {
+    private static final Function<ResourceLocation, RenderType> QUAD_PTC_MODEL = Util.memoize(resourceLocation -> {
         RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
                 .setCullState(NO_CULL)
                 .setOverlayState(OVERLAY)
@@ -49,6 +52,19 @@ public class GraphicsModelVisualManagerImpl {
                 .createCompositeState(true);
         return RenderType.create(
                 "bteterrarenderer_tile", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS,
+                256, true, false, compositeState
+        );
+    });
+    private static final Function<ResourceLocation, RenderType> TRIANGLE_PTC_MODEL = Util.memoize(resourceLocation -> {
+        RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                .setCullState(NO_CULL)
+                .setOverlayState(OVERLAY)
+                .setShaderState(POS_TEX_COLOR_SHADER)
+                .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(MODEL_TRANSPARENCY)
+                .createCompositeState(true);
+        return RenderType.create(
+                "bteterrarenderer_tile", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES,
                 256, true, false, compositeState
         );
     });
@@ -63,22 +79,35 @@ public class GraphicsModelVisualManagerImpl {
     public void drawModel(PoseStack poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         ResourceLocation resourceLocation = (ResourceLocation) model.getTextureObject();
-        RenderType posTexColorRenderType = POS_TEX_COLOR_MODEL.apply(resourceLocation);
+        Matrix4f matrix = poseStack.last().pose();
 
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(posTexColorRenderType);
-        for(GraphicsQuad<?> quad : model.getQuads()) {
-            if(quad.getVertexClass() == GraphicsQuad.PosTex.class) {
-                for (int i = 0; i < 4; i++) {
-                    GraphicsQuad.PosTex vertex = (GraphicsQuad.PosTex) quad.getVertex(i);
-                    vertexConsumer.vertex(poseStack.last().pose(), (float) (vertex.x - px), (float) (vertex.y - py), (float) (vertex.z - pz))
-                            .uv(vertex.u, vertex.v)
-                            .color(1f, 1f, 1f, opacity)
-                            .endVertex();
-                }
-            }
-            else {
-                // TODO
+        if(!model.getQuads().isEmpty()) {
+            RenderType posTexColorRenderType = QUAD_PTC_MODEL.apply(resourceLocation);
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(posTexColorRenderType);
+            drawShapeList(vertexConsumer, matrix, model.getQuads(), px, py, pz, opacity);
+        }
+        if(!model.getTriangles().isEmpty()) {
+            RenderType posTexColorRenderType = TRIANGLE_PTC_MODEL.apply(resourceLocation);
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(posTexColorRenderType);
+            drawShapeList(vertexConsumer, matrix, model.getTriangles(), px, py, pz, opacity);
+        }
+    }
+
+    private void drawShapeList(VertexConsumer vertexConsumer, Matrix4f matrix, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
+        for(GraphicsShape<?> shape : shapes) {
+            if(shape.getVertexClass() != PosTex.class) {
                 throw new UnsupportedOperationException("Not implemented");
+            }
+
+            for (int i = 0; i < shape.getVerticesCount(); i++) {
+                PosTex vertex = (PosTex) shape.getVertex(i);
+                float x = (float) (vertex.x - px);
+                float y = (float) (vertex.y - py);
+                float z = (float) (vertex.z - pz);
+                vertexConsumer.vertex(matrix, x, y, z)
+                        .uv(vertex.u, vertex.v)
+                        .color(1f, 1f, 1f, opacity)
+                        .endVertex();
             }
         }
     }

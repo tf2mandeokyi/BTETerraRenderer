@@ -1,18 +1,19 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner;
 
-import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
-import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.GuiCheckBoxCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
 import com.mndk.bteterrarenderer.core.input.InputKey;
+import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
+import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
+import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
+import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -215,7 +216,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private void drawLine(Object poseStack,
                           double x, double y, double dx, double dy,
                           int color) {
-        GraphicsQuad<GraphicsQuad.PosXY> line = RawGuiManager.makeLineDxDy(x, y, dx, dy, 1);
+        GraphicsQuad<PosXY> line = RawGuiManager.makeLineDxDy(x, y, dx, dy, 1);
         if(line == null) return;
         RawGuiManager.fillQuad(poseStack, line, color, 0);
     }

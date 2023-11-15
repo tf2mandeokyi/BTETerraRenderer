@@ -1,7 +1,8 @@
 package com.mndk.bteterrarenderer.mod.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @UtilityClass
@@ -40,24 +42,33 @@ public class GraphicsModelVisualManagerImpl {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
 
-        // Don't ever move this begin() call to preRender()
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-        for(GraphicsQuad<?> quad : model.getQuads()) {
-            if(quad.getVertexClass() == GraphicsQuad.PosTex.class) {
-                for (int i = 0; i < 4; i++) {
-                    GraphicsQuad.PosTex vertex = (GraphicsQuad.PosTex) quad.getVertex(i);
-                    builder.pos(vertex.x - px, vertex.y - py, vertex.z - pz)
-                            .tex(vertex.u, vertex.v)
-                            .color(1f, 1f, 1f, opacity)
-                            .endVertex();
-                }
-            }
-            else {
-                // TODO
-                throw new UnsupportedOperationException("Not implemented");
-            }
+        if(!model.getQuads().isEmpty()) {
+            builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+            drawShapeList(builder, model.getQuads(), px, py, pz, opacity);
+            tessellator.draw();
+        }
+        if(!model.getTriangles().isEmpty()) {
+            builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
+            drawShapeList(builder, model.getTriangles(), px, py, pz, opacity);
+            tessellator.draw();
         }
         tessellator.draw();
+    }
+
+    private void drawShapeList(BufferBuilder builder, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
+        for(GraphicsShape<?> shape : shapes) {
+            if(shape.getVertexClass() != PosTex.class) {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            for (int i = 0; i < shape.getVerticesCount(); i++) {
+                PosTex vertex = (PosTex) shape.getVertex(i);
+                builder.pos(vertex.x - px, vertex.y - py, vertex.z - pz)
+                        .tex(vertex.u, vertex.v)
+                        .color(1f, 1f, 1f, opacity)
+                        .endVertex();
+            }
+        }
     }
 
     public void deleteTexture(Object textureObject) {

@@ -1,11 +1,12 @@
 package com.mndk.bteterrarenderer.mixin.gui;
 
-import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsQuad;
+import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiAbstractWidgetCopy;
 import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
 import com.mndk.bteterrarenderer.mod.mixin.graphics.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mod.mixin.gui.RawGuiManagerImpl;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -34,8 +35,8 @@ public class RawGuiManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void fillQuad(Object poseStack, GraphicsQuad<GraphicsQuad.PosXY> quad, int color, float z) {
-        GraphicsQuad.PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
+    public void fillQuad(Object poseStack, GraphicsQuad<PosXY> quad, int color, float z) {
+        PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
         Matrix4f matrix = ((PoseStack) poseStack).last().pose();
 
         float a = (float)(color >> 24 & 255) / 255.0F;
