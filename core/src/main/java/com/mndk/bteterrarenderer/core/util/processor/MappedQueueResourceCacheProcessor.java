@@ -12,8 +12,6 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
 
     private final SimpleMappedQueueProcessor queueNodeProcessor;
     private final Thread[] threads;
-    private final int nThreads;
-    private final Thread threadsWatcher;
 
     /**
      * @param maxRetryCount           Max retry count. set this to -1 if no retry restrictions are needed
@@ -26,9 +24,11 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
         super(cacheExpireMilliseconds, maximumSize, debug);
         this.queueNodeProcessor = new SimpleMappedQueueProcessor(maxRetryCount);
         this.threads = new Thread[nThreads];
-        this.nThreads = nThreads;
-        this.threadsWatcher = new Thread(new ThreadsWatcherTask());
-        this.threadsWatcher.start();
+        for(int i = 0; i < nThreads; i++) {
+            Thread t = new Thread(new SingleThreadTask(i));
+            this.threads[i] = t;
+            t.start();
+        }
     }
 
     public void setCurrentQueueKey(QueueKey queueKey) {
@@ -43,9 +43,8 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
     @Override
     public void close() {
         for(Thread t : this.threads) {
-            if(t != null && t.isAlive()) t.interrupt();
+            if(t.isAlive()) t.interrupt();
         }
-        this.threadsWatcher.interrupt();
     }
 
     protected abstract QueueKey keyToQueueKey(Key key);
@@ -79,29 +78,15 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
         private final int index;
         public void run() {
             if(debug) BTETerraRendererConstants.LOGGER.info("Thread #" + index + " started");
-            if(!queueNodeProcessor.isCurrentQueueEmpty()) queueNodeProcessor.process(1);
-            threads[index] = null;
-        }
-    }
-
-    private class ThreadsWatcherTask implements Runnable {
-        @Override
-        public void run() {
-            while(true) {
-                if(queueNodeProcessor.isCurrentQueueEmpty()) {
-                    try {
+            try {
+                while(true) {
+                    if (!queueNodeProcessor.isCurrentQueueEmpty()) {
+                        queueNodeProcessor.processOne();
+                    } else {
                         Thread.sleep(250);
-                        continue;
-                    } catch (InterruptedException e) {
-                        break;
                     }
                 }
-                for(int i = 0; i < nThreads; i++) {
-                    if(threads[i] != null) continue;
-                    threads[i] = new Thread(new SingleThreadTask(i));
-                    threads[i].start();
-                }
-            }
+            } catch (InterruptedException ignored) {}
         }
     }
 }

@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 
 public abstract class MappedQueueProcessor<QueueKey, Input> {
 
@@ -13,55 +16,46 @@ public abstract class MappedQueueProcessor<QueueKey, Input> {
         this.maxRetryCount = maxRetryCount;
     }
 
-    public synchronized void setCurrentQueueKey(QueueKey queueKey) {
+    public void setCurrentQueueKey(QueueKey queueKey) {
         this.currentQueueKey = queueKey;
     }
 
-    public synchronized boolean isCurrentQueueEmpty() {
-        return queueMaps.isEmpty();
+    private synchronized Queue<Input> getQueue(QueueKey queueKey) {
+        return queueMaps.computeIfAbsent(queueKey, key -> new ArrayDeque<>());
     }
 
-    protected synchronized void offerToQueue(QueueKey queueKey, Input element) {
-        Queue<Input> queue = queueMaps.computeIfAbsent(queueKey, key -> new ArrayDeque<>());
+    public boolean isCurrentQueueEmpty() {
+        return this.getQueue(this.currentQueueKey).isEmpty();
+    }
+
+    protected void offerToQueue(QueueKey queueKey, Input element) {
+        Queue<Input> queue = this.getQueue(queueKey);
         queue.offer(element);
     }
 
-    public final void process(int processAtATime) {
-        List<Input> todos = new ArrayList<>();
-        Queue<Input> queue;
+    public final void processOne() throws InterruptedException {
+        Input element;
 
-        synchronized(this) {
-            if(this.currentQueueKey == null) return;
-            queue = queueMaps.computeIfAbsent(this.currentQueueKey, key -> new ArrayDeque<>());
-            for (int i = 0; i < processAtATime && !queue.isEmpty(); i++) {
-                Input element = queue.poll();
-                if (element == null) continue;
-                todos.add(element);
-            }
-        }
+        if(this.currentQueueKey == null) return;
+        Queue<Input> queue = this.getQueue(this.currentQueueKey);
+        element = queue.poll();
+        if(element == null) return;
 
-        List<Input> fails = new ArrayList<>();
-        for (Input todo : todos) {
-            Exception exception = processQueueElement(todo);
-            if (exception == null) {
-                failedCountMap.remove(todo);
-            } else {
-                // Skip the element if the failed count is more than enough
-                if(maxRetryCount != -1) {
-                    int previousRetryCount = failedCountMap.computeIfAbsent(todo, key -> 0);
-                    if (previousRetryCount >= maxRetryCount) {
-                        onQueueElementProcessingFailed(todo, exception);
-                        continue;
-                    }
-
-                    failedCountMap.put(todo, previousRetryCount + 1);
+        Exception exception = processQueueElement(element);
+        if (exception == null) {
+            failedCountMap.remove(element);
+        } else {
+            // Skip the element if the failed count is more than enough
+            if(maxRetryCount != -1) {
+                int previousRetryCount = failedCountMap.computeIfAbsent(element, key -> 0);
+                if (previousRetryCount >= maxRetryCount) {
+                    onQueueElementProcessingFailed(element, exception);
+                    return;
                 }
-                fails.add(todo);
-            }
-        }
 
-        if(!fails.isEmpty()) synchronized(this) {
-            queue.addAll(fails);
+                failedCountMap.put(element, previousRetryCount + 1);
+            }
+            queue.add(element);
         }
     }
 
