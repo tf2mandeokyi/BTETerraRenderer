@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.loader;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
@@ -17,11 +18,11 @@ public class TileMapServicePropertyLoader {
     private static final String FILE_NAME = "properties.json";
 
     public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {
-        if(ConfigLoaders.MOD_CONFIG_DIRECTORY == null) {
+        if(BTETerraRendererConfig.getModConfigDirectory() == null) {
             BTETerraRendererConstants.LOGGER.warn("Mod config file is null");
             return;
         }
-        File file = new File(ConfigLoaders.MOD_CONFIG_DIRECTORY, FILE_NAME);
+        File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
         if(!file.isFile()) return;
 
         CategoryMap<Map<String, Object>> raw = BTETerraRendererConstants.JSON_MAPPER.readValue(
@@ -40,14 +41,14 @@ public class TileMapServicePropertyLoader {
                 try {
                     tmsProperty.delegate.set(BTRUtil.uncheckedCast(propertyValues.get(key)));
                 } catch(Exception e) {
-                    BTETerraRendererConstants.LOGGER.info(e);
+                    BTETerraRendererConstants.LOGGER.error(e);
                 }
             }
         }
     }
 
     public static void save(@Nullable CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {
-        if(ConfigLoaders.MOD_CONFIG_DIRECTORY == null) return;
+        if(BTETerraRendererConfig.getModConfigDirectory() == null) return;
         if(tmsCategoryMap == null) return;
 
         CategoryMap<Map<String, Object>> raw = new CategoryMap<>();
@@ -61,7 +62,7 @@ public class TileMapServicePropertyLoader {
             raw.setItem(tmsWrapped.getParentCategory().getName(), tmsWrapped.getId(), propertyValues);
         }
 
-        File file = new File(ConfigLoaders.MOD_CONFIG_DIRECTORY, FILE_NAME);
+        File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
         BTETerraRendererConstants.JSON_MAPPER.writeValue(file, raw);
     }
 }

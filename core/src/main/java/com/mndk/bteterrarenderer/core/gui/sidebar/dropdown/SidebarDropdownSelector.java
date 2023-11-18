@@ -41,7 +41,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     private final Function<T, String> nameGetter;
 
     private boolean mouseOnMainBox = false;
-    private int mainBoxHeight, singleLineElementHeight, width, itemInnerWidth;
+    private int mainBoxHeight, singleLineElementHeight, itemInnerWidth;
 
 
     public ItemListUpdater itemListBuilder() {
@@ -52,8 +52,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     protected void init() {
         this.mainBoxHeight = FontManager.getFontHeight() + MAINBOX_PADDING_VERTICAL * 2;
         this.singleLineElementHeight = FontManager.getFontHeight() + ITEM_PADDING_VERTICAL * 2;
-        this.width = parent.elementWidth.get().intValue();
-        this.itemInnerWidth = width - MAINBOX_PADDING_HORIZONTAL * 2;
+        this.itemInnerWidth = this.getWidth() - MAINBOX_PADDING_HORIZONTAL * 2;
     }
 
     @Override
@@ -88,7 +87,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
     private boolean mouseInHeight(double mouseX, double mouseY, double height) {
-        return mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
+        return mouseX >= 0 && mouseX <= this.getWidth() && mouseY >= 0 && mouseY <= height;
     }
 
     @Override
@@ -97,9 +96,9 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         boolean opened = this.isOpened();
 
         // Background
-        RawGuiManager.fillRect(poseStack, 0, 0, width, mainBoxHeight, MAINBOX_BACKGROUND_COLOR);
+        RawGuiManager.fillRect(poseStack, 0, 0, this.getWidth(), mainBoxHeight, MAINBOX_BACKGROUND_COLOR);
         if(opened) {
-            RawGuiManager.fillRect(poseStack, 0, mainBoxHeight, width, getVisualHeight(),
+            RawGuiManager.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), getVisualHeight(),
                     DROPDOWN_BACKGROUND_COLOR);
         }
 
@@ -108,9 +107,9 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         // Main box Border
         RawGuiManager.fillRect(poseStack, -1, -1, 0, mainBoxHeight + 1, mainBoxColor);
-        RawGuiManager.fillRect(poseStack, 0, -1, width, 0, mainBoxColor);
-        RawGuiManager.fillRect(poseStack, width, -1, width + 1, mainBoxHeight + 1, mainBoxColor);
-        RawGuiManager.fillRect(poseStack, 0, mainBoxHeight, width, mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.fillRect(poseStack, 0, -1, this.getWidth(), 0, mainBoxColor);
+        RawGuiManager.fillRect(poseStack, this.getWidth(), -1, this.getWidth() + 1, mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), mainBoxHeight + 1, mainBoxColor);
 
         T selectedValue = this.selectedValue.get();
         if(selectedValue != null) {
@@ -132,8 +131,8 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
     private void drawDropdownArrow(Object poseStack, int top, int colorARGB, boolean flip) {
         int bottom = top + FontManager.getFontHeight();
-        int right = width - MAINBOX_PADDING_HORIZONTAL;
-        int left = width - MAINBOX_PADDING_HORIZONTAL - FontManager.getFontHeight();
+        int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
+        int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - FontManager.getFontHeight();
 
         if (flip) {
             int temp = top; top = bottom; bottom = temp;
@@ -163,9 +162,8 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        this.width = (int) newWidth;
-        this.itemInnerWidth = (int) (newWidth - ITEM_PADDING_HORIZONTAL * 2);
+    public void onWidthChange() {
+        this.itemInnerWidth = this.getWidth() - ITEM_PADDING_HORIZONTAL * 2;
     }
 
 
@@ -210,7 +208,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
             if(Objects.equals(this.value, selectedValue)) {
                 RawGuiManager.fillRect(poseStack,
-                        0, 0, width, height, SELECTED_BACKGROUND_COLOR);
+                        0, 0, getWidth(), height, SELECTED_BACKGROUND_COLOR);
             }
 
             // Item text
@@ -284,7 +282,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             if(!this.main) {
                 // Category name
                 FontManager.drawCenteredStringWithShadow(poseStack,
-                        this.name, width / 2.0f, ITEM_PADDING_VERTICAL, categoryColor);
+                        this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL, categoryColor);
                 // Dropdown arrow
                 drawDropdownArrow(poseStack, ITEM_PADDING_VERTICAL, categoryColor, this.opened);
             }
@@ -295,7 +293,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
             if(!isLast) {
                 // Category separator line
-                RawGuiManager.fillRect(poseStack, 0, 0, width, 1,
+                RawGuiManager.fillRect(poseStack, 0, 0, getWidth(), 1,
                         ITEMLIST_SEPARATOR_LINE_COLOR);
             }
         }

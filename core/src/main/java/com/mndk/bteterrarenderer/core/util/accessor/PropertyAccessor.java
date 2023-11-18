@@ -17,6 +17,7 @@ public interface PropertyAccessor<T> {
     Class<T> getPropertyClass();
     T get();
     void setWithoutCheck(T value);
+    /** Returns whether the given value can be set to the property */
     boolean available(T value);
 
     static PropertyAccessor<Integer> of(IntSupplier getter, IntConsumer setter) {

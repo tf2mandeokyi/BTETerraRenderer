@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mixin.delegate;
 
 import com.mndk.bteterrarenderer.core.gui.components.IGuiChat;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.resources.ResourceLocation;

@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.mod.client;
 
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.mod.client.commands.ToggleMapCommand;
 import com.mndk.bteterrarenderer.mod.CommonProxy;
+import com.mndk.bteterrarenderer.mod.client.commands.ToggleMapCommand;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -18,7 +18,7 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		File gameConfigDirectory = event.getModConfigurationDirectory();
-		ConfigLoaders.setDirectoryAndLoadAll(gameConfigDirectory);
+		BTETerraRendererConfig.initialize(gameConfigDirectory);
 	}
 	
 	@Override

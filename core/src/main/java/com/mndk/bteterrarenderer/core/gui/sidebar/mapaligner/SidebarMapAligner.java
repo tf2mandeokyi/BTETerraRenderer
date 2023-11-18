@@ -13,7 +13,7 @@ import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -54,13 +54,12 @@ public class SidebarMapAligner extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        int width = parent.elementWidth.get().intValue();
         this.xInput = new GuiNumberInput(
-                0, 0, width / 2 - 3, 20,
+                0, 0, this.getWidth() / 2 - 3, 20,
                 xOffset, "X = "
         );
         this.zInput = new GuiNumberInput(
-                width / 2 + 3, 0, width / 2 - 3, 20,
+                this.getWidth() / 2 + 3, 0, this.getWidth() / 2 - 3, 20,
                 zOffset, "Z = "
         );
         this.lockNorthCheckBox = new GuiCheckBoxCopy(
@@ -87,10 +86,10 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        this.xInput.setWidth((int) (newWidth / 2 - 3));
-        this.zInput.setWidth((int) (newWidth / 2 - 3));
-        this.zInput.setX((int) (newWidth / 2 + 3));
+    public void onWidthChange() {
+        this.xInput.setWidth(this.getWidth() / 2 - 3);
+        this.zInput.setWidth(this.getWidth() / 2 - 3);
+        this.zInput.setX(this.getWidth() / 2 + 3);
     }
 
     @Override
@@ -114,7 +113,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private void drawAlignBox(Object poseStack) {
         // TODO v1.03.1: Add numbers
 
-        int elementWidth = parent.elementWidth.get().intValue();
+        int elementWidth = this.getWidth();
         int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT / 2;
 
         int boxN = 20 + ALIGNBOX_MARGIN_VERT, boxS = boxN + ALIGNBOX_HEIGHT;
@@ -123,12 +122,9 @@ public class SidebarMapAligner extends GuiSidebarElement {
         // Box background
         RawGuiManager.fillRect(poseStack, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
 
-        // Enable box clipping
-        if(GlGraphicsManager.glEnableRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN)) {
-            this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
-        }
-        // Disable box clipping
-        GlGraphicsManager.glDisableScissorTest();
+        GlGraphicsManager.glPushRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
+        this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
+        GlGraphicsManager.glPopRelativeScissor();
 
         // Borders
 //        int borderColor = this.alignBoxHovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR;
@@ -148,13 +144,6 @@ public class SidebarMapAligner extends GuiSidebarElement {
         int xi = (int) alignX, zi = (int) alignZ;
         int lineCount = (int) Math.ceil((boxWidth + ALIGNBOX_HEIGHT) / MOUSE_DIVIDER / 2);
         int centerX = boxX + boxWidth / 2, centerY = boxY + boxHeight / 2;
-
-//        GraphicsQuad<GraphicsQuad.PosXY> box = GraphicsQuad.newPosXYQuad(
-//                new GraphicsQuad.PosXY(boxX, boxY),
-//                new GraphicsQuad.PosXY(boxX + boxWidth, boxY),
-//                new GraphicsQuad.PosXY(boxX + boxWidth, boxY + boxHeight),
-//                new GraphicsQuad.PosXY(boxX, boxY + boxHeight)
-//        );
 
         // Secondary lines
         for(int z = zi - lineCount; z <= zi + lineCount; z++) {
@@ -241,7 +230,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     private boolean mouseInAlignBox(double mouseX, double mouseY) {
-        int width = parent.elementWidth.get().intValue();
+        int width = this.getWidth();
         return mouseX >= 10 && mouseX <= width - 10 &&
                 mouseY >= 20 + ALIGNBOX_MARGIN_VERT && mouseY <= 20 + ALIGNBOX_MARGIN_VERT + ALIGNBOX_HEIGHT;
     }

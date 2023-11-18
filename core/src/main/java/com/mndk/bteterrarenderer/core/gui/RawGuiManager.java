@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiAbstractWidgetCopy;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;

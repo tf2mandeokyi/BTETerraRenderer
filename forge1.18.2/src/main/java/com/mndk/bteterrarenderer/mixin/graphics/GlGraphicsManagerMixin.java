@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -39,15 +40,17 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public boolean glEnableRelativeScissor(Object poseStack, int x, int y, int width, int height) {
+    private int[] getAbsoluteScissorDimension(Object poseStack, int relX, int relY, int relWidth, int relHeight) {
         Window window = Minecraft.getInstance().getWindow();
-        if(window.getScreenWidth() == 0 || window.getScreenHeight() == 0) return false; // Division by zero handling
+        if(window.getScreenWidth() == 0 || window.getScreenHeight() == 0) { // Division by zero handling
+            return new int[] { 0, 0, 0, 0 };
+        }
         float scaleFactorX = (float) window.getScreenWidth() / window.getGuiScaledWidth();
         float scaleFactorY = (float) window.getScreenHeight() / window.getGuiScaledHeight();
 
         Matrix4f matrix = ((PoseStack) poseStack).last().pose();
-        Vector4f start = new Vector4f(x, y, 0, 1);
-        Vector4f end = new Vector4f(x+width, y+height, 0, 1);
+        Vector4f start = new Vector4f(relX, relY, 0, 1);
+        Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
         start.transform(matrix);
         end.transform(matrix);
 
@@ -55,18 +58,29 @@ public class GlGraphicsManagerMixin {
         int scissorY = (int) (window.getScreenHeight() - scaleFactorY * Math.max(start.y(), end.y()));
         int scissorWidth = (int) (scaleFactorX * Math.abs(start.x() - end.x()));
         int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
-
-        int scissorNorth = scissorY + scissorHeight;
-        if(scissorNorth < 0) return false;
-
-        RenderSystem.enableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
-        return true;
+        return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
     }
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void glDisableScissorTest() {
+    private void glEnableScissorTest() {
+        RenderSystem.assertOnGameThreadOrInit();
+        GlStateManager._enableScissorTest();
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    private void glScissorBox(int x, int y, int width, int height) {
+        RenderSystem.assertOnGameThreadOrInit();
+        GlStateManager._scissorBox(x, y, width, height);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    private void glDisableScissorTest() {
         RenderSystem.disableScissor();
     }
 

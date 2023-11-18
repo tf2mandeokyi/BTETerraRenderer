@@ -52,7 +52,6 @@ public class GraphicsModelVisualManagerImpl {
             drawShapeList(builder, model.getTriangles(), px, py, pz, opacity);
             tessellator.draw();
         }
-        tessellator.draw();
     }
 
     private void drawShapeList(BufferBuilder builder, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {

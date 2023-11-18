@@ -19,7 +19,7 @@ public class SidebarNumberInput extends GuiSidebarElement {
     @Override
     protected void init() {
         this.textField = new GuiNumberInput(
-                0, 0, parent.elementWidth.get().intValue(), 20,
+                0, 0, this.getWidth(), 20,
                 this.value, this.text
         );
     }
@@ -30,8 +30,8 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        this.textField.setWidth((int) newWidth);
+    public void onWidthChange() {
+        this.textField.setWidth(this.getWidth());
     }
 
     @Override

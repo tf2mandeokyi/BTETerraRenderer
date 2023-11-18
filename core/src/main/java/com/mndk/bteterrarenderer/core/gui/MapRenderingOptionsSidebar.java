@@ -1,31 +1,34 @@
 package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElementWrapper;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarText;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
-import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarElementListComponent;
+import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarBooleanButton;
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
+import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
 import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarHorizontalLine;
+import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarText;
 import com.mndk.bteterrarenderer.core.gui.sidebar.dropdown.SidebarDropdownSelector;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.GuiSidebarElementWrapper;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementListComponent;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
-import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
+import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
+import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -35,18 +38,38 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final int ELEMENT_DISTANCE = 7;
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
-    private final SidebarElementListComponent tmsPropertyElementList;
-    private final GuiSidebarElementWrapper yAxisInputWrapper;
+    private SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
+    private SidebarElementListComponent tmsPropertyElementList;
+    private GuiSidebarElementWrapper yAxisInputWrapper;
 
     public MapRenderingOptionsSidebar() {
         super(
-                BTETerraRendererConfig.UI.getSidebarSide(),
-                20, 20, ELEMENT_DISTANCE,
+                20, 20, ELEMENT_DISTANCE, false,
                 PropertyAccessor.of(
                         BTETerraRendererConfig.UI::getSidebarWidth,
                         BTETerraRendererConfig.UI::setSidebarWidth
-                ), false
+                ),
+                PropertyAccessor.of(SidebarSide.class,
+                        BTETerraRendererConfig.UI::getSidebarSide,
+                        BTETerraRendererConfig.UI::setSidebarSide
+                )
+        );
+
+    }
+
+    @Override
+    protected List<GuiSidebarElement> getElements() {
+        BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
+
+        // General components
+        SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
+                PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
+                I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
+        );
+        this.yAxisInputWrapper = new GuiSidebarElementWrapper();
+        SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
+                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
+                I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
         );
 
         // Map source components
@@ -55,26 +78,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         this::getWrappedTMS, this::setTileMapServiceWrapper),
                 MapRenderingOptionsSidebar::tmsWrappedToString
         );
-        // Don't make sound, as the main list of the sidebar already makes it
-        this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE, false);
-        this.yAxisInputWrapper = new GuiSidebarElementWrapper();
-    }
-
-    @Override
-    public void initGui() {
-        BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
-
-        // General components
-        SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
-                PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
-                I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
-        );
-        SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
-                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
-                I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
-        );
-
-        // Map source components
+        this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE, 0, null, false);
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18nManager.format("gui.bteterrarenderer.settings.map_reload"),
                 (self, mouseButton) -> this.reloadMapSources()
@@ -94,7 +98,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         SidebarBlank blank = new SidebarBlank(10);
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
 
-        this.setComponents(
+        return Arrays.asList(
                 // ===========================================================================================
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), SidebarText.TextAlign.CENTER),
                 blank,
@@ -124,8 +128,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 mapAligner
                 // ===========================================================================================
         );
-
-        super.initGui();
     }
 
     private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {
@@ -144,7 +146,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
 
         BTETerraRendererConfig.setTileMapService(tmsWrapped);
-        this.tmsPropertyElementList.setProperties(tms.getProperties());
+        this.tmsPropertyElementList.clear();
+        this.tmsPropertyElementList.addProperties(tms.getProperties());
         this.tmsPropertyElementList.hide = false;
 
         if(tms instanceof FlatTileMapService) {
@@ -160,7 +163,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private void reloadMapSources() {
         try {
-            ConfigLoaders.loadAll(false);
+            BTETerraRendererConfig.load(true);
             this.updateMapSourceDropdown();
         } catch(Exception e) {
             MinecraftClientManager.sendErrorMessageToChat("Error reloading maps!", e);
@@ -210,7 +213,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     public static void open() {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
         BTETerraRendererConfig.save();
-        INSTANCE.setSide(BTETerraRendererConfig.UI.getSidebarSide());
         INSTANCE.updateMapSourceDropdown();
         INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.getTileMapServiceWrapper());
         RawGuiManager.displayGuiScreen(INSTANCE);

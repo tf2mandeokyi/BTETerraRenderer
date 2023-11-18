@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar;
+package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
 
+import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import lombok.Getter;
 
@@ -13,7 +14,7 @@ public class GuiSidebarElementWrapper extends GuiSidebarElement {
 
     public void setElement(GuiSidebarElement delegate) {
         this.delegate = delegate;
-        if(this.parent != null && delegate != null) delegate.initComponent(this.parent);
+        if(delegate != null && this.getWidth() != -1) delegate.init(this.getWidth());
     }
 
     @Override
@@ -63,11 +64,12 @@ public class GuiSidebarElementWrapper extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        if(delegate != null) delegate.initComponent(this.parent);
+        if(delegate != null) delegate.init(this.getWidth());
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        if(delegate != null) delegate.onWidthChange(newWidth);
+    public void onWidthChange() {
+        if(delegate != null) delegate.onWidthChange(this.getWidth());
     }
+
 }

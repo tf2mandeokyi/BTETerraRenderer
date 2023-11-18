@@ -24,12 +24,12 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.formattedStringList = FontManager.listFormattedStringToWidth(displayString, parent.elementWidth.get().intValue());
+        this.formattedStringList = FontManager.listFormattedStringToWidth(displayString, this.getWidth());
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        this.formattedStringList = FontManager.listFormattedStringToWidth(displayString, (int) newWidth);
+    public void onWidthChange() {
+        this.formattedStringList = FontManager.listFormattedStringToWidth(displayString, this.getWidth());
     }
 
     @Override
@@ -39,8 +39,6 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     public void drawComponent(Object poseStack) {
-        int elementWidth = parent.elementWidth.get().intValue();
-
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
             if(align == TextAlign.LEFT) {
@@ -52,14 +50,14 @@ public class SidebarText extends GuiSidebarElement {
             else if(align == TextAlign.RIGHT) {
                 FontManager.drawStringWithShadow(poseStack,
                         line,
-                        elementWidth - FontManager.getStringWidth(line),
+                        (float) (this.getWidth()) - FontManager.getStringWidth(line),
                         i * FontManager.getFontHeight(), NORMAL_TEXT_COLOR
                 );
             }
             else if(align == TextAlign.CENTER) {
                 FontManager.drawCenteredStringWithShadow(poseStack,
                         line,
-                        elementWidth / 2f, i * FontManager.getFontHeight(), NORMAL_TEXT_COLOR
+                        (float) (this.getWidth()) / 2f, i * FontManager.getFontHeight(), NORMAL_TEXT_COLOR
                 );
             }
         }

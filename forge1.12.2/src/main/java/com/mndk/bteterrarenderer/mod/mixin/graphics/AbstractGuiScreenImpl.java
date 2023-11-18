@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.delegate;
+package com.mndk.bteterrarenderer.mod.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.input.InputKey;
@@ -7,13 +7,12 @@ import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 
-public class AbstractGuiScreenCopyImpl extends GuiScreen {
+public class AbstractGuiScreenImpl extends GuiScreen {
     public final AbstractGuiScreenCopy delegate;
     private double pMouseX = 0, pMouseY = 0;
 
-    public AbstractGuiScreenCopyImpl(AbstractGuiScreenCopy delegate) {
+    public AbstractGuiScreenImpl(AbstractGuiScreenCopy delegate) {
         this.delegate = delegate;
-        delegate.screenSize = IScaledScreenSizeImpl::new;
     }
 
     public void initGui() {

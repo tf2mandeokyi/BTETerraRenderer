@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.mod.client;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.mod.client.command.CommandsRegisterer;
 import com.mndk.bteterrarenderer.mod.client.event.ClientOngoingConnectionEvents;
 import com.mndk.bteterrarenderer.mod.client.event.RenderEvents;
@@ -13,7 +13,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public class BTETerraRendererClientMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ConfigLoaders.setDirectoryAndLoadAll(FabricLoader.getInstance().getConfigDir().toFile());
+        BTETerraRendererConfig.initialize(FabricLoader.getInstance().getConfigDir().toFile());
         CommandsRegisterer.register();
         KeyBindings.registerAll();
 

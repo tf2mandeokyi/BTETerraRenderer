@@ -42,7 +42,7 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public boolean glEnableRelativeScissor(Object poseStack, int x, int y, int width, int height) {
+    private int[] getAbsoluteScissorDimension(Object poseStack, int relX, int relY, int relWidth, int relHeight) {
         Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         int scaleFactor = scaledResolution.getScaleFactor();
@@ -52,8 +52,8 @@ public class GlGraphicsManagerMixin {
         Matrix4f matrix4f = new Matrix4f();
         matrix4f.load(buffer);
 
-        Vector4f originalStart = new Vector4f(x, y, 0, 1);
-        Vector4f originalEnd = new Vector4f(x+width, y+height, 0, 1);
+        Vector4f originalStart = new Vector4f(relX, relY, 0, 1);
+        Vector4f originalEnd = new Vector4f(relX+relWidth, relY+relHeight, 0, 1);
         Vector4f start = Matrix4f.transform(matrix4f, originalStart, null);
         Vector4f end = Matrix4f.transform(matrix4f, originalEnd, null);
 
@@ -61,19 +61,27 @@ public class GlGraphicsManagerMixin {
         int scissorY = (int) (mc.displayHeight - scaleFactor * Math.max(start.y, end.y));
         int scissorWidth = (int) (scaleFactor * Math.abs(start.x - end.x));
         int scissorHeight = (int) (scaleFactor * Math.abs(start.y - end.y));
-
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        int scissorNorth = scissorY + scissorHeight;
-        if(scissorNorth < 0) return false;
-
-        GL11.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
-        return true;
+        return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
     }
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void glDisableScissorTest() {
+    private void glEnableScissorTest() {
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    private void glScissorBox(int x, int y, int width, int height) {
+        GL11.glScissor(x, y, width, height);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    private void glDisableScissorTest() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 

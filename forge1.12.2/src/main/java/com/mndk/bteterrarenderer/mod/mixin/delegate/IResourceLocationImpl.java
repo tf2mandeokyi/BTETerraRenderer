@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.mixin.delegate;
 
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

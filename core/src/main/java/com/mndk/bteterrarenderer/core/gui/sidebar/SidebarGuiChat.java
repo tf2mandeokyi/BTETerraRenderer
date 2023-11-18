@@ -3,7 +3,6 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
 import com.mndk.bteterrarenderer.core.gui.components.IGuiChat;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import lombok.Setter;
 
 import javax.annotation.Nullable;
@@ -33,13 +32,10 @@ public class SidebarGuiChat {
         return opened && isAvailable();
     }
 
-    public void initGui(IScaledScreenSize screenSize) {
+    public void initGui() {
         this.left = 0;
-        this.right = screenSize.getWidth();
 
         if(parent == null) return;
-        parent.setWidth(screenSize.getWidth());
-        parent.setHeight(screenSize.getHeight());
         parent.init();
     }
 

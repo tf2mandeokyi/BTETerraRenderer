@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.util.mixin;
 
 import com.mndk.bteterrarenderer.core.gui.components.IGuiChat;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

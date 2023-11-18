@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.input.InputKey;
-import com.mndk.bteterrarenderer.mod.client.mixin.delegate.IScaledScreenSizeImpl;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -13,7 +12,6 @@ public class AbstractGuiScreenImpl extends Screen {
     public AbstractGuiScreenImpl(AbstractGuiScreenCopy delegate) {
         super(Text.empty());
         this.delegate = delegate;
-        delegate.screenSize = IScaledScreenSizeImpl::new;
     }
 
     protected void init() {

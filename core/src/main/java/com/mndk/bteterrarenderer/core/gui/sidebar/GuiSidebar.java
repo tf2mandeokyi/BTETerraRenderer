@@ -3,73 +3,77 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
+import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementListComponent;
+import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.input.InputKey;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
 import lombok.Setter;
 
-import java.util.Arrays;
+import java.util.List;
 
 // TODO: Add tab key
-public class GuiSidebar extends AbstractGuiScreenCopy {
+public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
     private static final int SIDEBAR_BACKGROUND_COLOR = 0x5F000000;
     private static final int WIDTH_CHANGE_BAR_COLOR = 0xFFFFFFFF;
     private static final int WIDTH_CHANGE_BAR_COLOR_HOVERED = HOVERED_COLOR;
     private static final int WIDTH_CHANGE_BAR_SHADOW = 0xFF383838;
     private static final int WIDTH_CHANGE_BAR_SHADOW_HOVERED = 0xFF3f3f28;
-    private static final int VERTICAL_SLIDER_WIDTH = 6;
-    private static final int VERTICAL_SLIDER_PADDING = 2;
-    private static final int VERTICAL_SLIDER_COLOR = NORMAL_TEXT_COLOR;
-    private static final int VERTICAL_SLIDER_COLOR_HOVERED = HOVERED_COLOR;
-    private static final int VERTICAL_SLIDER_COLOR_CLICKED = FOCUSED_BORDER_COLOR;
 
-    private final SidebarElementListComponent elementsComponent;
-    @Setter private SidebarSide side;
-    private final int elementPaddingSide;
-    private final int paddingTopBottom;
+    private final SidebarElementListComponent listComponent;
+    @Setter private PropertyAccessor<SidebarSide> side;
     private final boolean guiPausesGame;
-    private int verticalSliderValue, initialVerticalSliderValue;
-    private boolean verticalSliderHoverState, verticalSliderChangingState;
 
-    public final PropertyAccessor<Double> elementWidth;
-    private double mouseClickX, mouseClickY, initialElementWidth;
+    public final PropertyAccessor<Double> sidebarWidth;
+    private double mouseClickX, initialWidth;
     private boolean widthChangingState, widthChangeBarHoverState;
 
     private final SidebarGuiChat guiChat;
 
 
-    public GuiSidebar(
-            SidebarSide side, int elementPaddingSide, int paddingTopBottom, int elementDistance,
-            PropertyAccessor<Double> elementWidth, boolean guiPausesGame
-    ) {
-        this.elementsComponent = new SidebarElementListComponent(elementDistance, true);
+    public GuiSidebar(int elementPaddingSide, int paddingTopBottom, int elementDistance, boolean guiPausesGame,
+                      PropertyAccessor<Double> sidebarWidth,
+                      PropertyAccessor<SidebarSide> side) {
+        this.listComponent = new SidebarElementListComponent(0, 0, null, true);
+
+        // Side changing button
+        SidebarButton button = new SidebarButton(side.get() == SidebarSide.LEFT ? ">>" : "<<", (self, mouseButton) -> {
+            side.set(side.get() == SidebarSide.LEFT ? SidebarSide.RIGHT : SidebarSide.LEFT);
+            self.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
+        });
+        this.listComponent.add(button);
+
+        // Sidebar element list
+        SidebarBlank blank = new SidebarBlank(paddingTopBottom);
+        SidebarElementListComponent elementList = new SidebarElementListComponent(
+                elementDistance, elementPaddingSide, () -> this.getHeight() - button.getPhysicalHeight(), false);
+        elementList.add(blank);
+        elementList.addAll(this.getElements());
+        elementList.add(blank);
+        this.listComponent.add(elementList);
+
         this.side = side;
-        this.elementPaddingSide = elementPaddingSide;
-        this.paddingTopBottom = paddingTopBottom;
-        this.verticalSliderValue = 0;
         this.widthChangingState = false;
         this.guiPausesGame = guiPausesGame;
-        this.guiChat = new SidebarGuiChat();
+        this.sidebarWidth = sidebarWidth;
 
-        this.elementWidth = elementWidth;
+        this.guiChat = new SidebarGuiChat();
     }
+
+    protected abstract List<GuiSidebarElement> getElements();
 
     @Override
     public void initGui() {
-        this.guiChat.initGui(screenSize.get());
-        this.guiChat.changeSideMargin(side, (int) (this.elementWidth.get() + 2 * this.elementPaddingSide));
-        this.elementsComponent.initComponent(this);
-    }
-
-    protected void setComponents(GuiSidebarElement... elements) {
-        this.elementsComponent.set(Arrays.asList(elements));
+        this.guiChat.initGui();
+        this.guiChat.changeSideMargin(side.get(), this.sidebarWidth.get().intValue());
+        this.listComponent.init(this.sidebarWidth.get().intValue());
     }
 
     @Override
     public void tick() {
-        this.elementsComponent.tick();
+        this.listComponent.tick();
         if(this.guiChat.isOpened()) {
             this.guiChat.updateScreen();
         }
@@ -80,19 +84,10 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         if(this.guiChat.isOpened()) {
             this.guiChat.mouseHovered(mouseX, mouseY, partialTicks);
         }
-        this.validateSliderValue();
-
-        // Vertical slider
-        boolean result = this.verticalSliderHoverState = this.mouseOnScrollBar(mouseX, mouseY);
-        if(result) {
-            this.widthChangeBarHoverState = false;
-            return true;
-        }
 
         // Sidebar elements
-        int translateX = this.getElementsTranslateX();
-        result = this.elementsComponent.mouseHovered(mouseX - translateX,
-                mouseY - this.paddingTopBottom + verticalSliderValue, partialTicks, mouseHidden);
+        int sidebarLeft = this.getSidebarXRange()[0];
+        boolean result = this.listComponent.mouseHovered(mouseX - sidebarLeft, mouseY, partialTicks, mouseHidden);
         if(result) return true;
 
         // Width change bar
@@ -106,31 +101,19 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         }
 
         this.drawSidebarBackground(poseStack);
-        this.drawVerticalSlider(poseStack);
 
         GlGraphicsManager.glPushMatrix(poseStack);
 
-        int translateX = getElementsTranslateX();
-        GlGraphicsManager.glTranslate(poseStack, translateX, this.paddingTopBottom - verticalSliderValue, 0);
-        this.elementsComponent.drawComponent(poseStack);
+        int sidebarLeft = this.getSidebarXRange()[0];
+        GlGraphicsManager.glTranslate(poseStack, sidebarLeft, 0, 0);
+        this.listComponent.drawComponent(poseStack);
 
         GlGraphicsManager.glPopMatrix(poseStack);
     }
 
 
-    private void drawVerticalSlider(Object poseStack) {
-        int[] dimension = this.getVerticalSliderDimension();
-        int color = this.verticalSliderHoverState ? VERTICAL_SLIDER_COLOR_HOVERED : VERTICAL_SLIDER_COLOR;
-        if(this.verticalSliderChangingState) color = VERTICAL_SLIDER_COLOR_CLICKED;
-        RawGuiManager.fillRect(poseStack,
-                dimension[0], dimension[1] + VERTICAL_SLIDER_PADDING,
-                dimension[2] - VERTICAL_SLIDER_PADDING, dimension[3] - VERTICAL_SLIDER_PADDING, color);
-    }
-
-
     private void drawSidebarBackground(Object poseStack) {
-        IScaledScreenSize screen = screenSize.get();
-        int height = screen.getHeight();
+        int height = this.getHeight();
 
         // Background
         int[] range = this.getSidebarXRange();
@@ -141,30 +124,9 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         int changeBarColor = this.widthChangeBarHoverState ? WIDTH_CHANGE_BAR_COLOR_HOVERED : WIDTH_CHANGE_BAR_COLOR;
         int changeBarShadow = this.widthChangeBarHoverState ? WIDTH_CHANGE_BAR_SHADOW_HOVERED : WIDTH_CHANGE_BAR_SHADOW;
         RawGuiManager.fillRect(poseStack, widthChangeBarX - 1, 0, widthChangeBarX, height,
-                this.side == SidebarSide.LEFT ? changeBarShadow : changeBarColor);
+                this.side.get() == SidebarSide.LEFT ? changeBarShadow : changeBarColor);
         RawGuiManager.fillRect(poseStack, widthChangeBarX, 0, widthChangeBarX + 1, height,
-                this.side == SidebarSide.RIGHT ? changeBarShadow : changeBarColor);
-    }
-
-
-    /**
-     * @return [ x1, y1, x2, y2 ]
-     */
-    private int[] getVerticalSliderDimension() {
-        IScaledScreenSize screen = screenSize.get();
-        int right = this.getSidebarXRange()[1];
-        double screenHeight = screen.getHeight();
-        double elementsHeight = this.elementsComponent.getVisualHeight() + 2 * this.paddingTopBottom;
-        if(elementsHeight <= screenHeight) return new int[] { 0, 0, 0, -1 };
-
-        double multiplier = screenHeight / elementsHeight;
-        int sliderY = (int) (this.verticalSliderValue * multiplier);
-        int sliderHeight = (int) (screenHeight * multiplier);
-
-        return new int[] {
-                right - VERTICAL_SLIDER_WIDTH, sliderY,
-                right, sliderY + sliderHeight
-        };
+                this.side.get() == SidebarSide.RIGHT ? changeBarShadow : changeBarColor);
     }
 
 
@@ -172,16 +134,11 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         if(this.guiChat.isOpened() && this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton))
             return true;
 
-        this.initialElementWidth = elementWidth.get();
+        this.initialWidth = sidebarWidth.get();
         this.mouseClickX = mouseX;
-        this.mouseClickY = mouseY;
-        this.initialVerticalSliderValue = this.verticalSliderValue;
 
-        boolean result = this.elementsComponent.mousePressed(mouseX - this.getElementsTranslateX(),
-                mouseY - this.paddingTopBottom + this.verticalSliderValue, mouseButton);
-        if(result) return true;
-
-        result = this.verticalSliderChangingState = this.mouseOnScrollBar(mouseX, mouseY);
+        int sidebarLeft = this.getSidebarXRange()[0];
+        boolean result = this.listComponent.mousePressed(mouseX - sidebarLeft, mouseY, mouseButton);
         if(result) return true;
 
         return this.widthChangingState = Math.abs(mouseX - this.getWidthChangeBarX()) <= 4;
@@ -189,10 +146,9 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
 
 
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        this.elementsComponent.mouseReleased(mouseX - this.getElementsTranslateX(),
-                mouseY - this.paddingTopBottom + this.verticalSliderValue, mouseButton);
+        int sidebarLeft = this.getSidebarXRange()[0];
+        this.listComponent.mouseReleased(mouseX - sidebarLeft, mouseY, mouseButton);
         this.widthChangingState = false;
-        this.verticalSliderChangingState = false;
         return true;
     }
 
@@ -202,17 +158,10 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
         if(this.guiChat.isOpened() && !this.mouseOnSidebar(mouseX)) {
             // TODO: Maybe I should consider removing guiChat from sidebar
             this.guiChat.handleMouseInput();
-        } else {
-            this.verticalSliderValue -= (int) (Math.signum(scrollAmount) * 30);
-            this.validateSliderValue();
         }
-        return true;
-    }
 
-
-    private boolean mouseOnScrollBar(double mouseX, double mouseY) {
-        int[] dimension = this.getVerticalSliderDimension();
-        return mouseX >= dimension[0] && mouseX <= dimension[2] && mouseY >= dimension[1] && mouseY <= dimension[3];
+        int sidebarLeft = this.getSidebarXRange()[0];
+        return this.listComponent.mouseScrolled(mouseX - sidebarLeft, mouseY, scrollAmount);
     }
 
 
@@ -222,40 +171,22 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
     }
 
 
-    private void validateSliderValue() {
-        if(verticalSliderValue != 0) {
-            IScaledScreenSize screen = screenSize.get();
-
-            int totalHeight = this.elementsComponent.getVisualHeight() + 2 * this.paddingTopBottom;
-            if (this.verticalSliderValue > totalHeight - screen.getHeight()) {
-                this.verticalSliderValue = totalHeight - screen.getHeight();
-            }
-            if (this.verticalSliderValue < 0) this.verticalSliderValue = 0;
-        }
-    }
-
-
     private int getSidebarWidth() {
-        return (int) (elementWidth.get() + 2 * this.elementPaddingSide);
+        return sidebarWidth.get().intValue();
     }
 
     /**
      * @return [ leftX, rightX ]
      */
     private int[] getSidebarXRange() {
-        IScaledScreenSize screen = screenSize.get();
-        int screenWidth = screen.getWidth(), sidebarWidth = this.getSidebarWidth();
-        return this.side == SidebarSide.LEFT ?
+        int screenWidth = this.getWidth(), sidebarWidth = this.getSidebarWidth();
+        return this.side.get() == SidebarSide.LEFT ?
                 new int[] { 0, sidebarWidth } : new int[] { screenWidth - sidebarWidth, screenWidth };
     }
 
     private int getWidthChangeBarX() {
         int[] range = this.getSidebarXRange();
-        return this.side == SidebarSide.LEFT ? range[1] : range[0];
-    }
-
-    private int getElementsTranslateX() {
-        return this.getSidebarXRange()[0] + this.elementPaddingSide;
+        return this.side.get() == SidebarSide.LEFT ? range[1] : range[0];
     }
 
 
@@ -264,7 +195,7 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
             return true;
         }
 
-        boolean keyTyped = this.elementsComponent.keyTyped(key, keyCode);
+        boolean keyTyped = this.listComponent.keyTyped(key, keyCode);
         if (keyTyped) return true;
 
         if(this.guiChat.isAvailable()) {
@@ -284,7 +215,7 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
 
     @Override
     public boolean keyPressed(InputKey key) {
-        return this.elementsComponent.keyPressed(key);
+        return this.listComponent.keyPressed(key);
     }
 
 
@@ -292,34 +223,19 @@ public class GuiSidebar extends AbstractGuiScreenCopy {
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
         if(this.widthChangingState) {
             double dMouseX = mouseX - mouseClickX;
-            if(side == SidebarSide.RIGHT) dMouseX = -dMouseX;
-            double newElementWidth = BTRUtil.clamp(initialElementWidth + dMouseX, 130, 270);
+            if(side.get() == SidebarSide.RIGHT) dMouseX = -dMouseX;
+            double sidebarWidth = BTRUtil.clamp(initialWidth + dMouseX, 170, 310);
 
-            elementWidth.set(newElementWidth);
-            this.elementsComponent.onWidthChange(newElementWidth);
-            this.guiChat.changeSideMargin(side, (int) newElementWidth + 2 * this.elementPaddingSide);
-            return true;
-        }
-        if(this.verticalSliderChangingState) {
-            IScaledScreenSize screen = screenSize.get();
-            double totalHeight = this.elementsComponent.getVisualHeight() + 2 * this.paddingTopBottom;
-            double screenHeight = screen.getHeight();
-
-            double dMouseY = mouseY - mouseClickY;
-            double dValue = dMouseY * totalHeight / (screenHeight - 2);
-            double newVerticalSliderValue = BTRUtil.clamp(initialVerticalSliderValue + dValue,
-                    0, Math.max(totalHeight - screenHeight, 0));
-
-            this.verticalSliderValue = (int) newVerticalSliderValue;
+            this.sidebarWidth.set(sidebarWidth);
+            this.listComponent.onWidthChange((int) sidebarWidth);
+            this.guiChat.changeSideMargin(side.get(), (int) sidebarWidth);
             return true;
         }
 
-        int translateX = this.getElementsTranslateX();
-        int currentHeight = this.paddingTopBottom - verticalSliderValue;
-        return this.elementsComponent.mouseDragged(
-                mouseX - translateX, mouseY - currentHeight, mouseButton,
-                pMouseX - translateX, pMouseY - currentHeight
-        );
+        int sidebarLeft = this.getSidebarXRange()[0];
+        return this.listComponent.mouseDragged(
+                mouseX - sidebarLeft, mouseY, mouseButton,
+                pMouseX - sidebarLeft, pMouseY);
     }
 
     @Override

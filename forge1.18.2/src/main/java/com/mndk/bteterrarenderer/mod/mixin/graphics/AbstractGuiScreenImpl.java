@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.mod.mixin.graphics;
 
-import com.mndk.bteterrarenderer.mod.mixin.delegate.IScaledScreenSizeImpl;
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,7 +13,6 @@ public class AbstractGuiScreenImpl extends Screen {
     public AbstractGuiScreenImpl(AbstractGuiScreenCopy delegate) {
         super(TextComponent.EMPTY);
         this.delegate = delegate;
-        delegate.screenSize = IScaledScreenSizeImpl::new;
     }
 
     protected void init() {

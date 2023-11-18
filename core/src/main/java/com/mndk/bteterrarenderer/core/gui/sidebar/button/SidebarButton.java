@@ -16,12 +16,12 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.button = new GuiButtonCopy(0, 0, parent.elementWidth.get().intValue(), 20, buttonText);
+        this.button = new GuiButtonCopy(0, 0, this.getWidth(), 20, buttonText);
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        this.button.setWidth((int) newWidth);
+    public void onWidthChange() {
+        this.button.setWidth(this.getWidth());
     }
 
     public void setDisplayString(String newString) {

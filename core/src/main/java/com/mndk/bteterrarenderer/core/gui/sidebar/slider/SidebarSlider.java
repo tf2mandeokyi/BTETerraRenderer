@@ -34,7 +34,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
         assert value != null;
         this.slider = new GuiSliderCopy(
                 0, 0,
-                parent.elementWidth.get().intValue(), 20,
+                this.getWidth(), 20,
                 prefix, suffix,
                 value.min().doubleValue(), value.max().doubleValue(), value.get().doubleValue(),
                 !this.isInteger, true, this.isInteger,
@@ -43,8 +43,8 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange(double newWidth) {
-        this.slider.setWidth((int) newWidth);
+    public void onWidthChange() {
+        this.slider.setWidth(this.getWidth());
     }
 
     @Override

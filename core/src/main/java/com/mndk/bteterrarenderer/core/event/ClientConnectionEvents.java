@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.event;
 
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import lombok.experimental.UtilityClass;
 
@@ -8,6 +8,6 @@ import lombok.experimental.UtilityClass;
 public class ClientConnectionEvents {
     public void onJoin() {
         Projections.setDefaultBTEProjection();
-        ConfigLoaders.loadAll(true);
+        BTETerraRendererConfig.load(false);
     }
 }

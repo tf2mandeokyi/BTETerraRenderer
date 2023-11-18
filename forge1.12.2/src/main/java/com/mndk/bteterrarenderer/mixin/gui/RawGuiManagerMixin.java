@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.mixin.gui;
 
 import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mod.mixin.delegate.AbstractGuiScreenCopyImpl;
+import com.mndk.bteterrarenderer.mod.mixin.graphics.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.OpenDummyGuiButton;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
 import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
@@ -30,7 +30,7 @@ public class RawGuiManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     public void displayGuiScreen(AbstractGuiScreenCopy gui) {
-        Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenCopyImpl(gui));
+        Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenImpl(gui));
     }
 
     /** @author m4ndeokyi

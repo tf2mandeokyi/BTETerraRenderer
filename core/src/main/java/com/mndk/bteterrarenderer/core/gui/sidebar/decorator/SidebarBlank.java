@@ -10,22 +10,8 @@ public class SidebarBlank extends GuiSidebarElement {
         this.height = height;
     }
 
-    @Override
-    public int getPhysicalHeight() {
-        return height;
-    }
-
-    @Override
-    public int getVisualHeight() {
-        return 0;
-    }
-
-    @Override
-    protected void init() {}
-
-    @Override
-    public void onWidthChange(double newWidth) {}
-
-    @Override
-    public void drawComponent(Object poseStack) {}
+    @Override public int getPhysicalHeight() { return height; }
+    @Override protected void init() {}
+    @Override public void onWidthChange() {}
+    @Override public void drawComponent(Object poseStack) {}
 }

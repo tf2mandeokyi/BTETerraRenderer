@@ -1,27 +1,34 @@
 package com.mndk.bteterrarenderer.core.config;
 
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.annotation.*;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
+import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.TileMapServicePropertyLoader;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.UtilityClass;
 
+import java.io.File;
+
+@UtilityClass
 @SuppressWarnings("unused")
 public class BTETerraRendererConfig {
 
     @ConfigIgnore
-    public static final AbstractConfigSaveLoader SAVE_LOADER_INSTANCE = AbstractConfigSaveLoader.makeSaveLoader(BTETerraRendererConfig.class);
+    public final AbstractConfigSaveLoader SAVE_LOADER_INSTANCE = AbstractConfigSaveLoader.makeSaveLoader(BTETerraRendererConfig.class);
 
     @ConfigName("General Settings")
     @ConfigComment({
             "General settings.",
             "Use this block to select which map to render."
     })
-    public static final GeneralConfig GENERAL = new GeneralConfig();
+    public final GeneralConfig GENERAL = new GeneralConfig();
     @Getter @Setter @ConfigurableClass
-    public static class GeneralConfig {
+    public class GeneralConfig {
 
         @ConfigName("Map Service Category")
         public String mapServiceCategory = "Global";
@@ -35,9 +42,9 @@ public class BTETerraRendererConfig {
             "Hologram settings.",
             "Contains hologram related settings. (duh)"
     })
-    public static final HologramConfig HOLOGRAM = new HologramConfig();
+    public final HologramConfig HOLOGRAM = new HologramConfig();
     @Getter @Setter @ConfigurableClass
-    public static class HologramConfig {
+    public class HologramConfig {
 
         @ConfigName("Do Render")
         @ConfigComment("Maps will be rendered if enabled")
@@ -75,9 +82,9 @@ public class BTETerraRendererConfig {
     }
 
     @ConfigName("UI Settings")
-    public static final UIConfig UI = new UIConfig();
+    public final UIConfig UI = new UIConfig();
     @Getter @Setter @ConfigurableClass
-    public static class UIConfig {
+    public class UIConfig {
 
         @ConfigName("Sidebar Side")
         @ConfigComment("Sets the location of the sidebar.")
@@ -85,7 +92,7 @@ public class BTETerraRendererConfig {
 
         @ConfigName("Sidebar Width")
         @ConfigComment("Sets the width of the sidebar.")
-        @ConfigRangeDouble(min = 130, max = 270)
+        @ConfigRangeDouble(min = 170, max = 310)
         public double sidebarWidth = 200;
 
         @ConfigName("Sidebar Opacity")
@@ -95,36 +102,65 @@ public class BTETerraRendererConfig {
         public double sidebarOpacity = 0.7;
     }
 
-    public static void toggleRender() {
+    public void toggleRender() {
         HOLOGRAM.setDoRender(!HOLOGRAM.isDoRender());
     }
 
-    public static void initialize() {
-        SAVE_LOADER_INSTANCE.initialize();
+    @ConfigIgnore
+    private File MOD_CONFIG_DIRECTORY;
+    public File getModConfigDirectory() { return MOD_CONFIG_DIRECTORY; }
+
+    public void initialize(File gameConfigDirectory) {
+        MOD_CONFIG_DIRECTORY = new File(gameConfigDirectory, BTETerraRendererConstants.MODID);
+        try {
+            FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
+            TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
+            TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+            SAVE_LOADER_INSTANCE.initialize();
+            SAVE_LOADER_INSTANCE.load();
+            refreshCurrentTileMapService();
+        } catch (Throwable t) {
+            BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
+        }
     }
 
-    public static void save() {
-        BTETerraRendererConfig.SAVE_LOADER_INSTANCE.save();
-        refreshCurrentTileMapService();
+    public void save() {
+        try {
+            SAVE_LOADER_INSTANCE.save();
+            TileMapServicePropertyLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
+            refreshCurrentTileMapService();
+        } catch (Throwable t) {
+            BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
+        }
     }
-    public static void load() {
-        BTETerraRendererConfig.SAVE_LOADER_INSTANCE.load();
-        refreshCurrentTileMapService();
+
+    public void load(boolean loadMapsOnly) {
+        try {
+            FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
+            TileMapServiceYamlLoader.INSTANCE.refresh();
+            TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+            if(loadMapsOnly) return;
+
+            SAVE_LOADER_INSTANCE.load();
+            refreshCurrentTileMapService();
+        } catch (Throwable t) {
+            BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
+        }
     }
 
     @ConfigIgnore
-    private static CategoryMap.Wrapper<TileMapService<?>> TMS_ON_DISPLAY;
-    public static CategoryMap.Wrapper<TileMapService<?>> getTileMapServiceWrapper() {
+    private CategoryMap.Wrapper<TileMapService<?>> TMS_ON_DISPLAY;
+    public CategoryMap.Wrapper<TileMapService<?>> getTileMapServiceWrapper() {
         return TMS_ON_DISPLAY;
     }
 
-    public static void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> wrapped) {
+    public void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> wrapped) {
         TMS_ON_DISPLAY = wrapped;
         GENERAL.setMapServiceCategory(wrapped.getParentCategory().getName());
         GENERAL.setMapServiceId(wrapped.getId());
     }
 
-    public static void refreshCurrentTileMapService() {
+    public void refreshCurrentTileMapService() {
         TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE.getResult()
                 .getItemWrapper(GENERAL.getMapServiceCategory(), GENERAL.getMapServiceId());
     }

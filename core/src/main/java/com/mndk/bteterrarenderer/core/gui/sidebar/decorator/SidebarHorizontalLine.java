@@ -20,9 +20,9 @@ public class SidebarHorizontalLine extends GuiSidebarElement {
 
     @Override
     public void drawComponent(Object poseStack) {
-        RawGuiManager.fillRect(poseStack, 0, 0, parent.elementWidth.get().intValue(), thickness, color);
+        RawGuiManager.fillRect(poseStack, 0, 0, this.getWidth(), thickness, color);
     }
 
     @Override protected void init() {}
-    @Override public void onWidthChange(double newWidth) {}
+    @Override public void onWidthChange() {}
 }

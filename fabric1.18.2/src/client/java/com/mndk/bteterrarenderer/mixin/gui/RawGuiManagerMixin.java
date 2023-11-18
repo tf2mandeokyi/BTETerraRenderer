@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiAbstractWidgetCopy;
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
 import com.mndk.bteterrarenderer.mod.client.mixin.delegate.IResourceLocationIdentifierImpl;
 import com.mndk.bteterrarenderer.mod.client.mixin.graphics.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mod.client.mixin.gui.RawGuiManagerImpl;

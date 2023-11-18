@@ -4,7 +4,6 @@ import com.mndk.bteterrarenderer.core.config.annotation.ConfigComment;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigIgnore;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigName;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigurableClass;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -21,7 +20,7 @@ public abstract class AbstractConfigSaveLoader {
 
     public static <C> AbstractConfigSaveLoader makeSaveLoader(Class<C> configClass) {
         return new DefaultYamlConfigSaveLoader(
-                configClass, () -> new File(ConfigLoaders.MOD_CONFIG_DIRECTORY, "config.yml"));
+                configClass, () -> new File(BTETerraRendererConfig.getModConfigDirectory(), "config.yml"));
     }
 
     private boolean initialized = false;

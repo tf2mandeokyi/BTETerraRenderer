@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -38,7 +38,7 @@ public class TileMapServiceTest {
     static {
         try {
             BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererConstants.class);
-            ConfigLoaders.loadAll(false);
+            BTETerraRendererConfig.load(true);
             CATEGORY_MAP_DATA = TileMapServiceYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {
             throw new RuntimeException(e);

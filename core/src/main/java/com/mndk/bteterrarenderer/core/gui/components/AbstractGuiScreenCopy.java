@@ -1,15 +1,19 @@
 package com.mndk.bteterrarenderer.core.gui.components;
 
-import com.mndk.bteterrarenderer.core.util.mixin.delegate.IScaledScreenSize;
+import com.mndk.bteterrarenderer.core.util.minecraft.WindowManager;
 import lombok.Setter;
-
-import java.util.function.Supplier;
 
 @Setter
 public abstract class AbstractGuiScreenCopy implements GuiEventListenerCopy {
-    public Supplier<IScaledScreenSize> screenSize;
-
     public abstract void initGui();
+
+    protected int getWidth() {
+        return WindowManager.getScaledWidth();
+    }
+    protected int getHeight() {
+        return WindowManager.getScaledHeight();
+    }
+
     public final void drawScreen(Object poseStack, double mouseX, double mouseY, float partialTicks) {
         this.mouseHovered(mouseX, mouseY, partialTicks, false);
         this.drawScreen(poseStack);
