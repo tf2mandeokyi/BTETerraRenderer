@@ -36,6 +36,10 @@ public interface PropertyAccessor<T> {
         return new PropertyAccessorImpl<>(type, getter, setter, predicate);
     }
 
+    static <T> PropertyAccessor.Localized<T> localized(String key, String i18nKey, PropertyAccessor<T> delegate) {
+        return new Localized<>(key, i18nKey, delegate);
+    }
+
     interface Ranged<T extends Number> extends PropertyAccessor<T> {
         T min();
         T max();
@@ -59,7 +63,7 @@ public interface PropertyAccessor<T> {
         public boolean available(T value) { return predicate.test(value); }
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class Localized<T> {
         public final String key;
         public final String i18nKey;

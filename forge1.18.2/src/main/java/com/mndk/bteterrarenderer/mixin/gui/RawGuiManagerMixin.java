@@ -18,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -145,5 +146,25 @@ public class RawGuiManagerMixin {
         PoseStack realPoseStack = (PoseStack) poseStack;
         GuiComponent.blit(realPoseStack, x, y, 0, 0, 46 + i * 20, width / 2, height, 256, 256);
         GuiComponent.blit(realPoseStack, x + width / 2, y, 0, 200 - (float) width / 2, 46 + i * 20, width / 2, height, 256, 256);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public void drawNativeImage(Object poseStack, Object allocatedTextureObject, int x, int y, int w, int h) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, (ResourceLocation) allocatedTextureObject);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        Matrix4f matrix = ((PoseStack) poseStack).last().pose();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.vertex(matrix, x, y, 0).uv(0, 0).endVertex();
+        bufferbuilder.vertex(matrix, x, y+h, 0).uv(0, 1).endVertex();
+        bufferbuilder.vertex(matrix, x+w, y+h, 0).uv(1, 1).endVertex();
+        bufferbuilder.vertex(matrix, x+w, y, 0).uv(1, 0).endVertex();
+        bufferbuilder.end();
+        BufferUploader.end(bufferbuilder);
     }
 }

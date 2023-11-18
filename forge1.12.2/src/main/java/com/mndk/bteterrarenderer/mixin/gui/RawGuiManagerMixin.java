@@ -2,15 +2,15 @@ package com.mndk.bteterrarenderer.mixin.gui;
 
 import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mod.mixin.graphics.AbstractGuiScreenImpl;
-import com.mndk.bteterrarenderer.mod.mixin.delegate.OpenDummyGuiButton;
-import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
-import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
 import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiAbstractWidgetCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiEventListenerCopy;
+import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
+import com.mndk.bteterrarenderer.mod.mixin.delegate.OpenDummyGuiButton;
+import com.mndk.bteterrarenderer.mod.mixin.graphics.AbstractGuiScreenImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,8 +19,11 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 @UtilityClass
 @Mixin(value = RawGuiManager.class, remap = false)
@@ -51,7 +54,7 @@ public class RawGuiManagerMixin {
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(r, g, b, a);
 
-        bufferBuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         bufferBuilder.pos(v0.x, v0.y, z).endVertex();
         bufferBuilder.pos(v1.x, v1.y, z).endVertex();
         bufferBuilder.pos(v2.x, v2.y, z).endVertex();
@@ -102,7 +105,7 @@ public class RawGuiManagerMixin {
         GlStateManager.disableTexture2D();
         GlStateManager.enableColorLogic();
         GlStateManager.colorLogicOp(GlStateManager.LogicOp.OR_REVERSE);
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         bufferbuilder.pos(startX, endY, 0.0D).endVertex();
         bufferbuilder.pos(endX, endY, 0.0D).endVertex();
         bufferbuilder.pos(endX, startY, 0.0D).endVertex();
@@ -121,7 +124,7 @@ public class RawGuiManagerMixin {
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         bufferbuilder.pos(x, y+h, 0).tex(u1, v2).endVertex();
         bufferbuilder.pos(x+w, y+h, 0).tex(u2, v2).endVertex();
         bufferbuilder.pos(x+w, y, 0).tex(u2, v1).endVertex();
@@ -129,4 +132,22 @@ public class RawGuiManagerMixin {
         tessellator.draw();
     }
 
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public void drawNativeImage(Object poseStack, Object allocatedTextureObject, int x, int y, int w, int h) {
+        int glId = ((AtomicInteger) allocatedTextureObject).get();
+        GlStateManager.bindTexture(glId);
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos(x, y, 0).tex(0, 0).endVertex();
+        bufferbuilder.pos(x, y+h, 0).tex(0, 1).endVertex();
+        bufferbuilder.pos(x+w, y+h, 0).tex(1, 1).endVertex();
+        bufferbuilder.pos(x+w, y, 0).tex(1, 0).endVertex();
+        tessellator.draw();
+    }
 }

@@ -13,8 +13,8 @@ public abstract class SimpleResourceCacheProcessor<Key, Input, Resource>
     private final Queue<Map.Entry<Key, Input>> queue = new ArrayDeque<>();
 
     /**
-     * @param expireMilliseconds How long can a cache live without being refreshed
-     * @param maximumSize        Maximum cache size
+     * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
+     * @param maximumSize        Maximum cache size. Set to -1 for no limits
      * @param debug              debug
      */
     protected SimpleResourceCacheProcessor(long expireMilliseconds, int maximumSize, boolean debug) {

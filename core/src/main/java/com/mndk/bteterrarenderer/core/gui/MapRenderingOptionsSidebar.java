@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.graphics.baker.URLBufferedImageBaker;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
@@ -17,6 +18,7 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.GuiSidebarElementWrapp
 import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementListComponent;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.network.SimpleImageFetcher;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
@@ -27,15 +29,22 @@ import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
 public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static final int ELEMENT_DISTANCE = 7;
+
+    private static final SimpleImageFetcher ICON_FETCHER = new SimpleImageFetcher(
+            Executors.newCachedThreadPool(),
+            -1, 100, 3, 500, true);
+    private static final URLBufferedImageBaker ICON_BAKER = new URLBufferedImageBaker(-1, -1, true);
 
     private static MapRenderingOptionsSidebar INSTANCE;
     private SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
@@ -55,6 +64,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 )
         );
 
+        // Don't make sidebar elements here. They won't get initialized.
+        // instead put all of them in getElements()
     }
 
     @Override
@@ -76,7 +87,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         this.mapSourceDropdown = new SidebarDropdownSelector<>(
                 PropertyAccessor.of(BTRUtil.uncheckedCast(CategoryMap.Wrapper.class),
                         this::getWrappedTMS, this::setTileMapServiceWrapper),
-                MapRenderingOptionsSidebar::tmsWrappedToString
+                MapRenderingOptionsSidebar::tmsWrappedToString,
+                MapRenderingOptionsSidebar::getIconTextureObject
         );
         this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE, 0, null, false);
         SidebarButton reloadMapsButton = new SidebarButton(
@@ -130,6 +142,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         );
     }
 
+    @Override
+    protected void drawScreen(Object poseStack) {
+        ICON_BAKER.process(1);
+        super.drawScreen(poseStack);
+    }
+
     private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {
         return BTETerraRendererConfig.getTileMapServiceWrapper();
     }
@@ -176,8 +194,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         CategoryMap<TileMapService<?>> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();
         for(Map.Entry<String, CategoryMap.Category<TileMapService<?>>> categoryEntry : tmsCategoryMap.getCategories()) {
+            CategoryMap.Category<TileMapService<?>> category = categoryEntry.getValue();
             updater.push(categoryEntry.getKey());
-            categoryEntry.getValue().values().forEach(updater::add);
+            category.values().forEach(updater::add);
             updater.pop();
         }
         updater.update();
@@ -197,6 +216,33 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         } catch(Exception e) {
             MinecraftClientManager.sendErrorMessageToChat("Error opening the config folder!", e);
         }
+    }
+
+    private static Object getIconTextureObject(CategoryMap.Wrapper<TileMapService<?>> wrapper) {
+        TileMapService<?> tms = wrapper.getItem();
+        URL iconUrl = tms.getIconUrl();
+        if(iconUrl == null) return null;
+
+        switch(ICON_BAKER.getResourceProcessingState(iconUrl)) {
+            case NOT_PROCESSED:
+                ICON_FETCHER.resourceProcessingReady(iconUrl, iconUrl);
+                ICON_BAKER.setResourceInPreparingState(iconUrl);
+                break;
+            case PROCESSED:
+                return ICON_BAKER.updateAndGetResource(iconUrl);
+            case ERROR:
+                return null;
+        }
+
+        switch(ICON_FETCHER.getResourceProcessingState(iconUrl)) {
+            case PROCESSED:
+                ICON_BAKER.resourceProcessingReady(iconUrl, ICON_FETCHER.updateAndGetResource(iconUrl));
+                break;
+            case ERROR:
+                ICON_BAKER.resourcePreparingError(iconUrl, ICON_FETCHER.getResourceErrorReason(iconUrl));
+                return null;
+        }
+        return null;
     }
 
     private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {

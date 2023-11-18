@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.mixin.config;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.config.AbstractConfigSaveLoader;
-import com.mndk.bteterrarenderer.mod.config.MC12ForgeCfgConfigSaveLoader;
+import com.mndk.bteterrarenderer.core.config.saveloader.AbstractConfigSaveLoader;
+import com.mndk.bteterrarenderer.mod.config.saveloader.MC12ForgeCfgConfigSaveLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 

@@ -13,7 +13,7 @@ import java.util.Map;
 
 public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private final Logger LOGGER = LogManager.getLogger(this.getClass());
     private void log(String message) {
         if(this.debug) LOGGER.info(message);
     }
@@ -25,8 +25,8 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
     private final Map<Key, ResourceWrapper<Resource>> resourceWrapperMap = new HashMap<>();
 
     /**
-     * @param expireMilliseconds How long can a cache live without being refreshed
-     * @param maximumSize Maximum cache size
+     * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
+     * @param maximumSize Maximum cache size. Set to -1 for no limits
      * @param debug debug
      */
     protected AbstractResourceCacheProcessor(long expireMilliseconds, int maximumSize, boolean debug) {
@@ -151,7 +151,7 @@ public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
             for (Map.Entry<Key, ResourceWrapper<Resource>> entry : resourceWrapperMap.entrySet()) {
                 ResourceWrapper<Resource> wrapper = entry.getValue();
                 if (wrapper.state != ProcessingState.PROCESSED) continue;
-                if (wrapper.lastUpdated + this.expireMilliseconds > now) continue;
+                if (this.expireMilliseconds == -1 || wrapper.lastUpdated + this.expireMilliseconds > now) continue;
                 deleteList.add(entry.getKey());
             }
         }

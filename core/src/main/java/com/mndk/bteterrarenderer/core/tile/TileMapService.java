@@ -7,24 +7,27 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.*;
+import com.mndk.bteterrarenderer.core.graphics.baker.GraphicsModelTextureBaker;
+import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
+import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
-import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.Ogc3dTileMapService;
+import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +45,9 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     private static boolean STATIC_IMAGES_BAKED = false;
 
     private final String name;
+    @Nullable private final String copyright;
+    @Nullable private final URL iconUrl;
+    @Setter private Object iconTextureObject;
     private transient final TileResourceFetcher<TileId, Object> resourceFetcher;
 
     /**
@@ -52,9 +58,11 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     private transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
     private transient final GraphicsModelTextureBaker<TmsIdPair<TileId>> modelTextureBaker = GraphicsModelTextureBaker.getInstance();
 
-    public TileMapService(String name, int nThreads) {
-        this.name = name;
-        this.resourceFetcher = new TileResourceFetcher<>(nThreads, this::tileIdToFetcherQueueKey);
+    protected TileMapService(CommonYamlObject commonYamlObject) {
+        this.name = commonYamlObject.name;
+        this.iconUrl = commonYamlObject.iconUrl;
+        this.copyright = commonYamlObject.copyright;
+        this.resourceFetcher = new TileResourceFetcher<>(commonYamlObject.nThreads, this::tileIdToFetcherQueueKey);
         this.properties.addAll(this.makeProperties());
     }
 
@@ -71,11 +79,11 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         } catch(OutOfProjectionBoundsException e) { return; }
 
         for(TileId tileId : renderTileIdList) {
-
             List<GraphicsModel> models = null;
             List<GraphicsShape<?>> nonTexturedModel;
 
             try {
+                GraphicsModel model;
                 TmsIdPair<TileId> idPair = new TmsIdPair<>(tmsId, tileId);
                 ProcessingState bakedState = modelTextureBaker.getResourceProcessingState(idPair);
                 switch (bakedState) {
@@ -85,23 +93,23 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
                     case PREPARING:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
-                            models = Collections.singletonList(
-                                    new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel));
+                            model = new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel);
+                            models = Collections.singletonList(model);
                         }
                         this.prepareResource(idPair, false);
                         break;
                     case PROCESSING:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
-                            models = Collections.singletonList(
-                                    new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel));
+                            model = new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel);
+                            models = Collections.singletonList(model);
                         }
                         break;
                     case ERROR:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
-                            models = Collections.singletonList(
-                                    new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), nonTexturedModel));
+                            model = new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), nonTexturedModel);
+                            models = Collections.singletonList(model);
                         }
                         break;
                     case NOT_PROCESSED:
@@ -209,18 +217,32 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         @Override
         public TileMapService<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
-            if(!node.has("projection") || !node.get("projection").isTextual()) {
-                throw JsonMappingException.from(p, "property \"projection\" missing");
+
+            String type = JsonParserUtil.getOrDefault(node, "type", "flat");
+            Class<? extends TileMapService<?>> clazz = TileMapServiceParseRegistries.TYPE_MAP.get(type);
+            if(clazz == null) {
+                throw JsonMappingException.from(p, "unknown map type" + type);
             }
 
-            String projectionName = node.get("projection").asText();
-            if(FlatTileProjectionYamlLoader.INSTANCE.getResult().containsKey(projectionName)) {
-                return ctxt.readTreeAsValue(node, FlatTileMapService.class);
-            } else if("ogc3dtiles".equals(projectionName)) {
-                return ctxt.readTreeAsValue(node, Ogc3dTileMapService.class);
-            }
+            return ctxt.readTreeAsValue(node, clazz);
+        }
+    }
 
-            throw JsonMappingException.from(p, "unknown projection name" + projectionName);
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    protected static class CommonYamlObject {
+        private String name, tileUrl, copyright;
+        private URL iconUrl;
+        private int nThreads;
+        public static CommonYamlObject from(JsonNode node) throws MalformedURLException {
+            CommonYamlObject result = new CommonYamlObject();
+            result.name = node.get("name").asText();
+            result.tileUrl = node.get("tile_url").asText();
+            String iconUrl = JsonParserUtil.getOrDefault(node, "icon_url", null);
+            result.iconUrl = iconUrl != null ? new URL(iconUrl) : null;
+            result.copyright = JsonParserUtil.getOrDefault(node, "copyright", null);
+            result.nThreads = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
+            return result;
         }
     }
 

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mixin.graphics;
 
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
 import com.mndk.bteterrarenderer.mod.mixin.graphics.GraphicsModelVisualManagerImpl;
 import com.mojang.blaze3d.vertex.PoseStack;

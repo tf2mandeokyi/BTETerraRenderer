@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
+import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 

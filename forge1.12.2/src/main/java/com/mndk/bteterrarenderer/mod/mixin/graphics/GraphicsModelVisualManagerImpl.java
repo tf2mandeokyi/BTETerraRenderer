@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.mixin.graphics;
 
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import lombok.experimental.UtilityClass;

@@ -129,4 +129,23 @@ public class RawGuiManagerMixin {
 
         ((DrawContext) drawContext).drawGuiTexture(buttonTexture, x, y, width, height);
     }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public void drawNativeImage(Object drawContext, Object allocatedTextureObject, int x, int y, int w, int h) {
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+        RenderSystem.setShaderTexture(0, (Identifier) allocatedTextureObject);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+        Matrix4f matrix = ((DrawContext) drawContext).getMatrices().peek().getPositionMatrix();
+        bufferbuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        bufferbuilder.vertex(matrix, x, y, 0).texture(0, 0).next();
+        bufferbuilder.vertex(matrix, x, y+h, 0).texture(0, 1).next();
+        bufferbuilder.vertex(matrix, x+w, y+h, 0).texture(1, 1).next();
+        bufferbuilder.vertex(matrix, x+w, y, 0).texture(1, 0).next();
+        BufferRenderer.drawWithGlobalProgram(bufferbuilder.end());
+    }
 }

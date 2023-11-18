@@ -47,6 +47,11 @@ public class JsonParserUtil {
         return propertyNode == null ? defaultValue : propertyNode.asBoolean(defaultValue);
     }
 
+    public static String getOrDefault(JsonNode node, String property, String defaultValue) {
+        JsonNode propertyNode = node.get(property);
+        return propertyNode == null ? defaultValue : propertyNode.asText(defaultValue);
+    }
+
     public interface JsonParserReadFunction<T> {
         T read(JsonParser p) throws IOException;
     }

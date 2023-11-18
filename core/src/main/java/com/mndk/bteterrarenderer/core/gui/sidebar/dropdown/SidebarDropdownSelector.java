@@ -24,6 +24,9 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
     private static final int ITEM_PADDING_HORIZONTAL = 12;
     private static final int ITEM_PADDING_VERTICAL = 5;
+    private static final int ICON_SIZE = 12;
+    private static final int ICON_MARGIN_LEFT = -6;
+    private static final int ICON_MARGIN_RIGHT = 4;
 
     private static final int DROPDOWN_PADDING_TOP = 8;
     private static final int DROPDOWN_BACKGROUND_COLOR = 0xE8080808;
@@ -39,6 +42,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     private final ItemList dropdownItems = new ItemList("main", true);
     private final PropertyAccessor<T> selectedValue;
     private final Function<T, String> nameGetter;
+    private final Function<T, Object> iconTextureObjectGetter;
 
     private boolean mouseOnMainBox = false;
     private int mainBoxHeight, singleLineElementHeight, itemInnerWidth;
@@ -114,13 +118,24 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         T selectedValue = this.selectedValue.get();
         if(selectedValue != null) {
             String currentName = nameGetter.apply(selectedValue).replace("\n", " ");
-            int limit = itemInnerWidth - FontManager.getFontHeight();
+            int fontHeight = FontManager.getFontHeight();
+            int textLeft = MAINBOX_PADDING_HORIZONTAL, limit = itemInnerWidth - fontHeight;
+
+            // Get icon
+            Object iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
+            if(iconTextureObject != null) {
+                int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
+                RawGuiManager.drawNativeImage(poseStack, iconTextureObject,
+                        textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
+                limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
+                textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
+            }
+
             // Handle overflow
             if(FontManager.getStringWidth(currentName) > limit) {
                 currentName = FontManager.trimStringToWidth(currentName, limit);
             }
-            FontManager.drawStringWithShadow(poseStack, currentName,
-                    MAINBOX_PADDING_HORIZONTAL, MAINBOX_PADDING_VERTICAL, mainBoxColor);
+            FontManager.drawStringWithShadow(poseStack, currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
         }
 
         GlGraphicsManager.glPushMatrix(poseStack);
@@ -205,6 +220,18 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             String name = nameGetter.apply(this.value);
             int color = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
             int height = this.getHeight();
+            int textLeft = ITEM_PADDING_HORIZONTAL, limit = itemInnerWidth;
+
+            // Get icon
+            Object iconTextureObject = iconTextureObjectGetter.apply(value);
+            if(iconTextureObject != null) {
+                int textHeight = FontManager.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
+                int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;
+                RawGuiManager.drawNativeImage(poseStack, iconTextureObject,
+                        textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
+                limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
+                textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
+            }
 
             if(Objects.equals(this.value, selectedValue)) {
                 RawGuiManager.fillRect(poseStack,
@@ -212,8 +239,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             }
 
             // Item text
-            FontManager.drawSplitString(poseStack, name,
-                    ITEM_PADDING_HORIZONTAL, ITEM_PADDING_VERTICAL, itemInnerWidth, color);
+            FontManager.drawSplitString(poseStack, name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
 
             // Translate
             GlGraphicsManager.glTranslate(poseStack, 0, height, 0);

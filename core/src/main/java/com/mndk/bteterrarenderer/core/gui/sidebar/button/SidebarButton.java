@@ -6,7 +6,7 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 public class SidebarButton extends GuiSidebarElement {
 
     private GuiButtonCopy button;
-    private final String buttonText;
+    private String buttonText;
     private final MouseClickedEvent event;
 
     public SidebarButton(String buttonText, MouseClickedEvent event) {
@@ -25,6 +25,7 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     public void setDisplayString(String newString) {
+        this.buttonText = newString;
         this.button.setText(newString);
     }
 

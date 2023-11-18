@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.config;
+package com.mndk.bteterrarenderer.core.config.saveloader;
 
 public interface ConfigPropertyConnection {
     void save();

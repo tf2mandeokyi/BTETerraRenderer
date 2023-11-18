@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.graphics;
+package com.mndk.bteterrarenderer.core.graphics.model;
 
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import lombok.Data;

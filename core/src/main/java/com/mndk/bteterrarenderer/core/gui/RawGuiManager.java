@@ -80,4 +80,8 @@ public class RawGuiManager {
     public void drawWholeCenteredImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h) {
         drawWholeImage(poseStack, res, x - w/2, y - h/2, w, h);
     }
+
+    public void drawNativeImage(Object poseStack, Object allocatedTextureObject, int x, int y, int w, int h) {
+        MixinUtil.notOverwritten(poseStack, allocatedTextureObject, x, y, w, h);
+    }
 }

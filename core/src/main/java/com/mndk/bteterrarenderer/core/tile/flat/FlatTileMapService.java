@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
+import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
@@ -61,11 +61,10 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
     private final FlatTileURLConverter urlConverter;
 
     @JsonCreator
-    public FlatTileMapService(String name, String urlTemplate,
-                              FlatTileProjection flatTileProjection, FlatTileURLConverter urlConverter,
-                              int nThreads) {
-        super(name, nThreads);
-        this.urlTemplate = urlTemplate;
+    private FlatTileMapService(CommonYamlObject commonYamlObject,
+                              FlatTileProjection flatTileProjection, FlatTileURLConverter urlConverter) {
+        super(commonYamlObject);
+        this.urlTemplate = commonYamlObject.getTileUrl();
         this.flatTileProjection = flatTileProjection;
         this.urlConverter = urlConverter;
         this.setFetcherQueueKey(this.relativeZoom);
@@ -78,13 +77,14 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
 
     @Override
     protected List<PropertyAccessor.Localized<?>> makeProperties() {
-        return Arrays.asList(
-                new PropertyAccessor.Localized<>("zoom", "gui.bteterrarenderer.settings.zoom",
-                        RangedIntPropertyAccessor.of(this::getRelativeZoom, this::setRelativeZoom,
-                                this::isRelativeZoomAvailable, -4, 4)),
+        PropertyAccessor<Integer> zoomProperty = RangedIntPropertyAccessor.of(
+                this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
+        PropertyAccessor<Integer> radiusProperty =  RangedIntPropertyAccessor.of(
+                this::getRadius, this::setRadius, 1, 10);
 
-                new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.size",
-                        RangedIntPropertyAccessor.of(this::getRadius, this::setRadius, 1, 10))
+        return Arrays.asList(
+                PropertyAccessor.localized("zoom", "gui.bteterrarenderer.settings.zoom", zoomProperty),
+                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.size", radiusProperty)
         );
     }
 
@@ -187,14 +187,11 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
         public FlatTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
 
-            String name = node.get("name").asText();
-            String urlTemplate = node.get("tile_url").asText();
-
+            CommonYamlObject commonYamlObject = CommonYamlObject.from(node);
             int defaultZoom = JsonParserUtil.getOrDefault(node, "default_zoom", DEFAULT_ZOOM);
             boolean invertZoom = JsonParserUtil.getOrDefault(node, "invert_zoom", false);
             boolean invertLatitude = JsonParserUtil.getOrDefault(node, "invert_lat", false);
             boolean flipVertically = JsonParserUtil.getOrDefault(node, "flip_vert", false);
-            int maxThread = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
 
             String projectionName = node.get("projection").asText();
             FlatTileProjection projection = FlatTileProjectionYamlLoader.INSTANCE.getResult().get(projectionName);
@@ -212,7 +209,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
             }
 
             FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
-            return new FlatTileMapService(name, urlTemplate, projection, urlConverter, maxThread);
+            return new FlatTileMapService(commonYamlObject, projection, urlConverter);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
+import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;

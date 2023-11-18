@@ -1,5 +1,8 @@
-package com.mndk.bteterrarenderer.core.graphics;
+package com.mndk.bteterrarenderer.core.graphics.baker;
 
+import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
+import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
+import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.processor.SimpleResourceCacheProcessor;
 

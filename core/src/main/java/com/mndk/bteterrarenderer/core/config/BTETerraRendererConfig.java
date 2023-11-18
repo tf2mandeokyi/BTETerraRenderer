@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.config;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.annotation.*;
+import com.mndk.bteterrarenderer.core.config.saveloader.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;

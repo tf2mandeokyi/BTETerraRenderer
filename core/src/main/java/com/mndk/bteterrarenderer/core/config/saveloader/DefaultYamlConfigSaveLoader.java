@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.config;
+package com.mndk.bteterrarenderer.core.config.saveloader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

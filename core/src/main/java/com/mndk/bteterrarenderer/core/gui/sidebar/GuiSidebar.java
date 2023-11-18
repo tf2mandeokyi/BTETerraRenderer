@@ -24,6 +24,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
     private final SidebarElementListComponent listComponent;
     @Setter private PropertyAccessor<SidebarSide> side;
+    private final SidebarButton sideChangingButton;
     private final boolean guiPausesGame;
 
     public final PropertyAccessor<Double> sidebarWidth;
@@ -39,16 +40,16 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
         this.listComponent = new SidebarElementListComponent(0, 0, null, true);
 
         // Side changing button
-        SidebarButton button = new SidebarButton(side.get() == SidebarSide.LEFT ? ">>" : "<<", (self, mouseButton) -> {
+        this.sideChangingButton = new SidebarButton("", (self, mouseButton) -> {
             side.set(side.get() == SidebarSide.LEFT ? SidebarSide.RIGHT : SidebarSide.LEFT);
             self.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
         });
-        this.listComponent.add(button);
+        this.listComponent.add(this.sideChangingButton);
 
         // Sidebar element list
         SidebarBlank blank = new SidebarBlank(paddingTopBottom);
         SidebarElementListComponent elementList = new SidebarElementListComponent(
-                elementDistance, elementPaddingSide, () -> this.getHeight() - button.getPhysicalHeight(), false);
+                elementDistance, elementPaddingSide, () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight(), false);
         elementList.add(blank);
         elementList.addAll(this.getElements());
         elementList.add(blank);
@@ -69,6 +70,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
         this.guiChat.initGui();
         this.guiChat.changeSideMargin(side.get(), this.sidebarWidth.get().intValue());
         this.listComponent.init(this.sidebarWidth.get().intValue());
+        this.sideChangingButton.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
     }
 
     @Override

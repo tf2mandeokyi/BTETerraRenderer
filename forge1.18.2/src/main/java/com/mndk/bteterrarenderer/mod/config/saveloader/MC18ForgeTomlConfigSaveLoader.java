@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.mod.config;
+package com.mndk.bteterrarenderer.mod.config.saveloader;
 
-import com.mndk.bteterrarenderer.core.config.AbstractConfigSaveLoader;
-import com.mndk.bteterrarenderer.core.config.ConfigPropertyConnection;
+import com.mndk.bteterrarenderer.core.config.saveloader.AbstractConfigSaveLoader;
+import com.mndk.bteterrarenderer.core.config.saveloader.ConfigPropertyConnection;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeDouble;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigRangeInt;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;

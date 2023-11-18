@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.TmsIdPair;
@@ -15,7 +15,6 @@ import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileKeyManager;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
-import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
@@ -54,10 +53,14 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     private final URL rootTilesetUrl;
     private transient final CachedTileParser<TmsIdPair<TileGlobalKey>> tileParser = CachedTileParser.getInstance();
 
-    public Ogc3dTileMapService(String name, int nThreads, URL rootTilesetUrl) {
-        super(name, nThreads);
-        this.rootTilesetUrl = rootTilesetUrl;
-        this.setFetcherQueueKey(DEFAULT_QUEUE_KEY);
+    private Ogc3dTileMapService(CommonYamlObject commonYamlObject) {
+        super(commonYamlObject);
+        try {
+            this.rootTilesetUrl = new URL(commonYamlObject.getTileUrl());
+            this.setFetcherQueueKey(DEFAULT_QUEUE_KEY);
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -67,9 +70,10 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
     @Override
     protected List<PropertyAccessor.Localized<?>> makeProperties() {
+        PropertyAccessor<Double> radiusProperty = RangedDoublePropertyAccessor.of(
+                this::getRadius, this::setRadius, 1, 1000);
         return Collections.singletonList(
-                new PropertyAccessor.Localized<>("radius", "gui.bteterrarenderer.settings.3d_radius",
-                        RangedDoublePropertyAccessor.of(this::getRadius, this::setRadius, 1, 1000))
+                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radiusProperty)
         );
     }
 
@@ -228,13 +232,8 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         @Override
         public Ogc3dTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
-
-            String name = node.get("name").asText();
-            String rootTileset = node.get("tile_url").asText();
-            URL rootTilesetUrl = new URL(rootTileset);
-
-            int maxThread = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
-            return new Ogc3dTileMapService(name, maxThread, rootTilesetUrl);
+            CommonYamlObject commonYamlObject = CommonYamlObject.from(node);
+            return new Ogc3dTileMapService(commonYamlObject);
         }
     }
 

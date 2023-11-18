@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.core.config;
+package com.mndk.bteterrarenderer.core.config.saveloader;
 
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigComment;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigIgnore;
 import com.mndk.bteterrarenderer.core.config.annotation.ConfigName;

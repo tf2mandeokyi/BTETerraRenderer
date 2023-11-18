@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.tile;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBaker;
+import com.mndk.bteterrarenderer.core.graphics.baker.GraphicsModelTextureBaker;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 
 public class TileRenderer {
