@@ -222,6 +222,11 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             int height = this.getHeight();
             int textLeft = ITEM_PADDING_HORIZONTAL, limit = itemInnerWidth;
 
+            if(Objects.equals(this.value, selectedValue)) {
+                RawGuiManager.fillRect(poseStack,
+                        0, 0, getWidth(), height, SELECTED_BACKGROUND_COLOR);
+            }
+
             // Get icon
             Object iconTextureObject = iconTextureObjectGetter.apply(value);
             if(iconTextureObject != null) {
@@ -231,11 +236,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
-            }
-
-            if(Objects.equals(this.value, selectedValue)) {
-                RawGuiManager.fillRect(poseStack,
-                        0, 0, getWidth(), height, SELECTED_BACKGROUND_COLOR);
             }
 
             // Item text

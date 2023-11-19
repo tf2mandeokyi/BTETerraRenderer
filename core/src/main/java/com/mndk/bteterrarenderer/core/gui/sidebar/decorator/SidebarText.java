@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
 import com.mndk.bteterrarenderer.core.gui.FontManager;
+import com.mndk.bteterrarenderer.core.gui.TextAlign;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 
 import java.util.List;
@@ -24,12 +25,12 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.formattedStringList = FontManager.listFormattedStringToWidth(displayString, this.getWidth());
+        this.formattedStringList = FontManager.splitStringByWidth(displayString, this.getWidth());
     }
 
     @Override
     public void onWidthChange() {
-        this.formattedStringList = FontManager.listFormattedStringToWidth(displayString, this.getWidth());
+        this.formattedStringList = FontManager.splitStringByWidth(displayString, this.getWidth());
     }
 
     @Override
@@ -41,29 +42,8 @@ public class SidebarText extends GuiSidebarElement {
     public void drawComponent(Object poseStack) {
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
-            if(align == TextAlign.LEFT) {
-                FontManager.drawStringWithShadow(poseStack,
-                        line,
-                        0, i * FontManager.getFontHeight(), NORMAL_TEXT_COLOR
-                );
-            }
-            else if(align == TextAlign.RIGHT) {
-                FontManager.drawStringWithShadow(poseStack,
-                        line,
-                        (float) (this.getWidth()) - FontManager.getStringWidth(line),
-                        i * FontManager.getFontHeight(), NORMAL_TEXT_COLOR
-                );
-            }
-            else if(align == TextAlign.CENTER) {
-                FontManager.drawCenteredStringWithShadow(poseStack,
-                        line,
-                        (float) (this.getWidth()) / 2f, i * FontManager.getFontHeight(), NORMAL_TEXT_COLOR
-                );
-            }
+            FontManager.drawStringWithShadow(poseStack, line, this.align,
+                    0, i * FontManager.getFontHeight(), this.getWidth(), NORMAL_TEXT_COLOR);
         }
-    }
-
-    public enum TextAlign {
-        LEFT, CENTER, RIGHT
     }
 }

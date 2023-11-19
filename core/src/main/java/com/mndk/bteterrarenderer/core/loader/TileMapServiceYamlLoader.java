@@ -19,7 +19,7 @@ public class TileMapServiceYamlLoader extends YamlLoader<CategoryMap<TileMapServ
 	}
 
 	@Override
-	public void refresh() throws Exception {
+	public void refresh() {
 		if(result != null) {
 			for (val category : result.getCategories()) {
 				for (val entry : category.getValue().entrySet()) {
@@ -31,8 +31,8 @@ public class TileMapServiceYamlLoader extends YamlLoader<CategoryMap<TileMapServ
 	}
 
 	protected CategoryMap<TileMapService<?>> load(String fileName, Reader fileReader) throws IOException {
-		CategoryMap<TileMapService<?>> result =
-				BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, new TypeReference<CategoryMap<TileMapService<?>>>() {});
+		TypeReference<CategoryMap<TileMapService<?>>> typeRef = new TypeReference<CategoryMap<TileMapService<?>>>() {};
+		CategoryMap<TileMapService<?>> result = BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, typeRef);
 		result.setSource(fileName);
 		return result;
 	}

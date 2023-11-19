@@ -7,9 +7,7 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarBooleanButton;
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarHorizontalLine;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarText;
+import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.*;
 import com.mndk.bteterrarenderer.core.gui.sidebar.dropdown.SidebarDropdownSelector;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
@@ -43,11 +41,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static final SimpleImageFetcher ICON_FETCHER = new SimpleImageFetcher(
             Executors.newCachedThreadPool(),
-            -1, 100, 3, 500, true);
-    private static final URLBufferedImageBaker ICON_BAKER = new URLBufferedImageBaker(-1, -1, true);
+            -1, 100, 3, 500, false);
+    private static final URLBufferedImageBaker ICON_BAKER = new URLBufferedImageBaker(-1, -1, false);
 
     private static MapRenderingOptionsSidebar INSTANCE;
     private SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
+    private SidebarTextComponent mapCopyright;
     private SidebarElementListComponent tmsPropertyElementList;
     private GuiSidebarElementWrapper yAxisInputWrapper;
 
@@ -90,6 +89,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::tmsWrappedToString,
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
+        this.mapCopyright = new SidebarTextComponent(TextAlign.LEFT);
         this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE, 0, null, false);
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18nManager.format("gui.bteterrarenderer.settings.map_reload"),
@@ -112,22 +112,23 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         return Arrays.asList(
                 // ===========================================================================================
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), SidebarText.TextAlign.CENTER),
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), TextAlign.CENTER),
                 blank,
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), SidebarText.TextAlign.LEFT),
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), TextAlign.LEFT),
                 hl, // ---------------------------------------------------------------------------------------
                 renderingTrigger,
                 this.yAxisInputWrapper,
                 opacitySlider,
                 blank,
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), SidebarText.TextAlign.LEFT),
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), TextAlign.LEFT),
                 hl, // ---------------------------------------------------------------------------------------
                 this.mapSourceDropdown,
+                this.mapCopyright,
                 blank,
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), SidebarText.TextAlign.LEFT),
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), TextAlign.LEFT),
                 this.tmsPropertyElementList,
                 blank,
 
@@ -135,7 +136,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 openMapsFolderButton,
                 blank,
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), SidebarText.TextAlign.LEFT),
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), TextAlign.LEFT),
                 hl, // ---------------------------------------------------------------------------------------
                 mapAligner
                 // ===========================================================================================
@@ -153,21 +154,25 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
-        TileMapService<?> tms = tmsWrapped == null ? null : tmsWrapped.getItem();
-
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
+        // Check null
+        TileMapService<?> tms = tmsWrapped == null ? null : tmsWrapped.getItem();
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;
             this.tmsPropertyElementList.hide = true;
             return;
         }
 
+        // Set to config
         BTETerraRendererConfig.setTileMapService(tmsWrapped);
+
+        // Set property element list
         this.tmsPropertyElementList.clear();
         this.tmsPropertyElementList.addProperties(tms.getProperties());
         this.tmsPropertyElementList.hide = false;
 
+        // Set y axis input
         if(tms instanceof FlatTileMapService) {
             this.yAxisInputWrapper.setElement(new SidebarNumberInput(
                     PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis),
@@ -177,6 +182,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                     PropertyAccessor.of(renderSettings::getYAlign, renderSettings::setYAlign),
                     I18nManager.format("gui.bteterrarenderer.settings.y_align") + ": "));
         }
+
+        // Set copyright
+        this.mapCopyright.setTextComponentJson(tms.getCopyrightTextJson());
     }
 
     private void reloadMapSources() {
@@ -204,7 +212,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private void openMapsFolder() {
         try {
-            File directory = TileMapServiceYamlLoader.INSTANCE.getMapFilesDirectory();
+            File directory = TileMapServiceYamlLoader.INSTANCE.getFilesDirectory();
             if(Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(directory);
                 return;
@@ -220,6 +228,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static Object getIconTextureObject(CategoryMap.Wrapper<TileMapService<?>> wrapper) {
         TileMapService<?> tms = wrapper.getItem();
+        if(tms == null) return null;
+
         URL iconUrl = tms.getIconUrl();
         if(iconUrl == null) return null;
 

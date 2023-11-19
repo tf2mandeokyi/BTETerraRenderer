@@ -113,40 +113,32 @@ public class BTETerraRendererConfig {
 
     public void initialize(File gameConfigDirectory) {
         MOD_CONFIG_DIRECTORY = new File(gameConfigDirectory, BTETerraRendererConstants.MODID);
-        try {
-            FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
-            TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
-            TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
-            SAVE_LOADER_INSTANCE.initialize();
-            SAVE_LOADER_INSTANCE.load();
-            refreshCurrentTileMapService();
-        } catch (Throwable t) {
-            BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
-        }
+
+        // TMS data files
+        FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
+        TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
+        TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+
+        // Config file
+        SAVE_LOADER_INSTANCE.initialize();
+        SAVE_LOADER_INSTANCE.load();
+        refreshCurrentTileMapService();
     }
 
     public void save() {
-        try {
-            SAVE_LOADER_INSTANCE.save();
-            TileMapServicePropertyLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
-            refreshCurrentTileMapService();
-        } catch (Throwable t) {
-            BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
-        }
+        SAVE_LOADER_INSTANCE.save();
+        TileMapServicePropertyLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
+        refreshCurrentTileMapService();
     }
 
     public void load(boolean loadMapsOnly) {
-        try {
-            FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
-            TileMapServiceYamlLoader.INSTANCE.refresh();
-            TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
-            if(loadMapsOnly) return;
+        FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
+        TileMapServiceYamlLoader.INSTANCE.refresh();
+        TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+        if(loadMapsOnly) return;
 
-            SAVE_LOADER_INSTANCE.load();
-            refreshCurrentTileMapService();
-        } catch (Throwable t) {
-            BTETerraRendererConstants.LOGGER.error("Error while loading configuration files", t);
-        }
+        SAVE_LOADER_INSTANCE.load();
+        refreshCurrentTileMapService();
     }
 
     @ConfigIgnore

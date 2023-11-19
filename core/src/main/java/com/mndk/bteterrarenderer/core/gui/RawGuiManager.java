@@ -4,10 +4,11 @@ import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiAbstractWidgetCopy;
-import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @UtilityClass
@@ -83,5 +84,9 @@ public class RawGuiManager {
 
     public void drawNativeImage(Object poseStack, Object allocatedTextureObject, int x, int y, int w, int h) {
         MixinUtil.notOverwritten(poseStack, allocatedTextureObject, x, y, w, h);
+    }
+
+    public static void drawTooltipTextBox(Object poseStack, @Nonnull Object tooltipTextComponent, int hoverX, int hoverY) {
+        MixinUtil.notOverwritten(poseStack, tooltipTextComponent, hoverX, hoverY);
     }
 }

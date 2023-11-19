@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -17,16 +17,22 @@ import java.util.Map;
 public class TileMapServicePropertyLoader {
     private static final String FILE_NAME = "properties.json";
 
-    public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {
+    public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) {
         if(BTETerraRendererConfig.getModConfigDirectory() == null) {
-            BTETerraRendererConstants.LOGGER.warn("Mod config file is null");
+            BTETerraRendererConstants.LOGGER.error("Mod config file is null");
             return;
         }
         File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
         if(!file.isFile()) return;
 
-        CategoryMap<Map<String, Object>> raw = BTETerraRendererConstants.JSON_MAPPER.readValue(
-                file, new TypeReference<CategoryMap<Map<String, Object>>>() {});
+        CategoryMap<Map<String, Object>> raw;
+        try {
+            TypeReference<CategoryMap<Map<String, Object>>> typeRef = new TypeReference<CategoryMap<Map<String, Object>>>() {};
+            raw = BTETerraRendererConstants.JSON_MAPPER.readValue(file, typeRef);
+        } catch (IOException e) {
+            BTETerraRendererConstants.LOGGER.error("Cannot read TMS property json file", e);
+            return;
+        }
 
         for(CategoryMap.Wrapper<Map<String, Object>> wrappedMap : raw.getItemWrappers()) {
             String categoryName = wrappedMap.getParentCategory().getName(), id = wrappedMap.getId();
@@ -47,7 +53,7 @@ public class TileMapServicePropertyLoader {
         }
     }
 
-    public static void save(@Nullable CategoryMap<TileMapService<?>> tmsCategoryMap) throws IOException {
+    public static void save(@Nullable CategoryMap<TileMapService<?>> tmsCategoryMap) {
         if(BTETerraRendererConfig.getModConfigDirectory() == null) return;
         if(tmsCategoryMap == null) return;
 
@@ -62,7 +68,11 @@ public class TileMapServicePropertyLoader {
             raw.setItem(tmsWrapped.getParentCategory().getName(), tmsWrapped.getId(), propertyValues);
         }
 
-        File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
-        BTETerraRendererConstants.JSON_MAPPER.writeValue(file, raw);
+        try {
+            File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
+            BTETerraRendererConstants.JSON_MAPPER.writeValue(file, raw);
+        } catch(IOException e) {
+            BTETerraRendererConstants.LOGGER.error("Cannot write TMS property json file", e);
+        }
     }
 }

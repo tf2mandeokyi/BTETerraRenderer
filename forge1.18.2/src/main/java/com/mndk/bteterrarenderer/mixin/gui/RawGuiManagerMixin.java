@@ -17,10 +17,14 @@ import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+
+import javax.annotation.Nonnull;
 
 @UtilityClass
 @Mixin(value = RawGuiManager.class, remap = false)
@@ -166,5 +170,14 @@ public class RawGuiManagerMixin {
         bufferbuilder.vertex(matrix, x+w, y, 0).uv(1, 0).endVertex();
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public static void drawTooltipTextBox(Object poseStack, @Nonnull Object tooltipTextComponent, int hoverX, int hoverY) {
+        Screen screen = Minecraft.getInstance().screen;
+        if(screen == null) return;
+        screen.renderTooltip((PoseStack) poseStack, (Component) tooltipTextComponent, hoverX, hoverY);
     }
 }

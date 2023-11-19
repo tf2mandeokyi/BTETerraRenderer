@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -45,7 +46,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     private static boolean STATIC_IMAGES_BAKED = false;
 
     private final String name;
-    @Nullable private final String copyright;
+    @Nullable private final String copyrightTextJson;
     @Nullable private final URL iconUrl;
     @Setter private Object iconTextureObject;
     private transient final TileResourceFetcher<TileId, Object> resourceFetcher;
@@ -61,7 +62,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     protected TileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
         this.iconUrl = commonYamlObject.iconUrl;
-        this.copyright = commonYamlObject.copyright;
+        this.copyrightTextJson = commonYamlObject.copyrightTextJson;
         this.resourceFetcher = new TileResourceFetcher<>(commonYamlObject.nThreads, this::tileIdToFetcherQueueKey);
         this.properties.addAll(this.makeProperties());
     }
@@ -231,17 +232,27 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     protected static class CommonYamlObject {
-        private String name, tileUrl, copyright;
+        private String name, tileUrl, copyrightTextJson;
         private URL iconUrl;
         private int nThreads;
-        public static CommonYamlObject from(JsonNode node) throws MalformedURLException {
+        public static CommonYamlObject from(JsonNode node) throws MalformedURLException, JsonProcessingException {
             CommonYamlObject result = new CommonYamlObject();
             result.name = node.get("name").asText();
             result.tileUrl = node.get("tile_url").asText();
             String iconUrl = JsonParserUtil.getOrDefault(node, "icon_url", null);
             result.iconUrl = iconUrl != null ? new URL(iconUrl) : null;
-            result.copyright = JsonParserUtil.getOrDefault(node, "copyright", null);
             result.nThreads = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
+
+            JsonNode copyrightNode = node.get("copyright");
+            if(copyrightNode != null) {
+                if(copyrightNode.isTextual()) {
+                    result.copyrightTextJson = copyrightNode.asText();
+                }
+                else if(copyrightNode.isObject() || copyrightNode.isArray()) {
+                    result.copyrightTextJson = BTETerraRendererConstants.JSON_MAPPER.writeValueAsString(copyrightNode);
+                }
+            }
+
             return result;
         }
     }

@@ -159,10 +159,12 @@ public class SidebarElementListComponent extends GuiSidebarElement {
         int prevYPos = 0;
 
         if(this.maxHeight != null) {
+            //noinspection DataFlowIssue
             GlGraphicsManager.glPushRelativeScissor(poseStack, 0, 0, this.getWidth(), this.maxHeight.get());
         }
         GlGraphicsManager.glPushMatrix(poseStack);
         GlGraphicsManager.glTranslate(poseStack, this.sidePadding, -this.verticalSliderValue, 0);
+        // Draw from the last so that the first element could appear in the front
         for(Entry entry : Lists.reverse(entryList)) {
             GuiSidebarElement element = entry.element;
             if(element == null || element.hide) continue;

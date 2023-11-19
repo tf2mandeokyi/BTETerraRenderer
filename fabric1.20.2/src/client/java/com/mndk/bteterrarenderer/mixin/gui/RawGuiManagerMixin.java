@@ -13,12 +13,17 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+
+import javax.annotation.Nonnull;
 
 @UtilityClass
 @Mixin(value = RawGuiManager.class, remap = false)
@@ -147,5 +152,15 @@ public class RawGuiManagerMixin {
         bufferbuilder.vertex(matrix, x+w, y+h, 0).texture(1, 1).next();
         bufferbuilder.vertex(matrix, x+w, y, 0).texture(1, 0).next();
         BufferRenderer.drawWithGlobalProgram(bufferbuilder.end());
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public static void drawTooltipTextBox(Object drawContext, @Nonnull Object tooltipTextComponent, int hoverX, int hoverY) {
+        Screen screen = MinecraftClient.getInstance().currentScreen;
+        if(screen == null) return;
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        ((DrawContext) drawContext).drawTooltip(textRenderer, (Text) tooltipTextComponent, hoverX, hoverY);
     }
 }

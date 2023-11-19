@@ -7,16 +7,15 @@ categories:
          icon_url: https://wiki.openstreetmap.org/w/images/c/c8/Public-images-osm_logo.png
          projection: webmercator
          max_thread: 2
-         copyright: >
-            [
-               "",
-               { "text": "© ", "color": "white" },
-               { "text": "OpenStreetMap", "underlined": true, "color": "aqua", "clickEvent": {
-                  "action", "open_url",
-                  "value": "https://www.openstreetmap.org"
-               }},
-               { "text": " contributors", "color": "white" }
-            ]
+         copyright: [
+            "",
+            { "text": "© ", "color": "white" },
+            { "text": "OpenStreetMap", "underlined": true, "color": "aqua", "clickEvent": {
+               "action": "open_url",
+               "value": "https://www.openstreetmap.org"
+            }},
+            { "text": " contributors", "color": "white" }
+         ]
 
       bing_aerial:
          type: "flat"
@@ -24,15 +23,14 @@ categories:
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill
          projection: webmercator
          max_thread: 2
-         copyright: >
-            [
-               "",
-               { "text": "© ", "color": "white" },
-               { "text": "Microsoft", "underlined": true, "color": "aqua", "clickEvent": {
-                  "action": "open_url",
-                  "value": "https://www.bing.com/maps"
-               }}
-            ]
+         copyright: [
+            "",
+            { "text": "© ", "color": "white" },
+            { "text": "Microsoft", "underlined": true, "color": "aqua", "clickEvent": {
+               "action": "open_url",
+               "value": "https://www.bing.com/maps"
+            }}
+         ]
 
       bing_plain:
          type: "flat"
@@ -40,15 +38,14 @@ categories:
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill
          projection: webmercator
          max_thread: 2
-         copyright: >
-            [
-               "",
-               { "text": "© ", "color": "white" },
-               { "text": "Microsoft", "underlined": true, "color": "aqua", "clickEvent": {
-                  "action": "open_url",
-                  "value": "https://www.bing.com/maps"
-               }}
-            ]
+         copyright: [
+            "",
+            { "text": "© ", "color": "white" },
+            { "text": "Microsoft", "underlined": true, "color": "aqua", "clickEvent": {
+               "action": "open_url",
+               "value": "https://www.bing.com/maps"
+            }}
+         ]
 
       yandex_aerial:
          type: "flat"
@@ -56,15 +53,14 @@ categories:
          tile_url: https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}
          projection: worldmercator
          max_thread: 2
-         copyright: >
-            [
-               "",
-               { "text": "© ", "color": "white" },
-               { "text": "Yandex", "underlined": true, "color": "aqua", "clickEvent": {
-                  "action": "open_url",
-                  "value": "https://yandex.com/maps"
-               }}
-            ]
+         copyright: [
+            "",
+            { "text": "© ", "color": "white" },
+            { "text": "Yandex", "underlined": true, "color": "aqua", "clickEvent": {
+               "action": "open_url",
+               "value": "https://yandex.com/maps"
+            }}
+         ]
 
       yandex_plain:
          type: "flat"
@@ -72,15 +68,14 @@ categories:
          tile_url: https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}
          projection: worldmercator
          max_thread: 2
-         copyright: >
-            [
-               "",
-               { "text": "© ", "color": "white" },
-               { "text": "Yandex", "underlined": true, "color": "aqua", "clickEvent": {
-                  "action": "open_url",
-                  "value": "https://yandex.com/maps"
-               }}
-            ]
+         copyright: [
+            "",
+            { "text": "© ", "color": "white" },
+            { "text": "Yandex", "underlined": true, "color": "aqua", "clickEvent": {
+               "action": "open_url",
+               "value": "https://yandex.com/maps"
+            }}
+         ]
    
    
    Korea:

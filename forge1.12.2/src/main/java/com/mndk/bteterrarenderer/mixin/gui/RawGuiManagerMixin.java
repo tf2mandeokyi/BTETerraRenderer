@@ -8,21 +8,28 @@ import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiAbstractWidgetCopy;
 import com.mndk.bteterrarenderer.core.gui.components.GuiEventListenerCopy;
 import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.core.util.minecraft.WindowManager;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.IResourceLocationImpl;
 import com.mndk.bteterrarenderer.mod.mixin.delegate.OpenDummyGuiButton;
 import com.mndk.bteterrarenderer.mod.mixin.graphics.AbstractGuiScreenImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @UtilityClass
@@ -140,6 +147,7 @@ public class RawGuiManagerMixin {
         GlStateManager.bindTexture(glId);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(1, 1, 1, 1);
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -149,5 +157,21 @@ public class RawGuiManagerMixin {
         bufferbuilder.pos(x+w, y+h, 0).tex(1, 1).endVertex();
         bufferbuilder.pos(x+w, y, 0).tex(1, 0).endVertex();
         tessellator.draw();
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public static void drawTooltipTextBox(Object poseStack, @Nonnull Object tooltipTextComponent, int hoverX, int hoverY) {
+        int screenWidth = WindowManager.getScaledWidth();
+        int screenHeight = WindowManager.getScaledHeight();
+        FontRenderer font = Minecraft.getMinecraft().fontRenderer;
+
+        ITextComponent textComponent = (ITextComponent) tooltipTextComponent;
+        List<String> textLines = Arrays.asList(textComponent.getFormattedText().split("\n"));
+
+        GlStateManager.pushAttrib();
+        GuiUtils.drawHoveringText(ItemStack.EMPTY, textLines, hoverX, hoverY, screenWidth, screenHeight, -1, font);
+        GlStateManager.popAttrib();
     }
 }

@@ -9,6 +9,7 @@
         "graphics.GraphicsModelVisualManagerMixin",
         "gui.FontManagerMixin",
         "gui.RawGuiManagerMixin",
+        "gui.TextComponentManagerMixin",
         "input.IKeyBindingMixin",
         "minecraft.GameInputManagerMixin",
         "minecraft.MinecraftClientManagerMixin",

@@ -11,7 +11,7 @@ import java.util.Objects;
 @Getter
 public abstract class YamlLoader<T> {
 
-    private File mapFilesDirectory;
+    private File filesDirectory;
     private final String folderName;
     private final String defaultYamlPath;
     @Getter @Setter
@@ -22,29 +22,38 @@ public abstract class YamlLoader<T> {
         this.defaultYamlPath = defaultYamlPath;
     }
 
-    public void refresh() throws Exception {
+    public void refresh() {
 
-        this.result = loadDefault();
-
-        if(mapFilesDirectory == null) return;
-        if(!mapFilesDirectory.exists() && !mapFilesDirectory.mkdirs()) {
-            throw new Exception("Map folder creation failed.");
+        // Load default data
+        try {
+            this.result = loadDefault();
+        } catch(IOException e) {
+            BTETerraRendererConstants.LOGGER.error("Error while parsing default file: " + defaultYamlPath, e);
+            return;
         }
-        File[] mapFiles = mapFilesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (mapFiles == null) return;
 
-        for (File mapFile : mapFiles) {
-            String name = mapFile.getName();
-            try (FileReader fileReader = new FileReader((mapFile))) {
+        // Check folder
+        if(filesDirectory == null) return;
+        if(!filesDirectory.exists() && !filesDirectory.mkdirs()) {
+            BTETerraRendererConstants.LOGGER.error("Folder" + folderName + " creation failed");
+            return;
+        }
+
+        File[] files = filesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files == null) return;
+
+        for (File file : files) {
+            String name = file.getName();
+            try (FileReader fileReader = new FileReader((file))) {
                 addToResult(this.result, load(name, fileReader));
             } catch (Exception e) {
-                BTETerraRendererConstants.LOGGER.error("Error while parsing map file " + mapFile, e);
+                BTETerraRendererConstants.LOGGER.error("Error while parsing file: " + file, e);
             }
         }
     }
 
-    public void refresh(File modConfigDirectory) throws Exception {
-        this.mapFilesDirectory = new File(modConfigDirectory, folderName);
+    public void refresh(File modConfigDirectory) {
+        this.filesDirectory = new File(modConfigDirectory, folderName);
         this.refresh();
     }
 
