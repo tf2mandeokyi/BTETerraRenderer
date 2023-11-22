@@ -1,21 +1,22 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "com.mndk.bteterrarenderer.mixin",
-    "compatibilityLevel": "JAVA_17",
-    "client": [
-        "delegate.DelegateCreatorMixin",
-        "graphics.GlGraphicsManagerMixin",
-        "graphics.GraphicsModelVisualManagerMixin",
-        "gui.FontManagerMixin",
-        "gui.RawGuiManagerMixin",
-        "gui.TextComponentManagerMixin",
-        "input.IKeyBindingMixin",
-        "minecraft.GameInputManagerMixin",
-        "minecraft.MinecraftClientManagerMixin",
-        "minecraft.WindowManagerMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mndk.bteterrarenderer.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "delegate.DelegateCreatorMixin",
+    "graphics.GlGraphicsManagerMixin",
+    "graphics.GraphicsModelVisualManagerMixin",
+    "gui.FontManagerMixin",
+    "gui.InGameHudMixin",
+    "gui.RawGuiManagerMixin",
+    "gui.TextComponentManagerMixin",
+    "input.IKeyBindingMixin",
+    "minecraft.GameInputManagerMixin",
+    "minecraft.MinecraftClientManagerMixin",
+    "minecraft.WindowManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

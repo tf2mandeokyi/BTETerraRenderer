@@ -9,7 +9,6 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementListComp
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import lombok.Setter;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     private static final int WIDTH_CHANGE_BAR_SHADOW_HOVERED = 0xFF3f3f28;
 
     private final SidebarElementListComponent listComponent;
-    @Setter private PropertyAccessor<SidebarSide> side;
+    public PropertyAccessor<SidebarSide> side;
     private final SidebarButton sideChangingButton;
     private final boolean guiPausesGame;
 
