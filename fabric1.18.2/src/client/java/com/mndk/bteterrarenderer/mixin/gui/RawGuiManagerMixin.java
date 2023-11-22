@@ -70,6 +70,7 @@ public class RawGuiManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, RawGuiManagerImpl.CHECKBOX);
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -82,9 +83,9 @@ public class RawGuiManagerMixin {
 
         Matrix4f matrix = ((MatrixStack) poseStack).peek().getPositionMatrix();
 
-        float size = 20 / 64f;
-        float u0 = focused ? size : 0, v0 = checked ? size : 0;
-        float u1 = u0 + size, v1 = v0 + size;
+        float textureSize = 20 / 64f;
+        float u0 = focused ? textureSize : 0, v0 = checked ? textureSize : 0;
+        float u1 = u0 + textureSize, v1 = v0 + textureSize;
         RawGuiManagerImpl.drawBufferPosTex(bufferbuilder, matrix, x, y, width, height, u0, v0, u1, v1);
     }
 

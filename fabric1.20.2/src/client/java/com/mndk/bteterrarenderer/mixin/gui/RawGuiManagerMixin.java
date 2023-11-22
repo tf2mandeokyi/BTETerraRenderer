@@ -65,22 +65,17 @@ public class RawGuiManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     public void drawCheckBox(Object drawContext, int x, int y, int width, int height, boolean focused, boolean checked) {
-        RenderSystem.setShaderTexture(0, RawGuiManagerImpl.CHECKBOX);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.enableDepthTest();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        Identifier identifier = checked ?
+                (focused ? RawGuiManagerImpl.CHECKBOX_SELECTED_HIGHLIGHTED : RawGuiManagerImpl.CHECKBOX_SELECTED) :
+                (focused ? RawGuiManagerImpl.CHECKBOX_HIGHLIGHTED : RawGuiManagerImpl.CHECKBOX);
 
-        Matrix4f matrix = ((DrawContext) drawContext).getMatrices().peek().getPositionMatrix();
-
-        float size = 20 / 64f;
-        float u0 = focused ? size : 0, v0 = checked ? size : 0;
-        float u1 = u0 + size, v1 = v0 + size;
-        RawGuiManagerImpl.drawBufferPosTex(bufferbuilder, matrix, x, y, width, height, u0, v0, u1, v1);
+        DrawContext context = (DrawContext) drawContext;
+        context.setShaderColor(1, 1, 1, 1);
+        context.drawGuiTexture(identifier, x, y, width, height);
     }
 
     /** @author m4ndeokyi

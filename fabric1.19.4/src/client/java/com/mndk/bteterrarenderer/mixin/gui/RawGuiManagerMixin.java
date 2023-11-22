@@ -66,6 +66,7 @@ public class RawGuiManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, RawGuiManagerImpl.CHECKBOX);
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1, 1, 1, 1);
