@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "minecraft.I18nManagerMixin",
-    "terraplusplus.HttpDiskMixin",
-    "terraplusplus.HttpResourceManagerMixin"
+    "terraplusplus.HttpDiskMixin"
   ],
   "injectors": {
     "defaultRequire": 1

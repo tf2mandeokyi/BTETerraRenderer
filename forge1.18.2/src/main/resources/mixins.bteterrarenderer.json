@@ -9,8 +9,7 @@
         "config.ConfigSaveLoaderMixin",
         "delegate.DelegateCreatorMixin",
         "minecraft.I18nManagerMixin",
-        "terraplusplus.HttpDiskMixin",
-        "terraplusplus.HttpResourceManagerMixin"
+        "terraplusplus.HttpDiskMixin"
     ],
     "client": [
         "graphics.GlGraphicsManagerMixin",
