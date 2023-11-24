@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
-import com.mndk.bteterrarenderer.mod.client.mixin.graphics.GraphicsModelVisualManagerImpl;
+import com.mndk.bteterrarenderer.mod.client.graphics.GraphicsModelVisualManagerImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;

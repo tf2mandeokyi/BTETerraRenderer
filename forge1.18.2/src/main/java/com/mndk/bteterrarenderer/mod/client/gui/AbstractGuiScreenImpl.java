@@ -1,11 +1,15 @@
-package com.mndk.bteterrarenderer.mod.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AbstractGuiScreenImpl extends Screen {
     public final AbstractGuiScreenCopy delegate;
@@ -56,5 +60,9 @@ public class AbstractGuiScreenImpl extends Screen {
     }
     public boolean isPauseScreen() {
         return delegate.doesScreenPauseGame();
+    }
+
+    public void renderComponentHoverEffect(@Nonnull PoseStack poseStack, @Nullable Style style, int x, int y) {
+        super.renderComponentHoverEffect(poseStack, style, x, y);
     }
 }

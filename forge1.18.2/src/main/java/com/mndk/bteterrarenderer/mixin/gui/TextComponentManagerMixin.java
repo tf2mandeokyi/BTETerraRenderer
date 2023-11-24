@@ -1,12 +1,13 @@
 package com.mndk.bteterrarenderer.mixin.gui;
 
 import com.mndk.bteterrarenderer.core.gui.TextComponentManager;
+import com.mndk.bteterrarenderer.mod.client.gui.AbstractGuiScreenImpl;
+import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,11 +52,11 @@ public class TextComponentManagerMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
-    @Nullable
     @Overwrite
-    public Object getTooltipTextFromStyleComponent(@Nonnull Object styleComponent) {
-        HoverEvent hoverEvent = ((Style) styleComponent).getHoverEvent();
-        return hoverEvent == null ? null : hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT);
+    public void handleStyleComponentHover(@Nonnull Object poseStack, @Nonnull Object styleComponent, int x, int y) {
+        Screen currentScreen = Minecraft.getInstance().screen;
+        if(!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
+        guiScreen.renderComponentHoverEffect((PoseStack) poseStack, (Style) styleComponent, x, y);
     }
 
 }

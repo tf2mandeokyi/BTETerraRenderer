@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mixin.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
-import com.mndk.bteterrarenderer.mod.mixin.graphics.GraphicsModelVisualManagerImpl;
+import com.mndk.bteterrarenderer.mod.client.graphics.GraphicsModelVisualManagerImpl;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.experimental.UtilityClass;
 import net.minecraft.resources.ResourceLocation;

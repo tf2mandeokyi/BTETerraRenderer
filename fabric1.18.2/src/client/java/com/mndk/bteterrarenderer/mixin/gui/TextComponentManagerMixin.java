@@ -1,9 +1,11 @@
 package com.mndk.bteterrarenderer.mixin.gui;
 
 import com.mndk.bteterrarenderer.core.gui.TextComponentManager;
+import com.mndk.bteterrarenderer.mod.client.gui.AbstractGuiScreenImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -47,11 +49,11 @@ public class TextComponentManagerMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
-    @Nullable
     @Overwrite
-    public Object getTooltipTextFromStyleComponent(@Nonnull Object styleComponent) {
-        HoverEvent hoverEvent = ((Style) styleComponent).getHoverEvent();
-        return hoverEvent == null ? null : hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT);
+    public void handleStyleComponentHover(@Nonnull Object poseStack, @Nonnull Object styleComponent, int x, int y) {
+        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+        if(!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
+        guiScreen.renderTextHoverEffect((MatrixStack) poseStack, (Style) styleComponent, x, y);
     }
 
 }

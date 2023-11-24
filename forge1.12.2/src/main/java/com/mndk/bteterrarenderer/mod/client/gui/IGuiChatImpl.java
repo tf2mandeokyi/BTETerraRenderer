@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.delegate;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import com.mndk.bteterrarenderer.core.gui.components.IGuiChat;
 import lombok.SneakyThrows;

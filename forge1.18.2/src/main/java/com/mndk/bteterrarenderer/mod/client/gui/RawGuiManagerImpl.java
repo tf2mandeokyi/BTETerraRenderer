@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.gui;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;

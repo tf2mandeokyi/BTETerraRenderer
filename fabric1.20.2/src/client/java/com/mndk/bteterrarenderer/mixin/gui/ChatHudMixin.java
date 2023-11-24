@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mixin.gui;
 
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.mod.client.mixin.graphics.AbstractGuiScreenImpl;
+import com.mndk.bteterrarenderer.mod.client.gui.AbstractGuiScreenImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.ChatHud;

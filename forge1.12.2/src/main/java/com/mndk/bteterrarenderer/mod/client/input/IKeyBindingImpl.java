@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.delegate;
+package com.mndk.bteterrarenderer.mod.client.input;
 
 import com.mndk.bteterrarenderer.core.input.IKeyBinding;
 import lombok.RequiredArgsConstructor;

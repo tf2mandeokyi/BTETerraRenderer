@@ -1,16 +1,19 @@
-package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.input.InputKey;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+
+import javax.annotation.Nullable;
 
 public class AbstractGuiScreenImpl extends Screen {
     public final AbstractGuiScreenCopy delegate;
 
     public AbstractGuiScreenImpl(AbstractGuiScreenCopy delegate) {
-        super(Text.empty());
+        super(LiteralText.EMPTY);
         this.delegate = delegate;
     }
 
@@ -20,8 +23,8 @@ public class AbstractGuiScreenImpl extends Screen {
     public void tick() {
         delegate.tick();
     }
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        delegate.drawScreen(context, mouseX, mouseY, delta);
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        delegate.drawScreen(matrices, mouseX, mouseY, delta);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
@@ -35,9 +38,9 @@ public class AbstractGuiScreenImpl extends Screen {
         super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
         return delegate.mouseDragged(mouseX, mouseY, button, mouseX - deltaX, mouseY - deltaY);
     }
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-        return delegate.mouseScrolled(mouseX, mouseY, verticalAmount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        super.mouseScrolled(mouseX, mouseY, amount);
+        return delegate.mouseScrolled(mouseX, mouseY, amount);
     }
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean superResult = super.keyPressed(keyCode, scanCode, modifiers);
@@ -55,5 +58,9 @@ public class AbstractGuiScreenImpl extends Screen {
     }
     public boolean shouldPause() {
         return delegate.doesScreenPauseGame();
+    }
+
+    public void renderTextHoverEffect(MatrixStack matrices, @Nullable Style style, int x, int y) {
+        super.renderTextHoverEffect(matrices, style, x, y);
     }
 }

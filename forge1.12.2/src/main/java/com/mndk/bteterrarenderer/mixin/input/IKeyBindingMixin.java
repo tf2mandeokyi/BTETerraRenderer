@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mixin.input;
 
 import com.mndk.bteterrarenderer.core.input.IKeyBinding;
 import com.mndk.bteterrarenderer.core.input.InputKey;
-import com.mndk.bteterrarenderer.mod.mixin.delegate.IKeyBindingImpl;
+import com.mndk.bteterrarenderer.mod.client.input.IKeyBindingImpl;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.spongepowered.asm.mixin.Mixin;

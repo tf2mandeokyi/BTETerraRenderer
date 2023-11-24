@@ -23,10 +23,8 @@ public class TextComponentManager {
         return MixinUtil.notOverwritten(styleComponent);
     }
 
-    @Nullable
-    @SuppressWarnings("DataFlowIssue")
-    public Object getTooltipTextFromStyleComponent(@Nonnull Object styleComponent) {
-        return MixinUtil.notOverwritten(styleComponent);
+    public void handleStyleComponentHover(@Nonnull Object poseStack, @Nonnull Object styleComponent, int x, int y) {
+        MixinUtil.notOverwritten(poseStack, styleComponent, x, y);
     }
 
 }

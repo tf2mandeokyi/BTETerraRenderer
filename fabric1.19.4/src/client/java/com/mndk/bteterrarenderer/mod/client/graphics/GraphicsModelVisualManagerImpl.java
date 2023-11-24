@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
@@ -14,7 +14,7 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -38,21 +38,19 @@ public class GraphicsModelVisualManagerImpl {
     }
 
     public void drawModel(MatrixStack poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         RenderSystem.setShaderTexture(0, (Identifier) model.getTextureObject());
         Matrix4f matrix = poseStack.peek().getPositionMatrix();
 
         if(!model.getQuads().isEmpty()) {
             BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
             drawShapeList(matrix, model.getQuads(), px, py, pz, opacity);
-            BUFFER_BUILDER.end();
-            BufferRenderer.draw(BUFFER_BUILDER);
+            BufferRenderer.drawWithGlobalProgram(BUFFER_BUILDER.end());
         }
         if(!model.getTriangles().isEmpty()) {
             BUFFER_BUILDER.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
             drawShapeList(matrix, model.getTriangles(), px, py, pz, opacity);
-            BUFFER_BUILDER.end();
-            BufferRenderer.draw(BUFFER_BUILDER);
+            BufferRenderer.drawWithGlobalProgram(BUFFER_BUILDER.end());
         }
     }
 

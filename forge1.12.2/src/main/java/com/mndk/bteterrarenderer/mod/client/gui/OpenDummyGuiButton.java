@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.delegate;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;

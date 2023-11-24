@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.graphics;
 
 import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;

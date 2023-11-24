@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mod.client.mixin.gui;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.render.BufferBuilder;

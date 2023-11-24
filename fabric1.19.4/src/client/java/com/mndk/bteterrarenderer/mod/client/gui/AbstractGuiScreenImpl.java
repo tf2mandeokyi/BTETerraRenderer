@@ -1,10 +1,14 @@
-package com.mndk.bteterrarenderer.mod.client.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AbstractGuiScreenImpl extends Screen {
     public final AbstractGuiScreenCopy delegate;
@@ -55,5 +59,9 @@ public class AbstractGuiScreenImpl extends Screen {
     }
     public boolean shouldPause() {
         return delegate.doesScreenPauseGame();
+    }
+
+    public void renderTextHoverEffect(@Nonnull MatrixStack poseStack, @Nullable Style style, int x, int y) {
+        super.renderTextHoverEffect(poseStack, style, x, y);
     }
 }

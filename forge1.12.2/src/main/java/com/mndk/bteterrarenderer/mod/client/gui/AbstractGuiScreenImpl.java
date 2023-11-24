@@ -1,10 +1,12 @@
-package com.mndk.bteterrarenderer.mod.mixin.graphics;
+package com.mndk.bteterrarenderer.mod.client.gui;
 
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 public class AbstractGuiScreenImpl extends GuiScreen {
@@ -59,5 +61,9 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     }
     public boolean doesGuiPauseGame() {
         return delegate.doesScreenPauseGame();
+    }
+
+    public void handleComponentHover(@Nonnull ITextComponent textComponent, int x, int y) {
+        super.handleComponentHover(textComponent, x, y);
     }
 }

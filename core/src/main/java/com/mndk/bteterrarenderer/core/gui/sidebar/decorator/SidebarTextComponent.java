@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.FontManager;
-import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.TextAlign;
 import com.mndk.bteterrarenderer.core.gui.TextComponentManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
@@ -17,7 +16,7 @@ public class SidebarTextComponent extends GuiSidebarElement {
     private List<?> lineComponents;
     private Object hoveredStyleComponent;
     private final TextAlign align;
-    private double hoverX, hoverY;
+    private int hoverX, hoverY;
 
     public SidebarTextComponent(TextAlign align) {
         this("[\"\"]", align);
@@ -42,8 +41,8 @@ public class SidebarTextComponent extends GuiSidebarElement {
         }
         this.hoveredStyleComponent = this.getStyleComponentAt((int) mouseX, (int) mouseY);
         if(this.hoveredStyleComponent != null) {
-            this.hoverX = mouseX;
-            this.hoverY = mouseY;
+            this.hoverX = (int) mouseX;
+            this.hoverY = (int) mouseY;
             return true;
         }
         return false;
@@ -55,16 +54,9 @@ public class SidebarTextComponent extends GuiSidebarElement {
             FontManager.drawComponentWithShadow(poseStack, lineComponents.get(i), this.align,
                     0, i * FontManager.getFontHeight(), this.getWidth(), NORMAL_TEXT_COLOR);
         }
-        this.drawTooltipBox(poseStack);
-    }
-
-    private void drawTooltipBox(Object poseStack) {
-        if(this.hoveredStyleComponent == null) return;
-
-        Object tooltipTextComponent = TextComponentManager.getTooltipTextFromStyleComponent(this.hoveredStyleComponent);
-        if(tooltipTextComponent == null) return;
-
-        RawGuiManager.drawTooltipTextBox(poseStack, tooltipTextComponent, (int) this.hoverX, (int) this.hoverY);
+        if(this.hoveredStyleComponent != null) {
+            TextComponentManager.handleStyleComponentHover(poseStack, this.hoveredStyleComponent, hoverX, hoverY);
+        }
     }
 
     @Override
