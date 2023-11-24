@@ -9,7 +9,7 @@
   "updateUrl": "",
   "authorList": [ "${authors}" ],
   "credits": "${credits}",
-  "logoFile": "assets/bteterrarenderer/textures/icon.png",
+  "logoFile": "icon.png",
   "screenshots": [],
   "dependencies": []
 }

@@ -11,7 +11,7 @@
     },
 
     "license": "${license}",
-    "icon": "assets/bteterrarenderer/textures/icon.png",
+    "icon": "icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [
