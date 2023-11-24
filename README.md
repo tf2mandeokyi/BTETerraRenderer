@@ -14,14 +14,9 @@ Logo by [vicrobex](https://github.com/vicrobex)
   * [OpenStreetMap](http://openstreetmap.org/)
   * [Bing maps](https://www.bing.com/maps/)
   * [Yandex.Maps](https://yandex.com/maps/)
-* Korean
-  * [Naver map](https://map.naver.com/)
-  * [Kakao map](https://map.kakao.com/)
-  * [T map](https://www.tmap.co.kr/) (No Aerial)
-* Japan
-  * [Japan GSI map](https://maps.gsi.go.jp/)
+* (And many others)
 
-You can add other map services by editing the configuration files.<br>
+You can add other map services by adding/editing configuration files.<br>
 See [API Documentation](YML_CONFIG.md) for more information.
 
 ## How to use

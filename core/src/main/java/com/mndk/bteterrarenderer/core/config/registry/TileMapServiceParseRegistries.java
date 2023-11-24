@@ -10,14 +10,9 @@ public class TileMapServiceParseRegistries {
 
     public static final HashMap<String, Class<? extends TileMapService<?>>> TYPE_MAP = new HashMap<>();
 
-    /* Mixin ready(?) */
-    private static void registerAll() {
+    static {
         TileMapServiceParseRegistries.TYPE_MAP.put("flat", FlatTileMapService.class);
         TileMapServiceParseRegistries.TYPE_MAP.put("ogc3dtiles", Ogc3dTileMapService.class);
-    }
-
-    static {
-        registerAll();
     }
 
 }
