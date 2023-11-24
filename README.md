@@ -28,7 +28,7 @@ See [API Documentation](YML_CONFIG.md) for more information.
    3. The `mods` folder is there
 3. Run Minecraft
 
-### Controls
+## Controls
 
 | Key               | Description                                   |
 |-------------------|-----------------------------------------------|
