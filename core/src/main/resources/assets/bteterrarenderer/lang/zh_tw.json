@@ -1,7 +1,9 @@
 {
     "key.bteterrarenderer.category": "BTETerraRenderer",
     "key.bteterrarenderer.options_ui": "開啟選項介面",
-    "key.bteterrarenderer.toggle": "地圖投影開關",
+    "key.bteterrarenderer.toggle": "開關地圖投影",
+    "key.bteterrarenderer.move_up": "上移地圖",
+    "key.bteterrarenderer.move_down": "下移地圖",
 
     "gui.bteterrarenderer.settings.title": "BTETerraRenderer設定",
 
