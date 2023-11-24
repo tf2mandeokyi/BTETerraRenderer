@@ -138,3 +138,37 @@ categories:
          projection: webmercator
          max_thread: 2
          default_zoom: 17
+
+
+   Taiwan:
+      orthoimage_tw:
+         type: "flat"
+         name: "Taiwan Orthoimage"
+         tile_url: https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         projection: webmercator
+         max_thread: 2
+         default_zoom: 20
+
+      emap_tw:
+         type: "flat"
+         name: "Taiwan E-Map with Contour"
+         tile_url: https://wmts.nlsc.gov.tw/wmts/EMAP15/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         projection: webmercator
+         max_thread: 2
+         default_zoom: 20
+
+      tp_aerial_tw:
+         type: "flat"
+         name: "Taipei Aerial Photograph"
+         tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2022/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2021/default/default028mm/{z}/{y}/{x}.png
+         projection: webmercator
+         max_thread: 2
+         default_zoom: 21
+      
+      tp_1ktd_tw:
+         type: "flat"
+         name: "Taipei 1/1000 Topographic Drawing"
+         tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2022/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2021/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         projection: webmercator
+         max_thread: 2
+         default_zoom: 21
