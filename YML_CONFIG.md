@@ -126,7 +126,7 @@ The file name could be anything except `default_projections.yml`.
 
 ### example_projections.yml
 
-See [`default_projections.yml`](common/src/main/resources/assets/bteterrarenderer/default_projections.yml) for more examples
+See [`default_projections.yml`](core/src/main/resources/assets/bteterrarenderer/default_projections.yml) for more examples
 
 ```yaml
 tile_projections:
