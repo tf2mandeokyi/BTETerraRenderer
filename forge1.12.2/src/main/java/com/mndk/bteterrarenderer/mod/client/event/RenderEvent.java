@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -26,7 +27,7 @@ public class RenderEvent {
 			// We'll just pass null here
 			TileRenderer.renderTiles(null, px, py, pz);
 		} catch(IllegalArgumentException exception) {
-			BTETerraRendererConstants.LOGGER.error("Error while rendering tiles", exception);
+			Loggers.get().error("Error while rendering tiles", exception);
 		}
 	}
 }

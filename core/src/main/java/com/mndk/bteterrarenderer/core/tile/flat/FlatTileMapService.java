@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
@@ -18,6 +17,7 @@ import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.TmsIdPair;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedIntPropertyAccessor;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -112,7 +112,7 @@ public class FlatTileMapService extends TileMapService<FlatTileMapService.TileKe
 
         } catch(OutOfProjectionBoundsException ignored) {
         } catch(Exception e) {
-            BTETerraRendererConstants.LOGGER.warn("Caught exception while rendering tile images", e);
+            Loggers.get(this).warn("Caught exception while rendering tile images", e);
         }
         return Collections.emptyList();
     }

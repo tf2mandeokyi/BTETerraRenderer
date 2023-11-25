@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.FontManager;
 import com.mndk.bteterrarenderer.core.gui.TextAlign;
 import com.mndk.bteterrarenderer.core.gui.TextComponentManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -94,7 +94,7 @@ public class SidebarTextComponent extends GuiSidebarElement {
 
             return FontManager.splitComponentByWidth(textComponent, this.getWidth());
         } catch(Exception e) {
-            BTETerraRendererConstants.LOGGER.error(e);
+            Loggers.get(this).error(e);
             return Collections.emptyList();
         }
     }

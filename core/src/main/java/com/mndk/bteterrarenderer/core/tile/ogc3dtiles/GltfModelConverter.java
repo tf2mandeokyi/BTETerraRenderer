@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsTriangle;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
@@ -99,7 +99,7 @@ public class GltfModelConverter {
             AccessorModel positionAccessor = meshPrimitiveModel.getAttributes().get("POSITION");
             AccessorModel textureCoordAccessor = meshPrimitiveModel.getAttributes().get("TEXCOORD_0");
             if(textureCoordAccessor == null) {
-                BTETerraRendererConstants.LOGGER.warn("texture coord accessor is null");
+                Loggers.get(this).warn("texture coord accessor is null");
             }
 
             int size = positionAccessor.getCount();
@@ -193,7 +193,7 @@ public class GltfModelConverter {
 
                 return ImageIO.read(stream);
             } catch(IOException e) {
-                BTETerraRendererConstants.LOGGER.error(e);
+                Loggers.get(this).error(e);
                 return null;
             }
         }

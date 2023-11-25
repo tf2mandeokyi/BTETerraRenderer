@@ -35,6 +35,8 @@ public abstract class GuiSidebarElement extends GuiComponentCopy {
 
     protected abstract void init();
     public abstract void onWidthChange();
+    /** Used to calculate Z-axis translation on component drawing step */
+    public int getCount() { return 1; }
 
     protected static GuiSidebarElement fromProperty(PropertyAccessor.Localized<?> property) {
         Class<?> propertyClass = property.delegate.getPropertyClass();

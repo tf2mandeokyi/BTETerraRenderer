@@ -12,8 +12,8 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.dropdown.SidebarDropdownSelect
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.GuiSidebarElementWrapper;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementListComponent;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementWrapper;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.network.SimpleImageFetcher;
@@ -47,12 +47,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static MapRenderingOptionsSidebar INSTANCE;
     private SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
     private SidebarTextComponent mapCopyright;
-    private SidebarElementListComponent tmsPropertyElementList;
-    private GuiSidebarElementWrapper yAxisInputWrapper;
+    private SidebarElementList tmsPropertyElementList;
+    private SidebarElementWrapper yAxisInputWrapper;
 
     public MapRenderingOptionsSidebar() {
         super(
-                20, 20, ELEMENT_DISTANCE, false,
+                20, 25, 2 * ELEMENT_DISTANCE + 10, false,
                 PropertyAccessor.of(
                         BTETerraRendererConfig.UI::getSidebarWidth,
                         BTETerraRendererConfig.UI::setSidebarWidth
@@ -76,7 +76,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
                 I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
         );
-        this.yAxisInputWrapper = new GuiSidebarElementWrapper();
+        this.yAxisInputWrapper = new SidebarElementWrapper();
         SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
                 RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
                 I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
@@ -90,7 +90,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
         this.mapCopyright = new SidebarTextComponent(TextAlign.LEFT);
-        this.tmsPropertyElementList = new SidebarElementListComponent(ELEMENT_DISTANCE, 0, null, false);
+        this.tmsPropertyElementList = new SidebarElementList(ELEMENT_DISTANCE, 0, null, false);
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18nManager.format("gui.bteterrarenderer.settings.map_reload"),
                 (self, mouseButton) -> this.reloadMapSources()
@@ -107,38 +107,39 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 PropertyAccessor.of(boolean.class, hologramSettings::isLockNorth, hologramSettings::setLockNorth)
         );
 
-        SidebarBlank blank = new SidebarBlank(10);
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
 
         return Arrays.asList(
                 // ===========================================================================================
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), TextAlign.CENTER),
-                blank,
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), TextAlign.LEFT),
-                hl, // ---------------------------------------------------------------------------------------
-                renderingTrigger,
-                this.yAxisInputWrapper,
-                opacitySlider,
-                blank,
+                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                        new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), TextAlign.LEFT),
+                        hl, // ---------------------------------------------------------------------------------------
+                        renderingTrigger,
+                        this.yAxisInputWrapper,
+                        opacitySlider
+                ),
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), TextAlign.LEFT),
-                hl, // ---------------------------------------------------------------------------------------
-                this.mapSourceDropdown,
-                this.mapCopyright,
-                blank,
+                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                        new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), TextAlign.LEFT),
+                        hl, // ---------------------------------------------------------------------------------------
+                        this.mapSourceDropdown,
+                        this.mapCopyright
+                ),
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), TextAlign.LEFT),
                 this.tmsPropertyElementList,
-                blank,
 
-                reloadMapsButton,
-                openMapsFolderButton,
-                blank,
+                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                        reloadMapsButton,
+                        openMapsFolderButton
+                ),
 
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), TextAlign.LEFT),
-                hl, // ---------------------------------------------------------------------------------------
-                mapAligner
+                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                        new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), TextAlign.LEFT),
+                        hl, // ---------------------------------------------------------------------------------------
+                        mapAligner
+                )
                 // ===========================================================================================
         );
     }
@@ -161,6 +162,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;
             this.tmsPropertyElementList.hide = true;
+            this.mapCopyright.hide = true;
             return;
         }
 
@@ -168,11 +170,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.setTileMapService(tmsWrapped);
 
         // Set property element list
+        SidebarText text = new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), TextAlign.LEFT);
         this.tmsPropertyElementList.clear();
+        this.tmsPropertyElementList.add(text);
         this.tmsPropertyElementList.addProperties(tms.getProperties());
         this.tmsPropertyElementList.hide = false;
 
         // Set y axis input
+        this.yAxisInputWrapper.hide = false;
         if(tms instanceof FlatTileMapService) {
             this.yAxisInputWrapper.setElement(new SidebarNumberInput(
                     PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis),
@@ -184,16 +189,24 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
 
         // Set copyright
+        this.mapCopyright.hide = false;
         this.mapCopyright.setTextComponentJson(tms.getCopyrightTextJson());
     }
 
-    private void reloadMapSources() {
-        try {
-            BTETerraRendererConfig.load(true);
-            this.updateMapSourceDropdown();
-        } catch(Exception e) {
-            MinecraftClientManager.sendErrorMessageToChat("Error reloading maps!", e);
+    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
+        TileMapService<?> tms = tmsWrapped.getItem();
+        if(tms == null) {
+            return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
         }
+        if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
+            return tms.getName();
+        }
+        return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + tms.getName();
+    }
+
+    private void reloadMapSources() {
+        BTETerraRendererConfig.load(true);
+        this.updateMapSourceDropdown();
     }
 
     private void updateMapSourceDropdown() {
@@ -264,17 +277,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 return null;
         }
         return null;
-    }
-
-    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
-        TileMapService<?> tms = tmsWrapped.getItem();
-        if(tms == null) {
-            return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
-        }
-        if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
-            return tms.getName();
-        }
-        return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + tms.getName();
     }
 
     public static void open() {

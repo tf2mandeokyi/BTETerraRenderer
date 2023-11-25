@@ -7,7 +7,7 @@ import lombok.Getter;
 import javax.annotation.Nullable;
 
 @Getter
-public class GuiSidebarElementWrapper extends GuiSidebarElement {
+public class SidebarElementWrapper extends GuiSidebarElement {
 
     @Nullable
     private GuiSidebarElement delegate;
@@ -72,4 +72,8 @@ public class GuiSidebarElementWrapper extends GuiSidebarElement {
         if(delegate != null) delegate.onWidthChange(this.getWidth());
     }
 
+    @Override
+    public int getCount() {
+        return delegate != null ? delegate.getCount() : 0;
+    }
 }

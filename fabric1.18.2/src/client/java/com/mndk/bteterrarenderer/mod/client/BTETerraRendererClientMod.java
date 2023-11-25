@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.mod.client;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mod.client.command.CommandsRegisterer;
 import com.mndk.bteterrarenderer.mod.client.event.ClientOngoingConnectionEvents;
 import com.mndk.bteterrarenderer.mod.client.event.RenderEvents;
@@ -22,6 +22,6 @@ public class BTETerraRendererClientMod implements ClientModInitializer {
         TickEvents.registerEvents();
         ClientOngoingConnectionEvents.registerEvents();
 
-        BTETerraRendererConstants.LOGGER.info("Client Mod BTETerraRenderer initialized");
+        Loggers.get(this).info("Client Mod BTETerraRenderer initialized");
     }
 }

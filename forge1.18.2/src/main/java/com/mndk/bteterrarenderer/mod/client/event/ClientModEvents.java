@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -12,6 +13,6 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         KeyBindings.registerAll();
-        BTETerraRendererConstants.LOGGER.info("Client mod setup done");
+        Loggers.get().info("Client mod setup done");
     }
 }

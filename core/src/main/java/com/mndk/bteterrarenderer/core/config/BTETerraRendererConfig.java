@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.loader.TileMapServicePropertyLoader;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import lombok.Getter;
 import lombok.Setter;
@@ -115,6 +116,7 @@ public class BTETerraRendererConfig {
         MOD_CONFIG_DIRECTORY = new File(gameConfigDirectory, BTETerraRendererConstants.MODID);
 
         // TMS data files
+        Proj4jProjection.registerProjection();
         FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
         TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
         TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());

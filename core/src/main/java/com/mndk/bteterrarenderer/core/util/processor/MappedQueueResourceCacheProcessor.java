@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -61,7 +61,7 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
                 processResource(element.key, element.input);
                 return null;
             } catch (Exception e) {
-                BTETerraRendererConstants.LOGGER.error("Error while processing a cache", e);
+                Loggers.get(this).error("Error while processing a cache", e);
                 // Put the input back to the queue if something went wrong
                 return e;
             }
@@ -78,7 +78,7 @@ public abstract class MappedQueueResourceCacheProcessor<Key, QueueKey, Input, Re
         private final int index;
         @SuppressWarnings({ "InfiniteLoopStatement", "BusyWait" })
         public void run() {
-            if(debug) BTETerraRendererConstants.LOGGER.info("Thread #" + index + " started");
+            if(debug) Loggers.get(this).info("Thread #" + index + " started");
             try {
                 while(true) {
                     if (!queueNodeProcessor.isCurrentQueueEmpty()) {

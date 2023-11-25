@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.loader;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,14 +28,14 @@ public abstract class YamlLoader<T> {
         try {
             this.result = loadDefault();
         } catch(IOException e) {
-            BTETerraRendererConstants.LOGGER.error("Error while parsing default file: " + defaultYamlPath, e);
+            Loggers.get(this).error("Error while parsing default file: " + defaultYamlPath, e);
             return;
         }
 
         // Check folder
         if(filesDirectory == null) return;
         if(!filesDirectory.exists() && !filesDirectory.mkdirs()) {
-            BTETerraRendererConstants.LOGGER.error("Folder" + folderName + " creation failed");
+            Loggers.get(this).error("Folder" + folderName + " creation failed");
             return;
         }
 
@@ -47,7 +47,7 @@ public abstract class YamlLoader<T> {
             try (FileReader fileReader = new FileReader((file))) {
                 addToResult(this.result, load(name, fileReader));
             } catch (Exception e) {
-                BTETerraRendererConstants.LOGGER.error("Error while parsing file: " + file, e);
+                Loggers.get(this).error("Error while parsing file: " + file, e);
             }
         }
     }

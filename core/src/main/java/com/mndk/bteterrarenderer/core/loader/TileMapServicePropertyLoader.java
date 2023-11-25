@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
 import javax.annotation.Nullable;
@@ -19,7 +20,7 @@ public class TileMapServicePropertyLoader {
 
     public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) {
         if(BTETerraRendererConfig.getModConfigDirectory() == null) {
-            BTETerraRendererConstants.LOGGER.error("Mod config file is null");
+            Loggers.get().error("Mod config file is null");
             return;
         }
         File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
@@ -30,7 +31,7 @@ public class TileMapServicePropertyLoader {
             TypeReference<CategoryMap<Map<String, Object>>> typeRef = new TypeReference<CategoryMap<Map<String, Object>>>() {};
             raw = BTETerraRendererConstants.JSON_MAPPER.readValue(file, typeRef);
         } catch (IOException e) {
-            BTETerraRendererConstants.LOGGER.error("Cannot read TMS property json file", e);
+            Loggers.get().error("Cannot read TMS property json file", e);
             return;
         }
 
@@ -47,7 +48,7 @@ public class TileMapServicePropertyLoader {
                 try {
                     tmsProperty.delegate.set(BTRUtil.uncheckedCast(propertyValues.get(key)));
                 } catch(Exception e) {
-                    BTETerraRendererConstants.LOGGER.error(e);
+                    Loggers.get().error(e);
                 }
             }
         }
@@ -72,7 +73,7 @@ public class TileMapServicePropertyLoader {
             File file = new File(BTETerraRendererConfig.getModConfigDirectory(), FILE_NAME);
             BTETerraRendererConstants.JSON_MAPPER.writeValue(file, raw);
         } catch(IOException e) {
-            BTETerraRendererConstants.LOGGER.error("Cannot write TMS property json file", e);
+            Loggers.get().error("Cannot write TMS property json file", e);
         }
     }
 }

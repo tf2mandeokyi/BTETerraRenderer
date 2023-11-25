@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -68,7 +69,7 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e); // This will never happen
         } catch (IOException e) {
-            BTETerraRendererConstants.LOGGER.error("Caught IO error while saving config.yml", e);
+            Loggers.get(this).error("Caught IO error while saving config.yml", e);
         }
     }
 
@@ -79,10 +80,10 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
             TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
             readResult = BTETerraRendererConstants.YAML_MAPPER.readValue(this.fileGetter.get(), typeRef);
         } catch (JsonProcessingException e) {
-            BTETerraRendererConstants.LOGGER.error("Caught json error while reading config.yml", e);
+            Loggers.get(this).error("Caught json error while reading config.yml", e);
             return;
         } catch (IOException e) {
-            BTETerraRendererConstants.LOGGER.error("Caught IO error while loading config.yml (perhaps the file was missing?)", e);
+            Loggers.get(this).error("Caught IO error while loading config.yml (perhaps the file was missing?)", e);
             return;
         }
 

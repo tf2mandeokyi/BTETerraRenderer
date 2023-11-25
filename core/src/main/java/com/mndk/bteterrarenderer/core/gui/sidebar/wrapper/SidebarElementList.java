@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SidebarElementListComponent extends GuiSidebarElement {
+public class SidebarElementList extends GuiSidebarElement {
 
     private static final int VERTICAL_SLIDER_WIDTH = 6;
     private static final int VERTICAL_SLIDER_PADDING = 2;
@@ -42,8 +42,8 @@ public class SidebarElementListComponent extends GuiSidebarElement {
      * @param maxHeight Max height. Values other than {@code null} will make the vertical slider appear.
      * @param makeSound Whether to make sound when one of the elements is clicked
      */
-    public SidebarElementListComponent(int elementDistance, int sidePadding,
-                                       @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
+    public SidebarElementList(int elementDistance, int sidePadding,
+                              @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
         this.elementDistance = elementDistance;
         this.sidePadding = sidePadding;
         this.makeSound = makeSound;
@@ -56,24 +56,38 @@ public class SidebarElementListComponent extends GuiSidebarElement {
         this.entryList.clear();
     }
 
-    public void add(GuiSidebarElement element) {
-        if(element == null) return;
+    public SidebarElementList add(GuiSidebarElement element) {
+        if(element == null) return this;
         this.entryList.add(new Entry(element));
         if(this.getWidth() != -1) element.init(this.getWidth());
+        return this;
     }
 
     /**
      * Skips null elements
      */
-    public void addAll(List<GuiSidebarElement> elements) {
+    @SuppressWarnings("UnusedReturnValue")
+    public SidebarElementList addAll(GuiSidebarElement... elements) {
         for(GuiSidebarElement element : elements) this.add(element);
+        return this;
     }
 
-    public void addProperties(List<PropertyAccessor.Localized<?>> properties) {
+    /**
+     * Skips null elements
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public SidebarElementList addAll(List<GuiSidebarElement> elements) {
+        for(GuiSidebarElement element : elements) this.add(element);
+        return this;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public SidebarElementList addProperties(List<PropertyAccessor.Localized<?>> properties) {
         List<GuiSidebarElement> elements = properties.stream()
                 .map(GuiSidebarElement::fromProperty)
                 .collect(Collectors.toList());
         this.addAll(elements);
+        return this;
     }
 
     @Override
@@ -170,7 +184,7 @@ public class SidebarElementListComponent extends GuiSidebarElement {
             if(element == null || element.hide) continue;
 
             int yPos = entry.yPos;
-            GlGraphicsManager.glTranslate(poseStack, 0, yPos - prevYPos, 1);
+            GlGraphicsManager.glTranslate(poseStack, 0, yPos - prevYPos, element.getCount());
 
             element.drawComponent(poseStack);
             prevYPos = yPos;
@@ -346,6 +360,11 @@ public class SidebarElementListComponent extends GuiSidebarElement {
             if(element == null || element.hide) continue;
             element.onWidthChange(this.getWidth() - 2 * this.sidePadding);
         }
+    }
+
+    @Override
+    public int getCount() {
+        return entryList.size();
     }
 
     @RequiredArgsConstructor

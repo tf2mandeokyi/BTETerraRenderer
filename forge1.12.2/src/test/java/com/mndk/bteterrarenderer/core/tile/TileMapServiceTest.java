@@ -1,12 +1,10 @@
 package com.mndk.bteterrarenderer.core.tile;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import org.apache.logging.log4j.LogManager;
 import org.junit.Assert;
 
 // TODO: Add mixin for this test
@@ -37,7 +35,6 @@ public class TileMapServiceTest {
 
     static {
         try {
-            BTETerraRendererConstants.LOGGER = LogManager.getLogger(BTETerraRendererConstants.class);
             BTETerraRendererConfig.load(true);
             CATEGORY_MAP_DATA = TileMapServiceYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {

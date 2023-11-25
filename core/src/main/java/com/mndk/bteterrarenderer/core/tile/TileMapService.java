@@ -17,6 +17,7 @@ import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -119,7 +120,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
                 }
             } catch(OutOfProjectionBoundsException ignored) {
             } catch(Exception e) {
-                BTETerraRendererConstants.LOGGER.warn("Caught exception while rendering tile: " + tileId, e);
+                Loggers.get(this).warn("Caught exception while rendering tile: " + tileId, e);
             }
 
             if (models != null) for(GraphicsModel model : models) {
@@ -136,7 +137,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         } catch(OutOfProjectionBoundsException e) {
             modelTextureBaker.resourcePreparingError(idPair, e);
         } catch(Exception e) {
-            BTETerraRendererConstants.LOGGER.warn(
+            Loggers.get(this).warn(
                     "Caught exception while rendering tile: " + idPair.getTileId(), e);
             modelTextureBaker.resourcePreparingError(idPair, e);
         }

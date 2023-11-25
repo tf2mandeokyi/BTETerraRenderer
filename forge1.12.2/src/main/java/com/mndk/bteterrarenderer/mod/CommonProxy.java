@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.mod;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
 import net.buildtheearth.terraplusplus.generator.EarthGenerator;
@@ -13,11 +12,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 public class CommonProxy {
-	public void preInit(FMLPreInitializationEvent event) {
-		BTETerraRendererConstants.LOGGER = event.getModLog();
-	}
+	public void preInit(FMLPreInitializationEvent event) {}
 	public void init(FMLInitializationEvent event) {}
 	public void postInit(FMLPostInitializationEvent event) {}
+	@SuppressWarnings("unused")
 	public void serverStarting(FMLServerStartingEvent event) {}
 
 	// TODO: Move this to somewhere else

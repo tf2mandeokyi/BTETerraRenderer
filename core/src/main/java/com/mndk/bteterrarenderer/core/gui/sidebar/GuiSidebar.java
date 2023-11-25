@@ -5,12 +5,13 @@ import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.components.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
 import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementListComponent;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
 import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 // TODO: Add tab key
 public abstract class GuiSidebar extends AbstractGuiScreenCopy {
@@ -21,7 +22,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     private static final int WIDTH_CHANGE_BAR_SHADOW = 0xFF383838;
     private static final int WIDTH_CHANGE_BAR_SHADOW_HOVERED = 0xFF3f3f28;
 
-    private final SidebarElementListComponent listComponent;
+    private final SidebarElementList listComponent;
     public PropertyAccessor<SidebarSide> side;
     private final SidebarButton sideChangingButton;
     private final boolean guiPausesGame;
@@ -30,13 +31,11 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     private double mouseClickX, initialWidth;
     private boolean widthChangingState, widthChangeBarHoverState;
 
-    private final SidebarGuiChat guiChat;
-
 
     public GuiSidebar(int elementPaddingSide, int paddingTopBottom, int elementDistance, boolean guiPausesGame,
                       PropertyAccessor<Double> sidebarWidth,
                       PropertyAccessor<SidebarSide> side) {
-        this.listComponent = new SidebarElementListComponent(0, 0, null, true);
+        this.listComponent = new SidebarElementList(0, 0, null, true);
 
         // Side changing button
         this.sideChangingButton = new SidebarButton("", (self, mouseButton) -> {
@@ -44,30 +43,25 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
             self.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
         });
         this.listComponent.add(this.sideChangingButton);
+        Supplier<Integer> remainingHeightGetter = () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight();
 
         // Sidebar element list
-        SidebarBlank blank = new SidebarBlank(paddingTopBottom);
-        SidebarElementListComponent elementList = new SidebarElementListComponent(
-                elementDistance, elementPaddingSide, () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight(), false);
-        elementList.add(blank);
-        elementList.addAll(this.getElements());
-        elementList.add(blank);
-        this.listComponent.add(elementList);
+        this.listComponent.add(new SidebarElementList(0, 0, remainingHeightGetter, false).addAll(
+                new SidebarBlank(paddingTopBottom),
+                new SidebarElementList(elementDistance, elementPaddingSide, null, false).addAll(this.getElements()),
+                new SidebarBlank(paddingTopBottom)
+        ));
 
         this.side = side;
         this.widthChangingState = false;
         this.guiPausesGame = guiPausesGame;
         this.sidebarWidth = sidebarWidth;
-
-        this.guiChat = new SidebarGuiChat();
     }
 
     protected abstract List<GuiSidebarElement> getElements();
 
     @Override
     public void initGui() {
-        this.guiChat.initGui();
-        this.guiChat.changeSideMargin(side.get(), this.sidebarWidth.get().intValue());
         this.listComponent.init(this.sidebarWidth.get().intValue());
         this.sideChangingButton.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
     }
@@ -75,17 +69,10 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     @Override
     public void tick() {
         this.listComponent.tick();
-        if(this.guiChat.isOpened()) {
-            this.guiChat.updateScreen();
-        }
     }
 
     @Override
     public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
-        if(this.guiChat.isOpened()) {
-            this.guiChat.mouseHovered(mouseX, mouseY, partialTicks);
-        }
-
         // Sidebar elements
         int sidebarLeft = this.getSidebarXRange()[0];
         boolean result = this.listComponent.mouseHovered(mouseX - sidebarLeft, mouseY, partialTicks, mouseHidden);
@@ -97,10 +84,6 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
     @Override
     protected void drawScreen(Object poseStack) {
-        if(this.guiChat.isOpened()) {
-            this.guiChat.drawScreen(poseStack);
-        }
-
         this.drawSidebarBackground(poseStack);
 
         GlGraphicsManager.glPushMatrix(poseStack);
@@ -132,9 +115,6 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        if(this.guiChat.isOpened() && this.guiChat.mouseClickResponse(mouseX, mouseY, mouseButton))
-            return true;
-
         this.initialWidth = sidebarWidth.get();
         this.mouseClickX = mouseX;
 
@@ -156,19 +136,8 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
-        if(this.guiChat.isOpened() && !this.mouseOnSidebar(mouseX)) {
-            // TODO: Maybe I should consider removing guiChat from sidebar
-            this.guiChat.handleMouseInput();
-        }
-
         int sidebarLeft = this.getSidebarXRange()[0];
         return this.listComponent.mouseScrolled(mouseX - sidebarLeft, mouseY, scrollAmount);
-    }
-
-
-    private boolean mouseOnSidebar(double mouseX) {
-        int[] range = this.getSidebarXRange();
-        return mouseX >= range[0] && mouseX <= range[1];
     }
 
 
@@ -192,25 +161,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
 
     public boolean keyTyped(char key, int keyCode) {
-        if(this.guiChat.isOpened() && this.guiChat.keyTypedResponse(key, keyCode)) {
-            return true;
-        }
-
-        boolean keyTyped = this.listComponent.keyTyped(key, keyCode);
-        if (keyTyped) return true;
-
-        if(this.guiChat.isAvailable()) {
-            // TODO: Maybe delete this
-//            if(MinecraftClientManager.matchesChatOpenKeyCode(keyCode)) {
-//                this.guiChat.setText("", true);
-//                return true;
-//            }
-//            else if(MinecraftClientManager.matchesCommandOpenKeyCode(keyCode)) {
-//                this.guiChat.setText("/", true);
-//                return true;
-//            }
-        }
-        return false;
+        return this.listComponent.keyTyped(key, keyCode);
     }
 
 
@@ -229,7 +180,6 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
             this.sidebarWidth.set(sidebarWidth);
             this.listComponent.onWidthChange((int) sidebarWidth);
-            this.guiChat.changeSideMargin(side.get(), (int) sidebarWidth);
             return true;
         }
 
@@ -240,9 +190,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     }
 
     @Override
-    public void onClose() {
-        this.guiChat.setOpened(false);
-    }
+    public void onClose() {}
 
     @Override
     public boolean doesScreenPauseGame() {

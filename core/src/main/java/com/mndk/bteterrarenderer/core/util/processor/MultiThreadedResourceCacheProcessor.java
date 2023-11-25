@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
@@ -61,7 +61,7 @@ public abstract class MultiThreadedResourceCacheProcessor<Key, Input, Resource>
                 processor.processResource(key, input);
                 return;
             } catch(Exception e) {
-                BTETerraRendererConstants.LOGGER.error("Caught exception while processing a resource (" +
+                Loggers.get(this).error("Caught exception while processing a resource (" +
                         "Key=" + key + ", Retry #" + (retry + 1) + ")", e);
                 newException = e;
             }

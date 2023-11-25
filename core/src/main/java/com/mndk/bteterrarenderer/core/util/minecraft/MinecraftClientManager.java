@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.util.minecraft;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.TextComponentManager;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 
@@ -25,7 +26,7 @@ public class MinecraftClientManager {
     public void sendErrorMessageToChat(String message, Throwable t) {
         sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
         sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] Reason: " + t.getMessage()));
-        BTETerraRendererConstants.LOGGER.error(message, t);
+        Loggers.get().error(message, t);
     }
 
     public void playClickSound() {

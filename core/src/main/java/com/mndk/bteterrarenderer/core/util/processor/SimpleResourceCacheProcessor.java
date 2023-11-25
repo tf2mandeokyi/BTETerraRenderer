@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
@@ -34,7 +34,7 @@ public abstract class SimpleResourceCacheProcessor<Key, Input, Resource>
             try {
                 this.processResource(entry.getKey(), entry.getValue());
             } catch(Exception e) {
-                BTETerraRendererConstants.LOGGER.error("Caught exception while processing a resource (" +
+                Loggers.get(this).error("Caught exception while processing a resource (" +
                         "Key=" + entry.getKey() + ")", e);
             }
         }

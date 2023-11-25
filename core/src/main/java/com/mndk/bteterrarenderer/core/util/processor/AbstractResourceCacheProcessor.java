@@ -1,9 +1,8 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,9 +12,8 @@ import java.util.Map;
 
 public abstract class AbstractResourceCacheProcessor<Key, Input, Resource> {
 
-    private final Logger LOGGER = LogManager.getLogger(this.getClass());
     private void log(String message) {
-        if(this.debug) LOGGER.info(message);
+        if(this.debug) Loggers.get(this.getClass()).info(message);
     }
 
     private final int maximumSize;

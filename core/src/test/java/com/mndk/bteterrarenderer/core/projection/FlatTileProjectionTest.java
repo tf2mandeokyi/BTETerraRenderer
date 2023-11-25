@@ -1,11 +1,13 @@
 package com.mndk.bteterrarenderer.core.projection;
 
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Map;
 
 public class FlatTileProjectionTest {
@@ -32,7 +34,7 @@ public class FlatTileProjectionTest {
 
     static {
         try {
-            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRendererConstants");
+            BTETerraRendererConfig.initialize(new File("test"));
             FlatTileProjectionYamlLoader.INSTANCE.refresh();
             PROJECTION_MAP = FlatTileProjectionYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {

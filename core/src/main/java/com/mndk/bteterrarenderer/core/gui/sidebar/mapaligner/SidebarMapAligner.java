@@ -126,15 +126,6 @@ public class SidebarMapAligner extends GuiSidebarElement {
         this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
         GlGraphicsManager.glPopRelativeScissor();
 
-        // Borders
-//        int borderColor = this.alignBoxHovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR;
-//        if(aligningMode) borderColor = FOCUSED_BORDER_COLOR;
-//
-//        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW - 1, boxN - 1, boxW, boxS + 1, borderColor);
-//        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW - 1, boxN - 1, boxE + 1, boxN, borderColor);
-//        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxE, boxN - 1, boxE + 1, boxS + 1, borderColor);
-//        GuiStaticConnector.INSTANCE.fillRect(poseStack, boxW - 1, boxS, boxE + 1, boxS + 1, borderColor);
-
         // Center marker
         RawGuiManager.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
     }

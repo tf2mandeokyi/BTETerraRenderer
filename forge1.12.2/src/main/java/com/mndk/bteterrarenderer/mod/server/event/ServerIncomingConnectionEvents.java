@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mod.server.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mod.BTETerraRendererMod;
 import com.mndk.bteterrarenderer.mod.CommonProxy;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMessageImpl;
@@ -32,7 +33,7 @@ public class ServerIncomingConnectionEvents {
                         new ServerWelcomeMessageImpl(projection), (EntityPlayerMP) player);
                 return;
             } catch(IOException e) {
-                BTETerraRendererConstants.LOGGER.error("Caught IOException while sending projection data", e);
+                Loggers.get().error("Caught IOException while sending projection data", e);
             }
         }
         BTETerraRendererMod.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl(), (EntityPlayerMP) player);
