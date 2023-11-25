@@ -26,6 +26,8 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     public PropertyAccessor<SidebarSide> side;
     private final SidebarButton sideChangingButton;
     private final boolean guiPausesGame;
+    /** Only use this in {@link #initGui()} */
+    private final int elementPaddingSide, paddingTopBottom, elementDistance;
 
     public final PropertyAccessor<Double> sidebarWidth;
     private double mouseClickX, initialWidth;
@@ -36,21 +38,14 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
                       PropertyAccessor<Double> sidebarWidth,
                       PropertyAccessor<SidebarSide> side) {
         this.listComponent = new SidebarElementList(0, 0, null, true);
-
-        // Side changing button
         this.sideChangingButton = new SidebarButton("", (self, mouseButton) -> {
             side.set(side.get() == SidebarSide.LEFT ? SidebarSide.RIGHT : SidebarSide.LEFT);
             self.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
         });
-        this.listComponent.add(this.sideChangingButton);
-        Supplier<Integer> remainingHeightGetter = () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight();
 
-        // Sidebar element list
-        this.listComponent.add(new SidebarElementList(0, 0, remainingHeightGetter, false).addAll(
-                new SidebarBlank(paddingTopBottom),
-                new SidebarElementList(elementDistance, elementPaddingSide, null, false).addAll(this.getElements()),
-                new SidebarBlank(paddingTopBottom)
-        ));
+        this.elementPaddingSide = elementPaddingSide;
+        this.paddingTopBottom = paddingTopBottom;
+        this.elementDistance = elementDistance;
 
         this.side = side;
         this.widthChangingState = false;
@@ -62,6 +57,20 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
     @Override
     public void initGui() {
+        this.listComponent.clear();
+
+        // Side changing button
+        this.listComponent.add(this.sideChangingButton);
+        Supplier<Integer> remainingHeightGetter = () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight();
+
+        // Sidebar element list
+        this.listComponent.add(new SidebarElementList(0, 0, remainingHeightGetter, false).addAll(
+                new SidebarBlank(this.paddingTopBottom),
+                new SidebarElementList(this.elementDistance, this.elementPaddingSide, null, false)
+                        .addAll(this.getElements()),
+                new SidebarBlank(this.paddingTopBottom)
+        ));
+
         this.listComponent.init(this.sidebarWidth.get().intValue());
         this.sideChangingButton.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
     }

@@ -45,10 +45,10 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final URLBufferedImageBaker ICON_BAKER = new URLBufferedImageBaker(-1, -1, false);
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
-    private SidebarTextComponent mapCopyright;
-    private SidebarElementList tmsPropertyElementList;
-    private SidebarElementWrapper yAxisInputWrapper;
+    private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
+    private final SidebarTextComponent mapCopyright;
+    private final SidebarElementList tmsPropertyElementList;
+    private final SidebarElementWrapper yAxisInputWrapper;
 
     public MapRenderingOptionsSidebar() {
         super(
@@ -63,26 +63,10 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 )
         );
 
-        // Don't make sidebar elements here. They won't get initialized.
-        // instead put all of them in getElements()
-    }
+        // Don't make sidebar elements here if they need i18n keys. Keys won't get updated.
+        // instead put all of those elements in getElements()
 
-    @Override
-    protected List<GuiSidebarElement> getElements() {
-        BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
-
-        // General components
-        SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
-                PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
-                I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
-        );
         this.yAxisInputWrapper = new SidebarElementWrapper();
-        SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
-                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
-                I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
-        );
-
-        // Map source components
         this.mapSourceDropdown = new SidebarDropdownSelector<>(
                 PropertyAccessor.of(BTRUtil.uncheckedCast(CategoryMap.Wrapper.class),
                         this::getWrappedTMS, this::setTileMapServiceWrapper),
@@ -91,6 +75,20 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         );
         this.mapCopyright = new SidebarTextComponent(TextAlign.LEFT);
         this.tmsPropertyElementList = new SidebarElementList(ELEMENT_DISTANCE, 0, null, false);
+    }
+
+    @Override
+    protected List<GuiSidebarElement> getElements() {
+        BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
+
+        SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
+                PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
+                I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
+        );
+        SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
+                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
+                I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
+        );
         SidebarButton reloadMapsButton = new SidebarButton(
                 I18nManager.format("gui.bteterrarenderer.settings.map_reload"),
                 (self, mouseButton) -> this.reloadMapSources()
@@ -113,6 +111,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 // ===========================================================================================
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), TextAlign.CENTER),
 
+                // General components
                 new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
                         new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), TextAlign.LEFT),
                         hl, // ---------------------------------------------------------------------------------------
@@ -121,6 +120,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         opacitySlider
                 ),
 
+                // Map source control components
                 new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
                         new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), TextAlign.LEFT),
                         hl, // ---------------------------------------------------------------------------------------
@@ -135,6 +135,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         openMapsFolderButton
                 ),
 
+                // Map offset control components
                 new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
                         new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), TextAlign.LEFT),
                         hl, // ---------------------------------------------------------------------------------------
