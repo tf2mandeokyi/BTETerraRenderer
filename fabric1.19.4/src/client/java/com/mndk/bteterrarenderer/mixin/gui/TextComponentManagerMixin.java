@@ -26,6 +26,13 @@ public class TextComponentManagerMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
+    @Overwrite
+    public Object fromText(String text) {
+        return Text.literal(text);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
     @Nullable
     @Overwrite
     public Object getStyleComponentFromLine(@Nonnull Object lineComponent, int mouseXFromLeft) {

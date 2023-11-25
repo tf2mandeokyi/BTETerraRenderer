@@ -13,6 +13,10 @@ public class TextComponentManager {
         return MixinUtil.notOverwritten(json);
     }
 
+    public Object fromText(String text) {
+        return MixinUtil.notOverwritten(text);
+    }
+
     @Nullable
     @SuppressWarnings("DataFlowIssue")
     public Object getStyleComponentFromLine(@Nonnull Object lineComponent, int mouseXFromLeft) {

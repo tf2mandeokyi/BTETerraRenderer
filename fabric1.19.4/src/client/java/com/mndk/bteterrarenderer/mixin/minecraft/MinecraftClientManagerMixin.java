@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.mixin.minecraft;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
@@ -18,6 +17,13 @@ public class MinecraftClientManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
+    public boolean isOnMac() {
+        return MinecraftClient.IS_SYSTEM_MAC;
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
     public double getPlayerRotationYaw() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         return player != null ? player.getYaw() : 0;
@@ -26,13 +32,10 @@ public class MinecraftClientManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void sendErrorMessageToChat(String message) {
+    public void sendTextComponentToChat(Object textComponent) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if(player != null) {
-            String componentString = "§c[" + BTETerraRendererConstants.NAME + "] " + message;
-            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.of(componentString));
-        }
-        BTETerraRendererConstants.LOGGER.error(message);
+        if(player == null) return;
+        player.sendMessage((Text) textComponent, false);
     }
 
     /** @author m4ndeokyi

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -25,6 +26,13 @@ public class TextComponentManagerMixin {
     @Overwrite
     public Object fromJson(String json) {
         return Component.Serializer.fromJson(json);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public Object fromText(String text) {
+        return new TextComponent(text);
     }
 
     /** @author m4ndeokyi

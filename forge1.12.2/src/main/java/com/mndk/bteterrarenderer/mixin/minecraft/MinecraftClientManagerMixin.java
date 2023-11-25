@@ -1,18 +1,25 @@
 package com.mndk.bteterrarenderer.mixin.minecraft;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 @UtilityClass
 @Mixin(value = MinecraftClientManager.class, remap = false)
 public class MinecraftClientManagerMixin {
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public boolean isOnMac() {
+        return Minecraft.IS_RUNNING_ON_MAC;
+    }
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
@@ -24,12 +31,10 @@ public class MinecraftClientManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public void sendErrorMessageToChat(String message) {
-        if(Minecraft.getMinecraft().player != null) {
-            String componentString = "§c[" + BTETerraRendererConstants.NAME + "] " + message;
-            Minecraft.getMinecraft().player.sendMessage(new TextComponentString(componentString));
-        }
-        BTETerraRendererConstants.LOGGER.error(message);
+    public void sendTextComponentToChat(Object textComponent) {
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if(player == null) return;
+        player.sendMessage((ITextComponent) textComponent);
     }
 
     /** @author m4ndeokyi

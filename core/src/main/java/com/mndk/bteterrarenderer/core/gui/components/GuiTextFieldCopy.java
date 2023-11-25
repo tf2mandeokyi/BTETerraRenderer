@@ -24,7 +24,8 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     @Setter
     private int maxStringLength = 32;
     private int frame;
-    private final boolean bordered = true;
+    @Setter
+    private boolean bordered = true;
     private boolean shiftPressed;
     @Getter @Setter
     private int displayPos, cursorPos, highlightPos;
@@ -40,12 +41,11 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     }
 
     public void setText(String text) {
-        if (this.validator.test(text)) {
-            this.text = text.length() > maxStringLength ? text.substring(0, maxStringLength) : text;
+        if (!this.validator.test(text)) return;
 
-            this.moveCursorToEnd();
-            this.setHighlightPos(this.cursorPos);
-        }
+        this.text = text.length() > maxStringLength ? text.substring(0, maxStringLength) : text;
+        this.moveCursorToEnd();
+        this.setHighlightPos(this.cursorPos);
     }
 
     public String getHighlighted() {
@@ -79,36 +79,35 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         } else {
             this.deleteChars(delta);
         }
-
     }
 
     public void deleteWords(int delta) {
-        if (!this.text.isEmpty()) {
-            if (this.highlightPos != this.cursorPos) {
-                this.insertText("");
-            } else {
-                this.deleteChars(this.getWordPosition(delta) - this.cursorPos);
-            }
+        if (this.text.isEmpty()) return;
+
+        if (this.highlightPos != this.cursorPos) {
+            this.insertText("");
+        } else {
+            this.deleteChars(this.getWordPosition(delta) - this.cursorPos);
         }
     }
 
     public void deleteChars(int delta) {
-        if (!this.text.isEmpty()) {
-            if (this.highlightPos != this.cursorPos) {
-                this.insertText("");
-            } else {
-                int i = this.getCursorPos(delta);
-                int j = Math.min(i, this.cursorPos);
-                int k = Math.max(i, this.cursorPos);
-                if (j != k) {
-                    String s = (new StringBuilder(this.text)).delete(j, k).toString();
-                    if (this.validator.test(s)) {
-                        this.text = s;
-                        this.moveCursorTo(j);
-                    }
-                }
-            }
+        if (this.text.isEmpty()) return;
+
+        if (this.highlightPos != this.cursorPos) {
+            this.insertText("");
+            return;
         }
+
+        int i = this.getCursorPos(delta);
+        int j = Math.min(i, this.cursorPos);
+        int k = Math.max(i, this.cursorPos);
+        if (j == k) return;
+
+        String s = (new StringBuilder(this.text)).delete(j, k).toString();
+        if (!this.validator.test(s)) return;
+        this.text = s;
+        this.moveCursorTo(j);
     }
 
     public int getWordPosition(int delta) {
@@ -178,74 +177,69 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     }
 
     public boolean keyPressed(InputKey key) {
-        if (!this.canConsumeInput()) {
-            return false;
-        } else {
-            // TODO: Fix shift key not being released
-            this.shiftPressed = GameInputManager.isShiftKeyDown();
-            if (GameInputManager.isKeySelectAll(key)) {
-                this.moveCursorToEnd();
-                this.setHighlightPos(0);
-                return true;
-            } else if (GameInputManager.isKeyCopy(key)) {
-                GameInputManager.setClipboardContent(this.getHighlighted());
-                return true;
-            } else if (GameInputManager.isKeyPaste(key)) {
-                if (this.enabled) {
-                    this.insertText(GameInputManager.getClipboardContent());
-                }
-                return true;
-            } else if (GameInputManager.isKeyCut(key)) {
-                GameInputManager.setClipboardContent(this.getHighlighted());
-                if (this.enabled) {
-                    this.insertText("");
-                }
-                return true;
-            } else {
-                switch(key) {
-                    case KEY_BACKSPACE:
-                        if (this.enabled) {
-                            this.shiftPressed = false;
-                            this.deleteText(-1);
-                            this.shiftPressed = GameInputManager.isShiftKeyDown();
-                        }
-                        return true;
-                    case KEY_INSERT:
-                    case KEY_DOWN:
-                    case KEY_UP:
-                    case KEY_PAGE_UP:
-                    case KEY_PAGE_DOWN:
-                    default:
-                        return false;
-                    case KEY_DELETE:
-                        if (this.enabled) {
-                            this.shiftPressed = false;
-                            this.deleteText(1);
-                            this.shiftPressed = GameInputManager.isShiftKeyDown();
-                        }
-                        return true;
-                    case KEY_RIGHT:
-                        if (GameInputManager.isControlKeyDown()) {
-                            this.moveCursorTo(this.getWordPosition(1));
-                        } else {
-                            this.moveCursor(1);
-                        }
-                        return true;
-                    case KEY_LEFT:
-                        if (GameInputManager.isControlKeyDown()) {
-                            this.moveCursorTo(this.getWordPosition(-1));
-                        } else {
-                            this.moveCursor(-1);
-                        }
-                        return true;
-                    case KEY_HOME:
-                        this.moveCursorToStart();
-                        return true;
-                    case KEY_END:
-                        this.moveCursorToEnd();
-                        return true;
-                }
+        if (!this.canConsumeInput()) return false;
+
+        this.shiftPressed = GameInputManager.isShiftKeyDown();
+        if (GameInputManager.isKeySelectAll(key)) {
+            this.moveCursorToEnd();
+            this.setHighlightPos(0);
+            return true;
+        } else if (GameInputManager.isKeyCopy(key)) {
+            GameInputManager.setClipboardContent(this.getHighlighted());
+            return true;
+        } else if (GameInputManager.isKeyPaste(key)) {
+            if (this.enabled) {
+                this.insertText(GameInputManager.getClipboardContent());
             }
+            return true;
+        } else if (GameInputManager.isKeyCut(key)) {
+            GameInputManager.setClipboardContent(this.getHighlighted());
+            if (this.enabled) {
+                this.insertText("");
+            }
+            return true;
+        } else switch (key) {
+            case KEY_BACKSPACE:
+                if (this.enabled) {
+                    this.shiftPressed = false;
+                    this.deleteText(-1);
+                    this.shiftPressed = GameInputManager.isShiftKeyDown();
+                }
+                return true;
+            case KEY_INSERT:
+            case KEY_DOWN:
+            case KEY_UP:
+            case KEY_PAGE_UP:
+            case KEY_PAGE_DOWN:
+            default:
+                return false;
+            case KEY_DELETE:
+                if (this.enabled) {
+                    this.shiftPressed = false;
+                    this.deleteText(1);
+                    this.shiftPressed = GameInputManager.isShiftKeyDown();
+                }
+                return true;
+            case KEY_RIGHT:
+                if (GameInputManager.isControlKeyDown()) {
+                    this.moveCursorTo(this.getWordPosition(1));
+                } else {
+                    this.moveCursor(1);
+                }
+                return true;
+            case KEY_LEFT:
+                if (GameInputManager.isControlKeyDown()) {
+                    this.moveCursorTo(this.getWordPosition(-1));
+                } else {
+                    this.moveCursor(-1);
+                }
+                return true;
+            case KEY_HOME:
+                this.moveCursorToStart();
+                return true;
+            case KEY_END:
+                this.moveCursorToEnd();
+                return true;
         }
     }
 
@@ -255,27 +249,24 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     }
 
     public boolean keyTyped(char typedChar, int mods) {
-        if (!this.canConsumeInput()) {
-            return false;
-        } else if (StringUtil.isMinecraftAllowedCharacter(typedChar)) {
+        if (!this.canConsumeInput()) return false;
+
+        if (StringUtil.isMinecraftAllowedCharacter(typedChar)) {
             if (this.enabled) {
                 this.insertText(Character.toString(typedChar));
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        if (!this.isVisible())
-            return false;
+        if (!this.isVisible()) return false;
 
         boolean mouseOnWidget = this.isMouseOnWidget(mouseX, mouseY);
         this.setFocused(mouseOnWidget);
 
-        if (!mouseOnWidget && mouseButton == 0)
-            return false;
+        if (!mouseOnWidget && mouseButton == 0) return false;
 
         int i = ((int) mouseX) - this.x;
         if (this.bordered) {
@@ -289,57 +280,56 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     }
 
     public void drawComponent(Object poseStack) {
-        if (this.isVisible()) {
-            if (this.bordered) {
-                int borderColor = this.isFocused() ? FOCUSED_BORDER_COLOR : (this.hovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR);
-                RawGuiManager.fillRect(poseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
-                RawGuiManager.fillRect(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
-            }
+        if (!this.isVisible()) return;
 
-            int i2 = this.textColor != null ? this.textColor : (this.enabled ? NORMAL_TEXT_COLOR : DISABLED_TEXT_COLOR);
-            int j = this.cursorPos - this.displayPos;
-            int k = this.highlightPos - this.displayPos;
-            String trimmed = FontManager.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
-            boolean flag = j >= 0 && j <= trimmed.length();
-            boolean flag1 = this.isFocused() && this.frame / 6 % 2 == 0 && flag;
-            int l = this.bordered ? this.x + 4 : this.x;
-            int i1 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
-            int j1 = l;
-            if (k > trimmed.length()) {
-                k = trimmed.length();
-            }
+        if (this.bordered) {
+            int borderColor = this.isFocused() ? FOCUSED_BORDER_COLOR : (this.hovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR);
+            RawGuiManager.fillRect(poseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
+            RawGuiManager.fillRect(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
+        }
 
-            if (!trimmed.isEmpty()) {
-                String s1 = flag ? trimmed.substring(0, j) : trimmed;
-                j1 = FontManager.drawStringWithShadow(poseStack, s1, (float)l, (float)i1, i2);
-            }
+        int i2 = this.textColor != null ? this.textColor : (this.enabled ? NORMAL_TEXT_COLOR : DISABLED_TEXT_COLOR);
+        int j = this.cursorPos - this.displayPos;
+        int k = this.highlightPos - this.displayPos;
+        String trimmed = FontManager.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
+        boolean flag = j >= 0 && j <= trimmed.length();
+        boolean flag1 = this.isFocused() && this.frame / 6 % 2 == 0 && flag;
+        int l = this.bordered ? this.x + 4 : this.x;
+        int i1 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
+        int j1 = l;
+        if (k > trimmed.length()) {
+            k = trimmed.length();
+        }
 
-            boolean flag2 = this.cursorPos < this.text.length() || this.text.length() >= this.maxStringLength;
-            int k1 = j1;
-            if (!flag) {
-                k1 = j > 0 ? l + this.width : l;
-            } else if (flag2) {
-                k1 = j1 - 1;
-                --j1;
-            }
+        if (!trimmed.isEmpty()) {
+            String s1 = flag ? trimmed.substring(0, j) : trimmed;
+            j1 = FontManager.drawStringWithShadow(poseStack, s1, (float)l, (float)i1, i2);
+        }
 
-            if (!trimmed.isEmpty() && flag && j < trimmed.length()) {
-                FontManager.drawStringWithShadow(poseStack, trimmed.substring(j), (float)j1, (float)i1, i2);
-            }
+        boolean flag2 = this.cursorPos < this.text.length() || this.text.length() >= this.maxStringLength;
+        int k1 = j1;
+        if (!flag) {
+            k1 = j > 0 ? l + this.width : l;
+        } else if (flag2) {
+            k1 = j1 - 1;
+            --j1;
+        }
 
-            if (flag1) {
-                if (flag2) {
-                    RawGuiManager.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
-                } else {
-                    FontManager.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
-                }
-            }
+        if (!trimmed.isEmpty() && flag && j < trimmed.length()) {
+            FontManager.drawStringWithShadow(poseStack, trimmed.substring(j), (float)j1, (float)i1, i2);
+        }
 
-            if (k != j) {
-                int l1 = l + FontManager.getStringWidth(trimmed.substring(0, k));
-                this.drawSelectionBox(poseStack, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
+        if (flag1) {
+            if (flag2) {
+                RawGuiManager.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
+            } else {
+                FontManager.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
             }
+        }
 
+        if (k != j) {
+            int l1 = l + FontManager.getStringWidth(trimmed.substring(0, k));
+            this.drawSelectionBox(poseStack, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
         }
     }
 

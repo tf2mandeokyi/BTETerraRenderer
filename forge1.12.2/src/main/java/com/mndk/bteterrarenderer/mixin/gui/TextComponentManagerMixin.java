@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -22,6 +23,13 @@ public class TextComponentManagerMixin {
     @Overwrite
     public Object fromJson(String json) {
         return ITextComponent.Serializer.jsonToComponent(json);
+    }
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    public Object fromText(String text) {
+        return new TextComponentString(text);
     }
 
     /** @author m4ndeokyi

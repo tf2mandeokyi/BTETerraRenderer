@@ -218,11 +218,22 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 return;
             }
 
-            Process p = new ProcessBuilder("explorer.exe", "/select," + directory.getAbsolutePath()).start();
+            Process p;
+            if(System.getProperty("os.name").startsWith("Windows")) {
+                p = new ProcessBuilder("explorer.exe", "/select," + directory.getAbsolutePath()).start();
+            }
+            else if(System.getProperty("os.name").startsWith("Mac")) {
+                p = new ProcessBuilder("usr/bin/open", directory.getAbsolutePath()).start();
+            }
+            else {
+                MinecraftClientManager.sendErrorMessageToChat("Cannot open file explorer! Instead you can manually go to:");
+                MinecraftClientManager.sendErrorMessageToChat(directory.getAbsolutePath());
+                return;
+            }
             p.waitFor(3, TimeUnit.SECONDS);
             p.destroy();
         } catch(Exception e) {
-            MinecraftClientManager.sendErrorMessageToChat("Error opening the config folder!", e);
+            MinecraftClientManager.sendErrorMessageToChat("Error opening the map folder!", e);
         }
     }
 

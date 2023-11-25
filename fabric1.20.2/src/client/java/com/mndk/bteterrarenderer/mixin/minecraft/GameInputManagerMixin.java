@@ -15,14 +15,6 @@ public class GameInputManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public boolean isOnMac() {
-        return MinecraftClient.IS_SYSTEM_MAC;
-    }
-
-
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
     public boolean isKeyDown(InputKey key) {
         return InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), key.glfwKeyCode);
     }

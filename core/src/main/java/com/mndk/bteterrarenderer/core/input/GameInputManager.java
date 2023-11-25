@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.input;
 
+import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
 import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
 import lombok.experimental.UtilityClass;
 
@@ -8,9 +9,6 @@ import static com.mndk.bteterrarenderer.core.input.InputKey.*;
 @UtilityClass
 public class GameInputManager {
 
-    public boolean isOnMac() {
-        return MixinUtil.notOverwritten();
-    }
     public boolean isKeyDown(InputKey key) {
         return MixinUtil.notOverwritten(key);
     }
@@ -22,13 +20,14 @@ public class GameInputManager {
     }
 
     public boolean isControlKeyDown() {
-        if (isOnMac()) {
+        if (MinecraftClientManager.isOnMac()) {
             return isKeyDown(KEY_LEFT_SUPER) || isKeyDown(KEY_RIGHT_SUPER);
         } else {
             return isKeyDown(KEY_LEFT_CONTROL) || isKeyDown(KEY_RIGHT_CONTROL);
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isShiftKeyDown() {
         return isKeyDown(KEY_LEFT_SHIFT) || isKeyDown(KEY_RIGHT_SHIFT);
     }
