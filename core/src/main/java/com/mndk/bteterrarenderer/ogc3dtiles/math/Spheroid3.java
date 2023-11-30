@@ -24,4 +24,11 @@ public class Spheroid3 {
 
     public double getLongitudeDegrees() { return Math.toDegrees(longitude); }
     public double getLatitudeDegrees() { return Math.toDegrees(latitude); }
+
+    public Spheroid3 add(Spheroid3 other) {
+        double latitude = this.latitude + other.latitude;
+        // clamping
+        latitude = Math.abs(Math.PI - (latitude - Math.PI / 2) % (2 * Math.PI)) - Math.PI / 2;
+        return new Spheroid3((longitude + other.longitude) % (2 * Math.PI), latitude, height + other.height);
+    }
 }

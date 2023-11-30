@@ -14,6 +14,7 @@ import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttrib
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.util.QuantizationUtil;
 import de.javagl.jgltf.model.*;
 import de.javagl.jgltf.model.v1.MaterialModelV1;
 import de.javagl.jgltf.model.v2.MaterialModelV2;
@@ -235,7 +236,7 @@ public class GltfModelConverter {
             AccessorShortData shortData = (AccessorShortData) data;
             for(int i = 0; i < componentCount; i++) {
                 int value = shortData.getInt(elementIndex, i);
-                result[i] = shortData.isUnsigned() ? value / 65535f : value / 32767f;
+                result[i] = QuantizationUtil.normalizeShort(value, shortData.isUnsigned());
             }
             return result;
         }
@@ -243,7 +244,7 @@ public class GltfModelConverter {
             AccessorByteData byteData = (AccessorByteData) data;
             for(int i = 0; i < componentCount; i++) {
                 int value = byteData.getInt(elementIndex, i);
-                result[i] = byteData.isUnsigned() ? value / 255f : value / 127f;
+                result[i] = QuantizationUtil.normalizeByte(value, byteData.isUnsigned());
             }
             return result;
         }

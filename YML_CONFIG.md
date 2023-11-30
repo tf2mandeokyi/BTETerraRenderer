@@ -99,7 +99,7 @@ See [URL parameters](#url-parameters) for its parameters
 ### 3D Tiles TMS object structure (By OGC Community Standards)
 Extends [TMS object](#tms-object-structure) (`type="ogc3dtiles"`)
 
-Made with the [Specification Documentation](https://docs.ogc.org/cs/22-025r4/22-025r4.html#toc0)
+Based on the [Specification Documentation](https://docs.ogc.org/cs/22-025r4/22-025r4.html#toc0)
 
 | Key                    | Value Type | Required? \[`Default`\] | Description                                                                                        |
 |------------------------|------------|-------------------------|----------------------------------------------------------------------------------------------------|

@@ -46,11 +46,9 @@ public class BatchTable implements Iterable<BatchTable.Row> {
         }
         else if(tableElement instanceof BinaryJsonTableElement.BinaryValue) {
             BinaryJsonTableElement.BinaryValue<?> binaryValue = ((BinaryJsonTableElement.BinaryValue<?>) tableElement);
-            int singleElementSize = binaryValue.type.getBinarySize(binaryValue.componentType);
-
             column = new Object[batchModelCount];
             for(int i = 0; i < batchModelCount; i++) {
-                column[i] = binaryValue.getValue(binary, i * singleElementSize);
+                column[i] = binaryValue.getValue(binary, i);
             }
         }
         else return;

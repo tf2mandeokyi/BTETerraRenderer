@@ -53,7 +53,7 @@ public class UnitSphere {
         Cartesian3 transformedCenter = SPHERE_CENTER.transform(sphereMatrix.inverse().toMatrix4());
         if(containsCartesian(transformedCenter)) return true;
 
-        Cartesian3 projected = transformedCenter.toUnitCoordinate().transform(sphereMatrix);
+        Cartesian3 projected = transformedCenter.toNormalized().transform(sphereMatrix);
         return containsCartesian(projected.subtract(SPHERE_CENTER));
     }
 
@@ -116,7 +116,7 @@ public class UnitSphere {
             Cartesian3 u0 = UnitCube.unitCoordinateToCartesian(unitU0, boxMatrix).subtract(boxCenter);
             Cartesian3 u1 = UnitCube.unitCoordinateToCartesian(unitU1, boxMatrix).subtract(boxCenter);
             Cartesian3 u2 = UnitCube.unitCoordinateToCartesian(unitU2, boxMatrix).subtract(boxCenter);
-            Cartesian3 normal = u0.cross(u1).toUnitCoordinate();
+            Cartesian3 normal = u0.cross(u1).toNormalized();
 
             // Skip if the distance between the plane and the sphere are greater than 1
             double distance = SPHERE_CENTER.subtract(planeCenter).dot(normal);

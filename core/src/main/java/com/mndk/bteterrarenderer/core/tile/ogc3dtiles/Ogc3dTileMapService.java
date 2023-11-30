@@ -21,6 +21,7 @@ import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
+import com.mndk.bteterrarenderer.ogc3dtiles.i3dm.Instanced3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
@@ -175,11 +176,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
 				TileData tileData = parsedData.getTileData();
 
-                // TODO: Add case for i3dm
-                if(tileData instanceof TileGltfModel) {
-                    result.add(currentKey);
-                }
-                else if(tileData instanceof Batched3DModel) {
+                if((tileData instanceof TileGltfModel) || (tileData instanceof Batched3DModel) || (tileData instanceof Instanced3DModel)) {
                     result.add(currentKey);
                 }
                 else if(tileData instanceof Tileset) {
@@ -215,10 +212,12 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         else if(tileData instanceof Batched3DModel) {
             return ((Batched3DModel) tileData).getGltfModel().getInstance();
         }
+        else if(tileData instanceof Instanced3DModel) {
+            return ((Instanced3DModel) tileData).getGltfModel().getInstance();
+        }
         else if(tileData instanceof Tileset) {
             return null;
         }
-        // TODO: support i3dm
         throw new UnsupportedOperationException("Unsupported tile data format: " + tileData.getDataFormat());
     }
 
