@@ -26,6 +26,8 @@ public class I3dmFeatureTable {
         RawFeatureTableJson jsonParsed =
                 BTETerraRendererConstants.JSON_MAPPER.readValue(json, RawFeatureTableJson.class);
 
+        Cartesian3 rtcCenter = jsonParsed.globalRtcCenter == null ? null :
+                Cartesian3.fromArray(jsonParsed.globalRtcCenter.getValue(binary).getElements());
         Cartesian3 quantizedVolumeOffset = jsonParsed.globalQuantizedVolumeOffset == null ? null :
                 Cartesian3.fromArray(jsonParsed.globalQuantizedVolumeOffset.getValue(binary).getElements());
         Cartesian3 quantizedVolumeScale = jsonParsed.globalQuantizedVolumeScale == null ? null :
@@ -96,9 +98,6 @@ public class I3dmFeatureTable {
 
             instances[i] = new Instance(batchId, position, scaled, normalUp, normalRight);
         }
-
-        Cartesian3 rtcCenter = jsonParsed.globalRtcCenter == null ? null :
-                Cartesian3.fromArray(jsonParsed.globalRtcCenter.getValue(binary).getElements());
 
         return new I3dmFeatureTable(rtcCenter, instances);
     }
