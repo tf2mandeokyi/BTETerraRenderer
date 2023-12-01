@@ -78,7 +78,7 @@ subprojects { p ->
         compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
         compileAndTestOnly 'commons-codec:commons-codec:1.16.0' // T++
         compileAndTestOnly 'com.google.guava:guava:31.1-jre' // T++
-        compileAndTestOnly 'io.netty:netty-all:4.1.9.Final' // T++
+        compileAndTestOnly 'io.netty:netty-all:4.1.101.Final' // T++
         compileAndTestOnly 'lzma:lzma:0.0.1' // T++
 
         compileOnly 'org.projectlombok:lombok:1.18.26'
