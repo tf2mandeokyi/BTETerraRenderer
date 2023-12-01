@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mod.BTETerraRendererMod;
 import com.mndk.bteterrarenderer.mod.CommonProxy;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMessageImpl;
+import lombok.experimental.UtilityClass;
 import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -17,11 +18,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.io.IOException;
 import java.util.Objects;
 
+@UtilityClass
 @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Side.SERVER)
 public class ServerIncomingConnectionEvents {
 
     @SubscribeEvent
-    public static void onPlayerLoginToServer(PlayerEvent.PlayerLoggedInEvent event) {
+    public void onPlayerLoginToServer(PlayerEvent.PlayerLoggedInEvent event) {
         EntityPlayer player = event.player;
         World world = event.player.world;
         EarthGeneratorSettings generatorSettings = CommonProxy.getWorldEarthGeneratorSettings(world);
@@ -38,6 +40,4 @@ public class ServerIncomingConnectionEvents {
         }
         BTETerraRendererMod.NETWORK_WRAPPER.sendTo(new ServerWelcomeMessageImpl(), (EntityPlayerMP) player);
     }
-
-
 }

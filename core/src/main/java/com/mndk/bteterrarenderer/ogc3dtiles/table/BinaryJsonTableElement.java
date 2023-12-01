@@ -23,7 +23,11 @@ public abstract class BinaryJsonTableElement<T> {
         return this.getValue(binaryData, 0);
     }
 
-    public abstract T getValue(byte[] binaryData, int additionalOffset);
+    public T getValue(byte[] binaryData, int indexOffset) {
+        return this.getValueWithByteOffset(binaryData, indexOffset * this.getElementByteSize());
+    }
+    public abstract int getElementByteSize();
+    public abstract T getValueWithByteOffset(byte[] binaryData, int additionalByteOffset);
 
     static class Deserializer extends JsonDeserializer<BinaryJsonTableElement<?>> implements ContextualDeserializer {
         private JavaType valueType;
@@ -96,7 +100,11 @@ public abstract class BinaryJsonTableElement<T> {
             this.content = content;
         }
 
-        public T getValue(byte[] binaryData, int additionalOffset) {
+        @Override
+        public int getElementByteSize() { return 0; }
+
+        @Override
+        public T getValueWithByteOffset(byte[] binaryData, int additionalByteOffset) {
             return BTRUtil.uncheckedCast(content);
         }
     }
@@ -108,9 +116,14 @@ public abstract class BinaryJsonTableElement<T> {
         public BinaryComponentType componentType;
 
         @Override
-        public T getValue(byte[] binaryData, int additionalOffset) {
+        public int getElementByteSize() {
+            return this.type.getBinarySize(this.componentType);
+        }
+
+        @Override
+        public T getValueWithByteOffset(byte[] binaryData, int additionalByteOffset) {
             ByteBuffer buffer = ByteBuffer.wrap(binaryData);
-            buffer.position(byteOffset + additionalOffset);
+            buffer.position(byteOffset + additionalByteOffset);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             return BTRUtil.uncheckedCast(type.readBinary(buffer, componentType));

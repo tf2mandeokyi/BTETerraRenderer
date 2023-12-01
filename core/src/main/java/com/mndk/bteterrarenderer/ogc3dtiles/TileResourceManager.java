@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
+import com.mndk.bteterrarenderer.ogc3dtiles.i3dm.Instanced3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -37,7 +38,8 @@ public class TileResourceManager {
             result = Batched3DModel.from(buf);
         }
         else if(BTRUtil.arrayStartsWith(byteArray, I3DM_START)) {
-            throw new UnsupportedOperationException("i3dm not yet implemented");
+            ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
+            result = Instanced3DModel.from(buf);
         }
         else if(BTRUtil.arrayStartsWith(byteArray, GLTF_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);

@@ -2,19 +2,24 @@ package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.event.ClientConnectionEvents;
+import lombok.experimental.UtilityClass;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+@UtilityClass
 @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Dist.CLIENT)
 public class ClientOngoingConnectionEvents {
 
-    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void onClientConnection(ClientPlayerNetworkEvent.LoggedInEvent event) {
+    public void onClientConnection(ClientPlayerNetworkEvent.LoggedInEvent event) {
         ClientConnectionEvents.onJoin();
+    }
+
+    @SubscribeEvent
+    public void onClientDisconnection(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+        ClientConnectionEvents.onLeave();
     }
 
 }

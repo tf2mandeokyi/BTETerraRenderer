@@ -10,4 +10,7 @@ public class ClientConnectionEvents {
         Projections.setDefaultBTEProjection();
         BTETerraRendererConfig.load(false);
     }
+    public void onLeave() {
+        BTETerraRendererConfig.save();
+    }
 }

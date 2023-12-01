@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.ogc3dtiles.b3dm;
+package com.mndk.bteterrarenderer.ogc3dtiles.i3dm;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
@@ -13,26 +13,28 @@ import java.nio.charset.StandardCharsets;
 
 @Getter
 @ToString
-public class Batched3DModel extends TileData {
+public class Instanced3DModel extends TileData {
 
     private final int version;
-    private final B3dmFeatureTable featureTable;
+    private final I3dmFeatureTable featureTable;
     private final BatchTable batchTable;
+    private final int gltfFormat;
     private final TileGltfModel gltfModel;
 
-    private Batched3DModel(int version,
-                           B3dmFeatureTable featureTable, BatchTable batchTable,
-                           TileGltfModel gltfModel) {
-        super(TileDataFormat.B3DM);
+    private Instanced3DModel(int version,
+                             I3dmFeatureTable featureTable, BatchTable batchTable,
+                             int gltfFormat, TileGltfModel gltfModel) {
+        super(TileDataFormat.I3DM);
         this.version = version;
         this.featureTable = featureTable;
         this.batchTable = batchTable;
+        this.gltfFormat = gltfFormat;
         this.gltfModel = gltfModel;
     }
 
-    public static Batched3DModel from(ByteBuf buf) throws IOException {
+    public static Instanced3DModel from(ByteBuf buf) throws IOException {
         String magic = buf.readBytes(4).toString(StandardCharsets.UTF_8);
-        if(!"b3dm".equals(magic)) throw new IOException("expected b3dm format, found: " + magic);
+        if(!"i3dm".equals(magic)) throw new IOException("expected i3dm format, found: " + magic);
 
         int version = buf.readIntLE();
         /* int byteLength = */ buf.readIntLE();
@@ -40,18 +42,18 @@ public class Batched3DModel extends TileData {
         int featureTableBinaryByteLength = buf.readIntLE();
         int batchTableJSONByteLength = buf.readIntLE();
         int batchTableBinaryByteLength = buf.readIntLE();
+        int gltfFormat = buf.readIntLE();
 
         String featureTableJson = buf.readBytes(featureTableJSONByteLength).toString(StandardCharsets.UTF_8);
         byte[] featureTableBinary = buf.readBytes(featureTableBinaryByteLength).array();
-        B3dmFeatureTable featureTable = B3dmFeatureTable.from(featureTableJson, featureTableBinary);
+        I3dmFeatureTable featureTable = I3dmFeatureTable.from(featureTableJson, featureTableBinary);
 
-        int batchModelCount = featureTable.getBatchLength();
+        int batchModelCount = featureTable.getInstances().length;
         String batchTableJson = buf.readBytes(batchTableJSONByteLength).toString(StandardCharsets.UTF_8);
         byte[] batchTableBinary = buf.readBytes(batchTableBinaryByteLength).array();
         BatchTable batchTable = BatchTable.from(batchModelCount, batchTableJson, batchTableBinary);
 
         TileGltfModel gltfModel = TileGltfModel.from(buf);
-        return new Batched3DModel(version, featureTable, batchTable, gltfModel);
+        return new Instanced3DModel(version, featureTable, batchTable, gltfFormat, gltfModel);
     }
-
 }

@@ -17,9 +17,14 @@ import java.util.Arrays;
 @JsonDeserialize(using = Cartesian3.Deserializer.class)
 public class Cartesian3 {
     public static final Cartesian3 ORIGIN = new Cartesian3(0, 0, 0);
-    private static final int LATITUDE_APPROX_ITERATION = 4;
+    public static final Cartesian3 UNIT_AXES = new Cartesian3(1, 1, 1);
+    public static final Cartesian3 UNIT_X = new Cartesian3(1, 0, 0);
+    public static final Cartesian3 UNIT_Y = new Cartesian3(0, 1, 0);
+    public static final Cartesian3 UNIT_Z = new Cartesian3(0, 0, 1);
 
-    // TODO: Consider changing these to float
+    private static final int LATITUDE_APPROX_ITERATION = 5;
+
+    // TODO: Consider changing these to float and add a center coordinate
     private final double x, y, z;
 
     /**
@@ -100,10 +105,19 @@ public class Cartesian3 {
     }
 
     /**
-     * Returns a unit version of itself. The length of a unit vector is 1
+     * Returns a scaled version of itself
+     * @param other The scaling factor
      * @return The result
      */
-    public Cartesian3 toUnitCoordinate() {
+    public Cartesian3 scale(Cartesian3 other) {
+        return new Cartesian3(x*other.x, y*other.y, z*other.z);
+    }
+
+    /**
+     * Returns a normalized version of itself. The length of it is 1
+     * @return The result
+     */
+    public Cartesian3 toNormalized() {
         return this.scale(1 / this.distance());
     }
 
@@ -154,8 +168,30 @@ public class Cartesian3 {
         return new Cartesian3(array[0], array[1], array[2]);
     }
 
+    public static Cartesian3 fromArray(float[] array) {
+        return new Cartesian3(array[0], array[1], array[2]);
+    }
+
+    public static Cartesian3 fromArray(Float[] array) {
+        return new Cartesian3(array[0], array[1], array[2]);
+    }
+
     public static Cartesian3 fromArray(double[] array, int start) {
         return fromArray(Arrays.copyOfRange(array, start, start+3));
+    }
+
+    private static int signNotZero(float value) {
+        return value >= 0.0 ? 1 : -1;
+    }
+
+    public static Cartesian3 fromOctEncoding(float x, float y) {
+        float x3 = x, y3 = y, z3 = 1 - (Math.abs(x) + Math.abs(y));
+        if(z3 < 0) {
+            float oldX3 = x3;
+            x3 = (1.0f - Math.abs(y3)) * signNotZero(oldX3);
+            y3 = (1.0f - Math.abs(oldX3)) * signNotZero(y3);
+        }
+        return new Cartesian3(x3, y3, z3).toNormalized();
     }
 
     static class Deserializer extends JsonDeserializer<Cartesian3> {
