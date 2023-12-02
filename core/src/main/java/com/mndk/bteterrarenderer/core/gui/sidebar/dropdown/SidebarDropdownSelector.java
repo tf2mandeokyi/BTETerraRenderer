@@ -24,6 +24,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
     private static final int ITEM_PADDING_HORIZONTAL = 12;
     private static final int ITEM_PADDING_VERTICAL = 5;
+    private static final int ITEM_CATEGORY_PADDING_TOP = 2;
     private static final int ICON_SIZE = 12;
     private static final int ICON_MARGIN_LEFT = -6;
     private static final int ICON_MARGIN_RIGHT = 4;
@@ -273,7 +274,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         }
 
         int getCategoryHeight() {
-            return this.main ? DROPDOWN_PADDING_TOP : singleLineElementHeight;
+            return this.main ? DROPDOWN_PADDING_TOP : singleLineElementHeight + ITEM_CATEGORY_PADDING_TOP;
         }
 
         @Override
@@ -308,9 +309,9 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             if(!this.main) {
                 // Category name
                 FontManager.drawCenteredStringWithShadow(poseStack,
-                        this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL, categoryColor);
+                        this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor);
                 // Dropdown arrow
-                drawDropdownArrow(poseStack, ITEM_PADDING_VERTICAL, categoryColor, this.opened);
+                drawDropdownArrow(poseStack, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor, this.opened);
             }
             GlGraphicsManager.glTranslate(poseStack, 0, this.getCategoryHeight(), 0);
 

@@ -119,6 +119,10 @@ public class RawGuiManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     public void drawImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.color(1, 1, 1, 1);
+
         ResourceLocation resourceLocation = ((IResourceLocationImpl) res).getDelegate();
         Minecraft.getMinecraft().renderEngine.bindTexture(resourceLocation);
 

@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static final int ELEMENT_DISTANCE = 7;
+    private static final int ELEMENT_DISTANCE_BIG = 35;
 
     private static final SimpleImageFetcher ICON_FETCHER = new SimpleImageFetcher(
             Executors.newCachedThreadPool(),
@@ -52,7 +53,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public MapRenderingOptionsSidebar() {
         super(
-                20, 25, 2 * ELEMENT_DISTANCE + 10, false,
+                20, 40, ELEMENT_DISTANCE_BIG, false,
                 PropertyAccessor.of(
                         BTETerraRendererConfig.UI::getSidebarWidth,
                         BTETerraRendererConfig.UI::setSidebarWidth
