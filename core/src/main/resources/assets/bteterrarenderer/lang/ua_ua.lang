@@ -1,0 +1,25 @@
+key.bteterrarenderer.category=BTETerraRenderer
+key.bteterrarenderer.options_ui=Відкрити налаштування інтерфейсу
+key.bteterrarenderer.toggle=Увімкнути відображення мапи
+key.bteterrarenderer.move_up=Підняти мапу
+key.bteterrarenderer.move_down=Опустити мапу
+
+gui.bteterrarenderer.settings.title=Налаштування BTETerraRenderer
+
+gui.bteterrarenderer.settings.general=Основне
+gui.bteterrarenderer.settings.map_rendering=Відображення
+gui.bteterrarenderer.settings.map_y_level=Висота мапи
+gui.bteterrarenderer.settings.y_align=Вирівнювання по висоті
+gui.bteterrarenderer.settings.opacity=Непрозорість мапи
+
+gui.bteterrarenderer.settings.map_source=Мапи
+gui.bteterrarenderer.settings.map_settings=Налаштування мапи
+gui.bteterrarenderer.settings.map_reload=Перезавантажити мапи...
+gui.bteterrarenderer.settings.map_folder=Відкрити папку з мапами...
+
+gui.bteterrarenderer.settings.map_offset=Зміщення мапи
+gui.bteterrarenderer.settings.zoom=Збільшення мапи
+gui.bteterrarenderer.settings.size=Розмір мапи
+gui.bteterrarenderer.settings.lock_north=Північ зверху
+
+gui.bteterrarenderer.settings.3d_radius=Радіус рендерінгу
