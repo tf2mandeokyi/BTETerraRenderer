@@ -20,10 +20,11 @@ import com.mndk.bteterrarenderer.core.network.SimpleImageFetcher;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
+import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
+import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 
 import java.awt.*;
 import java.io.File;
@@ -241,14 +242,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 p = new ProcessBuilder("usr/bin/open", directory.getAbsolutePath()).start();
             }
             else {
-                MinecraftClientManager.sendErrorMessageToChat("Cannot open file explorer! Instead you can manually go to:");
-                MinecraftClientManager.sendErrorMessageToChat(directory.getAbsolutePath());
+                Loggers.sendErrorMessageToChat("Cannot open file explorer! Instead you can manually go to:");
+                Loggers.sendErrorMessageToChat(directory.getAbsolutePath());
                 return;
             }
             p.waitFor(3, TimeUnit.SECONDS);
             p.destroy();
         } catch(Exception e) {
-            MinecraftClientManager.sendErrorMessageToChat("Error opening the map folder!", e);
+            Loggers.sendErrorMessageToChat(this, "Error opening the map folder!", e);
         }
     }
 
@@ -286,7 +287,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.save();
         INSTANCE.updateMapSourceDropdown();
         INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.getTileMapServiceWrapper());
-        RawGuiManager.displayGuiScreen(INSTANCE);
+        RawGuiManager.INSTANCE.displayGuiScreen(INSTANCE);
     }
 
     @Override

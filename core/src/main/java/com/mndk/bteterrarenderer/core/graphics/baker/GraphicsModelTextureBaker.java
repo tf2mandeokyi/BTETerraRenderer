@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.graphics.baker;
 
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
-import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
-import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.processor.SimpleResourceCacheProcessor;
 
@@ -28,7 +28,7 @@ public class GraphicsModelTextureBaker<Key> extends SimpleResourceCacheProcessor
 	protected List<GraphicsModel> processResource(List<PreBakedModel> preBakedModels) {
 		List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
 		for(PreBakedModel preBakedModel : preBakedModels) {
-			Object textureObject = GraphicsModelVisualManager.allocateAndGetTextureObject(preBakedModel.getImage());
+			Object textureObject = GlGraphicsManager.INSTANCE.allocateAndGetTextureObject(preBakedModel.getImage());
 			models.add(new GraphicsModel(textureObject, preBakedModel.getShapes()));
 		}
 		return models;
@@ -37,7 +37,7 @@ public class GraphicsModelTextureBaker<Key> extends SimpleResourceCacheProcessor
 	@Override
 	protected void deleteResource(List<GraphicsModel> graphicsModels) {
 		for(GraphicsModel model : graphicsModels) {
-			GraphicsModelVisualManager.deleteTextureObject(model.getTextureObject());
+			GlGraphicsManager.INSTANCE.deleteTextureObject(model.getTextureObject());
 		}
 	}
 }

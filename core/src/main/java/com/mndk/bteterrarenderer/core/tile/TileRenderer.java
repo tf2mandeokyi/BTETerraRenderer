@@ -1,10 +1,9 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
 import com.mndk.bteterrarenderer.core.graphics.baker.GraphicsModelTextureBaker;
 import com.mndk.bteterrarenderer.core.projection.Projections;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 
 public class TileRenderer {
 
@@ -21,8 +20,10 @@ public class TileRenderer {
         double yDiff = hologramConfig.getFlatMapYAxis() - py;
         if(Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;
 
-        GlGraphicsManager.glPushMatrix(poseStack);
-        GraphicsModelVisualManager.preRender();
+        GlGraphicsManager.INSTANCE.glPushMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glDisableCull();
+        GlGraphicsManager.INSTANCE.glEnableBlend();
+        GlGraphicsManager.INSTANCE.glSetAlphaBlendFunc();
 
         String tmsId = generalConfig.getMapServiceCategory() + "." + generalConfig.getMapServiceId();
         tms.render(poseStack, tmsId,
@@ -30,7 +31,9 @@ public class TileRenderer {
                 (float) hologramConfig.getOpacity());
         GraphicsModelTextureBaker.getInstance().cleanUp();
 
-        GraphicsModelVisualManager.postRender();
-        GlGraphicsManager.glPopMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glDisableBlend();
+        GlGraphicsManager.INSTANCE.glDefaultBlendFunc();
+        GlGraphicsManager.INSTANCE.glEnableCull();
+        GlGraphicsManager.INSTANCE.glPopMatrix(poseStack);
     }
 }

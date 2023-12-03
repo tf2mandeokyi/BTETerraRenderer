@@ -4,6 +4,8 @@ import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
+import com.mndk.bteterrarenderer.mcconnector.input.IKeyBinding;
+import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 
 public class KeyBindings {
 

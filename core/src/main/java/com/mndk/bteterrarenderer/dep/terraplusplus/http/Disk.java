@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
-import com.mndk.bteterrarenderer.core.util.mixin.MixinUtil;
+import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mixin.minecraft;
 
-import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
+import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import lombok.experimental.UtilityClass;
 import net.minecraft.util.Language;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,6 +12,7 @@ public class I18nManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
+    @SuppressWarnings("OverwriteModifiers")
     public String format(String key, Object... parameters) {
         return Language.getInstance().get(key);
     }

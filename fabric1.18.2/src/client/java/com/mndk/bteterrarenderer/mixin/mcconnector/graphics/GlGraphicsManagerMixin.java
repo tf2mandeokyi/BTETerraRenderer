@@ -1,0 +1,123 @@
+package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
+
+import com.mndk.bteterrarenderer.core.util.IOUtil;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.util.Window;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vector4f;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+
+import java.awt.image.BufferedImage;
+
+@UtilityClass
+@Mixin(value = GlGraphicsManager.class, remap = false)
+public class GlGraphicsManagerMixin {
+
+    /** @author m4ndeokyi
+     *  @reason mixin overwrite */
+    @Overwrite
+    private static GlGraphicsManager<MatrixStack, Identifier> makeInstance() { return new GlGraphicsManager<>() {
+        public void glTranslate(MatrixStack poseStack, float x, float y, float z) {
+            poseStack.translate(x, y, z);
+        }
+        public void glPushMatrix(MatrixStack poseStack) {
+            poseStack.push();
+        }
+        public void glPopMatrix(MatrixStack poseStack) {
+            poseStack.pop();
+        }
+        public void glEnableTexture() {
+            RenderSystem.enableTexture();
+        }
+        public void glDisableTexture() {
+            RenderSystem.disableTexture();
+        }
+        public void glEnableCull() {
+            RenderSystem.enableCull();
+        }
+        public void glDisableCull() {
+            RenderSystem.disableCull();
+        }
+        public void glEnableBlend() {
+            RenderSystem.enableBlend();
+        }
+        public void glDisableBlend() {
+            RenderSystem.disableBlend();
+        }
+        public void glSetAlphaBlendFunc() {
+            RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+        }
+        public void glDefaultBlendFunc() {
+            RenderSystem.defaultBlendFunc();
+        }
+
+        public void setPositionTexShader() {
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        }
+        public void setPositionColorShader() {
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        }
+        public void setPositionTexColorShader() {
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        }
+        public void setShaderTexture(Identifier textureObject) {
+            RenderSystem.setShaderTexture(0, textureObject);
+        }
+
+        @SneakyThrows
+        public Identifier allocateAndGetTextureObject(BufferedImage image) {
+            NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
+            NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
+            return MinecraftClient.getInstance().getTextureManager()
+                    .registerDynamicTexture("bteterrarenderer-texture", texture);
+        }
+        public void deleteTextureObject(Identifier textureObject) {
+            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject);
+        }
+
+        protected int[] getAbsoluteScissorDimension(MatrixStack poseStack,
+                                                    int relX, int relY, int relWidth, int relHeight) {
+            Window window = MinecraftClient.getInstance().getWindow();
+            if(window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
+                return new int[] { 0, 0, 0, 0 };
+            }
+            float scaleFactorX = (float) window.getWidth() / window.getScaledWidth();
+            float scaleFactorY = (float) window.getHeight() / window.getScaledHeight();
+
+            Matrix4f matrix = poseStack.peek().getPositionMatrix();
+            Vector4f start = new Vector4f(relX, relY, 0, 1);
+            Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
+            start.transform(matrix);
+            end.transform(matrix);
+
+            int scissorX = (int) (scaleFactorX * Math.min(start.getX(), end.getX()));
+            int scissorY = (int) (window.getHeight() - scaleFactorY * Math.max(start.getY(), end.getY()));
+            int scissorWidth = (int) (scaleFactorX * Math.abs(start.getX() - end.getX()));
+            int scissorHeight = (int) (scaleFactorY * Math.abs(start.getY() - end.getY()));
+            return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
+        }
+        protected void glEnableScissorTest() {
+            RenderSystem.assertOnGameThreadOrInit();
+            GlStateManager._enableScissorTest();
+        }
+        protected void glScissorBox(int x, int y, int width, int height) {
+            RenderSystem.assertOnGameThreadOrInit();
+            GlStateManager._scissorBox(x, y, width, height);
+        }
+        protected void glDisableScissorTest() {
+            RenderSystem.disableScissor();
+        }
+    };}
+
+}

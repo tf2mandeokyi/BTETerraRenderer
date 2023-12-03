@@ -120,10 +120,6 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     @JsonDeserialize(using = RawBatchTableJson.Deserializer.class)
     static class RawBatchTableJson extends HashMap<String, BinaryJsonTableElement<?>> {
 
-        public String toString() {
-            return super.toString();
-        }
-
         static class Deserializer extends JsonDeserializer<RawBatchTableJson> {
             @Override
             public RawBatchTableJson deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

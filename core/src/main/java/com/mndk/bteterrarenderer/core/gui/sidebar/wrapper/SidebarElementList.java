@@ -1,13 +1,13 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
 
 import com.google.common.collect.Lists;
-import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.core.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
+import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
@@ -52,8 +52,9 @@ public class SidebarElementList extends GuiSidebarElement {
         this.verticalSliderValue = 0;
     }
 
-    public void clear() {
+    public SidebarElementList clear() {
         this.entryList.clear();
+        return this;
     }
 
     public SidebarElementList add(GuiSidebarElement element) {
@@ -174,25 +175,25 @@ public class SidebarElementList extends GuiSidebarElement {
 
         if(this.maxHeight != null) {
             //noinspection DataFlowIssue
-            GlGraphicsManager.glPushRelativeScissor(poseStack, 0, 0, this.getWidth(), this.maxHeight.get());
+            GlGraphicsManager.INSTANCE.pushRelativeScissor(poseStack, 0, 0, this.getWidth(), this.maxHeight.get());
         }
-        GlGraphicsManager.glPushMatrix(poseStack);
-        GlGraphicsManager.glTranslate(poseStack, this.sidePadding, -this.verticalSliderValue, 0);
+        GlGraphicsManager.INSTANCE.glPushMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glTranslate(poseStack, this.sidePadding, -this.verticalSliderValue, 0);
         // Draw from the last so that the first element could appear in the front
         for(Entry entry : Lists.reverse(entryList)) {
             GuiSidebarElement element = entry.element;
             if(element == null || element.hide) continue;
 
             int yPos = entry.yPos;
-            GlGraphicsManager.glTranslate(poseStack, 0, yPos - prevYPos, element.getCount());
+            GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, yPos - prevYPos, element.getCount());
 
             element.drawComponent(poseStack);
             prevYPos = yPos;
         }
         if(this.maxHeight != null) {
-            GlGraphicsManager.glPopRelativeScissor();
+            GlGraphicsManager.INSTANCE.popRelativeScissor();
         }
-        GlGraphicsManager.glPopMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glPopMatrix(poseStack);
         this.drawVerticalSlider(poseStack);
     }
 
@@ -202,7 +203,7 @@ public class SidebarElementList extends GuiSidebarElement {
         int[] dimension = this.getVerticalSliderDimension();
         int color = this.verticalSliderHoverState ? VERTICAL_SLIDER_COLOR_HOVERED : VERTICAL_SLIDER_COLOR;
         if(this.verticalSliderChangingState) color = VERTICAL_SLIDER_COLOR_CLICKED;
-        RawGuiManager.fillRect(poseStack,
+        RawGuiManager.INSTANCE.fillRect(poseStack,
                 dimension[0], dimension[1] + VERTICAL_SLIDER_PADDING,
                 dimension[2] - VERTICAL_SLIDER_PADDING, dimension[3] - VERTICAL_SLIDER_PADDING, color);
     }

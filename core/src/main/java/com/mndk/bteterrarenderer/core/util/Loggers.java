@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.core.util;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.mcconnector.gui.TextComponentManager;
+import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.LogManager;
@@ -26,5 +28,19 @@ public class Loggers {
     public Logger get() {
         Class<?> clazz = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());
         return get(clazz);
+    }
+
+    public void sendErrorMessageToChat(String message) {
+        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
+    }
+
+    public void sendErrorMessageToChat(Class<?> clazz, String message, Throwable t) {
+        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
+        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] Reason: " + t.getMessage()));
+        get(clazz).error(message, t);
+    }
+
+    public void sendErrorMessageToChat(Object caller, String message, Throwable t) {
+        sendErrorMessageToChat(caller.getClass(), message, t);
     }
 }

@@ -9,11 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
-import com.mndk.bteterrarenderer.core.graphics.*;
+import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
+import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.graphics.baker.GraphicsModelTextureBaker;
-import com.mndk.bteterrarenderer.core.graphics.model.GraphicsModel;
-import com.mndk.bteterrarenderer.core.graphics.model.PreBakedModel;
-import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.JsonParserUtil;
@@ -21,6 +19,11 @@ import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
+import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.*;
@@ -124,7 +127,42 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             }
 
             if (models != null) for(GraphicsModel model : models) {
-                GraphicsModelVisualManager.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
+                this.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
+            }
+        }
+    }
+
+    protected void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
+        GlGraphicsManager.INSTANCE.setPositionTexColorShader();
+        GlGraphicsManager.INSTANCE.setShaderTexture(model.getTextureObject());
+        IBufferBuilder<?> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+
+        if(!model.getQuads().isEmpty()) {
+            bufferBuilder.beginPTCQuads();
+            drawShapeList(poseStack, model.getQuads(), px, py, pz, opacity);
+            bufferBuilder.drawAndRender();
+        }
+        if(!model.getTriangles().isEmpty()) {
+            bufferBuilder.beginPTCTriangles();
+            drawShapeList(poseStack, model.getTriangles(), px, py, pz, opacity);
+            bufferBuilder.drawAndRender();
+        }
+    }
+
+    private void drawShapeList(Object poseStack, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
+        IBufferBuilder<Object> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+
+        for(GraphicsShape<?> shape : shapes) {
+            if(shape.getVertexClass() != PosTex.class) {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            for (int i = 0; i < shape.getVerticesCount(); i++) {
+                PosTex vertex = (PosTex) shape.getVertex(i);
+                float x = (float) (vertex.x - px);
+                float y = (float) (vertex.y - py);
+                float z = (float) (vertex.z - pz);
+                bufferBuilder.ptc(poseStack, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
             }
         }
     }

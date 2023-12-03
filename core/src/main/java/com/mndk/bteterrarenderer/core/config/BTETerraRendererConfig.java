@@ -1,8 +1,6 @@
 package com.mndk.bteterrarenderer.core.config;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.config.annotation.*;
-import com.mndk.bteterrarenderer.core.config.saveloader.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
@@ -10,6 +8,8 @@ import com.mndk.bteterrarenderer.core.loader.TileMapServicePropertyLoader;
 import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
+import com.mndk.bteterrarenderer.mcconnector.config.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;

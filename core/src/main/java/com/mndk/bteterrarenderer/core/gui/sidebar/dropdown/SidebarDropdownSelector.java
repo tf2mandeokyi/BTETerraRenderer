@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.dropdown;
 
-import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
-import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.core.gui.FontManager;
-import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
@@ -55,8 +55,8 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.mainBoxHeight = FontManager.getFontHeight() + MAINBOX_PADDING_VERTICAL * 2;
-        this.singleLineElementHeight = FontManager.getFontHeight() + ITEM_PADDING_VERTICAL * 2;
+        this.mainBoxHeight = IFont.DEFAULT.getHeight() + MAINBOX_PADDING_VERTICAL * 2;
+        this.singleLineElementHeight = IFont.DEFAULT.getHeight() + ITEM_PADDING_VERTICAL * 2;
         this.itemInnerWidth = this.getWidth() - MAINBOX_PADDING_HORIZONTAL * 2;
     }
 
@@ -101,9 +101,9 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         boolean opened = this.isOpened();
 
         // Background
-        RawGuiManager.fillRect(poseStack, 0, 0, this.getWidth(), mainBoxHeight, MAINBOX_BACKGROUND_COLOR);
+        RawGuiManager.INSTANCE.fillRect(poseStack, 0, 0, this.getWidth(), mainBoxHeight, MAINBOX_BACKGROUND_COLOR);
         if(opened) {
-            RawGuiManager.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), getVisualHeight(),
+            RawGuiManager.INSTANCE.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), getVisualHeight(),
                     DROPDOWN_BACKGROUND_COLOR);
         }
 
@@ -111,44 +111,44 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         this.drawDropdownArrow(poseStack, MAINBOX_PADDING_VERTICAL, mainBoxColor, opened);
 
         // Main box Border
-        RawGuiManager.fillRect(poseStack, -1, -1, 0, mainBoxHeight + 1, mainBoxColor);
-        RawGuiManager.fillRect(poseStack, 0, -1, this.getWidth(), 0, mainBoxColor);
-        RawGuiManager.fillRect(poseStack, this.getWidth(), -1, this.getWidth() + 1, mainBoxHeight + 1, mainBoxColor);
-        RawGuiManager.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(poseStack, -1, -1, 0, mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(poseStack, 0, -1, this.getWidth(), 0, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(poseStack, this.getWidth(), -1, this.getWidth() + 1, mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), mainBoxHeight + 1, mainBoxColor);
 
         T selectedValue = this.selectedValue.get();
         if(selectedValue != null) {
             String currentName = nameGetter.apply(selectedValue).replace("\n", " ");
-            int fontHeight = FontManager.getFontHeight();
+            int fontHeight = IFont.DEFAULT.getHeight();
             int textLeft = MAINBOX_PADDING_HORIZONTAL, limit = itemInnerWidth - fontHeight;
 
             // Get icon
             Object iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
             if(iconTextureObject != null) {
                 int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
-                RawGuiManager.drawNativeImage(poseStack, iconTextureObject,
+                RawGuiManager.INSTANCE.drawNativeImage(poseStack, iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
             }
 
             // Handle overflow
-            if(FontManager.getStringWidth(currentName) > limit) {
-                currentName = FontManager.trimStringToWidth(currentName, limit);
+            if(IFont.DEFAULT.getStringWidth(currentName) > limit) {
+                currentName = IFont.DEFAULT.trimStringToWidth(currentName, limit);
             }
-            FontManager.drawStringWithShadow(poseStack, currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
+            IFont.DEFAULT.drawStringWithShadow(poseStack, currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
         }
 
-        GlGraphicsManager.glPushMatrix(poseStack);
-        GlGraphicsManager.glTranslate(poseStack, 0, mainBoxHeight, 0);
+        GlGraphicsManager.INSTANCE.glPushMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, mainBoxHeight, 0);
         this.dropdownItems.drawItem(poseStack, selectedValue, true);
-        GlGraphicsManager.glPopMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glPopMatrix(poseStack);
     }
 
     private void drawDropdownArrow(Object poseStack, int top, int colorARGB, boolean flip) {
-        int bottom = top + FontManager.getFontHeight();
+        int bottom = top + IFont.DEFAULT.getHeight();
         int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
-        int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - FontManager.getFontHeight();
+        int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - IFont.DEFAULT.getHeight();
 
         if (flip) {
             int temp = top; top = bottom; bottom = temp;
@@ -161,7 +161,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
                 new PosXY((left + right) / 2f, bottom),
                 new PosXY(right, top)
         );
-        RawGuiManager.fillQuad(poseStack, quad, colorARGB, 0);
+        RawGuiManager.INSTANCE.fillQuad(poseStack, quad, colorARGB, 0);
     }
 
     @Override
@@ -202,7 +202,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         @Override
         int getHeight() {
-            return FontManager.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth)
+            return IFont.DEFAULT.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth)
                     + ITEM_PADDING_VERTICAL * 2;
         }
 
@@ -224,26 +224,26 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             int textLeft = ITEM_PADDING_HORIZONTAL, limit = itemInnerWidth;
 
             if(Objects.equals(this.value, selectedValue)) {
-                RawGuiManager.fillRect(poseStack,
+                RawGuiManager.INSTANCE.fillRect(poseStack,
                         0, 0, getWidth(), height, SELECTED_BACKGROUND_COLOR);
             }
 
             // Get icon
             Object iconTextureObject = iconTextureObjectGetter.apply(value);
             if(iconTextureObject != null) {
-                int textHeight = FontManager.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
+                int textHeight = IFont.DEFAULT.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
                 int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;
-                RawGuiManager.drawNativeImage(poseStack, iconTextureObject,
+                RawGuiManager.INSTANCE.drawNativeImage(poseStack, iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
             }
 
             // Item text
-            FontManager.drawSplitString(poseStack, name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
+            IFont.DEFAULT.drawSplitString(poseStack, name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
 
             // Translate
-            GlGraphicsManager.glTranslate(poseStack, 0, height, 0);
+            GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, height, 0);
         }
 
         @Override
@@ -257,7 +257,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         boolean opened = false;
         final String name;
         final boolean main;
-        List<DropdownItem> itemList = new ArrayList<>();
+        final List<DropdownItem> itemList = new ArrayList<>();
 
         ItemList findCategory(String categoryName) {
             for(DropdownItem item : this.itemList) {
@@ -308,19 +308,19 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
             if(!this.main) {
                 // Category name
-                FontManager.drawCenteredStringWithShadow(poseStack,
+                IFont.DEFAULT.drawCenteredStringWithShadow(poseStack,
                         this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor);
                 // Dropdown arrow
                 drawDropdownArrow(poseStack, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor, this.opened);
             }
-            GlGraphicsManager.glTranslate(poseStack, 0, this.getCategoryHeight(), 0);
+            GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, this.getCategoryHeight(), 0);
 
             if(this.opened) IntStream.range(0, itemList.size()).forEachOrdered(i ->
                     itemList.get(i).drawItem(poseStack, selectedValue, i == itemList.size() - 1));
 
             if(!isLast) {
                 // Category separator line
-                RawGuiManager.fillRect(poseStack, 0, 0, getWidth(), 1,
+                RawGuiManager.INSTANCE.fillRect(poseStack, 0, 0, getWidth(), 1,
                         ITEMLIST_SEPARATOR_LINE_COLOR);
             }
         }

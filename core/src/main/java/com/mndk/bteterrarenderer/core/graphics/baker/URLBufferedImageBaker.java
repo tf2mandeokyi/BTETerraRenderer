@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.graphics.baker;
 
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelVisualManager;
 import com.mndk.bteterrarenderer.core.util.processor.SimpleResourceCacheProcessor;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -19,11 +19,11 @@ public class URLBufferedImageBaker extends SimpleResourceCacheProcessor<URL, Buf
 
     @Override
     protected Object processResource(BufferedImage image) {
-        return GraphicsModelVisualManager.allocateAndGetTextureObject(image);
+        return GlGraphicsManager.INSTANCE.allocateAndGetTextureObject(image);
     }
 
     @Override
     protected void deleteResource(Object allocatedObject) {
-        GraphicsModelVisualManager.deleteTextureObject(allocatedObject);
+        GlGraphicsManager.INSTANCE.deleteTextureObject(allocatedObject);
     }
 }

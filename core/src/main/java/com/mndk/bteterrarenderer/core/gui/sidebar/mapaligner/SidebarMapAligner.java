@@ -1,19 +1,18 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.core.graphics.format.PosXY;
-import com.mndk.bteterrarenderer.core.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.core.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.core.gui.components.GuiCheckBoxCopy;
-import com.mndk.bteterrarenderer.core.gui.components.GuiNumberInput;
+import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.core.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
-import com.mndk.bteterrarenderer.core.util.minecraft.MinecraftClientManager;
-import com.mndk.bteterrarenderer.core.util.mixin.MixinDelegateCreator;
-import com.mndk.bteterrarenderer.core.util.minecraft.IResourceLocation;
+import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
+import com.mndk.bteterrarenderer.mcconnector.IResourceLocation;
+import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiCheckBoxCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiNumberInput;
+import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 
 public class SidebarMapAligner extends GuiSidebarElement {
 
@@ -29,7 +28,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private static final int SECONDARY_LINE_COLOR = 0xFF8E8E8E;
     private static final int LINE_LENGTH = 1000;
 
-    private static final IResourceLocation ALIGNMENT_MARKER = MixinDelegateCreator.newResourceLocation(
+    private static final IResourceLocation ALIGNMENT_MARKER = IResourceLocation.of(
             BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
     );
 
@@ -120,14 +119,14 @@ public class SidebarMapAligner extends GuiSidebarElement {
         int boxW = ALIGNBOX_MARGIN_SIDE, boxE = elementWidth - ALIGNBOX_MARGIN_SIDE;
 
         // Box background
-        RawGuiManager.fillRect(poseStack, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
+        RawGuiManager.INSTANCE.fillRect(poseStack, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
 
-        GlGraphicsManager.glPushRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
+        GlGraphicsManager.INSTANCE.pushRelativeScissor(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
         this.drawAlignBoxGrids(poseStack, boxW, boxN, boxE - boxW, boxS - boxN);
-        GlGraphicsManager.glPopRelativeScissor();
+        GlGraphicsManager.INSTANCE.popRelativeScissor();
 
         // Center marker
-        RawGuiManager.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
+        RawGuiManager.INSTANCE.drawWholeCenteredImage(poseStack, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
     }
 
     private void drawAlignBoxGrids(Object poseStack, int boxX, int boxY, int boxWidth, int boxHeight) {
@@ -196,9 +195,9 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private void drawLine(Object poseStack,
                           double x, double y, double dx, double dy,
                           int color) {
-        GraphicsQuad<PosXY> line = RawGuiManager.makeLineDxDy(x, y, dx, dy, 1);
+        GraphicsQuad<PosXY> line = RawGuiManager.INSTANCE.makeLineDxDy(x, y, dx, dy, 1);
         if(line == null) return;
-        RawGuiManager.fillQuad(poseStack, line, color, 0);
+        RawGuiManager.INSTANCE.fillQuad(poseStack, line, color, 0);
     }
 
     @Override

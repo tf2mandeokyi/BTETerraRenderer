@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
+import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
 public class SidebarBooleanButton extends SidebarButton {

@@ -94,7 +94,7 @@ public abstract class BinaryJsonTableElement<T> {
 
     @ToString
     static class Value<T> extends BinaryJsonTableElement<T> {
-        public Object content;
+        public final Object content;
 
         public Value(Object content) {
             this.content = content;

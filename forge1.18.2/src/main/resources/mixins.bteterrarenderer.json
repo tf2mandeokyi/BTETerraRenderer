@@ -6,20 +6,20 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "config.ConfigSaveLoaderMixin",
-        "delegate.DelegateCreatorMixin",
-        "minecraft.I18nManagerMixin",
+        "mcconnector.IResourceLocationMixin",
+        "mcconnector.config.ConfigSaveLoaderMixin",
+        "mcconnector.i18n.I18nManagerMixin",
         "terraplusplus.HttpDiskMixin"
     ],
     "client": [
-        "graphics.GlGraphicsManagerMixin",
-        "graphics.GraphicsModelVisualManagerMixin",
-        "gui.FontManagerMixin",
-        "gui.RawGuiManagerMixin",
-        "gui.TextComponentManagerMixin",
-        "input.IKeyBindingMixin",
-        "minecraft.GameInputManagerMixin",
-        "minecraft.MinecraftClientManagerMixin",
-        "minecraft.WindowManagerMixin"
+        "mcconnector.client.MinecraftClientManagerMixin",
+        "mcconnector.client.WindowManagerMixin",
+        "mcconnector.graphics.GlGraphicsManagerMixin",
+        "mcconnector.graphics.IBufferBuilderMixin",
+        "mcconnector.gui.IFontMixin",
+        "mcconnector.gui.RawGuiManagerMixin",
+        "mcconnector.gui.TextComponentManagerMixin",
+        "mcconnector.input.GameInputManagerMixin",
+        "mcconnector.input.IKeyBindingMixin"
     ]
 }

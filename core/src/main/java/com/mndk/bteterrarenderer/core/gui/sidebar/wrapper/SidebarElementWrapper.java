@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.core.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import lombok.Getter;
 
 import javax.annotation.Nullable;

@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
-import com.mndk.bteterrarenderer.core.gui.components.GuiComponentCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiComponentCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.i18n.I18nManager;
+import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import lombok.AccessLevel;
 import lombok.Getter;
 

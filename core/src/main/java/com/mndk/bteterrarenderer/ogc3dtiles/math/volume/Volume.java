@@ -17,6 +17,7 @@ import java.io.IOException;
 public abstract class Volume {
 
     // Not sure if this will be used
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public abstract boolean intersectsSphere(Sphere sphere, Matrix4 thisTransform);
 
     /**
