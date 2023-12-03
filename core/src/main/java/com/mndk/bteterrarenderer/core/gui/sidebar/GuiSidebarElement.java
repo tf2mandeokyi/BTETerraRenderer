@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiComponentCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiComponentCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;

@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Style;

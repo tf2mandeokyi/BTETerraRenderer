@@ -1,6 +1,8 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.components;
+package com.mndk.bteterrarenderer.core.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiAbstractWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiTextFieldCopy;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -37,12 +39,12 @@ public class GuiNumberInput extends GuiAbstractWidgetCopy {
 
 	public void setWidth(int newWidth) {
 		this.width = newWidth;
-		delegate.width = newWidth - IFont.DEFAULT.getStringWidth(text) - PREFIX_BOX_DISTANCE;
+		delegate.setWidth(newWidth - IFont.DEFAULT.getStringWidth(text) - PREFIX_BOX_DISTANCE);
 	}
 
 	public void setX(int newX) {
 		this.xPos = newX;
-		delegate.x = newX + IFont.DEFAULT.getStringWidth(text) + PREFIX_BOX_DISTANCE;
+		delegate.setX(newX + IFont.DEFAULT.getStringWidth(text) + PREFIX_BOX_DISTANCE);
 	}
 
 	public boolean keyTyped(char typedChar, int keyCode) {
@@ -58,11 +60,11 @@ public class GuiNumberInput extends GuiAbstractWidgetCopy {
 	}
 
 	private void updateTextColor() {
-		String currentStr = delegate.text;
+		String currentStr = delegate.getText();
 		this.numberValidated = BTRUtil.validateDouble(currentStr);
 		delegate.setTextColor(numberValidated ? NORMAL_TEXT_COLOR : ERROR_TEXT_COLOR);
 		if(numberValidated) {
-			value.set(Double.parseDouble(delegate.text));
+			value.set(Double.parseDouble(delegate.getText()));
 		}
 	}
 
@@ -74,13 +76,13 @@ public class GuiNumberInput extends GuiAbstractWidgetCopy {
 	public void drawComponent(Object poseStack) {
 		int fontHeight = IFont.DEFAULT.getHeight();
 
-		int color = this.delegate.hovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
+		int color = this.delegate.isHovered() ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 		if(this.delegate.isFocused()) color = FOCUSED_BORDER_COLOR;
 		if(!numberValidated) color = ERROR_TEXT_COLOR;
 
 		IFont.DEFAULT.drawStringWithShadow(poseStack,
 				text,
-				this.xPos, delegate.y + ((delegate.height - fontHeight) / 2f),
+				this.xPos, delegate.getY() + ((delegate.getHeight() - fontHeight) / 2f),
 				color
 		);
 		delegate.drawComponent(poseStack);

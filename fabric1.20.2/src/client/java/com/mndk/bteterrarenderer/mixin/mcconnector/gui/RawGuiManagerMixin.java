@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.IResourceLocation;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiAbstractWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiAbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mod.client.gui.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mod.mcconnector.IResourceLocationIdentifierImpl;
 import com.mojang.blaze3d.platform.GlStateManager;

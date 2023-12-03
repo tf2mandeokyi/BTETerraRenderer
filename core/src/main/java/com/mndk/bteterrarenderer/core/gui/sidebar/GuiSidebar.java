@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
 import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
 import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;

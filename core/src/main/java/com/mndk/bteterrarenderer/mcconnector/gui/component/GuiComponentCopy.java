@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.components;
+package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
 public abstract class GuiComponentCopy implements GuiEventListenerCopy {
     public void tick() {}

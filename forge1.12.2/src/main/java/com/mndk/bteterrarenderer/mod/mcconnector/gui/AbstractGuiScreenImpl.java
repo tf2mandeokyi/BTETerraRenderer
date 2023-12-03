@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.components.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.ITextComponent;

@@ -10,8 +10,8 @@ import com.mndk.bteterrarenderer.mcconnector.IResourceLocation;
 import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiCheckBoxCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiNumberInput;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiCheckBoxCopy;
+import com.mndk.bteterrarenderer.core.gui.component.GuiNumberInput;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 
 public class SidebarMapAligner extends GuiSidebarElement {

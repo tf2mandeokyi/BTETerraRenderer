@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiButtonCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiButtonCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 
 public class SidebarButton extends GuiSidebarElement {

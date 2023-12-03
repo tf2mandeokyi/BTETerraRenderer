@@ -1,11 +1,11 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.components;
+package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.StringUtil;
+import com.mndk.bteterrarenderer.mcconnector.util.MinecraftStringUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -58,7 +58,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         int start = Math.min(this.cursorPos, this.highlightPos);
         int end = Math.max(this.cursorPos, this.highlightPos);
         int max = this.maxStringLength - this.text.length() - (start - end);
-        String filtered = StringUtil.filterMinecraftAllowedCharacters(text);
+        String filtered = MinecraftStringUtil.filterMinecraftAllowedCharacters(text);
         int length = filtered.length();
         if (max < length) {
             filtered = filtered.substring(0, max);
@@ -154,7 +154,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     }
 
     private int getCursorPos(int delta) {
-        return StringUtil.offsetByCodepoints(this.text, this.cursorPos, delta);
+        return MinecraftStringUtil.offsetByCodepoints(this.text, this.cursorPos, delta);
     }
 
     public void moveCursorTo(int index) {
@@ -251,7 +251,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     public boolean keyTyped(char typedChar, int mods) {
         if (!this.canConsumeInput()) return false;
 
-        if (StringUtil.isMinecraftAllowedCharacter(typedChar)) {
+        if (MinecraftStringUtil.isMinecraftAllowedCharacter(typedChar)) {
             if (this.enabled) {
                 this.insertText(Character.toString(typedChar));
             }

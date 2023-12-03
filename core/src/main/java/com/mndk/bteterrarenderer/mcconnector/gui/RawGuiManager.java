@@ -7,8 +7,8 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiAbstractWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiAbstractWidgetCopy;
 
 import javax.annotation.Nullable;
 

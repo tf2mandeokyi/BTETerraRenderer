@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.input;
 
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.mcconnector.gui.components.GuiNumberInput;
+import com.mndk.bteterrarenderer.core.gui.component.GuiNumberInput;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
 public class SidebarNumberInput extends GuiSidebarElement {

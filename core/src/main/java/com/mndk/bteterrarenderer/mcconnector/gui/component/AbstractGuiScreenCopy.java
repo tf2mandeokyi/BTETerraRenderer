@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.components;
+package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.client.WindowManager;
 import lombok.Setter;
