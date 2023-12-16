@@ -11,5 +11,9 @@ pluginManagement {
 
 rootProject.name = "BTETerraRenderer"
 include ':core'
-include ':forge1.12.2', ':forge1.18.2'
-include ':fabric1.18.2', ':fabric1.19.4', ':fabric1.20.2'
+include ':forge1.12.2'
+include ':forge1.18.2'
+include ':fabric1.18.2'
+include ':fabric1.19.4'
+include ':fabric1.20.2'
+include ':fabric1.20.4'

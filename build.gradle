@@ -10,7 +10,6 @@ buildscript {
             name = 'Sponge Mixin'
             url = 'https://repo.spongepowered.org/maven'
         }
-        jcenter()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -49,8 +48,13 @@ subprojects { p ->
     }
 
     dependencies {
+
+        if(isForgeSubProject || isFabricSubProject) {
+            shadowDep project(':core')
+        }
+
         // We should use shadowDep(group: ..., name: ..., version: ...) instead of shadowDep('group:name:version')
-        // since fabric's "include" configuration doesn't allow us to do that
+        // since fabric's "include" configuration doesn't allow us to do the latter
         // ps: fabric ruined it all
         shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.14.2')
@@ -69,10 +73,6 @@ subprojects { p ->
         if(isFabricSubProject && mcVersionMiddle >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
-        }
-
-        if(isForgeSubProject || isFabricSubProject) {
-            shadowDep project(':core')
         }
 
         compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
@@ -111,17 +111,18 @@ subprojects { p ->
 
         def replaceProperties = [
                 // Version properties
-                version:        rootProject.mod_version,
-                mcversion:      project.minecraftVersion,
+                version:                rootProject.mod_version,
+                mcversion:              project.minecraftVersion,
                 // Mod config file properties
-                authors:        rootProject.mod_authors,
-                displayName:    rootProject.mod_displayName,
-                description:    rootProject.mod_description,
-                url:            rootProject.mod_url,
-                sourceUrl:      rootProject.mod_sourceUrl,
-                discordUrl:     rootProject.mod_discordUrl,
-                credits:        rootProject.mod_credits,
-                license:        rootProject.mod_license
+                authors:                rootProject.mod_authors,
+                displayName:            rootProject.mod_displayName,
+                description:            rootProject.mod_description,
+                url:                    rootProject.mod_url,
+                sourceUrl:              rootProject.mod_sourceUrl,
+                discordUrl:             rootProject.mod_discordUrl,
+                credits:                rootProject.mod_credits,
+                license:                rootProject.mod_license,
+                fabricLoaderVersion:    rootProject.fabricLoaderVersion
         ]
 
         inputs.properties replaceProperties

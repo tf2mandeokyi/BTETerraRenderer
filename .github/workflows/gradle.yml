@@ -47,6 +47,7 @@ jobs:
           - 'fabric1.18.2'
           - 'fabric1.19.4'
           - 'fabric1.20.2'
+          - 'fabric1.20.4'
 
     steps:
       - name: Check out repo

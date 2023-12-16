@@ -22,7 +22,7 @@ public class IFontMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    static IFont<?,?,?,?> makeDefault() {
+    private static IFont<?,?,?,?> makeDefault() {
         return of(MinecraftClient.getInstance().textRenderer);
     }
 
