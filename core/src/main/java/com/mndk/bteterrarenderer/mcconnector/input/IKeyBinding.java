@@ -1,14 +1,11 @@
 package com.mndk.bteterrarenderer.mcconnector.input;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
 
 public interface IKeyBinding {
 
-    static IKeyBinding register(String name, InputKey key) {
-        return registerInternal(
-                "key." + BTETerraRendererConstants.MODID + "." + name, key,
-                "key." + BTETerraRendererConstants.MODID + ".category");
+    static IKeyBinding register(String modId, String name, InputKey key) {
+        return registerInternal("key." + modId + "." + name, key, "key." + modId + ".category");
     }
 
     static IKeyBinding registerInternal(String description, InputKey key, String category) {
