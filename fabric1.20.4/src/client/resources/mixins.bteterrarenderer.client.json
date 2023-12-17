@@ -12,6 +12,7 @@
     "mcconnector.gui.FontRendererMixin",
     "mcconnector.gui.RawGuiManagerMixin",
     "mcconnector.gui.TextComponentManagerMixin",
+    "mcconnector.i18n.ClientI18nManagerMixin",
     "mcconnector.input.GameInputManagerMixin",
     "mcconnector.input.IKeyBindingMixin"
   ],

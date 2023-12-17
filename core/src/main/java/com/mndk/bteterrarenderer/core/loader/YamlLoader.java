@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Objects;
 
 @Getter
@@ -44,7 +45,7 @@ public abstract class YamlLoader<T> {
 
         for (File file : files) {
             String name = file.getName();
-            try (FileReader fileReader = new FileReader((file))) {
+            try (InputStreamReader fileReader = new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
                 addToResult(this.result, load(name, fileReader));
             } catch (Exception e) {
                 Loggers.get(this).error("Error while parsing file: " + file, e);

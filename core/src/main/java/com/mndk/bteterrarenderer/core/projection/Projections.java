@@ -5,6 +5,7 @@ import net.daporkchop.lib.binary.oio.StreamUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 public class Projections {
 
@@ -16,7 +17,7 @@ public class Projections {
 	}
 
 	public static void setServerProjection(GeographicProjection proj) {
-		SERVER_PROJECTION = proj == null ? BTE : proj;
+		SERVER_PROJECTION = Optional.ofNullable(proj).orElse(BTE);
 	}
 	public static GeographicProjection getServerProjection() {
 		return SERVER_PROJECTION;

@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.util;
+package com.mndk.bteterrarenderer.core.util.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;

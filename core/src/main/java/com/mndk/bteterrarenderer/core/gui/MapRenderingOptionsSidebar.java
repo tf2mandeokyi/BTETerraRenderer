@@ -23,6 +23,7 @@ import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
+import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
@@ -33,6 +34,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -170,7 +172,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
         // Check null
-        TileMapService<?> tms = tmsWrapped == null ? null : tmsWrapped.getItem();
+        TileMapService<?> tms = Optional.ofNullable(tmsWrapped).map(CategoryMap.Wrapper::getItem).orElse(null);
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;
             this.tmsPropertyElementList.hide = true;
@@ -201,8 +203,11 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
 
         // Set copyright
-        this.mapCopyright.hide = false;
-        this.mapCopyright.setTextComponentJson(tms.getCopyrightTextJson());
+        String textComponentJson = Optional.ofNullable(tms.getCopyrightTextJson())
+                .map(Translatable::get)
+                .orElse(null);
+        this.mapCopyright.hide = textComponentJson == null;
+        this.mapCopyright.setTextComponentJson(textComponentJson);
     }
 
     private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
@@ -210,10 +215,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         if(tms == null) {
             return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
         }
+
+        String name = tms.getName().get();
         if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
-            return tms.getName();
+            return name;
         }
-        return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + tms.getName();
+        return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + name;
     }
 
     private void reloadMapSources() {
