@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
@@ -18,18 +18,18 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @UtilityClass
-@Mixin(value = IFont.class, remap = false)
-public class IFontMixin {
+@Mixin(value = FontRenderer.class, remap = false)
+public class FontRendererMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static IFont<?,?,?,?> makeDefault() {
+    private static FontRenderer<?,?,?,?> makeDefault() {
         return bTETerraRenderer$of(Minecraft.getInstance().font);
     }
 
     @Unique
-    private static IFont<PoseStack, Object, Object, Style> bTETerraRenderer$of(Font font) { return new IFont<>() {
+    private static FontRenderer<PoseStack, Object, Object, Style> bTETerraRenderer$of(Font font) { return new FontRenderer<>() {
         public int getHeight() {
             return font.lineHeight;
         }

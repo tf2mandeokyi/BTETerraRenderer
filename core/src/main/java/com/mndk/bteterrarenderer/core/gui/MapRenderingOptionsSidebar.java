@@ -23,6 +23,7 @@ import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 
@@ -75,8 +76,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::tmsWrappedToString,
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
-        this.mapCopyright = new SidebarTextComponent(TextAlign.LEFT);
-        this.tmsPropertyElementList = new SidebarElementList(ELEMENT_DISTANCE, 0, null, false);
+        this.mapCopyright = new SidebarTextComponent(HorizontalAlign.LEFT);
+        this.tmsPropertyElementList = new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false);
     }
 
     @Override
@@ -110,40 +111,48 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
 
         return Arrays.asList(
-                // ===========================================================================================
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), TextAlign.CENTER),
+            // ===========================================================================================
+            new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), HorizontalAlign.CENTER, 0xFFFFFFFF)
+            ),
 
-                // General components
-                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                        new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), TextAlign.LEFT),
-                        hl, // ---------------------------------------------------------------------------------------
-                        renderingTrigger,
-                        this.yAxisInputWrapper,
-                        opacitySlider
-                ),
-
-                // Map source control components
-                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                        new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), TextAlign.LEFT),
-                        hl, // ---------------------------------------------------------------------------------------
-                        this.mapSourceDropdown,
-                        this.mapCopyright
-                ),
-
-                this.tmsPropertyElementList,
-
-                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                        reloadMapsButton,
-                        openMapsFolderButton
-                ),
-
-                // Map offset control components
-                new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                        new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), TextAlign.LEFT),
-                        hl, // ---------------------------------------------------------------------------------------
-                        mapAligner
+            // General components
+            new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), HorizontalAlign.LEFT, 0xFFFFFFFF),
+                hl, // ---------------------------------------------------------------------------------------
+                new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                    renderingTrigger,
+                    opacitySlider,
+                    this.yAxisInputWrapper
                 )
-                // ===========================================================================================
+            ),
+
+            // Map source control components
+            new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), HorizontalAlign.LEFT, 0xFFFFFFFF),
+                hl, // ---------------------------------------------------------------------------------------
+                new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                    this.mapSourceDropdown,
+                    this.mapCopyright
+                )
+            ),
+
+            this.tmsPropertyElementList,
+
+            new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                openMapsFolderButton,
+                reloadMapsButton
+            ),
+
+            // Map offset control components
+            new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), HorizontalAlign.LEFT, 0xFFFFFFFF),
+                hl, // ---------------------------------------------------------------------------------------
+                new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                    mapAligner
+                )
+            )
+            // ===========================================================================================
         );
     }
 
@@ -173,7 +182,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.setTileMapService(tmsWrapped);
 
         // Set property element list
-        SidebarText text = new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), TextAlign.LEFT);
+        SidebarText text = new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), HorizontalAlign.LEFT);
         this.tmsPropertyElementList.clear();
         this.tmsPropertyElementList.add(text);
         this.tmsPropertyElementList.addProperties(tms.getProperties());

@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
-import com.mndk.bteterrarenderer.core.gui.TextAlign;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
+import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.gui.TextComponentManager;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.Loggers;
@@ -15,14 +15,14 @@ public class SidebarTextComponent extends GuiSidebarElement {
     private String textComponentJson;
     private List<?> lineComponents;
     private Object hoveredStyleComponent;
-    private final TextAlign align;
+    private final HorizontalAlign align;
     private int hoverX, hoverY;
 
-    public SidebarTextComponent(TextAlign align) {
+    public SidebarTextComponent(HorizontalAlign align) {
         this("[\"\"]", align);
     }
 
-    public SidebarTextComponent(String textComponentJson, TextAlign align) {
+    public SidebarTextComponent(String textComponentJson, HorizontalAlign align) {
         this.textComponentJson = textComponentJson;
         this.align = align;
         this.updateLineSplits();
@@ -51,8 +51,8 @@ public class SidebarTextComponent extends GuiSidebarElement {
     @Override
     public void drawComponent(Object poseStack) {
         for(int i = 0; i < lineComponents.size(); ++i) {
-            IFont.DEFAULT.drawComponentWithShadow(poseStack, lineComponents.get(i), this.align,
-                    0, i * IFont.DEFAULT.getHeight(), this.getWidth(), NORMAL_TEXT_COLOR);
+            FontRenderer.DEFAULT.drawComponentWithShadow(poseStack, lineComponents.get(i), this.align,
+                    0, i * FontRenderer.DEFAULT.getHeight(), this.getWidth(), NORMAL_TEXT_COLOR);
         }
         if(this.hoveredStyleComponent != null) {
             TextComponentManager.handleStyleComponentHover(poseStack, this.hoveredStyleComponent, hoverX, hoverY);
@@ -61,7 +61,7 @@ public class SidebarTextComponent extends GuiSidebarElement {
 
     @Override
     public int getPhysicalHeight() {
-        return IFont.DEFAULT.getHeight() * lineComponents.size();
+        return FontRenderer.DEFAULT.getHeight() * lineComponents.size();
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SidebarTextComponent extends GuiSidebarElement {
             Object textComponent = TextComponentManager.fromJson(this.textComponentJson);
             if (textComponent == null) return Collections.emptyList();
 
-            return IFont.DEFAULT.splitComponentByWidth(textComponent, this.getWidth());
+            return FontRenderer.DEFAULT.splitComponentByWidth(textComponent, this.getWidth());
         } catch(Exception e) {
             Loggers.get(this).error(e);
             return Collections.emptyList();
@@ -103,17 +103,17 @@ public class SidebarTextComponent extends GuiSidebarElement {
     private Object getStyleComponentAt(int mouseX, int mouseY) {
         if(mouseX < 0 || this.getWidth() < mouseX) return null;
 
-        int lineIndex = (int) Math.floor(mouseY / (float) IFont.DEFAULT.getHeight());
+        int lineIndex = (int) Math.floor(mouseY / (float) FontRenderer.DEFAULT.getHeight());
         if(lineIndex < 0 || this.lineComponents.size() <= lineIndex) return null;
         Object lineComponent = this.lineComponents.get(lineIndex);
 
         int xPos = 0;
-        int lineWidth = IFont.DEFAULT.getComponentWidth(lineComponent);
+        int lineWidth = FontRenderer.DEFAULT.getComponentWidth(lineComponent);
         switch(this.align) {
             case LEFT: break;
             case CENTER: xPos = (this.getWidth() - lineWidth) / 2; break;
             case RIGHT: xPos = this.getWidth() - lineWidth; break;
         }
-        return IFont.DEFAULT.getStyleComponentFromLine(lineComponent, mouseX - xPos);
+        return FontRenderer.DEFAULT.getStyleComponentFromLine(lineComponent, mouseX - xPos);
     }
 }

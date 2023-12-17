@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 import com.mndk.bteterrarenderer.mcconnector.IResourceLocation;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiAbstractWidgetCopy;
@@ -83,7 +83,7 @@ public class RawGuiManagerMixin {
         public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
             drawButton(poseStack, x, y, width, height, GuiAbstractWidgetCopy.HoverState.DISABLED);
             if (checked) {
-                IFont.DEFAULT.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1,
+                FontRenderer.DEFAULT.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1,
                         GuiEventListenerCopy.NORMAL_TEXT_COLOR);
             }
         }

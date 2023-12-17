@@ -1,20 +1,20 @@
 package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import lombok.Getter;
 import lombok.Setter;
 
+@Setter
 @Getter
 public class GuiCheckBoxCopy extends GuiAbstractWidgetCopy {
     public static final int BOX_WIDTH = 11, BOX_HEIGHT = 11;
     private static final int BOX_MARGIN_RIGHT = 5;
 
-    @Setter
     private boolean checked;
 
     public GuiCheckBoxCopy(int x, int y, String text, boolean checked) {
-        super(x, y, BOX_WIDTH + BOX_MARGIN_RIGHT + IFont.DEFAULT.getStringWidth(text), BOX_HEIGHT, text);
+        super(x, y, BOX_WIDTH + BOX_MARGIN_RIGHT + FontRenderer.DEFAULT.getStringWidth(text), BOX_HEIGHT, text);
         this.checked = checked;
     }
 
@@ -29,7 +29,7 @@ public class GuiCheckBoxCopy extends GuiAbstractWidgetCopy {
         else if(!this.enabled)          color = DISABLED_TEXT_COLOR;
         else if(this.hovered)            color = HOVERED_COLOR;
 
-        IFont.DEFAULT.drawStringWithShadow(poseStack, text, this.x + BOX_WIDTH + BOX_MARGIN_RIGHT, this.y + 2, color);
+        FontRenderer.DEFAULT.drawStringWithShadow(poseStack, text, this.x + BOX_WIDTH + BOX_MARGIN_RIGHT, this.y + 2, color);
     }
 
     @Override

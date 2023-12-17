@@ -1,9 +1,8 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,18 +13,18 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @UtilityClass
-@Mixin(value = IFont.class, remap = false)
-public class IFontMixin {
+@Mixin(value = FontRenderer.class, remap = false)
+public class FontRendererMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static IFont<?,?,?,?> makeDefault() {
+    private static FontRenderer<?,?,?,?> makeDefault() {
         return bTETerraRenderer$of(Minecraft.getMinecraft().fontRenderer);
     }
 
     @Unique
-    private static IFont<?,?,?,?> bTETerraRenderer$of(FontRenderer fontRenderer) { return new IFont<Object, ITextComponent, ITextComponent, ITextComponent>() {
+    private static FontRenderer<?,?,?,?> bTETerraRenderer$of(net.minecraft.client.gui.FontRenderer fontRenderer) { return new FontRenderer<Object, ITextComponent, ITextComponent, ITextComponent>() {
         public int getHeight() {
             return fontRenderer.FONT_HEIGHT;
         }
@@ -56,7 +55,7 @@ public class IFontMixin {
             int xPos = 0;
             ITextComponent clicked = null;
             for(ITextComponent child : lineComponent.getSiblings()) {
-                int childWidth = IFont.DEFAULT.getComponentWidth(child);
+                int childWidth = FontRenderer.DEFAULT.getComponentWidth(child);
                 if(xPos <= mouseXFromLeft && mouseXFromLeft <= xPos + childWidth) {
                     clicked = child; break;
                 }

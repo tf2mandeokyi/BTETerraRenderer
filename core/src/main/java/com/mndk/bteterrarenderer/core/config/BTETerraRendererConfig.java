@@ -94,7 +94,7 @@ public class BTETerraRendererConfig {
 
         @ConfigName("Sidebar Width")
         @ConfigComment("Sets the width of the sidebar.")
-        @ConfigRangeDouble(min = 170, max = 310)
+        @ConfigRangeDouble(min = 180, max = 320)
         public double sidebarWidth = 200;
 
         @ConfigName("Sidebar Opacity")

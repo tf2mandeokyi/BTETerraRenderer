@@ -9,7 +9,7 @@
     "mcconnector.client.WindowManagerMixin",
     "mcconnector.graphics.GlGraphicsManagerMixin",
     "mcconnector.graphics.IBufferBuilderMixin",
-    "mcconnector.gui.IFontMixin",
+    "mcconnector.gui.FontRendererMixin",
     "mcconnector.gui.RawGuiManagerMixin",
     "mcconnector.gui.TextComponentManagerMixin",
     "mcconnector.input.GameInputManagerMixin",

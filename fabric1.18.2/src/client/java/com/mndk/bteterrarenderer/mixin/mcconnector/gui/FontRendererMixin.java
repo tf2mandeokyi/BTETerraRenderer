@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.ChatMessages;
@@ -16,18 +16,18 @@ import org.spongepowered.asm.mixin.Unique;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mixin(value = IFont.class, remap = false)
-public class IFontMixin {
+@Mixin(value = FontRenderer.class, remap = false)
+public class FontRendererMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static IFont<?,?,?,?> makeDefault() {
+    private static FontRenderer<?,?,?,?> makeDefault() {
         return of(MinecraftClient.getInstance().textRenderer);
     }
 
     @Unique
-    private static IFont<MatrixStack, Object, Object, Style> of(TextRenderer textRenderer) { return new IFont<>() {
+    private static FontRenderer<MatrixStack, Object, Object, Style> of(TextRenderer textRenderer) { return new FontRenderer<>() {
         public int getHeight() {
             return textRenderer.fontHeight;
         }

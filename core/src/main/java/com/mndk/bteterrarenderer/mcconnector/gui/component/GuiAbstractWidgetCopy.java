@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,13 +51,13 @@ public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
         else if(this.hovered)            color = HOVERED_COLOR;
 
         String buttonText = this.text;
-        int stringWidth = IFont.DEFAULT.getStringWidth(buttonText);
-        int ellipsisWidth = IFont.DEFAULT.getStringWidth("...");
+        int stringWidth = FontRenderer.DEFAULT.getStringWidth(buttonText);
+        int ellipsisWidth = FontRenderer.DEFAULT.getStringWidth("...");
 
         if (stringWidth > width - 6 && stringWidth > ellipsisWidth) {
-            buttonText = IFont.DEFAULT.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
+            buttonText = FontRenderer.DEFAULT.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
         }
-        IFont.DEFAULT.drawCenteredStringWithShadow(poseStack, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
+        FontRenderer.DEFAULT.drawCenteredStringWithShadow(poseStack, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
     }
 
     public void drawBackground(Object poseStack) {}

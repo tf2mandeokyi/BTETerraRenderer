@@ -176,6 +176,7 @@ public class SidebarElementList extends GuiSidebarElement {
         if(this.maxHeight != null) {
             //noinspection DataFlowIssue
             GlGraphicsManager.INSTANCE.pushRelativeScissor(poseStack, 0, 0, this.getWidth(), this.maxHeight.get());
+            this.validateSliderValue();
         }
         GlGraphicsManager.INSTANCE.glPushMatrix(poseStack);
         GlGraphicsManager.INSTANCE.glTranslate(poseStack, this.sidePadding, -this.verticalSliderValue, 0);

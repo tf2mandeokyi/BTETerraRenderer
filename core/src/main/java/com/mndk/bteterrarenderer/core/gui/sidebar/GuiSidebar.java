@@ -188,7 +188,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
         if(this.widthChangingState) {
             double dMouseX = mouseX - mouseClickX;
             if(side.get() == SidebarSide.RIGHT) dMouseX = -dMouseX;
-            double sidebarWidth = BTRUtil.clamp(initialWidth + dMouseX, 170, 310);
+            double sidebarWidth = BTRUtil.clamp(initialWidth + dMouseX, 180, 320);
 
             this.sidebarWidth.set(sidebarWidth);
             this.listComponent.onWidthChange((int) sidebarWidth);

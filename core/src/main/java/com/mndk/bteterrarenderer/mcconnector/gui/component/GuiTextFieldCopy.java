@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.IFont;
+import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
@@ -274,8 +274,8 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         }
 
         this.frame = 0;
-        String s = IFont.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
-        this.moveCursorTo(IFont.DEFAULT.trimStringToWidth(s, i).length() + this.displayPos);
+        String s = FontRenderer.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
+        this.moveCursorTo(FontRenderer.DEFAULT.trimStringToWidth(s, i).length() + this.displayPos);
         return true;
     }
 
@@ -291,7 +291,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         int i2 = this.textColor != null ? this.textColor : (this.enabled ? NORMAL_TEXT_COLOR : DISABLED_TEXT_COLOR);
         int j = this.cursorPos - this.displayPos;
         int k = this.highlightPos - this.displayPos;
-        String trimmed = IFont.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
+        String trimmed = FontRenderer.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
         boolean flag = j >= 0 && j <= trimmed.length();
         boolean flag1 = this.isFocused() && this.frame / 6 % 2 == 0 && flag;
         int l = this.bordered ? this.x + 4 : this.x;
@@ -303,7 +303,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
 
         if (!trimmed.isEmpty()) {
             String s1 = flag ? trimmed.substring(0, j) : trimmed;
-            j1 = IFont.DEFAULT.drawStringWithShadow(poseStack, s1, (float)l, (float)i1, i2);
+            j1 = FontRenderer.DEFAULT.drawStringWithShadow(poseStack, s1, (float)l, (float)i1, i2);
         }
 
         boolean flag2 = this.cursorPos < this.text.length() || this.text.length() >= this.maxStringLength;
@@ -316,19 +316,19 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         }
 
         if (!trimmed.isEmpty() && flag && j < trimmed.length()) {
-            IFont.DEFAULT.drawStringWithShadow(poseStack, trimmed.substring(j), (float)j1, (float)i1, i2);
+            FontRenderer.DEFAULT.drawStringWithShadow(poseStack, trimmed.substring(j), (float)j1, (float)i1, i2);
         }
 
         if (flag1) {
             if (flag2) {
                 RawGuiManager.INSTANCE.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
             } else {
-                IFont.DEFAULT.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
+                FontRenderer.DEFAULT.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
             }
         }
 
         if (k != j) {
-            int l1 = l + IFont.DEFAULT.getStringWidth(trimmed.substring(0, k));
+            int l1 = l + FontRenderer.DEFAULT.getStringWidth(trimmed.substring(0, k));
             this.drawSelectionBox(poseStack, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
         }
     }
