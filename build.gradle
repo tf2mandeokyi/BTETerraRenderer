@@ -175,6 +175,18 @@ subprojects { p ->
         }
         build.dependsOn shadowJar
     }
+
+    if(isFabricSubProject || isForgeSubProject) {
+        project.tasks.register('copyBuildResultToRoot', Copy) {
+            group = 'build'
+            description = 'Copies build result into root build directory'
+
+            from "${project.projectDir}/build/libs"
+            into "${rootProject.projectDir}/build/libs"
+        }
+        copyBuildResultToRoot.dependsOn build
+        build.finalizedBy copyBuildResultToRoot
+    }
 }
 
 allprojects { p ->
