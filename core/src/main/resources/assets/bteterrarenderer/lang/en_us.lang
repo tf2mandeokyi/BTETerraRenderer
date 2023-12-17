@@ -13,7 +13,7 @@ gui.bteterrarenderer.settings.y_align=Y Align
 gui.bteterrarenderer.settings.opacity=Map Opacity
 
 gui.bteterrarenderer.settings.map_source=Map Source
-gui.bteterrarenderer.settings.map_settings=Map Source Settings
+gui.bteterrarenderer.settings.map_settings=Map Settings
 gui.bteterrarenderer.settings.map_reload=Reload maps...
 gui.bteterrarenderer.settings.map_folder=Open maps folder...
 

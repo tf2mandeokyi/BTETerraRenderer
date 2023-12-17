@@ -1,5 +1,3 @@
-import java.util.regex.Pattern
-
 buildscript {
     repositories {
         maven {
@@ -28,12 +26,8 @@ subprojects { p ->
     def isFabricSubProject = project.name.startsWith('fabric')
 
     // Match version
-    def mcVersionPattern = Pattern.compile('[a-zA-Z]+(\\d+)\\.(\\d+)(\\.(\\d+))?')
-    def mcVersionMatcher = mcVersionPattern.matcher(project.name)
-    def mcVersionMiddle
-    while(mcVersionMatcher.find()) {
-        mcVersionMiddle = Integer.parseInt(mcVersionMatcher.group(2))
-    }
+    def mcVersionMatcher = project.name =~ /[a-zA-Z]+(\d+)\.(\d+)(\.(\d+))?/
+    def mcVersionMiddle = mcVersionMatcher.find() ? Integer.parseInt(mcVersionMatcher.group(2)) : -1
 
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -102,13 +96,14 @@ subprojects { p ->
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
+        def target = "$buildDir/resources/main/"
+
+        // Replace templates
         def resourceTargets = [
                 'mcmod.info', // Forge <= 1.12.2
                 'META-INF/mods.toml', // Forge >= 1.13
                 'fabric.mod.json' // Fabric
         ]
-        def intoTargets = [ "$buildDir/resources/main/" ]
-
         def replaceProperties = [
                 // Version properties
                 version:                rootProject.mod_version,
@@ -125,18 +120,36 @@ subprojects { p ->
                 fabricLoaderVersion:    rootProject.fabricLoaderVersion
         ]
 
+        // this will ensure that this task is redone when the versions change.
         inputs.properties replaceProperties
+
         filesMatching(resourceTargets) {
             expand replaceProperties
         }
-        intoTargets.each { target ->
-            if(!file(target).exists()) return
-            copy {
-                from(sourceSets.main.resources) {
-                    include resourceTargets
-                    expand replaceProperties
+        copy {
+            from(sourceSets.main.resources) {
+                include resourceTargets
+                expand replaceProperties
+            }
+            into target
+        }
+
+        // Make .json from .lang
+        if(p == project(':core')) {
+            doLast {
+                fileTree(dir: outputs.files.asPath, include: "**/*.lang").each { File langFile ->
+                    // Make json content
+                    String content = langFile.getText('UTF-8').split('\n')
+                            .collect { it =~ /([^=]+)=(.+)/ }
+                            .findAll { it.find() }
+                            .collect { [ it.group(1), it.group(2) ] }
+                            .collect { "\"${it[0]}\": \"${it[1].replaceAll('"', '\\"')}\"" }
+                            .join(",\n")
+
+                    // Write to json
+                    File jsonFile = file(langFile.path.replaceFirst(~/\.[^.]+$/, '') + '.json')
+                    jsonFile.setText("{\n$content\n}", 'UTF-8')
                 }
-                into target
             }
         }
     }
@@ -176,19 +189,11 @@ allprojects { p ->
 
     repositories {
         mavenCentral()
-
-        // lzma
-        maven { url "https://repo.spongepowered.org/maven/" }
-
-        // For leveldb
-        maven { url "https://maven.daporkchop.net/" }
-        maven { url "https://repo.opencollab.dev/snapshot/" }
-
-        // Jitpack; For cubicchunks, cubicworldgen, terraplusplus
-        maven { url "https://jitpack.io/" }
-
-        // Elytradev; For jankson
-        maven { url "https://repo.elytradev.com/" }
+        maven { url "https://repo.spongepowered.org/maven/" } // lzma
+        maven { url "https://maven.daporkchop.net/" } // For leveldb
+        maven { url "https://repo.opencollab.dev/snapshot/" } // For leveldb
+        maven { url "https://jitpack.io/" } // For cubicchunks, cubicworldgen, terraplusplus
+        maven { url "https://repo.elytradev.com/" } // Elytradev; For jankson
     }
 
     if(p != project(':forge1.12.2') && p != project(':core')) {

@@ -161,16 +161,18 @@ public class SidebarMapAligner extends GuiSidebarElement {
             float y = (float) (line.y + t * line.dy);
 
             // arrow
-            if(!line.arrow) continue;
+            if(line.arrowWidth == 0) continue;
             double distance = Math.sqrt(line.dx * line.dx + line.dy * line.dy);
             float dxnorm = (float) (line.dx / distance);
             float dynorm = (float) (line.dy / distance);
             float arrowBackX = x - dxnorm * ALIGNBOX_ARROW_SIZE;
             float arrowBackY = y - dynorm * ALIGNBOX_ARROW_SIZE;
+            float sideDx =  dynorm * ALIGNBOX_ARROW_SIZE * line.arrowWidth;
+            float sideDy = -dxnorm * ALIGNBOX_ARROW_SIZE * line.arrowWidth;
             RawGuiManager.INSTANCE.fillQuad(poseStack, GraphicsQuad.newPosXY(
                     new PosXY(x, y),
-                    new PosXY(arrowBackX + dynorm * ALIGNBOX_ARROW_SIZE / 2, arrowBackY - dxnorm * ALIGNBOX_ARROW_SIZE / 3),
-                    new PosXY(arrowBackX - dynorm * ALIGNBOX_ARROW_SIZE / 2, arrowBackY + dxnorm * ALIGNBOX_ARROW_SIZE / 3),
+                    new PosXY(arrowBackX + sideDx, arrowBackY + sideDy),
+                    new PosXY(arrowBackX - sideDx, arrowBackY - sideDy),
                     new PosXY(x, y)
             ), line.color, 0);
         }
@@ -203,31 +205,32 @@ public class SidebarMapAligner extends GuiSidebarElement {
         // Secondary lines
         for(int z = zi - lineCount; z <= zi + lineCount; z++) {
             if(z % 5 == 0) continue;
-            this.gridLines.add(makeNorthSouthLine(centerX, centerY, z, SECONDARY_LINE_COLOR, null, false));
+            this.gridLines.add(makeNorthSouthLine(centerX, centerY, z, SECONDARY_LINE_COLOR, null, 0));
         }
         for(int x = xi - lineCount; x <= xi + lineCount; x++) {
             if(x % 5 == 0) continue;
-            this.gridLines.add(makeEastWestLine(centerX, centerY, x, SECONDARY_LINE_COLOR, null, false));
+            this.gridLines.add(makeEastWestLine(centerX, centerY, x, SECONDARY_LINE_COLOR, null, 0));
         }
 
         // Primary lines
         for(int z = zi - lineCount; z <= zi + lineCount; z++) {
             if(z % 5 != 0 || z == 0) continue;
-            this.gridLines.add(makeNorthSouthLine(centerX, centerY, z, PRIMARY_LINE_COLOR, String.format(" Z(%d) ", z), false));
+            this.gridLines.add(makeNorthSouthLine(centerX, centerY, z, PRIMARY_LINE_COLOR, String.format(" Z(%d) ", z), 0.3f));
         }
         for(int x = xi - lineCount; x <= xi + lineCount; x++) {
             if(x % 5 != 0 || x == 0) continue;
-            this.gridLines.add(makeEastWestLine(centerX, centerY, x, PRIMARY_LINE_COLOR, String.format(" X(%d) ", x), false));
+            this.gridLines.add(makeEastWestLine(centerX, centerY, x, PRIMARY_LINE_COLOR, String.format(" X(%d) ", x), 0.3f));
         }
 
         // Axis lines
-        this.gridLines.add(makeNorthSouthLine(centerX, centerY, 0, AXIS_LINE_COLOR, " Z(0) ", true));
-        this.gridLines.add(makeEastWestLine(centerX, centerY, 0, AXIS_LINE_COLOR, " X(0) ", true));
+        this.gridLines.add(makeNorthSouthLine(centerX, centerY, 0, AXIS_LINE_COLOR, " Z(0) ", 0.5f));
+        this.gridLines.add(makeEastWestLine(centerX, centerY, 0, AXIS_LINE_COLOR, " X(0) ", 0.5f));
 
-        GridLine topLine    = new GridLine(boxW, boxN, boxWidth, 0, 0, null, false);
-        GridLine leftLine   = new GridLine(boxW, boxN, 0, boxHeight, 0, null, false);
-        GridLine bottomLine = new GridLine(boxW, boxN + boxHeight, boxWidth, 0, 0, null, false);
-        GridLine rightLine  = new GridLine(boxW + boxWidth, boxN, 0, boxHeight, 0, null, false);
+        // Calculate arrow position & label alignments
+        GridLine topLine    = new GridLine(boxW, boxN, boxWidth, 0, 0, null, 0);
+        GridLine leftLine   = new GridLine(boxW, boxN, 0, boxHeight, 0, null, 0);
+        GridLine bottomLine = new GridLine(boxW, boxN + boxHeight, boxWidth, 0, 0, null, 0);
+        GridLine rightLine  = new GridLine(boxW + boxWidth, boxN, 0, boxHeight, 0, null, 0);
         for(GridLine line : this.gridLines) {
             Double t, maxT = null;
             HorizontalAlign hAlign = null;
@@ -248,7 +251,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         }
     }
 
-    private GridLine makeNorthSouthLine(int centerX, int centerY, int zIndex, int color, String name, boolean arrow) {
+    private GridLine makeNorthSouthLine(int centerX, int centerY, int zIndex, int color, String name, float arrowWidth) {
         double alignZ = this.zOffset.get();
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
 
@@ -258,11 +261,11 @@ public class SidebarMapAligner extends GuiSidebarElement {
         return new GridLine(
                 centerX + diffX + dx * LINE_LENGTH, centerY + diffY + dy * LINE_LENGTH,
                 -dx * 2*LINE_LENGTH, -dy * 2*LINE_LENGTH,
-                color, name, arrow
+                color, name, arrowWidth
         );
     }
 
-    private GridLine makeEastWestLine(int centerX, int centerY, int xIndex, int color, String name, boolean arrow) {
+    private GridLine makeEastWestLine(int centerX, int centerY, int xIndex, int color, String name, float arrowWidth) {
         double alignX = this.xOffset.get();
         double dx = Math.cos(playerYawRadians), dy = -Math.sin(playerYawRadians);
 
@@ -272,7 +275,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         return new GridLine(
                 centerX + diffX - dy * LINE_LENGTH, centerY + diffY + dx * LINE_LENGTH,
                 dy * 2*LINE_LENGTH, -dx * 2*LINE_LENGTH,
-                color, name, arrow
+                color, name, arrowWidth
         );
     }
 
@@ -344,7 +347,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         private final int color;
         @Nullable
         private final String label;
-        private final boolean arrow;
+        private final float arrowWidth;
 
         private Double intersectionParam;
         private HorizontalAlign labelHAlign;
