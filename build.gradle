@@ -140,6 +140,7 @@ subprojects { p ->
                 fileTree(dir: outputs.files.asPath, include: "**/*.lang").each { File langFile ->
                     // Make json content
                     String content = langFile.getText('UTF-8').split('\n')
+                            .collect { it.replaceFirst(/#.*/, '') }
                             .collect { it =~ /([^=]+)=(.+)/ }
                             .findAll { it.find() }
                             .collect { [ it.group(1), it.group(2) ] }

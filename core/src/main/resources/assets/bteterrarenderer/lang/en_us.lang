@@ -1,9 +1,11 @@
+# Key bindings
 key.bteterrarenderer.category=BTETerraRenderer
 key.bteterrarenderer.options_ui=Open Options UI
 key.bteterrarenderer.toggle=Toggle Map Rendering
 key.bteterrarenderer.move_up=Move map up
 key.bteterrarenderer.move_down=Move map down
 
+# GUI translations
 gui.bteterrarenderer.settings.title=BTETerraRenderer Settings
 
 gui.bteterrarenderer.settings.general=General
