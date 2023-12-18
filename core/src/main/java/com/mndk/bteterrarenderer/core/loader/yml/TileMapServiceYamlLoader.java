@@ -1,7 +1,8 @@
-package com.mndk.bteterrarenderer.core.loader;
+package com.mndk.bteterrarenderer.core.loader.yml;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import lombok.val;
 

@@ -27,10 +27,13 @@ subprojects { p ->
 
     // Match version
     def mcVersionMatcher = project.name =~ /[a-zA-Z]+(\d+)\.(\d+)(\.(\d+))?/
-    def mcVersionMiddle = mcVersionMatcher.find() ? Integer.parseInt(mcVersionMatcher.group(2)) : -1
+    def mcVersionMiddle = mcVersionMatcher.find() ? Integer.parseInt(mcVersionMatcher.group(2)) : null
 
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
+    if(isCoreSubProject) {
+        apply plugin: 'maven-publish'
+    }
 
     configurations {
         shadowDep
@@ -61,10 +64,10 @@ subprojects { p ->
         shadowDep(group: 'net.daporkchop.lib', name: 'binary', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'unsafe', version: '0.5.7-SNAPSHOT')
         shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
-        if(p != project(':forge1.12.2')) {
+        if(mcVersionMiddle != null && mcVersionMiddle <= 12) {
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
-        if(isFabricSubProject && mcVersionMiddle >= 19) {
+        if(isFabricSubProject && mcVersionMiddle != null && mcVersionMiddle >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
         }
@@ -135,7 +138,7 @@ subprojects { p ->
         }
 
         // Make .json from .lang
-        if(p == project(':core')) {
+        if(isCoreSubProject) {
             doLast {
                 fileTree(dir: outputs.files.asPath, include: "**/*.lang").each { File langFile ->
                     // Make json content
@@ -229,4 +232,20 @@ allprojects { p ->
         println("Java version set to $sourceCompatibility for $p")
     }
     build.finalizedBy printJavaVersion
+}
+
+publishing {
+    publications {
+        //noinspection GroovyAssignabilityCheck
+        maven(MavenPublication) {
+            //noinspection GroovyAssignabilityCheck
+            groupId = 'com.mndk'
+            //noinspection GroovyAssignabilityCheck
+            artifactId = 'bteterrarenderer-core'
+            version = rootProject.mod_version
+
+            //noinspection GroovyAssignabilityCheck
+            from project(':core').components.java
+        }
+    }
 }

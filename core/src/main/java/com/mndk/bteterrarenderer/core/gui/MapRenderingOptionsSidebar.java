@@ -14,8 +14,8 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementWrapper;
 import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
-import com.mndk.bteterrarenderer.core.loader.CategoryMap;
-import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
+import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.network.SimpleImageFetcher;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
@@ -172,6 +172,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
         // Check null
+        @SuppressWarnings("resource")
         TileMapService<?> tms = Optional.ofNullable(tmsWrapped).map(CategoryMap.Wrapper::getItem).orElse(null);
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;

@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.loader;
+package com.mndk.bteterrarenderer.core.util;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;

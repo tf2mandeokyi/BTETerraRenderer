@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.core.util.Loggers;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -82,8 +83,11 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
         } catch (JsonProcessingException e) {
             Loggers.get(this).error("Caught json error while reading config.yml", e);
             return;
-        } catch (IOException e) {
-            Loggers.get(this).error("Caught IO error while loading config.yml (perhaps the file was missing?)", e);
+        } catch(FileNotFoundException ignored) {
+            Loggers.get(this).warn("config.yml missing, thus will not load config");
+            return;
+        } catch(IOException e) {
+            Loggers.get(this).error("Caught IO error while loading config.yml", e);
             return;
         }
 

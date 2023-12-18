@@ -1,8 +1,9 @@
-package com.mndk.bteterrarenderer.core.loader;
+package com.mndk.bteterrarenderer.core.loader.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.Loggers;

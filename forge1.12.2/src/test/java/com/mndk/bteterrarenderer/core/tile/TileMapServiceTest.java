@@ -1,20 +1,24 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.loader.CategoryMap;
-import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
+import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import org.junit.Assert;
+import org.junit.Test;
 
-// TODO: Add mixin for this test
+import java.io.File;
+
 public class TileMapServiceTest {
     private static final CategoryMap<TileMapService<?>> CATEGORY_MAP_DATA;
 
+    @Test
     public void givenYamlConfig_testJacksonReadability() {
         Assert.assertNotNull(CATEGORY_MAP_DATA.getCategory("Global"));
     }
 
+    @Test
     public void givenYamlConfig_testOsmUrl() throws OutOfProjectionBoundsException {
         FlatTileMapService osm = (FlatTileMapService) CATEGORY_MAP_DATA.getItem("Global", "osm");
         Assert.assertNotNull(osm);
@@ -26,6 +30,7 @@ public class TileMapServiceTest {
         ));
     }
 
+    @Test
     public void givenYamlConfig_testCategory() {
         CategoryMap.Wrapper<TileMapService<?>> osm = CATEGORY_MAP_DATA.getItemWrapper("Global", "osm");
 
@@ -35,7 +40,7 @@ public class TileMapServiceTest {
 
     static {
         try {
-            BTETerraRendererConfig.load(true);
+            BTETerraRendererConfig.initialize(new File("test"));
             CATEGORY_MAP_DATA = TileMapServiceYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {
             throw new RuntimeException(e);

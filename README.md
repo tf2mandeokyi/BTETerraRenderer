@@ -46,7 +46,14 @@ See [API Documentation](YML_CONFIG.md) for more information.
 ### How to build
 
 ```bash
+# You must run this before building other subprojects
 ./gradlew :core:build
-./gradlew :<version>:build
-# Example: ./gradlew :forge1.12.2:build
+
+# Building for specific MC versions:
+./gradlew :fabric1.18.2:build
+
+# Building for all available MC versions:
+./gradlew copyBuildResultToRoot
 ```
+
+After building for MC versions you can find the jar files in `build/libs` directory.

@@ -2,10 +2,10 @@ package com.mndk.bteterrarenderer.core.config;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.loader.CategoryMap;
-import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
-import com.mndk.bteterrarenderer.core.loader.TileMapServicePropertyLoader;
-import com.mndk.bteterrarenderer.core.loader.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
+import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.json.TileMapServicePropertyLoader;
+import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;

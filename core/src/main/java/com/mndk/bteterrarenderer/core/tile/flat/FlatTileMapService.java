@@ -12,7 +12,7 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.TmsIdPair;

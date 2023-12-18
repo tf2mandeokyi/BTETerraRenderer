@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.projection;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.loader.FlatTileProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
 import org.junit.Assert;
