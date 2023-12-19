@@ -1,3 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
+import org.apache.tools.zip.ZipEntry
+import org.apache.tools.zip.ZipOutputStream
+import org.codehaus.plexus.util.IOUtil
+
 buildscript {
     repositories {
         maven {
@@ -62,7 +68,25 @@ subprojects { p ->
         shadowDep(group: 'net.daporkchop.lib', name: 'common', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'binary', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'unsafe', version: '0.5.7-SNAPSHOT')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-anim', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-awt-util', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-bridge', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-constants', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-css', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-dom', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-ext', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-gvt', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-i18n', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-parser', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-script', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-util', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-xml', version: '1.17')
         shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
+        shadowDep(group: 'org.w3c.dom', name: 'svg', version: '1.1.0')
+        shadowDep(group: 'org.w3c.dom', name: 'smil', version: '1.0.0')
         shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
         if(mcVersionMiddle > 12) {
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
@@ -70,6 +94,8 @@ subprojects { p ->
         if(isFabricSubProject && mcVersionMiddle >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
+            shadowDep(group: 'org.apache.xmlgraphics', name: 'xmlgraphics-commons', version: '2.9')
+            shadowDep(group: 'org.w3c.css', name: 'sac', version: '1.3')
         }
 
         compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
@@ -104,17 +130,46 @@ subprojects { p ->
             configurations = [ project.configurations.shadowDep ]
 
             def dependenciesLocation = "${project.mod_group}.${project.mod_id}.dep"
-            def dependencies = [
-                    'com.fasterxml.jackson':    'jackson',
-                    'de.javagl.jgltf':          'jgltf',
-                    'net.daporkchop.lib':       'porklib',
-                    'org.osgeo.proj4j':         'proj4j',
-                    'org.yaml.snakeyaml':       'snakeyaml'
-            ]
-            dependencies.each { relocate it.key, "${dependenciesLocation}.${it.value}" }
+            def dependencyReplacements = [
+                    'com.fasterxml.jackson':        'jackson',
+                    'de.javagl.jgltf':              'jgltf',
+                    'net.daporkchop.lib':           'porklib',
+                    'org.apache.commons.io':        'apache.commons.io',
+                    'org.apache.commons.logging':   'apache.commons.logging',
+                    'org.apache.xmlgraphics':       'xmlgraphics',
+                    'org.apache.batik':             'batik',
+                    'org.apache.xmlcommons':        'xmlcommons',
+                    'org.osgeo.proj4j':             'proj4j',
+                    'org.w3c.css.sac':              'w3ccss.sac',
+                    'org.w3c.dom.smil':             'w3cdom.smil',
+                    'org.w3c.dom.svg':              'w3cdom.svg',
+                    'org.yaml.snakeyaml':           'snakeyaml'
+            ].collectEntries { k, v -> [ k, "$dependenciesLocation.$v" ] } as Map<String, String>
+
+            dependencyReplacements.each { relocate it.key, it.value }
+            transform(ReplacePropertyContentTransformer) {
+                replacements = dependencyReplacements
+            }
 
             archiveClassifier.set(null)
-            exclude '**/module-info.class'  // Java 8 bug: Minecraft will ignore the mod file if 'module-info.class' is included
+            exclude '**/module-info.class' // Java 8 bug: Minecraft will ignore the mod file if 'module-info.class' is included
+            exclude 'license/**/*' // Comes with Batik SVG
+            exclude 'about_files/**/*' // Comes with W3C SVG
+            exclude 'about.html' // Comes with W3C SVG
+            exclude 'plugin.properties' // Comes with W3C SVG
+            exclude 'javax/xml/**/*'
+            exclude 'org/w3c/dom/bootstrap/**/*'
+            exclude 'org/w3c/dom/css/**/*'
+            exclude 'org/w3c/dom/events/**/*'
+            exclude 'org/w3c/dom/html/**/*'
+            exclude 'org/w3c/dom/ls/**/*'
+            exclude 'org/w3c/dom/ranges/**/*'
+            exclude 'org/w3c/dom/stylesheets/**/*'
+            exclude 'org/w3c/dom/traversal/**/*'
+            exclude 'org/w3c/dom/views/**/*'
+            exclude 'org/w3c/dom/xpath/**/*'
+            exclude 'org/w3c/dom/*'
+            exclude 'org/xml/sax/**/*'
         }
         build.dependsOn shadowJar
     }
@@ -163,7 +218,7 @@ subprojects { p ->
         // Make .json from .lang
         if(isCoreSubProject) {
             doLast {
-                fileTree(dir: outputs.files.asPath, include: "**/*.lang").each { File langFile ->
+                fileTree(dir: outputs.files.asPath, include: '**/*.lang').each { File langFile ->
                     // Make json content
                     String content = langFile.getText('UTF-8').split('\n')
                             .collect { it.replaceFirst(/#.*/, '') }
@@ -207,6 +262,7 @@ allprojects { p ->
 
     repositories {
         mavenCentral()
+        maven { url "https://www.jabylon.org/maven/" } // W3C SVG
         maven { url "https://repo.spongepowered.org/maven/" } // lzma
         maven { url "https://maven.daporkchop.net/" } // leveldb
         maven { url "https://repo.opencollab.dev/snapshot/" } // leveldb
@@ -249,5 +305,47 @@ publishing {
             //noinspection GroovyAssignabilityCheck
             from project(':core').components.java
         }
+    }
+}
+
+class ReplacePropertyContentTransformer implements Transformer {
+
+    @Input
+    Map<String, String> replacements
+
+    private final Map<String, String> pathMap = new HashMap<>()
+
+    boolean canTransformResource(FileTreeElement fileTreeElement) {
+        return fileTreeElement.relativePath.pathString.endsWith('.properties')
+    }
+
+    void transform(TransformerContext context) {
+        // Copy contents
+        var buffer = new ByteArrayOutputStream()
+        IOUtil.copy(context.is, buffer)
+        context.is.close()
+        var content = buffer.toString('UTF-8')
+
+        // Replace if exists
+        this.replacements.each { k, v ->
+            if(!content.contains(k)) return
+            content = content.replaceAll(k, v)
+        }
+        this.pathMap[context.path] = content
+    }
+
+    boolean hasTransformedResource() { !this.pathMap.isEmpty() }
+
+    void modifyOutputStream(ZipOutputStream os, boolean b) {
+        def zipWriter = new OutputStreamWriter(os, 'UTF-8')
+        this.pathMap.each { path, content ->
+            var entry = new ZipEntry(path)
+            entry.time = TransformerContext.getEntryTimestamp(b, entry.time)
+            os.putNextEntry(entry)
+            IOUtil.copy(new ByteArrayInputStream(content.getBytes('UTF-8')), zipWriter)
+            zipWriter.flush()
+            os.closeEntry()
+        }
+        this.pathMap.clear()
     }
 }

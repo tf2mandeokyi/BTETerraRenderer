@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
 import com.mndk.bteterrarenderer.core.util.processor.MultiThreadedResourceCacheProcessor;
-import com.mndk.bteterrarenderer.dep.terraplusplus.HttpResourceManager;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

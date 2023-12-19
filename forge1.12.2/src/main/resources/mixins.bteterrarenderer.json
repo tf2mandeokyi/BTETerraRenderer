@@ -9,7 +9,7 @@
         "mcconnector.IResourceLocationMixin",
         "mcconnector.config.ConfigSaveLoaderMixin",
         "mcconnector.i18n.I18nManagerMixin",
-        "terraplusplus.HttpResourceManagerMixin"
+        "core.network.HttpResourceManagerMixin"
     ],
     "client": [
         "mcconnector.client.MinecraftClientManagerMixin",

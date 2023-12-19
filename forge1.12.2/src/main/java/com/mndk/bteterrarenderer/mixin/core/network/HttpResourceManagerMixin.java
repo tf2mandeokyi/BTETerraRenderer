@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.mixin.terraplusplus;
+package com.mndk.bteterrarenderer.mixin.core.network;
 
-import com.mndk.bteterrarenderer.dep.terraplusplus.HttpResourceManager;
+import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
 import net.buildtheearth.terraplusplus.util.http.Http;

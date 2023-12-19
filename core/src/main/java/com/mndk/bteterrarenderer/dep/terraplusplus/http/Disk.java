@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
-import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -60,7 +59,8 @@ public class Disk {
     }
 
     public File getMinecraftRoot() {
-        return MixinUtil.notOverwritten();
+        // Test environment only
+        return new File("test");
     }
 
     /**

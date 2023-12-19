@@ -22,7 +22,7 @@ categories:
             en_us: ["",{"text":"© ","color":"white"},{ "text":"Microsoft","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
             ko_kr: ["",{"text":"© ","color":"white"},{ "text":"마이크로소프트","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=A&shading=hill
-         icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Bing_Fluent_Logo.svg/318px-Bing_Fluent_Logo.svg.png
+         icon_url: https://upload.wikimedia.org/wikipedia/commons/9/9c/Bing_Fluent_Logo.svg
          projection: webmercator
          max_thread: 2
 
@@ -35,7 +35,7 @@ categories:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Microsoft","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
             ko_kr: ["",{"text":"© ","color":"white"},{"text":"마이크로소프트","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
          tile_url: https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{u}?it=G,LC,BX,RL&shading=hill
-         icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Bing_Fluent_Logo.svg/318px-Bing_Fluent_Logo.svg.png
+         icon_url: https://upload.wikimedia.org/wikipedia/commons/9/9c/Bing_Fluent_Logo.svg
          projection: webmercator
          max_thread: 2
 

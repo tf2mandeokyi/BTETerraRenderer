@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.util;
+package com.mndk.bteterrarenderer.core.test;
 
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import org.junit.Assert;

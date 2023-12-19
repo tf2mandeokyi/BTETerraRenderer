@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.util.processor.MappedQueueResourceCacheProcessor;
-import com.mndk.bteterrarenderer.dep.terraplusplus.HttpResourceManager;
+import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import io.netty.buffer.ByteBuf;
 
 import java.net.URL;

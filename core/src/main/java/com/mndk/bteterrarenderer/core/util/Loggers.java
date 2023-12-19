@@ -16,7 +16,7 @@ public class Loggers {
     private final Map<Class<?>, Logger> LOGGERS = new HashMap<>();
 
     public Logger get(Class<?> clazz) {
-        return LOGGERS.computeIfAbsent(clazz, c -> LogManager.getLogger(BTETerraRendererConstants.NAME + "/" + c.getSimpleName()));
+        return LOGGERS.computeIfAbsent(clazz, c -> LogManager.getLogger(BTETerraRendererConstants.NAME.toLowerCase() + "/" + c.getSimpleName()));
     }
 
     public Logger get(Object o) {

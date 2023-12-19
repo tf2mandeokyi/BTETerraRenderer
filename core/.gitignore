@@ -1,7 +1,6 @@
 .gradle
 build/
-test/
-!../forge1.18.2/gradle/wrapper/gradle-wrapper.jar
+/test/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
