@@ -5,9 +5,11 @@ categories:
          name:
             en_us: "OpenStreetMap"
             ko_kr: "오픈스트리트맵"
+            zh_tw: "開放街圖"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"OpenStreetMap","underlined":true,"color":"aqua","clickEvent":{"action": "open_url","value":"https://www.openstreetmap.org"}},{"text":" contributors","color":"white"}]
             ko_kr: ["",{"text":"© ","color":"white"},{"text":"오픈스트리트맵","underlined":true,"color":"aqua","clickEvent":{"action": "open_url","value":"https://www.openstreetmap.org"}},{"text":" 기여자","color":"white"}]
+            zh_tw: ["",{"text":"© ","color":"white"},{"text":"開放街圖","underlined":true,"color":"aqua","clickEvent":{"action": "open_url","value":"https://www.openstreetmap.org"}},{"text":" 貢獻者","color":"white"}]
          tile_url: https://{random:a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png
          icon_url: https://wiki.openstreetmap.org/w/images/c/c8/Public-images-osm_logo.png
          projection: webmercator
@@ -18,6 +20,7 @@ categories:
          name:
             en_us: "Bing Maps (Satellite)"
             ko_kr: "빙 지도 (위성)"
+            zh_tw: "Bing地圖(衛星)"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{ "text":"Microsoft","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
             ko_kr: ["",{"text":"© ","color":"white"},{ "text":"마이크로소프트","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
@@ -31,6 +34,7 @@ categories:
          name:
             en_us: "Bing Maps (Plain)"
             ko_kr: "빙 지도 (일반)"
+            zh_tw: "Bing地圖(道路)"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Microsoft","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
             ko_kr: ["",{"text":"© ","color":"white"},{"text":"마이크로소프트","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.bing.com/maps"}}]
@@ -44,6 +48,7 @@ categories:
          name:
             en_us: "Yandex.Maps (Satellite)"
             ko_kr: "얀덱스 지도 (위성)"
+            zh_tw: "Yandex地圖(衛星)"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Yandex","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://yandex.com/maps"}}]
             ko_kr: ["",{"text":"© ","color":"white"},{"text":"얀덱스","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://yandex.com/maps"}}]
@@ -56,6 +61,7 @@ categories:
          name:
             en_us: "Yandex.Maps (Plain)"
             ko_kr: "얀덱스 지도 (일반)"
+            zh_tw: "Yandex地圖(道路)"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Yandex","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://yandex.com/maps"}}]
             ko_kr: ["",{"text":"© ","color":"white"},{"text":"얀덱스","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://yandex.com/maps"}}]
@@ -129,32 +135,56 @@ categories:
    Taiwan:
       orthoimage_tw:
          type: "flat"
-         name: "Taiwan Orthoimage"
+         name:
+            en_us: "Taiwan Orthoimage"
+            zh_tw: "臺灣正射影像"
+         copyright:
+            en_us: ["",{"text":"© ","color":"white"},{"text":"National Land Surveying and Mapping Center, Ministry of the Interior, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://maps.nlsc.gov.tw/"}}]
+            zh_tw: ["",{"text":"內政部國土測繪中心","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://maps.nlsc.gov.tw/"}},{"text":"版權所有 ©Copyright","color":"white"}]
          tile_url: https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         icon_url: https://maps.nlsc.gov.tw/images/entrance.gif
          projection: webmercator
          max_thread: 2
          default_zoom: 20
 
       emap_tw:
          type: "flat"
-         name: "Taiwan E-Map with Contour"
+         name:
+            en_us: "Taiwan E-Map"
+            zh_tw: "臺灣通用電子地圖"
+         copyright:
+            en_us: ["",{"text":"© ","color":"white"},{"text":"National Land Surveying and Mapping Center, Ministry of the Interior, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://maps.nlsc.gov.tw/"}}]
+            zh_tw: ["",{"text":"內政部國土測繪中心","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://maps.nlsc.gov.tw/"}},{"text":"版權所有 ©Copyright","color":"white"}]
          tile_url: https://wmts.nlsc.gov.tw/wmts/EMAP15/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         icon_url: https://maps.nlsc.gov.tw/images/entrance.gif
          projection: webmercator
          max_thread: 2
          default_zoom: 20
 
       tp_aerial_tw:
          type: "flat"
-         name: "Taipei Aerial Photograph"
+         name:
+            en_us: "Taipei Aerial Photograph"
+            zh_tw: "臺北市航測影像"
+         copyright:
+            en_us: ["",{"text":"© ","color":"white"},{"text":"Department of Urban Development, Taipei City Government, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}}]
+            zh_tw: ["",{"text":"© ","color":"white"},{"text":"臺北市政府都市發展局","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}},{"text":"版權所有","color":"white"}]
          tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2022/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2021/default/default028mm/{z}/{y}/{x}.png
+         icon_url: https://www.historygis.udd.gov.taipei/urban/assets/images/logo.svg
          projection: webmercator
          max_thread: 2
          default_zoom: 21
       
       tp_1ktd_tw:
          type: "flat"
-         name: "Taipei 1/1000 Topographic Drawing"
+         name:
+            en_us: "Taipei 1/1000 Topographic Drawing"
+            zh_tw: "臺北市1/1000地形圖"
+         copyright:
+            en_us: ["",{"text":"© ","color":"white"},{"text":"Department of Urban Development, Taipei City Government, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}}]
+            zh_tw: ["",{"text":"© ","color":"white"},{"text":"臺北市政府都市發展局","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}},{"text":"版權所有","color":"white"}]
          tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2022/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2021/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         icon_url: https://www.historygis.udd.gov.taipei/urban/assets/images/logo.svg
          projection: webmercator
          max_thread: 2
          default_zoom: 21
