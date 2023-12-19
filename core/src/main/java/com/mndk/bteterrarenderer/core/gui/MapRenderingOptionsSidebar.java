@@ -46,7 +46,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static final SimpleImageFetcher ICON_FETCHER = new SimpleImageFetcher(
             Executors.newCachedThreadPool(),
-            -1, 100, 3, 500, false);
+            -1, 100, 3, 500, 256, 256, false);
     private static final URLBufferedImageBaker ICON_BAKER = new URLBufferedImageBaker(-1, -1, false);
 
     private static MapRenderingOptionsSidebar INSTANCE;

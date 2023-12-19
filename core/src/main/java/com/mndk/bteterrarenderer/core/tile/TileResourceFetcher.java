@@ -1,12 +1,9 @@
 package com.mndk.bteterrarenderer.core.tile;
 
-import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.core.util.processor.MappedQueueResourceCacheProcessor;
 import com.mndk.bteterrarenderer.dep.terraplusplus.HttpResourceManager;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.function.Function;
 
@@ -21,10 +18,7 @@ public class TileResourceFetcher<TileId, QueueKey> extends MappedQueueResourceCa
 
     @Override
     protected ByteBuf processResource(URL url) throws Exception {
-        InputStream stream = HttpResourceManager.download(url.toString());
-        ByteBuf buf = Unpooled.copiedBuffer(IOUtil.readAllBytes(stream));
-        stream.close();
-        return buf;
+        return HttpResourceManager.download(url.toString());
     }
 
     @Override

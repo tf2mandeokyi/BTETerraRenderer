@@ -53,7 +53,6 @@ subprojects { p ->
         // We should use shadowDep(group: ..., name: ..., version: ...) instead of shadowDep('group:name:version')
         // since fabric's "include" configuration doesn't allow us to do the latter
         // ps: fabric ruined it all
-        shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.14.2')
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2')
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2')
@@ -63,11 +62,12 @@ subprojects { p ->
         shadowDep(group: 'net.daporkchop.lib', name: 'common', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'binary', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'unsafe', version: '0.5.7-SNAPSHOT')
+        shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
         shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
-        if(mcVersionMiddle != null && mcVersionMiddle <= 12) {
+        if(mcVersionMiddle > 12) {
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
-        if(isFabricSubProject && mcVersionMiddle != null && mcVersionMiddle >= 19) {
+        if(isFabricSubProject && mcVersionMiddle >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
         }
@@ -94,6 +94,29 @@ subprojects { p ->
         testImplementation 'org.apache.logging.log4j:log4j-core:2.20.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
         testRuntimeOnly 'junit:junit:4.13.2'
+    }
+
+    // Since we're going to do jar-in-jar for fabric,
+    // we don't also need to "relocate" dependencies on there.
+    // only forge needs the relocations
+    if(isForgeSubProject) {
+        shadowJar {
+            configurations = [ project.configurations.shadowDep ]
+
+            def dependenciesLocation = "${project.mod_group}.${project.mod_id}.dep"
+            def dependencies = [
+                    'com.fasterxml.jackson':    'jackson',
+                    'de.javagl.jgltf':          'jgltf',
+                    'net.daporkchop.lib':       'porklib',
+                    'org.osgeo.proj4j':         'proj4j',
+                    'org.yaml.snakeyaml':       'snakeyaml'
+            ]
+            dependencies.each { relocate it.key, "${dependenciesLocation}.${it.value}" }
+
+            archiveClassifier.set(null)
+            exclude '**/module-info.class'  // Java 8 bug: Minecraft will ignore the mod file if 'module-info.class' is included
+        }
+        build.dependsOn shadowJar
     }
 
     processResources {
@@ -158,27 +181,6 @@ subprojects { p ->
         }
     }
 
-    // Since we're going to do jar-in-jar for fabric,
-    // we don't also need to "relocate" dependencies on there.
-    // only forge needs the relocations
-    if(isForgeSubProject) {
-        shadowJar {
-            configurations = [project.configurations.shadowDep]
-
-            def librariesLocation = "${project.mod_group}.${project.mod_id}.dep"
-            relocate 'com.fasterxml.jackson', "${librariesLocation}.jackson"
-            relocate 'de.javagl.jgltf', "${librariesLocation}.jgltf"
-            relocate 'net.daporkchop.lib', "${librariesLocation}.porklib"
-            relocate 'org.osgeo.proj4j', "${librariesLocation}.proj4j"
-            relocate 'org.yaml.snakeyaml', "${librariesLocation}.snakeyaml"
-
-            archiveClassifier.set(null)
-            // Java 8 bug: Minecraft will ignore the mod file if 'module-info.class' is included
-            exclude '**/module-info.class'
-        }
-        build.dependsOn shadowJar
-    }
-
     if(isFabricSubProject || isForgeSubProject) {
         project.tasks.register('copyBuildResultToRoot', Copy) {
             group = 'build'
@@ -206,10 +208,10 @@ allprojects { p ->
     repositories {
         mavenCentral()
         maven { url "https://repo.spongepowered.org/maven/" } // lzma
-        maven { url "https://maven.daporkchop.net/" } // For leveldb
-        maven { url "https://repo.opencollab.dev/snapshot/" } // For leveldb
-        maven { url "https://jitpack.io/" } // For cubicchunks, cubicworldgen, terraplusplus
-        maven { url "https://repo.elytradev.com/" } // Elytradev; For jankson
+        maven { url "https://maven.daporkchop.net/" } // leveldb
+        maven { url "https://repo.opencollab.dev/snapshot/" } // leveldb
+        maven { url "https://jitpack.io/" } // cubicchunks, cubicworldgen, terraplusplus
+        maven { url "https://repo.elytradev.com/" } // jankson
     }
 
     if(p != project(':forge1.12.2') && p != project(':core')) {
