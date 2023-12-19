@@ -98,7 +98,7 @@ subprojects { p ->
             shadowDep(group: 'org.w3c.css', name: 'sac', version: '1.3')
         }
 
-        compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
+        compileOnly 'org.apache.logging.log4j:log4j-core:2.22.0'
         compileAndTestOnly 'commons-codec:commons-codec:1.16.0' // T++
         compileAndTestOnly 'com.google.guava:guava:31.1-jre' // T++
         compileAndTestOnly 'io.netty:netty-all:4.1.9.Final' // T++
@@ -117,7 +117,7 @@ subprojects { p ->
 
         testImplementation 'junit:junit:4.13.2'
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-        testImplementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+        testImplementation 'org.apache.logging.log4j:log4j-core:2.22.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
         testRuntimeOnly 'junit:junit:4.13.2'
     }
