@@ -87,7 +87,7 @@ subprojects { p ->
         shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
         shadowDep(group: 'org.w3c.dom', name: 'svg', version: '1.1.0')
         shadowDep(group: 'org.w3c.dom', name: 'smil', version: '1.0.0')
-        shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
+        shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '2.2')
         if(mcVersionMiddle > 12) {
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
