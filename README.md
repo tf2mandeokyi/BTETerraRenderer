@@ -1,6 +1,6 @@
 ![Logo](core/src/main/resources/icon.png)
 # BTETerraRenderer
-![example workflow](https://github.com/tf2mandeokyi/BTETerraRenderer/actions/workflows/gradle.yml/badge.svg) [![Discord Chat](https://img.shields.io/discord/804025113216548874.svg)](https://discord.gg/4gjrwWH2gS)
+![workflow](https://github.com/tf2mandeokyi/BTETerraRenderer/actions/workflows/gradle.yml/badge.svg) [![Discord Chat](https://img.shields.io/discord/804025113216548874.svg)](https://discord.gg/4gjrwWH2gS) [![CurseForge](https://cf.way2muchnoise.eu/bteterrarenderer.svg)](https://www.curseforge.com/minecraft/mc-mods/bteterrarenderer) [![CurseForge Versions](https://cf.way2muchnoise.eu/versions/bteterrarenderer.svg)](https://www.curseforge.com/minecraft/mc-mods/bteterrarenderer/files)
 
 A map hologram rendering tool for the BuildTheEarth project.<br>
 Use this mod to easily map accurate road details and building tops.
