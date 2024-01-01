@@ -61,7 +61,7 @@ subprojects { p ->
         // ps: fabric ruined it all
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.14.2')
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2')
-        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2')
+        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.16.1')
         shadowDep(group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.14.2')
         shadowDep(group: 'de.javagl', name: 'jgltf-impl-v2', version: '2.0.3')
         shadowDep(group: 'de.javagl', name: 'jgltf-model', version: '2.0.3')
