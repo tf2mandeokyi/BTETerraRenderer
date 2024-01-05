@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
+import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarBooleanButton;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiComponentCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
@@ -55,6 +56,10 @@ public abstract class GuiSidebarElement extends GuiComponentCopy {
                     v  -> numberProperty.set(BTRUtil.doubleToNumber(numberProperty.getPropertyClass(), v))
             );
             return new SidebarNumberInput(propertyWrapper, localized);
+        }
+        else if(propertyClass == Boolean.class || propertyClass == boolean.class) {
+            PropertyAccessor<Boolean> booleanProperty = BTRUtil.uncheckedCast(property.delegate);
+            return new SidebarBooleanButton(booleanProperty, localized + ": ");
         }
         throw new RuntimeException("Unsupported property type: " + propertyClass);
     }

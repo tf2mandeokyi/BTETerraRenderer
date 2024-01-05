@@ -28,6 +28,10 @@ public interface PropertyAccessor<T> {
         return new PropertyAccessorImpl<>(double.class, getter::getAsDouble, setter::accept, t -> true);
     }
 
+    static PropertyAccessor<Boolean> of(Supplier<Boolean> getter, Consumer<Boolean> setter) {
+        return new PropertyAccessorImpl<>(boolean.class, getter, setter, t -> true);
+    }
+
     static <T> PropertyAccessor<T> of(Class<T> type, Supplier<T> getter, Consumer<T> setter) {
         return new PropertyAccessorImpl<>(type, getter, setter, t -> true);
     }

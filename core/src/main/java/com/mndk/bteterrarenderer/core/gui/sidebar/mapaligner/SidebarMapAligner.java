@@ -54,9 +54,8 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private boolean aligningMode;
     private final List<GridLine> gridLines = new ArrayList<>();
 
-    public SidebarMapAligner(
-            PropertyAccessor<Double> xOffset, PropertyAccessor<Double> zOffset, PropertyAccessor<Boolean> lockNorth
-    ) {
+    public SidebarMapAligner(PropertyAccessor<Double> xOffset, PropertyAccessor<Double> zOffset,
+                             PropertyAccessor<Boolean> lockNorth) {
         this.xOffset = xOffset;
         this.zOffset = zOffset;
         this.lockNorth = lockNorth;

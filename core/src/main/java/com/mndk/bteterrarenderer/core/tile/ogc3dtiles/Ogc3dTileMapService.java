@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
+import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.AbstractModelMaker;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
@@ -19,7 +21,11 @@ import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
+import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
@@ -43,10 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -65,6 +68,9 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
     @Setter
     private transient double radius = 40;
+    private transient double magnitude = 1;
+    @Setter
+    private transient boolean yDistortion = false;
     private final URL rootTilesetUrl;
     private transient final TileDataStorage cacheStorage;
     private transient final ModelMaker modelMaker;
@@ -81,7 +87,25 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected void preRender() {}
+    protected double getYAlign() {
+        return BTETerraRendererConfig.HOLOGRAM.getYAlign();
+    }
+
+    @Override
+    protected void preRender(double px, double py, double pz) {
+        GeographicProjection projection = Projections.getServerProjection();
+        if(projection == null) return;
+
+        try {
+            // Normally it's good to calculate distortion for individual model vertices...
+            // But that significantly drops the fps value (100 -> 4), so I'll put the player position instead.
+            // After all the difference wouldn't be noticeable within around 400m from the player.
+            // When the distortion calculation becomes fast enough, I'll go back to the original plan.
+            double[] geoCoord = projection.toGeo(px, pz);
+            double[] tissot = projection.tissot(geoCoord[0], geoCoord[1]);
+            this.magnitude = Math.sqrt(Math.abs(tissot[0]));
+        } catch(OutOfProjectionBoundsException ignored) {}
+    }
 
     @Override
     protected AbstractModelMaker<TileGlobalKey> getModelMaker() {
@@ -92,8 +116,12 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     protected List<PropertyAccessor.Localized<?>> makeProperties() {
         PropertyAccessor<Double> radiusProperty = RangedDoublePropertyAccessor.of(
                 this::getRadius, this::setRadius, 1, 1000);
-        return Collections.singletonList(
-                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radiusProperty)
+        PropertyAccessor<Boolean> yDistortionProperty = PropertyAccessor.of(
+                this::isYDistortion, this::setYDistortion);
+
+        return Arrays.asList(
+                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radiusProperty),
+                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortionProperty)
         );
     }
 
@@ -174,6 +202,23 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         } while(!nodes.isEmpty());
 
         return result;
+    }
+
+    @Override
+    protected void drawShape(Object poseStack, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
+        if(!this.yDistortion) {
+            super.drawShape(poseStack, shape, px, py, pz, opacity);
+            return;
+        }
+
+        IBufferBuilder<Object> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+        for (int i = 0; i < shape.getVerticesCount(); i++) {
+            PosTex vertex = (PosTex) shape.getVertex(i);
+            float x = (float) (vertex.x - px);
+            float y = (float) (vertex.y * this.magnitude - py);
+            float z = (float) (vertex.z - pz);
+            bufferBuilder.ptc(poseStack, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
+        }
     }
 
     @Override

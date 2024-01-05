@@ -80,7 +80,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     }
 
     @Override
-    protected void preRender() {
+    protected void preRender(double px, double py, double pz) {
         this.modelMaker.imageToPreModel.process(2);
     }
 

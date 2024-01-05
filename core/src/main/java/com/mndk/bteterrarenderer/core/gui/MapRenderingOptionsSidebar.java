@@ -87,7 +87,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
 
         SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
-                PropertyAccessor.of(boolean.class, hologramSettings::isDoRender, hologramSettings::setDoRender),
+                PropertyAccessor.of(hologramSettings::isDoRender, hologramSettings::setDoRender),
                 I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
         );
         SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
@@ -105,9 +105,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // Map orientation components
         SidebarMapAligner mapAligner = new SidebarMapAligner(
-                PropertyAccessor.of(double.class, hologramSettings::getXAlign, hologramSettings::setXAlign),
-                PropertyAccessor.of(double.class, hologramSettings::getZAlign, hologramSettings::setZAlign),
-                PropertyAccessor.of(boolean.class, hologramSettings::isLockNorth, hologramSettings::setLockNorth)
+                PropertyAccessor.of(hologramSettings::getXAlign, hologramSettings::setXAlign),
+                PropertyAccessor.of(hologramSettings::getZAlign, hologramSettings::setZAlign),
+                PropertyAccessor.of(hologramSettings::isLockNorth, hologramSettings::setLockNorth)
         );
 
         SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);

@@ -71,7 +71,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     public final void render(Object poseStack, double px, double py, double pz, float opacity) {
 
         // Bake textures
-        this.preRender();
+        this.preRender(px, py, pz);
         MODEL_BAKER.process(2);
         if(!STATIC_IMAGES_BAKED) {
             SOMETHING_WENT_WRONG.bake();
@@ -122,7 +122,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         return null;
     }
 
-    protected void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
+    private void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
         GlGraphicsManager.INSTANCE.setPositionTexColorShader();
         GlGraphicsManager.INSTANCE.setShaderTexture(model.getTextureObject());
         IBufferBuilder<?> bufferBuilder = IBufferBuilder.getTessellatorInstance();
@@ -140,26 +140,29 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     }
 
     private void drawShapeList(Object poseStack, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
-        IBufferBuilder<Object> bufferBuilder = IBufferBuilder.getTessellatorInstance();
-
         for(GraphicsShape<?> shape : shapes) {
             if(shape.getVertexClass() != PosTex.class) {
                 throw new UnsupportedOperationException("Not implemented");
             }
+            this.drawShape(poseStack, shape, px, py, pz, opacity);
+        }
+    }
 
-            for (int i = 0; i < shape.getVerticesCount(); i++) {
-                PosTex vertex = (PosTex) shape.getVertex(i);
-                float x = (float) (vertex.x - px);
-                float y = (float) (vertex.y - py);
-                float z = (float) (vertex.z - pz);
-                bufferBuilder.ptc(poseStack, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
-            }
+    protected void drawShape(Object poseStack, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
+        IBufferBuilder<Object> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+
+        for (int i = 0; i < shape.getVerticesCount(); i++) {
+            PosTex vertex = (PosTex) shape.getVertex(i);
+            float x = (float) (vertex.x - px);
+            float y = (float) (vertex.y - py);
+            float z = (float) (vertex.z - pz);
+            bufferBuilder.ptc(poseStack, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
         }
     }
 
     protected double getYAlign() { return 0; }
 
-    protected abstract void preRender();
+    protected abstract void preRender(double px, double py, double pz);
 
     protected abstract AbstractModelMaker<TileId> getModelMaker();
 

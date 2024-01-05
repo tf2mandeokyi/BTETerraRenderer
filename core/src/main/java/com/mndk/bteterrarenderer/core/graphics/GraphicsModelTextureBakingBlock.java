@@ -18,7 +18,7 @@ public class GraphicsModelTextureBakingBlock<Key> extends SingleQueueBlock<Key, 
         List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
 		for(PreBakedModel preBakedModel : preBakedModels) {
 			Object textureObject = GlGraphicsManager.INSTANCE.allocateAndGetTextureObject(preBakedModel.getImage());
-			models.add(new GraphicsModel(textureObject, preBakedModel.getShapes()));
+			models.add(new GraphicsModel(textureObject, preBakedModel.getQuads(), preBakedModel.getTriangles()));
 		}
 		return models;
 	}

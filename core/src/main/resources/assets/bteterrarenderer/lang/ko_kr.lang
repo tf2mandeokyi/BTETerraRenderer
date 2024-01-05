@@ -1,14 +1,16 @@
+# Key bindings
 key.bteterrarenderer.category=BTETerraRenderer
 key.bteterrarenderer.options_ui=설정 UI 열기
 key.bteterrarenderer.toggle=지도 렌더링 켜기/끄기
 key.bteterrarenderer.move_up=지도 위로 올리기
 key.bteterrarenderer.move_down=지도 아래로 내리기
 
+# GUI translations
 gui.bteterrarenderer.settings.title=BTETerraRenderer 설정
 
 gui.bteterrarenderer.settings.general=일반
 gui.bteterrarenderer.settings.map_rendering=지도 렌더링
-gui.bteterrarenderer.settings.map_y_level=지도 Y 레벨
+gui.bteterrarenderer.settings.map_y_level=지도 Y축 좌표
 gui.bteterrarenderer.settings.y_align=Y축 보정
 gui.bteterrarenderer.settings.opacity=지도 불투명도
 
@@ -20,6 +22,7 @@ gui.bteterrarenderer.settings.map_folder=지도 폴더 열기...
 gui.bteterrarenderer.settings.map_offset=지도 보정
 gui.bteterrarenderer.settings.size=지도 크기
 gui.bteterrarenderer.settings.zoom=지도 줌
+gui.bteterrarenderer.settings.y_distortion=Y축 왜곡 적용
 gui.bteterrarenderer.settings.lock_north=북쪽 고정
 
 gui.bteterrarenderer.settings.3d_radius=렌더 거리

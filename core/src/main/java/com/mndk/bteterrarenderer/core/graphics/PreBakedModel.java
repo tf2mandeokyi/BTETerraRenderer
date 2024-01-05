@@ -1,24 +1,30 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
+import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsTriangle;
 import lombok.Data;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Data
 public class PreBakedModel {
     private final BufferedImage image;
-    private final List<GraphicsShape<?>> shapes;
+    private final List<GraphicsQuad<?>> quads = new ArrayList<>();
+    private final List<GraphicsTriangle<?>> triangles = new ArrayList<>();
 
     public PreBakedModel(BufferedImage image, List<GraphicsShape<?>> shapes) {
         this.image = image;
-        this.shapes = shapes;
+        for(GraphicsShape<?> shape : shapes) {
+            if(shape instanceof GraphicsQuad) quads.add((GraphicsQuad<?>) shape);
+            else if(shape instanceof GraphicsTriangle) triangles.add((GraphicsTriangle<?>) shape);
+        }
     }
 
     public PreBakedModel(BufferedImage image, GraphicsShape<?> shape) {
-        this.image = image;
-        this.shapes = Collections.singletonList(shape);
+        this(image, Collections.singletonList(shape));
     }
 }
