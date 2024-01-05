@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageBakingBlock;
+import com.mndk.bteterrarenderer.core.graphics.ImageResizingBlock;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
@@ -16,7 +17,7 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementWrapper;
 import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
-import com.mndk.bteterrarenderer.core.network.SimpleImageFetcher;
+import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
@@ -294,9 +295,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static class IconMaker extends CacheableProcessorModel<URL, URL, Object> {
 
-        private final SimpleImageFetcher<URL> iconFetcher = new SimpleImageFetcher<>(
-                Executors.newCachedThreadPool(), 3, 500,
-                256, 256);
+        private final SimpleImageFetchingBlock<URL> iconFetcher = new SimpleImageFetchingBlock<>(
+                Executors.newCachedThreadPool(), 3, 500);
+        private final ImageResizingBlock<URL> imageResize = new ImageResizingBlock<>(256, 256);
         private final ImageBakingBlock<URL> iconBaker = new ImageBakingBlock<>();
 
         /**
@@ -310,7 +311,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         @Override
         protected SequentialBuilder<URL, URL, Object> getSequentialBuilder() {
-            return new SequentialBuilder<>(this.iconFetcher).then(this.iconBaker);
+            return new SequentialBuilder<>(this.iconFetcher)
+                    .then(this.imageResize)
+                    .then(this.iconBaker);
         }
 
         @Override

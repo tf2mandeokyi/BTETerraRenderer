@@ -23,7 +23,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
     private final int maximumSize;
     protected final boolean debug;
     private final long expireMilliseconds;
-    final ImmutableList<ProcessingBlock<Key, ?, ?>> blocks;
+    ImmutableList<ProcessingBlock<Key, ?, ?>> blocks = null; // late init
 
     private final Map<Key, CacheWrapper> resourceWrapperMap = new HashMap<>();
 
@@ -36,7 +36,6 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
         this.expireMilliseconds = expireMilliseconds;
         this.maximumSize = maximumSize;
         this.debug = debug;
-        this.blocks = this.getSequentialBuilder().build();
     }
 
     @Nonnull
@@ -73,6 +72,8 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
     public void insertInput(Key key, Input input) {
         CacheWrapper wrapper = this.getWrapper(key);
         wrapper.state = ProcessingState.PROCESSING;
+
+        if(this.blocks == null) this.blocks = this.getSequentialBuilder().build();
         this.blocks.get(0).insert(new BlockPayload<>(this, key, input));
     }
 
@@ -88,7 +89,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
                 return this.updateAndGetOutput(key);
             case NOT_PROCESSED:
                 this.insertInput(key, computeInputIfAbsent.get());
-                // No break here
+                break;
         }
         return null;
     }
@@ -181,11 +182,11 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
     public static class SequentialBuilder<Key, Initial, T> {
         private final List<ProcessingBlock<Key, ?, ?>> blocks = new ArrayList<>();
 
-        public SequentialBuilder(ProcessingBlock<Key, Initial, T> firstBlock) {
+        public SequentialBuilder(@Nonnull ProcessingBlock<Key, Initial, T> firstBlock) {
             this.blocks.add(firstBlock);
         }
 
-        public <U> SequentialBuilder<Key, Initial, U> then(ProcessingBlock<Key, T, U> nextBlock) {
+        public <U> SequentialBuilder<Key, Initial, U> then(@Nonnull ProcessingBlock<Key, T, U> nextBlock) {
             this.blocks.add(nextBlock);
             return BTRUtil.uncheckedCast(this);
         }

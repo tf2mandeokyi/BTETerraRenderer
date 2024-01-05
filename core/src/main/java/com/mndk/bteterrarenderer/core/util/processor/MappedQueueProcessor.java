@@ -49,7 +49,7 @@ public abstract class MappedQueueProcessor<QueueKey, Input> {
             if(maxRetryCount != -1) {
                 int previousRetryCount = failedCountMap.computeIfAbsent(element, key -> 0);
                 if (previousRetryCount >= maxRetryCount) {
-                    onQueueElementProcessingFailed(element, exception);
+                    onQueueElementProcessingFail(element, exception);
                     return;
                 }
 
@@ -72,5 +72,5 @@ public abstract class MappedQueueProcessor<QueueKey, Input> {
      * @param element   The element
      * @param exception The exception
      */
-    protected abstract void onQueueElementProcessingFailed(Input element, Exception exception);
+    protected abstract void onQueueElementProcessingFail(Input element, Exception exception);
 }

@@ -20,6 +20,7 @@ import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
+import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
@@ -70,11 +71,17 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         this.flatTileProjection = flatTileProjection;
         this.urlConverter = urlConverter;
         this.modelMaker = new ModelMaker(1000 * 60 * 5 /* cacheExpireMilliseconds = 5 minutes */, 10000, false);
+        this.modelMaker.imageFetcher.setQueueKey(0);
     }
 
     @Override
     protected double getYAlign() {
         return BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON;
+    }
+
+    @Override
+    protected void preRender() {
+        this.modelMaker.imageToPreModel.process(2);
     }
 
     @Override
@@ -198,9 +205,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
                         .setFlipVertically(flipVertically)
                         .setInvertLatitude(invertLatitude);
             } else {
-                /*
-                 * If the projection corresponding to its id does not exist
-                 */
+                // If the projection corresponding to its id does not exist
                 throw JsonMappingException.from(p, "unknown projection name: " + projectionName);
             }
 
@@ -213,7 +218,9 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
         private final ImmediateBlock<FlatTileKey, FlatTileKey, String> tileKeyToUrl;
         private final MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> imageFetcher;
-        private final ImmediateBlock<FlatTileKey, ByteBuf, List<PreBakedModel>> byteBufToPreModel;
+        private final ImmediateBlock<FlatTileKey, ByteBuf, BufferedImage> byteBufToImage;
+        // This is to avoid quirky concurrent thingy
+        private final SingleQueueBlock<FlatTileKey, BufferedImage, PreBakedModel> imageToPreModel;
 
         /**
          * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
@@ -223,19 +230,19 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         protected ModelMaker(long expireMilliseconds, int maximumSize, boolean debug) {
             super(expireMilliseconds, maximumSize, debug);
             this.tileKeyToUrl = ImmediateBlock.of((key, input) -> getUrlFromTileCoordinate(input));
-            this.imageFetcher = new FlatTileResourceFetcher(FlatTileMapService.this.nThreads, 3);
-            this.byteBufToPreModel = ImmediateBlock.of((FlatTileKey key, ByteBuf input) -> {
-                BufferedImage image = ImageIO.read(new ByteBufInputStream(input));
-                return Collections.singletonList(new PreBakedModel(image, computeTileQuad(key)));
-            });
+            this.imageFetcher = new FlatTileResourceDownloadingBlock(FlatTileMapService.this.nThreads, 3);
+            this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
+            this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, computeTileQuad(key)));
         }
 
         @Override
         protected SequentialBuilder<FlatTileKey, FlatTileKey, List<GraphicsModel>> getSequentialBuilder() {
             return new CacheableProcessorModel.SequentialBuilder<>(this.tileKeyToUrl)
                     .then(this.imageFetcher)
-                    .then(this.byteBufToPreModel)
-                    .then(modelTextureBaker);
+                    .then(this.byteBufToImage)
+                    .then(this.imageToPreModel)
+                    .then(ImmediateBlock.singletonList())
+                    .then(FlatTileMapService.this.modelTextureBaker);
         }
 
         @Override

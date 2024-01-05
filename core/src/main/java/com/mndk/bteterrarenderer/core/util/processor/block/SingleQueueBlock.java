@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.util.processor.block;
 
-import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.processor.BlockPayload;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -23,9 +23,16 @@ public abstract class SingleQueueBlock<Key, Input, Output> extends ProcessingBlo
             try {
                 this.process(payload);
             } catch(Exception e) {
-                Loggers.get(this).error("Caught exception while processing a resource (Key=" + payload.getKey() + ")", e);
                 this.onProcessingFail(payload, e);
             }
         }
+    }
+
+    public static <K, I, O> SingleQueueBlock<K, I, O> of(BlockFunction<K, I, O> function) {
+        return new SingleQueueBlock<K, I, O>() {
+            protected O processInternal(K key, @Nonnull I input) throws Exception {
+                return function.apply(key, input);
+            }
+        };
     }
 }

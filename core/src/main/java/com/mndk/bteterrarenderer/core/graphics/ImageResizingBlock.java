@@ -1,33 +1,25 @@
-package com.mndk.bteterrarenderer.core.network;
+package com.mndk.bteterrarenderer.core.graphics;
 
-import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
+import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.net.URL;
-import java.util.concurrent.ExecutorService;
 
-public class SimpleImageFetcher<Key> extends MultiThreadedBlock<Key, URL, BufferedImage> {
+public class ImageResizingBlock<Key> extends ImmediateBlock<Key, BufferedImage, BufferedImage> {
 
     private final int paletteWidth, paletteHeight;
     private final double paletteRatio;
 
-    /**
-     * @param maxRetryCount          Max retry count. set this to -1 if no retry restrictions are needed
-     */
-    public SimpleImageFetcher(ExecutorService executorService,
-                              int maxRetryCount, int retryDelayMilliseconds,
-                              int paletteWidth, int paletteHeight) {
-        super(executorService, maxRetryCount, retryDelayMilliseconds);
+    public ImageResizingBlock(int paletteWidth, int paletteHeight) {
+        super();
         this.paletteWidth = paletteWidth;
         this.paletteHeight = paletteHeight;
         this.paletteRatio = (double) paletteHeight / paletteWidth;
     }
 
     @Override
-    protected BufferedImage processInternal(Key key, URL url) throws Exception {
-        BufferedImage image = HttpResourceManager.downloadAsImage(url.toString());
-        if(image == null) throw new NullPointerException("Image is null");
+    protected BufferedImage processInternal(Key key, @Nonnull BufferedImage image) {
         if(this.paletteWidth <= 0 || this.paletteHeight <= 0) return image;
 
         BufferedImage palette = new BufferedImage(this.paletteWidth, this.paletteHeight, BufferedImage.TYPE_4BYTE_ABGR);

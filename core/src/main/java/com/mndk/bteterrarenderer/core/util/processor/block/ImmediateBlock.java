@@ -1,7 +1,10 @@
 package com.mndk.bteterrarenderer.core.util.processor.block;
 
-import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.processor.BlockPayload;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class ImmediateBlock<Key, Input, Output> extends ProcessingBlock<Key, Input, Output> {
 
@@ -10,16 +13,19 @@ public abstract class ImmediateBlock<Key, Input, Output> extends ProcessingBlock
         try {
             this.process(payload);
         } catch(Exception e) {
-            Loggers.get(this).error("Caught exception while processing a resource (Key=" + payload + ")", e);
             this.onProcessingFail(payload, e);
         }
     }
 
-    public static <K, I, O> ImmediateBlock<K, I, O> of(ThrowableBiFunction<K, I, O> function) {
+    public static <K, I, O> ImmediateBlock<K, I, O> of(BlockFunction<K, I, O> function) {
         return new ImmediateBlock<K, I, O>() {
-            protected O processInternal(K key, I input) throws Exception {
+            protected O processInternal(K key, @Nonnull I input) throws Exception {
                 return function.apply(key, input);
             }
         };
+    }
+
+    public static <K, T> ImmediateBlock<K, T, List<T>> singletonList() {
+        return of((key, input) -> Collections.singletonList(input));
     }
 }

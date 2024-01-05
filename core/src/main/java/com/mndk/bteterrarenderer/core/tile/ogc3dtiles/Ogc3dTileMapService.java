@@ -60,7 +60,8 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         TileData tileData = TileResourceManager.parse(pair.getRight());
         return new ParsedData(pair.getLeft(), tileData);
     });
-    private static final Ogc3dTileParsingBlock<TileGlobalKey> TILE_PARSER = new Ogc3dTileParsingBlock<>(Executors.newCachedThreadPool());
+    private static final Ogc3dTileParsingBlock<TileGlobalKey> TILE_PARSER = new Ogc3dTileParsingBlock<>(
+            Executors.newCachedThreadPool(), 3, 100);
 
     @Setter
     private transient double radius = 40;
@@ -78,6 +79,9 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    protected void preRender() {}
 
     @Override
     protected AbstractModelMaker<TileGlobalKey> getModelMaker() {
@@ -249,7 +253,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         protected SequentialBuilder<TileGlobalKey, TileGlobalKey, List<GraphicsModel>> getSequentialBuilder() {
             return new SequentialBuilder<>(this.storageFetcher)
                     .then(TILE_PARSER)
-                    .then(modelTextureBaker);
+                    .then(Ogc3dTileMapService.this.modelTextureBaker);
         }
     }
 

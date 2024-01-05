@@ -137,10 +137,10 @@ public class BTETerraRendererConfig {
         FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
         TileMapServiceYamlLoader.INSTANCE.refresh();
         TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+        refreshCurrentTileMapService();
         if(loadMapsOnly) return;
 
         SAVE_LOADER_INSTANCE.load();
-        refreshCurrentTileMapService();
     }
 
     @ConfigIgnore

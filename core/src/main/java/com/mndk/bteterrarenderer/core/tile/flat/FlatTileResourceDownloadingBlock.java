@@ -4,13 +4,15 @@ import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
 import io.netty.buffer.ByteBuf;
 
-public class FlatTileResourceFetcher extends MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> {
+import javax.annotation.Nonnull;
+
+public class FlatTileResourceDownloadingBlock extends MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> {
 
     /**
      * @param nThreads Number of threads
      * @param maxRetryCount Max retry count. set this to -1 for no retry restrictions
      */
-    protected FlatTileResourceFetcher(int nThreads, int maxRetryCount) {
+    protected FlatTileResourceDownloadingBlock(int nThreads, int maxRetryCount) {
         super(nThreads, maxRetryCount);
     }
 
@@ -20,7 +22,7 @@ public class FlatTileResourceFetcher extends MappedQueueBlock<FlatTileKey, Integ
     }
 
     @Override
-    protected ByteBuf processInternal(FlatTileKey key, String s) throws Exception {
+    protected ByteBuf processInternal(FlatTileKey key, @Nonnull String s) throws Exception {
         return HttpResourceManager.download(s);
     }
 }

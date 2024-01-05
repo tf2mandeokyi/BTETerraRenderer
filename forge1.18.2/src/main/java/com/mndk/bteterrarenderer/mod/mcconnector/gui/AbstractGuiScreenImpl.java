@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +24,7 @@ public class AbstractGuiScreenImpl extends Screen {
     public void tick() {
         delegate.tick();
     }
-    public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@Nonnull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         delegate.drawScreen(poseStack, mouseX, mouseY, partialTicks);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {

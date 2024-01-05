@@ -11,23 +11,25 @@ import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import de.javagl.jgltf.model.GltfModel;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class Ogc3dTileParsingBlock<Key> extends MultiThreadedBlock<Key, ParsedData, List<PreBakedModel>> {
 
-    public Ogc3dTileParsingBlock(ExecutorService executorService) {
-        super(executorService, -1, 100);
+    protected Ogc3dTileParsingBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds) {
+        super(executorService, maxRetryCount, retryDelayMilliseconds);
     }
 
     @Override
-    protected List<PreBakedModel> processInternal(Key key, ParsedData preParsedData) {
+    protected List<PreBakedModel> processInternal(Key key, @Nonnull ParsedData preParsedData) {
         Matrix4 transform = preParsedData.getTransform();
         TileData tileData = preParsedData.getTileData();
 
         GltfModel gltfModel = getGltfModel(tileData);
-        if(gltfModel == null) return null;
+        if(gltfModel == null) return Collections.emptyList();
         return GltfModelConverter.convertModel(gltfModel, transform, Projections.getServerProjection());
     }
 

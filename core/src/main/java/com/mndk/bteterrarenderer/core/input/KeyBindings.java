@@ -23,7 +23,7 @@ public class KeyBindings {
     }
 
     public static void checkInputs() {
-        while(KeyBindings.MAP_TOGGLE_KEY.wasPressed()) {
+        if(KeyBindings.MAP_TOGGLE_KEY.wasPressed()) {
             BTETerraRendererConfig.toggleRender();
         }
         if(KeyBindings.MAP_OPTIONS_KEY.wasPressed()) {

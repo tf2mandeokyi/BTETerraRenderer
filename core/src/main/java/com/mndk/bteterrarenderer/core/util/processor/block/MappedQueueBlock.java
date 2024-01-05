@@ -63,7 +63,7 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
         }
 
         @Override
-        protected void onQueueElementProcessingFailed(BlockPayload<Key, Input> payload, Exception exception) {
+        protected void onQueueElementProcessingFail(BlockPayload<Key, Input> payload, Exception exception) {
             MappedQueueBlock.this.onProcessingFail(payload, exception);
         }
     }
@@ -79,7 +79,6 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
                 while(true) {
                     if (processor.isCurrentQueueEmpty()) {
                         Thread.sleep(250);
-                        new Object().notify();
                         continue;
                     }
                     processor.processOne();

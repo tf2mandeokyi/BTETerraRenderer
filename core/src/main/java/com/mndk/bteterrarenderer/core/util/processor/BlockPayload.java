@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.core.util.processor;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.Getter;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockPayload<Key, T> {
@@ -10,10 +11,9 @@ public class BlockPayload<Key, T> {
     private int blockIndex = 0;
 
     @Getter private final Key key;
-    private Object payload;
-    @Getter private Exception error = null;
+    @Nonnull private Object payload;
 
-    public BlockPayload(CacheableProcessorModel<Key, ?, ?> parent, Key key, Object payload) {
+    public BlockPayload(CacheableProcessorModel<Key, ?, ?> parent, Key key, @Nonnull Object payload) {
         this.parent = parent;
         this.key = key;
         this.payload = payload;
@@ -23,18 +23,15 @@ public class BlockPayload<Key, T> {
         return BTRUtil.uncheckedCast(this.payload);
     }
 
-    public void proceed(Object payload, @Nullable Exception error) {
-        this.payload = payload;
-        this.error = error;
-        blockIndex++;
+    public void proceed(@Nullable Object payload, @Nullable Exception error) {
+        if(error != null) {
+            this.parent.onProcessingDone(this.key, null, error);
+            return;
+        }
+        if(payload == null) return;
 
-        if(this.error != null) {
-            this.parent.onProcessingDone(this.key, null, this.error);
-            return;
-        }
-        if(this.payload == null) {
-            return;
-        }
+        this.payload = payload;
+        blockIndex++;
         if(blockIndex >= this.parent.blocks.size()) {
             this.parent.onProcessingDone(this.key, BTRUtil.uncheckedCast(this.payload), null);
             return;

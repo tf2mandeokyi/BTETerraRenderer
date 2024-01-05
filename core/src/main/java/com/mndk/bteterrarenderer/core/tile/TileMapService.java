@@ -12,7 +12,6 @@ import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
@@ -72,53 +71,55 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     public final void render(Object poseStack, double px, double py, double pz, float opacity) {
 
         // Bake textures
+        this.preRender();
         MODEL_BAKER.process(2);
-        bakeStaticImages();
+        if(!STATIC_IMAGES_BAKED) {
+            SOMETHING_WENT_WRONG.bake();
+            LOADING.bake();
+            STATIC_IMAGES_BAKED = true;
+        }
 
+        // Get tileId list
         List<TileId> renderTileIdList;
         try {
             double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
             renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], py);
         } catch(OutOfProjectionBoundsException e) { return; }
 
+        // Render tileId list
         for(TileId tileId : renderTileIdList) {
-            List<GraphicsModel> models = null;
-            List<GraphicsShape<?>> nonTexturedModel;
-
-            try {
-                GraphicsModel model;
-                ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
-                switch (bakedState) {
-                    case NOT_PROCESSED:
-                        this.getModelMaker().insertInput(tileId, tileId);
-                        break;
-                    case PROCESSING:
-                        nonTexturedModel = this.getNonTexturedModel(tileId);
-                        if (nonTexturedModel != null) {
-                            model = new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel);
-                            models = Collections.singletonList(model);
-                        }
-                        break;
-                    case PROCESSED:
-                        models = this.getModelMaker().updateAndGetOutput(tileId);
-                        break;
-                    case ERROR:
-                        nonTexturedModel = this.getNonTexturedModel(tileId);
-                        if (nonTexturedModel != null) {
-                            model = new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), nonTexturedModel);
-                            models = Collections.singletonList(model);
-                        }
-                        break;
-                }
-            } catch(OutOfProjectionBoundsException ignored) {
-            } catch(Exception e) {
-                Loggers.get(this).warn("Caught exception while rendering tile: " + tileId, e);
-            }
-
-            if (models != null) for(GraphicsModel model : models) {
+            List<GraphicsModel> models = this.getModelsForId(tileId);
+            if (models == null) continue;
+            for(GraphicsModel model : models) {
                 this.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
             }
         }
+    }
+
+    @Nullable
+    private List<GraphicsModel> getModelsForId(TileId tileId) {
+        ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
+        switch (bakedState) {
+            case NOT_PROCESSED:
+                this.getModelMaker().insertInput(tileId, tileId);
+                break;
+            case PROCESSED:
+                return this.getModelMaker().updateAndGetOutput(tileId);
+            case PROCESSING:
+            case ERROR:
+                List<GraphicsShape<?>> nonTexturedModel;
+                try {
+                    nonTexturedModel = this.getNonTexturedModel(tileId);
+                } catch(OutOfProjectionBoundsException ignored) { break; }
+
+                if (nonTexturedModel != null) {
+                    ImageTexturePair pair = bakedState == ProcessingState.ERROR ? SOMETHING_WENT_WRONG : LOADING;
+                    GraphicsModel model = new GraphicsModel(pair.getTextureObject(), nonTexturedModel);
+                    return Collections.singletonList(model);
+                }
+                break;
+        }
+        return null;
     }
 
     protected void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
@@ -158,6 +159,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     protected double getYAlign() { return 0; }
 
+    protected abstract void preRender();
+
     protected abstract AbstractModelMaker<TileId> getModelMaker();
 
     /**
@@ -176,13 +179,6 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     @Nullable
     protected abstract List<GraphicsShape<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
-
-    private static void bakeStaticImages() {
-        if(STATIC_IMAGES_BAKED) return;
-        SOMETHING_WENT_WRONG.bake();
-        LOADING.bake();
-        STATIC_IMAGES_BAKED = true;
-    }
 
     public static class Deserializer extends JsonDeserializer<TileMapService<?>> {
         @Override
