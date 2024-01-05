@@ -1,36 +1,31 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.core.util.processor.MultiThreadedResourceCacheProcessor;
+import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 
-public class SimpleImageFetcher extends MultiThreadedResourceCacheProcessor<URL, URL, BufferedImage> {
+public class SimpleImageFetcher<Key> extends MultiThreadedBlock<Key, URL, BufferedImage> {
 
     private final int paletteWidth, paletteHeight;
     private final double paletteRatio;
 
     /**
-     * @param expireMilliseconds     How long can a cache live without being refreshed
-     * @param maximumSize            Maximum cache size
      * @param maxRetryCount          Max retry count. set this to -1 if no retry restrictions are needed
-     * @param debug                  debug
      */
     public SimpleImageFetcher(ExecutorService executorService,
-                              long expireMilliseconds, int maximumSize,
                               int maxRetryCount, int retryDelayMilliseconds,
-                              int paletteWidth, int paletteHeight,
-                              boolean debug) {
-        super(executorService, expireMilliseconds, maximumSize, maxRetryCount, retryDelayMilliseconds, debug);
+                              int paletteWidth, int paletteHeight) {
+        super(executorService, maxRetryCount, retryDelayMilliseconds);
         this.paletteWidth = paletteWidth;
         this.paletteHeight = paletteHeight;
         this.paletteRatio = (double) paletteHeight / paletteWidth;
     }
 
     @Override
-    protected BufferedImage processResource(URL url) throws Exception {
+    protected BufferedImage processInternal(Key key, URL url) throws Exception {
         BufferedImage image = HttpResourceManager.downloadAsImage(url.toString());
         if(image == null) throw new NullPointerException("Image is null");
         if(this.paletteWidth <= 0 || this.paletteHeight <= 0) return image;
@@ -54,7 +49,4 @@ public class SimpleImageFetcher extends MultiThreadedResourceCacheProcessor<URL,
         g2d.dispose();
         return palette;
     }
-
-    @Override
-    protected void deleteResource(BufferedImage image) {}
 }

@@ -1,5 +1,7 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
+import lombok.Setter;
+
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,14 +12,12 @@ public abstract class MappedQueueProcessor<QueueKey, Input> {
     private final int maxRetryCount;
     private final Map<Input, Integer> failedCountMap = new HashMap<>();
     private final Map<QueueKey, Queue<Input>> queueMaps = new HashMap<>();
+
+    @Setter
     private QueueKey currentQueueKey = null;
 
     protected MappedQueueProcessor(int maxRetryCount) {
         this.maxRetryCount = maxRetryCount;
-    }
-
-    public void setCurrentQueueKey(QueueKey queueKey) {
-        this.currentQueueKey = queueKey;
     }
 
     private synchronized Queue<Input> getQueue(QueueKey queueKey) {
@@ -28,7 +28,7 @@ public abstract class MappedQueueProcessor<QueueKey, Input> {
         return this.getQueue(this.currentQueueKey).isEmpty();
     }
 
-    protected void offerToQueue(QueueKey queueKey, Input element) {
+    public void offerToQueue(QueueKey queueKey, Input element) {
         Queue<Input> queue = this.getQueue(queueKey);
         queue.offer(element);
     }

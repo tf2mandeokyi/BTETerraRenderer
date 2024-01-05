@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.baker.URLBufferedImageBaker;
+import com.mndk.bteterrarenderer.core.graphics.ImageBakingBlock;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
@@ -24,6 +24,8 @@ import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
+import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
+import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
@@ -44,10 +46,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final int ELEMENT_DISTANCE = 7;
     private static final int ELEMENT_DISTANCE_BIG = 35;
 
-    private static final SimpleImageFetcher ICON_FETCHER = new SimpleImageFetcher(
-            Executors.newCachedThreadPool(),
-            -1, 100, 3, 500, 256, 256, false);
-    private static final URLBufferedImageBaker ICON_BAKER = new URLBufferedImageBaker(-1, -1, false);
+    private static final IconMaker ICON_MAKER = new IconMaker(-1, -1, false);
 
     private static MapRenderingOptionsSidebar INSTANCE;
     private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
@@ -160,7 +159,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     @Override
     protected void drawScreen(Object poseStack) {
-        ICON_BAKER.process(1);
+        ICON_MAKER.iconBaker.process(1);
         super.drawScreen(poseStack);
     }
 
@@ -276,27 +275,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         URL iconUrl = tms.getIconUrl();
         if(iconUrl == null) return null;
-
-        switch(ICON_BAKER.getResourceProcessingState(iconUrl)) {
-            case NOT_PROCESSED:
-                ICON_FETCHER.resourceProcessingReady(iconUrl, iconUrl);
-                ICON_BAKER.setResourceInPreparingState(iconUrl);
-                break;
-            case PROCESSED:
-                return ICON_BAKER.updateAndGetResource(iconUrl);
-            case ERROR:
-                return null;
-        }
-
-        switch(ICON_FETCHER.getResourceProcessingState(iconUrl)) {
-            case PROCESSED:
-                ICON_BAKER.resourceProcessingReady(iconUrl, ICON_FETCHER.updateAndGetResource(iconUrl));
-                break;
-            case ERROR:
-                ICON_BAKER.resourcePreparingError(iconUrl, ICON_FETCHER.getResourceErrorReason(iconUrl));
-                return null;
-        }
-        return null;
+        return ICON_MAKER.updateOrInsert(iconUrl, () -> iconUrl);
     }
 
     public static void open() {
@@ -311,5 +290,32 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     public void onClose() {
         BTETerraRendererConfig.save();
         super.onClose();
+    }
+
+    private static class IconMaker extends CacheableProcessorModel<URL, URL, Object> {
+
+        private final SimpleImageFetcher<URL> iconFetcher = new SimpleImageFetcher<>(
+                Executors.newCachedThreadPool(), 3, 500,
+                256, 256);
+        private final ImageBakingBlock<URL> iconBaker = new ImageBakingBlock<>();
+
+        /**
+         * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
+         * @param maximumSize        Maximum cache size. Set to -1 for no limits
+         * @param debug              debug
+         */
+        protected IconMaker(long expireMilliseconds, int maximumSize, boolean debug) {
+            super(expireMilliseconds, maximumSize, debug);
+        }
+
+        @Override
+        protected SequentialBuilder<URL, URL, Object> getSequentialBuilder() {
+            return new SequentialBuilder<>(this.iconFetcher).then(this.iconBaker);
+        }
+
+        @Override
+        protected void deleteResource(Object o) {
+            GlGraphicsManager.INSTANCE.deleteTextureObject(o);
+        }
     }
 }

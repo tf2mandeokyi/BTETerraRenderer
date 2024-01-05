@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
+import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
-import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.core.graphics.baker.GraphicsModelTextureBaker;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
@@ -24,8 +24,6 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import lombok.*;
 
 import javax.annotation.Nullable;
@@ -41,16 +39,17 @@ import java.util.*;
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public abstract class TileMapService<TileId> implements AutoCloseable {
 
+    private static final GraphicsModelTextureBakingBlock<?> MODEL_BAKER = new GraphicsModelTextureBakingBlock<>();
     public static final int DEFAULT_MAX_THREAD = 2;
 
     private static final ImageTexturePair SOMETHING_WENT_WRONG, LOADING;
     private static boolean STATIC_IMAGES_BAKED = false;
 
+    protected final int nThreads;
     private final Translatable<String> name;
     @Nullable private final Translatable<String> copyrightTextJson;
     @Nullable private final URL iconUrl;
     @Setter private Object iconTextureObject;
-    private transient final TileResourceFetcher<TileId, Object> resourceFetcher;
 
     /**
      * This property should be configured on the constructor.
@@ -58,7 +57,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
      * */
     @Getter
     private transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
-    private transient final GraphicsModelTextureBaker<TmsIdPair<TileId>> modelTextureBaker = GraphicsModelTextureBaker.getInstance();
+    protected transient final GraphicsModelTextureBakingBlock<TileId> modelTextureBaker = BTRUtil.uncheckedCast(MODEL_BAKER);
 
     protected TileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
@@ -66,20 +65,20 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         this.copyrightTextJson = Optional.ofNullable(commonYamlObject.copyrightTextJson)
                 .map(json -> json.map(JsonString::getValue))
                 .orElse(null);
-        this.resourceFetcher = new TileResourceFetcher<>(commonYamlObject.nThreads, this::tileIdToFetcherQueueKey);
+        this.nThreads = commonYamlObject.nThreads;
         this.properties.addAll(this.makeProperties());
     }
 
-    public final void render(Object poseStack, String tmsId, double px, double py, double pz, float opacity) {
+    public final void render(Object poseStack, double px, double py, double pz, float opacity) {
 
         // Bake textures
-        modelTextureBaker.process(2);
+        MODEL_BAKER.process(2);
         bakeStaticImages();
 
         List<TileId> renderTileIdList;
         try {
             double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
-            renderTileIdList = this.getRenderTileIdList(tmsId, geoCoord[0], geoCoord[1], py);
+            renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], py);
         } catch(OutOfProjectionBoundsException e) { return; }
 
         for(TileId tileId : renderTileIdList) {
@@ -88,19 +87,10 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
             try {
                 GraphicsModel model;
-                TmsIdPair<TileId> idPair = new TmsIdPair<>(tmsId, tileId);
-                ProcessingState bakedState = modelTextureBaker.getResourceProcessingState(idPair);
+                ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
                 switch (bakedState) {
-                    case PROCESSED:
-                        models = modelTextureBaker.updateAndGetResource(idPair);
-                        break;
-                    case PREPARING:
-                        nonTexturedModel = this.getNonTexturedModel(tileId);
-                        if (nonTexturedModel != null) {
-                            model = new GraphicsModel(LOADING.getTextureObject(), nonTexturedModel);
-                            models = Collections.singletonList(model);
-                        }
-                        this.prepareResource(idPair, false);
+                    case NOT_PROCESSED:
+                        this.getModelMaker().insertInput(tileId, tileId);
                         break;
                     case PROCESSING:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
@@ -109,15 +99,15 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
                             models = Collections.singletonList(model);
                         }
                         break;
+                    case PROCESSED:
+                        models = this.getModelMaker().updateAndGetOutput(tileId);
+                        break;
                     case ERROR:
                         nonTexturedModel = this.getNonTexturedModel(tileId);
                         if (nonTexturedModel != null) {
                             model = new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), nonTexturedModel);
                             models = Collections.singletonList(model);
                         }
-                        break;
-                    case NOT_PROCESSED:
-                        this.prepareResource(idPair, true);
                         break;
                 }
             } catch(OutOfProjectionBoundsException ignored) {
@@ -166,60 +156,9 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
-    private void prepareResource(TmsIdPair<TileId> idPair, boolean firstCalling) {
-        try {
-            if(firstCalling) modelTextureBaker.setResourceInPreparingState(idPair);
-            List<PreBakedModel> preBakedModel = this.getPreBakedModels(idPair);
-            if(preBakedModel != null) modelTextureBaker.resourceProcessingReady(idPair, preBakedModel);
-        } catch(OutOfProjectionBoundsException e) {
-            modelTextureBaker.resourcePreparingError(idPair, e);
-        } catch(Exception e) {
-            Loggers.get(this).warn(
-                    "Caught exception while rendering tile: " + idPair.getTileId(), e);
-            modelTextureBaker.resourcePreparingError(idPair, e);
-        }
-    }
-
-    /**
-     * Immediately returns the fetched data. If the data is not found, the fetcher fetches it
-     * in a separate thread and returns {@code null}.
-     * @param tileId The tile id
-     * @param url The url
-     * @return The data stream. {@code null} if the data is still being fetched
-     * @throws IOException If something went wrong while fetching the data
-     */
-    @Nullable
-    protected InputStream fetchData(TileId tileId, URL url) throws Exception {
-        ProcessingState fetchState = resourceFetcher.getResourceProcessingState(tileId);
-        switch(fetchState) {
-            case NOT_PROCESSED:
-                resourceFetcher.resourceProcessingReady(tileId, url);
-                return null;
-            case PROCESSED:
-                ByteBuf buf = resourceFetcher.updateAndGetResource(tileId);
-                return new ByteBufInputStream(buf);
-            case ERROR:
-                // Reason doing this is because calling the IOException constructor is heavy
-                Exception exception = resourceFetcher.getResourceErrorReason(tileId);
-                if(exception != null) throw exception;
-                return null;
-            default:
-                return null;
-        }
-    }
-
     protected double getYAlign() { return 0; }
 
-    public void setFetcherQueueKey(Object fetcherQueueKey) {
-        this.resourceFetcher.setCurrentQueueKey(fetcherQueueKey);
-    }
-
-    @Override
-    public void close() {
-        this.resourceFetcher.close();
-    }
-
-    protected abstract Object tileIdToFetcherQueueKey(TileId tileId);
+    protected abstract AbstractModelMaker<TileId> getModelMaker();
 
     /**
      * This method is called only once on the constructor
@@ -228,19 +167,12 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     protected abstract List<PropertyAccessor.Localized<?>> makeProperties();
 
     /**
-     * @param tmsId Tile map service ID
      * @param longitude Player longitude, in degrees
      * @param latitude  Player latitude, in degrees
      * @param height    Player height, in meters
      * @return A list of tile ids
      */
-    protected abstract List<TileId> getRenderTileIdList(String tmsId, double longitude, double latitude, double height);
-
-    /**
-     * @return {@code null} if the model is not ready, i.e. its data is still being fetched
-     * */
-    @Nullable
-    protected abstract List<PreBakedModel> getPreBakedModels(TmsIdPair<TileId> idPair) throws Exception;
+    protected abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double height);
 
     @Nullable
     protected abstract List<GraphicsShape<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;

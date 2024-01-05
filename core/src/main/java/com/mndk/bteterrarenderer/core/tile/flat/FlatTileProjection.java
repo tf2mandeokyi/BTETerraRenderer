@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+@Setter
 @Accessors(chain = true)
 @RequiredArgsConstructor
 public abstract class FlatTileProjection {
@@ -24,9 +25,7 @@ public abstract class FlatTileProjection {
     };
 
 
-    @Setter
     protected int defaultZoom = FlatTileMapService.DEFAULT_ZOOM;
-    @Setter
     private boolean invertLatitude = false, invertZoom = false, flipVertically = false;
 
 

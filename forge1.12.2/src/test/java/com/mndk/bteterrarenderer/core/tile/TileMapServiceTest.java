@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.tile.flat.FlatTileKey;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
@@ -25,7 +26,8 @@ public class TileMapServiceTest {
 
         double longitude = 126.97683816936377, latitude = 37.57593302824052;
         int[] tileCoord = osm.getFlatTileProjection().geoCoordToTileCoord(longitude, latitude, 1);
-        Assert.assertTrue(osm.getUrlFromTileCoordinate(tileCoord[0], tileCoord[1], 1).matches(
+        FlatTileKey tileKey = new FlatTileKey(tileCoord[0], tileCoord[1], 1);
+        Assert.assertTrue(osm.getUrlFromTileCoordinate(tileKey).matches(
                 "https://[abc]\\.tile\\.openstreetmap\\.org/19/447067/203014\\.png"
         ));
     }

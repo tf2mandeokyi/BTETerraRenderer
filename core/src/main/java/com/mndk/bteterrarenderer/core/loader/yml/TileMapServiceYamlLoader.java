@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.val;
 
 import java.io.IOException;
@@ -24,8 +25,12 @@ public class TileMapServiceYamlLoader extends YamlLoader<CategoryMap<TileMapServ
 		if(result != null) {
 			for (val category : result.getCategories()) {
 				for (val entry : category.getValue().entrySet()) {
-					entry.getValue().getItem().close();
-				}
+                    try {
+                        entry.getValue().getItem().close();
+                    } catch (Exception e) {
+						Loggers.get(this).error(e);
+                    }
+                }
 			}
 		}
 		super.refresh();
