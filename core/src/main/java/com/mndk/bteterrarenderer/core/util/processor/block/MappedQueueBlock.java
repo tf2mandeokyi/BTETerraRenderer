@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Closeable;
 
-public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends ProcessingBlock<Key, Input, Output> implements Closeable {
+public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends ProcessingBlock<Key, Input, Output>
+        implements Closeable {
 
     private final SimpleMappedQueueProcessor processor;
     private final Thread[] threads;
@@ -51,7 +52,7 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
         }
 
         @Override
-        protected Exception processQueueElement(BlockPayload<Key, Input> payload) {
+        protected Exception processInput(BlockPayload<Key, Input> payload) {
             try {
                 MappedQueueBlock.this.process(payload);
                 return null;
@@ -63,8 +64,8 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
         }
 
         @Override
-        protected void onQueueElementProcessingFail(BlockPayload<Key, Input> payload, Exception exception) {
-            MappedQueueBlock.this.onProcessingFail(payload, exception);
+        protected void onInputProcessingFail(BlockPayload<Key, Input> input, Exception exception) {
+            MappedQueueBlock.this.onProcessingFail(input, exception);
         }
     }
 

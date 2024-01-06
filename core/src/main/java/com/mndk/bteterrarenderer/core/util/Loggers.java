@@ -15,8 +15,12 @@ import java.util.Map;
 public class Loggers {
     private final Map<Class<?>, Logger> LOGGERS = new HashMap<>();
 
-    public Logger get(Class<?> clazz) {
-        return LOGGERS.computeIfAbsent(clazz, c -> LogManager.getLogger(BTETerraRendererConstants.NAME.toLowerCase() + "/" + c.getSimpleName()));
+    public synchronized Logger get(Class<?> clazz) {
+        return LOGGERS.computeIfAbsent(clazz, Loggers::makeLogger);
+    }
+
+    private Logger makeLogger(Class<?> c) {
+        return LogManager.getLogger(BTETerraRendererConstants.NAME.toLowerCase() + "/" + c.getSimpleName());
     }
 
     public Logger get(Object o) {

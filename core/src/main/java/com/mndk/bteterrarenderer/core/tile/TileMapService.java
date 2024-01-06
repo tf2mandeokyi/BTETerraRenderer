@@ -9,14 +9,16 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
+import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.json.JsonString;
+import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
+import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
@@ -38,6 +40,8 @@ import java.util.*;
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public abstract class TileMapService<TileId> implements AutoCloseable {
 
+    public static final ProcessorCacheStorage<TMSIdPair<?>, List<GraphicsModel>> STORAGE
+            = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, 10000, false);
     private static final GraphicsModelTextureBakingBlock<?> MODEL_BAKER = new GraphicsModelTextureBakingBlock<>();
     public static final int DEFAULT_MAX_THREAD = 2;
 
@@ -54,9 +58,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
      * This property should be configured on the constructor.
      * One should put localization key as a key, and the property accessor as a value.
      * */
-    @Getter
     private transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
-    protected transient final GraphicsModelTextureBakingBlock<TileId> modelTextureBaker = BTRUtil.uncheckedCast(MODEL_BAKER);
+    private transient ModelMaker modelMaker; // late init
 
     protected TileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
@@ -98,13 +101,14 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     @Nullable
     private List<GraphicsModel> getModelsForId(TileId tileId) {
-        ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
+        TMSIdPair<TileId> idPair = new TMSIdPair<>(this, tileId);
+        ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(idPair);
         switch (bakedState) {
             case NOT_PROCESSED:
-                this.getModelMaker().insertInput(tileId, tileId);
+                this.getModelMaker().insertInput(idPair, tileId);
                 break;
             case PROCESSED:
-                return this.getModelMaker().updateAndGetOutput(tileId);
+                return this.getModelMaker().updateAndGetOutput(idPair);
             case PROCESSING:
             case ERROR:
                 List<GraphicsShape<?>> nonTexturedModel;
@@ -113,8 +117,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
                 } catch(OutOfProjectionBoundsException ignored) { break; }
 
                 if (nonTexturedModel != null) {
-                    ImageTexturePair pair = bakedState == ProcessingState.ERROR ? SOMETHING_WENT_WRONG : LOADING;
-                    GraphicsModel model = new GraphicsModel(pair.getTextureObject(), nonTexturedModel);
+                    ImageTexturePair texturePair = bakedState == ProcessingState.ERROR ? SOMETHING_WENT_WRONG : LOADING;
+                    GraphicsModel model = new GraphicsModel(texturePair.getTextureObject(), nonTexturedModel);
                     return Collections.singletonList(model);
                 }
                 break;
@@ -160,12 +164,38 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
+    public CacheableProcessorModel<TMSIdPair<TileId>, TileId, List<GraphicsModel>> getModelMaker() {
+        if (this.modelMaker == null) this.modelMaker = new ModelMaker(BTRUtil.uncheckedCast(STORAGE));
+        return this.modelMaker;
+    }
+
+    @Override
+    public final String toString() {
+        String name = this.name.get();
+        int hash = this.hashCode();
+        return String.format("%s(name=%s,hash=%08x)", this.getClass().getSimpleName(), name, hash);
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public void close() throws IOException {
+        if(this.modelMaker != null) this.modelMaker.close();
+    }
+
     protected double getYAlign() { return 0; }
 
     protected abstract void preRender(double px, double py, double pz);
 
-    protected abstract AbstractModelMaker<TileId> getModelMaker();
-
+    protected abstract CacheableProcessorModel.SequentialBuilder<TMSIdPair<TileId>, TileId, List<PreBakedModel>> getModelSequentialBuilder();
     /**
      * This method is called only once on the constructor
      * @return The property list
@@ -182,6 +212,26 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     @Nullable
     protected abstract List<GraphicsShape<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
+
+    private class ModelMaker extends CacheableProcessorModel<TMSIdPair<TileId>, TileId, List<GraphicsModel>> {
+
+        protected ModelMaker(ProcessorCacheStorage<TMSIdPair<TileId>, List<GraphicsModel>> storage) {
+            super(storage);
+        }
+
+        @Override
+        protected SequentialBuilder<TMSIdPair<TileId>, TileId, List<GraphicsModel>> getSequentialBuilder() {
+            return TileMapService.this.getModelSequentialBuilder()
+                    .then(BTRUtil.uncheckedCast(MODEL_BAKER));
+        }
+
+        @Override
+        protected void deleteResource(List<GraphicsModel> graphicsModels) {
+            for(GraphicsModel model : graphicsModels) {
+                GlGraphicsManager.INSTANCE.deleteTextureObject(model.getTextureObject());
+            }
+        }
+    }
 
     public static class Deserializer extends JsonDeserializer<TileMapService<?>> {
         @Override
@@ -234,7 +284,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     static {
         try {
-            ClassLoader loader = FlatTileMapService.class.getClassLoader();
+            ClassLoader loader = TileMapService.class.getClassLoader();
 
             String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
             InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);

@@ -23,7 +23,9 @@ public class BlockPayload<Key, T> {
         return BTRUtil.uncheckedCast(this.payload);
     }
 
-    public void proceed(@Nullable Object payload, @Nullable Exception error) {
+    public synchronized void proceed(@Nullable Object payload, @Nullable Exception error) {
+        if(parent.isClosed()) return;
+
         if(error != null) {
             this.parent.onProcessingDone(this.key, null, error);
             return;

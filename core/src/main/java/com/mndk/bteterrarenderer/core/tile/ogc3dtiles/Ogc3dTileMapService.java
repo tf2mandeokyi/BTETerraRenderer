@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.tile.AbstractModelMaker;
+import com.mndk.bteterrarenderer.core.tile.TMSIdPair;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
@@ -19,11 +20,11 @@ import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
+import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
@@ -54,8 +55,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Getter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = false)
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
@@ -63,7 +62,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         TileData tileData = TileResourceManager.parse(pair.getRight());
         return new ParsedData(pair.getLeft(), tileData);
     });
-    private static final Ogc3dTileParsingBlock<TileGlobalKey> TILE_PARSER = new Ogc3dTileParsingBlock<>(
+    private static final Ogc3dTileParsingBlock TILE_PARSER = new Ogc3dTileParsingBlock(
             Executors.newCachedThreadPool(), 3, 100);
 
     @Setter
@@ -72,13 +71,21 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     @Setter
     private transient boolean yDistortion = false;
     private final URL rootTilesetUrl;
-    private transient final TileDataStorage cacheStorage;
-    private transient final ModelMaker modelMaker;
+
+    private transient final ProcessorCacheStorage<TileGlobalKey, ParsedData> cacheStorage;
+    private transient final TileDataStorage tileDataStorage;
+    private transient final ImmediateBlock<TMSIdPair<TileGlobalKey>, TileGlobalKey, ParsedData> storageFetcher;
 
     private Ogc3dTileMapService(CommonYamlObject commonYamlObject) {
         super(commonYamlObject);
-        this.cacheStorage = new TileDataStorage(1000 * 60 * 10 /* 10 minutes */, 10000, false);
-        this.modelMaker = new ModelMaker(1000 * 60 * 10 /* 10 minutes */, 10000, false);
+        this.cacheStorage = new ProcessorCacheStorage<>(1000 * 60 * 10 /* 10 minutes */, 10000, false);
+        this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(1000 * 60 * 10 /* 10 minutes */, 10000, false));
+        this.storageFetcher = ImmediateBlock.of((key, input) -> {
+            ProcessingState state = tileDataStorage.getResourceProcessingState(input);
+            if(state != ProcessingState.PROCESSED) return null;
+            return tileDataStorage.updateAndGetOutput(input);
+        });
+
         try {
             this.rootTilesetUrl = new URL(commonYamlObject.getTileUrl());
         } catch(IOException e) {
@@ -108,8 +115,8 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected AbstractModelMaker<TileGlobalKey> getModelMaker() {
-        return this.modelMaker;
+    protected CacheableProcessorModel.SequentialBuilder<TMSIdPair<TileGlobalKey>, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
+        return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher).then(TILE_PARSER);
     }
 
     @Override
@@ -138,7 +145,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     @Nullable
     private Tileset getRootTileset() {
         TileGlobalKey key = TileGlobalKey.ROOT_KEY;
-        ParsedData parsedData = cacheStorage.updateOrInsert(key, () -> Pair.of(Matrix4.IDENTITY, this.rootTilesetUrl));
+        ParsedData parsedData = tileDataStorage.updateOrInsert(key, () -> Pair.of(Matrix4.IDENTITY, this.rootTilesetUrl));
         if(parsedData == null) return null;
 
         TileData tileData = parsedData.getTileData();
@@ -187,7 +194,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
 
                 // Get data from cache
-                ParsedData parsedData = cacheStorage.updateOrInsert(currentKey, () -> Pair.of(currentTransform, currentUrl));
+                ParsedData parsedData = tileDataStorage.updateOrInsert(currentKey, () -> Pair.of(currentTransform, currentUrl));
                 if(parsedData == null) continue;
 
 				TileData tileData = parsedData.getTileData();
@@ -227,8 +234,10 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
+        super.close();
         this.cacheStorage.close();
+        this.tileDataStorage.close();
     }
 
     public static class Deserializer extends JsonDeserializer<Ogc3dTileMapService> {
@@ -246,13 +255,8 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         private final ExecutorService executorService;
         private final MultiThreadedBlock<TileGlobalKey, Pair<Matrix4, URL>, Pair<Matrix4, InputStream>> tileStreamFetcher;
 
-        /**
-         * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
-         * @param maximumSize        Maximum cache size. Set to -1 for no limits
-         * @param debug              debug
-         */
-        protected TileDataStorage(long expireMilliseconds, int maximumSize, boolean debug) {
-            super(expireMilliseconds, maximumSize, debug);
+        protected TileDataStorage(ProcessorCacheStorage<TileGlobalKey, ParsedData> storage) {
+            super(storage);
 
             this.executorService = Executors.newFixedThreadPool(Ogc3dTileMapService.this.nThreads);
             this.tileStreamFetcher = MultiThreadedBlock.of((key, pair) -> {
@@ -275,31 +279,4 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
             this.executorService.shutdownNow();
         }
     }
-
-    private class ModelMaker extends AbstractModelMaker<TileGlobalKey> {
-
-        private final ImmediateBlock<TileGlobalKey, TileGlobalKey, ParsedData> storageFetcher;
-
-        /**
-         * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
-         * @param maximumSize        Maximum cache size. Set to -1 for no limits
-         * @param debug              debug
-         */
-        protected ModelMaker(long expireMilliseconds, int maximumSize, boolean debug) {
-            super(expireMilliseconds, maximumSize, debug);
-            this.storageFetcher = ImmediateBlock.of((key, input) -> {
-                ProcessingState state = cacheStorage.getResourceProcessingState(input);
-                if(state != ProcessingState.PROCESSED) return null;
-                return cacheStorage.updateAndGetOutput(input);
-            });
-        }
-
-        @Override
-        protected SequentialBuilder<TileGlobalKey, TileGlobalKey, List<GraphicsModel>> getSequentialBuilder() {
-            return new SequentialBuilder<>(this.storageFetcher)
-                    .then(TILE_PARSER)
-                    .then(Ogc3dTileMapService.this.modelTextureBaker);
-        }
-    }
-
 }

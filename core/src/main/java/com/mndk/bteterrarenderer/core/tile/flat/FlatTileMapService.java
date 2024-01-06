@@ -11,7 +11,7 @@ import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.tile.AbstractModelMaker;
+import com.mndk.bteterrarenderer.core.tile.TMSIdPair;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -22,7 +22,6 @@ import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
@@ -30,12 +29,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +40,6 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-@ToString(callSuper = true)
 @JsonDeserialize(using = FlatTileMapService.Deserializer.class)
 public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
@@ -61,7 +57,12 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     private final String urlTemplate;
     private final FlatTileProjection flatTileProjection;
     private final FlatTileURLConverter urlConverter;
-    private final ModelMaker modelMaker;
+
+    private transient final ImmediateBlock<TMSIdPair<FlatTileKey>, FlatTileKey, String> tileKeyToUrl;
+    private transient final MappedQueueBlock<TMSIdPair<FlatTileKey>, Integer, String, ByteBuf> imageFetcher;
+    private transient final ImmediateBlock<TMSIdPair<FlatTileKey>, ByteBuf, BufferedImage> byteBufToImage;
+    // This is to avoid quirky concurrent thingy
+    private transient final SingleQueueBlock<TMSIdPair<FlatTileKey>, BufferedImage, PreBakedModel> imageToPreModel;
 
     @JsonCreator
     private FlatTileMapService(CommonYamlObject commonYamlObject,
@@ -70,8 +71,12 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         this.urlTemplate = commonYamlObject.getTileUrl();
         this.flatTileProjection = flatTileProjection;
         this.urlConverter = urlConverter;
-        this.modelMaker = new ModelMaker(1000 * 60 * 5 /* cacheExpireMilliseconds = 5 minutes */, 10000, false);
-        this.modelMaker.imageFetcher.setQueueKey(0);
+
+        this.tileKeyToUrl = ImmediateBlock.of((key, input) -> getUrlFromTileCoordinate(input));
+        this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3);
+        this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
+        this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, computeTileQuad(key.getRight())));
+        this.imageFetcher.setQueueKey(0);
     }
 
     @Override
@@ -81,12 +86,16 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
     @Override
     protected void preRender(double px, double py, double pz) {
-        this.modelMaker.imageToPreModel.process(2);
+        this.imageToPreModel.process(2);
     }
 
     @Override
-    protected AbstractModelMaker<FlatTileKey> getModelMaker() {
-        return this.modelMaker;
+    protected CacheableProcessorModel.SequentialBuilder<TMSIdPair<FlatTileKey>, FlatTileKey, List<PreBakedModel>> getModelSequentialBuilder() {
+        return new CacheableProcessorModel.SequentialBuilder<>(this.tileKeyToUrl)
+                .then(this.imageFetcher)
+                .then(this.byteBufToImage)
+                .then(this.imageToPreModel)
+                .then(ImmediateBlock.singletonList());
     }
 
     @Override
@@ -147,7 +156,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     public void setRelativeZoom(int newZoom) {
         if(this.relativeZoom == newZoom) return;
         this.relativeZoom = newZoom;
-        this.modelMaker.imageFetcher.setQueueKey(newZoom);
+        this.imageFetcher.setQueueKey(newZoom);
     }
 
     public String getUrlFromTileCoordinate(FlatTileKey flatTileKey) {
@@ -180,11 +189,6 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         return flatTileProjection != null && flatTileProjection.isRelativeZoomAvailable(relativeZoom);
     }
 
-    @Override
-    public void close() {
-        this.modelMaker.close();
-    }
-
     public static class Deserializer extends JsonDeserializer<FlatTileMapService> {
         @Override
         public FlatTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -196,58 +200,30 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
             boolean invertLatitude = JsonParserUtil.getOrDefault(node, "invert_lat", false);
             boolean flipVertically = JsonParserUtil.getOrDefault(node, "flip_vert", false);
 
-            String projectionName = node.get("projection").asText();
-            FlatTileProjection projection = FlatTileProjectionYamlLoader.INSTANCE.getResult().get(projectionName);
-            if(projection != null) {
-                projection = projection.clone()
-                        .setDefaultZoom(defaultZoom)
-                        .setInvertZoom(invertZoom)
-                        .setFlipVertically(flipVertically)
-                        .setInvertLatitude(invertLatitude);
-            } else {
-                // If the projection corresponding to its id does not exist
-                throw JsonMappingException.from(p, "unknown projection name: " + projectionName);
+            // Get projection
+            JsonNode projectionNode = node.get("projection");
+            FlatTileProjection projection;
+            if(projectionNode.isTextual()) {
+                String projectionName = projectionNode.asText();
+                projection = FlatTileProjectionYamlLoader.INSTANCE.getResult().get(projectionName);
+                if(projection == null) {
+                    throw JsonMappingException.from(p, "unknown projection name: " + projectionName);
+                }
             }
+            else if(projectionNode.isObject()) {
+                projection = ctxt.readTreeAsValue(node, FlatTileProjectionImpl.class);
+            }
+            else throw JsonMappingException.from(p, "projection should be an object or a name");
+
+            // Modify projection
+            projection = projection.clone()
+                    .setDefaultZoom(defaultZoom)
+                    .setInvertZoom(invertZoom)
+                    .setFlipVertically(flipVertically)
+                    .setInvertLatitude(invertLatitude);
 
             FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
             return new FlatTileMapService(commonYamlObject, projection, urlConverter);
-        }
-    }
-
-    private class ModelMaker extends AbstractModelMaker<FlatTileKey> implements Closeable {
-
-        private final ImmediateBlock<FlatTileKey, FlatTileKey, String> tileKeyToUrl;
-        private final MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> imageFetcher;
-        private final ImmediateBlock<FlatTileKey, ByteBuf, BufferedImage> byteBufToImage;
-        // This is to avoid quirky concurrent thingy
-        private final SingleQueueBlock<FlatTileKey, BufferedImage, PreBakedModel> imageToPreModel;
-
-        /**
-         * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
-         * @param maximumSize        Maximum cache size. Set to -1 for no limits
-         * @param debug              debug
-         */
-        protected ModelMaker(long expireMilliseconds, int maximumSize, boolean debug) {
-            super(expireMilliseconds, maximumSize, debug);
-            this.tileKeyToUrl = ImmediateBlock.of((key, input) -> getUrlFromTileCoordinate(input));
-            this.imageFetcher = new FlatTileResourceDownloadingBlock(FlatTileMapService.this.nThreads, 3);
-            this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
-            this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, computeTileQuad(key)));
-        }
-
-        @Override
-        protected SequentialBuilder<FlatTileKey, FlatTileKey, List<GraphicsModel>> getSequentialBuilder() {
-            return new CacheableProcessorModel.SequentialBuilder<>(this.tileKeyToUrl)
-                    .then(this.imageFetcher)
-                    .then(this.byteBufToImage)
-                    .then(this.imageToPreModel)
-                    .then(ImmediateBlock.singletonList())
-                    .then(FlatTileMapService.this.modelTextureBaker);
-        }
-
-        @Override
-        public void close() {
-            this.imageFetcher.close();
         }
     }
 }

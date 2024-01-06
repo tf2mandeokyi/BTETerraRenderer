@@ -2,6 +2,8 @@ package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
+import com.mndk.bteterrarenderer.core.tile.TMSIdPair;
+import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
@@ -17,14 +19,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-public class Ogc3dTileParsingBlock<Key> extends MultiThreadedBlock<Key, ParsedData, List<PreBakedModel>> {
+public class Ogc3dTileParsingBlock extends MultiThreadedBlock<TMSIdPair<TileGlobalKey>, ParsedData, List<PreBakedModel>> {
 
     protected Ogc3dTileParsingBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds) {
         super(executorService, maxRetryCount, retryDelayMilliseconds);
     }
 
     @Override
-    protected List<PreBakedModel> processInternal(Key key, @Nonnull ParsedData preParsedData) {
+    protected List<PreBakedModel> processInternal(TMSIdPair<TileGlobalKey> key, @Nonnull ParsedData preParsedData) {
         Matrix4 transform = preParsedData.getTransform();
         TileData tileData = preParsedData.getTileData();
 

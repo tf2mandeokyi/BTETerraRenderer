@@ -26,7 +26,7 @@ public class TileRenderer {
         tms.render(poseStack,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());
-        tms.getModelMaker().cleanUp();
+        TileMapService.STORAGE.cleanUp();
 
         GlGraphicsManager.INSTANCE.glDisableBlend();
         GlGraphicsManager.INSTANCE.glDefaultBlendFunc();

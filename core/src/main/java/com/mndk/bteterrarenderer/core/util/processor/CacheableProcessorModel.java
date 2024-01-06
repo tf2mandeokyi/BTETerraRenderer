@@ -2,56 +2,38 @@ package com.mndk.bteterrarenderer.core.util.processor;
 
 import com.google.common.collect.ImmutableList;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.processor.block.ProcessingBlock;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
-public abstract class CacheableProcessorModel<Key, Input, Output> {
+public abstract class CacheableProcessorModel<Key, Input, Output> implements Closeable {
 
-    private void log(String message) {
-        if(this.debug) Loggers.get(this.getClass()).info(message);
-    }
-
-    private final int maximumSize;
-    protected final boolean debug;
-    private final long expireMilliseconds;
+    @Getter
+    private boolean closed = false;
+    private final ProcessorCacheStorage<Key, Output> storage;
     ImmutableList<ProcessingBlock<Key, ?, ?>> blocks = null; // late init
 
-    private final Map<Key, CacheWrapper> resourceWrapperMap = new HashMap<>();
-
-    /**
-     * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
-     * @param maximumSize Maximum cache size. Set to -1 for no limits
-     * @param debug debug
-     */
-    protected CacheableProcessorModel(long expireMilliseconds, int maximumSize, boolean debug) {
-        this.expireMilliseconds = expireMilliseconds;
-        this.maximumSize = maximumSize;
-        this.debug = debug;
+    protected CacheableProcessorModel(ProcessorCacheStorage<Key, Output> storage) {
+        this.storage = storage;
+        this.storage.addReference(this);
     }
 
     @Nonnull
-    private synchronized CacheWrapper getWrapper(Key key) {
-        return resourceWrapperMap.computeIfAbsent(key, k -> new CacheWrapper(ProcessingState.NOT_PROCESSED, null, -1, null));
-    }
-
-    @Nonnull
-    public ProcessingState getResourceProcessingState(Key key) {
-        return this.getWrapper(key).state;
+    public synchronized ProcessingState getResourceProcessingState(Key key) {
+        return this.storage.getKeyState(key);
     }
 
     @Nullable
     @SuppressWarnings("unused")
-    public Exception getResourceErrorReason(Key key) {
-        return this.getWrapper(key).error;
+    public synchronized Exception getResourceErrorReason(Key key) {
+        return this.storage.getKeyErrorReason(key);
     }
 
     /**
@@ -61,18 +43,11 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
      *                              while processing it.
      */
     public Output updateAndGetOutput(Key key) {
-        CacheWrapper wrapper = this.getWrapper(key);
-        if(wrapper.state != ProcessingState.PROCESSED) throw new NullPointerException();
-
-        Output resource = wrapper.output;
-        wrapper.lastUpdated = System.currentTimeMillis();
-        return resource;
+        return this.storage.updateAndGetValue(key);
     }
 
-    public void insertInput(Key key, Input input) {
-        CacheWrapper wrapper = this.getWrapper(key);
-        wrapper.state = ProcessingState.PROCESSING;
-
+    public synchronized void insertInput(Key key, Input input) {
+        this.storage.setKeyInProcessingState(this, key);
         if(this.blocks == null) this.blocks = this.getSequentialBuilder().build();
         this.blocks.get(0).insert(new BlockPayload<>(this, key, input));
     }
@@ -82,8 +57,8 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
      * and returns {@code null}.
      */
     @Nullable
-    public Output updateOrInsert(Key key, Supplier<Input> computeInputIfAbsent) {
-        ProcessingState state = this.getResourceProcessingState(key);
+    public synchronized Output updateOrInsert(Key key, Supplier<Input> computeInputIfAbsent) {
+        ProcessingState state = this.storage.getKeyState(key);
         switch(state) {
             case PROCESSED:
                 return this.updateAndGetOutput(key);
@@ -94,73 +69,32 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
         return null;
     }
 
-    public void onProcessingDone(Key key, Output output, @Nullable Exception error) {
-        synchronized(resourceWrapperMap) {
-            if (this.maximumSize != -1 && resourceWrapperMap.size() >= this.maximumSize) {
-                this.deleteOldestResource();
-            }
-        }
-
-        CacheWrapper wrapper = this.getWrapper(BTRUtil.uncheckedCast(key));
-        wrapper.output = output;
-        wrapper.lastUpdated = System.currentTimeMillis();
-        wrapper.state = error != null ? ProcessingState.ERROR : ProcessingState.PROCESSED;
-        wrapper.error = error;
-
-        synchronized(resourceWrapperMap) {
-            log("Added resource for " + key + " (Size: " + resourceWrapperMap.size() + ")");
-        }
+    public synchronized void onProcessingDone(Key key, Output output, @Nullable Exception error) {
+        this.storage.storeValue(this, key, output, error,
+                resource -> this.deleteResource(BTRUtil.uncheckedCast(resource)));
     }
 
-    private void deleteResourceByKey(Key key) {
-        CacheWrapper wrapper = this.getWrapper(key);
-        if(wrapper.state != ProcessingState.PROCESSED) return;
-
-        Output output = wrapper.output;
-        this.deleteResource(output);
-        synchronized(resourceWrapperMap) {
-            resourceWrapperMap.remove(key);
-            log("Deleted resource " + key + " (Size: " + resourceWrapperMap.size() + ")");
-        }
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
     }
 
-    private void deleteOldestResource() {
-        Key oldestKey = null;
-        long oldest = Long.MAX_VALUE;
-
-        synchronized(resourceWrapperMap) {
-            for (Map.Entry<Key, CacheWrapper> entry : resourceWrapperMap.entrySet()) {
-                CacheWrapper wrapper = entry.getValue();
-                if (wrapper.state != ProcessingState.PROCESSED) continue;
-                if (wrapper.lastUpdated < oldest) {
-                    oldestKey = entry.getKey();
-                    oldest = wrapper.lastUpdated;
-                }
-            }
-        }
-        if (oldestKey == null) return;
-
-        this.deleteResourceByKey(oldestKey);
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
     }
 
-    public void cleanUp() {
-        long now = System.currentTimeMillis();
-        ArrayList<Key> deleteList = new ArrayList<>();
-
-        synchronized(resourceWrapperMap) {
-            for (Map.Entry<Key, CacheWrapper> entry : resourceWrapperMap.entrySet()) {
-                CacheWrapper wrapper = entry.getValue();
-                if (wrapper.state != ProcessingState.PROCESSED) continue;
-                if (this.expireMilliseconds == -1 || wrapper.lastUpdated + this.expireMilliseconds > now) continue;
-                deleteList.add(entry.getKey());
+    @Override
+    public synchronized void close() throws IOException {
+        // Close blocks
+        for(ProcessingBlock<Key, ?, ?> block : blocks) {
+            // TODO: This might delete global blocks. Fix this
+            if (block instanceof Closeable) {
+                ((Closeable) block).close();
             }
         }
-        if (deleteList.isEmpty()) return;
-
-        log("Cleaning up...");
-        for (Key key : deleteList) {
-            this.deleteResourceByKey(key);
-        }
+        this.closed = true;
+        this.storage.deleteReference(this);
     }
 
     /**
@@ -168,16 +102,6 @@ public abstract class CacheableProcessorModel<Key, Input, Output> {
      */
     protected abstract SequentialBuilder<Key, Input, Output> getSequentialBuilder();
     protected abstract void deleteResource(Output output);
-
-    @AllArgsConstructor
-    private class CacheWrapper {
-        private ProcessingState state;
-        @Nullable
-        private Output output;
-        private long lastUpdated;
-        @Nullable
-        private Exception error;
-    }
 
     public static class SequentialBuilder<Key, Initial, T> {
         private final List<ProcessingBlock<Key, ?, ?>> blocks = new ArrayList<>();

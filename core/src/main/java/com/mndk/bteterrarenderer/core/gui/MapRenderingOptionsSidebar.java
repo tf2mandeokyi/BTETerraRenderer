@@ -26,6 +26,7 @@ import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
+import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
@@ -47,7 +48,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final int ELEMENT_DISTANCE = 7;
     private static final int ELEMENT_DISTANCE_BIG = 35;
 
-    private static final IconMaker ICON_MAKER = new IconMaker(-1, -1, false);
+    private static final IconMaker ICON_MAKER = new IconMaker();
 
     private static MapRenderingOptionsSidebar INSTANCE;
     private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
@@ -300,13 +301,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         private final ImageResizingBlock<URL> imageResize = new ImageResizingBlock<>(256, 256);
         private final ImageBakingBlock<URL> iconBaker = new ImageBakingBlock<>();
 
-        /**
-         * @param expireMilliseconds How long can a cache live without being refreshed. Set to -1 for no limits
-         * @param maximumSize        Maximum cache size. Set to -1 for no limits
-         * @param debug              debug
-         */
-        protected IconMaker(long expireMilliseconds, int maximumSize, boolean debug) {
-            super(expireMilliseconds, maximumSize, debug);
+        protected IconMaker() {
+            super(new ProcessorCacheStorage<>(-1, -1, false));
         }
 
         @Override
