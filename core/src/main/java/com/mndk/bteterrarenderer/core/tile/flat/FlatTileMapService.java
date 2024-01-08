@@ -73,7 +73,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         this.urlConverter = urlConverter;
 
         this.tileKeyToUrl = ImmediateBlock.of((key, input) -> getUrlFromTileCoordinate(input));
-        this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3);
+        this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3, true);
         this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
         this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, computeTileQuad(key.getRight())));
         this.imageFetcher.setQueueKey(0);

@@ -297,7 +297,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static class IconMaker extends CacheableProcessorModel<URL, URL, Object> {
 
         private final SimpleImageFetchingBlock<URL> iconFetcher = new SimpleImageFetchingBlock<>(
-                Executors.newCachedThreadPool(), 3, 500);
+                Executors.newCachedThreadPool(), 3, 500, true);
         private final ImageResizingBlock<URL> imageResize = new ImageResizingBlock<>(256, 256);
         private final ImageBakingBlock<URL> iconBaker = new ImageBakingBlock<>();
 

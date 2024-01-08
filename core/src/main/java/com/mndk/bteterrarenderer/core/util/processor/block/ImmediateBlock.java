@@ -8,6 +8,10 @@ import java.util.List;
 
 public abstract class ImmediateBlock<Key, Input, Output> extends ProcessingBlock<Key, Input, Output> {
 
+    protected ImmediateBlock() {
+        super(false);
+    }
+
     @Override
     public void insert(BlockPayload<Key, Input> payload) {
         try {

@@ -10,6 +10,10 @@ public abstract class SingleQueueBlock<Key, Input, Output> extends ProcessingBlo
 
     private final Queue<BlockPayload<Key, Input>> queue = new ArrayDeque<>();
 
+    protected SingleQueueBlock() {
+        super(false);
+    }
+
     @Override
     public void insert(BlockPayload<Key, Input> payload) {
         this.queue.add(payload);

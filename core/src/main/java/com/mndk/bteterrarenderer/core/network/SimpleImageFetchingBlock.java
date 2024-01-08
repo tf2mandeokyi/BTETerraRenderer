@@ -12,8 +12,9 @@ public class SimpleImageFetchingBlock<Key> extends MultiThreadedBlock<Key, URL, 
     /**
      * @param maxRetryCount          Max retry count. set this to -1 if no retry restrictions are needed
      */
-    public SimpleImageFetchingBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds) {
-        super(executorService, maxRetryCount, retryDelayMilliseconds);
+    public SimpleImageFetchingBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds,
+                                    boolean closeableByModel) {
+        super(executorService, maxRetryCount, retryDelayMilliseconds, closeableByModel);
     }
 
     @Override

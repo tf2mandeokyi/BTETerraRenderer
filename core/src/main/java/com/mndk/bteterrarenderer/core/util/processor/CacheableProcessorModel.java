@@ -88,10 +88,9 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     public synchronized void close() throws IOException {
         // Close blocks
         for(ProcessingBlock<Key, ?, ?> block : blocks) {
-            // TODO: This might delete global blocks. Fix this
-            if (block instanceof Closeable) {
-                ((Closeable) block).close();
-            }
+            if(!block.isCloseableByModel()) continue;
+            if(!(block instanceof Closeable)) continue;
+            ((Closeable) block).close();
         }
         this.closed = true;
         this.storage.deleteReference(this);

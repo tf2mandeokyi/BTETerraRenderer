@@ -63,7 +63,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         return new ParsedData(pair.getLeft(), tileData);
     });
     private static final Ogc3dTileParsingBlock TILE_PARSER = new Ogc3dTileParsingBlock(
-            Executors.newCachedThreadPool(), 3, 100);
+            Executors.newCachedThreadPool(), 3, 100, false);
 
     @Setter
     private transient double radius = 40;
@@ -262,7 +262,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
             this.tileStreamFetcher = MultiThreadedBlock.of((key, pair) -> {
                 ByteBuf buf = HttpResourceManager.download(pair.getRight().toString());
                 return Pair.of(pair.getLeft(), new ByteBufInputStream(buf));
-            }, this.executorService, 3, 200);
+            }, this.executorService, 3, 200, true);
         }
 
         @Override

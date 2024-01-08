@@ -16,7 +16,8 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
     /**
      * @param maxRetryCount Max retry count. set this to -1 for no retry restrictions
      */
-    protected MappedQueueBlock(int nThreads, int maxRetryCount) {
+    protected MappedQueueBlock(int nThreads, int maxRetryCount, boolean closeableByModel) {
+        super(closeableByModel);
         this.processor = new SimpleMappedQueueProcessor(maxRetryCount);
         this.threads = new Thread[nThreads];
         for(int i = 0; i < nThreads; i++) {

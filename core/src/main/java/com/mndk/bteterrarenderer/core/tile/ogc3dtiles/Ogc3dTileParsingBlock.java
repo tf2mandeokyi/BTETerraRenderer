@@ -21,8 +21,9 @@ import java.util.concurrent.ExecutorService;
 
 public class Ogc3dTileParsingBlock extends MultiThreadedBlock<TMSIdPair<TileGlobalKey>, ParsedData, List<PreBakedModel>> {
 
-    protected Ogc3dTileParsingBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds) {
-        super(executorService, maxRetryCount, retryDelayMilliseconds);
+    protected Ogc3dTileParsingBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds,
+                                    boolean closeableByModel) {
+        super(executorService, maxRetryCount, retryDelayMilliseconds, closeableByModel);
     }
 
     @Override

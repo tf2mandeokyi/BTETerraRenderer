@@ -13,8 +13,8 @@ public class FlatTileResourceDownloadingBlock extends MappedQueueBlock<TMSIdPair
      * @param nThreads Number of threads
      * @param maxRetryCount Max retry count. set this to -1 for no retry restrictions
      */
-    protected FlatTileResourceDownloadingBlock(int nThreads, int maxRetryCount) {
-        super(nThreads, maxRetryCount);
+    protected FlatTileResourceDownloadingBlock(int nThreads, int maxRetryCount, boolean closeableByModel) {
+        super(nThreads, maxRetryCount, closeableByModel);
     }
 
     @Override

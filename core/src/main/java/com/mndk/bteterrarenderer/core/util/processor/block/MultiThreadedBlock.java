@@ -18,7 +18,9 @@ public abstract class MultiThreadedBlock<Key, Input, Output> extends ProcessingB
     private final int maxRetryCount;
     private final int retryDelayMilliseconds;
 
-    protected MultiThreadedBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds) {
+    protected MultiThreadedBlock(ExecutorService executorService, int maxRetryCount, int retryDelayMilliseconds,
+                                 boolean closeableByModel) {
+        super(closeableByModel);
         this.executorService = executorService;
         this.maxRetryCount = maxRetryCount;
         this.retryDelayMilliseconds = retryDelayMilliseconds;
@@ -31,8 +33,9 @@ public abstract class MultiThreadedBlock<Key, Input, Output> extends ProcessingB
 
     public static <K, I, O> MultiThreadedBlock<K, I, O> of(BlockFunction<K, I, O> function,
                                                            ExecutorService executorService,
-                                                           int maxRetryCount, int retryDelayMilliseconds) {
-        return new MultiThreadedBlock<K, I, O>(executorService, maxRetryCount, retryDelayMilliseconds) {
+                                                           int maxRetryCount, int retryDelayMilliseconds,
+                                                           boolean closeableByModel) {
+        return new MultiThreadedBlock<K, I, O>(executorService, maxRetryCount, retryDelayMilliseconds, closeableByModel) {
             protected O processInternal(K key, @Nonnull I input) throws Exception {
                 return function.apply(key, input);
             }
