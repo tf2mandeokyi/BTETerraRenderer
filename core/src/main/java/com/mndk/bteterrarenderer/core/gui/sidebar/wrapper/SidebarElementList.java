@@ -60,7 +60,7 @@ public class SidebarElementList extends GuiSidebarElement {
     public SidebarElementList add(GuiSidebarElement element) {
         if(element == null) return this;
         this.entryList.add(new Entry(element));
-        if(this.getWidth() != -1) element.init(this.getWidth());
+        if(this.getWidth() != -1) element.init(this.getWidth() - 2 * this.sidePadding);
         return this;
     }
 
