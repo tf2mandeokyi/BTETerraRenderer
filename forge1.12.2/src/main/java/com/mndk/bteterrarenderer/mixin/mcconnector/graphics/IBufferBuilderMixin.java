@@ -19,28 +19,28 @@ public class IBufferBuilderMixin {
     }
 
     @Unique
-    private static IBufferBuilder<?> bTETerraRenderer$of(Tessellator tessellator) { return new IBufferBuilder<Object>() {
+    private static IBufferBuilder<?> bTETerraRenderer$of(Tessellator tessellator) { return new IBufferBuilder<Void>() {
         public void beginPTCQuads() {
             tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
         }
         public void beginPTCTriangles() {
             tessellator.getBuffer().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
         }
-        public void ptc(Object poseStack, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
+        public void ptc(Void poseStack, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
             tessellator.getBuffer().pos(x, y, z).tex(u, v).color(1f, 1f, 1f, a).endVertex();
         }
 
         public void beginPCQuads() {
             tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         }
-        public void pc(Object poseStack, float x, float y, float z, float r, float g, float b, float a) {
+        public void pc(Void poseStack, float x, float y, float z, float r, float g, float b, float a) {
             tessellator.getBuffer().pos(x, y, z).color(1f, 1f, 1f, a).endVertex();
         }
 
         public void beginPTQuads() {
             tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         }
-        public void pt(Object poseStack, float x, float y, float z, float u, float v) {
+        public void pt(Void poseStack, float x, float y, float z, float u, float v) {
             tessellator.getBuffer().pos(x, y, z).tex(u, v).endVertex();
         }
 

@@ -33,12 +33,12 @@ public class RawGuiManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static RawGuiManager<?> makeInstance() { return new RawGuiManager<Object>() {
+    private static RawGuiManager<?> makeInstance() { return new RawGuiManager<Void>() {
         public void displayGuiScreen(AbstractGuiScreenCopy gui) {
             Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenImpl(gui));
         }
 
-        public void fillQuad(Object poseStack, GraphicsQuad<PosXY> quad, int color, float z) {
+        public void fillQuad(Void poseStack, GraphicsQuad<PosXY> quad, int color, float z) {
             PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
 
             float a = (float)(color >> 24 & 255) / 255.0F;
@@ -64,7 +64,13 @@ public class RawGuiManagerMixin {
             GlStateManager.disableBlend();
         }
 
-        public void drawButton(Object poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
+        @Override
+        public void drawNativeImage(Void poseStack, Object allocatedTextureObject, int x, int y, int w, int h) {
+            GlStateManager.color(1, 1, 1, 1);
+            super.drawNativeImage(poseStack, allocatedTextureObject, x, y, w, h);
+        }
+
+        public void drawButton(Void poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
             int i = 0;
             switch(hoverState) {
                 case DISABLED:          break;
@@ -80,7 +86,7 @@ public class RawGuiManagerMixin {
             );
         }
 
-        public void drawCheckBox(Object poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
+        public void drawCheckBox(Void poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
             drawButton(poseStack, x, y, width, height, GuiAbstractWidgetCopy.HoverState.DISABLED);
             if (checked) {
                 FontRenderer.DEFAULT.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1,
@@ -88,7 +94,7 @@ public class RawGuiManagerMixin {
             }
         }
 
-        public void drawTextFieldHighlight(Object poseStack, int startX, int startY, int endX, int endY) {
+        public void drawTextFieldHighlight(Void poseStack, int startX, int startY, int endX, int endY) {
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuffer();
             GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
@@ -105,7 +111,7 @@ public class RawGuiManagerMixin {
             GlStateManager.enableTexture2D();
         }
 
-        public void drawImage(Object poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
+        public void drawImage(Void poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
             GlStateManager.color(1, 1, 1, 1);

@@ -23,14 +23,14 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static GlGraphicsManager<?,?> makeInstance() { return new GlGraphicsManager<Object, Integer>() {
-        public void glTranslate(Object poseStack, float x, float y, float z) {
+    private static GlGraphicsManager<?,?> makeInstance() { return new GlGraphicsManager<Void, Integer>() {
+        public void glTranslate(Void poseStack, float x, float y, float z) {
             GlStateManager.translate(x, y, z);
         }
-        public void glPushMatrix(Object poseStack) {
+        public void glPushMatrix(Void poseStack) {
             GlStateManager.pushMatrix();
         }
-        public void glPopMatrix(Object poseStack) {
+        public void glPopMatrix(Void poseStack) {
             GlStateManager.popMatrix();
         }
         public void glEnableTexture() {
@@ -79,7 +79,7 @@ public class GlGraphicsManagerMixin {
             GlStateManager.deleteTexture(textureObject);
         }
 
-        protected int[] getAbsoluteScissorDimension(Object poseStack, int relX, int relY, int relWidth, int relHeight) {
+        protected int[] getAbsoluteScissorDimension(Void poseStack, int relX, int relY, int relWidth, int relHeight) {
             Minecraft mc = Minecraft.getMinecraft();
             ScaledResolution scaledResolution = new ScaledResolution(mc);
             int scaleFactor = scaledResolution.getScaleFactor();

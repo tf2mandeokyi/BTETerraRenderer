@@ -24,7 +24,7 @@ public class FontRendererMixin {
     }
 
     @Unique
-    private static FontRenderer<?,?,?,?> bTETerraRenderer$of(net.minecraft.client.gui.FontRenderer fontRenderer) { return new FontRenderer<Object, ITextComponent, ITextComponent, ITextComponent>() {
+    private static FontRenderer<?,?,?,?> bTETerraRenderer$of(net.minecraft.client.gui.FontRenderer fontRenderer) { return new FontRenderer<Void, ITextComponent, ITextComponent, ITextComponent>() {
         public int getHeight() {
             return fontRenderer.FONT_HEIGHT;
         }
@@ -35,10 +35,10 @@ public class FontRendererMixin {
             String formattedText = textComponent.getFormattedText();
             return fontRenderer.getStringWidth(formattedText);
         }
-        public int drawStringWithShadow(Object poseStack, String text, float x, float y, int color) {
+        public int drawStringWithShadow(Void poseStack, String text, float x, float y, int color) {
             return fontRenderer.drawStringWithShadow(text, x, y, color);
         }
-        public int drawComponentWithShadow(Object poseStack, ITextComponent textComponent, float x, float y, int color) {
+        public int drawComponentWithShadow(Void poseStack, ITextComponent textComponent, float x, float y, int color) {
             String formatted = textComponent.getFormattedText();
             return fontRenderer.drawStringWithShadow(formatted, x, y, color);
         }
