@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -23,14 +25,14 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static GlGraphicsManager<?,?> makeInstance() { return new GlGraphicsManager<Void, Integer>() {
-        public void glTranslate(Void poseStack, float x, float y, float z) {
+    private static GlGraphicsManager makeInstance() { return new GlGraphicsManager() {
+        public void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
             GlStateManager.translate(x, y, z);
         }
-        public void glPushMatrix(Void poseStack) {
+        public void glPushMatrix(DrawContextWrapper drawContextWrapper) {
             GlStateManager.pushMatrix();
         }
-        public void glPopMatrix(Void poseStack) {
+        public void glPopMatrix(DrawContextWrapper drawContextWrapper) {
             GlStateManager.popMatrix();
         }
         public void glEnableTexture() {
@@ -61,11 +63,11 @@ public class GlGraphicsManagerMixin {
         public void setPositionTexShader() {}
         public void setPositionColorShader() {}
         public void setPositionTexColorShader() {}
-        public void setShaderTexture(Integer textureObject) {
-            GlStateManager.bindTexture(textureObject);
+        public void setShaderTexture(NativeTextureWrapper textureObject) {
+            GlStateManager.bindTexture(textureObject.get());
         }
 
-        public Integer allocateAndGetTextureObject(BufferedImage image) {
+        public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
             int glId = GL11.glGenTextures();
             int width = image.getWidth(), height = image.getHeight();
             TextureUtil.allocateTexture(glId, width, height);
@@ -73,13 +75,14 @@ public class GlGraphicsManagerMixin {
             int[] imageData = new int[width * height];
             image.getRGB(0, 0, width, height, imageData, 0, width);
             TextureUtil.uploadTexture(glId, imageData, width, height);
-            return glId;
+            return new NativeTextureWrapper(glId);
         }
-        public void deleteTextureObject(Integer textureObject) {
-            GlStateManager.deleteTexture(textureObject);
+        public void deleteTextureObject(NativeTextureWrapper textureObject) {
+            GlStateManager.deleteTexture(textureObject.get());
         }
 
-        protected int[] getAbsoluteScissorDimension(Void poseStack, int relX, int relY, int relWidth, int relHeight) {
+        protected int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper,
+                                                    int relX, int relY, int relWidth, int relHeight) {
             Minecraft mc = Minecraft.getMinecraft();
             ScaledResolution scaledResolution = new ScaledResolution(mc);
             int scaleFactor = scaledResolution.getScaleFactor();

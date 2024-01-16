@@ -1,22 +1,23 @@
 package com.mndk.bteterrarenderer.mcconnector.graphics;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 
 import java.awt.image.BufferedImage;
 import java.util.Stack;
 
-public abstract class GlGraphicsManager<PoseStack, TextureObject> {
+public abstract class GlGraphicsManager {
 
-    public static final GlGraphicsManager<Object, Object> INSTANCE = BTRUtil.uncheckedCast(makeInstance());
-    private static GlGraphicsManager<?,?> makeInstance() {
+    public static final GlGraphicsManager INSTANCE = makeInstance();
+    private static GlGraphicsManager makeInstance() {
         return MixinUtil.notOverwritten();
     }
 
-    public abstract void glTranslate(PoseStack poseStack, float x, float y, float z);
-    public abstract void glPushMatrix(PoseStack poseStack);
-    public abstract void glPopMatrix(PoseStack poseStack);
+    public abstract void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z);
+    public abstract void glPushMatrix(DrawContextWrapper drawContextWrapper);
+    public abstract void glPopMatrix(DrawContextWrapper drawContextWrapper);
     public abstract void glEnableTexture();
     public abstract void glDisableTexture();
     public abstract void glEnableCull();
@@ -29,24 +30,24 @@ public abstract class GlGraphicsManager<PoseStack, TextureObject> {
     public abstract void setPositionTexShader();
     public abstract void setPositionColorShader();
     public abstract void setPositionTexColorShader();
-    public abstract void setShaderTexture(TextureObject textureObject);
+    public abstract void setShaderTexture(NativeTextureWrapper textureObject);
 
-    public abstract TextureObject allocateAndGetTextureObject(BufferedImage image);
-    public abstract void deleteTextureObject(TextureObject textureObject);
+    public abstract NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image);
+    public abstract void deleteTextureObject(NativeTextureWrapper textureObject);
 
     /**
      * Converts "relative" dimension to an absolute scissor dimension
      * @return {@code [ scissorX, scissorY, scissorWidth, scissorHeight ]}
      */
-    protected abstract int[] getAbsoluteScissorDimension(PoseStack poseStack, int relX, int relY, int relWidth, int relHeight);
+    protected abstract int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper, int relX, int relY, int relWidth, int relHeight);
     protected abstract void glEnableScissorTest();
     protected abstract void glScissorBox(int x, int y, int width, int height);
     protected abstract void glDisableScissorTest();
 
     private final Stack<int[]> SCISSOR_DIM_STACK = new Stack<>();
 
-    public void pushRelativeScissor(PoseStack poseStack, int relX, int relY, int relWidth, int relHeight) {
-        int[] scissorDimension = getAbsoluteScissorDimension(poseStack, relX, relY, relWidth, relHeight);
+    public void pushRelativeScissor(DrawContextWrapper drawContextWrapper, int relX, int relY, int relWidth, int relHeight) {
+        int[] scissorDimension = getAbsoluteScissorDimension(drawContextWrapper, relX, relY, relWidth, relHeight);
         SCISSOR_DIM_STACK.push(scissorDimension);
         this.updateScissorBox();
     }

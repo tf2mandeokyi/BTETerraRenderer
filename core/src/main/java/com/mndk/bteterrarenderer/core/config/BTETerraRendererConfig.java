@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.config;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.loader.json.TileMapServicePropertyLoader;
+import com.mndk.bteterrarenderer.core.loader.json.TileMapServicePropertyJsonLoader;
 import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
@@ -119,7 +119,7 @@ public class BTETerraRendererConfig {
         Proj4jProjection.registerProjection();
         FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
         TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
-        TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+        TileMapServicePropertyJsonLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
 
         // Config file
         SAVE_LOADER_INSTANCE.initialize();
@@ -129,14 +129,14 @@ public class BTETerraRendererConfig {
 
     public void save() {
         SAVE_LOADER_INSTANCE.save();
-        TileMapServicePropertyLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
+        TileMapServicePropertyJsonLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
         refreshCurrentTileMapService();
     }
 
     public void load(boolean loadMapsOnly) {
         FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
         TileMapServiceYamlLoader.INSTANCE.refresh();
-        TileMapServicePropertyLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
+        TileMapServicePropertyJsonLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
         refreshCurrentTileMapService();
         if(loadMapsOnly) return;
 

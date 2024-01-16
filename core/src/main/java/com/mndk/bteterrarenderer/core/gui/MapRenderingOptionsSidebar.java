@@ -32,6 +32,7 @@ import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 
 import java.awt.*;
 import java.io.File;
@@ -272,7 +273,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
-    private static Object getIconTextureObject(CategoryMap.Wrapper<TileMapService<?>> wrapper) {
+    private static NativeTextureWrapper getIconTextureObject(CategoryMap.Wrapper<TileMapService<?>> wrapper) {
         TileMapService<?> tms = wrapper.getItem();
         if(tms == null) return null;
 
@@ -295,7 +296,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super.onClose();
     }
 
-    private static class IconMaker extends CacheableProcessorModel<URL, URL, Object> {
+    private static class IconMaker extends CacheableProcessorModel<URL, URL, NativeTextureWrapper> {
 
         private final SimpleImageFetchingBlock<URL> iconFetcher = new SimpleImageFetchingBlock<>(
                 Executors.newCachedThreadPool(), 3, 500, true);
@@ -307,14 +308,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
 
         @Override
-        protected SequentialBuilder<URL, URL, Object> getSequentialBuilder() {
+        protected SequentialBuilder<URL, URL, NativeTextureWrapper> getSequentialBuilder() {
             return new SequentialBuilder<>(this.iconFetcher)
                     .then(this.imageResize)
                     .then(this.iconBaker);
         }
 
         @Override
-        protected void deleteResource(Object o) {
+        protected void deleteResource(NativeTextureWrapper o) {
             GlGraphicsManager.INSTANCE.deleteTextureObject(o);
         }
     }

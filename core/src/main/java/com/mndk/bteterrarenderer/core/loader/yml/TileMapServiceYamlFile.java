@@ -18,5 +18,4 @@ public class TileMapServiceYamlFile {
                                   CategoryMap<TileMapService<?>> categories) {
         this.categories = categories;
     }
-
 }

@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -44,7 +45,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     private final ItemList dropdownItems = new ItemList("main", true);
     private final PropertyAccessor<T> selectedValue;
     private final Function<T, String> nameGetter;
-    private final Function<T, Object> iconTextureObjectGetter;
+    private final Function<T, NativeTextureWrapper> iconTextureObjectGetter;
 
     private boolean mouseOnMainBox = false;
     private int mainBoxHeight, singleLineElementHeight, itemInnerWidth;
@@ -124,7 +125,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             int textLeft = MAINBOX_PADDING_HORIZONTAL, limit = itemInnerWidth - fontHeight;
 
             // Get icon
-            Object iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
+            NativeTextureWrapper iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
             if(iconTextureObject != null) {
                 int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
                 RawGuiManager.INSTANCE.drawNativeImage(drawContextWrapper, iconTextureObject,
@@ -230,7 +231,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             }
 
             // Get icon
-            Object iconTextureObject = iconTextureObjectGetter.apply(value);
+            NativeTextureWrapper iconTextureObject = iconTextureObjectGetter.apply(value);
             if(iconTextureObject != null) {
                 int textHeight = FontRenderer.DEFAULT.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
                 int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;

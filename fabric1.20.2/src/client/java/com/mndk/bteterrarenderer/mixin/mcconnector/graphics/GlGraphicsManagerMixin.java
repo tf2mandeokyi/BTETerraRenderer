@@ -2,6 +2,8 @@ package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
 
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
@@ -27,14 +29,17 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static GlGraphicsManager<DrawContext, Identifier> makeInstance() { return new GlGraphicsManager<>() {
-        public void glTranslate(DrawContext drawContext, float x, float y, float z) {
+    private static GlGraphicsManager makeInstance() { return new GlGraphicsManager() {
+        public void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+            DrawContext drawContext = drawContextWrapper.get();
             drawContext.getMatrices().translate(x, y, z);
         }
-        public void glPushMatrix(DrawContext drawContext) {
+        public void glPushMatrix(DrawContextWrapper drawContextWrapper) {
+            DrawContext drawContext = drawContextWrapper.get();
             drawContext.getMatrices().push();
         }
-        public void glPopMatrix(DrawContext drawContext) {
+        public void glPopMatrix(DrawContextWrapper drawContextWrapper) {
+            DrawContext drawContext = drawContextWrapper.get();
             drawContext.getMatrices().pop();
         }
         public void glEnableTexture() {}
@@ -67,21 +72,24 @@ public class GlGraphicsManagerMixin {
         public void setPositionTexColorShader() {
             RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         }
-        public void setShaderTexture(Identifier textureObject) {
-            RenderSystem.setShaderTexture(0, textureObject);
+        public void setShaderTexture(NativeTextureWrapper textureObject) {
+            RenderSystem.setShaderTexture(0, textureObject.get());
         }
 
         @SneakyThrows
-        public Identifier allocateAndGetTextureObject(BufferedImage image) {
+        public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
             NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
             NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
-            return MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("bteterrarenderer-textures", texture);
+            Identifier id = MinecraftClient.getInstance().getTextureManager()
+                    .registerDynamicTexture("bteterrarenderer-textures", texture);
+            return new NativeTextureWrapper(id);
         }
-        public void deleteTextureObject(Identifier textureObject) {
-            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject);
+        public void deleteTextureObject(NativeTextureWrapper textureObject) {
+            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject.get());
         }
 
-        protected int[] getAbsoluteScissorDimension(DrawContext drawContext, int relX, int relY, int relWidth, int relHeight) {
+        protected int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper,
+                                                    int relX, int relY, int relWidth, int relHeight) {
             Window window = MinecraftClient.getInstance().getWindow();
             if(window.getWidth() == 0 || window.getHeight() == 0) { // Division by zero handling
                 return new int[] { 0, 0, 0, 0 };
@@ -89,6 +97,7 @@ public class GlGraphicsManagerMixin {
             float scaleFactorX = (float) window.getWidth() / window.getScaledWidth();
             float scaleFactorY = (float) window.getHeight() / window.getScaledHeight();
 
+            DrawContext drawContext = drawContextWrapper.get();
             Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
             Vector4f start = new Vector4f(relX, relY, 0, 1);
             Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);

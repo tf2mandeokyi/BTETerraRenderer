@@ -2,6 +2,8 @@ package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
 
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
@@ -27,14 +29,17 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static GlGraphicsManager<PoseStack, ResourceLocation> makeInstance() { return new GlGraphicsManager<>() {
-        public void glTranslate(PoseStack poseStack, float x, float y, float z) {
+    private static GlGraphicsManager makeInstance() { return new GlGraphicsManager() {
+        public void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+            PoseStack poseStack = drawContextWrapper.get();
             poseStack.translate(x, y, z);
         }
-        public void glPushMatrix(PoseStack poseStack) {
+        public void glPushMatrix(DrawContextWrapper drawContextWrapper) {
+            PoseStack poseStack = drawContextWrapper.get();
             poseStack.pushPose();
         }
-        public void glPopMatrix(PoseStack poseStack) {
+        public void glPopMatrix(DrawContextWrapper drawContextWrapper) {
+            PoseStack poseStack = drawContextWrapper.get();
             poseStack.popPose();
         }
         public void glEnableTexture() {
@@ -71,21 +76,24 @@ public class GlGraphicsManagerMixin {
         public void setPositionTexColorShader() {
             RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         }
-        public void setShaderTexture(ResourceLocation textureObject) {
-            RenderSystem.setShaderTexture(0, textureObject);
+        public void setShaderTexture(NativeTextureWrapper textureObject) {
+            RenderSystem.setShaderTexture(0, textureObject.get());
         }
 
         @SneakyThrows
-        public ResourceLocation allocateAndGetTextureObject(BufferedImage image) {
+        public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
             NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
             DynamicTexture texture = new DynamicTexture(nativeImage);
-            return Minecraft.getInstance().getTextureManager().register("bteterrarenderer-textures", texture);
+            ResourceLocation location = Minecraft.getInstance().getTextureManager()
+                    .register("bteterrarenderer-textures", texture);
+            return new NativeTextureWrapper(location);
         }
-        public void deleteTextureObject(ResourceLocation textureObject) {
-            Minecraft.getInstance().getTextureManager().release(textureObject);
+        public void deleteTextureObject(NativeTextureWrapper textureObject) {
+            Minecraft.getInstance().getTextureManager().release(textureObject.get());
         }
 
-        protected int[] getAbsoluteScissorDimension(PoseStack poseStack, int relX, int relY, int relWidth, int relHeight) {
+        protected int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper,
+                                                    int relX, int relY, int relWidth, int relHeight) {
             Window window = Minecraft.getInstance().getWindow();
             if(window.getScreenWidth() == 0 || window.getScreenHeight() == 0) { // Division by zero handling
                 return new int[] { 0, 0, 0, 0 };
@@ -93,6 +101,7 @@ public class GlGraphicsManagerMixin {
             float scaleFactorX = (float) window.getScreenWidth() / window.getGuiScaledWidth();
             float scaleFactorY = (float) window.getScreenHeight() / window.getGuiScaledHeight();
 
+            PoseStack poseStack = drawContextWrapper.get();
             Matrix4f matrix = poseStack.last().pose();
             Vector4f start = new Vector4f(relX, relY, 0, 1);
             Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);

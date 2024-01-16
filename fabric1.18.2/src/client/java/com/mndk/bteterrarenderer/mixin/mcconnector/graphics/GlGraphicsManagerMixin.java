@@ -2,6 +2,8 @@ package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
 
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
@@ -27,14 +29,17 @@ public class GlGraphicsManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static GlGraphicsManager<MatrixStack, Identifier> makeInstance() { return new GlGraphicsManager<>() {
-        public void glTranslate(MatrixStack poseStack, float x, float y, float z) {
+    private static GlGraphicsManager makeInstance() { return new GlGraphicsManager() {
+        public void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+            MatrixStack poseStack = drawContextWrapper.get();
             poseStack.translate(x, y, z);
         }
-        public void glPushMatrix(MatrixStack poseStack) {
+        public void glPushMatrix(DrawContextWrapper drawContextWrapper) {
+            MatrixStack poseStack = drawContextWrapper.get();
             poseStack.push();
         }
-        public void glPopMatrix(MatrixStack poseStack) {
+        public void glPopMatrix(DrawContextWrapper drawContextWrapper) {
+            MatrixStack poseStack = drawContextWrapper.get();
             poseStack.pop();
         }
         public void glEnableTexture() {
@@ -71,22 +76,23 @@ public class GlGraphicsManagerMixin {
         public void setPositionTexColorShader() {
             RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         }
-        public void setShaderTexture(Identifier textureObject) {
-            RenderSystem.setShaderTexture(0, textureObject);
+        public void setShaderTexture(NativeTextureWrapper textureObject) {
+            RenderSystem.setShaderTexture(0, textureObject.get());
         }
 
         @SneakyThrows
-        public Identifier allocateAndGetTextureObject(BufferedImage image) {
+        public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
             NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
             NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
-            return MinecraftClient.getInstance().getTextureManager()
+            Identifier id = MinecraftClient.getInstance().getTextureManager()
                     .registerDynamicTexture("bteterrarenderer-texture", texture);
+            return new NativeTextureWrapper(id);
         }
-        public void deleteTextureObject(Identifier textureObject) {
-            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject);
+        public void deleteTextureObject(NativeTextureWrapper textureObject) {
+            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject.get());
         }
 
-        protected int[] getAbsoluteScissorDimension(MatrixStack poseStack,
+        protected int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper,
                                                     int relX, int relY, int relWidth, int relHeight) {
             Window window = MinecraftClient.getInstance().getWindow();
             if(window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
@@ -95,6 +101,7 @@ public class GlGraphicsManagerMixin {
             float scaleFactorX = (float) window.getWidth() / window.getScaledWidth();
             float scaleFactorY = (float) window.getHeight() / window.getScaledHeight();
 
+            MatrixStack poseStack = drawContextWrapper.get();
             Matrix4f matrix = poseStack.peek().getPositionMatrix();
             Vector4f start = new Vector4f(relX, relY, 0, 1);
             Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);

@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiEventListenerCopy;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.ResourceLocationWrapper;
 import com.mndk.bteterrarenderer.mod.mcconnector.gui.AbstractGuiScreenImpl;
 import lombok.experimental.UtilityClass;
@@ -65,7 +66,7 @@ public class RawGuiManagerMixin {
         }
 
         @Override
-        public void drawNativeImage(DrawContextWrapper drawContextWrapper, Object allocatedTextureObject, int x, int y, int w, int h) {
+        public void drawNativeImage(DrawContextWrapper drawContextWrapper, NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
             GlStateManager.color(1, 1, 1, 1);
             super.drawNativeImage(drawContextWrapper, allocatedTextureObject, x, y, w, h);
         }

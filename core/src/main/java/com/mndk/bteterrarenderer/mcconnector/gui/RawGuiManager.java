@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.ResourceLocationWrapper;
 
 import javax.annotation.Nullable;
@@ -61,7 +62,7 @@ public abstract class RawGuiManager {
         GlGraphicsManager.INSTANCE.glDisableBlend();
     }
 
-    public void drawNativeImage(DrawContextWrapper drawContextWrapper, Object allocatedTextureObject, int x, int y, int w, int h) {
+    public void drawNativeImage(DrawContextWrapper drawContextWrapper, NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
         GlGraphicsManager.INSTANCE.setPositionTexShader();
         GlGraphicsManager.INSTANCE.setShaderTexture(allocatedTextureObject);
         GlGraphicsManager.INSTANCE.glEnableBlend();
