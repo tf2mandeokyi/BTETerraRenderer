@@ -31,6 +31,7 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 import java.awt.*;
 import java.io.File;
@@ -160,9 +161,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     @Override
-    protected void drawScreen(Object poseStack) {
+    protected void drawScreen(DrawContextWrapper drawContextWrapper) {
         ICON_MAKER.iconBaker.process(1);
-        super.drawScreen(poseStack);
+        super.drawScreen(drawContextWrapper);
     }
 
     private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {

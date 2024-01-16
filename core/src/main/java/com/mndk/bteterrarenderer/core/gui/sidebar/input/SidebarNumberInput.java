@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.input;
 
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.component.GuiNumberInput;
+import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public class SidebarNumberInput extends GuiSidebarElement {
 
@@ -40,8 +41,8 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack) {
-        textField.drawComponent(poseStack);
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+        textField.drawComponent(drawContextWrapper);
     }
 
     @Override

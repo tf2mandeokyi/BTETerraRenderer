@@ -9,6 +9,7 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -95,33 +96,33 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     }
 
     @Override
-    protected void drawScreen(Object poseStack) {
-        this.drawSidebarBackground(poseStack);
+    protected void drawScreen(DrawContextWrapper drawContextWrapper) {
+        this.drawSidebarBackground(drawContextWrapper);
 
-        GlGraphicsManager.INSTANCE.glPushMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glPushMatrix(drawContextWrapper);
 
         int sidebarLeft = this.getSidebarXRange()[0];
-        GlGraphicsManager.INSTANCE.glTranslate(poseStack, sidebarLeft, 0, 0);
-        this.listComponent.drawComponent(poseStack);
+        GlGraphicsManager.INSTANCE.glTranslate(drawContextWrapper, sidebarLeft, 0, 0);
+        this.listComponent.drawComponent(drawContextWrapper);
 
-        GlGraphicsManager.INSTANCE.glPopMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glPopMatrix(drawContextWrapper);
     }
 
 
-    private void drawSidebarBackground(Object poseStack) {
+    private void drawSidebarBackground(DrawContextWrapper drawContextWrapper) {
         int height = this.getHeight();
 
         // Background
         int[] range = this.getSidebarXRange();
-        RawGuiManager.INSTANCE.fillRect(poseStack, range[0], 0, range[1], height, SIDEBAR_BACKGROUND_COLOR);
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, range[0], 0, range[1], height, SIDEBAR_BACKGROUND_COLOR);
 
         // Width change bar
         int widthChangeBarX = this.getWidthChangeBarX();
         int changeBarColor = this.widthChangeBarHoverState ? WIDTH_CHANGE_BAR_COLOR_HOVERED : WIDTH_CHANGE_BAR_COLOR;
         int changeBarShadow = this.widthChangeBarHoverState ? WIDTH_CHANGE_BAR_SHADOW_HOVERED : WIDTH_CHANGE_BAR_SHADOW;
-        RawGuiManager.INSTANCE.fillRect(poseStack, widthChangeBarX - 1, 0, widthChangeBarX, height,
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, widthChangeBarX - 1, 0, widthChangeBarX, height,
                 this.side.get() == SidebarSide.LEFT ? changeBarShadow : changeBarColor);
-        RawGuiManager.INSTANCE.fillRect(poseStack, widthChangeBarX, 0, widthChangeBarX + 1, height,
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, widthChangeBarX, 0, widthChangeBarX + 1, height,
                 this.side.get() == SidebarSide.RIGHT ? changeBarShadow : changeBarColor);
     }
 

@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.loader.yml;
 
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,17 +11,19 @@ import java.nio.file.Files;
 import java.util.Objects;
 
 @Getter
-public abstract class YamlLoader<T> {
+public abstract class YamlLoader<F, T> {
 
     private File filesDirectory;
     private final String folderName;
     private final String defaultYamlPath;
+    private final Class<F> fileClazz;
     @Getter @Setter
     protected T result;
 
-    protected YamlLoader(String folderName, String defaultYamlPath) {
+    protected YamlLoader(String folderName, String defaultYamlPath, Class<F> fileClazz) {
         this.folderName = folderName;
         this.defaultYamlPath = defaultYamlPath;
+        this.fileClazz = fileClazz;
     }
 
     public void refresh() {
@@ -65,6 +68,11 @@ public abstract class YamlLoader<T> {
         ));
     }
 
-    protected abstract T load(String fileName, Reader fileReader) throws IOException;
+    private T load(String fileName, Reader fileReader) throws IOException {
+        F dataTransferObject = BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, this.fileClazz);
+        return this.load(fileName, dataTransferObject);
+    }
+
+    protected abstract T load(String fileName, F f) throws IOException;
     protected abstract void addToResult(T originalT, T newT);
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class FlatTileProjectionTest {
     private static final Map<String, FlatTileProjectionImpl> PROJECTION_MAP;
+    // Gyeongbokgung, Seoul, South Korea
     private final double longitude = 126.97683816936377, latitude = 37.57593302824052;
 
     @Test

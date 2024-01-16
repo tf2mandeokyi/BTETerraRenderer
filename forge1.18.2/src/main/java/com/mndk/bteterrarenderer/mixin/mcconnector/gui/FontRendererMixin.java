@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
@@ -15,6 +18,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 @UtilityClass
@@ -24,19 +28,20 @@ public class FontRendererMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static FontRenderer<?,?,?,?> makeDefault() {
+    private static FontRenderer makeDefault() {
         return bTETerraRenderer$of(Minecraft.getInstance().font);
     }
 
     @Unique
-    private static FontRenderer<PoseStack, Object, Object, Style> bTETerraRenderer$of(Font font) { return new FontRenderer<>() {
+    private static FontRenderer bTETerraRenderer$of(Font font) { return new FontRenderer() {
         public int getHeight() {
             return font.lineHeight;
         }
         public int getStringWidth(String text) {
             return font.width(text);
         }
-        public int getComponentWidth(Object textComponent) {
+        public int getComponentWidth(TextWrapper textWrapper) {
+            Object textComponent = textWrapper.get();
             if(textComponent instanceof FormattedText text) {
                 return font.width(text);
             }
@@ -45,10 +50,13 @@ public class FontRendererMixin {
             }
             return 0;
         }
-        public int drawStringWithShadow(PoseStack poseStack, String text, float x, float y, int color) {
+        public int drawStringWithShadow(DrawContextWrapper drawContextWrapper, String text, float x, float y, int color) {
+            PoseStack poseStack = drawContextWrapper.get();
             return font.drawShadow(poseStack, text, x, y, color);
         }
-        public int drawComponentWithShadow(PoseStack poseStack, Object textComponent, float x, float y, int color) {
+        public int drawComponentWithShadow(DrawContextWrapper drawContextWrapper, TextWrapper textWrapper, float x, float y, int color) {
+            PoseStack poseStack = drawContextWrapper.get();
+            Object textComponent = textWrapper.get();
             if(textComponent instanceof Component component) {
                 return font.drawShadow(poseStack, component, x, y, color);
             }
@@ -64,17 +72,22 @@ public class FontRendererMixin {
             return font.getSplitter().splitLines(str, wrapWidth, Style.EMPTY)
                     .stream().map(FormattedText::getString).toList();
         }
-        public List<?> splitComponentByWidth(Object textComponent, int wrapWidth) {
-            return ComponentRenderUtils.wrapComponents((FormattedText) textComponent, wrapWidth, font);
+        public List<TextWrapper> splitComponentByWidth(TextWrapper textWrapper, int wrapWidth) {
+            Object textComponent = textWrapper.get();
+            return ComponentRenderUtils.wrapComponents((FormattedText) textComponent, wrapWidth, font)
+                    .stream().map(TextWrapper::new).toList();
         }
-        public Style getStyleComponentFromLine(@Nonnull Object lineComponent, int mouseXFromLeft) {
+        @Nullable
+        public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft) {
+            Object lineComponent = textWrapper.get();
+            Style style = null;
             if(lineComponent instanceof FormattedText text) {
-                return font.getSplitter().componentStyleAtWidth(text, mouseXFromLeft);
+                style = font.getSplitter().componentStyleAtWidth(text, mouseXFromLeft);
             }
             else if(lineComponent instanceof FormattedCharSequence sequence) {
-                return font.getSplitter().componentStyleAtWidth(sequence, mouseXFromLeft);
+                style = font.getSplitter().componentStyleAtWidth(sequence, mouseXFromLeft);
             }
-            return null;
+            return style != null ? new StyleWrapper(style) : null;
         }
     };}
 

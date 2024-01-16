@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.core.util;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -120,9 +121,6 @@ public class CategoryMap<T> {
 		public void serialize(CategoryMap<Object> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 			gen.writeStartObject(); // main
 
-			gen.writeFieldName("categories");
-			gen.writeStartObject();
-
 			for(Map.Entry<String, Category<Object>> categoryEntry : value.getCategories()) {
 				gen.writeFieldName(categoryEntry.getKey());
 				gen.writeStartObject();
@@ -153,12 +151,13 @@ public class CategoryMap<T> {
 
 		@Override
 		public CategoryMap<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-			JsonNode node = ctxt.readTree(p);
-			if(!node.has("categories") || !node.get("categories").isObject())
-				throw JsonMappingException.from(p, "\"categories\" field not found, or is not an object");
+			if (p.currentToken() == JsonToken.START_OBJECT)
+				p.nextToken();
 
+			JsonNode node = ctxt.readTree(p);
 			CategoryMap<Object> result = new CategoryMap<>();
-			for (Iterator<Map.Entry<String, JsonNode>> categoryIt = node.get("categories").fields(); categoryIt.hasNext(); ) {
+
+			for (Iterator<Map.Entry<String, JsonNode>> categoryIt = node.fields(); categoryIt.hasNext(); ) {
 				Map.Entry<String, JsonNode> categoryEntry = categoryIt.next();
 				String categoryName = categoryEntry.getKey();
 				JsonNode categoryNode = categoryEntry.getValue();

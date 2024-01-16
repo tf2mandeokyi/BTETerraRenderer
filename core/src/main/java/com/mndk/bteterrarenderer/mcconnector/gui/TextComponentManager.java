@@ -1,27 +1,21 @@
 package com.mndk.bteterrarenderer.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
-import lombok.experimental.UtilityClass;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 
 import javax.annotation.Nonnull;
 
-@UtilityClass
-public class TextComponentManager {
+public abstract class TextComponentManager {
 
-    public Object fromJson(String json) {
-        return MixinUtil.notOverwritten(json);
+    public static final TextComponentManager INSTANCE = makeDefault();
+    private static TextComponentManager makeDefault() {
+        return MixinUtil.notOverwritten();
     }
 
-    public Object fromText(String text) {
-        return MixinUtil.notOverwritten(text);
-    }
-
-    public boolean handleClick(@Nonnull Object styleComponent) {
-        return MixinUtil.notOverwritten(styleComponent);
-    }
-
-    public void handleStyleComponentHover(@Nonnull Object poseStack, @Nonnull Object styleComponent, int x, int y) {
-        MixinUtil.notOverwritten(poseStack, styleComponent, x, y);
-    }
-
+    public abstract TextWrapper fromJson(String json);
+    public abstract TextWrapper fromText(String text);
+    public abstract boolean handleClick(@Nonnull StyleWrapper styleWrapper);
+    public abstract void handleStyleComponentHover(DrawContextWrapper drawContextWrapper, StyleWrapper styleWrapper, int x, int y);
 }

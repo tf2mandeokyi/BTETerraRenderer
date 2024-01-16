@@ -1,11 +1,12 @@
 package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.mcconnector.util.MinecraftStringUtil;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +16,7 @@ import java.util.function.Predicate;
  * Copied from both 1.12.2's <code>net.minecraft.client.gui.GuiTextField</code>
  * and 1.18.2's <code>net.minecraft.client.gui.components.EditBox</code>
  */
-public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
+public class TextFieldWidgetCopy extends AbstractWidgetCopy {
 
     private static final int BACKGROUND_COLOR = 0xFF000000;
 
@@ -25,14 +26,14 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
     private int maxStringLength = 32;
     private int frame;
     @Setter
-    private boolean bordered = true;
+    private boolean drawsBackground = true;
     private boolean shiftPressed;
     @Getter @Setter
     private int displayPos, cursorPos, highlightPos;
     @Setter
     private Predicate<String> validator = s -> true;
 
-    public GuiTextFieldCopy(int x, int y, int width, int height) {
+    public TextFieldWidgetCopy(int x, int y, int width, int height) {
         super(x, y, width, height, "");
     }
 
@@ -269,7 +270,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         if (!mouseOnWidget && mouseButton == 0) return false;
 
         int i = ((int) mouseX) - this.x;
-        if (this.bordered) {
+        if (this.drawsBackground) {
             i -= 4;
         }
 
@@ -279,13 +280,13 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         return true;
     }
 
-    public void drawComponent(Object poseStack) {
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
         if (!this.isVisible()) return;
 
-        if (this.bordered) {
+        if (this.drawsBackground) {
             int borderColor = this.isFocused() ? FOCUSED_BORDER_COLOR : (this.hovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR);
-            RawGuiManager.INSTANCE.fillRect(poseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
-            RawGuiManager.INSTANCE.fillRect(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
+            RawGuiManager.INSTANCE.fillRect(drawContextWrapper, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
+            RawGuiManager.INSTANCE.fillRect(drawContextWrapper, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
         }
 
         int i2 = this.textColor != null ? this.textColor : (this.enabled ? NORMAL_TEXT_COLOR : DISABLED_TEXT_COLOR);
@@ -294,8 +295,8 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         String trimmed = FontRenderer.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
         boolean flag = j >= 0 && j <= trimmed.length();
         boolean flag1 = this.isFocused() && this.frame / 6 % 2 == 0 && flag;
-        int l = this.bordered ? this.x + 4 : this.x;
-        int i1 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
+        int l = this.drawsBackground ? this.x + 4 : this.x;
+        int i1 = this.drawsBackground ? this.y + (this.height - 8) / 2 : this.y;
         int j1 = l;
         if (k > trimmed.length()) {
             k = trimmed.length();
@@ -303,7 +304,7 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
 
         if (!trimmed.isEmpty()) {
             String s1 = flag ? trimmed.substring(0, j) : trimmed;
-            j1 = FontRenderer.DEFAULT.drawStringWithShadow(poseStack, s1, (float)l, (float)i1, i2);
+            j1 = FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, s1, (float)l, (float)i1, i2);
         }
 
         boolean flag2 = this.cursorPos < this.text.length() || this.text.length() >= this.maxStringLength;
@@ -316,24 +317,24 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
         }
 
         if (!trimmed.isEmpty() && flag && j < trimmed.length()) {
-            FontRenderer.DEFAULT.drawStringWithShadow(poseStack, trimmed.substring(j), (float)j1, (float)i1, i2);
+            FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, trimmed.substring(j), (float)j1, (float)i1, i2);
         }
 
         if (flag1) {
             if (flag2) {
-                RawGuiManager.INSTANCE.fillRect(poseStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
+                RawGuiManager.INSTANCE.fillRect(drawContextWrapper, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
             } else {
-                FontRenderer.DEFAULT.drawStringWithShadow(poseStack, "_", (float)k1, (float)i1, i2);
+                FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, "_", (float)k1, (float)i1, i2);
             }
         }
 
         if (k != j) {
             int l1 = l + FontRenderer.DEFAULT.getStringWidth(trimmed.substring(0, k));
-            this.drawSelectionBox(poseStack, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
+            this.drawSelectionBox(drawContextWrapper, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
         }
     }
 
-    private void drawSelectionBox(Object poseStack, int startX, int startY, int endX, int endY) {
+    private void drawSelectionBox(DrawContextWrapper drawContextWrapper, int startX, int startY, int endX, int endY) {
         if (startX < endX) {
             int i = startX;
             startX = endX;
@@ -354,10 +355,10 @@ public class GuiTextFieldCopy extends GuiAbstractWidgetCopy {
             startX = this.x + this.width;
         }
 
-        RawGuiManager.INSTANCE.drawTextFieldHighlight(poseStack, startX, startY, endX, endY);
+        RawGuiManager.INSTANCE.drawTextFieldHighlight(drawContextWrapper, startX, startY, endX, endY);
     }
 
     public int getInnerWidth() {
-        return this.bordered ? this.width - 8 : this.width;
+        return this.drawsBackground ? this.width - 8 : this.width;
     }
 }

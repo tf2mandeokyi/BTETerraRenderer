@@ -1,12 +1,13 @@
 package com.mndk.bteterrarenderer.core.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiAbstractWidgetCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiTextFieldCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.TextFieldWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.Setter;
 
 import java.util.Optional;
@@ -14,11 +15,11 @@ import java.util.Optional;
 /**
  * Number input field class.
  */
-public class GuiNumberInput extends GuiAbstractWidgetCopy {
+public class GuiNumberInput extends AbstractWidgetCopy {
 
 	private static final int PREFIX_BOX_DISTANCE = 3;
 
-	private final GuiTextFieldCopy delegate;
+	private final TextFieldWidgetCopy delegate;
 	protected final PropertyAccessor<Double> value;
 	protected int xPos;
 	protected boolean numberValidated = true;
@@ -27,7 +28,7 @@ public class GuiNumberInput extends GuiAbstractWidgetCopy {
 
 	public GuiNumberInput(int x, int y, int width, int height, PropertyAccessor<Double> value, String prefix) {
 		super(x, y, width, height, prefix);
-		this.delegate = new GuiTextFieldCopy(
+		this.delegate = new TextFieldWidgetCopy(
 				x + FontRenderer.DEFAULT.getStringWidth(prefix) + PREFIX_BOX_DISTANCE, y,
 				width - FontRenderer.DEFAULT.getStringWidth(prefix) - PREFIX_BOX_DISTANCE, height
 		);
@@ -78,19 +79,19 @@ public class GuiNumberInput extends GuiAbstractWidgetCopy {
 		return this.delegate.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
 	}
 
-	public void drawComponent(Object poseStack) {
+	public void drawComponent(DrawContextWrapper drawContextWrapper) {
 		int fontHeight = FontRenderer.DEFAULT.getHeight();
 
 		int color = this.delegate.isHovered() ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 		if(this.delegate.isFocused()) color = FOCUSED_BORDER_COLOR;
 		if(!numberValidated) color = ERROR_TEXT_COLOR;
 
-		FontRenderer.DEFAULT.drawStringWithShadow(poseStack,
+		FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper,
 				text,
 				this.xPos, delegate.getY() + ((delegate.getHeight() - fontHeight) / 2f),
 				Optional.ofNullable(prefixColor).orElse(color)
 		);
-		delegate.drawComponent(poseStack);
+		delegate.drawComponent(drawContextWrapper);
 	}
 
 	public void update() {

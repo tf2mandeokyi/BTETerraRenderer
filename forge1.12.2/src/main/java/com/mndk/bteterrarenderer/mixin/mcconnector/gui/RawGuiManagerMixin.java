@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.IResourceLocation;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiAbstractWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiEventListenerCopy;
-import com.mndk.bteterrarenderer.mod.mcconnector.IResourceLocationImpl;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.ResourceLocationWrapper;
 import com.mndk.bteterrarenderer.mod.mcconnector.gui.AbstractGuiScreenImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
@@ -33,12 +33,12 @@ public class RawGuiManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static RawGuiManager<?> makeInstance() { return new RawGuiManager<Void>() {
+    private static RawGuiManager makeInstance() { return new RawGuiManager() {
         public void displayGuiScreen(AbstractGuiScreenCopy gui) {
             Minecraft.getMinecraft().displayGuiScreen(new AbstractGuiScreenImpl(gui));
         }
 
-        public void fillQuad(Void poseStack, GraphicsQuad<PosXY> quad, int color, float z) {
+        public void fillQuad(DrawContextWrapper drawContextWrapper, GraphicsQuad<PosXY> quad, int color, float z) {
             PosXY v0 = quad.getVertex(0), v1 = quad.getVertex(1), v2 = quad.getVertex(2), v3 = quad.getVertex(3);
 
             float a = (float)(color >> 24 & 255) / 255.0F;
@@ -65,12 +65,12 @@ public class RawGuiManagerMixin {
         }
 
         @Override
-        public void drawNativeImage(Void poseStack, Object allocatedTextureObject, int x, int y, int w, int h) {
+        public void drawNativeImage(DrawContextWrapper drawContextWrapper, Object allocatedTextureObject, int x, int y, int w, int h) {
             GlStateManager.color(1, 1, 1, 1);
-            super.drawNativeImage(poseStack, allocatedTextureObject, x, y, w, h);
+            super.drawNativeImage(drawContextWrapper, allocatedTextureObject, x, y, w, h);
         }
 
-        public void drawButton(Void poseStack, int x, int y, int width, int height, GuiAbstractWidgetCopy.HoverState hoverState) {
+        public void drawButton(DrawContextWrapper drawContextWrapper, int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState) {
             int i = 0;
             switch(hoverState) {
                 case DISABLED:          break;
@@ -86,15 +86,15 @@ public class RawGuiManagerMixin {
             );
         }
 
-        public void drawCheckBox(Void poseStack, int x, int y, int width, int height, boolean focused, boolean checked) {
-            drawButton(poseStack, x, y, width, height, GuiAbstractWidgetCopy.HoverState.DISABLED);
+        public void drawCheckBox(DrawContextWrapper drawContextWrapper, int x, int y, int width, int height, boolean focused, boolean checked) {
+            drawButton(drawContextWrapper, x, y, width, height, AbstractWidgetCopy.HoverState.DISABLED);
             if (checked) {
-                FontRenderer.DEFAULT.drawCenteredStringWithShadow(poseStack, "x", x + width / 2f + 1, y + 1,
+                FontRenderer.DEFAULT.drawCenteredStringWithShadow(drawContextWrapper, "x", x + width / 2f + 1, y + 1,
                         GuiEventListenerCopy.NORMAL_TEXT_COLOR);
             }
         }
 
-        public void drawTextFieldHighlight(Void poseStack, int startX, int startY, int endX, int endY) {
+        public void drawTextFieldHighlight(DrawContextWrapper drawContextWrapper, int startX, int startY, int endX, int endY) {
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuffer();
             GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
@@ -111,12 +111,12 @@ public class RawGuiManagerMixin {
             GlStateManager.enableTexture2D();
         }
 
-        public void drawImage(Void poseStack, IResourceLocation res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
+        public void drawImage(DrawContextWrapper drawContextWrapper, ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
             GlStateManager.color(1, 1, 1, 1);
 
-            ResourceLocation resourceLocation = ((IResourceLocationImpl) res).getDelegate();
+            ResourceLocation resourceLocation = res.get();
             Minecraft.getMinecraft().renderEngine.bindTexture(resourceLocation);
 
             Tessellator tessellator = Tessellator.getInstance();

@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -14,6 +17,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(value = FontRenderer.class, remap = false)
@@ -22,19 +26,20 @@ public class FontRendererMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static FontRenderer<?,?,?,?> makeDefault() {
+    private static FontRenderer makeDefault() {
         return of(MinecraftClient.getInstance().textRenderer);
     }
 
     @Unique
-    private static FontRenderer<DrawContext, Object, Object, Style> of(TextRenderer textRenderer) { return new FontRenderer<>() {
+    private static FontRenderer of(TextRenderer textRenderer) { return new FontRenderer() {
         public int getHeight() {
             return textRenderer.fontHeight;
         }
         public int getStringWidth(String text) {
             return textRenderer.getWidth(text);
         }
-        public int getComponentWidth(Object textComponent) {
+        public int getComponentWidth(TextWrapper textWrapper) {
+            Object textComponent = textWrapper.get();
             if(textComponent instanceof StringVisitable visitable) {
                 textRenderer.getWidth(visitable);
             }
@@ -43,10 +48,13 @@ public class FontRendererMixin {
             }
             return 0;
         }
-        public int drawStringWithShadow(DrawContext drawContext, String text, float x, float y, int color) {
+        public int drawStringWithShadow(DrawContextWrapper drawContextWrapper, String text, float x, float y, int color) {
+            DrawContext drawContext = drawContextWrapper.get();
             return drawContext.drawTextWithShadow(textRenderer, text, (int) x, (int) y, color);
         }
-        public int drawComponentWithShadow(DrawContext drawContext, Object textComponent, float x, float y, int color) {
+        public int drawComponentWithShadow(DrawContextWrapper drawContextWrapper, TextWrapper textWrapper, float x, float y, int color) {
+            DrawContext drawContext = drawContextWrapper.get();
+            Object textComponent = textWrapper.get();
             if(textComponent instanceof Text text) {
                 return drawContext.drawTextWithShadow(textRenderer, text, (int) x, (int) y, color);
             }
@@ -62,17 +70,22 @@ public class FontRendererMixin {
             return textRenderer.getTextHandler().wrapLines(str, wrapWidth, Style.EMPTY)
                     .stream().map(StringVisitable::getString).toList();
         }
-        public List<?> splitComponentByWidth(Object textComponent, int wrapWidth) {
-            return ChatMessages.breakRenderedChatMessageLines((StringVisitable) textComponent, wrapWidth, textRenderer);
+        public List<TextWrapper> splitComponentByWidth(TextWrapper textWrapper, int wrapWidth) {
+            Object textComponent = textWrapper.get();
+            return ChatMessages.breakRenderedChatMessageLines((StringVisitable) textComponent, wrapWidth, textRenderer)
+                    .stream().map(TextWrapper::new).toList();
         }
-        public Style getStyleComponentFromLine(@Nonnull Object lineComponent, int mouseXFromLeft) {
+        @Nullable
+        public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft) {
+            Object lineComponent = textWrapper.get();
+            Style style = null;
             if(lineComponent instanceof StringVisitable visitable) {
-                return textRenderer.getTextHandler().getStyleAt(visitable, mouseXFromLeft);
+                style = textRenderer.getTextHandler().getStyleAt(visitable, mouseXFromLeft);
             }
             else if(lineComponent instanceof OrderedText text) {
-                return textRenderer.getTextHandler().getStyleAt(text, mouseXFromLeft);
+                style = textRenderer.getTextHandler().getStyleAt(text, mouseXFromLeft);
             }
-            return null;
+            return style != null ? new StyleWrapper(style) : null;
         }
     };}
 

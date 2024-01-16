@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.mod.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Style;
@@ -25,7 +26,7 @@ public class AbstractGuiScreenImpl extends Screen {
         delegate.tick();
     }
     public void render(@Nonnull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        delegate.drawScreen(poseStack, mouseX, mouseY, partialTicks);
+        delegate.drawScreen(new DrawContextWrapper(poseStack), mouseX, mouseY, partialTicks);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);

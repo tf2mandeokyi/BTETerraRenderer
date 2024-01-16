@@ -1,12 +1,13 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.dropdown;
 
+import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -96,25 +97,25 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack) {
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
         int mainBoxColor = this.mouseOnMainBox ? HOVERED_COLOR : MAINBOX_BORDER_COLOR;
         boolean opened = this.isOpened();
 
         // Background
-        RawGuiManager.INSTANCE.fillRect(poseStack, 0, 0, this.getWidth(), mainBoxHeight, MAINBOX_BACKGROUND_COLOR);
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, 0, 0, this.getWidth(), mainBoxHeight, MAINBOX_BACKGROUND_COLOR);
         if(opened) {
-            RawGuiManager.INSTANCE.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), getVisualHeight(),
+            RawGuiManager.INSTANCE.fillRect(drawContextWrapper, 0, mainBoxHeight, this.getWidth(), getVisualHeight(),
                     DROPDOWN_BACKGROUND_COLOR);
         }
 
         // Dropdown arrow
-        this.drawDropdownArrow(poseStack, MAINBOX_PADDING_VERTICAL, mainBoxColor, opened);
+        this.drawDropdownArrow(drawContextWrapper, MAINBOX_PADDING_VERTICAL, mainBoxColor, opened);
 
         // Main box Border
-        RawGuiManager.INSTANCE.fillRect(poseStack, -1, -1, 0, mainBoxHeight + 1, mainBoxColor);
-        RawGuiManager.INSTANCE.fillRect(poseStack, 0, -1, this.getWidth(), 0, mainBoxColor);
-        RawGuiManager.INSTANCE.fillRect(poseStack, this.getWidth(), -1, this.getWidth() + 1, mainBoxHeight + 1, mainBoxColor);
-        RawGuiManager.INSTANCE.fillRect(poseStack, 0, mainBoxHeight, this.getWidth(), mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, -1, -1, 0, mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, 0, -1, this.getWidth(), 0, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, this.getWidth(), -1, this.getWidth() + 1, mainBoxHeight + 1, mainBoxColor);
+        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, 0, mainBoxHeight, this.getWidth(), mainBoxHeight + 1, mainBoxColor);
 
         T selectedValue = this.selectedValue.get();
         if(selectedValue != null) {
@@ -126,7 +127,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             Object iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
             if(iconTextureObject != null) {
                 int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
-                RawGuiManager.INSTANCE.drawNativeImage(poseStack, iconTextureObject,
+                RawGuiManager.INSTANCE.drawNativeImage(drawContextWrapper, iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
@@ -136,16 +137,16 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             if(FontRenderer.DEFAULT.getStringWidth(currentName) > limit) {
                 currentName = FontRenderer.DEFAULT.trimStringToWidth(currentName, limit);
             }
-            FontRenderer.DEFAULT.drawStringWithShadow(poseStack, currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
+            FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
         }
 
-        GlGraphicsManager.INSTANCE.glPushMatrix(poseStack);
-        GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, mainBoxHeight, 0);
-        this.dropdownItems.drawItem(poseStack, selectedValue, true);
-        GlGraphicsManager.INSTANCE.glPopMatrix(poseStack);
+        GlGraphicsManager.INSTANCE.glPushMatrix(drawContextWrapper);
+        GlGraphicsManager.INSTANCE.glTranslate(drawContextWrapper, 0, mainBoxHeight, 0);
+        this.dropdownItems.drawItem(drawContextWrapper, selectedValue, true);
+        GlGraphicsManager.INSTANCE.glPopMatrix(drawContextWrapper);
     }
 
-    private void drawDropdownArrow(Object poseStack, int top, int colorARGB, boolean flip) {
+    private void drawDropdownArrow(DrawContextWrapper drawContextWrapper, int top, int colorARGB, boolean flip) {
         int bottom = top + FontRenderer.DEFAULT.getHeight();
         int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
         int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - FontRenderer.DEFAULT.getHeight();
@@ -161,7 +162,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
                 new PosXY((left + right) / 2f, bottom),
                 new PosXY(right, top)
         );
-        RawGuiManager.INSTANCE.fillQuad(poseStack, quad, colorARGB, 0);
+        RawGuiManager.INSTANCE.fillQuad(drawContextWrapper, quad, colorARGB, 0);
     }
 
     @Override
@@ -190,7 +191,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         abstract boolean checkMouseHovered(double mouseX, double mouseY);
         abstract void mouseIsNotHovered();
         /** Translation should be done before this method ends */
-        abstract void drawItem(Object poseStack, T selectedValue, boolean isLast);
+        abstract void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast);
         /** This is called after the {@link DropdownItem#checkMouseHovered} call. */
         abstract void mouseClicked();
     }
@@ -217,14 +218,14 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         }
 
         @Override
-        void drawItem(Object poseStack, T selectedValue, boolean isLast) {
+        void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
             String name = nameGetter.apply(this.value);
             int color = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
             int height = this.getHeight();
             int textLeft = ITEM_PADDING_HORIZONTAL, limit = itemInnerWidth;
 
             if(Objects.equals(this.value, selectedValue)) {
-                RawGuiManager.INSTANCE.fillRect(poseStack,
+                RawGuiManager.INSTANCE.fillRect(drawContextWrapper,
                         0, 0, getWidth(), height, SELECTED_BACKGROUND_COLOR);
             }
 
@@ -233,17 +234,17 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
             if(iconTextureObject != null) {
                 int textHeight = FontRenderer.DEFAULT.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
                 int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;
-                RawGuiManager.INSTANCE.drawNativeImage(poseStack, iconTextureObject,
+                RawGuiManager.INSTANCE.drawNativeImage(drawContextWrapper, iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
             }
 
             // Item text
-            FontRenderer.DEFAULT.drawSplitString(poseStack, name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
+            FontRenderer.DEFAULT.drawSplitString(drawContextWrapper, name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
 
             // Translate
-            GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, height, 0);
+            GlGraphicsManager.INSTANCE.glTranslate(drawContextWrapper, 0, height, 0);
         }
 
         @Override
@@ -303,24 +304,24 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         }
 
         @Override
-        void drawItem(Object poseStack, T selectedValue, boolean isLast) {
+        void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
             int categoryColor = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 
             if(!this.main) {
                 // Category name
-                FontRenderer.DEFAULT.drawCenteredStringWithShadow(poseStack,
+                FontRenderer.DEFAULT.drawCenteredStringWithShadow(drawContextWrapper,
                         this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor);
                 // Dropdown arrow
-                drawDropdownArrow(poseStack, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor, this.opened);
+                drawDropdownArrow(drawContextWrapper, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor, this.opened);
             }
-            GlGraphicsManager.INSTANCE.glTranslate(poseStack, 0, this.getCategoryHeight(), 0);
+            GlGraphicsManager.INSTANCE.glTranslate(drawContextWrapper, 0, this.getCategoryHeight(), 0);
 
             if(this.opened) IntStream.range(0, itemList.size()).forEachOrdered(i ->
-                    itemList.get(i).drawItem(poseStack, selectedValue, i == itemList.size() - 1));
+                    itemList.get(i).drawItem(drawContextWrapper, selectedValue, i == itemList.size() - 1));
 
             if(!isLast) {
                 // Category separator line
-                RawGuiManager.INSTANCE.fillRect(poseStack, 0, 0, getWidth(), 1,
+                RawGuiManager.INSTANCE.fillRect(drawContextWrapper, 0, 0, getWidth(), 1,
                         ITEMLIST_SEPARATOR_LINE_COLOR);
             }
         }

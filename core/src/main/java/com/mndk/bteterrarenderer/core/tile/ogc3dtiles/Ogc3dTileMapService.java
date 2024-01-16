@@ -28,6 +28,7 @@ import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBou
 import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
@@ -41,7 +42,9 @@ import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -212,19 +215,19 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected void drawShape(Object poseStack, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
+    protected void drawShape(DrawContextWrapper drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
         if(!this.yDistortion) {
-            super.drawShape(poseStack, shape, px, py, pz, opacity);
+            super.drawShape(drawContextWrapper, shape, px, py, pz, opacity);
             return;
         }
 
-        IBufferBuilder<Object> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+        IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             PosTex vertex = (PosTex) shape.getVertex(i);
             float x = (float) (vertex.x - px);
             float y = (float) (vertex.y * this.magnitude - py);
             float z = (float) (vertex.z - pz);
-            bufferBuilder.ptc(poseStack, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
+            bufferBuilder.ptc(drawContextWrapper, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
         }
     }
 

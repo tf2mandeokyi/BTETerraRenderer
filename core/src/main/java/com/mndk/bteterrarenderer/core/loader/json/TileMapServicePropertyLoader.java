@@ -17,7 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TileMapServicePropertyLoader {
+
     private static final String FILE_NAME = "properties.json";
+    private static final TypeReference<CategoryMap<Map<String, Object>>> TYPE_REF =
+            new TypeReference<CategoryMap<Map<String, Object>>>() {};
 
     public static void load(CategoryMap<TileMapService<?>> tmsCategoryMap) {
         if(BTETerraRendererConfig.getModConfigDirectory() == null) {
@@ -29,8 +32,7 @@ public class TileMapServicePropertyLoader {
 
         CategoryMap<Map<String, Object>> raw;
         try {
-            TypeReference<CategoryMap<Map<String, Object>>> typeRef = new TypeReference<CategoryMap<Map<String, Object>>>() {};
-            raw = BTETerraRendererConstants.JSON_MAPPER.readValue(file, typeRef);
+            raw = BTETerraRendererConstants.JSON_MAPPER.readValue(file, TYPE_REF);
         } catch (IOException e) {
             Loggers.get().error("Cannot read TMS property json file", e);
             return;

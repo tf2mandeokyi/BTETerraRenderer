@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -18,8 +19,8 @@ public class SidebarElementWrapper extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack) {
-        if(delegate != null) delegate.drawComponent(poseStack);
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+        if(delegate != null) delegate.drawComponent(drawContextWrapper);
     }
 
     @Override

@@ -1,23 +1,21 @@
 package com.mndk.bteterrarenderer.core.loader.yml;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.val;
 
 import java.io.IOException;
-import java.io.Reader;
 
-public class TileMapServiceYamlLoader extends YamlLoader<CategoryMap<TileMapService<?>>> {
+public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile, CategoryMap<TileMapService<?>>> {
 
 	public static final TileMapServiceYamlLoader INSTANCE = new TileMapServiceYamlLoader(
 			"maps", "assets/" + BTETerraRendererConstants.MODID + "/default_maps.yml"
 	);
 
 	public TileMapServiceYamlLoader(String folderName, String defaultYamlPath) {
-		super(folderName, defaultYamlPath);
+		super(folderName, defaultYamlPath, TileMapServiceYamlFile.class);
 	}
 
 	@Override
@@ -36,11 +34,10 @@ public class TileMapServiceYamlLoader extends YamlLoader<CategoryMap<TileMapServ
 		super.refresh();
 	}
 
-	protected CategoryMap<TileMapService<?>> load(String fileName, Reader fileReader) throws IOException {
-		TypeReference<CategoryMap<TileMapService<?>>> typeRef = new TypeReference<CategoryMap<TileMapService<?>>>() {};
-		CategoryMap<TileMapService<?>> result = BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, typeRef);
-		result.setSource(fileName);
-		return result;
+	protected CategoryMap<TileMapService<?>> load(String fileName, TileMapServiceYamlFile content) throws IOException {
+		CategoryMap<TileMapService<?>> categoryMap = content.getCategories();
+		categoryMap.setSource(fileName);
+		return categoryMap;
 	}
 
 	@Override

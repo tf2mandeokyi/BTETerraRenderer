@@ -1,47 +1,51 @@
 package com.mndk.bteterrarenderer.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 @SuppressWarnings("UnusedReturnValue")
-public abstract class FontRenderer<PoseStack, TextComponent, LineComponent, StyleComponent> {
+public abstract class FontRenderer {
 
-    public static final FontRenderer<Object, Object, Object, Object> DEFAULT = BTRUtil.uncheckedCast(makeDefault());
-    private static FontRenderer<?, ?, ?, ?> makeDefault() {
+    public static final FontRenderer DEFAULT = makeDefault();
+    private static FontRenderer makeDefault() {
         return MixinUtil.notOverwritten();
     }
 
     public abstract int getHeight();
     public abstract int getStringWidth(String text);
-    public abstract int getComponentWidth(TextComponent textComponent);
-    public abstract int drawStringWithShadow(PoseStack poseStack, String text, float x, float y, int color);
-    public abstract int drawComponentWithShadow(PoseStack poseStack, TextComponent textComponent, float x, float y, int color);
+    public abstract int getComponentWidth(TextWrapper textComponent);
+    public abstract int drawStringWithShadow(DrawContextWrapper drawContextWrapper, String text, float x, float y, int color);
+    public abstract int drawComponentWithShadow(DrawContextWrapper drawContextWrapper, TextWrapper textComponent, float x, float y, int color);
     public abstract String trimStringToWidth(String text, int width);
     public abstract List<String> splitStringByWidth(String str, int wrapWidth);
-    public abstract List<?> splitComponentByWidth(TextComponent textComponent, int wrapWidth);
-    public abstract StyleComponent getStyleComponentFromLine(@Nonnull LineComponent lineComponent, int mouseXFromLeft);
+    public abstract List<TextWrapper> splitComponentByWidth(TextWrapper textComponent, int wrapWidth);
+    @Nullable
+    public abstract StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper lineComponent, int mouseXFromLeft);
 
     public int getWordWrappedHeight(String text, int maxWidth) {
         return this.getHeight() * this.splitStringByWidth(text, maxWidth).size();
     }
-    public void drawSplitString(PoseStack poseStack, String str, int x, int y, int wrapWidth, int textColor) {
+    public void drawSplitString(DrawContextWrapper drawContextWrapper, String str, int x, int y, int wrapWidth, int textColor) {
         List<String> splitLines = this.splitStringByWidth(str, wrapWidth);
         for(String line : splitLines) {
-            this.drawStringWithShadow(poseStack, line, x, y, textColor);
+            this.drawStringWithShadow(drawContextWrapper, line, x, y, textColor);
             y += this.getHeight();
         }
     }
-    public void drawStringWithShadow(PoseStack poseStack, String text, HorizontalAlign align, float x, float y, float width, int color) {
+    public void drawStringWithShadow(DrawContextWrapper drawContextWrapper, String text, HorizontalAlign align, float x, float y, float width, int color) {
         switch (align) {
-            case LEFT:   this.drawStringWithShadow(poseStack, text, x, y, color); break;
-            case RIGHT:  this.drawStringWithShadow(poseStack, text, x + width - this.getStringWidth(text), y, color); break;
-            case CENTER: this.drawCenteredStringWithShadow(poseStack, text, x + width / 2f, y, color); break;
+            case LEFT:   this.drawStringWithShadow(drawContextWrapper, text, x, y, color); break;
+            case RIGHT:  this.drawStringWithShadow(drawContextWrapper, text, x + width - this.getStringWidth(text), y, color); break;
+            case CENTER: this.drawCenteredStringWithShadow(drawContextWrapper, text, x + width / 2f, y, color); break;
         }
     }
-    public void drawStringWithShadow(PoseStack poseStack, String text, HorizontalAlign hAlign, VerticalAlign vAlign, float x, float y, int color) {
+    public void drawStringWithShadow(DrawContextWrapper drawContextWrapper, String text, HorizontalAlign hAlign, VerticalAlign vAlign, float x, float y, int color) {
         String[] lines = text.split("\n");
 
         float left, top;
@@ -60,20 +64,20 @@ public abstract class FontRenderer<PoseStack, TextComponent, LineComponent, Styl
         }
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            this.drawStringWithShadow(poseStack, line, left, top + i * this.getHeight(), color);
+            this.drawStringWithShadow(drawContextWrapper, line, left, top + i * this.getHeight(), color);
         }
     }
-    public void drawComponentWithShadow(PoseStack poseStack, TextComponent textComponent, HorizontalAlign align, float x, float y, float width, int color) {
+    public void drawComponentWithShadow(DrawContextWrapper drawContextWrapper, TextWrapper textComponent, HorizontalAlign align, float x, float y, float width, int color) {
         switch (align) {
-            case LEFT:   this.drawComponentWithShadow(poseStack, textComponent, x, y, color); break;
-            case RIGHT:  this.drawComponentWithShadow(poseStack, textComponent, x + width - this.getComponentWidth(textComponent), y, color); break;
-            case CENTER: this.drawCenteredComponentWithShadow(poseStack, textComponent, x + width / 2f, y, color); break;
+            case LEFT:   this.drawComponentWithShadow(drawContextWrapper, textComponent, x, y, color); break;
+            case RIGHT:  this.drawComponentWithShadow(drawContextWrapper, textComponent, x + width - this.getComponentWidth(textComponent), y, color); break;
+            case CENTER: this.drawCenteredComponentWithShadow(drawContextWrapper, textComponent, x + width / 2f, y, color); break;
         }
     }
-    public void drawCenteredStringWithShadow(PoseStack poseStack, String text, float x, float y, int color) {
-        this.drawStringWithShadow(poseStack, text, x - getStringWidth(text) / 2.0f, y, color);
+    public void drawCenteredStringWithShadow(DrawContextWrapper drawContextWrapper, String text, float x, float y, int color) {
+        this.drawStringWithShadow(drawContextWrapper, text, x - getStringWidth(text) / 2.0f, y, color);
     }
-    public void drawCenteredComponentWithShadow(PoseStack poseStack, TextComponent textComponent, float x, float y, int color) {
-        this.drawComponentWithShadow(poseStack, textComponent, x - getComponentWidth(textComponent) / 2.0f, y, color);
+    public void drawCenteredComponentWithShadow(DrawContextWrapper drawContextWrapper, TextWrapper textComponent, float x, float y, int color) {
+        this.drawComponentWithShadow(drawContextWrapper, textComponent, x - getComponentWidth(textComponent) / 2.0f, y, color);
     }
 }

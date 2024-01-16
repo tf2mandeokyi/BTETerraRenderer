@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.mod.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -24,7 +25,7 @@ public class AbstractGuiScreenImpl extends Screen {
         delegate.tick();
     }
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        delegate.drawScreen(matrices, mouseX, mouseY, delta);
+        delegate.drawScreen(new DrawContextWrapper(matrices), mouseX, mouseY, delta);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);

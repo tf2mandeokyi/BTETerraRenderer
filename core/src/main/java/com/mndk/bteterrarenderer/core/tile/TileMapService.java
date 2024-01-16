@@ -25,6 +25,7 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.*;
 
 import javax.annotation.Nullable;
@@ -71,7 +72,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         this.properties.addAll(this.makeProperties());
     }
 
-    public final void render(Object poseStack, double px, double py, double pz, float opacity) {
+    public final void render(DrawContextWrapper drawContextWrapper, double px, double py, double pz, float opacity) {
 
         // Bake textures
         this.preRender(px, py, pz);
@@ -94,7 +95,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             List<GraphicsModel> models = this.getModelsForId(tileId);
             if (models == null) continue;
             for(GraphicsModel model : models) {
-                this.drawModel(poseStack, model, px, py - this.getYAlign(), pz, opacity);
+                this.drawModel(drawContextWrapper, model, px, py - this.getYAlign(), pz, opacity);
             }
         }
     }
@@ -126,41 +127,41 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         return null;
     }
 
-    private void drawModel(Object poseStack, GraphicsModel model, double px, double py, double pz, float opacity) {
+    private void drawModel(DrawContextWrapper drawContextWrapper, GraphicsModel model, double px, double py, double pz, float opacity) {
         GlGraphicsManager.INSTANCE.setPositionTexColorShader();
         GlGraphicsManager.INSTANCE.setShaderTexture(model.getTextureObject());
-        IBufferBuilder<?> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+        IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
 
         if(!model.getQuads().isEmpty()) {
             bufferBuilder.beginPTCQuads();
-            drawShapeList(poseStack, model.getQuads(), px, py, pz, opacity);
+            drawShapeList(drawContextWrapper, model.getQuads(), px, py, pz, opacity);
             bufferBuilder.drawAndRender();
         }
         if(!model.getTriangles().isEmpty()) {
             bufferBuilder.beginPTCTriangles();
-            drawShapeList(poseStack, model.getTriangles(), px, py, pz, opacity);
+            drawShapeList(drawContextWrapper, model.getTriangles(), px, py, pz, opacity);
             bufferBuilder.drawAndRender();
         }
     }
 
-    private void drawShapeList(Object poseStack, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
+    private void drawShapeList(DrawContextWrapper drawContextWrapper, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
         for(GraphicsShape<?> shape : shapes) {
             if(shape.getVertexClass() != PosTex.class) {
                 throw new UnsupportedOperationException("Not implemented");
             }
-            this.drawShape(poseStack, shape, px, py, pz, opacity);
+            this.drawShape(drawContextWrapper, shape, px, py, pz, opacity);
         }
     }
 
-    protected void drawShape(Object poseStack, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
-        IBufferBuilder<Object> bufferBuilder = IBufferBuilder.getTessellatorInstance();
+    protected void drawShape(DrawContextWrapper drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
+        IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
 
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             PosTex vertex = (PosTex) shape.getVertex(i);
             float x = (float) (vertex.x - px);
             float y = (float) (vertex.y - py);
             float z = (float) (vertex.z - pz);
-            bufferBuilder.ptc(poseStack, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
+            bufferBuilder.ptc(drawContextWrapper, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
         }
     }
 

@@ -1,13 +1,14 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.slider;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiSliderCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.SliderWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public class SidebarSlider<T extends Number> extends GuiSidebarElement {
 
-    private GuiSliderCopy slider;
+    private SliderWidgetCopy slider;
 
     private final PropertyAccessor.Ranged<T> value;
 
@@ -32,7 +33,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
     @Override
     protected void init() {
         assert value != null;
-        this.slider = new GuiSliderCopy(
+        this.slider = new SliderWidgetCopy(
                 0, 0,
                 this.getWidth(), 20,
                 prefix, suffix,
@@ -58,7 +59,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack) {
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
         if(this.slider.drawString) {
             boolean testResult;
             if(this.isInteger) {
@@ -68,7 +69,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
             }
             this.slider.packedForegroundColor = testResult ? NULL_COLOR : ERROR_TEXT_COLOR;
         }
-        this.slider.drawComponent(poseStack);
+        this.slider.drawComponent(drawContextWrapper);
     }
 
     @Override

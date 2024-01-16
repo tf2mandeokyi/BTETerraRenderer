@@ -35,12 +35,12 @@ public class Loggers {
     }
 
     public void sendErrorMessageToChat(String message) {
-        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
+        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.INSTANCE.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
     }
 
     public void sendErrorMessageToChat(Class<?> clazz, String message, Throwable t) {
-        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
-        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.fromText("§c[" + BTETerraRendererConstants.NAME + "] Reason: " + t.getMessage()));
+        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.INSTANCE.fromText("§c[" + BTETerraRendererConstants.NAME + "] " + message));
+        MinecraftClientManager.sendTextComponentToChat(TextComponentManager.INSTANCE.fromText("§c[" + BTETerraRendererConstants.NAME + "] Reason: " + t.getMessage()));
         get(clazz).error(message, t);
     }
 

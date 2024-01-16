@@ -6,7 +6,7 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "mcconnector.IResourceLocationMixin",
+        "mcconnector.wrapper.ResourceLocationWrapperMixin",
         "mcconnector.config.ConfigSaveLoaderMixin",
         "mcconnector.i18n.I18nManagerMixin",
         "terraplusplus.HttpDiskMixin"

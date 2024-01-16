@@ -1,8 +1,9 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
+import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 import java.util.List;
 
@@ -39,10 +40,10 @@ public class SidebarText extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack) {
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
-            FontRenderer.DEFAULT.drawStringWithShadow(poseStack, line, this.align,
+            FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, line, this.align,
                     0, i * FontRenderer.DEFAULT.getHeight(), this.getWidth(), this.color);
         }
     }

@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.client.WindowManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.Setter;
 
 @Setter
@@ -14,11 +15,11 @@ public abstract class AbstractGuiScreenCopy implements GuiEventListenerCopy {
         return WindowManager.getScaledHeight();
     }
 
-    public final void drawScreen(Object poseStack, double mouseX, double mouseY, float partialTicks) {
+    public final void drawScreen(DrawContextWrapper drawContextWrapper, double mouseX, double mouseY, float partialTicks) {
         this.mouseHovered(mouseX, mouseY, partialTicks, false);
-        this.drawScreen(poseStack);
+        this.drawScreen(drawContextWrapper);
     }
-    protected abstract void drawScreen(Object poseStack);
+    protected abstract void drawScreen(DrawContextWrapper drawContextWrapper);
     public abstract void tick();
 
     public abstract void onClose();

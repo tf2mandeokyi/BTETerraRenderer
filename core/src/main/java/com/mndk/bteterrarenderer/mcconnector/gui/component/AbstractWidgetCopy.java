@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import lombok.Setter;
  * and 1.18.2's <code>net.minecraft.client.gui.components.AbstractWidget</code>
  */
 @Getter @Setter
-public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
+public abstract class AbstractWidgetCopy extends GuiComponentCopy {
 
     protected int x, y, width, height;
     protected String text;
@@ -19,7 +20,7 @@ public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
     public int packedForegroundColor;
     private boolean focused;
 
-    public GuiAbstractWidgetCopy(int x, int y, int width, int height, String text) {
+    public AbstractWidgetCopy(int x, int y, int width, int height, String text) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -27,7 +28,7 @@ public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
         this.text = text;
     }
 
-    protected GuiButtonCopy.HoverState getButtonHoverState(boolean mouseOver) {
+    protected ButtonWidgetCopy.HoverState getButtonHoverState(boolean mouseOver) {
         if(!this.enabled) return HoverState.DISABLED;
         else if(mouseOver) return HoverState.MOUSE_OVER;
         return HoverState.DEFAULT;
@@ -38,12 +39,12 @@ public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
         return this.hovered = !mouseHidden && this.isMouseOnWidget(mouseX, mouseY);
     }
 
-    public void drawComponent(Object poseStack) {
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
         if(!this.visible) return;
 
-        GuiButtonCopy.HoverState hoverState = this.getButtonHoverState(this.hovered);
-        RawGuiManager.INSTANCE.drawButton(poseStack, x, y, width, height, hoverState);
-        this.drawBackground(poseStack);
+        ButtonWidgetCopy.HoverState hoverState = this.getButtonHoverState(this.hovered);
+        RawGuiManager.INSTANCE.drawButton(drawContextWrapper, x, y, width, height, hoverState);
+        this.drawBackground(drawContextWrapper);
 
         int color = NORMAL_TEXT_COLOR;
         if(packedForegroundColor != NULL_COLOR)  color = packedForegroundColor;
@@ -57,10 +58,10 @@ public abstract class GuiAbstractWidgetCopy extends GuiComponentCopy {
         if (stringWidth > width - 6 && stringWidth > ellipsisWidth) {
             buttonText = FontRenderer.DEFAULT.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
         }
-        FontRenderer.DEFAULT.drawCenteredStringWithShadow(poseStack, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
+        FontRenderer.DEFAULT.drawCenteredStringWithShadow(drawContextWrapper, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
     }
 
-    public void drawBackground(Object poseStack) {}
+    public void drawBackground(DrawContextWrapper drawContextWrapper) {}
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         return this.enabled && this.visible && this.isMouseOnWidget(mouseX, mouseY);

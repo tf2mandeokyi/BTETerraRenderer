@@ -16,10 +16,10 @@ public class FlatTileProjectionImpl extends FlatTileProjection {
     private final Map<Integer, TileMatrix> matrices;
 
     @JsonCreator
-    public FlatTileProjectionImpl(
-            @JsonProperty(value = "projection", required = true) GeographicProjection projection,
-            @JsonProperty(value = "tile_matrices", required = true) Map<Integer, TileMatrix> matrices
-    ) {
+    public FlatTileProjectionImpl(@JsonProperty(value = "projection", required = true)
+                                  GeographicProjection projection,
+                                  @JsonProperty(value = "tile_matrices", required = true)
+                                  Map<Integer, TileMatrix> matrices) {
         this.projection = projection;
         this.matrices = matrices;
     }
@@ -66,10 +66,8 @@ public class FlatTileProjectionImpl extends FlatTileProjection {
         final double[] pointOfOrigin, tileSize;
 
         @JsonCreator
-        TileMatrix(
-                @JsonProperty(value = "origin", required = true) double[] pointOfOrigin,
-                @JsonProperty(value = "size", required = true) double[] tileSize
-        ) {
+        TileMatrix(@JsonProperty(value = "origin", required = true) double[] pointOfOrigin,
+                   @JsonProperty(value = "size", required = true) double[] tileSize) {
             this.pointOfOrigin = pointOfOrigin;
             this.tileSize = tileSize;
         }

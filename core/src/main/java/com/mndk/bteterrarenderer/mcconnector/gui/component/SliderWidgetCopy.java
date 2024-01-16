@@ -1,11 +1,12 @@
 package com.mndk.bteterrarenderer.mcconnector.gui.component;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 /**
  * Copied from 1.18.2's net.minecraft.client.gui.components.AbstractSliderButton
  */
-public class GuiSliderCopy extends GuiAbstractWidgetCopy {
+public class SliderWidgetCopy extends AbstractWidgetCopy {
 
     protected static final String NUMBER_FORMATTER_STRING = "%.4f";
 
@@ -16,11 +17,11 @@ public class GuiSliderCopy extends GuiAbstractWidgetCopy {
     public SliderChangeHandler sliderChangeHandler;
 
 
-    public GuiSliderCopy(int x, int y, int width, int height,
-                         String prefix, String suffix,
-                         double minValue, double maxValue, double currentValue,
-                         boolean showDecimal, boolean drawString, boolean isIntegerSlider,
-                         SliderChangeHandler sliderChangeHandler) {
+    public SliderWidgetCopy(int x, int y, int width, int height,
+                            String prefix, String suffix,
+                            double minValue, double maxValue, double currentValue,
+                            boolean showDecimal, boolean drawString, boolean isIntegerSlider,
+                            SliderChangeHandler sliderChangeHandler) {
         super(x, y, width, height, prefix);
         this.minValue = minValue;
         this.maxValue = maxValue;
@@ -46,10 +47,10 @@ public class GuiSliderCopy extends GuiAbstractWidgetCopy {
     }
 
     @Override
-    public void drawBackground(Object poseStack) {
+    public void drawBackground(DrawContextWrapper drawContextWrapper) {
         if(!this.visible) return;
 
-        RawGuiManager.INSTANCE.drawButton(poseStack,
+        RawGuiManager.INSTANCE.drawButton(drawContextWrapper,
                 this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y,
                 8, this.height, this.hovered ? HoverState.MOUSE_OVER : HoverState.DEFAULT
         );
@@ -119,6 +120,6 @@ public class GuiSliderCopy extends GuiAbstractWidgetCopy {
     }
 
     public interface SliderChangeHandler {
-        void handleSliderChange(GuiSliderCopy slider);
+        void handleSliderChange(SliderWidgetCopy slider);
     }
 }

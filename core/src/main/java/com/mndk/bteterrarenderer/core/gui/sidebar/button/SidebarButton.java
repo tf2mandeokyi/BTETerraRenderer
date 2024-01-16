@@ -1,11 +1,12 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiButtonCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.ButtonWidgetCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public class SidebarButton extends GuiSidebarElement {
 
-    private GuiButtonCopy button;
+    private ButtonWidgetCopy button;
     private String buttonText;
     private final MouseClickedEvent event;
 
@@ -16,7 +17,7 @@ public class SidebarButton extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.button = new GuiButtonCopy(0, 0, this.getWidth(), 20, buttonText);
+        this.button = new ButtonWidgetCopy(0, 0, this.getWidth(), 20, buttonText);
     }
 
     @Override
@@ -40,8 +41,8 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(Object poseStack) {
-        this.button.drawComponent(poseStack);
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+        this.button.drawComponent(drawContextWrapper);
     }
 
     @Override

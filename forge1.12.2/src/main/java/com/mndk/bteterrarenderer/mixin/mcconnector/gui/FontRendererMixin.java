@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiUtilRenderComponents;
@@ -10,7 +13,9 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 @Mixin(value = FontRenderer.class, remap = false)
@@ -19,26 +24,28 @@ public class FontRendererMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static FontRenderer<?,?,?,?> makeDefault() {
+    private static FontRenderer makeDefault() {
         return bTETerraRenderer$of(Minecraft.getMinecraft().fontRenderer);
     }
 
     @Unique
-    private static FontRenderer<?,?,?,?> bTETerraRenderer$of(net.minecraft.client.gui.FontRenderer fontRenderer) { return new FontRenderer<Void, ITextComponent, ITextComponent, ITextComponent>() {
+    private static FontRenderer bTETerraRenderer$of(net.minecraft.client.gui.FontRenderer fontRenderer) { return new FontRenderer() {
         public int getHeight() {
             return fontRenderer.FONT_HEIGHT;
         }
         public int getStringWidth(String text) {
             return fontRenderer.getStringWidth(text);
         }
-        public int getComponentWidth(ITextComponent textComponent) {
+        public int getComponentWidth(TextWrapper textWrapper) {
+            ITextComponent textComponent = textWrapper.get();
             String formattedText = textComponent.getFormattedText();
             return fontRenderer.getStringWidth(formattedText);
         }
-        public int drawStringWithShadow(Void poseStack, String text, float x, float y, int color) {
+        public int drawStringWithShadow(DrawContextWrapper drawContextWrapper, String text, float x, float y, int color) {
             return fontRenderer.drawStringWithShadow(text, x, y, color);
         }
-        public int drawComponentWithShadow(Void poseStack, ITextComponent textComponent, float x, float y, int color) {
+        public int drawComponentWithShadow(DrawContextWrapper drawContextWrapper, TextWrapper textWrapper, float x, float y, int color) {
+            ITextComponent textComponent = textWrapper.get();
             String formatted = textComponent.getFormattedText();
             return fontRenderer.drawStringWithShadow(formatted, x, y, color);
         }
@@ -48,20 +55,23 @@ public class FontRendererMixin {
         public List<String> splitStringByWidth(String str, int wrapWidth) {
             return fontRenderer.listFormattedStringToWidth(str, wrapWidth);
         }
-        public List<?> splitComponentByWidth(ITextComponent textComponent, int wrapWidth) {
-            return GuiUtilRenderComponents.splitText(textComponent, wrapWidth, fontRenderer, true, false);
+        public List<TextWrapper> splitComponentByWidth(TextWrapper textWrapper, int wrapWidth) {
+            ITextComponent textComponent = textWrapper.get();
+            return GuiUtilRenderComponents.splitText(textComponent, wrapWidth, fontRenderer, true, false)
+                    .stream().map(TextWrapper::new).collect(Collectors.toList());
         }
-        public ITextComponent getStyleComponentFromLine(@Nonnull ITextComponent lineComponent, int mouseXFromLeft) {
+        @Nullable
+        public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper lineComponent, int mouseXFromLeft) {
             int xPos = 0;
-            ITextComponent clicked = null;
-            for(ITextComponent child : lineComponent.getSiblings()) {
-                int childWidth = FontRenderer.DEFAULT.getComponentWidth(child);
+            ITextComponent clicked = null, textComponent = lineComponent.get();
+            for(ITextComponent child : textComponent.getSiblings()) {
+                int childWidth = FontRenderer.DEFAULT.getComponentWidth(new TextWrapper(child));
                 if(xPos <= mouseXFromLeft && mouseXFromLeft <= xPos + childWidth) {
                     clicked = child; break;
                 }
                 xPos += childWidth;
             }
-            return clicked;
+            return clicked != null ? new StyleWrapper(clicked) : null;
         }
     };}
 

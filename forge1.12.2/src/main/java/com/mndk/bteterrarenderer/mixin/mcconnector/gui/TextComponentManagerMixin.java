@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.TextComponentManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 import com.mndk.bteterrarenderer.mod.mcconnector.gui.AbstractGuiScreenImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
@@ -19,35 +22,29 @@ public class TextComponentManagerMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public Object fromJson(String json) {
-        return ITextComponent.Serializer.jsonToComponent(json);
-    }
+    private static TextComponentManager makeDefault() { return new TextComponentManager() {
 
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
-    public Object fromText(String text) {
-        return new TextComponentString(text);
-    }
+        public TextWrapper fromJson(String json) {
+            ITextComponent textComponent = ITextComponent.Serializer.jsonToComponent(json);
+            return textComponent != null ? new TextWrapper(textComponent) : null;
+        }
 
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
-    public boolean handleClick(@Nonnull Object styleComponent) {
-        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if(currentScreen == null) return false;
-        return currentScreen.handleComponentClick((ITextComponent) styleComponent);
-    }
+        public TextWrapper fromText(String text) {
+            return new TextWrapper(new TextComponentString(text));
+        }
 
-    /** @author m4ndeokyi
-     *  @reason mixin overwrite */
-    @Overwrite
-    public void handleStyleComponentHover(@Nonnull Object poseStack, @Nonnull Object styleComponent, int x, int y) {
-        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if(currentScreen == null) return;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl)) return;
+        public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
+            GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+            if(currentScreen == null) return false;
+            return currentScreen.handleComponentClick(styleWrapper.get());
+        }
 
-        ((AbstractGuiScreenImpl) currentScreen).handleComponentHover((ITextComponent) styleComponent, x, y);
-    }
+        public void handleStyleComponentHover(DrawContextWrapper drawContextWrapper, StyleWrapper styleWrapper, int x, int y) {
+            GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+            if(currentScreen == null) return;
+            if(!(currentScreen instanceof AbstractGuiScreenImpl)) return;
 
+            ((AbstractGuiScreenImpl) currentScreen).handleComponentHover(styleWrapper.get(), x, y);
+        }
+    };}
 }
