@@ -131,7 +131,6 @@ public class CategoryMap<T> {
 				}
 				gen.writeEndObject();
 			}
-			gen.writeEndObject(); // categories
 
 			gen.writeEndObject(); // main
 		}
