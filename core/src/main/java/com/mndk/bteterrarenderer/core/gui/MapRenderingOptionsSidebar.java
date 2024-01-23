@@ -162,7 +162,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     @Override
-    protected void drawScreen(DrawContextWrapper drawContextWrapper) {
+    protected void drawScreen(DrawContextWrapper<?> drawContextWrapper) {
         ICON_MAKER.iconBaker.process(1);
         super.drawScreen(drawContextWrapper);
     }

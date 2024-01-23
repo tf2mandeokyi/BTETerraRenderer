@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public class TileRenderer {
 
-    public static void renderTiles(DrawContextWrapper drawContextWrapper, double px, double py, double pz) {
+    public static void renderTiles(DrawContextWrapper<?> drawContextWrapper, double px, double py, double pz) {
         if(!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
 
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
@@ -19,7 +19,7 @@ public class TileRenderer {
         double yDiff = hologramConfig.getFlatMapYAxis() - py;
         if(Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;
 
-        GlGraphicsManager.INSTANCE.glPushMatrix(drawContextWrapper);
+        drawContextWrapper.pushMatrix();
         GlGraphicsManager.INSTANCE.glDisableCull();
         GlGraphicsManager.INSTANCE.glEnableBlend();
         GlGraphicsManager.INSTANCE.glSetAlphaBlendFunc();
@@ -32,6 +32,6 @@ public class TileRenderer {
         GlGraphicsManager.INSTANCE.glDisableBlend();
         GlGraphicsManager.INSTANCE.glDefaultBlendFunc();
         GlGraphicsManager.INSTANCE.glEnableCull();
-        GlGraphicsManager.INSTANCE.glPopMatrix(drawContextWrapper);
+        drawContextWrapper.popMatrix();
     }
 }

@@ -1,15 +1,19 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.component;
+package com.mndk.bteterrarenderer.mcconnector.gui.widget;
 
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.gui.text.TextManager;
 import com.mndk.bteterrarenderer.mcconnector.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.util.MinecraftStringUtil;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.annotation.Nullable;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -22,16 +26,21 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
 
     @Setter
     private Integer textColor;
-    @Setter
     private int maxStringLength = 32;
     private int frame;
-    @Setter
+    @Getter @Setter
     private boolean drawsBackground = true;
     private boolean shiftPressed;
     @Getter @Setter
     private int displayPos, cursorPos, highlightPos;
-    @Setter
-    private Predicate<String> validator = s -> true;
+    @Nullable
+    @Setter private String suggestion;
+
+    @Nullable
+    @Setter private Consumer<String> changedListener;
+    @Setter private Predicate<String> validator = s -> true;
+    @Setter private BiFunction<String, Integer, TextWrapper> renderTextProvider =
+            (string, firstCharacterIndex) -> TextManager.INSTANCE.fromString(string);
 
     public TextFieldWidgetCopy(int x, int y, int width, int height) {
         super(x, y, width, height, "");
@@ -47,6 +56,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         this.text = text.length() > maxStringLength ? text.substring(0, maxStringLength) : text;
         this.moveCursorToEnd();
         this.setHighlightPos(this.cursorPos);
+        this.onChanged(text);
     }
 
     public String getHighlighted() {
@@ -71,7 +81,13 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
             this.text = result;
             this.setCursorPosition(start + length);
             this.setHighlightPos(this.cursorPos);
+            this.onChanged(this.text);
         }
+    }
+
+    private void onChanged(String newText) {
+        if(this.changedListener == null) return;
+        this.changedListener.accept(newText);
     }
 
     private void deleteText(int delta) {
@@ -163,6 +179,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         if (!this.shiftPressed) {
             this.setHighlightPos(this.cursorPos);
         }
+        this.onChanged(this.text);
     }
 
     public void setCursorPosition(int index) {
@@ -275,24 +292,24 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         }
 
         this.frame = 0;
-        String s = FontRenderer.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
-        this.moveCursorTo(FontRenderer.DEFAULT.trimStringToWidth(s, i).length() + this.displayPos);
+        String s = FontWrapper.DEFAULT.trimToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
+        this.moveCursorTo(FontWrapper.DEFAULT.trimToWidth(s, i).length() + this.displayPos);
         return true;
     }
 
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         if (!this.isVisible()) return;
 
         if (this.drawsBackground) {
             int borderColor = this.isFocused() ? FOCUSED_BORDER_COLOR : (this.hovered ? HOVERED_COLOR : NORMAL_BORDER_COLOR);
-            RawGuiManager.INSTANCE.fillRect(drawContextWrapper, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
-            RawGuiManager.INSTANCE.fillRect(drawContextWrapper, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
+            drawContextWrapper.fillRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, borderColor);
+            drawContextWrapper.fillRect(this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND_COLOR);
         }
 
         int i2 = this.textColor != null ? this.textColor : (this.enabled ? NORMAL_TEXT_COLOR : DISABLED_TEXT_COLOR);
         int j = this.cursorPos - this.displayPos;
         int k = this.highlightPos - this.displayPos;
-        String trimmed = FontRenderer.DEFAULT.trimStringToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
+        String trimmed = FontWrapper.DEFAULT.trimToWidth(this.text.substring(this.displayPos), this.getInnerWidth());
         boolean flag = j >= 0 && j <= trimmed.length();
         boolean flag1 = this.isFocused() && this.frame / 6 % 2 == 0 && flag;
         int l = this.drawsBackground ? this.x + 4 : this.x;
@@ -304,7 +321,8 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
 
         if (!trimmed.isEmpty()) {
             String s1 = flag ? trimmed.substring(0, j) : trimmed;
-            j1 = FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, s1, (float)l, (float)i1, i2);
+            TextWrapper text = this.renderTextProvider.apply(s1, this.displayPos);
+            j1 = drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, (float)l, (float)i1, i2);
         }
 
         boolean flag2 = this.cursorPos < this.text.length() || this.text.length() >= this.maxStringLength;
@@ -317,24 +335,29 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         }
 
         if (!trimmed.isEmpty() && flag && j < trimmed.length()) {
-            FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, trimmed.substring(j), (float)j1, (float)i1, i2);
+            TextWrapper text = this.renderTextProvider.apply(trimmed.substring(j), this.cursorPos);
+            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, (float)j1, (float)i1, i2);
+        }
+
+        if(!flag2 && this.suggestion != null) {
+            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, this.suggestion, k1 - 1, i1, 0xFF808080);
         }
 
         if (flag1) {
             if (flag2) {
-                RawGuiManager.INSTANCE.fillRect(drawContextWrapper, k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
+                drawContextWrapper.fillRect(k1, i1 - 1, k1 + 1, i1 + 1 + 9, NORMAL_TEXT_COLOR);
             } else {
-                FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, "_", (float)k1, (float)i1, i2);
+                drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, "_", (float)k1, (float)i1, i2);
             }
         }
 
         if (k != j) {
-            int l1 = l + FontRenderer.DEFAULT.getStringWidth(trimmed.substring(0, k));
+            int l1 = l + FontWrapper.DEFAULT.getWidth(trimmed.substring(0, k));
             this.drawSelectionBox(drawContextWrapper, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
         }
     }
 
-    private void drawSelectionBox(DrawContextWrapper drawContextWrapper, int startX, int startY, int endX, int endY) {
+    private void drawSelectionBox(DrawContextWrapper<?> drawContextWrapper, int startX, int startY, int endX, int endY) {
         if (startX < endX) {
             int i = startX;
             startX = endX;
@@ -355,10 +378,22 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
             startX = this.x + this.width;
         }
 
-        RawGuiManager.INSTANCE.drawTextFieldHighlight(drawContextWrapper, startX, startY, endX, endY);
+        drawContextWrapper.drawTextHighlight(startX, startY, endX, endY);
+    }
+
+    public void setMaxStringLength(int maxStringLength) {
+        this.maxStringLength = maxStringLength;
+
+        if(this.text.length() <= maxStringLength) return;
+        this.text = this.text.substring(0, maxStringLength);
+        this.onChanged(this.text);
     }
 
     public int getInnerWidth() {
         return this.drawsBackground ? this.width - 8 : this.width;
+    }
+
+    public int getCharacterX(int index) {
+        return index > this.text.length() ? this.x : this.x + FontWrapper.DEFAULT.getWidth(this.text.substring(0, index));
     }
 }

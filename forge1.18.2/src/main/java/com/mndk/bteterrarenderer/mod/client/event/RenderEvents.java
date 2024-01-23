@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @UtilityClass
 @Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class RenderEvent {
+public class RenderEvents {
     @SubscribeEvent
     public void onRenderEvent(final RenderLevelLastEvent event) {
         Minecraft mc = Minecraft.getInstance();
@@ -26,7 +26,7 @@ public class RenderEvent {
         // So the camera's position should be given instead, unlike in 1.12.2.
         final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         Minecraft.getInstance().getProfiler().push("hologram_render");
-        DrawContextWrapper drawContextWrapper = new DrawContextWrapper(event.getPoseStack());
+        DrawContextWrapper<?> drawContextWrapper = DrawContextWrapper.of(event.getPoseStack());
         TileRenderer.renderTiles(drawContextWrapper, cameraPos.x, cameraPos.y, cameraPos.z);
         Minecraft.getInstance().getProfiler().pop();
     }

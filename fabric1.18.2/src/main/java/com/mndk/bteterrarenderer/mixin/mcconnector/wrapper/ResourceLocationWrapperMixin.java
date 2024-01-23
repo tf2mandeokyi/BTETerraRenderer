@@ -11,7 +11,7 @@ public class ResourceLocationWrapperMixin {
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    public static ResourceLocationWrapper of(String modId, String location) {
-        return new ResourceLocationWrapper(new Identifier(modId, location));
+    public static ResourceLocationWrapper<?> of(String modId, String location) {
+        return new ResourceLocationWrapper<>(new Identifier(modId, location));
     }
 }

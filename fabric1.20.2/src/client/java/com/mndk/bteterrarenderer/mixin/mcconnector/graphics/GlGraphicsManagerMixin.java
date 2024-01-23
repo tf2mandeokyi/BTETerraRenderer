@@ -2,21 +2,16 @@ package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
 
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.util.Window;
 import net.minecraft.util.Identifier;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -30,18 +25,6 @@ public class GlGraphicsManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     private static GlGraphicsManager makeInstance() { return new GlGraphicsManager() {
-        public void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
-            DrawContext drawContext = drawContextWrapper.get();
-            drawContext.getMatrices().translate(x, y, z);
-        }
-        public void glPushMatrix(DrawContextWrapper drawContextWrapper) {
-            DrawContext drawContext = drawContextWrapper.get();
-            drawContext.getMatrices().push();
-        }
-        public void glPopMatrix(DrawContextWrapper drawContextWrapper) {
-            DrawContext drawContext = drawContextWrapper.get();
-            drawContext.getMatrices().pop();
-        }
         public void glEnableTexture() {}
         public void glDisableTexture() {}
         public void glEnableCull() {
@@ -88,37 +71,15 @@ public class GlGraphicsManagerMixin {
             MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject.get());
         }
 
-        protected int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper,
-                                                    int relX, int relY, int relWidth, int relHeight) {
-            Window window = MinecraftClient.getInstance().getWindow();
-            if(window.getWidth() == 0 || window.getHeight() == 0) { // Division by zero handling
-                return new int[] { 0, 0, 0, 0 };
-            }
-            float scaleFactorX = (float) window.getWidth() / window.getScaledWidth();
-            float scaleFactorY = (float) window.getHeight() / window.getScaledHeight();
-
-            DrawContext drawContext = drawContextWrapper.get();
-            Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
-            Vector4f start = new Vector4f(relX, relY, 0, 1);
-            Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
-            start = matrix.transform(start);
-            end = matrix.transform(end);
-
-            int scissorX = (int) (scaleFactorX * Math.min(start.x(), end.x()));
-            int scissorY = (int) (window.getHeight() - scaleFactorY * Math.max(start.y(), end.y()));
-            int scissorWidth = (int) (scaleFactorX * Math.abs(start.x() - end.x()));
-            int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
-            return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
-        }
-        protected void glEnableScissorTest() {
+        public void glEnableScissorTest() {
             RenderSystem.assertOnGameThreadOrInit();
             GlStateManager._enableScissorTest();
         }
-        protected void glScissorBox(int x, int y, int width, int height) {
+        public void glScissorBox(int x, int y, int width, int height) {
             RenderSystem.assertOnGameThreadOrInit();
             GlStateManager._scissorBox(x, y, width, height);
         }
-        protected void glDisableScissorTest() {
+        public void glDisableScissorTest() {
             RenderSystem.disableScissor();
         }
     };}

@@ -72,7 +72,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         this.properties.addAll(this.makeProperties());
     }
 
-    public final void render(DrawContextWrapper drawContextWrapper, double px, double py, double pz, float opacity) {
+    public final void render(DrawContextWrapper<?> drawContextWrapper, double px, double py, double pz, float opacity) {
 
         // Bake textures
         this.preRender(px, py, pz);
@@ -127,7 +127,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         return null;
     }
 
-    private void drawModel(DrawContextWrapper drawContextWrapper, GraphicsModel model, double px, double py, double pz, float opacity) {
+    private void drawModel(DrawContextWrapper<?> drawContextWrapper, GraphicsModel model, double px, double py, double pz, float opacity) {
         GlGraphicsManager.INSTANCE.setPositionTexColorShader();
         GlGraphicsManager.INSTANCE.setShaderTexture(model.getTextureObject());
         IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
@@ -144,7 +144,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
-    private void drawShapeList(DrawContextWrapper drawContextWrapper, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
+    private void drawShapeList(DrawContextWrapper<?> drawContextWrapper, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
         for(GraphicsShape<?> shape : shapes) {
             if(shape.getVertexClass() != PosTex.class) {
                 throw new UnsupportedOperationException("Not implemented");
@@ -153,7 +153,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
-    protected void drawShape(DrawContextWrapper drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
+    protected void drawShape(DrawContextWrapper<?> drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
         IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
 
         for (int i = 0; i < shape.getVerticesCount(); i++) {

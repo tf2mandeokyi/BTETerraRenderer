@@ -4,5 +4,5 @@ import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public abstract class GuiComponentCopy implements GuiEventListenerCopy {
     public void tick() {}
-    public abstract void drawComponent(DrawContextWrapper drawContextWrapper);
+    public abstract void drawComponent(DrawContextWrapper<?> drawContextWrapper);
 }

@@ -19,7 +19,7 @@ public class SidebarElementWrapper extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         if(delegate != null) delegate.drawComponent(drawContextWrapper);
     }
 

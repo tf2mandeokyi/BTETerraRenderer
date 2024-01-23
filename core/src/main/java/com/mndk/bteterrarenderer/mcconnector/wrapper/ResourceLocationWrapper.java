@@ -4,12 +4,12 @@ import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
 
 import javax.annotation.Nonnull;
 
-public class ResourceLocationWrapper extends MinecraftNativeObjectWrapper {
-    public ResourceLocationWrapper(@Nonnull Object delegate) {
+public class ResourceLocationWrapper<T> extends MinecraftNativeObjectWrapper<T> {
+    public ResourceLocationWrapper(@Nonnull T delegate) {
         super(delegate);
     }
 
-    public static ResourceLocationWrapper of(String modId, String location) {
+    public static ResourceLocationWrapper<?> of(String modId, String location) {
         return MixinUtil.notOverwritten(modId, location);
     }
 }

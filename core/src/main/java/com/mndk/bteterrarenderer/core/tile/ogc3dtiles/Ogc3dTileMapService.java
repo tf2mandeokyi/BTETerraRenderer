@@ -215,7 +215,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected void drawShape(DrawContextWrapper drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
+    protected void drawShape(DrawContextWrapper<?> drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
         if(!this.yDistortion) {
             super.drawShape(drawContextWrapper, shape, px, py, pz, opacity);
             return;

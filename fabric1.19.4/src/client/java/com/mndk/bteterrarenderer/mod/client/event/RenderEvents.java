@@ -28,7 +28,7 @@ public class RenderEvents {
         // So the camera's position should be given instead, unlike in 1.12.2.
         Vec3d cameraPos = renderContext.camera().getPos();
         world.getProfiler().swap("bteterrarenderer-hologram");
-        DrawContextWrapper drawContextWrapper = new DrawContextWrapper(renderContext.matrixStack());
+        DrawContextWrapper<?> drawContextWrapper = DrawContextWrapper.of(renderContext.matrixStack());
         TileRenderer.renderTiles(drawContextWrapper, cameraPos.x, cameraPos.y, cameraPos.z);
     }
 }

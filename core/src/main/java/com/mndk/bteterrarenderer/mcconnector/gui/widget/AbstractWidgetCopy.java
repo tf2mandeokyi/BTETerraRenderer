@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.component;
+package com.mndk.bteterrarenderer.mcconnector.gui.widget;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiComponentCopy;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,11 +39,11 @@ public abstract class AbstractWidgetCopy extends GuiComponentCopy {
         return this.hovered = !mouseHidden && this.isMouseOnWidget(mouseX, mouseY);
     }
 
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         if(!this.visible) return;
 
         ButtonWidgetCopy.HoverState hoverState = this.getButtonHoverState(this.hovered);
-        RawGuiManager.INSTANCE.drawButton(drawContextWrapper, x, y, width, height, hoverState);
+        drawContextWrapper.drawButton(x, y, width, height, hoverState);
         this.drawBackground(drawContextWrapper);
 
         int color = NORMAL_TEXT_COLOR;
@@ -52,16 +52,16 @@ public abstract class AbstractWidgetCopy extends GuiComponentCopy {
         else if(this.hovered)            color = HOVERED_COLOR;
 
         String buttonText = this.text;
-        int stringWidth = FontRenderer.DEFAULT.getStringWidth(buttonText);
-        int ellipsisWidth = FontRenderer.DEFAULT.getStringWidth("...");
+        int stringWidth = FontWrapper.DEFAULT.getWidth(buttonText);
+        int ellipsisWidth = FontWrapper.DEFAULT.getWidth("...");
 
         if (stringWidth > width - 6 && stringWidth > ellipsisWidth) {
-            buttonText = FontRenderer.DEFAULT.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
+            buttonText = FontWrapper.DEFAULT.trimToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
         }
-        FontRenderer.DEFAULT.drawCenteredStringWithShadow(drawContextWrapper, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
+        drawContextWrapper.drawCenteredTextWithShadow(FontWrapper.DEFAULT, buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
     }
 
-    public void drawBackground(DrawContextWrapper drawContextWrapper) {}
+    public void drawBackground(DrawContextWrapper<?> drawContextWrapper) {}
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         return this.enabled && this.visible && this.isMouseOnWidget(mouseX, mouseY);

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.button;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.component.ButtonWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.widget.ButtonWidgetCopy;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
@@ -41,7 +41,7 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         this.button.drawComponent(drawContextWrapper);
     }
 

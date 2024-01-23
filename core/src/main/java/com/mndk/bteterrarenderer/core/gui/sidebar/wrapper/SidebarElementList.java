@@ -5,8 +5,6 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.RequiredArgsConstructor;
@@ -171,42 +169,41 @@ public class SidebarElementList extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         int prevYPos = 0;
 
         if(this.maxHeight != null) {
             //noinspection DataFlowIssue
-            GlGraphicsManager.INSTANCE.pushRelativeScissor(drawContextWrapper, 0, 0, this.getWidth(), this.maxHeight.get());
+            drawContextWrapper.glPushRelativeScissor(0, 0, this.getWidth(), this.maxHeight.get());
             this.validateSliderValue();
         }
-        GlGraphicsManager.INSTANCE.glPushMatrix(drawContextWrapper);
-        GlGraphicsManager.INSTANCE.glTranslate(drawContextWrapper, this.sidePadding, -this.verticalSliderValue, 0);
+        drawContextWrapper.pushMatrix();
+        drawContextWrapper.translate(this.sidePadding, -this.verticalSliderValue, 0);
         // Draw from the last so that the first element could appear in the front
         for(Entry entry : Lists.reverse(entryList)) {
             GuiSidebarElement element = entry.element;
             if(element == null || element.hide) continue;
 
             int yPos = entry.yPos;
-            GlGraphicsManager.INSTANCE.glTranslate(drawContextWrapper, 0, yPos - prevYPos, element.getCount());
+            drawContextWrapper.translate(0, yPos - prevYPos, element.getCount());
 
             element.drawComponent(drawContextWrapper);
             prevYPos = yPos;
         }
         if(this.maxHeight != null) {
-            GlGraphicsManager.INSTANCE.popRelativeScissor();
+            drawContextWrapper.glPopRelativeScissor();
         }
-        GlGraphicsManager.INSTANCE.glPopMatrix(drawContextWrapper);
+        drawContextWrapper.popMatrix();
         this.drawVerticalSlider(drawContextWrapper);
     }
 
-    private void drawVerticalSlider(DrawContextWrapper drawContextWrapper) {
+    private void drawVerticalSlider(DrawContextWrapper<?> drawContextWrapper) {
         if(this.maxHeight == null) return;
 
         int[] dimension = this.getVerticalSliderDimension();
         int color = this.verticalSliderHoverState ? VERTICAL_SLIDER_COLOR_HOVERED : VERTICAL_SLIDER_COLOR;
         if(this.verticalSliderChangingState) color = VERTICAL_SLIDER_COLOR_CLICKED;
-        RawGuiManager.INSTANCE.fillRect(drawContextWrapper,
-                dimension[0], dimension[1] + VERTICAL_SLIDER_PADDING,
+        drawContextWrapper.fillRect(dimension[0], dimension[1] + VERTICAL_SLIDER_PADDING,
                 dimension[2] - VERTICAL_SLIDER_PADDING, dimension[3] - VERTICAL_SLIDER_PADDING, color);
     }
 

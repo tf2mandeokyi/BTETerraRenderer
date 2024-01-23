@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public class SidebarHorizontalLine extends GuiSidebarElement {
@@ -20,8 +19,8 @@ public class SidebarHorizontalLine extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
-        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, 0, 0, this.getWidth(), thickness, color);
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+        drawContextWrapper.fillRect(0, 0, this.getWidth(), thickness, color);
     }
 
     @Override protected void init() {}

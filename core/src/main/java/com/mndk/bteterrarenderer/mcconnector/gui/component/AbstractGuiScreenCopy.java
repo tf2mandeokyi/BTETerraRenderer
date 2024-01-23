@@ -15,11 +15,11 @@ public abstract class AbstractGuiScreenCopy implements GuiEventListenerCopy {
         return WindowManager.getScaledHeight();
     }
 
-    public final void drawScreen(DrawContextWrapper drawContextWrapper, double mouseX, double mouseY, float partialTicks) {
+    public final void drawScreen(DrawContextWrapper<?> drawContextWrapper, double mouseX, double mouseY, float partialTicks) {
         this.mouseHovered(mouseX, mouseY, partialTicks, false);
         this.drawScreen(drawContextWrapper);
     }
-    protected abstract void drawScreen(DrawContextWrapper drawContextWrapper);
+    protected abstract void drawScreen(DrawContextWrapper<?> drawContextWrapper);
     public abstract void tick();
 
     public abstract void onClose();

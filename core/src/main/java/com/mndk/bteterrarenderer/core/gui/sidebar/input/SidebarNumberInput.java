@@ -41,7 +41,7 @@ public class SidebarNumberInput extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         textField.drawComponent(drawContextWrapper);
     }
 

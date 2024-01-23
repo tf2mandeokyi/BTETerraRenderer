@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.slider;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.SliderWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.widget.SliderWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 public class SidebarSlider<T extends Number> extends GuiSidebarElement {
@@ -59,7 +59,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         if(this.slider.drawString) {
             boolean testResult;
             if(this.isInteger) {

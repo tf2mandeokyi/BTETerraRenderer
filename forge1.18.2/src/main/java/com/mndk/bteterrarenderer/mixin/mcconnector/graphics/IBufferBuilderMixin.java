@@ -25,7 +25,7 @@ public class IBufferBuilderMixin {
         public void beginPTCTriangles() {
             builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
         }
-        public void ptc(DrawContextWrapper drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
+        public void ptc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
             PoseStack poseStack = drawContextWrapper.get();
             builder.vertex(poseStack.last().pose(), x, y, z).uv(u, v).color(r, g, b, a).endVertex();
         }
@@ -33,7 +33,7 @@ public class IBufferBuilderMixin {
         public void beginPCQuads() {
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         }
-        public void pc(DrawContextWrapper drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
+        public void pc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
             PoseStack poseStack = drawContextWrapper.get();
             builder.vertex(poseStack.last().pose(), x, y, z).color(r, g, b, a).endVertex();
         }
@@ -41,9 +41,17 @@ public class IBufferBuilderMixin {
         public void beginPTQuads() {
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         }
-        public void pt(DrawContextWrapper drawContextWrapper, float x, float y, float z, float u, float v) {
+        public void pt(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v) {
             PoseStack poseStack = drawContextWrapper.get();
             builder.vertex(poseStack.last().pose(), x, y, z).uv(u, v).endVertex();
+        }
+
+        public void beginPQuads() {
+            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        }
+        public void p(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+            PoseStack poseStack = drawContextWrapper.get();
+            builder.vertex(poseStack.last().pose(), x, y, z).endVertex();
         }
 
         public void drawAndRender() {

@@ -1,22 +1,15 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 import lombok.experimental.UtilityClass;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 import java.awt.image.BufferedImage;
-import java.nio.FloatBuffer;
 
 @UtilityClass
 @Mixin(value = GlGraphicsManager.class, remap = false)
@@ -26,15 +19,6 @@ public class GlGraphicsManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     private static GlGraphicsManager makeInstance() { return new GlGraphicsManager() {
-        public void glTranslate(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
-            GlStateManager.translate(x, y, z);
-        }
-        public void glPushMatrix(DrawContextWrapper drawContextWrapper) {
-            GlStateManager.pushMatrix();
-        }
-        public void glPopMatrix(DrawContextWrapper drawContextWrapper) {
-            GlStateManager.popMatrix();
-        }
         public void glEnableTexture() {
             GlStateManager.enableTexture2D();
         }
@@ -81,35 +65,13 @@ public class GlGraphicsManagerMixin {
             GlStateManager.deleteTexture(textureObject.get());
         }
 
-        protected int[] getAbsoluteScissorDimension(DrawContextWrapper drawContextWrapper,
-                                                    int relX, int relY, int relWidth, int relHeight) {
-            Minecraft mc = Minecraft.getMinecraft();
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            int scaleFactor = scaledResolution.getScaleFactor();
-
-            FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-            GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
-            Matrix4f matrix4f = new Matrix4f();
-            matrix4f.load(buffer);
-
-            Vector4f originalStart = new Vector4f(relX, relY, 0, 1);
-            Vector4f originalEnd = new Vector4f(relX+relWidth, relY+relHeight, 0, 1);
-            Vector4f start = Matrix4f.transform(matrix4f, originalStart, null);
-            Vector4f end = Matrix4f.transform(matrix4f, originalEnd, null);
-
-            int scissorX = (int) (scaleFactor * Math.min(start.x, end.x));
-            int scissorY = (int) (mc.displayHeight - scaleFactor * Math.max(start.y, end.y));
-            int scissorWidth = (int) (scaleFactor * Math.abs(start.x - end.x));
-            int scissorHeight = (int) (scaleFactor * Math.abs(start.y - end.y));
-            return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
-        }
-        protected void glEnableScissorTest() {
+        public void glEnableScissorTest() {
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
         }
-        protected void glScissorBox(int x, int y, int width, int height) {
+        public void glScissorBox(int x, int y, int width, int height) {
             GL11.glScissor(x, y, width, height);
         }
-        protected void glDisableScissorTest() {
+        public void glDisableScissorTest() {
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
         }
     };}

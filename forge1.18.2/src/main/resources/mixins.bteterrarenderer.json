@@ -6,9 +6,9 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "mcconnector.wrapper.ResourceLocationWrapperMixin",
         "mcconnector.config.ConfigSaveLoaderMixin",
         "mcconnector.i18n.I18nManagerMixin",
+        "mcconnector.wrapper.ResourceLocationWrapperMixin",
         "terraplusplus.HttpDiskMixin"
     ],
     "client": [
@@ -16,10 +16,11 @@
         "mcconnector.client.WindowManagerMixin",
         "mcconnector.graphics.GlGraphicsManagerMixin",
         "mcconnector.graphics.IBufferBuilderMixin",
-        "mcconnector.gui.FontRendererMixin",
         "mcconnector.gui.RawGuiManagerMixin",
-        "mcconnector.gui.TextComponentManagerMixin",
+        "mcconnector.gui.TextManagerMixin",
         "mcconnector.input.GameInputManagerMixin",
-        "mcconnector.input.IKeyBindingMixin"
+        "mcconnector.input.IKeyBindingMixin",
+        "mcconnector.wrapper.DrawContextWrapperMixin",
+        "mcconnector.wrapper.FontWrapperMixin"
     ]
 }

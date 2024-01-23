@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
-import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
@@ -26,25 +26,25 @@ public class SidebarText extends GuiSidebarElement {
 
     @Override
     protected void init() {
-        this.formattedStringList = FontRenderer.DEFAULT.splitStringByWidth(displayString, this.getWidth());
+        this.formattedStringList = FontWrapper.DEFAULT.splitByWidth(displayString, this.getWidth());
     }
 
     @Override
     public void onWidthChange() {
-        this.formattedStringList = FontRenderer.DEFAULT.splitStringByWidth(displayString, this.getWidth());
+        this.formattedStringList = FontWrapper.DEFAULT.splitByWidth(displayString, this.getWidth());
     }
 
     @Override
     public int getPhysicalHeight() {
-        return formattedStringList.size() * FontRenderer.DEFAULT.getHeight();
+        return formattedStringList.size() * FontWrapper.DEFAULT.getHeight();
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         for(int i = 0; i < formattedStringList.size(); ++i) {
             String line = formattedStringList.get(i);
-            FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, line, this.align,
-                    0, i * FontRenderer.DEFAULT.getHeight(), this.getWidth(), this.color);
+            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, line, this.align,
+                    0, i * FontWrapper.DEFAULT.getHeight(), this.getWidth(), this.color);
         }
     }
 }

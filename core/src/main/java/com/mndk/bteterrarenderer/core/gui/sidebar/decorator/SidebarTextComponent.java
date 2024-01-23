@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.decorator;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.Loggers;
-import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.gui.TextComponentManager;
+import com.mndk.bteterrarenderer.mcconnector.gui.text.TextManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
@@ -52,19 +52,19 @@ public class SidebarTextComponent extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         for(int i = 0; i < lineComponents.size(); ++i) {
-            FontRenderer.DEFAULT.drawComponentWithShadow(drawContextWrapper, lineComponents.get(i), this.align,
-                    0, i * FontRenderer.DEFAULT.getHeight(), this.getWidth(), NORMAL_TEXT_COLOR);
+            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, lineComponents.get(i), this.align,
+                    0, i * FontWrapper.DEFAULT.getHeight(), this.getWidth(), NORMAL_TEXT_COLOR);
         }
         if(this.hoveredStyleComponent != null) {
-            TextComponentManager.INSTANCE.handleStyleComponentHover(drawContextWrapper, this.hoveredStyleComponent, hoverX, hoverY);
+            drawContextWrapper.drawHoverEvent(this.hoveredStyleComponent, hoverX, hoverY);
         }
     }
 
     @Override
     public int getPhysicalHeight() {
-        return FontRenderer.DEFAULT.getHeight() * lineComponents.size();
+        return FontWrapper.DEFAULT.getHeight() * lineComponents.size();
     }
 
     @Override
@@ -76,7 +76,7 @@ public class SidebarTextComponent extends GuiSidebarElement {
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         StyleWrapper clickedStyle = this.getStyleComponentAt((int) mouseX, (int) mouseY);
         if(clickedStyle == null) return false;
-        return TextComponentManager.INSTANCE.handleClick(clickedStyle);
+        return TextManager.INSTANCE.handleClick(clickedStyle);
     }
 
     public void setTextComponentJson(String newJson) {
@@ -92,10 +92,10 @@ public class SidebarTextComponent extends GuiSidebarElement {
         if(this.textComponentJson == null || this.getWidth() == -1) return Collections.emptyList();
 
         try {
-            TextWrapper textComponent = TextComponentManager.INSTANCE.fromJson(this.textComponentJson);
+            TextWrapper textComponent = TextManager.INSTANCE.fromJson(this.textComponentJson);
             if (textComponent == null) return Collections.emptyList();
 
-            return FontRenderer.DEFAULT.splitComponentByWidth(textComponent, this.getWidth());
+            return FontWrapper.DEFAULT.splitByWidth(textComponent, this.getWidth());
         } catch(Exception e) {
             Loggers.get(this).error(e);
             return Collections.emptyList();
@@ -106,17 +106,17 @@ public class SidebarTextComponent extends GuiSidebarElement {
     private StyleWrapper getStyleComponentAt(int mouseX, int mouseY) {
         if(mouseX < 0 || this.getWidth() < mouseX) return null;
 
-        int lineIndex = (int) Math.floor(mouseY / (float) FontRenderer.DEFAULT.getHeight());
+        int lineIndex = (int) Math.floor(mouseY / (float) FontWrapper.DEFAULT.getHeight());
         if(lineIndex < 0 || this.lineComponents.size() <= lineIndex) return null;
         TextWrapper lineComponent = this.lineComponents.get(lineIndex);
 
         int xPos = 0;
-        int lineWidth = FontRenderer.DEFAULT.getComponentWidth(lineComponent);
+        int lineWidth = FontWrapper.DEFAULT.getWidth(lineComponent);
         switch(this.align) {
             case LEFT: break;
             case CENTER: xPos = (this.getWidth() - lineWidth) / 2; break;
             case RIGHT: xPos = this.getWidth() - lineWidth; break;
         }
-        return FontRenderer.DEFAULT.getStyleComponentFromLine(lineComponent, mouseX - xPos);
+        return FontWrapper.DEFAULT.getStyleComponentFromLine(lineComponent, mouseX - xPos);
     }
 }

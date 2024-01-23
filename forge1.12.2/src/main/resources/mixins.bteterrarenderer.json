@@ -6,20 +6,21 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "mcconnector.wrapper.ResourceLocationWrapperMixin",
+        "core.network.HttpResourceManagerMixin",
         "mcconnector.config.ConfigSaveLoaderMixin",
         "mcconnector.i18n.I18nManagerMixin",
-        "core.network.HttpResourceManagerMixin"
+        "mcconnector.wrapper.ResourceLocationWrapperMixin"
     ],
     "client": [
         "mcconnector.client.MinecraftClientManagerMixin",
         "mcconnector.client.WindowManagerMixin",
         "mcconnector.graphics.GlGraphicsManagerMixin",
         "mcconnector.graphics.IBufferBuilderMixin",
-        "mcconnector.gui.FontRendererMixin",
         "mcconnector.gui.RawGuiManagerMixin",
-        "mcconnector.gui.TextComponentManagerMixin",
+        "mcconnector.gui.TextManagerMixin",
         "mcconnector.input.GameInputManagerMixin",
-        "mcconnector.input.IKeyBindingMixin"
+        "mcconnector.input.IKeyBindingMixin",
+        "mcconnector.wrapper.DrawContextWrapperMixin",
+        "mcconnector.wrapper.FontWrapperMixin"
     ]
 }

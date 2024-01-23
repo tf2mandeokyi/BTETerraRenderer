@@ -27,22 +27,29 @@ public class IBufferBuilderMixin {
         public void beginPTCTriangles() {
             tessellator.getBuffer().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
         }
-        public void ptc(DrawContextWrapper drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
+        public void ptc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
             tessellator.getBuffer().pos(x, y, z).tex(u, v).color(1f, 1f, 1f, a).endVertex();
         }
 
         public void beginPCQuads() {
             tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         }
-        public void pc(DrawContextWrapper drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
+        public void pc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
             tessellator.getBuffer().pos(x, y, z).color(1f, 1f, 1f, a).endVertex();
         }
 
         public void beginPTQuads() {
             tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         }
-        public void pt(DrawContextWrapper drawContextWrapper, float x, float y, float z, float u, float v) {
+        public void pt(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v) {
             tessellator.getBuffer().pos(x, y, z).tex(u, v).endVertex();
+        }
+
+        public void beginPQuads() {
+            tessellator.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        }
+        public void p(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+            tessellator.getBuffer().pos(x, y, z).endVertex();
         }
 
         public void drawAndRender() {

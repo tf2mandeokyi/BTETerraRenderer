@@ -6,17 +6,16 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.gui.FontRenderer;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.VerticalAlign;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.CheckBoxWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.widget.CheckBoxWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.ResourceLocationWrapper;
 import lombok.RequiredArgsConstructor;
 
@@ -41,7 +40,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     private static final int SECONDARY_LINE_COLOR = 0xFF4D4D4D;
     private static final int LINE_LENGTH = 1000;
 
-    private static final ResourceLocationWrapper ALIGNMENT_MARKER = ResourceLocationWrapper.of(
+    private static final ResourceLocationWrapper<?> ALIGNMENT_MARKER = ResourceLocationWrapper.of(
             BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
     );
 
@@ -115,7 +114,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
         xInput.drawComponent(drawContextWrapper);
         zInput.drawComponent(drawContextWrapper);
         lockNorthCheckBox.drawComponent(drawContextWrapper);
@@ -124,7 +123,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
         this.drawAlignBox(drawContextWrapper);
     }
 
-    private void drawAlignBox(DrawContextWrapper drawContextWrapper) {
+    private void drawAlignBox(DrawContextWrapper<?> drawContextWrapper) {
         int elementWidth = this.getWidth();
         int centerX = elementWidth / 2, centerY = 20 + ALIGNBOX_MARGIN_TOP + ALIGNBOX_HEIGHT / 2;
 
@@ -132,28 +131,28 @@ public class SidebarMapAligner extends GuiSidebarElement {
         int boxW = ALIGNBOX_MARGIN_SIDE, boxE = elementWidth - ALIGNBOX_MARGIN_SIDE;
 
         // Box background
-        RawGuiManager.INSTANCE.fillRect(drawContextWrapper, boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
+        drawContextWrapper.fillRect(boxW, boxN, boxE, boxS, ALIGNBOX_BACKGROUND_COLOR);
 
         // Grids
         this.updateGridLines();
         this.drawGridLines(drawContextWrapper, boxW, boxN, boxE - boxW, boxS - boxN);
 
         // Center marker
-        RawGuiManager.INSTANCE.drawWholeCenteredImage(drawContextWrapper, ALIGNMENT_MARKER, centerX, centerY, 4, 4);
+        drawContextWrapper.drawWholeCenteredImage(ALIGNMENT_MARKER, centerX, centerY, 4, 4);
         String x = StringUtil.formatDoubleNicely(xOffset.get(), 2);
         String z = StringUtil.formatDoubleNicely(zOffset.get(), 2);
         String text = String.format("§rX §f%s§r, Z §f%s", x, z);
-        FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, text, HorizontalAlign.LEFT, VerticalAlign.TOP, centerX+3, centerY+3, MARKER_COLOR);
+        drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, HorizontalAlign.LEFT, VerticalAlign.TOP, centerX+3, centerY+3, MARKER_COLOR);
     }
 
-    private void drawGridLines(DrawContextWrapper drawContextWrapper, int boxX, int boxY, int boxWidth, int boxHeight) {
+    private void drawGridLines(DrawContextWrapper<?> drawContextWrapper, int boxX, int boxY, int boxWidth, int boxHeight) {
         // Draw lines & arrows
-        GlGraphicsManager.INSTANCE.pushRelativeScissor(drawContextWrapper, boxX, boxY, boxWidth, boxHeight);
+        drawContextWrapper.glPushRelativeScissor(boxX, boxY, boxWidth, boxHeight);
         for(GridLine line : this.gridLines) {
             // line
             GraphicsQuad<PosXY> quad = RawGuiManager.INSTANCE.makeLineDxDy(line.x, line.y, line.dx, line.dy, 1);
             if (quad == null) return;
-            RawGuiManager.INSTANCE.fillQuad(drawContextWrapper, quad, line.color, 0);
+            drawContextWrapper.fillQuad(quad, line.color, 0);
 
             if(line.intersectionParam == null) continue;
             double t = line.intersectionParam;
@@ -169,14 +168,14 @@ public class SidebarMapAligner extends GuiSidebarElement {
             float arrowBackY = y - dynorm * ALIGNBOX_ARROW_SIZE;
             float sideDx =  dynorm * ALIGNBOX_ARROW_SIZE * line.arrowWidth;
             float sideDy = -dxnorm * ALIGNBOX_ARROW_SIZE * line.arrowWidth;
-            RawGuiManager.INSTANCE.fillQuad(drawContextWrapper, GraphicsQuad.newPosXY(
+            drawContextWrapper.fillQuad(GraphicsQuad.newPosXY(
                     new PosXY(x, y),
                     new PosXY(arrowBackX + sideDx, arrowBackY + sideDy),
                     new PosXY(arrowBackX - sideDx, arrowBackY - sideDy),
                     new PosXY(x, y)
             ), line.color, 0);
         }
-        GlGraphicsManager.INSTANCE.popRelativeScissor();
+        drawContextWrapper.glPopRelativeScissor();
 
         // Draw labels
         for(GridLine line : this.gridLines) {
@@ -185,7 +184,7 @@ public class SidebarMapAligner extends GuiSidebarElement {
             double t = line.intersectionParam;
             float x = (float) (line.x + t * line.dx);
             float y = (float) (line.y + t * line.dy);
-            FontRenderer.DEFAULT.drawStringWithShadow(drawContextWrapper, line.label, line.labelHAlign, line.labelVAlign, x, y, line.color);
+            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, line.label, line.labelHAlign, line.labelVAlign, x, y, line.color);
         }
     }
 

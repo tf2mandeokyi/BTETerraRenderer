@@ -1,6 +1,5 @@
-package com.mndk.bteterrarenderer.mcconnector.gui.component;
+package com.mndk.bteterrarenderer.mcconnector.gui.widget;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
 /**
@@ -47,10 +46,10 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
     }
 
     @Override
-    public void drawBackground(DrawContextWrapper drawContextWrapper) {
+    public void drawBackground(DrawContextWrapper<?> drawContextWrapper) {
         if(!this.visible) return;
 
-        RawGuiManager.INSTANCE.drawButton(drawContextWrapper,
+        drawContextWrapper.drawButton(
                 this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y,
                 8, this.height, this.hovered ? HoverState.MOUSE_OVER : HoverState.DEFAULT
         );

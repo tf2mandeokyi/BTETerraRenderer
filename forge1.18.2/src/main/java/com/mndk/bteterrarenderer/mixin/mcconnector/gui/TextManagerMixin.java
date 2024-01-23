@@ -1,11 +1,9 @@
 package com.mndk.bteterrarenderer.mixin.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.TextComponentManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.gui.text.TextFormatCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.text.TextManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
-import com.mndk.bteterrarenderer.mod.mcconnector.gui.AbstractGuiScreenImpl;
-import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,20 +16,29 @@ import org.spongepowered.asm.mixin.Overwrite;
 import javax.annotation.Nonnull;
 
 @UtilityClass
-@Mixin(value = TextComponentManager.class, remap = false)
-public class TextComponentManagerMixin {
+@Mixin(value = TextManager.class, remap = false)
+public class TextManagerMixin {
 
     /** @author m4ndeokyi
      *  @reason mixin overwrite */
     @Overwrite
-    private static TextComponentManager makeDefault() { return new TextComponentManager() {
+    private static TextManager makeDefault() { return new TextManager() {
         public TextWrapper fromJson(String json) {
             Component component = Component.Serializer.fromJson(json);
             return component != null ? new TextWrapper(component) : null;
         }
 
-        public TextWrapper fromText(String text) {
+        public TextWrapper fromString(String text) {
             return new TextWrapper(new TextComponent(text));
+        }
+
+        public StyleWrapper emptyStyle() {
+            return new StyleWrapper(Style.EMPTY);
+        }
+
+        public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
+            Style style = styleWrapper.get();
+            return new StyleWrapper(style.withColor(textColor.getColorIndex()));
         }
 
         public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
@@ -40,15 +47,6 @@ public class TextComponentManagerMixin {
 
             Style style = styleWrapper.get();
             return currentScreen.handleComponentClicked(style);
-        }
-
-        public void handleStyleComponentHover(@Nonnull DrawContextWrapper drawContextWrapper, @Nonnull StyleWrapper styleWrapper, int x, int y) {
-            Screen currentScreen = Minecraft.getInstance().screen;
-            if(!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
-
-            PoseStack poseStack = drawContextWrapper.get();
-            Style style = styleWrapper.get();
-            guiScreen.renderComponentHoverEffect(poseStack, style, x, y);
         }
     };}
 }

@@ -25,7 +25,7 @@ public class AbstractGuiScreenImpl extends Screen {
         delegate.tick();
     }
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        delegate.drawScreen(new DrawContextWrapper(matrices), mouseX, mouseY, delta);
+        delegate.drawScreen(DrawContextWrapper.of(matrices), mouseX, mouseY, delta);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);

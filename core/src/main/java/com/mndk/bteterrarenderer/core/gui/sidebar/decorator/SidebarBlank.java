@@ -14,5 +14,5 @@ public class SidebarBlank extends GuiSidebarElement {
     @Override public int getPhysicalHeight() { return height; }
     @Override protected void init() {}
     @Override public void onWidthChange() {}
-    @Override public void drawComponent(DrawContextWrapper drawContextWrapper) {}
+    @Override public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {}
 }
