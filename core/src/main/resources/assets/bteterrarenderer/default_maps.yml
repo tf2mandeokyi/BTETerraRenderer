@@ -133,10 +133,10 @@ categories:
 
 
    Taiwan:
-      orthoimage_tw:
+      ortho_tw:
          type: "flat"
          name:
-            en_us: "Taiwan Orthoimage"
+            en_us: "Taiwan Orthophoto"
             zh_tw: "臺灣正射影像"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"National Land Surveying and Mapping Center, Ministry of the Interior, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://maps.nlsc.gov.tw/"}}]
@@ -161,10 +161,10 @@ categories:
          max_thread: 2
          default_zoom: 20
 
-      tp_aerial_tw:
+      tp_ortho_tw:
          type: "flat"
          name:
-            en_us: "Taipei Aerial Photograph"
+            en_us: "Taipei Aerial Orthophoto"
             zh_tw: "臺北市航測影像"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Department of Urban Development, Taipei City Government, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}}]
@@ -175,10 +175,10 @@ categories:
          max_thread: 2
          default_zoom: 21
       
-      tp_1ktd_tw:
+      tp_topo1k_tw:
          type: "flat"
          name:
-            en_us: "Taipei 1/1000 Topographic Drawing"
+            en_us: "Taipei 1/1000 Topomap"
             zh_tw: "臺北市1/1000地形圖"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Department of Urban Development, Taipei City Government, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}}]
