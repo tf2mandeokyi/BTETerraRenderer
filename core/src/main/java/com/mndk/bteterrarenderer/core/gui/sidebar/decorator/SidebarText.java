@@ -25,9 +25,7 @@ public class SidebarText extends GuiSidebarElement {
     }
 
     @Override
-    protected void init() {
-        this.formattedStringList = FontWrapper.DEFAULT.splitByWidth(displayString, this.getWidth());
-    }
+    protected void init() {}
 
     @Override
     public void onWidthChange() {

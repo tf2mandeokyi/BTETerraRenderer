@@ -32,7 +32,10 @@ public class SidebarTextComponent extends GuiSidebarElement {
     }
 
     @Override
-    protected void init() {
+    protected void init() {}
+
+    @Override
+    public void onWidthChange() {
         this.updateLineSplits();
     }
 
@@ -65,11 +68,6 @@ public class SidebarTextComponent extends GuiSidebarElement {
     @Override
     public int getPhysicalHeight() {
         return FontWrapper.DEFAULT.getHeight() * lineComponents.size();
-    }
-
-    @Override
-    public void onWidthChange() {
-        this.updateLineSplits();
     }
 
     @Override

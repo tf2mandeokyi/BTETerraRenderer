@@ -28,13 +28,15 @@ public abstract class GuiSidebarElement extends GuiComponentCopy {
     public final void init(int width) {
         this.width = width;
         this.init();
+        if(width > 0) this.onWidthChange();
     }
     public final void onWidthChange(int width) {
         this.width = width;
-        this.onWidthChange();
+        if(width > 0) this.onWidthChange();
     }
 
     protected abstract void init();
+    /** This function is called both in initialization and on width change. */
     public abstract void onWidthChange();
     /** Used to calculate Z-axis translation on component drawing step */
     public int getCount() { return 1; }

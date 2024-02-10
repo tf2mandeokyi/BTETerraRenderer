@@ -9,20 +9,28 @@ import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 public class SidebarNumberInput extends GuiSidebarElement {
 
     private final PropertyAccessor<Double> value;
-    private final String text;
+    private final String prefixText;
     private GuiNumberInput textField;
 
-    public SidebarNumberInput(PropertyAccessor<Double> value, String text) {
+    public SidebarNumberInput(PropertyAccessor<Double> value, String prefixText) {
         this.value = value;
-        this.text = text;
+        this.prefixText = prefixText;
     }
 
     @Override
     protected void init() {
         this.textField = new GuiNumberInput(
                 0, 0, this.getWidth(), 20,
-                this.value, this.text
+                this.value, this.prefixText
         );
+    }
+
+    public void setPrefixColor(int prefixColor) {
+        this.textField.setPrefixColor(prefixColor);
+    }
+
+    public void update() {
+        this.textField.update();
     }
 
     @Override

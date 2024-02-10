@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SidebarElementList extends GuiSidebarElement {
+public class SidebarElementVerticalList extends GuiSidebarElement {
 
     private static final int VERTICAL_SLIDER_WIDTH = 6;
     private static final int VERTICAL_SLIDER_PADDING = 2;
@@ -41,8 +41,8 @@ public class SidebarElementList extends GuiSidebarElement {
      * @param maxHeight Max height. Values other than {@code null} will make the vertical slider appear.
      * @param makeSound Whether to make sound when one of the elements is clicked
      */
-    public SidebarElementList(int elementDistance, int sidePadding,
-                              @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
+    public SidebarElementVerticalList(int elementDistance, int sidePadding,
+                                      @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
         this.elementDistance = elementDistance;
         this.sidePadding = sidePadding;
         this.makeSound = makeSound;
@@ -51,12 +51,12 @@ public class SidebarElementList extends GuiSidebarElement {
         this.verticalSliderValue = 0;
     }
 
-    public SidebarElementList clear() {
+    public SidebarElementVerticalList clear() {
         this.entryList.clear();
         return this;
     }
 
-    public SidebarElementList add(GuiSidebarElement element) {
+    public SidebarElementVerticalList add(GuiSidebarElement element) {
         if(element == null) return this;
         this.entryList.add(new Entry(element));
         if(this.getWidth() != -1) element.init(this.getWidth() - 2 * this.sidePadding);
@@ -67,7 +67,7 @@ public class SidebarElementList extends GuiSidebarElement {
      * Skips null elements
      */
     @SuppressWarnings("UnusedReturnValue")
-    public SidebarElementList addAll(GuiSidebarElement... elements) {
+    public SidebarElementVerticalList addAll(GuiSidebarElement... elements) {
         for(GuiSidebarElement element : elements) this.add(element);
         return this;
     }
@@ -76,13 +76,13 @@ public class SidebarElementList extends GuiSidebarElement {
      * Skips null elements
      */
     @SuppressWarnings("UnusedReturnValue")
-    public SidebarElementList addAll(List<GuiSidebarElement> elements) {
+    public SidebarElementVerticalList addAll(List<GuiSidebarElement> elements) {
         for(GuiSidebarElement element : elements) this.add(element);
         return this;
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public SidebarElementList addProperties(List<PropertyAccessor.Localized<?>> properties) {
+    public SidebarElementVerticalList addProperties(List<PropertyAccessor.Localized<?>> properties) {
         List<GuiSidebarElement> elements = properties.stream()
                 .map(GuiSidebarElement::fromProperty)
                 .collect(Collectors.toList());
@@ -107,7 +107,15 @@ public class SidebarElementList extends GuiSidebarElement {
             if(element == null) continue;
             element.init(this.getWidth() - 2 * this.sidePadding);
         }
-        // This is to avoid the initial visual glitch
+    }
+
+    @Override
+    public void onWidthChange() {
+        for(Entry entry : entryList) {
+            GuiSidebarElement element = entry.element;
+            if(element == null || element.hide) continue;
+            element.onWidthChange(this.getWidth() - 2 * this.sidePadding);
+        }
         this.calculateHeights();
     }
 
@@ -185,10 +193,11 @@ public class SidebarElementList extends GuiSidebarElement {
             if(element == null || element.hide) continue;
 
             int yPos = entry.yPos;
-            drawContextWrapper.translate(0, yPos - prevYPos, element.getCount());
+            drawContextWrapper.translate(0, yPos - prevYPos, 0);
+            prevYPos = yPos;
 
             element.drawComponent(drawContextWrapper);
-            prevYPos = yPos;
+            drawContextWrapper.translate(0, 0, element.getCount());
         }
         if(this.maxHeight != null) {
             drawContextWrapper.glPopRelativeScissor();
@@ -354,17 +363,14 @@ public class SidebarElementList extends GuiSidebarElement {
     }
 
     @Override
-    public void onWidthChange() {
+    public int getCount() {
+        int count = 0;
         for(Entry entry : entryList) {
             GuiSidebarElement element = entry.element;
             if(element == null || element.hide) continue;
-            element.onWidthChange(this.getWidth() - 2 * this.sidePadding);
+            count += element.getCount();
         }
-    }
-
-    @Override
-    public int getCount() {
-        return entryList.size();
+        return count;
     }
 
     @RequiredArgsConstructor

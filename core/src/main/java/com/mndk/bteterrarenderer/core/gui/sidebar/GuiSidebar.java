@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
 import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementVerticalList;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
@@ -21,7 +21,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     private static final int WIDTH_CHANGE_BAR_SHADOW = 0xFF383838;
     private static final int WIDTH_CHANGE_BAR_SHADOW_HOVERED = 0xFF3f3f28;
 
-    private final SidebarElementList listComponent, innerListComponent;
+    private final SidebarElementVerticalList listComponent, innerListComponent;
     public final PropertyAccessor<SidebarSide> side;
     private final SidebarButton sideChangingButton;
     private final boolean guiPausesGame;
@@ -36,7 +36,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     public GuiSidebar(int elementPaddingSide, int paddingTopBottom, int elementDistance, boolean guiPausesGame,
                       PropertyAccessor<Double> sidebarWidth,
                       PropertyAccessor<SidebarSide> side) {
-        this.listComponent = new SidebarElementList(0, 0, null, true);
+        this.listComponent = new SidebarElementVerticalList(0, 0, null, true);
         this.sideChangingButton = new SidebarButton("", (self, mouseButton) -> {
             side.set(side.get() == SidebarSide.LEFT ? SidebarSide.RIGHT : SidebarSide.LEFT);
             self.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
@@ -44,7 +44,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
         // Put this in constructor to prevent the vertical slider value not being reset
         Supplier<Integer> remainingHeightGetter = () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight();
-        this.innerListComponent = new SidebarElementList(0, 0, remainingHeightGetter, false);
+        this.innerListComponent = new SidebarElementVerticalList(0, 0, remainingHeightGetter, false);
 
         this.elementPaddingSide = elementPaddingSide;
         this.paddingTopBottom = paddingTopBottom;
@@ -68,7 +68,7 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
         // Sidebar element inner list
         this.listComponent.add(this.innerListComponent.clear().addAll(
                 new SidebarBlank(this.paddingTopBottom),
-                new SidebarElementList(this.elementDistance, this.elementPaddingSide, null, false)
+                new SidebarElementVerticalList(this.elementDistance, this.elementPaddingSide, null, false)
                         .addAll(this.getElements()),
                 new SidebarBlank(this.paddingTopBottom)
         ));

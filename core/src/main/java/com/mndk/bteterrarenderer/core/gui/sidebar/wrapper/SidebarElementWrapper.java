@@ -3,74 +3,96 @@ package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
-import lombok.Getter;
+import lombok.*;
 
 import javax.annotation.Nullable;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SidebarElementWrapper extends GuiSidebarElement {
 
     @Nullable
     private GuiSidebarElement delegate;
 
+    @Setter
+    private int topPadding = 0, leftPadding = 0, bottomPadding = 0, rightPadding = 0;
+
     public void setElement(GuiSidebarElement delegate) {
         this.delegate = delegate;
-        if(delegate != null && this.getWidth() != -1) delegate.init(this.getWidth());
+        if(delegate == null || this.getWidth() == -1) return;
+        delegate.init(this.getWidth() - leftPadding - rightPadding);
     }
 
     @Override
     public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+        drawContextWrapper.translate(leftPadding, topPadding, 0);
         if(delegate != null) delegate.drawComponent(drawContextWrapper);
+        drawContextWrapper.translate(-leftPadding, -topPadding, 0);
     }
 
     @Override
     public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
-        return delegate != null && delegate.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
+        if(delegate == null) return false;
+        return delegate.mouseHovered(mouseX - leftPadding, mouseY - topPadding, partialTicks, mouseHidden);
     }
 
     @Override
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        return delegate != null && delegate.mousePressed(mouseX, mouseY, mouseButton);
+        if(delegate == null) return false;
+        return delegate.mousePressed(mouseX - leftPadding, mouseY - topPadding, mouseButton);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        return delegate != null && delegate.mouseReleased(mouseX, mouseY, mouseButton);
+        if(delegate == null) return false;
+        return delegate.mouseReleased(mouseX - leftPadding, mouseY - topPadding, mouseButton);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
-        return delegate != null && delegate.mouseDragged(mouseX, mouseY, mouseButton, pMouseX, pMouseY);
+        if(delegate == null) return false;
+        return delegate.mouseDragged(mouseX - leftPadding, mouseY - topPadding, mouseButton, pMouseX - leftPadding, pMouseY - topPadding);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
-        return delegate != null && delegate.mouseScrolled(mouseX, mouseY, scrollAmount);
+        if(delegate == null) return false;
+        return delegate.mouseScrolled(mouseX - leftPadding, mouseY - topPadding, scrollAmount);
     }
 
     @Override
     public boolean keyTyped(char typedChar, int keyCode) {
-        return delegate != null && delegate.keyTyped(typedChar, keyCode);
+        if(delegate == null) return false;
+        return delegate.keyTyped(typedChar, keyCode);
     }
 
     @Override
     public boolean keyPressed(InputKey key) {
-        return delegate != null && delegate.keyPressed(key);
+        if(delegate == null) return false;
+        return delegate.keyPressed(key);
     }
 
     @Override
     public int getPhysicalHeight() {
-        return delegate != null ? delegate.getPhysicalHeight() : 0;
+        return (delegate != null ? delegate.getPhysicalHeight() : 0) + this.topPadding + this.bottomPadding;
+    }
+
+    @Override
+    public int getVisualHeight() {
+        return (delegate != null ? delegate.getVisualHeight() : 0) + this.topPadding;
     }
 
     @Override
     protected void init() {
-        if(delegate != null) delegate.init(this.getWidth());
+        if(delegate == null) return;
+        delegate.init(this.getWidth() - leftPadding - rightPadding);
     }
 
     @Override
     public void onWidthChange() {
-        if(delegate != null) delegate.onWidthChange(this.getWidth());
+        if(delegate == null) return;
+        delegate.onWidthChange(this.getWidth() - leftPadding - rightPadding);
     }
 
     @Override

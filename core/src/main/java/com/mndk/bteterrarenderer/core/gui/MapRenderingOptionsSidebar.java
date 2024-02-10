@@ -14,7 +14,7 @@ import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
 import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
 import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementWrapper;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementList;
+import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementVerticalList;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
@@ -55,7 +55,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static MapRenderingOptionsSidebar INSTANCE;
     private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
     private final SidebarTextComponent mapCopyright;
-    private final SidebarElementList tmsPropertyElementList;
+    private final SidebarElementVerticalList tmsPropertyElementList;
     private final SidebarElementWrapper yAxisInputWrapper;
 
     public MapRenderingOptionsSidebar() {
@@ -82,7 +82,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
         this.mapCopyright = new SidebarTextComponent(HorizontalAlign.LEFT);
-        this.tmsPropertyElementList = new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false);
+        this.tmsPropertyElementList = new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false);
     }
 
     @Override
@@ -117,15 +117,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         return Arrays.asList(
             // ===========================================================================================
-            new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+            new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), HorizontalAlign.CENTER, 0xFFFFFFFF)
             ),
 
             // General components
-            new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+            new SidebarElementVerticalList(ELEMENT_DISTANCE, 0, null, false).addAll(
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), HorizontalAlign.LEFT, 0xFFFFFFFF),
                 hl, // ---------------------------------------------------------------------------------------
-                new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
                     renderingTrigger,
                     opacitySlider,
                     this.yAxisInputWrapper
@@ -133,10 +133,10 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
             ),
 
             // Map source control components
-            new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+            new SidebarElementVerticalList(ELEMENT_DISTANCE, 0, null, false).addAll(
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), HorizontalAlign.LEFT, 0xFFFFFFFF),
                 hl, // ---------------------------------------------------------------------------------------
-                new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
                     this.mapSourceDropdown,
                     this.mapCopyright
                 )
@@ -144,16 +144,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
             this.tmsPropertyElementList,
 
-            new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+            new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
                 openMapsFolderButton,
                 reloadMapsButton
             ),
 
             // Map offset control components
-            new SidebarElementList(ELEMENT_DISTANCE, 0, null, false).addAll(
+            new SidebarElementVerticalList(ELEMENT_DISTANCE, 0, null, false).addAll(
                 new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), HorizontalAlign.LEFT, 0xFFFFFFFF),
                 hl, // ---------------------------------------------------------------------------------------
-                new SidebarElementList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
+                new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
                     mapAligner
                 )
             )

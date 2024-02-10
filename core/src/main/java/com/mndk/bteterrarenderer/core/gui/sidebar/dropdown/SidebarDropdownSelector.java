@@ -57,7 +57,11 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     protected void init() {
         this.mainBoxHeight = FontWrapper.DEFAULT.getHeight() + MAINBOX_PADDING_VERTICAL * 2;
         this.singleLineElementHeight = FontWrapper.DEFAULT.getHeight() + ITEM_PADDING_VERTICAL * 2;
-        this.itemInnerWidth = this.getWidth() - MAINBOX_PADDING_HORIZONTAL * 2;
+    }
+
+    @Override
+    public void onWidthChange() {
+        this.itemInnerWidth = this.getWidth() - ITEM_PADDING_HORIZONTAL * 2;
     }
 
     @Override
@@ -175,11 +179,6 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
 
         this.dropdownItems.mouseClicked();
         return true;
-    }
-
-    @Override
-    public void onWidthChange() {
-        this.itemInnerWidth = this.getWidth() - ITEM_PADDING_HORIZONTAL * 2;
     }
 
 

@@ -13,8 +13,11 @@ public class CheckBoxWidgetCopy extends AbstractWidgetCopy {
 
     private boolean checked;
 
-    public CheckBoxWidgetCopy(int x, int y, String text, boolean checked) {
-        super(x, y, BOX_WIDTH + BOX_MARGIN_RIGHT + FontWrapper.DEFAULT.getWidth(text), BOX_HEIGHT, text);
+    /**
+     * @param width Set this to -1 for no width restrictions
+     */
+    public CheckBoxWidgetCopy(int x, int y, int width, String text, boolean checked) {
+        super(x, y, width, BOX_HEIGHT, text);
         this.checked = checked;
     }
 
@@ -29,7 +32,12 @@ public class CheckBoxWidgetCopy extends AbstractWidgetCopy {
         else if(!this.enabled)          color = DISABLED_TEXT_COLOR;
         else if(this.hovered)            color = HOVERED_COLOR;
 
-        drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, this.x + BOX_WIDTH + BOX_MARGIN_RIGHT, this.y + 2, color);
+        if(this.width != -1) {
+            text = FontWrapper.DEFAULT.trimToWidth(text, width - BOX_WIDTH - BOX_MARGIN_RIGHT);
+        }
+        int textLeft = this.x + BOX_WIDTH + BOX_MARGIN_RIGHT;
+        int textTop = this.y + 2;
+        drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, textLeft, textTop, color);
     }
 
     @Override
