@@ -1,14 +1,14 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.button;
+package com.mndk.bteterrarenderer.core.gui.mcfx.button;
 
 import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 
-public class SidebarBooleanButton extends SidebarButton {
+public class McFXBooleanButton extends McFXButton {
 
     private final PropertyAccessor<Boolean> value;
     private final String prefix;
 
-    public SidebarBooleanButton(PropertyAccessor<Boolean> value, String prefix) {
+    public McFXBooleanButton(PropertyAccessor<Boolean> value, String prefix) {
         super(prefix + booleanToFormattedI18n(value.get()), (self, mouseButton) -> {
             value.set(!value.get());
             self.setDisplayString(prefix + booleanToFormattedI18n(value.get()));

@@ -6,7 +6,7 @@
   "client": [
     "ChatHudMixin",
     "mcconnector.client.MinecraftClientManagerMixin",
-    "mcconnector.client.WindowManagerMixin",
+    "mcconnector.client.MinecraftWindowManagerMixin",
     "mcconnector.graphics.GlGraphicsManagerMixin",
     "mcconnector.graphics.IBufferBuilderMixin",
     "mcconnector.gui.RawGuiManagerMixin",

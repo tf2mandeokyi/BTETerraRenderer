@@ -3,24 +3,23 @@ package com.mndk.bteterrarenderer.core.gui;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.ImageResizingBlock;
+import com.mndk.bteterrarenderer.core.gui.mapaligner.MapAligner;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXBooleanButton;
+import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
+import com.mndk.bteterrarenderer.core.gui.mcfx.dropdown.McFXDropdown;
+import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
+import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarBooleanButton;
-import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.*;
-import com.mndk.bteterrarenderer.core.gui.sidebar.dropdown.SidebarDropdownSelector;
-import com.mndk.bteterrarenderer.core.gui.sidebar.input.SidebarNumberInput;
-import com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner.SidebarMapAligner;
-import com.mndk.bteterrarenderer.core.gui.sidebar.slider.SidebarSlider;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementWrapper;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementVerticalList;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
@@ -29,7 +28,6 @@ import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
@@ -48,15 +46,16 @@ import java.util.concurrent.TimeUnit;
 public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static final int ELEMENT_DISTANCE = 7;
+    private static final int SIDE_PADDING = 7;
     private static final int ELEMENT_DISTANCE_BIG = 35;
 
     private static final IconMaker ICON_MAKER = new IconMaker();
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
-    private final SidebarTextComponent mapCopyright;
-    private final SidebarElementVerticalList tmsPropertyElementList;
-    private final SidebarElementWrapper yAxisInputWrapper;
+    private final McFXDropdown<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
+    private final McFXElement mapCopyright;
+    private final McFXVerticalList tmsPropertyElementList;
+    private final McFXWrapper yAxisInputWrapper;
 
     public MapRenderingOptionsSidebar() {
         super(
@@ -72,92 +71,96 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         );
 
         // Don't make sidebar elements here if they need i18n keys. Keys won't get updated.
-        // instead put all of those elements in getElements()
+        // Instead, put all those elements in getSidebarElements()
 
-        this.yAxisInputWrapper = new SidebarElementWrapper();
-        this.mapSourceDropdown = new SidebarDropdownSelector<>(
+        this.yAxisInputWrapper = McFX.wrapper();
+        this.mapSourceDropdown = McFX.dropdown(
                 PropertyAccessor.of(BTRUtil.uncheckedCast(CategoryMap.Wrapper.class),
                         this::getWrappedTMS, this::setTileMapServiceWrapper),
                 MapRenderingOptionsSidebar::tmsWrappedToString,
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
-        this.mapCopyright = new SidebarTextComponent(HorizontalAlign.LEFT);
-        this.tmsPropertyElementList = new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false);
+        this.mapCopyright = McFX.div().setAlign(HorizontalAlign.LEFT);
+        this.tmsPropertyElementList = McFX.vList(ELEMENT_DISTANCE, ELEMENT_DISTANCE);
     }
 
     @Override
-    protected List<GuiSidebarElement> getElements() {
+    protected List<McFXElement> getSidebarElements() {
         BTETerraRendererConfig.HologramConfig hologramSettings = BTETerraRendererConfig.HOLOGRAM;
 
-        SidebarBooleanButton renderingTrigger = new SidebarBooleanButton(
-                PropertyAccessor.of(hologramSettings::isDoRender, hologramSettings::setDoRender),
-                I18nManager.format("gui.bteterrarenderer.settings.map_rendering") + ": "
+        McFXBooleanButton renderingTrigger = McFX.i18nBoolButton(
+                "gui.bteterrarenderer.settings.map_rendering",
+                PropertyAccessor.of(hologramSettings::isDoRender, hologramSettings::setDoRender)
         );
-        SidebarSlider<Double> opacitySlider = new SidebarSlider<>(
-                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1),
-                I18nManager.format("gui.bteterrarenderer.settings.opacity") + ": ", ""
+        McFXSlider<Double> opacitySlider = McFX.i18nSlider(
+                "gui.bteterrarenderer.settings.opacity",
+                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1)
         );
-        SidebarButton reloadMapsButton = new SidebarButton(
-                I18nManager.format("gui.bteterrarenderer.settings.map_reload"),
+        McFXButton reloadMapsButton = McFX.i18nButton(
+                "gui.bteterrarenderer.settings.map_reload",
                 (self, mouseButton) -> this.reloadMapSources()
         );
-        SidebarButton openMapsFolderButton = new SidebarButton(
-                I18nManager.format("gui.bteterrarenderer.settings.map_folder"),
+        McFXButton openMapsFolderButton = McFX.i18nButton(
+                "gui.bteterrarenderer.settings.map_folder",
                 (self, mouseButton) -> this.openMapsFolder()
         );
 
         // Map orientation components
-        SidebarMapAligner mapAligner = new SidebarMapAligner(
+        MapAligner mapAligner = new MapAligner(
                 PropertyAccessor.of(hologramSettings::getXAlign, hologramSettings::setXAlign),
                 PropertyAccessor.of(hologramSettings::getZAlign, hologramSettings::setZAlign),
                 PropertyAccessor.of(hologramSettings::isLockNorth, hologramSettings::setLockNorth)
         );
 
-        SidebarHorizontalLine hl = new SidebarHorizontalLine(1, 0xFFFFFFFF);
+        McFXElement hl = McFX.div(1).setBackgroundColor(0xFFFFFFFF);
 
         return Arrays.asList(
-            // ===========================================================================================
-            new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.title"), HorizontalAlign.CENTER, 0xFFFFFFFF)
-            ),
+                // ===========================================================================================
+                McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
+                        .add(McFX.div()
+                                .setI18nKeyContent("gui.bteterrarenderer.settings.title")
+                                .setAlign(HorizontalAlign.CENTER)
+                                .setColor(0xFFFFFFFF)),
 
-            // General components
-            new SidebarElementVerticalList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.general"), HorizontalAlign.LEFT, 0xFFFFFFFF),
-                hl, // ---------------------------------------------------------------------------------------
-                new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
-                    renderingTrigger,
-                    opacitySlider,
-                    this.yAxisInputWrapper
-                )
-            ),
+                // General components
+                McFX.vList(ELEMENT_DISTANCE, 0)
+                        .add(McFX.div()
+                                .setI18nKeyContent("gui.bteterrarenderer.settings.general")
+                                .setAlign(HorizontalAlign.LEFT)
+                                .setColor(0xFFFFFFFF))
+                        .add(hl) // --------------------------------------------------------------------------
+                        .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
+                                .add(renderingTrigger)
+                                .add(opacitySlider)
+                                .add(this.yAxisInputWrapper)),
 
-            // Map source control components
-            new SidebarElementVerticalList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_source"), HorizontalAlign.LEFT, 0xFFFFFFFF),
-                hl, // ---------------------------------------------------------------------------------------
-                new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
-                    this.mapSourceDropdown,
-                    this.mapCopyright
-                )
-            ),
+                // Map source control components
+                McFX.vList(ELEMENT_DISTANCE, 0)
+                        .add(McFX.div()
+                                .setI18nKeyContent("gui.bteterrarenderer.settings.map_source")
+                                .setAlign(HorizontalAlign.LEFT)
+                                .setColor(0xFFFFFFFF))
+                        .add(hl) // --------------------------------------------------------------------------
+                        .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
+                                .add(this.mapSourceDropdown)
+                                .add(this.mapCopyright)),
 
-            this.tmsPropertyElementList,
+                this.tmsPropertyElementList,
 
-            new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
-                openMapsFolderButton,
-                reloadMapsButton
-            ),
+                McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
+                        .add(openMapsFolderButton)
+                        .add(reloadMapsButton),
 
-            // Map offset control components
-            new SidebarElementVerticalList(ELEMENT_DISTANCE, 0, null, false).addAll(
-                new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_offset"), HorizontalAlign.LEFT, 0xFFFFFFFF),
-                hl, // ---------------------------------------------------------------------------------------
-                new SidebarElementVerticalList(ELEMENT_DISTANCE, ELEMENT_DISTANCE, null, false).addAll(
-                    mapAligner
-                )
-            )
-            // ===========================================================================================
+                // Map offset control components
+                McFX.vList(ELEMENT_DISTANCE, 0)
+                        .add(McFX.div()
+                                .setI18nKeyContent("gui.bteterrarenderer.settings.map_offset")
+                                .setAlign(HorizontalAlign.LEFT)
+                                .setColor(0xFFFFFFFF))
+                        .add(hl) // --------------------------------------------------------------------------
+                        .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
+                                .add(mapAligner))
+                // ===========================================================================================
         );
     }
 
@@ -188,22 +191,25 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.setTileMapService(tmsWrapped);
 
         // Set property element list
-        SidebarText text = new SidebarText(I18nManager.format("gui.bteterrarenderer.settings.map_settings"), HorizontalAlign.LEFT);
-        this.tmsPropertyElementList.clear();
-        this.tmsPropertyElementList.add(text);
-        this.tmsPropertyElementList.addProperties(tms.getProperties());
+        this.tmsPropertyElementList.clear()
+                .add(McFX.div()
+                        .setI18nKeyContent("gui.bteterrarenderer.settings.map_settings")
+                        .setAlign(HorizontalAlign.LEFT))
+                .addProperties(tms.getProperties());
         this.tmsPropertyElementList.hide = false;
 
         // Set y axis input
         this.yAxisInputWrapper.hide = false;
         if(tms instanceof FlatTileMapService) {
-            this.yAxisInputWrapper.setElement(new SidebarNumberInput(
-                    PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis),
-                    I18nManager.format("gui.bteterrarenderer.settings.map_y_level") + ": "));
+            this.yAxisInputWrapper.setElement(McFX.i18nNumberInput(
+                    "gui.bteterrarenderer.settings.map_y_level",
+                    PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis))
+            );
         } else {
-            this.yAxisInputWrapper.setElement(new SidebarNumberInput(
-                    PropertyAccessor.of(renderSettings::getYAlign, renderSettings::setYAlign),
-                    I18nManager.format("gui.bteterrarenderer.settings.y_align") + ": "));
+            this.yAxisInputWrapper.setElement(McFX.i18nNumberInput(
+                    "gui.bteterrarenderer.settings.y_align",
+                    PropertyAccessor.of(renderSettings::getYAlign, renderSettings::setYAlign))
+            );
         }
 
         // Set copyright
@@ -211,7 +217,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 .map(Translatable::get)
                 .orElse(null);
         this.mapCopyright.hide = textComponentJson == null;
-        this.mapCopyright.setTextComponentJson(textComponentJson);
+        this.mapCopyright.setTextJsonContent(textComponentJson);
     }
 
     private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
@@ -233,7 +239,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private void updateMapSourceDropdown() {
-        SidebarDropdownSelector<CategoryMap.Wrapper<TileMapService<?>>>.ItemListUpdater updater =
+        McFXDropdown<CategoryMap.Wrapper<TileMapService<?>>>.ItemListUpdater updater =
                 mapSourceDropdown.itemListBuilder();
 
         CategoryMap<TileMapService<?>> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();

@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.mapaligner;
+package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-class AlignerBox extends GuiSidebarElement {
+class MapAlignerBox extends McFXElement {
     
     private static final int ALIGNBOX_ARROW_SIZE = 7;
 
@@ -57,7 +57,7 @@ class AlignerBox extends GuiSidebarElement {
     public void onWidthChange() {}
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         int elementWidth = this.getWidth();
         int centerX = elementWidth / 2, centerY = this.height / 2;
 
@@ -74,7 +74,7 @@ class AlignerBox extends GuiSidebarElement {
         String z = StringUtil.formatDoubleNicely(zOffset.get(), 2);
         String text = String.format("§rX §f%s§r, Z §f%s", x, z);
         drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, HorizontalAlign.LEFT, VerticalAlign.TOP,
-                centerX + 3, centerY + 3, SidebarMapAligner.MARKER_COLOR);
+                centerX + 3, centerY + 3, MapAligner.MARKER_COLOR);
     }
 
     private void updateGridLines() {

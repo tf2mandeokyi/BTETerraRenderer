@@ -38,10 +38,10 @@ public class FontWrapperMixin {
         public int getWidth(TextWrapper textWrapper) {
             Object textComponent = textWrapper.get();
             if(textComponent instanceof StringVisitable visitable) {
-                getThisWrapped().getWidth(visitable);
+                return getThisWrapped().getWidth(visitable);
             }
             else if(textComponent instanceof OrderedText text) {
-                getThisWrapped().getWidth(text);
+                return getThisWrapped().getWidth(text);
             }
             return 0;
         }

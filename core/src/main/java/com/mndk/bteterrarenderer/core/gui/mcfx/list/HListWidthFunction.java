@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
+package com.mndk.bteterrarenderer.core.gui.mcfx.list;
 
 @FunctionalInterface
 public interface HListWidthFunction {

@@ -20,7 +20,7 @@ public class GameInputManager {
     }
 
     public boolean isControlKeyDown() {
-        if (MinecraftClientManager.isOnMac()) {
+        if (MinecraftClientManager.INSTANCE.isOnMac()) {
             return isKeyDown(KEY_LEFT_SUPER) || isKeyDown(KEY_RIGHT_SUPER);
         } else {
             return isKeyDown(KEY_LEFT_CONTROL) || isKeyDown(KEY_RIGHT_CONTROL);

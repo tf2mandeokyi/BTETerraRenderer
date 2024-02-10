@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.wrapper;
 
 import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
-import com.mndk.bteterrarenderer.mcconnector.client.WindowManager;
+import com.mndk.bteterrarenderer.mcconnector.client.MinecraftWindowManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
@@ -196,8 +196,8 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         if(SCISSOR_DIM_STACK.isEmpty()) return;
 
         // Calculate intersections
-        int totalMinX = 0, totalMaxX = WindowManager.getPixelWidth();
-        int totalMinY = 0, totalMaxY = WindowManager.getPixelHeight();
+        int totalMinX = 0, totalMaxX = MinecraftWindowManager.INSTANCE.getPixelWidth();
+        int totalMinY = 0, totalMaxY = MinecraftWindowManager.INSTANCE.getPixelHeight();
         for(int[] dimension : SCISSOR_DIM_STACK) {
             int minX = dimension[0], maxX = dimension[0] + dimension[2];
             int minY = dimension[1], maxY = dimension[1] + dimension[3];

@@ -1,8 +1,9 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
-import com.mndk.bteterrarenderer.core.gui.sidebar.button.SidebarButton;
-import com.mndk.bteterrarenderer.core.gui.sidebar.decorator.SidebarBlank;
-import com.mndk.bteterrarenderer.core.gui.sidebar.wrapper.SidebarElementVerticalList;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
+import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
@@ -21,9 +22,9 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     private static final int WIDTH_CHANGE_BAR_SHADOW = 0xFF383838;
     private static final int WIDTH_CHANGE_BAR_SHADOW_HOVERED = 0xFF3f3f28;
 
-    private final SidebarElementVerticalList listComponent, innerListComponent;
+    private final McFXVerticalList listComponent, innerListComponent;
     public final PropertyAccessor<SidebarSide> side;
-    private final SidebarButton sideChangingButton;
+    private final McFXButton sideChangingButton;
     private final boolean guiPausesGame;
     /** Only use this in {@link #initGui()} */
     private final int elementPaddingSide, paddingTopBottom, elementDistance;
@@ -36,15 +37,12 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     public GuiSidebar(int elementPaddingSide, int paddingTopBottom, int elementDistance, boolean guiPausesGame,
                       PropertyAccessor<Double> sidebarWidth,
                       PropertyAccessor<SidebarSide> side) {
-        this.listComponent = new SidebarElementVerticalList(0, 0, null, true);
-        this.sideChangingButton = new SidebarButton("", (self, mouseButton) -> {
-            side.set(side.get() == SidebarSide.LEFT ? SidebarSide.RIGHT : SidebarSide.LEFT);
-            self.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
-        });
+        this.listComponent = McFX.vList(0, 0, true);
+        this.sideChangingButton = McFX.button("", this::toggleSide);
 
-        // Put this in constructor to prevent the vertical slider value not being reset
+        // Put these in constructor to prevent the vertical slider value not being reset
         Supplier<Integer> remainingHeightGetter = () -> this.getHeight() - this.sideChangingButton.getPhysicalHeight();
-        this.innerListComponent = new SidebarElementVerticalList(0, 0, remainingHeightGetter, false);
+        this.innerListComponent = McFX.vList(0, 0, remainingHeightGetter, false);
 
         this.elementPaddingSide = elementPaddingSide;
         this.paddingTopBottom = paddingTopBottom;
@@ -56,25 +54,27 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
         this.sidebarWidth = sidebarWidth;
     }
 
-    protected abstract List<GuiSidebarElement> getElements();
+    protected abstract List<McFXElement> getSidebarElements();
 
     @Override
     public void initGui() {
-        this.listComponent.clear();
+        this.innerListComponent.clear()
+                .add(McFX.div(this.paddingTopBottom))
+                .add(McFX.vList(this.elementDistance, this.elementPaddingSide)
+                        .addAll(this.getSidebarElements()))
+                .add(McFX.div(this.paddingTopBottom));
 
-        // Side changing button
-        this.listComponent.add(this.sideChangingButton);
-
-        // Sidebar element inner list
-        this.listComponent.add(this.innerListComponent.clear().addAll(
-                new SidebarBlank(this.paddingTopBottom),
-                new SidebarElementVerticalList(this.elementDistance, this.elementPaddingSide, null, false)
-                        .addAll(this.getElements()),
-                new SidebarBlank(this.paddingTopBottom)
-        ));
+        this.listComponent.clear()
+                .add(this.sideChangingButton)
+                .add(innerListComponent);
 
         this.listComponent.init(this.sidebarWidth.get().intValue());
         this.sideChangingButton.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
+    }
+
+    private void toggleSide(McFXButton button, int mouseButton) {
+        side.set(side.get() == SidebarSide.LEFT ? SidebarSide.RIGHT : SidebarSide.LEFT);
+        button.setDisplayString(side.get() == SidebarSide.LEFT ? ">>" : "<<");
     }
 
     @Override

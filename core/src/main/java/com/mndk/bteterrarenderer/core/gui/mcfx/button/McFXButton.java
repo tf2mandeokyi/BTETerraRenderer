@@ -1,16 +1,16 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.button;
+package com.mndk.bteterrarenderer.core.gui.mcfx.button;
 
 import com.mndk.bteterrarenderer.mcconnector.gui.widget.ButtonWidgetCopy;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
-public class SidebarButton extends GuiSidebarElement {
+public class McFXButton extends McFXElement {
 
     private ButtonWidgetCopy button;
     private String buttonText;
     private final MouseClickedEvent event;
 
-    public SidebarButton(String buttonText, MouseClickedEvent event) {
+    public McFXButton(String buttonText, MouseClickedEvent event) {
         this.buttonText = buttonText;
         this.event = event;
     }
@@ -41,7 +41,7 @@ public class SidebarButton extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         this.button.drawComponent(drawContextWrapper);
     }
 
@@ -56,6 +56,6 @@ public class SidebarButton extends GuiSidebarElement {
 
     @FunctionalInterface
     public interface MouseClickedEvent {
-        void onMouseClicked(SidebarButton self, int mouseButton);
+        void onMouseClicked(McFXButton self, int mouseButton);
     }
 }

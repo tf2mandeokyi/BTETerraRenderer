@@ -1,12 +1,12 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.slider;
+package com.mndk.bteterrarenderer.core.gui.mcfx.slider;
 
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.gui.widget.SliderWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
-public class SidebarSlider<T extends Number> extends GuiSidebarElement {
+public class McFXSlider<T extends Number> extends McFXElement {
 
     private SliderWidgetCopy slider;
 
@@ -15,8 +15,8 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
     private final String prefix, suffix;
     private final boolean isInteger;
 
-    public SidebarSlider(PropertyAccessor.Ranged<T> value,
-                         String prefix, String suffix) {
+    public McFXSlider(PropertyAccessor.Ranged<T> value,
+                      String prefix, String suffix) {
         this.value = value;
         this.prefix = prefix; this.suffix = suffix;
 
@@ -59,7 +59,7 @@ public class SidebarSlider<T extends Number> extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         if(this.slider.drawString) {
             boolean testResult;
             if(this.isInteger) {

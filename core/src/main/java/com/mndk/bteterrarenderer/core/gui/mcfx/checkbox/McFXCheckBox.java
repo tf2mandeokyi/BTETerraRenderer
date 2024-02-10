@@ -1,17 +1,17 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.checkbox;
+package com.mndk.bteterrarenderer.core.gui.mcfx.checkbox;
 
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.gui.widget.CheckBoxWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
-public class SidebarCheckBox extends GuiSidebarElement {
+public class McFXCheckBox extends McFXElement {
 
     private CheckBoxWidgetCopy checkBox;
     private final String suffixText;
     private final PropertyAccessor<Boolean> propertyAccessor;
 
-    public SidebarCheckBox(PropertyAccessor<Boolean> propertyAccessor, String suffixText) {
+    public McFXCheckBox(PropertyAccessor<Boolean> propertyAccessor, String suffixText) {
         this.propertyAccessor = propertyAccessor;
         this.suffixText = suffixText;
     }
@@ -37,7 +37,7 @@ public class SidebarCheckBox extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         this.checkBox.drawComponent(drawContextWrapper);
     }
 

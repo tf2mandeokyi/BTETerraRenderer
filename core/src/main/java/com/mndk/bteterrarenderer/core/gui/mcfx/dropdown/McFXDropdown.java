@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.dropdown;
+package com.mndk.bteterrarenderer.core.gui.mcfx.dropdown;
 
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
-public class SidebarDropdownSelector<T> extends GuiSidebarElement {
+public class McFXDropdown<T> extends McFXElement {
 
     private static final int SELECTED_BACKGROUND_COLOR = 0xDFA0AFFF;
 
@@ -100,7 +100,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         int mainBoxColor = this.mouseOnMainBox ? HOVERED_COLOR : MAINBOX_BORDER_COLOR;
         boolean opened = this.isOpened();
 
@@ -260,7 +260,7 @@ public class SidebarDropdownSelector<T> extends GuiSidebarElement {
         ItemList findCategory(String categoryName) {
             for(DropdownItem item : this.itemList) {
                 if(item == null) continue;
-                if(!(item instanceof SidebarDropdownSelector<?>.ItemList)) continue;
+                if(!(item instanceof McFXDropdown<?>.ItemList)) continue;
                 ItemList category = (ItemList) item;
                 if(category.name.equals(categoryName)) return category;
             }

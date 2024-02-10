@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
+package com.mndk.bteterrarenderer.core.gui.mcfx.list;
 
 import com.google.common.collect.Lists;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
@@ -11,22 +11,27 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SidebarElementHorizontalList extends GuiSidebarElement {
+public class McFXHorizontalList extends McFXElement {
 
     private final List<Entry> entryList = new ArrayList<>();
     private final int sidePadding;
     private int elementsMaxPhysicalHeight, elementsMaxVisualHeight;
     private final boolean makeSound;
 
-    public SidebarElementHorizontalList(int sidePadding, boolean makeSound) {
+    public McFXHorizontalList(int sidePadding, boolean makeSound) {
         this.sidePadding = sidePadding;
         this.makeSound = makeSound;
+    }
+
+    public McFXHorizontalList clear() {
+        this.entryList.clear();
+        return this;
     }
 
     /**
      * @param widthFunction Set this to {@code null} to let horizontal list calculate the width
      */
-    public SidebarElementHorizontalList add(GuiSidebarElement element, HListWidthFunction widthFunction) {
+    public McFXHorizontalList add(McFXElement element, HListWidthFunction widthFunction) {
         if(element == null) return this;
         this.entryList.add(new Entry(element, widthFunction));
         return this;
@@ -46,7 +51,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     protected void init() {
         this.updateHorizontalDimensions();
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null) continue;
             element.init(entry.width);
         }
@@ -56,9 +61,10 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     public void onWidthChange() {
         this.updateHorizontalDimensions();
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             element.onWidthChange(entry.width);
+            entry.widthChanged = false;
         }
         this.calculateHeights();
     }
@@ -72,7 +78,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
         int nullFunctionCount = 0;
         for(int i = 0; i < size; i++) {
             Entry entry = entryList.get(i);
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) {
                 widths[i] = 0.0;
                 continue;
@@ -107,8 +113,13 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
         for(int i = 0; i < size; i++) {
             // Recalculate width (double -> int) and xPos (double -> int)
             Entry entry = entryList.get(i);
-            entry.width = (int) xPosList[i+1] - (int) xPosList[i];
             entry.xPos = (int) xPosList[i];
+
+            int newWidth = (int) xPosList[i+1] - (int) xPosList[i];
+            if(entry.width != newWidth) {
+                entry.widthChanged = true;
+                entry.width = newWidth;
+            }
         }
     }
 
@@ -116,7 +127,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
         this.elementsMaxPhysicalHeight = 0;
         this.elementsMaxVisualHeight = 0;
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
 
             // Calculate max height
             int physicalHeight = element.getPhysicalHeight();
@@ -128,10 +139,12 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
 
     @Override
     public void tick() {
+        this.updateHorizontalDimensions();
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             element.tick();
+            if(entry.widthChanged) element.onWidthChange(entry.width);
         }
     }
 
@@ -140,7 +153,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
         // Check for all elements
         boolean hovered = false;
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             boolean elementHovered = element.mouseHovered(
@@ -152,14 +165,14 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         int prevXPos = 0;
 
         drawContextWrapper.pushMatrix();
         drawContextWrapper.translate(this.sidePadding, 0, 0);
         // Draw from the last so that the first element could appear in the front
         for(Entry entry : Lists.reverse(entryList)) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide || entry.width == 0) continue;
 
             int xPos = entry.xPos;
@@ -176,14 +189,14 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         // Check for all elements
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
             int xPos = entry.xPos;
             boolean elementPressed = element.mousePressed(
                     mouseX - this.sidePadding - xPos, mouseY, mouseButton);
             if(elementPressed) {
-                if(this.makeSound) MinecraftClientManager.playClickSound();
+                if(this.makeSound) MinecraftClientManager.INSTANCE.playClickSound();
                 return true;
             }
         }
@@ -193,7 +206,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             int xPos = entry.xPos;
@@ -207,7 +220,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
         // Check for all elements
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             boolean elementScrolled = element.mouseScrolled(
@@ -221,7 +234,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
         // Check for every element
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
             int xPos = entry.xPos;
@@ -236,7 +249,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     @Override
     public boolean keyTyped(char typedChar, int keyCode) {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.keyTyped(typedChar, keyCode)) return true;
         }
@@ -246,7 +259,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     @Override
     public boolean keyPressed(InputKey key) {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.keyPressed(key)) return true;
         }
@@ -257,7 +270,7 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
     public int getCount() {
         int count = 0;
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             count += element.getCount();
         }
@@ -266,8 +279,9 @@ public class SidebarElementHorizontalList extends GuiSidebarElement {
 
     @RequiredArgsConstructor
     private static class Entry {
-        final GuiSidebarElement element;
+        final McFXElement element;
         @Nullable final HListWidthFunction widthFunction;
         int xPos = 0, width = 0;
+        boolean widthChanged = false;
     }
 }

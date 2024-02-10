@@ -1,7 +1,8 @@
-package com.mndk.bteterrarenderer.core.gui.sidebar.wrapper;
+package com.mndk.bteterrarenderer.core.gui.mcfx.list;
 
 import com.google.common.collect.Lists;
-import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebarElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SidebarElementVerticalList extends GuiSidebarElement {
+public class McFXVerticalList extends McFXElement {
 
     private static final int VERTICAL_SLIDER_WIDTH = 6;
     private static final int VERTICAL_SLIDER_PADDING = 2;
@@ -41,8 +42,8 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
      * @param maxHeight Max height. Values other than {@code null} will make the vertical slider appear.
      * @param makeSound Whether to make sound when one of the elements is clicked
      */
-    public SidebarElementVerticalList(int elementDistance, int sidePadding,
-                                      @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
+    public McFXVerticalList(int elementDistance, int sidePadding,
+                            @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
         this.elementDistance = elementDistance;
         this.sidePadding = sidePadding;
         this.makeSound = makeSound;
@@ -51,12 +52,12 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
         this.verticalSliderValue = 0;
     }
 
-    public SidebarElementVerticalList clear() {
+    public McFXVerticalList clear() {
         this.entryList.clear();
         return this;
     }
 
-    public SidebarElementVerticalList add(GuiSidebarElement element) {
+    public McFXVerticalList add(McFXElement element) {
         if(element == null) return this;
         this.entryList.add(new Entry(element));
         if(this.getWidth() != -1) element.init(this.getWidth() - 2 * this.sidePadding);
@@ -67,8 +68,8 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
      * Skips null elements
      */
     @SuppressWarnings("UnusedReturnValue")
-    public SidebarElementVerticalList addAll(GuiSidebarElement... elements) {
-        for(GuiSidebarElement element : elements) this.add(element);
+    public McFXVerticalList addAll(McFXElement... elements) {
+        for(McFXElement element : elements) this.add(element);
         return this;
     }
 
@@ -76,15 +77,15 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
      * Skips null elements
      */
     @SuppressWarnings("UnusedReturnValue")
-    public SidebarElementVerticalList addAll(List<GuiSidebarElement> elements) {
-        for(GuiSidebarElement element : elements) this.add(element);
+    public McFXVerticalList addAll(List<McFXElement> elements) {
+        for(McFXElement element : elements) this.add(element);
         return this;
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public SidebarElementVerticalList addProperties(List<PropertyAccessor.Localized<?>> properties) {
-        List<GuiSidebarElement> elements = properties.stream()
-                .map(GuiSidebarElement::fromProperty)
+    public McFXVerticalList addProperties(List<PropertyAccessor.Localized<?>> properties) {
+        List<McFXElement> elements = properties.stream()
+                .map(McFX::fromProperty)
                 .collect(Collectors.toList());
         this.addAll(elements);
         return this;
@@ -103,7 +104,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     @Override
     public void init() {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null) continue;
             element.init(this.getWidth() - 2 * this.sidePadding);
         }
@@ -112,7 +113,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     @Override
     public void onWidthChange() {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             element.onWidthChange(this.getWidth() - 2 * this.sidePadding);
         }
@@ -124,7 +125,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
         this.elementsTotalVisualHeight = 0;
 
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             int physicalHeight = element.getPhysicalHeight();
@@ -146,7 +147,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     @Override
     public void tick() {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             element.tick();
         }
@@ -165,7 +166,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
         // Check for all elements
         boolean hovered = false;
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             boolean elementHovered = element.mouseHovered(
@@ -177,7 +178,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         int prevYPos = 0;
 
         if(this.maxHeight != null) {
@@ -189,7 +190,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
         drawContextWrapper.translate(this.sidePadding, -this.verticalSliderValue, 0);
         // Draw from the last so that the first element could appear in the front
         for(Entry entry : Lists.reverse(entryList)) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             int yPos = entry.yPos;
@@ -223,14 +224,14 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
 
         // Check for all elements
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
             int yPos = entry.yPos;
             boolean elementPressed = element.mousePressed(
                     mouseX - this.sidePadding, mouseY - yPos + this.verticalSliderValue, mouseButton);
             if(elementPressed) {
-                if(this.makeSound) MinecraftClientManager.playClickSound();
+                if(this.makeSound) MinecraftClientManager.INSTANCE.playClickSound();
                 return true;
             }
         }
@@ -244,7 +245,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             int yPos = entry.yPos;
@@ -260,7 +261,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
         // Check for all elements
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
 
             boolean elementScrolled = element.mouseScrolled(
@@ -297,7 +298,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
 
         // Check for every element
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
             int yPos = entry.yPos;
@@ -345,7 +346,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     @Override
     public boolean keyTyped(char typedChar, int keyCode) {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.keyTyped(typedChar, keyCode)) return true;
         }
@@ -355,7 +356,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     @Override
     public boolean keyPressed(InputKey key) {
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.keyPressed(key)) return true;
         }
@@ -366,7 +367,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
     public int getCount() {
         int count = 0;
         for(Entry entry : entryList) {
-            GuiSidebarElement element = entry.element;
+            McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             count += element.getCount();
         }
@@ -375,7 +376,7 @@ public class SidebarElementVerticalList extends GuiSidebarElement {
 
     @RequiredArgsConstructor
     private static class Entry {
-        final GuiSidebarElement element;
+        final McFXElement element;
         int yPos = 0;
     }
 }
