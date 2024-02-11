@@ -26,13 +26,13 @@ public class McFX {
         return new McFXVerticalList(elementDistance, sidePadding, null, false);
     }
 
-    public McFXVerticalList vList(int elementDistance, int sidePadding, boolean makeSound) {
-        return new McFXVerticalList(elementDistance, sidePadding, null, makeSound);
+    public McFXVerticalList vList(int elementDistance, int sidePadding,
+                                  @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
+        return new McFXVerticalList(elementDistance, sidePadding, maxHeight, makeSound);
     }
 
-    public McFXVerticalList vList(int elementDistance, int sidePadding,
-                                         @Nullable Supplier<Integer> maxHeight, boolean makeSound) {
-        return new McFXVerticalList(elementDistance, sidePadding, maxHeight, makeSound);
+    public McFXHorizontalList hList() {
+        return new McFXHorizontalList(0, false);
     }
 
     public McFXHorizontalList hList(int sidePadding, boolean makeSound) {

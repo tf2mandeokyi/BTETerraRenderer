@@ -120,30 +120,35 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.title")
                                 .setAlign(HorizontalAlign.CENTER)
-                                .setColor(0xFFFFFFFF)),
+                                .setColor(0xFFFFFFFF)
+                        ),
 
                 // General components
                 McFX.vList(ELEMENT_DISTANCE, 0)
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.general")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF))
+                                .setColor(0xFFFFFFFF)
+                        )
                         .add(hl) // --------------------------------------------------------------------------
                         .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
                                 .add(renderingTrigger)
                                 .add(opacitySlider)
-                                .add(this.yAxisInputWrapper)),
+                                .add(this.yAxisInputWrapper)
+                        ),
 
                 // Map source control components
                 McFX.vList(ELEMENT_DISTANCE, 0)
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_source")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF))
+                                .setColor(0xFFFFFFFF)
+                        )
                         .add(hl) // --------------------------------------------------------------------------
                         .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
                                 .add(this.mapSourceDropdown)
-                                .add(this.mapCopyright)),
+                                .add(this.mapCopyright)
+                        ),
 
                 this.tmsPropertyElementList,
 
@@ -156,10 +161,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_offset")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF))
+                                .setColor(0xFFFFFFFF)
+                        )
                         .add(hl) // --------------------------------------------------------------------------
                         .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                                .add(mapAligner))
+                                .add(mapAligner)
+                        )
                 // ===========================================================================================
         );
     }

@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.gui.component;
+package com.mndk.bteterrarenderer.core.gui.widget;
 
 import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.gui.widget.AbstractWidgetCopy;

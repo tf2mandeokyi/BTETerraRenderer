@@ -31,9 +31,22 @@ public class McFXHorizontalList extends McFXElement {
     /**
      * @param widthFunction Set this to {@code null} to let horizontal list calculate the width
      */
-    public McFXHorizontalList add(McFXElement element, HListWidthFunction widthFunction) {
-        if(element == null) return this;
-        this.entryList.add(new Entry(element, widthFunction));
+    public McFXHorizontalList add(McFXElement newElement, WidthFunction widthFunction) {
+        if(newElement == null) return this;
+
+        int index = this.entryList.size();
+        this.entryList.add(new Entry(newElement, widthFunction));
+
+        this.updateHorizontalDimensions();
+        for(int i = 0; i < entryList.size(); i++) {
+            Entry entry = entryList.get(i);
+            McFXElement element = entry.element;
+            if(element == null) continue;
+
+            if(i == index) element.init(entry.width);
+            else if(entry.widthChanged) element.onWidthChange(entry.width);
+        }
+
         return this;
     }
 
@@ -84,7 +97,7 @@ public class McFXHorizontalList extends McFXElement {
                 continue;
             }
 
-            HListWidthFunction widthFunction = entry.widthFunction;
+            WidthFunction widthFunction = entry.widthFunction;
             if(widthFunction == null) {
                 widths[i] = null;
                 nullFunctionCount++;
@@ -280,7 +293,7 @@ public class McFXHorizontalList extends McFXElement {
     @RequiredArgsConstructor
     private static class Entry {
         final McFXElement element;
-        @Nullable final HListWidthFunction widthFunction;
+        @Nullable final WidthFunction widthFunction;
         int xPos = 0, width = 0;
         boolean widthChanged = false;
     }

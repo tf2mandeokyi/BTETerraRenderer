@@ -32,7 +32,7 @@ public abstract class McFXElement extends GuiComponentCopy {
 
     @Setter private int backgroundColor = 0x00000000;
     @Setter private int color = NORMAL_TEXT_COLOR;
-    @Setter private HorizontalAlign align;
+    @Setter private HorizontalAlign align = HorizontalAlign.LEFT;
     private TextWrapper textContent = null;
     private List<TextWrapper> lineComponents;
     private StyleWrapper hoveredStyleComponent;
