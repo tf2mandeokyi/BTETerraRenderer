@@ -37,16 +37,34 @@ public class McFXWrapper extends McFXElement {
     }
 
     @Override
+    protected void init() {
+        if(element == null) return;
+        element.init(this.getWidth() - leftPadding - rightPadding);
+    }
+
+    @Override
+    public void onWidthChange() {
+        if(element == null) return;
+        element.onWidthChange(this.getWidth() - leftPadding - rightPadding);
+    }
+
+    @Override
+    public void tick() {
+        if(element == null) return;
+        element.tick();
+    }
+
+    @Override
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
+        if(element == null) return false;
+        return element.mouseHovered(mouseX - leftPadding, mouseY - topPadding, partialTicks, mouseHidden);
+    }
+
+    @Override
     public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         drawContextWrapper.translate(leftPadding, topPadding, 0);
         if(element != null) element.drawComponent(drawContextWrapper);
         drawContextWrapper.translate(-leftPadding, -topPadding, 0);
-    }
-
-    @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
-        if(element == null) return false;
-        return element.mouseHovered(mouseX - leftPadding, mouseY - topPadding, partialTicks, mouseHidden);
     }
 
     @Override
@@ -74,15 +92,21 @@ public class McFXWrapper extends McFXElement {
     }
 
     @Override
-    public boolean keyTyped(char typedChar, int keyCode) {
+    public boolean charTyped(char typedChar, int keyCode) {
         if(element == null) return false;
-        return element.keyTyped(typedChar, keyCode);
+        return element.charTyped(typedChar, keyCode);
     }
 
     @Override
-    public boolean keyPressed(InputKey key) {
+    public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
         if(element == null) return false;
-        return element.keyPressed(key);
+        return element.keyPressed(key, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean handleScreenEscape() {
+        if(element == null) return true;
+        return element.handleScreenEscape();
     }
 
     @Override
@@ -93,18 +117,6 @@ public class McFXWrapper extends McFXElement {
     @Override
     public int getVisualHeight() {
         return (element != null ? element.getVisualHeight() : 0) + this.topPadding;
-    }
-
-    @Override
-    protected void init() {
-        if(element == null) return;
-        element.init(this.getWidth() - leftPadding - rightPadding);
-    }
-
-    @Override
-    public void onWidthChange() {
-        if(element == null) return;
-        element.onWidthChange(this.getWidth() - leftPadding - rightPadding);
     }
 
     @Override

@@ -40,7 +40,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
 
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         if(this.dragging) this.updateSliderValue(mouseX);
         return super.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
     }

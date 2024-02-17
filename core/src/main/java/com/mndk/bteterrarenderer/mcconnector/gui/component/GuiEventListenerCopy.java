@@ -13,16 +13,16 @@ public interface GuiEventListenerCopy {
 
     int NULL_COLOR = 0;
 
-    /**
-     * This should be called before the {@link GuiComponentCopy#drawComponent} call.
-     * @return {@code true} if the component has reacted the mouse hover. {@code false} otherwise.
-     */
-    default boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) { return false; }
     default boolean mousePressed(double mouseX, double mouseY, int mouseButton) { return false; }
     default boolean mouseReleased(double mouseX, double mouseY, int mouseButton) { return false; }
     default boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) { return false; }
     default boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) { return false; }
+    default boolean charTyped(char typedChar, int keyCode) { return false; }
+    default boolean keyPressed(InputKey key, int scanCode, int modifiers) { return false; }
 
-    default boolean keyTyped(char typedChar, int keyCode) { return false; }
-    default boolean keyPressed(InputKey key) { return false; }
+    /**
+     * @return {@code false} if it's not okay to escape the current screen when ESC is pressed.
+     *         {@code true} otherwise.
+     */
+    default boolean handleScreenEscape() { return true; }
 }

@@ -54,7 +54,7 @@ public class McFXSlider<T extends Number> extends McFXElement {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         return this.slider.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
     }
 

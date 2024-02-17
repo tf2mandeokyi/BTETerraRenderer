@@ -2,22 +2,24 @@ package com.mndk.bteterrarenderer.core.gui.sidebar;
 
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.core.gui.mcfx.McFXScreen;
 import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.WidthFunction;
-import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXWrapper;
+import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
+import com.mndk.bteterrarenderer.mcconnector.gui.screen.NativeGuiScreenWrappedScreen;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeGuiScreenWrapper;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 // TODO: Add tab key
-public abstract class GuiSidebar extends AbstractGuiScreenCopy {
+public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
 
     private static final int SIDEBAR_BACKGROUND_COLOR = 0x5F000000;
     private static final int WIDTH_CHANGE_BAR_COLOR = 0xFFFFFFFF;
@@ -25,29 +27,27 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     private static final int WIDTH_CHANGE_BAR_SHADOW = 0xFF383838;
     private static final int WIDTH_CHANGE_BAR_SHADOW_HOVERED = 0xFF3f3f28;
 
-    private final McFXHorizontalList mainComponent;
     private final McFXVerticalList listComponent;
-    private final McFXWrapper chatScreenWrapper;
+    private final McFXScreenWrapper chatScreenWrapper;
     private final McFXButton sideChangingButton;
     private final McFXElement widthChangeBar, widthChangeBarShadow;
 
     public final PropertyAccessor<SidebarSide> side;
-    private final boolean guiPausesGame;
     /** Only use this in {@link #initGui()} */
     private final int elementPaddingSide, paddingTopBottom, elementDistance;
 
     public final PropertyAccessor<Double> sidebarWidth;
     private double mouseClickX, initialWidth;
-    private int prevScreenWidth, prevScreenHeight;
     private boolean widthChangingState;
+    private boolean isChatFocused;
 
 
     public GuiSidebar(int elementPaddingSide, int paddingTopBottom, int elementDistance, boolean guiPausesGame,
                       PropertyAccessor<Double> sidebarWidth,
                       PropertyAccessor<SidebarSide> side) {
-        this.mainComponent = McFX.hList(0, true);
+        super(McFX.hList(0, true), guiPausesGame, false);
         this.sideChangingButton = McFX.button("", this::toggleSide);
-        this.chatScreenWrapper = McFX.wrapper();
+        this.chatScreenWrapper = McFX.screenWrapper(this::getHeight);
         this.widthChangeBar = McFX.div(this::getHeight).setBackgroundColor(WIDTH_CHANGE_BAR_COLOR);
 
         // Put these in constructor to prevent the vertical slider value not being reset
@@ -62,21 +62,21 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
         this.side = side;
         this.widthChangingState = false;
-        this.guiPausesGame = guiPausesGame;
         this.sidebarWidth = sidebarWidth;
     }
 
     protected abstract List<McFXElement> getSidebarElements();
 
     @Override
-    public void initGui() {
+    protected void initGui() {
+        super.initGui();
+
         this.listComponent.clear()
                 .add(McFX.div(this.paddingTopBottom))
                 .add(McFX.vList(this.elementDistance, this.elementPaddingSide)
                         .addAll(this.getSidebarElements()))
                 .add(McFX.div(this.paddingTopBottom));
 
-        this.mainComponent.init(this.getWidth());
         this.updateSide();
     }
 
@@ -91,10 +91,9 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
                     .add(this.sideChangingButton)
                     .add(McFX.hList()
                             .add(this.listComponent, null)
-                            .add(this.widthChangeBarShadow, WidthFunction.px(1))
-                    );
+                            .add(this.widthChangeBarShadow, WidthFunction.px(1)));
 
-            this.mainComponent.clear()
+            this.getMainComponent().clear()
                     .add(sidebar, WidthFunction.px(this.sidebarWidth))
                     .add(this.widthChangeBar, WidthFunction.px(1))
                     .add(this.chatScreenWrapper, null);
@@ -104,10 +103,9 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
                     .add(this.sideChangingButton)
                     .add(McFX.hList()
                             .add(this.widthChangeBarShadow, WidthFunction.px(1))
-                            .add(this.listComponent, null)
-                    );
+                            .add(this.listComponent, null));
 
-            this.mainComponent.clear()
+            this.getMainComponent().clear()
                     .add(this.chatScreenWrapper, null)
                     .add(this.widthChangeBar, WidthFunction.px(1))
                     .add(sidebar, WidthFunction.px(this.sidebarWidth));
@@ -116,20 +114,10 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     }
 
     @Override
-    public void tick() {
-        if(prevScreenWidth != this.getWidth() || prevScreenHeight != this.getHeight()) {
-            this.mainComponent.onWidthChange(this.getWidth());
-            this.prevScreenWidth = this.getWidth();
-            this.prevScreenHeight = this.getHeight();
-        }
-        this.mainComponent.tick();
-    }
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks) {
+        this.isChatFocused = !this.chatScreenWrapper.isEmpty();
 
-    @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
-        // Sidebar elements
-        boolean result = this.mainComponent.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
-        if(result) return true;
+        if(super.mouseHovered(mouseX, mouseY, partialTicks)) return true;
 
         // Width change bar
         boolean widthChangeBarHoverState = Math.abs(mouseX - this.getWidthChangeBarX()) <= 4;
@@ -144,58 +132,25 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
     }
 
     @Override
-    protected void drawScreen(DrawContextWrapper<?> drawContextWrapper) {
-        drawContextWrapper.pushMatrix();
-        this.mainComponent.drawComponent(drawContextWrapper);
-        drawContextWrapper.popMatrix();
-    }
-
-
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         this.initialWidth = sidebarWidth.get();
         this.mouseClickX = mouseX;
 
-        boolean result = this.mainComponent.mousePressed(mouseX, mouseY, mouseButton);
-        if(result) return true;
-
+        if(super.mousePressed(mouseX, mouseY, mouseButton)) return true;
         return this.widthChangingState = Math.abs(mouseX - this.getWidthChangeBarX()) <= 4;
     }
 
-
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        this.mainComponent.mouseReleased(mouseX, mouseY, mouseButton);
+        super.mouseReleased(mouseX, mouseY, mouseButton);
         this.widthChangingState = false;
         return true;
     }
 
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
-        return this.mainComponent.mouseScrolled(mouseX, mouseY, scrollAmount);
-    }
-
-
-    private int getSidebarWidth() {
-        return sidebarWidth.get().intValue();
-    }
-
-
     private int getWidthChangeBarX() {
-        int screenWidth = this.getWidth(), sidebarWidth = this.getSidebarWidth();
+        int screenWidth = this.getWidth(), sidebarWidth = this.sidebarWidth.get().intValue();
         return this.side.get() == SidebarSide.LEFT ? sidebarWidth : screenWidth - sidebarWidth;
     }
-
-
-    public boolean keyTyped(char key, int keyCode) {
-        return this.mainComponent.keyTyped(key, keyCode);
-    }
-
-
-    @Override
-    public boolean keyPressed(InputKey key) {
-        return this.mainComponent.keyPressed(key);
-    }
-
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
@@ -205,18 +160,40 @@ public abstract class GuiSidebar extends AbstractGuiScreenCopy {
 
             double sidebarWidth = BTRUtil.clamp(initialWidth + dMouseX, 180, 320);
             this.sidebarWidth.set(sidebarWidth);
-            this.mainComponent.onWidthChange(); // Not running this will cause a visual lag
+            this.getMainComponent().onWidthChange(); // Not running this will cause a visual lag
             return true;
         }
 
-        return this.mainComponent.mouseDragged(mouseX, mouseY, mouseButton, pMouseX, pMouseY);
+        return super.mouseDragged(mouseX, mouseY, mouseButton, pMouseX, pMouseY);
     }
 
     @Override
-    public void onClose() {}
+    public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
+        if(this.chatScreenWrapper.isEmpty()) {
+            if(key == InputKey.KEY_ESCAPE) {
+                RawGuiManager.INSTANCE.displayGuiScreen(null);
+                return true;
+            }
+            // TODO: Use user-bound key instead of fixed key like this
+            // TODO: Add slash
+            else if(key == InputKey.KEY_T) {
+                NativeGuiScreenWrapper<?> nativeScreen = RawGuiManager.INSTANCE.newNativeChatScreen("");
+                NativeGuiScreenWrappedScreen screen = new NativeGuiScreenWrappedScreen(nativeScreen, true);
+                this.chatScreenWrapper.setScreen(screen);
+                // no return statement here, or else a letter "t" will be left when the chat is initialized.
+            }
+        }
+
+        return super.keyPressed(key, scanCode, modifiers);
+    }
 
     @Override
-    public boolean doesScreenPauseGame() {
-        return guiPausesGame;
+    public boolean isChatFocused() {
+        return this.isChatFocused;
+    }
+
+    @Override
+    public void onRemoved() {
+        this.isChatFocused = false;
     }
 }

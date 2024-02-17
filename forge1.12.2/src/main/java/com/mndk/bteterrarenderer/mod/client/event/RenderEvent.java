@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.mod.client.event;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
 import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,7 +28,7 @@ public class RenderEvent {
 		try {
 			// Since there's no "PoseStack" class in 1.12.2
 			// We'll just pass null here
-			TileRenderer.renderTiles(null, px, py, pz);
+			TileRenderer.renderTiles(DrawContextWrapper.of(null), px, py, pz);
 		} catch(IllegalArgumentException exception) {
 			Loggers.get().error("Error while rendering tiles", exception);
 		}

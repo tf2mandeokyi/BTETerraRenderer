@@ -44,7 +44,10 @@ public class McFXHorizontalList extends McFXElement {
             if(element == null) continue;
 
             if(i == index) element.init(entry.width);
-            else if(entry.widthChanged) element.onWidthChange(entry.width);
+            else if(entry.widthChanged) {
+                element.onWidthChange(entry.width);
+                entry.widthChanged = false;
+            }
         }
 
         return this;
@@ -157,12 +160,15 @@ public class McFXHorizontalList extends McFXElement {
             McFXElement element = entry.element;
             if(element == null || element.hide) continue;
             element.tick();
-            if(entry.widthChanged) element.onWidthChange(entry.width);
+            if(entry.widthChanged) {
+                element.onWidthChange(entry.width);
+                entry.widthChanged = false;
+            }
         }
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         // Check for all elements
         boolean hovered = false;
         for(Entry entry : entryList) {
@@ -260,23 +266,33 @@ public class McFXHorizontalList extends McFXElement {
     }
 
     @Override
-    public boolean keyTyped(char typedChar, int keyCode) {
+    public boolean charTyped(char typedChar, int keyCode) {
         for(Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
-            if (element.keyTyped(typedChar, keyCode)) return true;
+            if (element.charTyped(typedChar, keyCode)) return true;
         }
         return false;
     }
 
     @Override
-    public boolean keyPressed(InputKey key) {
+    public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
         for(Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
-            if (element.keyPressed(key)) return true;
+            if (element.keyPressed(key, scanCode, modifiers)) return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean handleScreenEscape() {
+        for(Entry entry : entryList) {
+            McFXElement element = entry.element;
+            if (element == null || element.hide) continue;
+            if (!element.handleScreenEscape()) return false;
+        }
+        return true;
     }
 
     @Override

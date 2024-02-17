@@ -3,8 +3,10 @@ package com.mndk.bteterrarenderer.mod.mcconnector.gui;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mndk.bteterrarenderer.core.util.Loggers;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiConfirmOpenLink;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -34,18 +36,22 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     private URI clickedLinkURI;
     private double pMouseX = 0, pMouseY = 0;
 
-    public AbstractGuiScreenImpl(AbstractGuiScreenCopy delegate) {
+    public AbstractGuiScreenImpl(@Nonnull AbstractGuiScreenCopy delegate) {
         this.delegate = delegate;
     }
 
     public void initGui() {
-        delegate.initGui();
+        delegate.initGui(this.width, this.height);
     }
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        delegate.drawScreen(null, mouseX, mouseY, partialTicks);
+    public void onResize(@Nonnull Minecraft client, int width, int height) {
+        super.onResize(client, width, height);
+        delegate.setScreenSize(width, height);
     }
     public void updateScreen() {
         delegate.tick();
+    }
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        delegate.drawScreen(DrawContextWrapper.of(null), mouseX, mouseY, partialTicks);
     }
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         // Skip if the "pressed" mouse button is either scroll up or scroll down
@@ -67,9 +73,11 @@ public class AbstractGuiScreenImpl extends GuiScreen {
         delegate.mouseScrolled(mouseX, mouseY, Mouse.getEventDWheel());
     }
     public void keyTyped(char key, int keyCode) throws IOException {
-        super.keyTyped(key, keyCode);
-        delegate.keyTyped(key, keyCode);
-        delegate.keyPressed(InputKey.fromKeyboardCode(keyCode));
+        if(delegate.shouldCloseOnEsc()) {
+            super.keyTyped(key, keyCode);
+        }
+        delegate.charTyped(key, keyCode);
+        delegate.keyPressed(InputKey.fromKeyboardCode(keyCode), 0, 0);
     }
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
@@ -78,7 +86,7 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     }
 
     public void onGuiClosed() {
-        delegate.onClose();
+        delegate.onRemoved();
     }
     public boolean doesGuiPauseGame() {
         return delegate.doesScreenPauseGame();

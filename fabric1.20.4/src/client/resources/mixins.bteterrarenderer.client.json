@@ -5,6 +5,8 @@
     "compatibilityLevel": "JAVA_17",
     "client": [
         "ChatHudMixin",
+        "MinecraftClientMixin",
+        "ScreenMixin",
         "mcconnector.client.MinecraftClientManagerMixin",
         "mcconnector.client.MinecraftWindowManagerMixin",
         "mcconnector.graphics.GlGraphicsManagerMixin",
@@ -15,7 +17,8 @@
         "mcconnector.input.GameInputManagerMixin",
         "mcconnector.input.IKeyBindingMixin",
         "mcconnector.wrapper.DrawContextWrapperMixin",
-        "mcconnector.wrapper.FontWrapperMixin"
+        "mcconnector.wrapper.FontWrapperMixin",
+        "mcconnector.wrapper.MinecraftGuiScreenWrapperMixin"
     ],
     "injectors": {
         "defaultRequire": 1

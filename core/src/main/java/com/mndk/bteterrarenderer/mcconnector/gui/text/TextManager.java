@@ -13,8 +13,8 @@ public abstract class TextManager {
         return MixinUtil.notOverwritten();
     }
 
-    public abstract TextWrapper fromJson(String json);
-    public abstract TextWrapper fromString(String text);
+    public abstract TextWrapper fromJson(@Nonnull String json);
+    public abstract TextWrapper fromString(@Nonnull String text);
     public abstract StyleWrapper emptyStyle();
     public abstract StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor);
     public abstract boolean handleClick(@Nonnull StyleWrapper styleWrapper);

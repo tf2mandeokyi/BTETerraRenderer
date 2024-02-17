@@ -23,8 +23,14 @@ public abstract class FontWrapper<T> extends MinecraftNativeObjectWrapper<T> {
     public abstract int getWidth(String string);
     public abstract int getWidth(TextWrapper text);
     public abstract String trimToWidth(String string, int width);
-    public abstract List<String> splitByWidth(String string, int wrapWidth);
-    public abstract List<TextWrapper> splitByWidth(TextWrapper text, int wrapWidth);
+    public final List<String> splitByWidth(String string, int wrapWidth) {
+        return this.splitByWidthNative(string, Math.max(wrapWidth, 1));
+    }
+    public final List<TextWrapper> splitByWidth(TextWrapper text, int wrapWidth) {
+        return this.splitByWidthNative(text, Math.max(wrapWidth, 1));
+    }
+    protected abstract List<String> splitByWidthNative(String string, int wrapWidth);
+    protected abstract List<TextWrapper> splitByWidthNative(TextWrapper text, int wrapWidth);
     @Nullable
     public abstract StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft);
 

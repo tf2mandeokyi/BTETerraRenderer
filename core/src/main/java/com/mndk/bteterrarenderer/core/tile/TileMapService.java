@@ -28,6 +28,7 @@ import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import lombok.*;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -72,7 +73,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         this.properties.addAll(this.makeProperties());
     }
 
-    public final void render(DrawContextWrapper<?> drawContextWrapper, double px, double py, double pz, float opacity) {
+    public final void render(@Nonnull DrawContextWrapper<?> drawContextWrapper,
+                             double px, double py, double pz, float opacity) {
 
         // Bake textures
         this.preRender(px, py, pz);

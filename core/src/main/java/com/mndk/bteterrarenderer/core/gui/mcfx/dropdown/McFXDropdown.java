@@ -75,7 +75,7 @@ public class McFXDropdown<T> extends McFXElement {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         this.mouseOnMainBox = !mouseHidden && this.mouseInHeight(mouseX, mouseY, mainBoxHeight);
         if(!this.isOpened()) return this.mouseOnMainBox;
 
@@ -170,7 +170,7 @@ public class McFXDropdown<T> extends McFXElement {
 
     @Override
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        if(!this.mouseHovered(mouseX, mouseY, 0, false)) return false;
+        if(!this.mouseHovered((int) mouseX, (int) mouseY, 0, false)) return false;
 
         if(this.mouseOnMainBox) {
             this.toggleOpened();

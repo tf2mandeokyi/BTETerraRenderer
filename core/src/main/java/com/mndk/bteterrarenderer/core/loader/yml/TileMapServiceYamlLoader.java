@@ -26,7 +26,7 @@ public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile,
                     try {
                         entry.getValue().getItem().close();
                     } catch (Exception e) {
-						Loggers.get(this).error(e);
+						Loggers.get(this).error("Couldn't close TMS", e);
                     }
                 }
 			}

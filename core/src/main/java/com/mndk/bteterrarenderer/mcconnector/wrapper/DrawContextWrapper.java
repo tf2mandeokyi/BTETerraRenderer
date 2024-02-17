@@ -16,7 +16,7 @@ import java.util.Stack;
 
 public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper<T> {
 
-    public static DrawContextWrapper<?> of(@Nonnull Object delegate) {
+    public static DrawContextWrapper<?> of(Object delegate) {
         return MixinUtil.notOverwritten(delegate);
     }
 

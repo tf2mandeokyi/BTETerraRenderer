@@ -50,11 +50,11 @@ public class FontWrapperMixin {
         public String trimToWidth(String string, int width) {
             return getThisWrapped().plainSubstrByWidth(string, width);
         }
-        public List<String> splitByWidth(String string, int wrapWidth) {
+        protected List<String> splitByWidthNative(String string, int wrapWidth) {
             return getThisWrapped().getSplitter().splitLines(string, wrapWidth, Style.EMPTY)
                     .stream().map(FormattedText::getString).toList();
         }
-        public List<TextWrapper> splitByWidth(TextWrapper text, int wrapWidth) {
+        protected List<TextWrapper> splitByWidthNative(TextWrapper text, int wrapWidth) {
             Object textComponent = text.get();
             return ComponentRenderUtils.wrapComponents((FormattedText) textComponent, wrapWidth, getThisWrapped())
                     .stream().map(TextWrapper::new).toList();

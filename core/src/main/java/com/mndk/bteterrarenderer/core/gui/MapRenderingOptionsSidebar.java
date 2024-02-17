@@ -32,6 +32,7 @@ import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
@@ -57,7 +58,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private final McFXVerticalList tmsPropertyElementList;
     private final McFXWrapper yAxisInputWrapper;
 
-    public MapRenderingOptionsSidebar() {
+    private MapRenderingOptionsSidebar() {
         super(
                 20, 40, ELEMENT_DISTANCE_BIG, false,
                 PropertyAccessor.of(
@@ -120,35 +121,30 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.title")
                                 .setAlign(HorizontalAlign.CENTER)
-                                .setColor(0xFFFFFFFF)
-                        ),
+                                .setColor(0xFFFFFFFF)),
 
                 // General components
                 McFX.vList(ELEMENT_DISTANCE, 0)
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.general")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF)
-                        )
+                                .setColor(0xFFFFFFFF))
                         .add(hl) // --------------------------------------------------------------------------
                         .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
                                 .add(renderingTrigger)
                                 .add(opacitySlider)
-                                .add(this.yAxisInputWrapper)
-                        ),
+                                .add(this.yAxisInputWrapper)),
 
                 // Map source control components
                 McFX.vList(ELEMENT_DISTANCE, 0)
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_source")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF)
-                        )
+                                .setColor(0xFFFFFFFF))
                         .add(hl) // --------------------------------------------------------------------------
                         .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
                                 .add(this.mapSourceDropdown)
-                                .add(this.mapCopyright)
-                        ),
+                                .add(this.mapCopyright)),
 
                 this.tmsPropertyElementList,
 
@@ -161,18 +157,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                         .add(McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_offset")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF)
-                        )
+                                .setColor(0xFFFFFFFF))
                         .add(hl) // --------------------------------------------------------------------------
                         .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                                .add(mapAligner)
-                        )
+                                .add(mapAligner))
                 // ===========================================================================================
         );
     }
 
     @Override
-    protected void drawScreen(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper) {
         ICON_MAKER.iconBaker.process(1);
         super.drawScreen(drawContextWrapper);
     }
@@ -186,7 +180,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // Check null
         @SuppressWarnings("resource")
-        TileMapService<?> tms = Optional.ofNullable(tmsWrapped).map(CategoryMap.Wrapper::getItem).orElse(null);
+        TileMapService<?> tms = Optional.ofNullable(tmsWrapped)
+                .map(CategoryMap.Wrapper::getItem)
+                .orElse(null);
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;
             this.tmsPropertyElementList.hide = true;
@@ -304,9 +300,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     @Override
-    public void onClose() {
+    public void onRemoved() {
         BTETerraRendererConfig.save();
-        super.onClose();
+        super.onRemoved();
     }
 
     private static class IconMaker extends CacheableProcessorModel<URL, URL, NativeTextureWrapper> {

@@ -43,10 +43,10 @@ public class FontWrapperMixin {
         public String trimToWidth(String string, int width) {
             return getThisWrapped().trimStringToWidth(string, width);
         }
-        public List<String> splitByWidth(String string, int wrapWidth) {
+        protected List<String> splitByWidthNative(String string, int wrapWidth) {
             return getThisWrapped().listFormattedStringToWidth(string, wrapWidth);
         }
-        public List<TextWrapper> splitByWidth(TextWrapper text, int wrapWidth) {
+        protected List<TextWrapper> splitByWidthNative(TextWrapper text, int wrapWidth) {
             ITextComponent textComponent = text.get();
             return GuiUtilRenderComponents.splitText(textComponent, wrapWidth, getThisWrapped(), true, false)
                     .stream().map(TextWrapper::new).collect(Collectors.toList());

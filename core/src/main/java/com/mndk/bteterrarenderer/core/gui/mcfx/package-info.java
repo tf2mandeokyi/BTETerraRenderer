@@ -1,4 +1,4 @@
 /**
- * The name McFX stands for "Minecraft gui FX", which is inspired by JavaFX
+ * The name McFX stands for "Minecraft gui FX", which is inspired by the name JavaFX
  */
 package com.mndk.bteterrarenderer.core.gui.mcfx;

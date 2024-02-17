@@ -23,12 +23,12 @@ public class TextManagerMixin {
      *  @reason mixin overwrite */
     @Overwrite
     private static TextManager makeDefault() { return new TextManager() {
-        public TextWrapper fromJson(String json) {
+        public TextWrapper fromJson(@Nonnull String json) {
             Component component = Component.Serializer.fromJson(json);
             return component != null ? new TextWrapper(component) : null;
         }
 
-        public TextWrapper fromString(String text) {
+        public TextWrapper fromString(@Nonnull String text) {
             return new TextWrapper(new TextComponent(text));
         }
 

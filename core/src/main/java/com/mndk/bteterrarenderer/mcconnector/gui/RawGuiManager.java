@@ -3,7 +3,8 @@ package com.mndk.bteterrarenderer.mcconnector.gui;
 import com.mndk.bteterrarenderer.mcconnector.MixinUtil;
 import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.screen.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeGuiScreenWrapper;
 
 import javax.annotation.Nullable;
 
@@ -14,7 +15,8 @@ public abstract class RawGuiManager {
         return MixinUtil.notOverwritten();
     }
 
-    public abstract void displayGuiScreen(AbstractGuiScreenCopy gui);
+    public abstract NativeGuiScreenWrapper<?> newNativeChatScreen(String initialText);
+    public abstract void displayGuiScreen(@Nullable AbstractGuiScreenCopy gui);
 
     @Nullable
     public GraphicsQuad<PosXY> makeLine(double ax, double ay, double bx, double by, double thickness) {

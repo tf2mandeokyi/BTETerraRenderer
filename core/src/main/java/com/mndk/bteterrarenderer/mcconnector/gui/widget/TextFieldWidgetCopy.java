@@ -194,7 +194,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         this.moveCursorTo(this.text.length());
     }
 
-    public boolean keyPressed(InputKey key) {
+    public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
         if (!this.canConsumeInput()) return false;
 
         this.shiftPressed = GameInputManager.isShiftKeyDown();
@@ -266,7 +266,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         return this.isVisible() && this.isFocused() && this.enabled;
     }
 
-    public boolean keyTyped(char typedChar, int mods) {
+    public boolean charTyped(char typedChar, int mods) {
         if (!this.canConsumeInput()) return false;
 
         if (MinecraftStringUtil.isMinecraftAllowedCharacter(typedChar)) {
@@ -393,7 +393,4 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         return this.drawsBackground ? this.width - 8 : this.width;
     }
 
-    public int getCharacterX(int index) {
-        return index > this.text.length() ? this.x : this.x + FontWrapper.DEFAULT.getWidth(this.text.substring(0, index));
-    }
 }

@@ -7,14 +7,19 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ChatHud.class)
 public class ChatHudMixin {
+
+    @Shadow @Final private MinecraftClient client;
 
     @Inject(method = "render", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILSOFT)
     public void preRender(MatrixStack matrices, int currentTick, int mouseX, int mouseY, CallbackInfo ci) {
@@ -32,6 +37,13 @@ public class ChatHudMixin {
     @Inject(method = "render", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILSOFT)
     public void postRender(MatrixStack matrices, int currentTick, int mouseX, int mouseY, CallbackInfo ci) {
         matrices.pop();
+    }
+
+    @Inject(method = "isChatFocused", at = @At(value = "RETURN"), cancellable = true)
+    public void isChatFocused(CallbackInfoReturnable<Boolean> cir) {
+        if(client.currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
+            cir.setReturnValue(screenImpl.delegate.isChatFocused());
+        }
     }
 
 }

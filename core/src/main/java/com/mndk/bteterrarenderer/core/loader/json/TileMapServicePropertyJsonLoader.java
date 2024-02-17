@@ -48,7 +48,7 @@ public class TileMapServicePropertyJsonLoader {
                 try {
                     tmsProperty.delegate.set(BTRUtil.uncheckedCast(propertyValues.get(key)));
                 } catch(Exception e) {
-                    Loggers.get().error(e);
+                    Loggers.get().error("Could not set property for TMS", e);
                 }
             }
         }

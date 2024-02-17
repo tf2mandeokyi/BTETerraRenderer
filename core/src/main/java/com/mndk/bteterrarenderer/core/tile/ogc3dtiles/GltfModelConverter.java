@@ -194,7 +194,7 @@ public class GltfModelConverter {
 
                 return ImageIO.read(stream);
             } catch(IOException e) {
-                Loggers.get(this).error(e);
+                Loggers.get(this).error("Could not read image model", e);
                 return null;
             }
         }

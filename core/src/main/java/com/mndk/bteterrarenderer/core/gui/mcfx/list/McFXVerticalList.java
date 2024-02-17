@@ -154,7 +154,7 @@ public class McFXVerticalList extends McFXElement {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         this.calculateHeights();
 
         // Vertical slider
@@ -344,23 +344,33 @@ public class McFXVerticalList extends McFXElement {
     }
 
     @Override
-    public boolean keyTyped(char typedChar, int keyCode) {
+    public boolean charTyped(char typedChar, int keyCode) {
         for(Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
-            if (element.keyTyped(typedChar, keyCode)) return true;
+            if (element.charTyped(typedChar, keyCode)) return true;
         }
         return false;
     }
 
     @Override
-    public boolean keyPressed(InputKey key) {
+    public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
         for(Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
-            if (element.keyPressed(key)) return true;
+            if (element.keyPressed(key, scanCode, modifiers)) return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean handleScreenEscape() {
+        for(Entry entry : entryList) {
+            McFXElement element = entry.element;
+            if (element == null || element.hide) continue;
+            if (!element.handleScreenEscape()) return false;
+        }
+        return true;
     }
 
     @Override

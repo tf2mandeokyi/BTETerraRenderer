@@ -8,6 +8,7 @@ import com.mndk.bteterrarenderer.core.gui.mcfx.input.McFXNumberInput;
 import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -45,6 +46,10 @@ public class McFX {
 
     public McFXWrapper wrapper(McFXElement element) {
         return new McFXWrapper(element);
+    }
+
+    public McFXScreenWrapper screenWrapper(Supplier<Integer> height) {
+        return new McFXScreenWrapper(height);
     }
 
     public McFXElement div() {

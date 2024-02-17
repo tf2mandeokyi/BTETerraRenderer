@@ -1,25 +1,31 @@
 package com.mndk.bteterrarenderer.mod.mcconnector.gui;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.component.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class AbstractGuiScreenImpl extends Screen {
     public final AbstractGuiScreenCopy delegate;
 
-    public AbstractGuiScreenImpl(AbstractGuiScreenCopy delegate) {
+    public AbstractGuiScreenImpl(@Nonnull AbstractGuiScreenCopy delegate) {
         super(LiteralText.EMPTY);
         this.delegate = delegate;
     }
 
     protected void init() {
-        delegate.initGui();
+        delegate.initGui(this.width, this.height);
+    }
+    public void resize(MinecraftClient client, int width, int height) {
+        super.resize(client, width, height);
+        delegate.setScreenSize(width, height);
     }
     public void tick() {
         delegate.tick();
@@ -45,20 +51,23 @@ public class AbstractGuiScreenImpl extends Screen {
     }
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean superResult = super.keyPressed(keyCode, scanCode, modifiers);
-        boolean delegateResult = delegate.keyPressed(InputKey.fromGlfwKeyCode(keyCode));
+        boolean delegateResult = delegate.keyPressed(InputKey.fromGlfwKeyCode(keyCode), scanCode, modifiers);
         return superResult || delegateResult;
     }
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
-        return delegate.keyTyped(chr, modifiers);
+        return delegate.charTyped(chr, modifiers);
     }
 
-    public void close() {
-        delegate.onClose();
-        super.close();
+    public void removed() {
+        delegate.onRemoved();
+        super.removed();
     }
     public boolean shouldPause() {
         return delegate.doesScreenPauseGame();
+    }
+    public boolean shouldCloseOnEsc() {
+        return delegate.shouldCloseOnEsc();
     }
 
     public void renderTextHoverEffect(MatrixStack matrices, @Nullable Style style, int x, int y) {

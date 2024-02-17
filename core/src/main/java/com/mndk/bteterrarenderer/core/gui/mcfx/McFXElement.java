@@ -21,7 +21,7 @@ import java.util.List;
 
 @Accessors(chain = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class McFXElement extends GuiComponentCopy {
+public abstract class McFXElement implements GuiComponentCopy {
 
     public boolean hide = false;
     /**
@@ -33,6 +33,7 @@ public abstract class McFXElement extends GuiComponentCopy {
     @Setter private int backgroundColor = 0x00000000;
     @Setter private int color = NORMAL_TEXT_COLOR;
     @Setter private HorizontalAlign align = HorizontalAlign.LEFT;
+    private boolean initialized = false;
     private TextWrapper textContent = null;
     private List<TextWrapper> lineComponents;
     private StyleWrapper hoveredStyleComponent;
@@ -40,14 +41,19 @@ public abstract class McFXElement extends GuiComponentCopy {
 
     public final void init(int width) {
         this.width = width;
-        this.init();
-        this.updateLineSplits();
-        if(width > 0) this.onWidthChange();
+        if(!this.initialized) this.init();
+        if(width > 0) {
+            this.onWidthChange();
+            this.updateLineSplits();
+        }
+        this.initialized = true;
     }
     public final void onWidthChange(int width) {
         this.width = width;
-        this.updateLineSplits();
-        if(width > 0) this.onWidthChange();
+        if(width > 0) {
+            this.onWidthChange();
+            this.updateLineSplits();
+        }
     }
 
     protected abstract void init();
@@ -67,15 +73,15 @@ public abstract class McFXElement extends GuiComponentCopy {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         if(mouseHidden) {
             this.hoveredStyleComponent = null;
             return false;
         }
-        this.hoveredStyleComponent = this.getStyleComponentAt((int) mouseX, (int) mouseY);
+        this.hoveredStyleComponent = this.getStyleComponentAt(mouseX, mouseY);
         if(this.hoveredStyleComponent != null) {
-            this.hoverX = (int) mouseX;
-            this.hoverY = (int) mouseY;
+            this.hoverX = mouseX;
+            this.hoverY = mouseY;
             return true;
         }
         return false;
@@ -115,12 +121,16 @@ public abstract class McFXElement extends GuiComponentCopy {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public McFXElement setTextJsonContent(String json) {
+    public McFXElement setTextJsonContent(@Nullable String json) {
+        if(json == null) {
+            this.setTextContent(null);
+            return this;
+        }
         try {
             this.textContent = TextManager.INSTANCE.fromJson(json);
             this.updateLineSplits();
         } catch(Exception e) {
-            Loggers.get(this).error(e);
+            Loggers.get(this).error("Cannot set json text content", e);
             this.setTextContent(null);
         }
         return this;
@@ -133,7 +143,7 @@ public abstract class McFXElement extends GuiComponentCopy {
     }
 
     private void updateLineSplits() {
-        if(this.textContent == null || this.getWidth() == -1) {
+        if(this.textContent == null || this.getWidth() <= 0) {
             this.lineComponents = Collections.emptyList();
             return;
         }

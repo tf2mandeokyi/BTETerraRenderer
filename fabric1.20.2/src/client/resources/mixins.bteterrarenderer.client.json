@@ -1,23 +1,26 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "com.mndk.bteterrarenderer.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "client": [
-    "ChatHudMixin",
-    "mcconnector.client.MinecraftClientManagerMixin",
-    "mcconnector.client.MinecraftWindowManagerMixin",
-    "mcconnector.graphics.GlGraphicsManagerMixin",
-    "mcconnector.graphics.IBufferBuilderMixin",
-    "mcconnector.gui.RawGuiManagerMixin",
-    "mcconnector.gui.TextManagerMixin",
-    "mcconnector.i18n.ClientI18nManagerMixin",
-    "mcconnector.input.GameInputManagerMixin",
-    "mcconnector.input.IKeyBindingMixin",
-    "mcconnector.wrapper.DrawContextWrapperMixin",
-    "mcconnector.wrapper.FontWrapperMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  }
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.mndk.bteterrarenderer.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "client": [
+        "ChatHudMixin",
+        "MinecraftClientMixin",
+        "ScreenMixin",
+        "mcconnector.client.MinecraftClientManagerMixin",
+        "mcconnector.client.MinecraftWindowManagerMixin",
+        "mcconnector.graphics.GlGraphicsManagerMixin",
+        "mcconnector.graphics.IBufferBuilderMixin",
+        "mcconnector.gui.RawGuiManagerMixin",
+        "mcconnector.gui.TextManagerMixin",
+        "mcconnector.i18n.ClientI18nManagerMixin",
+        "mcconnector.input.GameInputManagerMixin",
+        "mcconnector.input.IKeyBindingMixin",
+        "mcconnector.wrapper.DrawContextWrapperMixin",
+        "mcconnector.wrapper.FontWrapperMixin",
+        "mcconnector.wrapper.MinecraftGuiScreenWrapperMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
 }

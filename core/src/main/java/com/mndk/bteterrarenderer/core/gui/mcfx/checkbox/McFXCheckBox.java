@@ -32,7 +32,7 @@ public class McFXCheckBox extends McFXElement {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         return this.checkBox.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
     }
 

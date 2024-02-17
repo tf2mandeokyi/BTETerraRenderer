@@ -11,7 +11,7 @@ import lombok.Setter;
  * and 1.18.2's <code>net.minecraft.client.gui.components.AbstractWidget</code>
  */
 @Getter @Setter
-public abstract class AbstractWidgetCopy extends GuiComponentCopy {
+public abstract class AbstractWidgetCopy implements GuiComponentCopy {
 
     protected int x, y, width, height;
     protected String text;
@@ -35,7 +35,7 @@ public abstract class AbstractWidgetCopy extends GuiComponentCopy {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         return this.hovered = !mouseHidden && this.isMouseOnWidget(mouseX, mouseY);
     }
 

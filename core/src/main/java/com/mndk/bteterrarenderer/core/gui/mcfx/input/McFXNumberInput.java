@@ -44,7 +44,7 @@ public class McFXNumberInput extends McFXElement {
     }
 
     @Override
-    public boolean mouseHovered(double mouseX, double mouseY, float partialTicks, boolean mouseHidden) {
+    public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         return textField.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
     }
 
@@ -60,13 +60,22 @@ public class McFXNumberInput extends McFXElement {
     }
 
     @Override
-    public boolean keyTyped(char typedChar, int keyCode) {
-        return textField.keyTyped(typedChar, keyCode);
+    public boolean charTyped(char typedChar, int keyCode) {
+        return textField.charTyped(typedChar, keyCode);
     }
 
     @Override
-    public boolean keyPressed(InputKey key) {
-        return textField.keyPressed(key);
+    public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
+        return textField.keyPressed(key, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean handleScreenEscape() {
+        if(textField.isFocused()) {
+            textField.setFocused(false);
+            return false;
+        }
+        return true;
     }
 
     @Override public int getPhysicalHeight() { return 20; }

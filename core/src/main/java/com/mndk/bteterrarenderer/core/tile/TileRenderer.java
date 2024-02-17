@@ -5,9 +5,11 @@ import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
 
+import javax.annotation.Nonnull;
+
 public class TileRenderer {
 
-    public static void renderTiles(DrawContextWrapper<?> drawContextWrapper, double px, double py, double pz) {
+    public static void renderTiles(@Nonnull DrawContextWrapper<?> drawContextWrapper, double px, double py, double pz) {
         if(!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
 
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
