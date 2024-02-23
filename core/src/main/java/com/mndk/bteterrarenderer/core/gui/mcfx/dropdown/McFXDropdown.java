@@ -2,11 +2,10 @@ package com.mndk.bteterrarenderer.core.gui.mcfx.dropdown;
 
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -55,8 +54,8 @@ public class McFXDropdown<T> extends McFXElement {
 
     @Override
     protected void init() {
-        this.mainBoxHeight = FontWrapper.DEFAULT.getHeight() + MAINBOX_PADDING_VERTICAL * 2;
-        this.singleLineElementHeight = FontWrapper.DEFAULT.getHeight() + ITEM_PADDING_VERTICAL * 2;
+        this.mainBoxHeight = getDefaultFont().getHeight() + MAINBOX_PADDING_VERTICAL * 2;
+        this.singleLineElementHeight = getDefaultFont().getHeight() + ITEM_PADDING_VERTICAL * 2;
     }
 
     @Override
@@ -123,7 +122,7 @@ public class McFXDropdown<T> extends McFXElement {
         T selectedValue = this.selectedValue.get();
         if(selectedValue != null) {
             String currentName = nameGetter.apply(selectedValue).replace("\n", " ");
-            int fontHeight = FontWrapper.DEFAULT.getHeight();
+            int fontHeight = getDefaultFont().getHeight();
             int textLeft = MAINBOX_PADDING_HORIZONTAL, limit = itemInnerWidth - fontHeight;
 
             // Get icon
@@ -137,10 +136,10 @@ public class McFXDropdown<T> extends McFXElement {
             }
 
             // Handle overflow
-            if(FontWrapper.DEFAULT.getWidth(currentName) > limit) {
-                currentName = FontWrapper.DEFAULT.trimToWidth(currentName, limit);
+            if(getDefaultFont().getWidth(currentName) > limit) {
+                currentName = getDefaultFont().trimToWidth(currentName, limit);
             }
-            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
+            drawContextWrapper.drawTextWithShadow(getDefaultFont(), currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
         }
 
         drawContextWrapper.pushMatrix();
@@ -150,9 +149,9 @@ public class McFXDropdown<T> extends McFXElement {
     }
 
     private void drawDropdownArrow(DrawContextWrapper<?> drawContextWrapper, int top, int colorARGB, boolean flip) {
-        int bottom = top + FontWrapper.DEFAULT.getHeight();
+        int bottom = top + getDefaultFont().getHeight();
         int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
-        int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - FontWrapper.DEFAULT.getHeight();
+        int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - getDefaultFont().getHeight();
 
         if (flip) {
             int temp = top; top = bottom; bottom = temp;
@@ -201,7 +200,7 @@ public class McFXDropdown<T> extends McFXElement {
 
         @Override
         int getHeight() {
-            return FontWrapper.DEFAULT.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth)
+            return getDefaultFont().getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth)
                     + ITEM_PADDING_VERTICAL * 2;
         }
 
@@ -229,7 +228,7 @@ public class McFXDropdown<T> extends McFXElement {
             // Get icon
             NativeTextureWrapper iconTextureObject = iconTextureObjectGetter.apply(value);
             if(iconTextureObject != null) {
-                int textHeight = FontWrapper.DEFAULT.getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
+                int textHeight = getDefaultFont().getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
                 int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;
                 drawContextWrapper.drawNativeImage(iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
@@ -238,7 +237,7 @@ public class McFXDropdown<T> extends McFXElement {
             }
 
             // Item text
-            drawContextWrapper.drawWidthSplitText(FontWrapper.DEFAULT, name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
+            drawContextWrapper.drawWidthSplitText(getDefaultFont(), name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
 
             // Translate
             drawContextWrapper.translate(0, height, 0);
@@ -306,7 +305,7 @@ public class McFXDropdown<T> extends McFXElement {
 
             if(!this.main) {
                 // Category name
-                drawContextWrapper.drawCenteredTextWithShadow(FontWrapper.DEFAULT,
+                drawContextWrapper.drawCenteredTextWithShadow(getDefaultFont(),
                         this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor);
                 // Dropdown arrow
                 drawDropdownArrow(drawContextWrapper, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor, this.opened);
@@ -318,8 +317,7 @@ public class McFXDropdown<T> extends McFXElement {
 
             if(!isLast) {
                 // Category separator line
-                drawContextWrapper.fillRect(0, 0, getWidth(), 1,
-                        ITEMLIST_SEPARATOR_LINE_COLOR);
+                drawContextWrapper.fillRect(0, 0, getWidth(), 1, ITEMLIST_SEPARATOR_LINE_COLOR);
             }
         }
 

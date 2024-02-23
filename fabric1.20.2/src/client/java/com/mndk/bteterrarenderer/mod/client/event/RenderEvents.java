@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
 import lombok.experimental.UtilityClass;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -38,6 +38,6 @@ public class RenderEvents {
         // So the camera's position should be given instead, unlike in 1.12.2.
         Vec3d cameraPos = renderContext.camera().getPos();
         world.getProfiler().swap("bteterrarenderer-hologram");
-        TileRenderer.renderTiles(DrawContextWrapper.of(context), cameraPos.x, cameraPos.y, cameraPos.z);
+        TileRenderer.renderTiles(new DrawContextWrapperImpl(context), cameraPos.x, cameraPos.y, cameraPos.z);
     }
 }

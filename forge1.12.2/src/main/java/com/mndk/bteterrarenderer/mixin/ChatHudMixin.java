@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mixin;
 
-import com.mndk.bteterrarenderer.mod.mcconnector.gui.AbstractGuiScreenImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.gui.GuiScreen;

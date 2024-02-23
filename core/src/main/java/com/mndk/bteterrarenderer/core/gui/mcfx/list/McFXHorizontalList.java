@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.core.gui.mcfx.list;
 
 import com.google.common.collect.Lists;
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
-import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
@@ -215,7 +215,7 @@ public class McFXHorizontalList extends McFXElement {
             boolean elementPressed = element.mousePressed(
                     mouseX - this.sidePadding - xPos, mouseY, mouseButton);
             if(elementPressed) {
-                if(this.makeSound) MinecraftClientManager.INSTANCE.playClickSound();
+                if(this.makeSound) McConnector.client().playClickSound();
                 return true;
             }
         }

@@ -3,8 +3,8 @@ package com.mndk.bteterrarenderer.core.gui.mcfx.input;
 import com.mndk.bteterrarenderer.core.gui.widget.GuiNumberInput;
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 
 public class McFXNumberInput extends McFXElement {
 

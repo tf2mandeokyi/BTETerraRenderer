@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ public class Translatable<T> {
     private final Map<String, T> translations;
 
     public T get() {
-        return this.get(I18nManager.getCurrentLanguage());
+        return this.get(McConnector.common().i18nManager.getCurrentLanguage());
     }
     private T get(String language) {
         return Optional.ofNullable(translations.get(language)).orElse(translations.get(DEFAULT_KEY));

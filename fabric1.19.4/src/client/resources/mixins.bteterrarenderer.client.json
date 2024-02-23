@@ -6,19 +6,7 @@
     "client": [
         "ChatHudMixin",
         "MinecraftClientMixin",
-        "ScreenMixin",
-        "mcconnector.client.MinecraftClientManagerMixin",
-        "mcconnector.client.MinecraftWindowManagerMixin",
-        "mcconnector.graphics.GlGraphicsManagerMixin",
-        "mcconnector.graphics.IBufferBuilderMixin",
-        "mcconnector.gui.RawGuiManagerMixin",
-        "mcconnector.gui.TextManagerMixin",
-        "mcconnector.i18n.ClientI18nManagerMixin",
-        "mcconnector.input.GameInputManagerMixin",
-        "mcconnector.input.IKeyBindingMixin",
-        "mcconnector.wrapper.DrawContextWrapperMixin",
-        "mcconnector.wrapper.FontWrapperMixin",
-        "mcconnector.wrapper.MinecraftGuiScreenWrapperMixin"
+        "ScreenMixin"
     ],
     "injectors": {
         "defaultRequire": 1

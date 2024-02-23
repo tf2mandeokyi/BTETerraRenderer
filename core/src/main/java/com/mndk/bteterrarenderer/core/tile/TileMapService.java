@@ -20,12 +20,12 @@ import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
-import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import lombok.*;
 
 import javax.annotation.Nonnull;
@@ -130,9 +130,9 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     }
 
     private void drawModel(DrawContextWrapper<?> drawContextWrapper, GraphicsModel model, double px, double py, double pz, float opacity) {
-        GlGraphicsManager.INSTANCE.setPositionTexColorShader();
-        GlGraphicsManager.INSTANCE.setShaderTexture(model.getTextureObject());
-        IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
+        McConnector.client().glGraphicsManager.setPositionTexColorShader();
+        McConnector.client().glGraphicsManager.setShaderTexture(model.getTextureObject());
+        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
 
         if(!model.getQuads().isEmpty()) {
             bufferBuilder.beginPTCQuads();
@@ -156,7 +156,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     }
 
     protected void drawShape(DrawContextWrapper<?> drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
-        IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
+        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
 
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             PosTex vertex = (PosTex) shape.getVertex(i);
@@ -231,7 +231,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         @Override
         protected void deleteResource(List<GraphicsModel> graphicsModels) {
             for(GraphicsModel model : graphicsModels) {
-                GlGraphicsManager.INSTANCE.deleteTextureObject(model.getTextureObject());
+                McConnector.client().glGraphicsManager.deleteTextureObject(model.getTextureObject());
             }
         }
     }

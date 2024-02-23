@@ -6,24 +6,10 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "core.network.HttpResourceManagerMixin",
-        "mcconnector.config.ConfigSaveLoaderMixin",
-        "mcconnector.i18n.I18nManagerMixin",
-        "mcconnector.wrapper.ResourceLocationWrapperMixin"
+        "HttpResourceManagerMixin"
     ],
     "client": [
         "ChatHudMixin",
-        "MinecraftClientMixin",
-        "mcconnector.client.MinecraftClientManagerMixin",
-        "mcconnector.client.MinecraftWindowManagerMixin",
-        "mcconnector.graphics.GlGraphicsManagerMixin",
-        "mcconnector.graphics.IBufferBuilderMixin",
-        "mcconnector.gui.RawGuiManagerMixin",
-        "mcconnector.gui.TextManagerMixin",
-        "mcconnector.input.GameInputManagerMixin",
-        "mcconnector.input.IKeyBindingMixin",
-        "mcconnector.wrapper.DrawContextWrapperMixin",
-        "mcconnector.wrapper.FontWrapperMixin",
-        "mcconnector.wrapper.MinecraftGuiScreenWrapperMixin"
+        "MinecraftClientMixin"
     ]
 }

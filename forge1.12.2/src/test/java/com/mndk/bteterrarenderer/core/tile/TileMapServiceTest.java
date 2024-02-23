@@ -6,6 +6,7 @@ import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
+import com.mndk.bteterrarenderer.mcconnector.EmptyClientMinecraftManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class TileMapServiceTest {
 
     static {
         try {
-            BTETerraRendererConfig.initialize(new File("test"));
+            BTETerraRendererConfig.initialize(new EmptyClientMinecraftManager(new File("test")));
             CATEGORY_MAP_DATA = TileMapServiceYamlLoader.INSTANCE.getResult();
         } catch (Exception e) {
             throw new RuntimeException(e);

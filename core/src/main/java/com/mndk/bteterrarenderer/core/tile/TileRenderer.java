@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 
 import javax.annotation.Nonnull;
 
@@ -22,18 +22,18 @@ public class TileRenderer {
         if(Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;
 
         drawContextWrapper.pushMatrix();
-        GlGraphicsManager.INSTANCE.glDisableCull();
-        GlGraphicsManager.INSTANCE.glEnableBlend();
-        GlGraphicsManager.INSTANCE.glSetAlphaBlendFunc();
+        McConnector.client().glGraphicsManager.glDisableCull();
+        McConnector.client().glGraphicsManager.glEnableBlend();
+        McConnector.client().glGraphicsManager.glSetAlphaBlendFunc();
 
         tms.render(drawContextWrapper,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());
         TileMapService.STORAGE.cleanUp();
 
-        GlGraphicsManager.INSTANCE.glDisableBlend();
-        GlGraphicsManager.INSTANCE.glDefaultBlendFunc();
-        GlGraphicsManager.INSTANCE.glEnableCull();
+        McConnector.client().glGraphicsManager.glDisableBlend();
+        McConnector.client().glGraphicsManager.glDefaultBlendFunc();
+        McConnector.client().glGraphicsManager.glEnableCull();
         drawContextWrapper.popMatrix();
     }
 }

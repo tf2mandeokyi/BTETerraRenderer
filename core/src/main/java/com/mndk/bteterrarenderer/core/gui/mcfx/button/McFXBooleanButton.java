@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.gui.mcfx.button;
 
-import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
 
 public class McFXBooleanButton extends McFXButton {
 
@@ -25,8 +25,8 @@ public class McFXBooleanButton extends McFXButton {
 
     private static String booleanToFormattedI18n(boolean b) {
         return b ?
-                "§a" + I18nManager.format("options.on") :
-                "§c" + I18nManager.format("options.off");
+                "§a" + McConnector.client().i18nManager.format("options.on") :
+                "§c" + McConnector.client().i18nManager.format("options.off");
     }
 
 }

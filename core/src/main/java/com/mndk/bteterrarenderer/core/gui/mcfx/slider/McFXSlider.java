@@ -3,8 +3,8 @@ package com.mndk.bteterrarenderer.core.gui.mcfx.slider;
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.gui.widget.SliderWidgetCopy;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.SliderWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 
 public class McFXSlider<T extends Number> extends McFXElement {
 

@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.gui.mcfx;
 
-import com.mndk.bteterrarenderer.mcconnector.gui.screen.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

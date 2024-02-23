@@ -5,8 +5,10 @@ import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
-import com.mndk.bteterrarenderer.mcconnector.input.IKeyBinding;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManager;
+import com.mndk.bteterrarenderer.mcconnector.client.input.IKeyBinding;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 
 public class KeyBindings {
 
@@ -16,10 +18,11 @@ public class KeyBindings {
     public static IKeyBinding MOVE_DOWN_KEY;
 
     public static void registerAll() {
-        MAP_TOGGLE_KEY = IKeyBinding.register(BTETerraRendererConstants.MODID, "toggle", InputKey.KEY_R);
-        MAP_OPTIONS_KEY = IKeyBinding.register(BTETerraRendererConstants.MODID, "options_ui", InputKey.KEY_GRAVE_ACCENT);
-        MOVE_UP_KEY = IKeyBinding.register(BTETerraRendererConstants.MODID, "move_up", InputKey.KEY_Y);
-        MOVE_DOWN_KEY = IKeyBinding.register(BTETerraRendererConstants.MODID, "move_down", InputKey.KEY_I);
+        GameInputManager inputManager = McConnector.client().inputManager;
+        MAP_TOGGLE_KEY = inputManager.register(BTETerraRendererConstants.MODID, "toggle", InputKey.KEY_R);
+        MAP_OPTIONS_KEY = inputManager.register(BTETerraRendererConstants.MODID, "options_ui", InputKey.KEY_GRAVE_ACCENT);
+        MOVE_UP_KEY = inputManager.register(BTETerraRendererConstants.MODID, "move_up", InputKey.KEY_Y);
+        MOVE_DOWN_KEY = inputManager.register(BTETerraRendererConstants.MODID, "move_down", InputKey.KEY_I);
     }
 
     public static void checkInputs() {

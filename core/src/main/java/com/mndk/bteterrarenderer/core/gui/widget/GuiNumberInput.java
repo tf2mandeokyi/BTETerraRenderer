@@ -1,13 +1,12 @@
 package com.mndk.bteterrarenderer.core.gui.widget;
 
-import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
-import com.mndk.bteterrarenderer.mcconnector.gui.widget.AbstractWidgetCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.widget.TextFieldWidgetCopy;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.TextFieldWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import lombok.Setter;
 
 import java.util.Optional;
@@ -29,8 +28,8 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 	public GuiNumberInput(int x, int y, int width, int height, PropertyAccessor<Double> value, String prefix) {
 		super(x, y, width, height, prefix);
 		this.delegate = new TextFieldWidgetCopy(
-				x + FontWrapper.DEFAULT.getWidth(prefix) + PREFIX_BOX_DISTANCE, y,
-				width - FontWrapper.DEFAULT.getWidth(prefix) - PREFIX_BOX_DISTANCE, height
+				x + getDefaultFont().getWidth(prefix) + PREFIX_BOX_DISTANCE, y,
+				width - getDefaultFont().getWidth(prefix) - PREFIX_BOX_DISTANCE, height
 		);
 		delegate.setText(StringUtil.formatDoubleNicely(value.get(), 3));
 		delegate.setMaxStringLength(50);
@@ -45,12 +44,12 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 
 	public void setWidth(int newWidth) {
 		this.width = newWidth;
-		delegate.setWidth(newWidth - FontWrapper.DEFAULT.getWidth(text) - PREFIX_BOX_DISTANCE);
+		delegate.setWidth(newWidth - getDefaultFont().getWidth(text) - PREFIX_BOX_DISTANCE);
 	}
 
 	public void setX(int newX) {
 		this.xPos = newX;
-		delegate.setX(newX + FontWrapper.DEFAULT.getWidth(text) + PREFIX_BOX_DISTANCE);
+		delegate.setX(newX + getDefaultFont().getWidth(text) + PREFIX_BOX_DISTANCE);
 	}
 
 	public boolean charTyped(char typedChar, int keyCode) {
@@ -80,13 +79,13 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 	}
 
 	public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
-		int fontHeight = FontWrapper.DEFAULT.getHeight();
+		int fontHeight = getDefaultFont().getHeight();
 
 		int color = this.delegate.isHovered() ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 		if(this.delegate.isFocused()) color = FOCUSED_BORDER_COLOR;
 		if(!numberValidated) color = ERROR_TEXT_COLOR;
 
-		drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT,
+		drawContextWrapper.drawTextWithShadow(getDefaultFont(),
 				text,
 				this.xPos, delegate.getY() + ((delegate.getHeight() - fontHeight) / 2f),
 				Optional.ofNullable(prefixColor).orElse(color)

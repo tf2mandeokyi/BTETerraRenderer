@@ -22,7 +22,6 @@
         ]
     },
     "mixins": [
-        "mixins.bteterrarenderer.json",
         {
             "config": "mixins.bteterrarenderer.client.json",
             "environment": "client"

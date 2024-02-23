@@ -10,10 +10,10 @@ import com.mndk.bteterrarenderer.core.gui.mcfx.list.WidthFunction;
 import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.screen.NativeGuiScreenWrappedScreen;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeGuiScreenWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrappedScreen;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -171,13 +171,13 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
     public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
         if(this.chatScreenWrapper.isEmpty()) {
             if(key == InputKey.KEY_ESCAPE) {
-                RawGuiManager.INSTANCE.displayGuiScreen(null);
+                McConnector.client().displayGuiScreen(null);
                 return true;
             }
             // TODO: Use user-bound key instead of fixed key like this
             // TODO: Add slash
             else if(key == InputKey.KEY_T) {
-                NativeGuiScreenWrapper<?> nativeScreen = RawGuiManager.INSTANCE.newNativeChatScreen("");
+                NativeGuiScreenWrapper<?> nativeScreen = McConnector.client().newChatScreen("");
                 NativeGuiScreenWrappedScreen screen = new NativeGuiScreenWrappedScreen(nativeScreen, true);
                 this.chatScreenWrapper.setScreen(screen);
                 // no return statement here, or else a letter "t" will be left when the chat is initialized.

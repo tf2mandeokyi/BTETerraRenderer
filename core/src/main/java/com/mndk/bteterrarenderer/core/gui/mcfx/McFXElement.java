@@ -1,14 +1,12 @@
 package com.mndk.bteterrarenderer.core.gui.mcfx;
 
 import com.mndk.bteterrarenderer.core.util.Loggers;
-import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.gui.component.GuiComponentCopy;
-import com.mndk.bteterrarenderer.mcconnector.gui.text.TextManager;
-import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.StyleWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.TextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiComponentCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,7 +62,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     protected abstract void drawElement(DrawContextWrapper<?> drawContextWrapper);
 
     public int getPhysicalHeight() {
-        return FontWrapper.DEFAULT.getHeight() * this.lineComponents.size();
+        return getDefaultFont().getHeight() * this.lineComponents.size();
     }
 
     /** This shouldn't return something less than {@link McFXElement#getPhysicalHeight()} */
@@ -91,7 +89,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         StyleWrapper clickedStyle = this.getStyleComponentAt((int) mouseX, (int) mouseY);
         if(clickedStyle == null) return false;
-        return TextManager.INSTANCE.handleClick(clickedStyle);
+        return McConnector.client().textManager.handleClick(clickedStyle);
     }
 
     @Override
@@ -101,8 +99,8 @@ public abstract class McFXElement implements GuiComponentCopy {
 
         if(this.textContent != null) {
             for(int i = 0; i < lineComponents.size(); ++i) {
-                drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, lineComponents.get(i), this.align,
-                        0, i * FontWrapper.DEFAULT.getHeight(), this.getWidth(), this.color);
+                drawContextWrapper.drawTextWithShadow(getDefaultFont(), lineComponents.get(i), this.align,
+                        0, i * getDefaultFont().getHeight(), this.getWidth(), this.color);
             }
             if(this.hoveredStyleComponent != null) {
                 drawContextWrapper.drawHoverEvent(this.hoveredStyleComponent, hoverX, hoverY);
@@ -113,11 +111,11 @@ public abstract class McFXElement implements GuiComponentCopy {
     }
 
     public McFXElement setI18nKeyContent(String i18nKey) {
-        return this.setStringContent(I18nManager.format(i18nKey));
+        return this.setStringContent(McConnector.common().i18nManager.format(i18nKey));
     }
 
     public McFXElement setStringContent(String text) {
-        return this.setTextContent(TextManager.INSTANCE.fromString(text));
+        return this.setTextContent(McConnector.client().textManager.fromString(text));
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -127,7 +125,7 @@ public abstract class McFXElement implements GuiComponentCopy {
             return this;
         }
         try {
-            this.textContent = TextManager.INSTANCE.fromJson(json);
+            this.textContent = McConnector.client().textManager.fromJson(json);
             this.updateLineSplits();
         } catch(Exception e) {
             Loggers.get(this).error("Cannot set json text content", e);
@@ -147,25 +145,25 @@ public abstract class McFXElement implements GuiComponentCopy {
             this.lineComponents = Collections.emptyList();
             return;
         }
-        this.lineComponents = FontWrapper.DEFAULT.splitByWidth(textContent, this.getWidth());
+        this.lineComponents = getDefaultFont().splitByWidth(textContent, this.getWidth());
     }
 
     @Nullable
     private StyleWrapper getStyleComponentAt(int mouseX, int mouseY) {
         if(mouseX < 0 || this.getWidth() < mouseX) return null;
 
-        int lineIndex = (int) Math.floor(mouseY / (float) FontWrapper.DEFAULT.getHeight());
+        int lineIndex = (int) Math.floor(mouseY / (float) getDefaultFont().getHeight());
         if(lineIndex < 0 || this.lineComponents.size() <= lineIndex) return null;
         TextWrapper lineComponent = this.lineComponents.get(lineIndex);
 
         int xPos = 0;
-        int lineWidth = FontWrapper.DEFAULT.getWidth(lineComponent);
+        int lineWidth = getDefaultFont().getWidth(lineComponent);
         switch(this.align) {
             case LEFT: break;
             case CENTER: xPos = (this.getWidth() - lineWidth) / 2; break;
             case RIGHT: xPos = this.getWidth() - lineWidth; break;
         }
-        return FontWrapper.DEFAULT.getStyleComponentFromLine(lineComponent, mouseX - xPos);
+        return getDefaultFont().getStyleComponentFromLine(lineComponent, mouseX - xPos);
     }
 
     /**

@@ -2,7 +2,8 @@ package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,7 +27,7 @@ public class RenderEvents {
         // So the camera's position should be given instead, unlike in 1.12.2.
         final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         Minecraft.getInstance().getProfiler().push("hologram_render");
-        DrawContextWrapper<?> drawContextWrapper = DrawContextWrapper.of(event.getPoseStack());
+        DrawContextWrapper<?> drawContextWrapper = new DrawContextWrapperImpl(event.getPoseStack());
         TileRenderer.renderTiles(drawContextWrapper, cameraPos.x, cameraPos.y, cameraPos.z);
         Minecraft.getInstance().getProfiler().pop();
     }

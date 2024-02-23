@@ -3,17 +3,17 @@ package com.mndk.bteterrarenderer.mod.client;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
 import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManagerImpl;
 import com.mndk.bteterrarenderer.mod.client.command.CommandsRegisterer;
 import com.mndk.bteterrarenderer.mod.client.event.ClientOngoingConnectionEvents;
 import com.mndk.bteterrarenderer.mod.client.event.RenderEvents;
 import com.mndk.bteterrarenderer.mod.client.event.TickEvents;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 
 public class BTETerraRendererClientMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        BTETerraRendererConfig.initialize(FabricLoader.getInstance().getConfigDir().toFile());
+        BTETerraRendererConfig.initialize(new ClientMinecraftManagerImpl());
         CommandsRegisterer.register();
         KeyBindings.registerAll();
 

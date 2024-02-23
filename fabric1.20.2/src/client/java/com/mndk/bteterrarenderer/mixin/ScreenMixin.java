@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mixin;
 
-import com.mndk.bteterrarenderer.mod.client.gui.AbstractGuiScreenImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import org.spongepowered.asm.mixin.Mixin;

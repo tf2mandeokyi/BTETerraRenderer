@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.DefaultEventLoop;
@@ -48,7 +49,7 @@ public class Disk {
     private final Path TMP_FILE;
 
     static {
-        File mcRoot = getMinecraftRoot();
+        File mcRoot = McConnector.common().getGameDirectory();
         CACHE_ROOT = PFiles.ensureDirectoryExists(new File(mcRoot, "terraplusplus/cache")).toPath();
 
         TMP_FILE = CACHE_ROOT.resolve("tmp");
@@ -56,11 +57,6 @@ public class Disk {
 
         //periodically prune the cache
         DISK_EXECUTOR.scheduleWithFixedDelay((IORunnable) Disk::pruneCache, 1L, 60L, TimeUnit.MINUTES);
-    }
-
-    public File getMinecraftRoot() {
-        // Test environment only
-        return new File("test");
     }
 
     /**

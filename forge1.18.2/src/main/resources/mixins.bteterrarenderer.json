@@ -5,26 +5,9 @@
     "refmap": "mixins.bteterrarenderer.refmap.json",
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
-    "mixins": [
-        "mcconnector.config.ConfigSaveLoaderMixin",
-        "mcconnector.i18n.I18nManagerMixin",
-        "mcconnector.wrapper.ResourceLocationWrapperMixin",
-        "terraplusplus.HttpDiskMixin"
-    ],
     "client": [
         "ChatHudMixin",
         "MinecraftClientMixin",
-        "ScreenMixin",
-        "mcconnector.client.MinecraftClientManagerMixin",
-        "mcconnector.client.MinecraftWindowManagerMixin",
-        "mcconnector.graphics.GlGraphicsManagerMixin",
-        "mcconnector.graphics.IBufferBuilderMixin",
-        "mcconnector.gui.RawGuiManagerMixin",
-        "mcconnector.gui.TextManagerMixin",
-        "mcconnector.input.GameInputManagerMixin",
-        "mcconnector.input.IKeyBindingMixin",
-        "mcconnector.wrapper.DrawContextWrapperMixin",
-        "mcconnector.wrapper.FontWrapperMixin",
-        "mcconnector.wrapper.MinecraftGuiScreenWrapperMixin"
+        "ScreenMixin"
     ]
 }

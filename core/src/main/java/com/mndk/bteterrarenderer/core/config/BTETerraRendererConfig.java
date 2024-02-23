@@ -8,6 +8,8 @@ import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManager;
 import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.*;
 import lombok.Getter;
@@ -21,7 +23,7 @@ import java.io.File;
 public class BTETerraRendererConfig {
 
     @ConfigIgnore
-    public final AbstractConfigSaveLoader SAVE_LOADER_INSTANCE = AbstractConfigSaveLoader.makeSaveLoader(BTETerraRendererConfig.class);
+    private AbstractConfigSaveLoader SAVE_LOADER_INSTANCE;
 
     @ConfigName("General Settings")
     @ConfigComment({
@@ -108,20 +110,22 @@ public class BTETerraRendererConfig {
         HOLOGRAM.setDoRender(!HOLOGRAM.isDoRender());
     }
 
-    @ConfigIgnore
-    private File MOD_CONFIG_DIRECTORY;
-    public File getModConfigDirectory() { return MOD_CONFIG_DIRECTORY; }
+    public File getModConfigDirectory() {
+        return McConnector.client().getConfigDirectory(BTETerraRendererConstants.MODID);
+    }
 
-    public void initialize(File gameConfigDirectory) {
-        MOD_CONFIG_DIRECTORY = new File(gameConfigDirectory, BTETerraRendererConstants.MODID);
-
+    public void initialize(ClientMinecraftManager clientManager) {
+        McConnector.initialize(clientManager);
+        
         // TMS data files
         Proj4jProjection.registerProjection();
-        FlatTileProjectionYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY); // This should be called first
-        TileMapServiceYamlLoader.INSTANCE.refresh(MOD_CONFIG_DIRECTORY);
+        FlatTileProjectionYamlLoader.INSTANCE.refresh(getModConfigDirectory()); // This should be called first
+        TileMapServiceYamlLoader.INSTANCE.refresh(getModConfigDirectory());
         TileMapServicePropertyJsonLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
 
         // Config file
+        SAVE_LOADER_INSTANCE = McConnector.client()
+                .newConfigSaveLoader(BTETerraRendererConfig.class, BTETerraRendererConstants.MODID);
         SAVE_LOADER_INSTANCE.initialize();
         SAVE_LOADER_INSTANCE.load();
         refreshCurrentTileMapService();

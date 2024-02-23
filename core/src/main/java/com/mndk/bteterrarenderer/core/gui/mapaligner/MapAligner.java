@@ -6,8 +6,8 @@ import com.mndk.bteterrarenderer.core.gui.mcfx.input.McFXNumberInput;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.client.MinecraftClientManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 
 public class MapAligner extends McFXVerticalList {
 
@@ -62,7 +62,7 @@ public class MapAligner extends McFXVerticalList {
     private void updatePlayerYawRadians() {
         this.alignBox.setPlayerYawRadians(lockNorth.get() ?
                 Math.PI :
-                Math.toRadians(MinecraftClientManager.INSTANCE.getPlayerRotationYaw())
+                Math.toRadians(McConnector.client().getPlayerRotationYaw())
         );
     }
 

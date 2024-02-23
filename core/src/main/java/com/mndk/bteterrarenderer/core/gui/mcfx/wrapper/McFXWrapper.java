@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.gui.mcfx.wrapper;
 
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
-import com.mndk.bteterrarenderer.mcconnector.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import lombok.*;
 
 import javax.annotation.Nullable;

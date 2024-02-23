@@ -1,13 +1,11 @@
 package com.mndk.bteterrarenderer.mcconnector.config;
 
-import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigComment;
-import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigName;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigIgnore;
+import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigName;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigurableClass;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -19,16 +17,11 @@ import java.util.function.Supplier;
 
 public abstract class AbstractConfigSaveLoader {
 
-    public static <C> AbstractConfigSaveLoader makeSaveLoader(Class<C> configClass) {
-        return new DefaultYamlConfigSaveLoader(
-                configClass, () -> new File(BTETerraRendererConfig.getModConfigDirectory(), "config.yml"));
-    }
-
     private boolean initialized = false;
     private final Class<?> configClass;
     private List<ConfigPropertyConnection> connections = null;
 
-    public AbstractConfigSaveLoader(Class<?> configClass) {
+    protected AbstractConfigSaveLoader(Class<?> configClass) {
         this.configClass = configClass;
     }
 

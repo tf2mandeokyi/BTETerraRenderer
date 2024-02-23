@@ -9,8 +9,8 @@ import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXBooleanButton;
 import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
 import com.mndk.bteterrarenderer.core.gui.mcfx.dropdown.McFXDropdown;
-import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
@@ -26,11 +26,10 @@ import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
-import com.mndk.bteterrarenderer.mcconnector.graphics.GlGraphicsManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -296,7 +295,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.save();
         INSTANCE.updateMapSourceDropdown();
         INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.getTileMapServiceWrapper());
-        RawGuiManager.INSTANCE.displayGuiScreen(INSTANCE);
+        McConnector.client().displayGuiScreen(INSTANCE);
     }
 
     @Override
@@ -325,7 +324,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         @Override
         protected void deleteResource(NativeTextureWrapper o) {
-            GlGraphicsManager.INSTANCE.deleteTextureObject(o);
+            McConnector.client().glGraphicsManager.deleteTextureObject(o);
         }
     }
 }

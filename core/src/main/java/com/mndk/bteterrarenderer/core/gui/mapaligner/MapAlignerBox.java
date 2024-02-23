@@ -4,14 +4,13 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosXY;
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.gui.RawGuiManager;
-import com.mndk.bteterrarenderer.mcconnector.gui.VerticalAlign;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.FontWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.ResourceLocationWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -32,7 +31,7 @@ class MapAlignerBox extends McFXElement {
     private static final int SECONDARY_LINE_COLOR = 0xFF4D4D4D;
     private static final int LINE_LENGTH = 1000;
     
-    private static final ResourceLocationWrapper<?> ALIGNMENT_MARKER = ResourceLocationWrapper.of(
+    private static final ResourceLocationWrapper<?> ALIGNMENT_MARKER = McConnector.client().newResourceLocation(
             BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
     );
     
@@ -73,7 +72,7 @@ class MapAlignerBox extends McFXElement {
         String x = StringUtil.formatDoubleNicely(xOffset.get(), 2);
         String z = StringUtil.formatDoubleNicely(zOffset.get(), 2);
         String text = String.format("§rX §f%s§r, Z §f%s", x, z);
-        drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, text, HorizontalAlign.LEFT, VerticalAlign.TOP,
+        drawContextWrapper.drawTextWithShadow(getDefaultFont(), text, HorizontalAlign.LEFT, VerticalAlign.TOP,
                 centerX + 3, centerY + 3, MapAligner.MARKER_COLOR);
     }
 
@@ -141,7 +140,7 @@ class MapAlignerBox extends McFXElement {
         drawContextWrapper.glPushRelativeScissor(0, 0, boxWidth, this.height);
         for (GridLine line : this.gridLines) {
             // line
-            GraphicsQuad<PosXY> quad = RawGuiManager.INSTANCE.makeLineDxDy(line.x, line.y, line.dx, line.dy, 1);
+            GraphicsQuad<PosXY> quad = drawContextWrapper.makeLineDxDy(line.x, line.y, line.dx, line.dy, 1);
             if (quad == null) return;
             drawContextWrapper.fillQuad(quad, line.color, 0);
 
@@ -175,7 +174,7 @@ class MapAlignerBox extends McFXElement {
             double t = line.intersectionParam;
             float x = (float) (line.x + t * line.dx);
             float y = (float) (line.y + t * line.dy);
-            drawContextWrapper.drawTextWithShadow(FontWrapper.DEFAULT, line.label, line.labelHAlign, line.labelVAlign, x, y, line.color);
+            drawContextWrapper.drawTextWithShadow(getDefaultFont(), line.label, line.labelHAlign, line.labelVAlign, x, y, line.color);
         }
     }
 

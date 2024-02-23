@@ -1,9 +1,12 @@
 package com.mndk.bteterrarenderer.core.network;
 
+import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.mcconnector.EmptyClientMinecraftManager;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -16,4 +19,11 @@ public class SvgToPngConversionTest {
         Assert.assertEquals(image.getWidth(), 678); // This number might change in the future
     }
 
+    static {
+        try {
+            BTETerraRendererConfig.initialize(new EmptyClientMinecraftManager(new File("test")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

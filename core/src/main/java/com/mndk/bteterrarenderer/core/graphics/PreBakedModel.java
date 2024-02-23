@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsTriangle;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import lombok.Data;
 
 import java.awt.image.BufferedImage;

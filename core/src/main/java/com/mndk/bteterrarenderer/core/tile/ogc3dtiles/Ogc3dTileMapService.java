@@ -25,10 +25,11 @@ import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.graphics.IBufferBuilder;
-import com.mndk.bteterrarenderer.mcconnector.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
@@ -221,7 +222,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
             return;
         }
 
-        IBufferBuilder bufferBuilder = IBufferBuilder.getTessellatorInstance();
+        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             PosTex vertex = (PosTex) shape.getVertex(i);
             float x = (float) (vertex.x - px);

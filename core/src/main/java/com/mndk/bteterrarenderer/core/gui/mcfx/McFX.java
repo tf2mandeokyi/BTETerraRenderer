@@ -5,16 +5,16 @@ import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
 import com.mndk.bteterrarenderer.core.gui.mcfx.checkbox.McFXCheckBox;
 import com.mndk.bteterrarenderer.core.gui.mcfx.dropdown.McFXDropdown;
 import com.mndk.bteterrarenderer.core.gui.mcfx.input.McFXNumberInput;
-import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
 import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.i18n.I18nManager;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.wrapper.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;
@@ -87,19 +87,19 @@ public class McFX {
     }
 
     public McFXButton i18nButton(String i18nKey, McFXButton.MouseClickedEvent event) {
-        return new McFXButton(I18nManager.format(i18nKey), event);
+        return new McFXButton(McConnector.client().i18nManager.format(i18nKey), event);
     }
 
     public McFXBooleanButton i18nBoolButton(String i18nKey, PropertyAccessor<Boolean> value) {
-        return new McFXBooleanButton(value, I18nManager.format(i18nKey) + ": ");
+        return new McFXBooleanButton(value, McConnector.client().i18nManager.format(i18nKey) + ": ");
     }
 
     public <T extends Number> McFXSlider<T> i18nSlider(String i18nKey, PropertyAccessor.Ranged<T> value) {
-        return new McFXSlider<>(value, I18nManager.format(i18nKey) + ": ", "");
+        return new McFXSlider<>(value, McConnector.client().i18nManager.format(i18nKey) + ": ", "");
     }
 
     public McFXCheckBox i18nCheckBox(String i18nKey, PropertyAccessor<Boolean> value) {
-        return new McFXCheckBox(value, I18nManager.format(i18nKey));
+        return new McFXCheckBox(value, McConnector.client().i18nManager.format(i18nKey));
     }
 
     public McFXNumberInput numberInput(String prefix, PropertyAccessor<Double> value) {
@@ -107,7 +107,7 @@ public class McFX {
     }
 
     public McFXNumberInput i18nNumberInput(String i18nKeyPrefix, PropertyAccessor<Double> value) {
-        return new McFXNumberInput(value, I18nManager.format(i18nKeyPrefix) + ": ");
+        return new McFXNumberInput(value, McConnector.client().i18nManager.format(i18nKeyPrefix) + ": ");
     }
 
     public <T> McFXDropdown<T> dropdown(PropertyAccessor<T> selectedValue,
