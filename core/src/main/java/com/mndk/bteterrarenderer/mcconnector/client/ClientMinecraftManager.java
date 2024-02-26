@@ -1,8 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
 import com.mndk.bteterrarenderer.mcconnector.CommonMinecraftManager;
-import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
@@ -32,7 +30,6 @@ public abstract class ClientMinecraftManager extends CommonMinecraftManager {
 
     public abstract WindowDimension getWindowSize();
     public abstract FontWrapper<?> getDefaultFont();
-    public abstract BufferBuilderWrapper<?> tessellatorBufferBuilder();
 
     public abstract void displayGuiScreen(@Nullable AbstractGuiScreenCopy screen);
     public abstract NativeGuiScreenWrapper<?> newChatScreen(String initialText);
@@ -43,6 +40,6 @@ public abstract class ClientMinecraftManager extends CommonMinecraftManager {
 
     public abstract void sendTextComponentToChat(TextWrapper textComponent);
     public void sendFormattedStringToChat(String formattedString) {
-        this.sendTextComponentToChat(McConnector.client().textManager.fromString(formattedString));
+        this.sendTextComponentToChat(this.textManager.fromString(formattedString));
     }
 }

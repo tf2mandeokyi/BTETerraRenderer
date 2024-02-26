@@ -14,6 +14,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
@@ -33,6 +34,10 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         super(delegate);
     }
 
+    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
+        return new BufferBuilderWrapperImpl(Tessellator.getInstance().getBuffer());
+    }
+
     public void translate(float x, float y, float z) {
         getThisWrapped().translate(x, y, z);
     }
@@ -43,13 +48,13 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         getThisWrapped().pop();
     }
 
-    public int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
+    protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
         Window window = MinecraftClient.getInstance().getWindow();
         if(window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
             return new int[] { 0, 0, 0, 0 };
         }
-        float scaleFactorX = (float) window.getWidth() / window.getScaledWidth();
-        float scaleFactorY = (float) window.getHeight() / window.getScaledHeight();
+        float scaleFactorX = (float) window.getFramebufferWidth() / window.getScaledWidth();
+        float scaleFactorY = (float) window.getFramebufferHeight() / window.getScaledHeight();
 
         Matrix4f matrix = getThisWrapped().peek().getPositionMatrix();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
@@ -58,7 +63,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         end = matrix.transform(end);
 
         int scissorX = (int) (scaleFactorX * Math.min(start.x(), end.x()));
-        int scissorY = (int) (window.getHeight() - scaleFactorY * Math.max(start.y(), end.y()));
+        int scissorY = (int) (window.getFramebufferHeight() - scaleFactorY * Math.max(start.y(), end.y()));
         int scissorWidth = (int) (scaleFactorX * Math.abs(start.x() - end.x()));
         int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
         return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };

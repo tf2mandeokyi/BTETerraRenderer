@@ -23,6 +23,9 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         super(delegate);
     }
 
+    // Buffer builder
+    public abstract BufferBuilderWrapper<?> tessellatorBufferBuilder();
+
     // Transformation
     public abstract void translate(float x, float y, float z);
     public abstract void pushMatrix();
@@ -33,7 +36,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
      * Converts "relative" dimension to an absolute scissor dimension
      * @return {@code [ scissorX, scissorY, scissorWidth, scissorHeight ]}
      */
-    public abstract int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight);
+    protected abstract int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight);
 
     // GUI
     public abstract void drawButton(int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState);
@@ -72,7 +75,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         McConnector.client().glGraphicsManager.glDisableTexture();
         McConnector.client().glGraphicsManager.glDefaultBlendFunc();
         McConnector.client().glGraphicsManager.setPositionColorShader();
-        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
+        BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
         bufferBuilder.beginPCQuads();
         bufferBuilder.pc(this, v0.x, v0.y, z, r, g, b, a);
         bufferBuilder.pc(this, v1.x, v1.y, z, r, g, b, a);
@@ -84,7 +87,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
     }
 
     protected void drawPosQuad(float x, float y, float w, float h) {
-        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
+        BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
         bufferBuilder.beginPQuads();
         bufferBuilder.p(this, x, y, 0);
         bufferBuilder.p(this, x, y+h, 0);
@@ -95,7 +98,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
 
     protected void drawPosTexQuad(int x, int y, int w, int h,
                                   float u0, float v0, float u1, float v1) {
-        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
+        BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
         bufferBuilder.beginPTQuads();
         bufferBuilder.pt(this, x, y, 0, u0, v0);
         bufferBuilder.pt(this, x, y+h, 0, u0, v1);

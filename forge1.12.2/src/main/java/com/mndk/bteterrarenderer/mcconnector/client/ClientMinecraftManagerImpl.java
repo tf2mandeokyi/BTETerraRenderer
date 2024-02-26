@@ -1,7 +1,5 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
@@ -21,7 +19,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 
@@ -47,11 +44,6 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     @Override
     public WindowDimension getWindowSize() {
         return new WindowDimensionImpl();
-    }
-
-    @Override
-    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
-        return new BufferBuilderWrapperImpl(Tessellator.getInstance().getBuffer());
     }
 
     @Override

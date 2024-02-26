@@ -38,6 +38,10 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         super(new Object());
     }
 
+    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
+        return new BufferBuilderWrapperImpl(Tessellator.getInstance().getBuffer());
+    }
+
     public void translate(float x, float y, float z) {
         GlStateManager.translate(x, y, z);
     }
@@ -48,7 +52,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         GlStateManager.popMatrix();
     }
 
-    public int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
+    protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
         Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         int scaleFactor = scaledResolution.getScaleFactor();

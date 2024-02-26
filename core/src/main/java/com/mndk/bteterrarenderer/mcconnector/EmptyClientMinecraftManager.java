@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.mcconnector;
 
 import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManager;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
@@ -41,11 +40,6 @@ public class EmptyClientMinecraftManager extends ClientMinecraftManager {
 
     @Override
     public FontWrapper<?> getDefaultFont() {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
         throw new UnsupportedOperationException("Minecraft is empty");
     }
 

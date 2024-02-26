@@ -18,22 +18,15 @@ public class McConnector {
 
     @Nonnull
     public static ClientMinecraftManager client() {
-        if(MINECRAFT == null) {
-            throw new UnsupportedOperationException("Minecraft is null");
+        try {
+            return (ClientMinecraftManager) MINECRAFT;
+        } catch(ClassCastException e) {
+            throw new UnsupportedOperationException("Minecraft is not client", e);
         }
-        if(!(MINECRAFT instanceof ClientMinecraftManager)) {
-            throw new UnsupportedOperationException("Minecraft is not client");
-        }
-
-        return (ClientMinecraftManager) MINECRAFT;
     }
 
     @Nonnull
     public static CommonMinecraftManager common() {
-        if(MINECRAFT == null) {
-            throw new UnsupportedOperationException("Minecraft is null");
-        }
-
         return MINECRAFT;
     }
 }

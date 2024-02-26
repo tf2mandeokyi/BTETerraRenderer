@@ -132,7 +132,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     private void drawModel(DrawContextWrapper<?> drawContextWrapper, GraphicsModel model, double px, double py, double pz, float opacity) {
         McConnector.client().glGraphicsManager.setPositionTexColorShader();
         McConnector.client().glGraphicsManager.setShaderTexture(model.getTextureObject());
-        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
+        BufferBuilderWrapper<?> bufferBuilder = drawContextWrapper.tessellatorBufferBuilder();
 
         if(!model.getQuads().isEmpty()) {
             bufferBuilder.beginPTCQuads();
@@ -156,7 +156,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     }
 
     protected void drawShape(DrawContextWrapper<?> drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
-        BufferBuilderWrapper<?> bufferBuilder = McConnector.client().tessellatorBufferBuilder();
+        BufferBuilderWrapper<?> bufferBuilder = drawContextWrapper.tessellatorBufferBuilder();
 
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             PosTex vertex = (PosTex) shape.getVertex(i);

@@ -33,6 +33,10 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         super(delegate);
     }
 
+    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
+        return new BufferBuilderWrapperImpl(Tesselator.getInstance().getBuilder());
+    }
+
     public void translate(float x, float y, float z) {
         getThisWrapped().translate(x, y, z);
     }
@@ -43,9 +47,9 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         getThisWrapped().popPose();
     }
 
-    public int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
+    protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
         Window window = Minecraft.getInstance().getWindow();
-        if(window.getScreenWidth() == 0 || window.getScreenHeight() == 0) { // Division by zero handling
+        if(window.getGuiScaledWidth() == 0 || window.getGuiScaledHeight() == 0) { // Division by zero handling
             return new int[] { 0, 0, 0, 0 };
         }
         float scaleFactorX = (float) window.getScreenWidth() / window.getGuiScaledWidth();

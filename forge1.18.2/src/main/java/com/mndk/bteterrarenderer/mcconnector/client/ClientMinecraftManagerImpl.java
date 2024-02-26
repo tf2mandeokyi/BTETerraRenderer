@@ -1,7 +1,5 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
@@ -17,7 +15,6 @@ import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.config.MC18ForgeTomlConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -48,11 +45,6 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     @Override
     public WindowDimension getWindowSize() {
         return new WindowDimensionImpl(Minecraft.getInstance().getWindow());
-    }
-
-    @Override
-    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
-        return new BufferBuilderWrapperImpl(Tesselator.getInstance().getBuilder());
     }
 
     @Override
