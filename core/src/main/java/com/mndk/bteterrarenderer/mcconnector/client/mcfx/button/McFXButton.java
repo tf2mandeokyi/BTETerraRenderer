@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.button;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.button;
 
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.ButtonWidgetCopy;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 
 public class McFXButton extends McFXElement {

@@ -3,16 +3,24 @@ package com.mndk.bteterrarenderer.core.tile.flat;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
+@JsonSerialize
 @JsonDeserialize
-public class FlatTileProjectionImpl extends FlatTileProjection {
+public class FlatTileProjectionImpl implements FlatTileProjection {
 
+    @Getter @Setter @Nullable
+    private transient String name;
+    @JsonProperty(value = "projection")
     private final GeographicProjection projection;
+    @JsonProperty(value = "tile_matrices")
     private final Map<Integer, TileMatrix> matrices;
 
     @JsonCreator
@@ -23,7 +31,6 @@ public class FlatTileProjectionImpl extends FlatTileProjection {
         this.projection = projection;
         this.matrices = matrices;
     }
-
 
     @Override
     public int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException {
@@ -36,9 +43,8 @@ public class FlatTileProjectionImpl extends FlatTileProjection {
         return new int[] { tileX, tileY };
     }
 
-
     @Override
-    protected double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException {
+    public double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException {
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 
         double tileCoordinateX = tileX * matrix.tileSize[0] + matrix.pointOfOrigin[0];
@@ -47,23 +53,18 @@ public class FlatTileProjectionImpl extends FlatTileProjection {
         return this.projection.toGeo(tileCoordinateX, tileCoordinateY);
     }
 
-
-    @Override
-    public FlatTileProjection clone() {
-        return new FlatTileProjectionImpl(this.projection, this.matrices);
-    }
-
-
     @Override
     public boolean isAbsoluteZoomAvailable(int absoluteZoom) {
         return this.matrices.containsKey(absoluteZoom);
     }
 
-
-    @Data
+    @JsonSerialize
     @JsonDeserialize
     public static class TileMatrix {
-        final double[] pointOfOrigin, tileSize;
+        @JsonProperty(value = "origin")
+        private final double[] pointOfOrigin;
+        @JsonProperty(value = "size")
+        private final double[] tileSize;
 
         @JsonCreator
         TileMatrix(@JsonProperty(value = "origin", required = true) double[] pointOfOrigin,

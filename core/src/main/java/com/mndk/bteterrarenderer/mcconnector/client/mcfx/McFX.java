@@ -1,15 +1,15 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXBooleanButton;
-import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
-import com.mndk.bteterrarenderer.core.gui.mcfx.checkbox.McFXCheckBox;
-import com.mndk.bteterrarenderer.core.gui.mcfx.dropdown.McFXDropdown;
-import com.mndk.bteterrarenderer.core.gui.mcfx.input.McFXNumberInput;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
-import com.mndk.bteterrarenderer.core.gui.mcfx.slider.McFXSlider;
-import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXScreenWrapper;
-import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXBooleanButton;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown.McFXDropdown;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.input.McFXNumberInput;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXHorizontalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXScreenWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;

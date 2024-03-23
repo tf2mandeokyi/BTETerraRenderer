@@ -1,10 +1,11 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
@@ -58,6 +59,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Getter
+@JsonSerialize(using = Ogc3dTileMapService.Serializer.class)
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
 
@@ -243,11 +245,17 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         this.tileDataStorage.close();
     }
 
-    public static class Deserializer extends JsonDeserializer<Ogc3dTileMapService> {
+    public static class Serializer extends TMSSerializer<Ogc3dTileMapService> {
+        protected Serializer() {
+            super(Ogc3dTileMapService.class);
+        }
         @Override
-        public Ogc3dTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            JsonNode node = ctxt.readTree(p);
-            CommonYamlObject commonYamlObject = CommonYamlObject.from(node);
+        protected void serializeTMS(Ogc3dTileMapService value, JsonGenerator gen, SerializerProvider serializers) {}
+    }
+
+    public static class Deserializer extends TMSDeserializer<Ogc3dTileMapService> {
+        @Override
+        protected Ogc3dTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
             return new Ogc3dTileMapService(commonYamlObject);
         }
     }

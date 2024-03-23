@@ -1,8 +1,8 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.list;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.list;
 
 import com.google.common.collect.Lists;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
@@ -211,6 +211,8 @@ public class McFXVerticalList extends McFXElement {
         if(this.maxHeight == null) return;
 
         int[] dimension = this.getVerticalSliderDimension();
+        if(dimension == null) return;
+
         int color = this.verticalSliderHoverState ? VERTICAL_SLIDER_COLOR_HOVERED : VERTICAL_SLIDER_COLOR;
         if(this.verticalSliderChangingState) color = VERTICAL_SLIDER_COLOR_CLICKED;
         drawContextWrapper.fillRect(dimension[0], dimension[1] + VERTICAL_SLIDER_PADDING,
@@ -322,15 +324,17 @@ public class McFXVerticalList extends McFXElement {
 
     private boolean isMouseOnScrollBar(double mouseX, double mouseY) {
         int[] dimension = this.getVerticalSliderDimension();
+        if(dimension == null) return false;
         return mouseX >= dimension[0] && mouseX <= dimension[2] && mouseY >= dimension[1] && mouseY <= dimension[3];
     }
 
     /**
      * @return [ x1, y1, x2, y2 ]
      */
+    @Nullable
     private int[] getVerticalSliderDimension() {
         double elementsHeight = this.elementsTotalVisualHeight;
-        if(this.maxHeight == null || elementsHeight <= this.maxHeight.get()) return new int[] { 0, 0, 0, 0 };
+        if(this.maxHeight == null || elementsHeight <= this.maxHeight.get()) return null;
 
         int maxHeight = this.maxHeight.get();
         double multiplier = maxHeight / elementsHeight;

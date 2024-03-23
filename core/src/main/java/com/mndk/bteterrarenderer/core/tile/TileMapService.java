@@ -1,10 +1,12 @@
 package com.mndk.bteterrarenderer.core.tile;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
@@ -21,11 +23,11 @@ import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import lombok.*;
 
 import javax.annotation.Nonnull;
@@ -33,12 +35,12 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
 @Getter
 @RequiredArgsConstructor
+@JsonSerialize(using = TileMapService.Serializer.class)
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public abstract class TileMapService<TileId> implements AutoCloseable {
 
@@ -55,6 +57,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     @Nullable private final Translatable<String> copyrightTextJson;
     @Nullable private final URL iconUrl;
     @Setter private Object iconTextureObject;
+    @Getter(value = AccessLevel.PACKAGE)
+    private final String dummyTileUrl;
 
     /**
      * This property should be configured on the constructor.
@@ -65,6 +69,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     protected TileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
+        this.dummyTileUrl = commonYamlObject.tileUrl;
         this.iconUrl = commonYamlObject.iconUrl;
         this.copyrightTextJson = Optional.ofNullable(commonYamlObject.copyrightTextJson)
                 .map(json -> json.map(JsonString::getValue))
@@ -179,15 +184,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         return String.format("%s(name=%s,hash=%08x)", this.getClass().getSimpleName(), name, hash);
     }
 
-    @Override
-    public final boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    @Override
-    public final int hashCode() {
-        return super.hashCode();
-    }
+    @Override public final boolean equals(Object obj) { return super.equals(obj); }
+    @Override public final int hashCode() { return super.hashCode(); }
 
     @Override
     public void close() throws IOException {
@@ -236,6 +234,19 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
+    public static class Serializer extends JsonSerializer<TileMapService<?>> {
+        @Override
+        public void serialize(TileMapService<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            Class<? extends TileMapService<?>> clazz = BTRUtil.uncheckedCast(value.getClass());
+            String type = TileMapServiceParseRegistries.TYPE_MAP.inverse().get(clazz);
+            if(type == null) {
+                throw JsonMappingException.from(gen, "unknown map class: " + clazz);
+            }
+
+            gen.writeObject(value);
+        }
+    }
+
     public static class Deserializer extends JsonDeserializer<TileMapService<?>> {
         @Override
         public TileMapService<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -244,11 +255,41 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             String type = JsonParserUtil.getOrDefault(node, "type", "flat");
             Class<? extends TileMapService<?>> clazz = TileMapServiceParseRegistries.TYPE_MAP.get(type);
             if(clazz == null) {
-                throw JsonMappingException.from(p, "unknown map type" + type);
+                throw JsonMappingException.from(p, "unknown map type: " + type);
             }
 
             return ctxt.readTreeAsValue(node, clazz);
         }
+    }
+
+    protected abstract static class TMSSerializer<T extends TileMapService<?>> extends JsonSerializer<T> {
+        private final String type;
+        protected TMSSerializer(Class<T> clazz) {
+            this.type = TileMapServiceParseRegistries.TYPE_MAP.inverse().get(clazz);
+        }
+
+        @Override
+        public final void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeStartObject();
+            gen.writeStringField("type", this.type);
+
+            CommonYamlObject.from(value).write(gen);
+            this.serializeTMS(value, gen, serializers);
+            gen.writeEndObject();
+        }
+
+        protected abstract void serializeTMS(T value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException;
+    }
+
+    protected static abstract class TMSDeserializer<T extends TileMapService<?>> extends JsonDeserializer<T> {
+        @Override
+        public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            JsonNode node = ctxt.readTree(p);
+            return this.deserialize(node, CommonYamlObject.read(node), ctxt);
+        }
+        protected abstract T deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt)
+                throws IOException;
     }
 
     @Getter
@@ -264,7 +305,29 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         private URL iconUrl;
         private int nThreads;
 
-        public static CommonYamlObject from(JsonNode node) throws MalformedURLException, JsonProcessingException {
+        private void write(JsonGenerator gen) throws IOException {
+            gen.writeObjectField("name", this.name);
+            gen.writeStringField("tile_url", this.tileUrl);
+            if(this.iconUrl != null) {
+                gen.writeStringField("icon_url", this.iconUrl.toString());
+            }
+            gen.writeNumberField("max_thread", this.nThreads);
+            gen.writeObjectField("copyright", this.copyrightTextJson);
+        }
+
+        private static CommonYamlObject from(TileMapService<?> tms) {
+            CommonYamlObject result = new CommonYamlObject();
+            result.name = tms.getName();
+            result.tileUrl = tms.getDummyTileUrl();
+            result.iconUrl = tms.getIconUrl();
+            result.nThreads = tms.getNThreads();
+            result.copyrightTextJson = Optional.ofNullable(tms.copyrightTextJson)
+                    .map(json -> json.map(JsonString::fromUnsafe))
+                    .orElse(null);
+            return result;
+        }
+
+        private static CommonYamlObject read(JsonNode node) throws IOException {
             CommonYamlObject result = new CommonYamlObject();
             result.name = BTETerraRendererConstants.JSON_MAPPER.treeToValue(node.get("name"), TRANSLATABLE_STRING_JAVATYPE);
             result.tileUrl = node.get("tile_url").asText();
@@ -277,11 +340,9 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
 
         static {
-            TypeReference<Translatable<String>> stringTypeRef = new TypeReference<Translatable<String>>() {};
-            TRANSLATABLE_STRING_JAVATYPE = BTETerraRendererConstants.JSON_MAPPER.getTypeFactory().constructType(stringTypeRef);
-
-            TypeReference<Translatable<JsonString>> jsonStringTypeRef = new TypeReference<Translatable<JsonString>>() {};
-            TRANSLATABLE_JSONSTRING_JAVATYPE = BTETerraRendererConstants.JSON_MAPPER.getTypeFactory().constructType(jsonStringTypeRef);
+            TypeFactory typeFactory = BTETerraRendererConstants.JSON_MAPPER.getTypeFactory();
+            TRANSLATABLE_STRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<String>>() {});
+            TRANSLATABLE_JSONSTRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<JsonString>>() {});
         }
     }
 

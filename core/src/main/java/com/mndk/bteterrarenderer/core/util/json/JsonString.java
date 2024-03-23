@@ -1,11 +1,13 @@
 package com.mndk.bteterrarenderer.core.util.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +17,36 @@ import java.io.IOException;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@JsonSerialize(using = JsonString.Serializer.class)
 @JsonDeserialize(using = JsonString.Deserializer.class)
 public class JsonString {
     @Nullable
     private final String value;
+
+    public static JsonString from(String json) throws JsonProcessingException {
+        BTETerraRendererConstants.JSON_MAPPER.readTree(json);
+        return new JsonString(json);
+    }
+
+    public static JsonString fromUnsafe(String json) {
+        try {
+            return JsonString.from(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static JsonString from(JsonNode node) {
+        return new JsonString(node.toString());
+    }
+
+    public static class Serializer extends JsonSerializer<JsonString> {
+        @Override
+        public void serialize(JsonString value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            JsonNode node = BTETerraRendererConstants.JSON_MAPPER.readTree(value.value);
+            gen.writeTree(node);
+        }
+    }
 
     public static class Deserializer extends JsonDeserializer<JsonString> {
         @Override
@@ -26,10 +54,7 @@ public class JsonString {
             if (p.currentToken() == JsonToken.START_OBJECT) {
                 p.nextToken();
             }
-
-            JsonNode node = ctxt.readTree(p);
-            if(node.isTextual()) return new JsonString(node.asText());
-            else return new JsonString(node.toString());
+            return JsonString.from(ctxt.readTree(p));
         }
     }
 }

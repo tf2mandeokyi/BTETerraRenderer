@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.checkbox;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.CheckBoxWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;

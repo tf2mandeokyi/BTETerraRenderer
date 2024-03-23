@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.list;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.list;
 
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 

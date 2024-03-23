@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;

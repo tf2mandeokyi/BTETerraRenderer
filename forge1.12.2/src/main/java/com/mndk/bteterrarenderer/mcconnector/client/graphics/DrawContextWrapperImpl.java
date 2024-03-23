@@ -1,19 +1,19 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiEventListenerCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -53,9 +53,9 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
     }
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
-        Minecraft mc = Minecraft.getMinecraft();
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
-        int scaleFactor = scaledResolution.getScaleFactor();
+        WindowDimension window = McConnector.client().getWindowSize();
+        float scaleFactorX = window.getScaleFactorX();
+        float scaleFactorY = window.getScaleFactorY();
 
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
         GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
@@ -67,10 +67,10 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         Vector4f start = Matrix4f.transform(matrix4f, originalStart, null);
         Vector4f end = Matrix4f.transform(matrix4f, originalEnd, null);
 
-        int scissorX = (int) (scaleFactor * Math.min(start.x, end.x));
-        int scissorY = (int) (mc.displayHeight - scaleFactor * Math.max(start.y, end.y));
-        int scissorWidth = (int) (scaleFactor * Math.abs(start.x - end.x));
-        int scissorHeight = (int) (scaleFactor * Math.abs(start.y - end.y));
+        int scissorX = (int) (scaleFactorX * Math.min(start.x, end.x));
+        int scissorY = (int) (window.getPixelHeight() - scaleFactorY * Math.max(start.y, end.y));
+        int scissorWidth = (int) (scaleFactorX * Math.abs(start.x - end.x));
+        int scissorHeight = (int) (scaleFactorY * Math.abs(start.y - end.y));
         return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
     }
 

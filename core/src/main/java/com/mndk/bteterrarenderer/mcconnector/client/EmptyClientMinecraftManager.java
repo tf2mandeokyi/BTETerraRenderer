@@ -1,7 +1,5 @@
-package com.mndk.bteterrarenderer.mcconnector;
+package com.mndk.bteterrarenderer.mcconnector.client;
 
-import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManager;
-import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;

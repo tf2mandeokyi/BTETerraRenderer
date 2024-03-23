@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.list;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.list;
 
 import com.google.common.collect.Lists;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;

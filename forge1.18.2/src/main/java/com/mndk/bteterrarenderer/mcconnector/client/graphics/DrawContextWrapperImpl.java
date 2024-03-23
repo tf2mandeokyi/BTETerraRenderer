@@ -1,15 +1,17 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
@@ -48,12 +50,12 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
     }
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
-        Window window = Minecraft.getInstance().getWindow();
-        if(window.getGuiScaledWidth() == 0 || window.getGuiScaledHeight() == 0) { // Division by zero handling
+        WindowDimension window = McConnector.client().getWindowSize();
+        if(window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
             return new int[] { 0, 0, 0, 0 };
         }
-        float scaleFactorX = (float) window.getScreenWidth() / window.getGuiScaledWidth();
-        float scaleFactorY = (float) window.getScreenHeight() / window.getGuiScaledHeight();
+        float scaleFactorX = window.getScaleFactorX();
+        float scaleFactorY = window.getScaleFactorY();
 
         Matrix4f matrix = getThisWrapped().last().pose();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
@@ -62,7 +64,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         end.transform(matrix);
 
         int scissorX = (int) (scaleFactorX * Math.min(start.x(), end.x()));
-        int scissorY = (int) (window.getScreenHeight() - scaleFactorY * Math.max(start.y(), end.y()));
+        int scissorY = (int) (window.getPixelHeight() - scaleFactorY * Math.max(start.y(), end.y()));
         int scissorWidth = (int) (scaleFactorX * Math.abs(start.x() - end.x()));
         int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
         return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };

@@ -1,12 +1,10 @@
 package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
@@ -40,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
+@JsonSerialize(using = FlatTileMapService.Serializer.class)
 @JsonDeserialize(using = FlatTileMapService.Deserializer.class)
 public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
@@ -55,7 +54,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     private transient int radius = 3;
 
     private final String urlTemplate;
-    private final FlatTileProjection flatTileProjection;
+    private final FlatTileCoordTranslator coordTranslator;
     private final FlatTileURLConverter urlConverter;
 
     private transient final ImmediateBlock<TMSIdPair<FlatTileKey>, FlatTileKey, String> tileKeyToUrl;
@@ -66,10 +65,11 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
     @JsonCreator
     private FlatTileMapService(CommonYamlObject commonYamlObject,
-                               FlatTileProjection flatTileProjection, FlatTileURLConverter urlConverter) {
+                               FlatTileCoordTranslator coordTranslator,
+                               FlatTileURLConverter urlConverter) {
         super(commonYamlObject);
         this.urlTemplate = commonYamlObject.getTileUrl();
-        this.flatTileProjection = flatTileProjection;
+        this.coordTranslator = coordTranslator;
         this.urlConverter = urlConverter;
 
         this.tileKeyToUrl = ImmediateBlock.of((key, input) -> getUrlFromTileCoordinate(input));
@@ -113,11 +113,11 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
     @Override
     protected List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double height) {
-        if(this.flatTileProjection == null) return Collections.emptyList();
+        if(this.coordTranslator == null) return Collections.emptyList();
 
         try {
             List<FlatTileKey> result = new ArrayList<>();
-            int[] tileCoord = this.flatTileProjection.geoCoordToTileCoord(longitude, latitude, relativeZoom);
+            int[] tileCoord = this.coordTranslator.geoCoordToTileCoord(longitude, latitude, relativeZoom);
 
             // Diamond pattern
             for(int i = 0; i < 2 * this.radius + 1; ++i) {
@@ -173,8 +173,8 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
          */
         GraphicsQuad<PosTex> quad = GraphicsQuad.newPosTex();
         for (int i = 0; i < 4; i++) {
-            int[] mat = this.flatTileProjection.getCornerMatrix(i);
-            double[] geoCoord = flatTileProjection.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
+            int[] mat = this.coordTranslator.getCornerMatrix(i);
+            double[] geoCoord = this.coordTranslator.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
             double[] gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
             quad.setVertex(i, new PosTex(
@@ -186,15 +186,35 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     }
 
     public boolean isRelativeZoomAvailable(int relativeZoom) {
-        return flatTileProjection != null && flatTileProjection.isRelativeZoomAvailable(relativeZoom);
+        return this.coordTranslator != null && this.coordTranslator.isRelativeZoomAvailable(relativeZoom);
     }
 
-    public static class Deserializer extends JsonDeserializer<FlatTileMapService> {
-        @Override
-        public FlatTileMapService deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            JsonNode node = ctxt.readTree(p);
+    public static class Serializer extends TMSSerializer<FlatTileMapService> {
+        protected Serializer() {
+            super(FlatTileMapService.class);
+        }
 
-            CommonYamlObject commonYamlObject = CommonYamlObject.from(node);
+        @Override
+        public void serializeTMS(FlatTileMapService value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            FlatTileCoordTranslator translator = value.getCoordTranslator();
+            gen.writeNumberField("default_zoom", translator.getDefaultZoom());
+            gen.writeBooleanField("invert_zoom", translator.isInvertZoom());
+            gen.writeBooleanField("invert_lat", translator.isInvertLatitude());
+            gen.writeBooleanField("flip_vert", translator.isFlipVertically());
+
+            FlatTileProjection projection = translator.getProjection();
+            if(projection.getName() != null) {
+                gen.writeStringField("projection", projection.getName());
+            }
+            else {
+                gen.writeObjectField("projection", projection);
+            }
+        }
+    }
+
+    public static class Deserializer extends TMSDeserializer<FlatTileMapService> {
+        @Override
+        protected FlatTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
             int defaultZoom = JsonParserUtil.getOrDefault(node, "default_zoom", DEFAULT_ZOOM);
             boolean invertZoom = JsonParserUtil.getOrDefault(node, "invert_zoom", false);
             boolean invertLatitude = JsonParserUtil.getOrDefault(node, "invert_lat", false);
@@ -207,23 +227,24 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
                 String projectionName = projectionNode.asText();
                 projection = FlatTileProjectionYamlLoader.INSTANCE.getResult().get(projectionName);
                 if(projection == null) {
-                    throw JsonMappingException.from(p, "unknown projection name: " + projectionName);
+                    throw JsonMappingException.from(ctxt, "unknown projection name: " + projectionName);
                 }
             }
             else if(projectionNode.isObject()) {
+                // Do not set projection name for this anonymous value.
                 projection = ctxt.readTreeAsValue(node, FlatTileProjectionImpl.class);
             }
-            else throw JsonMappingException.from(p, "projection should be an object or a name");
+            else throw JsonMappingException.from(ctxt, "projection should be an object or a name");
 
             // Modify projection
-            projection = projection.clone()
+            FlatTileCoordTranslator coordTranslator = new FlatTileCoordTranslator(projection)
                     .setDefaultZoom(defaultZoom)
                     .setInvertZoom(invertZoom)
                     .setFlipVertically(flipVertically)
                     .setInvertLatitude(invertLatitude);
 
             FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
-            return new FlatTileMapService(commonYamlObject, projection, urlConverter);
+            return new FlatTileMapService(commonYamlObject, coordTranslator, urlConverter);
         }
     }
 }

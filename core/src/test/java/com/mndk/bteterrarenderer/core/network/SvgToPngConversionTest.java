@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.network;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.mcconnector.EmptyClientMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.client.EmptyClientMinecraftManager;
 import org.junit.Assert;
 import org.junit.Test;
 

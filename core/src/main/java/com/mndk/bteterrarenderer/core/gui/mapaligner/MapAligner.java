@@ -1,13 +1,14 @@
 package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
-import com.mndk.bteterrarenderer.core.gui.mcfx.checkbox.McFXCheckBox;
-import com.mndk.bteterrarenderer.core.gui.mcfx.input.McFXNumberInput;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.input.McFXNumberInput;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXHorizontalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.WidthFunction;
 
 public class MapAligner extends McFXVerticalList {
 
@@ -40,7 +41,7 @@ public class MapAligner extends McFXVerticalList {
 
         McFXHorizontalList hList = McFX.hList(0, false)
                 .add(this.xInput, null)
-                .add(McFX.div(0), (totalWidth, widthLeft) -> 6)
+                .add(McFX.div(0), WidthFunction.px(6))
                 .add(this.zInput, null);
 
         PropertyAccessor<Boolean> lockNorthWrapper = PropertyAccessor.of(

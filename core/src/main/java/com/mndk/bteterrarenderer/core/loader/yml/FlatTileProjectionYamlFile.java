@@ -17,5 +17,8 @@ public class FlatTileProjectionYamlFile {
     public FlatTileProjectionYamlFile(@JsonProperty(value = "tile_projections", required = true)
                                       Map<String, FlatTileProjectionImpl> tileProjections) {
         this.tileProjections = tileProjections;
+        for(Map.Entry<String, FlatTileProjectionImpl> entry : this.tileProjections.entrySet()) {
+            entry.getValue().setName(entry.getKey());
+        }
     }
 }

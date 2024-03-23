@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;

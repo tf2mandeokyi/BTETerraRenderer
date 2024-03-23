@@ -1,13 +1,13 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFX;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXScreen;
-import com.mndk.bteterrarenderer.core.gui.mcfx.button.McFXButton;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXHorizontalList;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.McFXVerticalList;
-import com.mndk.bteterrarenderer.core.gui.mcfx.list.WidthFunction;
-import com.mndk.bteterrarenderer.core.gui.mcfx.wrapper.McFXScreenWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXScreen;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXHorizontalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.WidthFunction;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;

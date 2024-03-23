@@ -1,7 +1,7 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.input;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.input;
 
 import com.mndk.bteterrarenderer.core.gui.widget.GuiNumberInput;
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;

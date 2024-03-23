@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.wrapper;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrappedScreen;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;

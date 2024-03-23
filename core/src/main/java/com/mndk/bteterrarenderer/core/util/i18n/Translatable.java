@@ -1,9 +1,11 @@
 package com.mndk.bteterrarenderer.core.util.i18n;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import lombok.AccessLevel;
@@ -14,6 +16,7 @@ import java.util.*;
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@JsonSerialize(using = Translatable.Serializer.class)
 @JsonDeserialize(using = Translatable.Deserializer.class)
 public class Translatable<T> {
     public static final String DEFAULT_KEY = "en_us";
@@ -30,6 +33,17 @@ public class Translatable<T> {
         Map<String, U> newMap = new HashMap<>();
         translations.forEach((key, value) -> newMap.put(key, function.apply(value)));
         return new Translatable<>(newMap);
+    }
+
+    public static class Serializer extends JsonSerializer<Translatable<?>> {
+        @Override
+        public void serialize(Translatable<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeStartObject();
+            for(Map.Entry<String, ?> entry : value.translations.entrySet()) {
+                gen.writeObjectField(entry.getKey(), entry.getValue());
+            }
+            gen.writeEndObject();
+        }
     }
 
     public static class Deserializer extends JsonDeserializer<Translatable<?>> implements ContextualDeserializer {
@@ -53,13 +67,15 @@ public class Translatable<T> {
                     translations.put(fieldName, fieldValue);
                 }
                 if(!translations.containsKey(DEFAULT_KEY)) {
+                    // If the value for default key doesn't exist, it will pick the first entry
+                    // as the default key.
                     String alternativeKey = new ArrayList<>(translations.keySet()).get(0);
                     translations.put(DEFAULT_KEY, translations.get(alternativeKey));
                 }
                 return new Translatable<>(translations);
             } catch(IOException ignored) {}
 
-            // If fails, try default object
+            // If the serialization fails, try default object
             Object defaultValue = ctxt.readTreeAsValue(node, valueType);
             Map<String, Object> translations = new HashMap<String, Object>() {{ put(DEFAULT_KEY, defaultValue); }};
             return new Translatable<>(translations);
@@ -68,10 +84,10 @@ public class Translatable<T> {
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
             JavaType wrapperType = property != null ? property.getType() : ctxt.getContextualType();
-            if(wrapperType == null) return new Translatable.Deserializer();
+            if(wrapperType == null) return new Deserializer();
 
             JavaType valueType = wrapperType.containedType(0);
-            Translatable.Deserializer deserializer = new Translatable.Deserializer();
+            Deserializer deserializer = new Deserializer();
             deserializer.valueType = valueType;
             return deserializer;
         }

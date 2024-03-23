@@ -6,7 +6,7 @@ import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.EmptyClientMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.client.EmptyClientMinecraftManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class TileMapServiceTest {
         Assert.assertNotNull(osm);
 
         double longitude = 126.97683816936377, latitude = 37.57593302824052;
-        int[] tileCoord = osm.getFlatTileProjection().geoCoordToTileCoord(longitude, latitude, 1);
+        int[] tileCoord = osm.getCoordTranslator().geoCoordToTileCoord(longitude, latitude, 1);
         FlatTileKey tileKey = new FlatTileKey(tileCoord[0], tileCoord[1], 1);
         Assert.assertTrue(osm.getUrlFromTileCoordinate(tileKey).matches(
                 "https://[abc]\\.tile\\.openstreetmap\\.org/19/447067/203014\\.png"

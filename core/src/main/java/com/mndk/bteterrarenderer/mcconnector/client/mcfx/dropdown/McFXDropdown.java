@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.dropdown;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;

@@ -1,6 +1,6 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.slider;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider;
 
-import com.mndk.bteterrarenderer.core.gui.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.SliderWidgetCopy;

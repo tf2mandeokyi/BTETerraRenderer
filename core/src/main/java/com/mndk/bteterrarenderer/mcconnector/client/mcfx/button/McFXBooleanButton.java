@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.gui.mcfx.button;
+package com.mndk.bteterrarenderer.mcconnector.client.mcfx.button;
 
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
