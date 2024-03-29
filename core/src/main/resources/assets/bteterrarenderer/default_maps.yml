@@ -188,3 +188,24 @@ categories:
          projection: webmercator
          max_thread: 2
          default_zoom: 21
+
+
+   Singapore:
+      onemap_default:
+         type: "flat"
+         name: "OneMap Default"
+         tile_url: https://www.onemap.gov.sg/maps/tiles/Default_HD/{z}/{x}/{y}.png
+         icon_url: https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png
+         projection: webmercator
+         max_thread: 2
+         copyright:
+            en_us: [ "",{ "text": "© ","color": "white" },{ "text": "Singapore Land Authority OneMap","underlined": true,"color": "aqua","clickEvent": { "action": "open_url","value": "https://www.onemap.gov.sg/" } },{ "text": " contributors","color": "white" } ]
+      onemap_satellite:
+         type: "flat"
+         name: "OneMap Satellite"
+         tile_url: https://www.onemap.gov.sg/maps/tiles/Satellite/{z}/{x}/{y}.png
+         icon_url: https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png
+         projection: webmercator
+         max_thread: 2
+         copyright:
+            en_us: [ "",{ "text": "© ","color": "white" },{ "text": "Singapore Land Authority OneMap","underlined": true,"color": "aqua","clickEvent": { "action": "open_url","value": "https://www.onemap.gov.sg/" } },{ "text": " contributors","color": "white" } ]
