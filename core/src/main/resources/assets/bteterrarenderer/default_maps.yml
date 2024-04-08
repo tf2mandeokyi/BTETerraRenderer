@@ -169,7 +169,7 @@ categories:
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Department of Urban Development, Taipei City Government, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}}]
             zh_tw: ["",{"text":"© ","color":"white"},{"text":"臺北市政府都市發展局","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}},{"text":"版權所有","color":"white"}]
-         tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2022/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2021/default/default028mm/{z}/{y}/{x}.png
+         tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2023/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2023/default/default028mm/{z}/{y}/{x}.png
          icon_url: https://www.historygis.udd.gov.taipei/urban/assets/images/logo.svg
          projection: webmercator
          max_thread: 2
@@ -178,12 +178,12 @@ categories:
       tp_topo1k_tw:
          type: "flat"
          name:
-            en_us: "Taipei 1/1000 Topomap"
+            en_us: "Taipei 1/1000 Topographic Map"
             zh_tw: "臺北市1/1000地形圖"
          copyright:
             en_us: ["",{"text":"© ","color":"white"},{"text":"Department of Urban Development, Taipei City Government, ROC","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}}]
             zh_tw: ["",{"text":"© ","color":"white"},{"text":"臺北市政府都市發展局","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://www.historygis.udd.gov.taipei/urban/"}},{"text":"版權所有","color":"white"}]
-         tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2022/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2021/default/GoogleMapsCompatible/{z}/{y}/{x}.png
+         tile_url: https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2023/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2023/default/GoogleMapsCompatible/{z}/{y}/{x}.png
          icon_url: https://www.historygis.udd.gov.taipei/urban/assets/images/logo.svg
          projection: webmercator
          max_thread: 2
