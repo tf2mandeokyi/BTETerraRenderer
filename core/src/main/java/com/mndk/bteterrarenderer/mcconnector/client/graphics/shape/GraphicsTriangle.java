@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexInfo;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 
-public class GraphicsTriangle<T extends VertexInfo> extends GraphicsShape<T> {
+public class GraphicsTriangle<T extends GraphicsVertex<T>> extends GraphicsShape<T> {
 
     private final Object[] vertices;
 
@@ -28,7 +28,7 @@ public class GraphicsTriangle<T extends VertexInfo> extends GraphicsShape<T> {
         return 3;
     }
 
-    public static GraphicsTriangle<PosTex> newPosTex(PosTex v0, PosTex v1, PosTex v2) {
-        return new GraphicsTriangle<>(PosTex.class, v0, v1, v2);
+    public static GraphicsTriangle<PosTexNorm> newPosTexNorm(PosTexNorm v0, PosTexNorm v1, PosTexNorm v2) {
+        return new GraphicsTriangle<>(PosTexNorm.class, v0, v1, v2);
     }
 }

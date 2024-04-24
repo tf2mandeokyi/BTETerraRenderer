@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
@@ -76,11 +76,11 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         McConnector.client().glGraphicsManager.glDefaultBlendFunc();
         McConnector.client().glGraphicsManager.setPositionColorShader();
         BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
-        bufferBuilder.beginPCQuads();
-        bufferBuilder.pc(this, v0.x, v0.y, z, r, g, b, a);
-        bufferBuilder.pc(this, v1.x, v1.y, z, r, g, b, a);
-        bufferBuilder.pc(this, v2.x, v2.y, z, r, g, b, a);
-        bufferBuilder.pc(this, v3.x, v3.y, z, r, g, b, a);
+        bufferBuilder.beginPcQuads();
+        bufferBuilder.pcNext(this, v0.x, v0.y, z, r, g, b, a);
+        bufferBuilder.pcNext(this, v1.x, v1.y, z, r, g, b, a);
+        bufferBuilder.pcNext(this, v2.x, v2.y, z, r, g, b, a);
+        bufferBuilder.pcNext(this, v3.x, v3.y, z, r, g, b, a);
         bufferBuilder.drawAndRender();
         McConnector.client().glGraphicsManager.glEnableTexture();
         McConnector.client().glGraphicsManager.glDisableBlend();
@@ -89,21 +89,21 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
     protected void drawPosQuad(float x, float y, float w, float h) {
         BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
         bufferBuilder.beginPQuads();
-        bufferBuilder.p(this, x, y, 0);
-        bufferBuilder.p(this, x, y+h, 0);
-        bufferBuilder.p(this, x+w, y+h, 0);
-        bufferBuilder.p(this, x+w, y, 0);
+        bufferBuilder.pNext(this, x, y, 0);
+        bufferBuilder.pNext(this, x, y+h, 0);
+        bufferBuilder.pNext(this, x+w, y+h, 0);
+        bufferBuilder.pNext(this, x+w, y, 0);
         bufferBuilder.drawAndRender();
     }
 
     protected void drawPosTexQuad(int x, int y, int w, int h,
                                   float u0, float v0, float u1, float v1) {
         BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
-        bufferBuilder.beginPTQuads();
-        bufferBuilder.pt(this, x, y, 0, u0, v0);
-        bufferBuilder.pt(this, x, y+h, 0, u0, v1);
-        bufferBuilder.pt(this, x+w, y+h, 0, u1, v1);
-        bufferBuilder.pt(this, x+w, y, 0, u1, v0);
+        bufferBuilder.beginPtQuads();
+        bufferBuilder.ptNext(this, x, y, 0, u0, v0);
+        bufferBuilder.ptNext(this, x, y+h, 0, u0, v1);
+        bufferBuilder.ptNext(this, x+w, y+h, 0, u1, v1);
+        bufferBuilder.ptNext(this, x+w, y, 0, u1, v0);
         bufferBuilder.drawAndRender();
     }
 

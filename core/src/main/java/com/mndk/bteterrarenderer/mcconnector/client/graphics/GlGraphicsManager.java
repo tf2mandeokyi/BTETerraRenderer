@@ -15,6 +15,7 @@ public interface GlGraphicsManager {
     void setPositionTexShader();
     void setPositionColorShader();
     void setPositionTexColorShader();
+    void setPositionTexColorNormalShader();
     void setShaderTexture(NativeTextureWrapper textureObject);
 
     NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image);

@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 
 import javax.annotation.Nonnull;
 
@@ -10,39 +12,47 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
         super(delegate);
     }
 
-    public void beginPTCQuads() {
+    public void beginPtcnTriangles() {
+        getThisWrapped().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+    }
+    public void beginPtcQuads() {
         getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
     }
-    public void beginPTCTriangles() {
+    public void beginPtcTriangles() {
         getThisWrapped().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
     }
-    public void ptc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
-        PoseStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.last().pose(), x, y, z).uv(u, v).color(r, g, b, a).endVertex();
-    }
-
-    public void beginPCQuads() {
+    public void beginPcQuads() {
         getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
     }
-    public void pc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
-        PoseStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.last().pose(), x, y, z).color(r, g, b, a).endVertex();
-    }
-
-    public void beginPTQuads() {
+    public void beginPtQuads() {
         getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
     }
-    public void pt(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v) {
-        PoseStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.last().pose(), x, y, z).uv(u, v).endVertex();
-    }
-
     public void beginPQuads() {
         getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
     }
-    public void p(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+
+    public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
         PoseStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.last().pose(), x, y, z).endVertex();
+        Matrix4f matrix = poseStack.last().pose();
+        getThisWrapped().vertex(matrix, x, y, z);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+        PoseStack poseStack = drawContextWrapper.get();
+        Matrix3f matrix = poseStack.last().normal();
+        getThisWrapped().normal(matrix, x, y, z);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
+        getThisWrapped().uv(u, v);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
+        getThisWrapped().color(r, g, b, a);
+        return this;
+    }
+    public void next() {
+        getThisWrapped().endVertex();
     }
 
     public void drawAndRender() {

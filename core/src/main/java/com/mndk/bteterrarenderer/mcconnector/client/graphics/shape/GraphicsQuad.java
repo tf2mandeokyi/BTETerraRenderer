@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexInfo;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 
-public class GraphicsQuad<T extends VertexInfo> extends GraphicsShape<T> {
+public class GraphicsQuad<T extends GraphicsVertex<T>> extends GraphicsShape<T> {
 
     private final Object[] vertices;
 

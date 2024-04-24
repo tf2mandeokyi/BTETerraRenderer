@@ -15,35 +15,43 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
         super(delegate);
     }
 
-    public void beginPTCQuads() {
+    public void beginPtcnTriangles() {
+        getThisWrapped().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+    }
+    public void beginPtcQuads() {
         getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
     }
-    public void beginPTCTriangles() {
+    public void beginPtcTriangles() {
         getThisWrapped().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
     }
-    public void ptc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
-        getThisWrapped().pos(x, y, z).tex(u, v).color(1f, 1f, 1f, a).endVertex();
-    }
-
-    public void beginPCQuads() {
+    public void beginPcQuads() {
         getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
     }
-    public void pc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
-        getThisWrapped().pos(x, y, z).color(1f, 1f, 1f, a).endVertex();
-    }
-
-    public void beginPTQuads() {
+    public void beginPtQuads() {
         getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
     }
-    public void pt(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v) {
-        getThisWrapped().pos(x, y, z).tex(u, v).endVertex();
-    }
-
     public void beginPQuads() {
         getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
     }
-    public void p(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
-        getThisWrapped().pos(x, y, z).endVertex();
+
+    public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+        getThisWrapped().pos(x, y, z);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+        getThisWrapped().normal(x, y, z);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
+        getThisWrapped().tex(u, v);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
+        getThisWrapped().color(r, g, b, a);
+        return this;
+    }
+    public void next() {
+        getThisWrapped().endVertex();
     }
 
     public void drawAndRender() {

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
-import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
@@ -23,20 +22,18 @@ import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
 import lombok.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 @RequiredArgsConstructor
@@ -48,9 +45,6 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, 10000, false);
     private static final GraphicsModelTextureBakingBlock<?> MODEL_BAKER = new GraphicsModelTextureBakingBlock<>();
     public static final int DEFAULT_MAX_THREAD = 2;
-
-    private static final ImageTexturePair SOMETHING_WENT_WRONG, LOADING;
-    private static boolean STATIC_IMAGES_BAKED = false;
 
     protected final int nThreads;
     private final Translatable<String> name;
@@ -80,15 +74,9 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     public final void render(@Nonnull DrawContextWrapper<?> drawContextWrapper,
                              double px, double py, double pz, float opacity) {
-
         // Bake textures
         this.preRender(px, py, pz);
         MODEL_BAKER.process(2);
-        if(!STATIC_IMAGES_BAKED) {
-            SOMETHING_WENT_WRONG.bake();
-            LOADING.bake();
-            STATIC_IMAGES_BAKED = true;
-        }
 
         // Get tileId list
         List<TileId> renderTileIdList;
@@ -97,13 +85,14 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], py);
         } catch(OutOfProjectionBoundsException e) { return; }
 
+        // Make position transformer
+        PositionTransformer transformer = this.getPositionTransformer(px, py, pz);
+
         // Render tileId list
         for(TileId tileId : renderTileIdList) {
             List<GraphicsModel> models = this.getModelsForId(tileId);
             if (models == null) continue;
-            for(GraphicsModel model : models) {
-                this.drawModel(drawContextWrapper, model, px, py - this.getYAlign(), pz, opacity);
-            }
+            models.forEach(model -> model.drawAndRender(drawContextWrapper, transformer, opacity));
         }
     }
 
@@ -118,58 +107,23 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             case PROCESSED:
                 return this.getModelMaker().updateAndGetOutput(idPair);
             case PROCESSING:
-            case ERROR:
-                List<GraphicsShape<?>> nonTexturedModel;
                 try {
-                    nonTexturedModel = this.getNonTexturedModel(tileId);
-                } catch(OutOfProjectionBoundsException ignored) { break; }
-
-                if (nonTexturedModel != null) {
-                    ImageTexturePair texturePair = bakedState == ProcessingState.ERROR ? SOMETHING_WENT_WRONG : LOADING;
-                    GraphicsModel model = new GraphicsModel(texturePair.getTextureObject(), nonTexturedModel);
-                    return Collections.singletonList(model);
-                }
+                    List<GraphicsModel> loadingModel = this.getLoadingModel(tileId);
+                    if(loadingModel != null) return loadingModel;
+                } catch(OutOfProjectionBoundsException ignored) {}
+                break;
+            case ERROR:
+                try {
+                    List<GraphicsModel> errorModel = this.getErrorModel(tileId);
+                    if(errorModel != null) return errorModel;
+                } catch(OutOfProjectionBoundsException ignored) {}
                 break;
         }
         return null;
     }
 
-    private void drawModel(DrawContextWrapper<?> drawContextWrapper, GraphicsModel model, double px, double py, double pz, float opacity) {
-        McConnector.client().glGraphicsManager.setPositionTexColorShader();
-        McConnector.client().glGraphicsManager.setShaderTexture(model.getTextureObject());
-        BufferBuilderWrapper<?> bufferBuilder = drawContextWrapper.tessellatorBufferBuilder();
-
-        if(!model.getQuads().isEmpty()) {
-            bufferBuilder.beginPTCQuads();
-            drawShapeList(drawContextWrapper, model.getQuads(), px, py, pz, opacity);
-            bufferBuilder.drawAndRender();
-        }
-        if(!model.getTriangles().isEmpty()) {
-            bufferBuilder.beginPTCTriangles();
-            drawShapeList(drawContextWrapper, model.getTriangles(), px, py, pz, opacity);
-            bufferBuilder.drawAndRender();
-        }
-    }
-
-    private void drawShapeList(DrawContextWrapper<?> drawContextWrapper, List<? extends GraphicsShape<?>> shapes, double px, double py, double pz, float opacity) {
-        for(GraphicsShape<?> shape : shapes) {
-            if(shape.getVertexClass() != PosTex.class) {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-            this.drawShape(drawContextWrapper, shape, px, py, pz, opacity);
-        }
-    }
-
-    protected void drawShape(DrawContextWrapper<?> drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
-        BufferBuilderWrapper<?> bufferBuilder = drawContextWrapper.tessellatorBufferBuilder();
-
-        for (int i = 0; i < shape.getVerticesCount(); i++) {
-            PosTex vertex = (PosTex) shape.getVertex(i);
-            float x = (float) (vertex.x - px);
-            float y = (float) (vertex.y - py);
-            float z = (float) (vertex.z - pz);
-            bufferBuilder.ptc(drawContextWrapper, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
-        }
+    protected PositionTransformer getPositionTransformer(double px, double py, double pz) {
+        return (x, y, z) -> new double[] { x - px, y - py, z - pz };
     }
 
     public CacheableProcessorModel<TMSIdPair<TileId>, TileId, List<GraphicsModel>> getModelMaker() {
@@ -177,23 +131,25 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         return this.modelMaker;
     }
 
+    // Default method overrides
     @Override
     public final String toString() {
         String name = this.name.get();
         int hash = this.hashCode();
         return String.format("%s(name=%s,hash=%08x)", this.getClass().getSimpleName(), name, hash);
     }
-
-    @Override public final boolean equals(Object obj) { return super.equals(obj); }
-    @Override public final int hashCode() { return super.hashCode(); }
-
+    @Override
+    public final boolean equals(Object obj) { return super.equals(obj); }
+    @Override
+    public final int hashCode() { return super.hashCode(); }
     @Override
     public void close() throws IOException {
         if(this.modelMaker != null) this.modelMaker.close();
     }
 
-    protected double getYAlign() { return 0; }
-
+    /**
+     * This method is executed in the render thread and before rendering tiles.
+     */
     protected abstract void preRender(double px, double py, double pz);
 
     protected abstract CacheableProcessorModel.SequentialBuilder<TMSIdPair<TileId>, TileId, List<PreBakedModel>> getModelSequentialBuilder();
@@ -212,7 +168,10 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
     protected abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double height);
 
     @Nullable
-    protected abstract List<GraphicsShape<?>> getNonTexturedModel(TileId tileId) throws OutOfProjectionBoundsException;
+    protected abstract List<GraphicsModel> getLoadingModel(TileId tileId) throws OutOfProjectionBoundsException;
+
+    @Nullable
+    protected abstract List<GraphicsModel> getErrorModel(TileId tileId) throws OutOfProjectionBoundsException;
 
     private class ModelMaker extends CacheableProcessorModel<TMSIdPair<TileId>, TileId, List<GraphicsModel>> {
 
@@ -343,24 +302,6 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
             TypeFactory typeFactory = BTETerraRendererConstants.JSON_MAPPER.getTypeFactory();
             TRANSLATABLE_STRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<String>>() {});
             TRANSLATABLE_JSONSTRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<JsonString>>() {});
-        }
-    }
-
-    static {
-        try {
-            ClassLoader loader = TileMapService.class.getClassLoader();
-
-            String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
-            InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);
-            SOMETHING_WENT_WRONG = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
-            errorImageStream.close();
-
-            String loadingImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/loading.png";
-            InputStream loadingImageStream = loader.getResourceAsStream(loadingImagePath);
-            LOADING = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
-            loadingImageStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }

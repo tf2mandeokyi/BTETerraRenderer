@@ -19,7 +19,7 @@ public class GraphicsModelTextureBakingBlock<Key> extends SingleQueueBlock<Key, 
         List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
 		for(PreBakedModel preBakedModel : preBakedModels) {
 			NativeTextureWrapper textureObject = McConnector.client().glGraphicsManager.allocateAndGetTextureObject(preBakedModel.getImage());
-			models.add(new GraphicsModel(textureObject, preBakedModel.getQuads(), preBakedModel.getTriangles()));
+			models.add(new GraphicsModel(textureObject, preBakedModel.getShapes()));
 		}
 		return models;
 	}

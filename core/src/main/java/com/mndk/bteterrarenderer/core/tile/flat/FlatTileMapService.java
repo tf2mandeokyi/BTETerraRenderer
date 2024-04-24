@@ -2,10 +2,15 @@ package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
@@ -20,22 +25,22 @@ import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.InputStream;
+import java.util.*;
 
 @Getter
 @JsonSerialize(using = FlatTileMapService.Serializer.class)
@@ -48,6 +53,9 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
      */
     private static final double Y_EPSILON = 0.1;
     public static final int DEFAULT_ZOOM = 18;
+
+    private static final ImageTexturePair SOMETHING_WENT_WRONG, LOADING;
+    private static boolean STATIC_IMAGES_BAKED = false;
 
     private transient int relativeZoom = 0;
     @Setter
@@ -72,21 +80,27 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         this.coordTranslator = coordTranslator;
         this.urlConverter = urlConverter;
 
-        this.tileKeyToUrl = ImmediateBlock.of((key, input) -> getUrlFromTileCoordinate(input));
+        this.tileKeyToUrl = ImmediateBlock.of((key, input) -> this.getUrlFromTileCoordinate(input));
         this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3, true);
         this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
-        this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, computeTileQuad(key.getRight())));
+        this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, this.computeTileQuad(key.getRight())));
         this.imageFetcher.setQueueKey(0);
     }
 
     @Override
-    protected double getYAlign() {
-        return BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON;
+    protected PositionTransformer getPositionTransformer(double px, double py, double pz) {
+        double yAlign = BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON;
+        return (x, y, z) -> new double[] { x - px, y - py + yAlign, z - pz };
     }
 
     @Override
     protected void preRender(double px, double py, double pz) {
         this.imageToPreModel.process(2);
+        if(!STATIC_IMAGES_BAKED) {
+            SOMETHING_WENT_WRONG.bake();
+            LOADING.bake();
+            STATIC_IMAGES_BAKED = true;
+        }
     }
 
     @Override
@@ -146,11 +160,16 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         list.add(new FlatTileKey(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom));
     }
 
-    @Nullable
     @Override
-    protected List<GraphicsShape<?>> getNonTexturedModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
-        GraphicsQuad<PosTex> quad = this.computeTileQuad(tileKey);
-        return Collections.singletonList(quad);
+    protected List<GraphicsModel> getLoadingModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+        GraphicsShapes shapes = this.computeTileQuad(tileKey);
+        return Collections.singletonList(new GraphicsModel(LOADING.getTextureObject(), shapes));
+    }
+
+    @Override
+    protected List<GraphicsModel> getErrorModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+        GraphicsShapes shapes = this.computeTileQuad(tileKey);
+        return Collections.singletonList(new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), shapes));
     }
 
     public void setRelativeZoom(int newZoom) {
@@ -163,7 +182,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         return this.urlConverter.convertToUrl(this.urlTemplate, flatTileKey);
     }
 
-    private GraphicsQuad<PosTex> computeTileQuad(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+    private GraphicsShapes computeTileQuad(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
         /*
          *  i=0 ------ i=1
          *   |          |
@@ -182,7 +201,10 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
                     mat[2], mat[3] // texture coordinate
             ));
         }
-        return quad;
+
+        GraphicsShapes shapes = new GraphicsShapes();
+        shapes.add(DrawingFormat.QUAD_PT_ALPHA, quad);
+        return shapes;
     }
 
     public boolean isRelativeZoomAvailable(int relativeZoom) {
@@ -245,6 +267,24 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
             FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
             return new FlatTileMapService(commonYamlObject, coordTranslator, urlConverter);
+        }
+    }
+
+    static {
+        try {
+            ClassLoader loader = TileMapService.class.getClassLoader();
+
+            String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
+            InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);
+            SOMETHING_WENT_WRONG = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
+            errorImageStream.close();
+
+            String loadingImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/loading.png";
+            InputStream loadingImageStream = loader.getResourceAsStream(loadingImagePath);
+            LOADING = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
+            loadingImageStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -37,7 +37,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -178,7 +177,6 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
         // Check null
-        @SuppressWarnings("resource")
         TileMapService<?> tms = Optional.ofNullable(tmsWrapped)
                 .map(CategoryMap.Wrapper::getItem)
                 .orElse(null);
@@ -245,12 +243,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 mapSourceDropdown.itemListBuilder();
 
         CategoryMap<TileMapService<?>> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();
-        for(Map.Entry<String, CategoryMap.Category<TileMapService<?>>> categoryEntry : tmsCategoryMap.getCategories()) {
+        tmsCategoryMap.getCategories().forEach(categoryEntry -> {
             CategoryMap.Category<TileMapService<?>> category = categoryEntry.getValue();
             updater.push(categoryEntry.getKey());
             category.values().forEach(updater::add);
             updater.pop();
-        }
+        });
         updater.update();
     }
 

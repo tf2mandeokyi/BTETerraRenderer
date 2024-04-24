@@ -10,7 +10,7 @@ public class QuantizationUtil {
      * or {@code unsigned short(0 ~ 65535)} to {@code float(0.0 ~ 1.0)}
      */
     public float normalizeShort(int quantized, boolean unsigned) {
-        return unsigned ? quantized / 65535f : quantized / 32768f;
+        return unsigned ? quantized / 65535f : Math.max(quantized / 32767f, -1.0f);
     }
 
     /**
@@ -18,7 +18,7 @@ public class QuantizationUtil {
      * or {@code unsigned short(0 ~ 65535)} to {@code float(0.0 ~ 1.0)}
      */
     public float normalizeShort(short quantized, boolean unsigned) {
-        return unsigned ? Short.toUnsignedInt(quantized) / 65535f : quantized / 32768f;
+        return unsigned ? Short.toUnsignedInt(quantized) / 65535f : Math.max(quantized / 32767f, -1.0f);
     }
 
     /**
@@ -26,7 +26,7 @@ public class QuantizationUtil {
      * or {@code unsigned short(0 ~ 65535)} to {@code float(-1.0 ~ 1.0)}
      */
     public float sNormalizeShort(short quantized, boolean unsigned) {
-        return unsigned ? Short.toUnsignedInt(quantized) / 65535f * 2 - 1 : quantized / 32768f;
+        return unsigned ? Short.toUnsignedInt(quantized) / 65535f * 2 - 1 : Math.max(quantized / 32767f, -1.0f);
     }
 
     /**
@@ -54,7 +54,7 @@ public class QuantizationUtil {
      * or {@code unsigned byte(0 ~ 255)} to {@code float(0.0 ~ 1.0)}
      */
     public float normalizeByte(int quantized, boolean unsigned) {
-        return unsigned ? quantized / 255f : quantized / 128f;
+        return unsigned ? quantized / 255f : Math.max(quantized / 127f, -1.0f);
     }
 
 }

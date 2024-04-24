@@ -30,11 +30,8 @@ public class BatchTable implements Iterable<BatchTable.Row> {
                 BTETerraRendererConstants.JSON_MAPPER.readValue(json, RawBatchTableJson.class);
         BatchTable batchTable = new BatchTable(batchModelCount);
 
-        for(Map.Entry<String, BinaryJsonTableElement<?>> entry : rawBatchTableJson.entrySet()) {
-            String columnName = entry.getKey();
-            BinaryJsonTableElement<?> tableElement = entry.getValue();
-            batchTable.addColumn(batchModelCount, columnName, tableElement, binary);
-        }
+        rawBatchTableJson.forEach((columnName, tableElement) ->
+                batchTable.addColumn(batchModelCount, columnName, tableElement, binary));
         return batchTable;
     }
 

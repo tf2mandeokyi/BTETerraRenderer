@@ -1,12 +1,13 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.CesiumRTC;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
@@ -31,11 +32,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @see <a href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html">glTF 2.0 Specification</a>
+ */
 @RequiredArgsConstructor
 public class GltfModelConverter {
 
@@ -91,13 +94,18 @@ public class GltfModelConverter {
 
         private PreBakedModel convertMeshPrimitiveModel(MeshPrimitiveModel meshPrimitiveModel) {
             ParsedPoint[] parsedPoints = this.parsePoints(meshPrimitiveModel);
-            List<GraphicsShape<?>> shapes = this.parsedPointsToShapes(meshPrimitiveModel, parsedPoints);
+            GraphicsShapes shapes = this.parsedPointsToShapes(meshPrimitiveModel, parsedPoints);
             BufferedImage image = this.readMaterialModel(meshPrimitiveModel.getMaterialModel());
             return new PreBakedModel(image, shapes);
         }
 
         private ParsedPoint[] parsePoints(MeshPrimitiveModel meshPrimitiveModel) {
+            // From 3.7.2.1. Overview:
+            //   POSITION   - Unitless XYZ vertex positions
+            //   NORMAL     - Normalized XYZ vertex normals
+            //   TEXCOORD_n - ST texture coordinates
             AccessorModel positionAccessor = meshPrimitiveModel.getAttributes().get("POSITION");
+            AccessorModel normalAccessor = meshPrimitiveModel.getAttributes().get("NORMAL");
             AccessorModel textureCoordAccessor = meshPrimitiveModel.getAttributes().get("TEXCOORD_0");
             if(textureCoordAccessor == null) {
                 Loggers.get(this).warn("texture coord accessor is null");
@@ -108,7 +116,8 @@ public class GltfModelConverter {
             for(int i = 0; i < size; i++) {
                 parsedPoints[i] = new ParsedPoint(
                         readPosition(positionAccessor, i),
-                        readTextureCoord(textureCoordAccessor, i)
+                        readTextureCoord(textureCoordAccessor, i),
+                        normalAccessor == null ? null : readNormal(normalAccessor, i)
                 );
             }
 
@@ -135,20 +144,24 @@ public class GltfModelConverter {
             return readFloatArray(data, index, 2);
         }
 
-        private float[] readNormal(AccessorModel normalAccessor, int index) {
-            // TODO
-            throw new UnsupportedOperationException("Not implemented");
+        private Cartesian3 readNormal(AccessorModel normalAccessor, int index) {
+            AccessorData data = normalAccessor.getAccessorData();
+            float[] position = readFloatArray(data, index, 3);
+            Cartesian3 cartesian = new Cartesian3(position[0], position[1], position[2]);
+
+            Web3dQuantizedAttributes extension = GltfExtensionsUtil.getExtension(normalAccessor, Web3dQuantizedAttributes.class);
+            if(extension != null) cartesian = cartesian.transform(extension.getDecodeMatrix());
+
+            return cartesian;
         }
 
-        private List<GraphicsShape<?>> parsedPointsToShapes(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] points) {
-            List<GraphicsShape<?>> shapeList;
+        private GraphicsShapes parsedPointsToShapes(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] points) {
+            GraphicsShapes shapes = new GraphicsShapes();
             AccessorModel indicesAccessor = meshPrimitiveModel.getIndices();
             int meshCount = indicesAccessor != null ? indicesAccessor.getCount() : points.length;
 
             int meshMode = meshPrimitiveModel.getMode();
             if(meshMode == MeshPrimitiveModelModes.TRIANGLES) {
-                shapeList = new ArrayList<>(meshCount / 3);
-
                 for(int i = 0; i < meshCount; i += 3) {
                     int[] meshIndices = indicesAccessor != null ? new int[] {
                             readInteger(indicesAccessor, i),
@@ -156,15 +169,21 @@ public class GltfModelConverter {
                             readInteger(indicesAccessor, i + 2)
                     } : new int[] { i, i+1, i+2 };
 
-                    PosTex vertex1 = points[meshIndices[0]].getGraphicsVertex();
-                    PosTex vertex2 = points[meshIndices[1]].getGraphicsVertex();
-                    PosTex vertex3 = points[meshIndices[2]].getGraphicsVertex();
-                    shapeList.add(GraphicsTriangle.newPosTex(vertex1, vertex2, vertex3));
+                    ParsedPoint point1 = points[meshIndices[0]];
+                    ParsedPoint point2 = points[meshIndices[1]];
+                    ParsedPoint point3 = points[meshIndices[2]];
+
+                    ParsedTriangle triangle = new ParsedTriangle(point1, point2, point3);
+                    // Simply setting this to TRI_PTN_ALPHA doesn't seem to fix the
+                    // transparent triangles overlapping issue...
+                    // TODO: Fix this
+                    shapes.add(DrawingFormat.TRI_PTN_ALPHA, triangle.toGraphics());
                 }
             } else {
-                throw new RuntimeException("meshMode not supported: " + meshMode);
+                Loggers.get(this).warn("meshMode not supported: {}", meshMode);
             }
-            return shapeList;
+
+            return shapes;
         }
 
         private BufferedImage readMaterialModel(MaterialModel materialModel) {
@@ -255,28 +274,77 @@ public class GltfModelConverter {
 
     @Data
     private class ParsedPoint {
-        private final double[] gamePos;
+        private final Cartesian3 gamePos;
         private final float[] tex;
+        @Nullable
+        private final Cartesian3 gameNormal;
 
-        private ParsedPoint(Cartesian3 cartesian, float[] tex) {
+        private ParsedPoint(Cartesian3 cartesian, float[] tex, @Nullable Cartesian3 normal) {
             this.tex = tex;
 
-            Spheroid3 spheroid3 = cartesian.transform(transform).toSpheroidalCoordinate();
             try {
                 // Matrix + Projection transformation
-                double[] gameXY = projection.fromGeo(spheroid3.getLongitudeDegrees(), spheroid3.getLatitudeDegrees());
-                this.gamePos = new double[] { gameXY[0], spheroid3.getHeight(), gameXY[1] };
+                Spheroid3 s3Position = cartesian.transform(transform).toSpheroidalCoordinate();
+                double[] posXY = projection.fromGeo(s3Position.getLongitudeDegrees(), s3Position.getLatitudeDegrees());
+                this.gamePos = new Cartesian3(posXY[0], s3Position.getHeight(), posXY[1]);
+
+                if(normal == null) {
+                    this.gameNormal = null;
+                    return;
+                }
+
+                // Matrix + Projection transformation
+                Spheroid3 s3Normal = cartesian.add(normal).transform(transform).toSpheroidalCoordinate();
+                double[] normXY = projection.fromGeo(s3Normal.getLongitudeDegrees(), s3Normal.getLatitudeDegrees());
+                this.gameNormal = new Cartesian3(
+                        normXY[0] - this.gamePos.getX(),
+                        s3Normal.getHeight() - this.gamePos.getY(),
+                        normXY[1] - this.gamePos.getZ()
+                );
             } catch(OutOfProjectionBoundsException e) {
                 /* This will never happen */
-                throw new RuntimeException(
-                        "projection out of bounds: cartesian=" + cartesian + ", spheroid=" + spheroid3, e);
+                throw new RuntimeException("projection out of bounds");
             }
         }
+    }
 
-        private PosTex getGraphicsVertex() {
-            return new PosTex(
-                    gamePos[0], gamePos[1], gamePos[2], // position
-                    tex[0], tex[1] // texture coordinate
+    @Data
+    private class ParsedTriangle {
+        private final Cartesian3[] gamePositions;
+        private final float[][] tex;
+        private final Cartesian3[] gameNormals;
+
+        private ParsedTriangle(ParsedPoint p1, ParsedPoint p2, ParsedPoint p3) {
+            this.gamePositions = new Cartesian3[] { p1.gamePos, p2.gamePos, p3.gamePos };
+            this.tex = new float[][] { p1.tex, p2.tex, p3.tex };
+
+            if(p1.gameNormal != null && p2.gameNormal != null && p3.gameNormal != null) {
+                this.gameNormals = new Cartesian3[] { p1.gameNormal, p2.gameNormal, p3.gameNormal };
+                return;
+            }
+
+            // From 3.7.2.1. Overview:
+            //   When normals are not specified, client implementations MUST calculate
+            //   flat normals and the provided tangents (if present) MUST be ignored.
+            Cartesian3 u = p2.gamePos.subtract(p1.gamePos);
+            Cartesian3 v = p3.gamePos.subtract(p1.gamePos);
+            Cartesian3 normal = u.cross(v);
+            this.gameNormals = new Cartesian3[] { normal, normal, normal };
+        }
+
+        private PosTexNorm getGraphicsVertex(int index) {
+            return new PosTexNorm(
+                    gamePositions[index].getX(), gamePositions[index].getY(), gamePositions[index].getZ(),
+                    tex[index][0], tex[index][1],
+                    gameNormals[index].getX(), gameNormals[index].getY(), gameNormals[index].getZ()
+            );
+        }
+
+        private GraphicsTriangle<PosTexNorm> toGraphics() {
+            return GraphicsTriangle.newPosTexNorm(
+                    this.getGraphicsVertex(0),
+                    this.getGraphicsVertex(1),
+                    this.getGraphicsVertex(2)
             );
         }
     }

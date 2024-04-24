@@ -31,15 +31,16 @@ public class Tile {
     private final List<Tile> children;
 
     @JsonCreator
-    public Tile(@JsonProperty(value = "boundingVolume", required = true) Volume boundingVolume,
-                @Nullable @JsonProperty(value = "viewerRequestVolume") Volume viewerRequestVolume,
-                @JsonProperty(value = "geometricError", required = true) double geometricError,
-                @Nullable @JsonProperty(value = "refine") TileRefinement refinement,
-                @Nullable @JsonProperty(value = "transform") Matrix4 tileLocalTransform,
-                @Nullable @JsonProperty(value = "contents") List<TileContentLink> contents,
-                @Nullable @JsonProperty(value = "content") TileContentLink content,
-                @Nullable @JsonProperty(value = "children") List<Tile> children) {
-
+    public Tile(
+            @JsonProperty(value = "boundingVolume", required = true) Volume boundingVolume,
+            @Nullable @JsonProperty(value = "viewerRequestVolume") Volume viewerRequestVolume,
+            @JsonProperty(value = "geometricError", required = true) double geometricError,
+            @Nullable @JsonProperty(value = "refine") TileRefinement refinement,
+            @Nullable @JsonProperty(value = "transform") Matrix4 tileLocalTransform,
+            @Nullable @JsonProperty(value = "contents") List<TileContentLink> contents,
+            @Nullable @JsonProperty(value = "content") TileContentLink content,
+            @Nullable @JsonProperty(value = "children") List<Tile> children
+    ) {
         this.boundingVolume = boundingVolume;
         this.viewerRequestVolume = viewerRequestVolume;
         this.geometricError = geometricError;

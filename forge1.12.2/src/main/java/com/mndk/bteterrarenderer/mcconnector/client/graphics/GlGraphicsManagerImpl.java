@@ -35,6 +35,7 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
     public void setPositionTexShader() {}
     public void setPositionColorShader() {}
     public void setPositionTexColorShader() {}
+    public void setPositionTexColorNormalShader() {}
     public void setShaderTexture(NativeTextureWrapper textureObject) {
         GlStateManager.bindTexture(textureObject.get());
     }

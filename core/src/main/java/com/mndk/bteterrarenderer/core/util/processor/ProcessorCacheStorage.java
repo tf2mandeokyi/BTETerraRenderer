@@ -103,7 +103,7 @@ public class ProcessorCacheStorage<K, V> implements Closeable {
         K oldestKey = null;
         long oldest = Long.MAX_VALUE;
 
-        for (Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
+        for(Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
             CacheWrapper wrapper = entry.getValue();
             if(wrapper.state != ProcessingState.PROCESSED) continue;
             if(wrapper.lastUpdated < oldest) {
@@ -131,12 +131,11 @@ public class ProcessorCacheStorage<K, V> implements Closeable {
     public synchronized void cleanUp() {
         long now = System.currentTimeMillis();
         ArrayList<K> deleteList = new ArrayList<>();
-        for(Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
-            CacheWrapper wrapper = entry.getValue();
-            if(wrapper.state != ProcessingState.PROCESSED) continue;
-            if(this.expireMilliseconds == -1 || wrapper.lastUpdated + this.expireMilliseconds > now) continue;
-            deleteList.add(entry.getKey());
-        }
+        map.forEach((key, cacheWrapper) -> {
+            if (cacheWrapper.state != ProcessingState.PROCESSED) return;
+            if (this.expireMilliseconds == -1 || cacheWrapper.lastUpdated + this.expireMilliseconds > now) return;
+            deleteList.add(key);
+        });
         if(deleteList.isEmpty()) return;
 
         log("Cleaning up...");
@@ -149,7 +148,7 @@ public class ProcessorCacheStorage<K, V> implements Closeable {
     public synchronized void close() {
         // Cleanup all values
         ArrayList<K> deleteList = new ArrayList<>();
-        for (Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
+        for(Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
             CacheWrapper wrapper = entry.getValue();
             if(wrapper.state != ProcessingState.PROCESSED) continue;
             deleteList.add(entry.getKey());

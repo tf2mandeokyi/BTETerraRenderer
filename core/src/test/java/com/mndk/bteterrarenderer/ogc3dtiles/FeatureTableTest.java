@@ -54,15 +54,24 @@ public class FeatureTableTest {
         private final BinaryJsonTableElement<Object> testUnknownObject;
 
         private FeatureTableHeaderTest(
-                @JsonProperty(value = "testValueByte") BinaryJsonTableElement<Byte> testValueByte,
-                @JsonProperty(value = "testValueShort") BinaryJsonTableElement<Short> testValueShort,
-                @JsonProperty(value = "testValueInt") BinaryJsonTableElement<Integer> testValueInt,
-                @JsonProperty(value = "testValueFloat") BinaryJsonTableElement<Float> testValueFloat,
-                @JsonProperty(value = "testValueDouble") BinaryJsonTableElement<Double> testValueDouble,
-                @JsonProperty(value = "testValueByte3") BinaryJsonTableElement<BinaryVector.Vec3<Byte>> testValueByte3,
-                @JsonProperty(value = "testBinaryInt") BinaryJsonTableElement<Integer> testBinaryInt,
-                @JsonProperty(value = "testBinaryInt3") BinaryJsonTableElement<BinaryVector.Vec3<Integer>> testBinaryInt3,
-                @JsonProperty(value = "testUnknownObject") BinaryJsonTableElement<Object> testUnknownObject
+                @JsonProperty(value = "testValueByte")
+                BinaryJsonTableElement<Byte> testValueByte,
+                @JsonProperty(value = "testValueShort")
+                BinaryJsonTableElement<Short> testValueShort,
+                @JsonProperty(value = "testValueInt")
+                BinaryJsonTableElement<Integer> testValueInt,
+                @JsonProperty(value = "testValueFloat")
+                BinaryJsonTableElement<Float> testValueFloat,
+                @JsonProperty(value = "testValueDouble")
+                BinaryJsonTableElement<Double> testValueDouble,
+                @JsonProperty(value = "testValueByte3")
+                BinaryJsonTableElement<BinaryVector.Vec3<Byte>> testValueByte3,
+                @JsonProperty(value = "testBinaryInt")
+                BinaryJsonTableElement<Integer> testBinaryInt,
+                @JsonProperty(value = "testBinaryInt3")
+                BinaryJsonTableElement<BinaryVector.Vec3<Integer>> testBinaryInt3,
+                @JsonProperty(value = "testUnknownObject")
+                BinaryJsonTableElement<Object> testUnknownObject
         ) {
             this.testValueByte = testValueByte;
             this.testValueShort = testValueShort;

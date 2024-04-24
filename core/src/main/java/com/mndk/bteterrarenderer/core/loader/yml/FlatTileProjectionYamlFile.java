@@ -14,11 +14,11 @@ public class FlatTileProjectionYamlFile {
     public final Map<String, FlatTileProjectionImpl> tileProjections;
 
     @JsonCreator
-    public FlatTileProjectionYamlFile(@JsonProperty(value = "tile_projections", required = true)
-                                      Map<String, FlatTileProjectionImpl> tileProjections) {
+    public FlatTileProjectionYamlFile(
+            @JsonProperty(value = "tile_projections", required = true)
+            Map<String, FlatTileProjectionImpl> tileProjections
+    ) {
         this.tileProjections = tileProjections;
-        for(Map.Entry<String, FlatTileProjectionImpl> entry : this.tileProjections.entrySet()) {
-            entry.getValue().setName(entry.getKey());
-        }
+        this.tileProjections.forEach((key, value) -> value.setName(key));
     }
 }

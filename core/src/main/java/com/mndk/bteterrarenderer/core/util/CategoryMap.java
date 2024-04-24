@@ -54,9 +54,7 @@ public class CategoryMap<T> {
 
 	public Set<Wrapper<T>> getItemWrappers() {
 		Set<Wrapper<T>> result = new HashSet<>();
-		for(Map.Entry<String, CategoryMap.Category<T>> rawCategory : map.entrySet()) {
-			result.addAll(rawCategory.getValue().values());
-		}
+        map.forEach((key, value) -> result.addAll(value.values()));
 		return result;
 	}
 
@@ -67,18 +65,14 @@ public class CategoryMap<T> {
 	}
 	
 	public void append(CategoryMap<T> other) {
-		for(Map.Entry<String, Category<T>> otherCategoryEntry : other.map.entrySet()) {
-			String otherCategoryName = otherCategoryEntry.getKey();
-			Category<T> otherCategoryObject = otherCategoryEntry.getValue();
-
-			Category<T> existingCategory = map.get(otherCategoryName);
-			if(existingCategory != null) {
-				existingCategory.putAll(otherCategoryObject);
-			}
-			else {
-				map.put(otherCategoryName, otherCategoryObject);
-			}
-		}
+        other.map.forEach((otherCategoryName, otherCategoryObject) -> {
+            Category<T> existingCategory = map.get(otherCategoryName);
+            if (existingCategory != null) {
+                existingCategory.putAll(otherCategoryObject);
+            } else {
+                map.put(otherCategoryName, otherCategoryObject);
+            }
+        });
 	}
 
 	@Getter
@@ -156,7 +150,7 @@ public class CategoryMap<T> {
 			JsonNode node = ctxt.readTree(p);
 			CategoryMap<Object> result = new CategoryMap<>();
 
-			for (Iterator<Map.Entry<String, JsonNode>> categoryIt = node.fields(); categoryIt.hasNext(); ) {
+			for(Iterator<Map.Entry<String, JsonNode>> categoryIt = node.fields(); categoryIt.hasNext(); ) {
 				Map.Entry<String, JsonNode> categoryEntry = categoryIt.next();
 				String categoryName = categoryEntry.getKey();
 				JsonNode categoryNode = categoryEntry.getValue();
@@ -165,7 +159,7 @@ public class CategoryMap<T> {
 					throw JsonMappingException.from(p, "category should be an object");
 
 				Category<Object> category = new Category<>(categoryName);
-				for (Iterator<Map.Entry<String, JsonNode>> it = categoryNode.fields(); it.hasNext(); ) {
+				for(Iterator<Map.Entry<String, JsonNode>> it = categoryNode.fields(); it.hasNext(); ) {
 					Map.Entry<String, JsonNode> valueEntry = it.next();
 					String valueId = valueEntry.getKey();
 					Object valueObject = ctxt.readTreeAsValue(valueEntry.getValue(), this.valueType);

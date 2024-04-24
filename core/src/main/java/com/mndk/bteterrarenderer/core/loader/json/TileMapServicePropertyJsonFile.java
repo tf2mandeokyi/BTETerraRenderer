@@ -15,8 +15,10 @@ public class TileMapServicePropertyJsonFile {
     private final CategoryMap<Map<String, Object>> categories;
 
     @JsonCreator
-    public TileMapServicePropertyJsonFile(@JsonProperty(value = "categories", required = true)
-                                  CategoryMap<Map<String, Object>> categories) {
+    public TileMapServicePropertyJsonFile(
+            @JsonProperty(value = "categories", required = true)
+            CategoryMap<Map<String, Object>> categories
+    ) {
         this.categories = categories;
     }
 }

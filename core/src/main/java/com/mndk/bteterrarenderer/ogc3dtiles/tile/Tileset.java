@@ -25,11 +25,12 @@ public class Tileset extends TileData {
     private final Tile rootTile;
 
     @JsonCreator
-    public Tileset(@JsonProperty(value = "asset") Map<String, Object> asset,
-                   @Nullable @JsonProperty(value = "properties") Map<String, TileProperty> properties,
-                   @JsonProperty(value = "geometricError") double geometricError,
-                   @JsonProperty(value = "root") Tile rootTile) {
-
+    public Tileset(
+            @JsonProperty(value = "asset") Map<String, Object> asset,
+            @Nullable @JsonProperty(value = "properties") Map<String, TileProperty> properties,
+            @JsonProperty(value = "geometricError") double geometricError,
+            @JsonProperty(value = "root") Tile rootTile
+    ) {
         super(TileDataFormat.TILESET_JSON);
         this.asset = asset;
         this.properties = properties != null ? properties : new HashMap<>();

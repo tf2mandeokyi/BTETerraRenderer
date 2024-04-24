@@ -14,9 +14,11 @@ public class Web3dQuantizedAttributes {
     private final Cartesian3 decodedMax;
 
     @JsonCreator
-    public Web3dQuantizedAttributes(@JsonProperty("decodeMatrix") Matrix4 decodeMatrix,
-                                    @JsonProperty("decodedMin") Cartesian3 decodedMin,
-                                    @JsonProperty("decodedMax") Cartesian3 decodedMax) {
+    public Web3dQuantizedAttributes(
+            @JsonProperty("decodeMatrix") Matrix4 decodeMatrix,
+            @JsonProperty("decodedMin") Cartesian3 decodedMin,
+            @JsonProperty("decodedMax") Cartesian3 decodedMax
+    ) {
         this.decodeMatrix = decodeMatrix;
         this.decodedMin = decodedMin;
         this.decodedMax = decodedMax;

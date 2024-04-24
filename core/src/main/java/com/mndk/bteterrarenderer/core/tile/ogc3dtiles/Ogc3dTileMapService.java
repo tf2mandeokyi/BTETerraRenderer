@@ -26,10 +26,8 @@ import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
@@ -99,8 +97,14 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected double getYAlign() {
-        return BTETerraRendererConfig.HOLOGRAM.getYAlign();
+    protected PositionTransformer getPositionTransformer(double px, double py, double pz) {
+        double yAlign = BTETerraRendererConfig.HOLOGRAM.getYAlign();
+        if(!this.yDistortion) {
+            return (x, y, z) -> new double[] { x - px, yAlign + y - py, z - pz };
+        }
+        else {
+            return (x, y, z) -> new double[] { x - px, yAlign + y * this.magnitude - py, z - pz };
+        }
     }
 
     @Override
@@ -217,24 +221,12 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected void drawShape(DrawContextWrapper<?> drawContextWrapper, GraphicsShape<?> shape, double px, double py, double pz, float opacity) {
-        if(!this.yDistortion) {
-            super.drawShape(drawContextWrapper, shape, px, py, pz, opacity);
-            return;
-        }
-
-        BufferBuilderWrapper<?> bufferBuilder = drawContextWrapper.tessellatorBufferBuilder();
-        for (int i = 0; i < shape.getVerticesCount(); i++) {
-            PosTex vertex = (PosTex) shape.getVertex(i);
-            float x = (float) (vertex.x - px);
-            float y = (float) (vertex.y * this.magnitude - py);
-            float z = (float) (vertex.z - pz);
-            bufferBuilder.ptc(drawContextWrapper, x, y, z, vertex.u, vertex.v, 1f, 1f, 1f, opacity);
-        }
+    protected List<GraphicsModel> getLoadingModel(TileGlobalKey o) {
+        return null;
     }
 
     @Override
-    protected List<GraphicsShape<?>> getNonTexturedModel(TileGlobalKey o) {
+    protected List<GraphicsModel> getErrorModel(TileGlobalKey o) {
         return null;
     }
 

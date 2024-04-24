@@ -14,39 +14,45 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
         super(delegate);
     }
 
-    public void beginPTCQuads() {
+    public void beginPtcnTriangles() {
+        getThisWrapped().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR_NORMAL);
+    }
+    public void beginPtcQuads() {
         getThisWrapped().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
     }
-    public void beginPTCTriangles() {
+    public void beginPtcTriangles() {
         getThisWrapped().begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
     }
-    public void ptc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
-        MatrixStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.peek().getPositionMatrix(), x, y, z).texture(u, v).color(r, g, b, a).next();
-    }
-
-    public void beginPCQuads() {
+    public void beginPcQuads() {
         getThisWrapped().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
     }
-    public void pc(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float r, float g, float b, float a) {
-        MatrixStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.peek().getPositionMatrix(), x, y, z).color(r, g, b, a).next();
-    }
-
-    public void beginPTQuads() {
+    public void beginPtQuads() {
         getThisWrapped().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
     }
-    public void pt(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z, float u, float v) {
-        MatrixStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.peek().getPositionMatrix(), x, y, z).texture(u, v).next();
-    }
-
     public void beginPQuads() {
         getThisWrapped().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
     }
-    public void p(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+
+    public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
         MatrixStack poseStack = drawContextWrapper.get();
-        getThisWrapped().vertex(poseStack.peek().getPositionMatrix(), x, y, z).next();
+        getThisWrapped().vertex(poseStack.peek().getPositionMatrix(), x, y, z);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
+        MatrixStack poseStack = drawContextWrapper.get();
+        getThisWrapped().normal(poseStack.peek().getNormalMatrix(), x, y, z);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
+        getThisWrapped().texture(u, v);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
+        getThisWrapped().color(r, g, b, a);
+        return this;
+    }
+    public void next() {
+        getThisWrapped().next();
     }
 
     public void drawAndRender() {

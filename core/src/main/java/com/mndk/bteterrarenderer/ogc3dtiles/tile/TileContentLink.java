@@ -20,9 +20,11 @@ public class TileContentLink {
     @Nullable
     private final Integer group;
 
-    public TileContentLink(@JsonProperty(value = "uri", required = true) String uri,
-                           @Nullable @JsonProperty(value = "boundingVolume") Volume boundingVolume,
-                           @Nullable @JsonProperty(value = "group") Integer group) {
+    public TileContentLink(
+            @JsonProperty(value = "uri", required = true) String uri,
+            @Nullable @JsonProperty(value = "boundingVolume") Volume boundingVolume,
+            @Nullable @JsonProperty(value = "group") Integer group
+    ) {
         this.uri = uri;
         this.boundingVolume = boundingVolume;
         this.group = group;

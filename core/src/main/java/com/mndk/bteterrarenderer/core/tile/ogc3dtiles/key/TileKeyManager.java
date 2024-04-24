@@ -20,9 +20,6 @@ public class TileKeyManager {
 
     public List<LocalTileNode> getIntersectionsFromTileset(Tileset tileset, Sphere playerSphere,
                                                            Matrix4 parentTilesetTransform) {
-
-        List<LocalTileNode> result = new ArrayList<>();
-
         @RequiredArgsConstructor
         class Node {
             final int[] indexes;
@@ -30,6 +27,7 @@ public class TileKeyManager {
             final Matrix4 previousTransform;
         }
 
+        List<LocalTileNode> result = new ArrayList<>();
         Stack<Node> nodes = new Stack<>();
         nodes.push(new Node(new int[0], tileset.getRootTile(), parentTilesetTransform));
         do {

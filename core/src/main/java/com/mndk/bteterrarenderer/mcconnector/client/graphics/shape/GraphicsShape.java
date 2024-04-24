@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexInfo;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
 import lombok.Getter;
 
 @Getter
-public abstract class GraphicsShape<T extends VertexInfo> {
+public abstract class GraphicsShape<T extends GraphicsVertex<T>> {
     private final Class<T> vertexClass;
 
     protected GraphicsShape(Class<T> vertexClass) {

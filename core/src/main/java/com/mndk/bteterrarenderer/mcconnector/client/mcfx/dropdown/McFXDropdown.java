@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown;
 
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;

@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiEventListenerCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
