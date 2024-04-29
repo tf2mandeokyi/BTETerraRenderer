@@ -4,10 +4,12 @@ import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BatchTable;
+import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -55,5 +57,11 @@ public class Instanced3DModel extends TileData {
 
         TileGltfModel gltfModel = TileGltfModel.from(buf);
         return new Instanced3DModel(version, featureTable, batchTable, gltfFormat, gltfModel);
+    }
+
+    @Nullable
+    @Override
+    public GltfModel getGltfModelInstance() {
+        return this.getGltfModel().getInstance();
     }
 }

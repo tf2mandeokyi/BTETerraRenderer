@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Getter;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,5 +29,11 @@ public class TileGltfModel extends TileData {
 
         gltfInputStream.close();
         return new TileGltfModel(gltfModel);
+    }
+
+    @Nullable
+    @Override
+    public GltfModel getGltfModelInstance() {
+        return this.getInstance();
     }
 }

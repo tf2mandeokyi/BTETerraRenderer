@@ -147,10 +147,14 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         if(this.modelMaker != null) this.modelMaker.close();
     }
 
+    // ######################## <ABSTRACT METHODS> ########################
+
     /**
      * This method is executed in the render thread and before rendering tiles.
      */
     protected abstract void preRender(double px, double py, double pz);
+
+    public abstract void moveAlongYAxis(double amount);
 
     protected abstract CacheableProcessorModel.SequentialBuilder<TMSIdPair<TileId>, TileId, List<PreBakedModel>> getModelSequentialBuilder();
     /**
@@ -172,6 +176,8 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
 
     @Nullable
     protected abstract List<GraphicsModel> getErrorModel(TileId tileId) throws OutOfProjectionBoundsException;
+
+    // ######################## </ABSTRACT METHODS> ########################
 
     private class ModelMaker extends CacheableProcessorModel<TMSIdPair<TileId>, TileId, List<GraphicsModel>> {
 

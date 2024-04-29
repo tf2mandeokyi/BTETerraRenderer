@@ -104,6 +104,11 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     }
 
     @Override
+    public void moveAlongYAxis(double amount) {
+        BTETerraRendererConfig.HOLOGRAM.flatMapYAxis += amount;
+    }
+
+    @Override
     protected CacheableProcessorModel.SequentialBuilder<TMSIdPair<FlatTileKey>, FlatTileKey, List<PreBakedModel>> getModelSequentialBuilder() {
         return new CacheableProcessorModel.SequentialBuilder<>(this.tileKeyToUrl)
                 .then(this.imageFetcher)

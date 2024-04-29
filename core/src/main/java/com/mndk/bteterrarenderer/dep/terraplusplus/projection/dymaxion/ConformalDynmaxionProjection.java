@@ -167,7 +167,6 @@ public class ConformalDynmaxionProjection extends DymaxionProjection {
                 x3 = (u1 + 1) + 0.5 * (v1 + 1);
             }
 
-            //TODO: not sure if weights are right (but weirdly mirrors stuff so there may be simplifcation yet)
             double w1 = -(y - y3) / MathUtils.ROOT3 - (x - x3);
             double w2 = 2 * (y - y3) / MathUtils.ROOT3;
             double w3 = 1 - w1 - w2;

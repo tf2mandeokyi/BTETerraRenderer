@@ -4,10 +4,12 @@ import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BatchTable;
+import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -54,4 +56,9 @@ public class Batched3DModel extends TileData {
         return new Batched3DModel(version, featureTable, batchTable, gltfModel);
     }
 
+    @Nullable
+    @Override
+    public GltfModel getGltfModelInstance() {
+        return this.gltfModel.getInstance();
+    }
 }

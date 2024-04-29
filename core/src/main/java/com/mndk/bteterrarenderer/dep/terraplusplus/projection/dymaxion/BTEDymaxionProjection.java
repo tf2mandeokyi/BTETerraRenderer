@@ -122,7 +122,7 @@ public class BTEDymaxionProjection extends ConformalDynmaxionProjection {
 
     @Override
     public double[] bounds() {
-        return new double[]{ -1.5 * ARC * MathUtils.ROOT3, -1.5 * ARC, 3 * ARC, MathUtils.ROOT3 * ARC }; //TODO: 3*ARC is prly to high
+        return new double[]{ -1.5 * ARC * MathUtils.ROOT3, -1.5 * ARC, 3 * ARC, MathUtils.ROOT3 * ARC };
     }
 
     @Override

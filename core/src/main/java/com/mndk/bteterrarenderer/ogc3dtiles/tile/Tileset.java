@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
+import de.javagl.jgltf.model.GltfModel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -36,5 +37,11 @@ public class Tileset extends TileData {
         this.properties = properties != null ? properties : new HashMap<>();
         this.geometricError = geometricError;
         this.rootTile = rootTile;
+    }
+
+    @Nullable
+    @Override
+    public GltfModel getGltfModelInstance() {
+        return null;
     }
 }

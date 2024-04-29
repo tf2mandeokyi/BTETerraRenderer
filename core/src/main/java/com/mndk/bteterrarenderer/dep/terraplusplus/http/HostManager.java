@@ -124,7 +124,6 @@ final class HostManager extends Host {
         this.channelFuture = null;
 
         if (!channelFuture.isSuccess()) {
-            //TODO: fail pending requests only if no other connections are open
             this.pendingRequests.forEach(r -> r.callback.handle(null, channelFuture.cause()));
             this.pendingRequests.clear();
             return;

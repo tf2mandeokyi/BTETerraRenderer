@@ -28,6 +28,7 @@ public abstract class BinaryJsonTableElement<T> {
     }
     public abstract int getElementByteSize();
     public abstract T getValueWithByteOffset(byte[] binaryData, int additionalByteOffset);
+    public abstract Object[] makeColumn(int batchModelCount, byte[] binary);
 
     static class Deserializer extends JsonDeserializer<BinaryJsonTableElement<?>> implements ContextualDeserializer {
         private JavaType valueType;
@@ -107,6 +108,11 @@ public abstract class BinaryJsonTableElement<T> {
         public T getValueWithByteOffset(byte[] binaryData, int additionalByteOffset) {
             return BTRUtil.uncheckedCast(content);
         }
+
+        @Override
+        public Object[] makeColumn(int batchModelCount, byte[] binary) {
+            return BTRUtil.<List<Object>>uncheckedCast(this.content).toArray();
+        }
     }
 
     @ToString
@@ -127,6 +133,15 @@ public abstract class BinaryJsonTableElement<T> {
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             return BTRUtil.uncheckedCast(type.readBinary(buffer, componentType));
+        }
+
+        @Override
+        public Object[] makeColumn(int batchModelCount, byte[] binary) {
+            Object[] result = new Object[batchModelCount];
+            for(int i = 0; i < batchModelCount; i++) {
+                result[i] = this.getValue(binary, i);
+            }
+            return result;
         }
     }
 

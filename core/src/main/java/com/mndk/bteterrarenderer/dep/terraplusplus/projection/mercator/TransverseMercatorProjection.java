@@ -27,7 +27,6 @@ public class TransverseMercatorProjection implements GeographicProjection {
      * @return the central meridian to use when projecting at the given longitude, in radians
      */
     public static double getCentralMeridian(double longitude) {
-        //TODO Why is there a Math.floor here? It seems to work a lot better without it
         return (Math.floor(longitude / ZONE_WIDTH) + 0.5) * ZONE_WIDTH;
     }
 

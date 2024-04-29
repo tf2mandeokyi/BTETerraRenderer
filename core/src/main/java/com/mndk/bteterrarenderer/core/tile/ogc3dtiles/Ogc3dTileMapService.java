@@ -30,9 +30,6 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
-import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
-import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
-import com.mndk.bteterrarenderer.ogc3dtiles.i3dm.Instanced3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
@@ -124,6 +121,11 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
     }
 
     @Override
+    public void moveAlongYAxis(double amount) {
+        BTETerraRendererConfig.HOLOGRAM.yAlign += amount;
+    }
+
+    @Override
     protected CacheableProcessorModel.SequentialBuilder<TMSIdPair<TileGlobalKey>, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
         return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher).then(TILE_PARSER);
     }
@@ -207,10 +209,10 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
                 if(parsedData == null) continue;
 
 				TileData tileData = parsedData.getTileData();
-                if((tileData instanceof TileGltfModel) || (tileData instanceof Batched3DModel) || (tileData instanceof Instanced3DModel)) {
+                if(tileData.getGltfModelInstance() != null) {
                     result.add(currentKey);
                 }
-                else if(tileData instanceof Tileset) {
+                if(tileData instanceof Tileset) {
                     Tileset newTileset = (Tileset) tileData;
                     nodes.add(new Node(newTileset, currentUrl, currentKeys, currentTransform));
                 }

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -26,8 +25,8 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     private final List<Object[]> columns = new ArrayList<>();
 
     public static BatchTable from(int batchModelCount, String json, byte[] binary) throws JsonProcessingException {
-        RawBatchTableJson rawBatchTableJson =
-                BTETerraRendererConstants.JSON_MAPPER.readValue(json, RawBatchTableJson.class);
+        RawBatchTableJson rawBatchTableJson = BTETerraRendererConstants.JSON_MAPPER
+                .readValue(json, RawBatchTableJson.class);
         BatchTable batchTable = new BatchTable(batchModelCount);
 
         rawBatchTableJson.forEach((columnName, tableElement) ->
@@ -36,20 +35,7 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     }
 
     private void addColumn(int batchModelCount, String columnName, BinaryJsonTableElement<?> tableElement, byte[] binary) {
-        Object[] column;
-        if(tableElement instanceof BinaryJsonTableElement.Value) {
-            column = BTRUtil.<List<Object>>uncheckedCast(((BinaryJsonTableElement.Value<?>) tableElement).content)
-                    .toArray();
-        }
-        else if(tableElement instanceof BinaryJsonTableElement.BinaryValue) {
-            BinaryJsonTableElement.BinaryValue<?> binaryValue = ((BinaryJsonTableElement.BinaryValue<?>) tableElement);
-            column = new Object[batchModelCount];
-            for(int i = 0; i < batchModelCount; i++) {
-                column[i] = binaryValue.getValue(binary, i);
-            }
-        }
-        else return;
-
+        Object[] column = tableElement.makeColumn(batchModelCount, binary);
         int index = this.columns.size();
         this.columnIndexMap.put(columnName, index);
         this.columns.add(column);

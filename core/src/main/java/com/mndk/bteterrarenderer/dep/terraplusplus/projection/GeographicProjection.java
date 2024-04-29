@@ -123,7 +123,6 @@ public interface GeographicProjection {
     default double[] vector(double x, double y, double north, double east) throws OutOfProjectionBoundsException {
         double[] geo = this.toGeo(x, y);
 
-        //TODO: east may be slightly off because earth not a sphere
         double[] off = this.fromGeo(geo[0] + east * 360.0 / (Math.cos(Math.toRadians(geo[1])) * TerraConstants.EARTH_CIRCUMFERENCE),
                 geo[1] + north * 360.0 / TerraConstants.EARTH_POLAR_CIRCUMFERENCE);
 

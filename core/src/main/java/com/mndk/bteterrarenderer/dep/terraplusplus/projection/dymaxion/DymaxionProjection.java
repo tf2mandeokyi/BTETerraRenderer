@@ -264,7 +264,7 @@ public class DymaxionProjection implements GeographicProjection {
             double dissq = xd * xd + yd * yd + zd * zd;
             if (dissq < min) {
 
-                if (dissq < 0.1) //TODO: enlarge radius
+                if (dissq < 0.1)
                 {
                     return i;
                 }
@@ -314,8 +314,6 @@ public class DymaxionProjection implements GeographicProjection {
         for (int i = 0; i < NEWTON; i++) {
             double f = tana + tanb + tanc - R; //R = tana + tanb + tanc
             double fp = anumer * adenom * adenom + bnumer * bdenom * bdenom + 1; //derivative relative to tanc
-
-            //TODO: fp could be simplified on first loop: 1 + anumer + bnumer
 
             tanc -= f / fp;
 
