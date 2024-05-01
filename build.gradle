@@ -34,7 +34,7 @@ enum SubprojectType {
 
 subprojects { p ->
 
-    def subprojectType = { name ->
+    def subprojectType = {
         if     (project.name == 'core')            SubprojectType.CORE
         else if(project.name.startsWith('forge'))  SubprojectType.FORGE
         else if(project.name.startsWith('fabric')) SubprojectType.FABRIC
@@ -73,6 +73,7 @@ subprojects { p ->
         }
     }
     java {
+        if(subprojectType == SubprojectType.FABRIC) withSourcesJar()
         toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersionInteger))
         sourceCompatibility = targetCompatibility = javaVersionEnum
     }
@@ -239,8 +240,8 @@ subprojects { p ->
         reobf {
             shadowJar {}
         }
-        tasks.named("shadowJar").configure { dependsOn("reobfJar") }
-        tasks.named("build").configure { dependsOn("shadowJar") }
+        tasks.named('shadowJar').configure { dependsOn('reobfJar') }
+        tasks.named('build').configure { dependsOn('shadowJar') }
 
         sourceSets.main.resources { srcDir 'src/generated/resources' }
 
@@ -303,8 +304,8 @@ subprojects { p ->
         }
 
         // Make .json from .lang
-        if(subprojectType == SubprojectType.CORE) {
-            doLast {
+        doLast {
+            if(subprojectType == SubprojectType.CORE) {
                 fileTree(dir: outputs.files.asPath, include: '**/*.lang').each { File langFile ->
                     // Make json content
                     String content = langFile.getText('UTF-8').split('\n')
@@ -312,13 +313,20 @@ subprojects { p ->
                             .collect { it =~ /([^=]+)=(.+)/ }
                             .findAll { it.find() }
                             .collect { [ it.group(1), it.group(2) ] }
-                            .collect { "\"${it[0]}\": \"${it[1].replaceAll('"', '\\"')}\"" }
+                            .collect { "    \"${it[0]}\": \"${it[1].replaceAll('"', '\\"')}\"" }
                             .join(",\n")
 
                     // Write to json
                     File jsonFile = file(langFile.path.replaceFirst(~/\.[^.]+$/, '') + '.json')
                     jsonFile.setText("{\n$content\n}", 'UTF-8')
                 }
+            }
+            else {
+                File logoFile = new File(project(':core').projectDir, 'src/main/resources/icon.png')
+                byte[] logoContent = logoFile.readBytes()
+
+                File targetLogoFile = new File(outputs.files.asPath, 'icon.png')
+                targetLogoFile.setBytes(logoContent)
             }
         }
     }
@@ -330,9 +338,9 @@ subprojects { p ->
 
             from "${project.projectDir}/build/libs"
             into "${rootProject.projectDir}/build/libs"
+            dependsOn('build')
         }
-        copyBuildResultToRoot.dependsOn build
-        build.finalizedBy copyBuildResultToRoot
+        tasks.named('build').configure { finalizedBy(copyBuildResultToRoot) }
     }
 }
 
