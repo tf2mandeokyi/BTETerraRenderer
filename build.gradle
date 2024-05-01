@@ -28,23 +28,21 @@ plugins {
     id 'fabric-loom' version '1.6-SNAPSHOT' apply false
 }
 
-def MC_VERSION_PATTERN = /^[a-zA-Z]+(\d+)\.(.+)$/
 enum SubprojectType {
-    CORE, FORGE, FABRIC, UNKNOWN
+    CORE, FORGE, FABRIC
 }
 
 subprojects { p ->
 
-    //noinspection GroovyUnusedAssignment
-    def subprojectType = {
-        if     (p == project(':core'))             SubprojectType.CORE
+    def subprojectType = { name ->
+        if     (project.name == 'core')            SubprojectType.CORE
         else if(project.name.startsWith('forge'))  SubprojectType.FORGE
         else if(project.name.startsWith('fabric')) SubprojectType.FABRIC
-        else                                       null
+        else throw new RuntimeException("illegal project name ${project.name}")
     }()
 
     // Match version
-    def mcVersionMatcher = project.name =~ MC_VERSION_PATTERN
+    def mcVersionMatcher = project.name =~ /^[a-zA-Z]+(\d+)\.(.+)$/
     def mcVersion = mcVersionMatcher.find() ? Double.parseDouble(mcVersionMatcher.group(2)) : null
 
     apply plugin: 'java'
@@ -68,12 +66,13 @@ subprojects { p ->
     println("Java version set to $javaVersionEnum for $p")
 
     if(javaVersionInteger != 8) {
+        // Java 8 does not support the command line argument '--release'
+        // so this configuration should not be applied to that version
         tasks.withType(JavaCompile).configureEach {
             it.options.release.set javaVersionInteger
         }
     }
     java {
-        if(subprojectType == SubprojectType.FABRIC) withSourcesJar()
         toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersionInteger))
         sourceCompatibility = targetCompatibility = javaVersionEnum
     }
