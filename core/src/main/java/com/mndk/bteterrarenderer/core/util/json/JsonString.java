@@ -40,7 +40,7 @@ public class JsonString {
         return new JsonString(node.toString());
     }
 
-    public static class Serializer extends JsonSerializer<JsonString> {
+    static class Serializer extends JsonSerializer<JsonString> {
         @Override
         public void serialize(JsonString value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             JsonNode node = BTETerraRendererConstants.JSON_MAPPER.readTree(value.value);
@@ -48,7 +48,7 @@ public class JsonString {
         }
     }
 
-    public static class Deserializer extends JsonDeserializer<JsonString> {
+    static class Deserializer extends JsonDeserializer<JsonString> {
         @Override
         public JsonString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             if (p.currentToken() == JsonToken.START_OBJECT) {

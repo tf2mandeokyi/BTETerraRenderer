@@ -199,7 +199,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
-    public static class Serializer extends JsonSerializer<TileMapService<?>> {
+    static class Serializer extends JsonSerializer<TileMapService<?>> {
         @Override
         public void serialize(TileMapService<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             Class<? extends TileMapService<?>> clazz = BTRUtil.uncheckedCast(value.getClass());
@@ -212,7 +212,7 @@ public abstract class TileMapService<TileId> implements AutoCloseable {
         }
     }
 
-    public static class Deserializer extends JsonDeserializer<TileMapService<?>> {
+    static class Deserializer extends JsonDeserializer<TileMapService<?>> {
         @Override
         public TileMapService<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);

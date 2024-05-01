@@ -15,7 +15,7 @@ public class GameInputManagerImpl implements GameInputManager {
     public IKeyBinding registerInternal(String description, InputKey key, String category) {
         KeyBinding keyBinding = new KeyBinding(description, key.glfwKeyCode, category);
         KeyBindingHelper.registerKeyBinding(keyBinding);
-        return keyBinding::wasPressed; // lol
+        return keyBinding::wasPressed;
     }
 
     public String getClipboardContent() {

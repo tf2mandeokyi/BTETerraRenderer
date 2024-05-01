@@ -216,7 +216,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         return this.coordTranslator != null && this.coordTranslator.isRelativeZoomAvailable(relativeZoom);
     }
 
-    public static class Serializer extends TMSSerializer<FlatTileMapService> {
+    static class Serializer extends TMSSerializer<FlatTileMapService> {
         protected Serializer() {
             super(FlatTileMapService.class);
         }
@@ -239,7 +239,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         }
     }
 
-    public static class Deserializer extends TMSDeserializer<FlatTileMapService> {
+    static class Deserializer extends TMSDeserializer<FlatTileMapService> {
         @Override
         protected FlatTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
             int defaultZoom = JsonParserUtil.getOrDefault(node, "default_zoom", DEFAULT_ZOOM);

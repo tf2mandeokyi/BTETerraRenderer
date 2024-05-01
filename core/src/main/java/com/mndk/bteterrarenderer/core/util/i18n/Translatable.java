@@ -35,7 +35,7 @@ public class Translatable<T> {
         return new Translatable<>(newMap);
     }
 
-    public static class Serializer extends JsonSerializer<Translatable<?>> {
+    static class Serializer extends JsonSerializer<Translatable<?>> {
         @Override
         public void serialize(Translatable<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeStartObject();
@@ -46,7 +46,7 @@ public class Translatable<T> {
         }
     }
 
-    public static class Deserializer extends JsonDeserializer<Translatable<?>> implements ContextualDeserializer {
+    static class Deserializer extends JsonDeserializer<Translatable<?>> implements ContextualDeserializer {
         private JavaType valueType;
 
         @Override

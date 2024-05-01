@@ -239,7 +239,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         this.tileDataStorage.close();
     }
 
-    public static class Serializer extends TMSSerializer<Ogc3dTileMapService> {
+    static class Serializer extends TMSSerializer<Ogc3dTileMapService> {
         protected Serializer() {
             super(Ogc3dTileMapService.class);
         }
@@ -247,7 +247,7 @@ public class Ogc3dTileMapService extends TileMapService<TileGlobalKey> {
         protected void serializeTMS(Ogc3dTileMapService value, JsonGenerator gen, SerializerProvider serializers) {}
     }
 
-    public static class Deserializer extends TMSDeserializer<Ogc3dTileMapService> {
+    static class Deserializer extends TMSDeserializer<Ogc3dTileMapService> {
         @Override
         protected Ogc3dTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
             return new Ogc3dTileMapService(commonYamlObject);

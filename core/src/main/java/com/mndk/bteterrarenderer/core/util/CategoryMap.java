@@ -110,7 +110,7 @@ public class CategoryMap<T> {
 		}
 	}
 
-	public static class Serializer extends JsonSerializer<CategoryMap<Object>> {
+	static class Serializer extends JsonSerializer<CategoryMap<Object>> {
 		@Override
 		public void serialize(CategoryMap<Object> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 			gen.writeStartObject(); // main
@@ -130,7 +130,7 @@ public class CategoryMap<T> {
 		}
 	}
 
-	public static class Deserializer extends JsonDeserializer<CategoryMap<?>> implements ContextualDeserializer {
+	static class Deserializer extends JsonDeserializer<CategoryMap<?>> implements ContextualDeserializer {
 		private JavaType valueType;
 
 		@Override

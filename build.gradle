@@ -24,21 +24,73 @@ buildscript {
     }
 }
 
+plugins {
+    id 'fabric-loom' version '1.6-SNAPSHOT' apply false
+}
+
+def MC_VERSION_PATTERN = /^[a-zA-Z]+(\d+)\.(.+)$/
+enum SubprojectType {
+    CORE, FORGE, FABRIC, UNKNOWN
+}
+
 subprojects { p ->
 
     //noinspection GroovyUnusedAssignment
-    def isCoreSubProject = p == project(':core')
-    def isForgeSubProject = project.name.startsWith('forge')
-    def isFabricSubProject = project.name.startsWith('fabric')
+    def subprojectType = {
+        if     (p == project(':core'))             SubprojectType.CORE
+        else if(project.name.startsWith('forge'))  SubprojectType.FORGE
+        else if(project.name.startsWith('fabric')) SubprojectType.FABRIC
+        else                                       null
+    }()
 
     // Match version
-    def mcVersionMatcher = project.name =~ /[a-zA-Z]+(\d+)\.(\d+)(\.(\d+))?/
-    def mcVersionMiddle = mcVersionMatcher.find() ? Integer.parseInt(mcVersionMatcher.group(2)) : null
+    def mcVersionMatcher = project.name =~ MC_VERSION_PATTERN
+    def mcVersion = mcVersionMatcher.find() ? Double.parseDouble(mcVersionMatcher.group(2)) : null
 
     apply plugin: 'java'
-    apply plugin: 'com.github.johnrengelman.shadow'
-    if(isCoreSubProject) {
+    if(subprojectType == SubprojectType.CORE) {
         apply plugin: 'maven-publish'
+    }
+    else if(subprojectType == SubprojectType.FORGE) {
+        apply plugin: 'net.minecraftforge.gradle'
+        apply plugin: 'org.spongepowered.mixin'
+        apply plugin: 'com.github.johnrengelman.shadow'
+    }
+    else if(subprojectType == SubprojectType.FABRIC) {
+        apply plugin: 'fabric-loom'
+    }
+
+    def (javaVersionInteger, javaVersionEnum) = {
+        if     (mcVersion >= 20.5) [ 21, JavaVersion.VERSION_21  ]
+        else if(mcVersion >= 18  ) [ 17, JavaVersion.VERSION_17  ]
+        else                       [  8, JavaVersion.VERSION_1_8 ] // this includes :core subproject
+    }()
+    println("Java version set to $javaVersionEnum for $p")
+
+    if(javaVersionInteger != 8) {
+        tasks.withType(JavaCompile).configureEach {
+            it.options.release.set javaVersionInteger
+        }
+    }
+    java {
+        if(subprojectType == SubprojectType.FABRIC) withSourcesJar()
+        toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersionInteger))
+        sourceCompatibility = targetCompatibility = javaVersionEnum
+    }
+
+    if(subprojectType == SubprojectType.FABRIC) {
+        loom {
+            splitEnvironmentSourceSets()
+
+            mods {
+                bteterrarenderer {
+                    sourceSet sourceSets.main
+                    sourceSet sourceSets.client
+                }
+            }
+        }
+
+        jar {}
     }
 
     configurations {
@@ -48,53 +100,64 @@ subprojects { p ->
         implementation.extendsFrom shadowDep
         compileOnly.extendsFrom compileAndTestOnly
         testImplementation.extendsFrom compileAndTestOnly
+        if(subprojectType == SubprojectType.FABRIC) include.extendsFrom shadowDep
     }
 
     dependencies {
 
-        if(isForgeSubProject || isFabricSubProject) {
+        if(subprojectType != SubprojectType.CORE) {
             shadowDep project(':core')
+        }
+
+        if(subprojectType == SubprojectType.FABRIC) {
+            minecraft "com.mojang:minecraft:${project.minecraftVersion}"
+            mappings "net.fabricmc:yarn:${project.yarnMappings}:v2"
+            modImplementation "net.fabricmc:fabric-loader:${project.fabricLoaderVersion}"
+            modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
+        }
+        else if(subprojectType == SubprojectType.FORGE) {
+            minecraft "net.minecraftforge:forge:${project.minecraftVersion}-${project.forgeVersion}"
         }
 
         // We should use shadowDep(group: ..., name: ..., version: ...) instead of shadowDep('group:name:version')
         // since fabric's "include" configuration doesn't allow us to do the latter
         // ps: fabric ruined it all
         shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.14.2')
-        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2')
-        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2')
+        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-core'       , version: '2.14.2')
+        shadowDep(group: 'com.fasterxml.jackson.core', name: 'jackson-databind'   , version: '2.14.2')
         shadowDep(group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.14.2')
         shadowDep(group: 'de.javagl', name: 'jgltf-impl-v2', version: '2.0.3')
-        shadowDep(group: 'de.javagl', name: 'jgltf-model', version: '2.0.3')
+        shadowDep(group: 'de.javagl', name: 'jgltf-model'  , version: '2.0.3')
         shadowDep(group: 'net.daporkchop.lib', name: 'common', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'binary', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'unsafe', version: '0.5.7-SNAPSHOT')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-anim', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-awt-util', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-bridge', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-constants', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-css', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-dom', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-ext', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-gvt', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-i18n', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-parser', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-script', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-anim'      , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-awt-util'  , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-bridge'    , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-codec'     , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-constants' , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-css'       , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-dom'       , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-ext'       , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-gvt'       , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-i18n'      , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-parser'    , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-script'    , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-svg-dom'   , version: '1.17')
         shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-util', version: '1.17')
-        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-xml', version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-util'      , version: '1.17')
+        shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-xml'       , version: '1.17')
         shadowDep(group: 'org.osgeo', name: 'proj4j', version: '0.1.0')
-        shadowDep(group: 'org.w3c.dom', name: 'svg', version: '1.1.0')
+        shadowDep(group: 'org.w3c.dom', name: 'svg' , version: '1.1.0')
         shadowDep(group: 'org.w3c.dom', name: 'smil', version: '1.0.0')
         shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
-        if(mcVersionMiddle > 12) { // for T++
+        if(mcVersion > 12) { // for T++
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         } else {
             compileAndTestOnly 'lzma:lzma:0.0.1'
         }
-        if(isFabricSubProject && mcVersionMiddle >= 19) {
-            shadowDep(group: 'io.netty', name: 'netty-codec-http', version: '4.1.9.Final')
+        if(mcVersion >= 19) {
+            shadowDep(group: 'io.netty', name: 'netty-codec-http' , version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
             shadowDep(group: 'org.apache.xmlgraphics', name: 'xmlgraphics-commons', version: '2.9')
             shadowDep(group: 'org.w3c.css', name: 'sac', version: '1.3')
@@ -110,7 +173,7 @@ subprojects { p ->
         testCompileOnly 'org.projectlombok:lombok:1.18.32'
         annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-        if(isForgeSubProject) {
+        if(subprojectType == SubprojectType.FORGE) {
             annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
             testImplementation 'org.spongepowered:lwts:1.0.0'
             testImplementation 'org.spongepowered:mixin:0.8.5'
@@ -127,7 +190,7 @@ subprojects { p ->
     // Since we're going to do jar-in-jar for fabric,
     // we don't also need to "relocate" dependencies on there.
     // only forge needs the relocations
-    if(isForgeSubProject) {
+    if(subprojectType == SubprojectType.FORGE) {
         shadowJar {
             configurations = [ project.configurations.shadowDep ]
 
@@ -173,7 +236,30 @@ subprojects { p ->
             exclude 'org/w3c/dom/*'
             exclude 'org/xml/sax/**/*'
         }
-        build.dependsOn shadowJar
+
+        reobf {
+            shadowJar {}
+        }
+        tasks.named("shadowJar").configure { dependsOn("reobfJar") }
+        tasks.named("build").configure { dependsOn("shadowJar") }
+
+        sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+        mixin {
+            //noinspection GroovyAssignabilityCheck
+            add sourceSets.main, 'mixins.bteterrarenderer.refmap.json'
+            config 'mixins.bteterrarenderer.json'
+        }
+
+        jar {
+            manifest.attributes(
+                    "MixinConfigs": 'mixins.bteterrarenderer.json',
+                    "ForceLoadAsMod": 'true',
+                    "TweakClass": 'org.spongepowered.asm.launch.MixinTweaker',
+                    "TweakOrder": 0,
+                    "Manifest-Version": 1.0
+            )
+        }
     }
 
     processResources {
@@ -218,7 +304,7 @@ subprojects { p ->
         }
 
         // Make .json from .lang
-        if(isCoreSubProject) {
+        if(subprojectType == SubprojectType.CORE) {
             doLast {
                 fileTree(dir: outputs.files.asPath, include: '**/*.lang').each { File langFile ->
                     // Make json content
@@ -238,7 +324,7 @@ subprojects { p ->
         }
     }
 
-    if(isFabricSubProject || isForgeSubProject) {
+    if(subprojectType != SubprojectType.CORE) {
         project.tasks.register('copyBuildResultToRoot', Copy) {
             group = 'build'
             description = 'Copies build result into root build directory'
@@ -271,27 +357,6 @@ allprojects { p ->
         maven { url "https://jitpack.io/" } // cubicchunks, cubicworldgen, terraplusplus
         maven { url "https://repo.elytradev.com/" } // jankson
     }
-
-    if(p != project(':forge1.12.2') && p != project(':core')) {
-        tasks.withType(JavaCompile).configureEach {
-            it.options.release.set 17
-        }
-
-        java {
-            toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-            sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
-        }
-    }
-    else {
-        java {
-            sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
-        }
-    }
-
-    tasks.register('printJavaVersion') {
-        println("Java version set to $sourceCompatibility for $p")
-    }
-    build.finalizedBy printJavaVersion
 }
 
 publishing {
