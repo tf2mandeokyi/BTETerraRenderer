@@ -25,7 +25,7 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT' apply false
+    id 'fabric-loom' version "${fabricLoomVersion}" apply false
 }
 
 enum SubprojectType {
@@ -112,7 +112,7 @@ subprojects { p ->
         if(subprojectType == SubprojectType.FABRIC) {
             minecraft "com.mojang:minecraft:${project.minecraftVersion}"
             mappings "net.fabricmc:yarn:${project.yarnMappings}:v2"
-            modImplementation "net.fabricmc:fabric-loader:${project.fabricLoaderVersion}"
+            modImplementation "net.fabricmc:fabric-loader:${rootProject.fabricLoaderVersion}"
             modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
         }
         else if(subprojectType == SubprojectType.FORGE) {
