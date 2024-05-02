@@ -1,0 +1,175 @@
+block: [
+  #################### [reserved] function operations ####################
+  # str     - string constant
+  # json    - raw json constant (includes str)
+  # params  - [internal] parameter definition json constant (str | param | list<str|param>)
+  # exp     - computable expression
+  # list<T> - list of T
+  # obj<T>  - object of T
+  #
+  # [suffix] ?   - optional (should be at the end, before the "...", of the parameter list. default value is null)
+  # [suffix] ... - variable parameter size (argument will be list<T>. should be at the end of the parameter list)
+  #
+  def: [ def   , [ name: str, parameters: params, expression: exp ], [] ],
+  def: [ lambda, [ parameters: params, expression: exp ]           , [] ],
+  def: [ call  , [ name: str, argument: json ]                     , [] ],
+
+  #################### [reserved] value & variable operations ####################
+  def: [ let    , [ name: str, value: exp ]                      , [] ],
+  def: [ lets   , [ names: list<str>, value: exp ]               , [] ],
+  def: [ set    , [ name: str, value: exp ]                      , [] ],
+  def: [ get    , name: str                                      , [] ],
+  def: [ list   , value: list<exp>                               , [] ],
+  def: [ object , value: obj<exp>                                , [] ],
+  def: [ literal, literal: json                                  , [] ],
+  def: [ typeof , value: exp                                     , [] ],
+
+  #################### [reserved] operations ####################
+  # '+': arithmetic plus
+  # '-': arithmetic minus [binary]
+  # '*': arithmetic multiply
+  # '/': arithmetic divide
+  # '%': arithmetic modulo
+  #
+  # '&': bitwise and
+  # '|': bitwise or
+  # '^': bitwise xor
+  #
+  # '<<' : bitwise shift left
+  # '>>' : bitwise shift right
+  #
+  # 'and': and
+  # 'or' : or
+  # 'xor': xor
+  #
+  # '==': equals
+  # '!=': not equals
+  #
+  # '>=': greater than or equals
+  # '<=': less than or equals
+  # '>' : greater than
+  # '<' : less than
+  #
+  # '+'  : arithmetic plus? [unary]
+  # '-'  : arithmetic minus [unary]
+  # '~'  : bitwise not [unary]
+  # 'not': not [unary]
+  def: [ bi-op, [ left: exp, operator: str, right: exp ], [] ],
+  def: [ ops  , elements: list<json>                    , [] ],
+  # '+='  : arithmetic plus
+  # '-='  : arithmetic minus
+  # '*='  : arithmetic multiply
+  # '/='  : arithmetic divide
+  # '%='  : arithmetic modulo
+  # '&='  : bitwise and
+  # '|='  : bitwise or
+  # '^='  : bitwise xor
+  # '<<=' : bitwise shift left
+  # '>>=' : bitwise shift right arithmetic
+  def: [ set-op, [ name: str, operator: str, value: exp ], [] ],
+
+  #################### [reserved] control flow statements ####################
+  def: [ closure , expressions: list<exp>                                                     , [] ],
+  def: [ ifs     , branches: list<list<exp>>                                                  , [] ],
+  def: [ while   , [ label?: str, condition: exp, content: exp ]                              , [] ],
+  def: [ do-while, [ label?: str, content: exp, condition: exp ]                              , [] ],
+  def: [ for     , [ label?: str, initial: exp, condition: exp, increment: exp, content: exp ], [] ],
+  def: [ foreach , [ label?: str, name: str, list: exp, content: exp ]                        , [] ],
+  def: [ continue, [ label?: str ]                                                            , [] ],
+  def: [ break   , [ label?: str ]                                                            , [] ],
+  def: [ return  , content?: exp                                                              , [] ],
+
+  #################### other functions ####################
+  def: [ parse-int  , value: exp                                     , [] ],
+  def: [ parse-float, value: exp                                     , [] ],
+  def: [ to-string  , value: exp                                     , [] ],
+  def: [ concat     , values: list<exp>                              , [] ],
+  def: [ print      , value: exp                                     , [] ],
+  def: [ printf     , [ format: exp, values...: exp ]                , [] ],
+  def: [ str-format , [ template: exp, parameters: obj<exp> ]        , [] ],
+  def: [ fetch      , [ url: exp, headers?: obj<exp>, payload?: exp ], [] ],
+  def: [ json-path  , [ value: exp, path: exp ]                      , [] ],
+  def: [ parse-json , string: exp                                    , [] ],
+
+  # Example (Google Earth)
+  let: [ urlTemplate, 'https://tile.googleapis.com/v1/createSession?key={KEY}' ],
+  let: [ token, get: GOOGLE_MAPS_TOKEN ],
+  let: [ url, str-template: {
+    template: { get: urlTemplate },
+    parameters: {
+      'KEY': { get: token }
+    }
+  }],
+
+  # Example 2 (Google Earth)
+  let: [ token, get: GOOGLE_MAPS_TOKEN ],
+  let: [ url, str-format: {
+    template: 'https://tile.googleapis.com/v1/createSession?key={KEY}',
+    parameters: {
+      'KEY': { get: token }
+    }
+  }],
+
+  # Addition
+  let: [ a, 3 ],
+  let: [ b, 4 ],
+  let: [ c, ops: [ [get: a,'+',get: b],'&',0xFFFF ] ],
+  print: [ get: c ],
+  print: 3,
+
+  # Value set
+  set:    [ a, op: [ get: a,'+',3 ]],
+  set-op: [ a,'+=',3 ],
+
+  # If-else statements
+  ifs: [
+    [ ops: [ get: a,'==',get: b ], print: [ ASDF1 ] ],
+    [ ops: [ get: a,'>=',get: b ], print: [ ASDF2 ] ],
+    [ true                       , print: [ ASDF3 ] ],
+  ],
+
+  # Function definition 1
+  def: [ some_function, [ a: exp, b: exp ], [
+    let: [ c, ops: [ get: a,'+',get: b ] ],
+    get: c
+  ]],
+  print: [ call: [ some_function, [ 3, 4 ] ] ],
+  print: [ call: [ some_function, { a: 3, b: 4 } ] ],
+  print: [ some_function: [ 3, 4 ] ],
+  print: [ some_function: { a: 3, b: 4 } ],
+
+  # Function definition 2
+  def: [ some_function, [ a, b ], [
+    let: [ c , ops: [ ['-',get: a,'+','-',4],'*'get: b ] ],
+    let: [ c1, ops: [ '-',[get: a,'+',4],'*',get: b ] ],
+    return: [ get: c ]
+  ]],
+  print: [ some_function: [ 5, 7 ] ],
+  print: [ some_function: { a: 5, b: 7 } ],
+
+  # Function definition 3
+  def: [ some_function, [ a: exp, b: exp ], operators: [ get: a,'*',get: b ] ],
+  print: [ some_function: [ 5, 7 ] ],
+  print: [ some_function: { a: 5, b: 7 } ],
+
+  # while loop
+  let: [ a, 19275 ],
+  let: [ b,  5816 ],
+  while: [ ops: [ get: b,'!=',0 ], [
+    let: [ temp, ops: [ get: a,'%',get: b ] ],
+    set: [ a, get: b ],
+    set: [ b, get: temp ]
+  ]],
+
+  # for loop
+  for: [ label, let: [ a, 0 ], ops: [ get: a,'<',10 ], set-op: [ i,'+=',1 ], [
+    print: [ get: a ]
+  ]],
+
+  # foreach loop
+  let: [ array, literal: [ 1, 2, 3, 4, 5, 6, 7, 8 ] ],
+  foreach: [ a, get: array, [
+    print: [ get: a ],
+    ifs: [ ops: [ get: a,'==',5 ], break: [] ]
+  ]]
+]
