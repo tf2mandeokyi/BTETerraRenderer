@@ -8,9 +8,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
 import com.mndk.bteterrarenderer.jsonscript.exp.ParameterType;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
 import javax.annotation.Nullable;
@@ -22,8 +23,18 @@ import java.util.Map;
 
 public abstract class JsonParameters {
 
-    public abstract ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode argument,
-                                              Map<String, JsonScriptValue> target) throws ExpressionRunException;
+    public final ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode argument,
+                                           Map<String, JsonScriptValue> target, ExpressionCallerInfo callerInfo)
+    {
+        try {
+            return this.evaluate(runtime, argument, target).passedBy(callerInfo);
+        } catch (ParameterParseException e) {
+            return ExpressionResult.error(e.getMessage(), callerInfo);
+        }
+    }
+
+    protected abstract ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode argument,
+                                                 Map<String, JsonScriptValue> target) throws ParameterParseException;
 
     public static JsonParameters single(JsonParameter parameter) {
         return new Single(parameter);
@@ -63,8 +74,8 @@ public abstract class JsonParameters {
         }
 
         @Override
-        public ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode argument,
-                                         Map<String, JsonScriptValue> target) throws ExpressionRunException
+        protected ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode argument,
+                                            Map<String, JsonScriptValue> target) throws ParameterParseException
         {
             String parameterName = this.parameter.getName();
             ArgumentType parameterType = this.parameter.getArgumentType();
@@ -121,34 +132,32 @@ public abstract class JsonParameters {
         }
 
         @Override
-        public ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode arguments,
-                                         Map<String, JsonScriptValue> target) throws ExpressionRunException
-        {
+        protected ExpressionResult evaluate(JsonScriptRuntime runtime, JsonNode arguments,
+                                            Map<String, JsonScriptValue> target) throws ParameterParseException {
             if(arguments.isArray()) {
                 return this.evaluate(runtime, (ArrayNode) arguments, target);
             }
             else if(arguments.isObject()) {
                 return this.evaluate(runtime, (ObjectNode) arguments, target);
             }
-            throw runtime.exception("expected array or object argument, found " + arguments.getNodeType());
+            throw new ParameterParseException("expected array or object argument, instead found " + arguments.getNodeType());
         }
 
         private ExpressionResult evaluate(JsonScriptRuntime runtime, ArrayNode arguments,
-                                          Map<String, JsonScriptValue> target) throws ExpressionRunException
+                                          Map<String, JsonScriptValue> target) throws ParameterParseException
         {
             for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
-                JsonParameter parameter = this.getParameterByIndex(runtime, argumentIndex);
+                JsonParameter parameter = this.getParameterByIndex(argumentIndex);
                 JsonNode argument = arguments.get(argumentIndex);
-
                 ExpressionResult result = this.insertArgument(runtime, parameter, argument, target);
                 if(result.isBreakType()) return result;
             }
-            this.fillEmptyArguments(runtime, target);
+            this.fillEmptyArguments(target);
             return ExpressionResult.ok();
         }
 
         private ExpressionResult evaluate(JsonScriptRuntime runtime, ObjectNode arguments,
-                                          Map<String, JsonScriptValue> target) throws ExpressionRunException
+                                          Map<String, JsonScriptValue> target) throws ParameterParseException
         {
             for(Iterator<String> it = arguments.fieldNames(); it.hasNext(); ) {
                 String fieldName = it.next();
@@ -157,7 +166,7 @@ public abstract class JsonParameters {
                 JsonParameter parameter = this.nameArgTypeMap.get(fieldName);
                 if(parameter == null) {
                     // TODO: support python-kwargs-style arguments???
-                    throw new ExpressionRunException("function does not have a parameter named \"" + fieldName + "\"");
+                    throw new ParameterParseException("function does not have a parameter named \"" + fieldName + "\"");
                 }
 
                 if(parameter.getType() != ParameterType.VARIABLE) {
@@ -171,35 +180,37 @@ public abstract class JsonParameters {
                 if(result.isBreakType()) return result;
 
                 JsonScriptValue value = result.getValue();
-                JsonNode nodeValue = value.getAsJsonValue();
-                if(!nodeValue.isArray()) {
-                    throw runtime.exception("expected array for variable argument \"" + fieldName + "\", " +
-                            "instead found " + nodeValue.getNodeType());
+                if(!(value instanceof JsonScriptJsonValue)) {
+                    throw new ParameterParseException("value must be a json type");
+                }
+
+                JsonNode node = ((JsonScriptJsonValue) value).getNode();
+                if(!node.isArray()) {
+                    throw new ParameterParseException("expected array for variable argument \"" + fieldName + "\", " +
+                            "instead found " + node.getNodeType());
                 }
                 target.put(fieldName, value);
             }
 
-            this.fillEmptyArguments(runtime, target);
+            this.fillEmptyArguments(target);
             return ExpressionResult.ok();
         }
 
-        private JsonParameter getParameterByIndex(JsonScriptRuntime runtime,
-                                                  int argumentIndex) throws ExpressionRunException
-        {
+        private JsonParameter getParameterByIndex(int argumentIndex) throws ParameterParseException {
             if(argumentIndex < this.positionMapping.length) {
                 return this.positionMapping[argumentIndex];
             }
 
             JsonParameter parameter = this.variableParameter;
             if(parameter == null) {
-                throw runtime.exception("argument index overflow");
+                throw new ParameterParseException("argument index overflow");
             }
             return parameter;
         }
 
         private ExpressionResult insertArgument(JsonScriptRuntime runtime, JsonParameter parameter,
                                                 JsonNode argument,
-                                                Map<String, JsonScriptValue> target) throws ExpressionRunException
+                                                Map<String, JsonScriptValue> target) throws ParameterParseException
         {
             ArgumentType argType = parameter.getArgumentType();
             ExpressionResult result = argType.formatArgument(runtime, argument);
@@ -210,7 +221,7 @@ public abstract class JsonParameters {
         }
 
         private ExpressionResult insertArgument(JsonParameter parameter, JsonScriptValue value,
-                                                Map<String, JsonScriptValue> target) throws ExpressionRunException
+                                                Map<String, JsonScriptValue> target) throws ParameterParseException
         {
             String name = parameter.getName();
             ParameterType paramType = parameter.getType();
@@ -222,20 +233,22 @@ public abstract class JsonParameters {
                     break;
                 case VARIABLE:
                     JsonScriptValue variableValue = target.computeIfAbsent(name, key -> JsonScriptValue.emptyArray());
-                    ArrayNode arrayNode = (ArrayNode) variableValue.getAsJsonValue();
-                    arrayNode.add(value.getAsJsonValue());
+                    ArrayNode arrayNode = (ArrayNode) ((JsonScriptJsonValue) variableValue).getNode();
+
+                    if(!(value instanceof JsonScriptJsonValue)) {
+                        throw new ParameterParseException("value must be a json type");
+                    }
+                    arrayNode.add(((JsonScriptJsonValue) value).getNode());
                     break;
             }
             return ExpressionResult.ok();
         }
 
-        private void fillEmptyArguments(JsonScriptRuntime runtime, Map<String, JsonScriptValue> target)
-                throws ExpressionRunException
-        {
+        private void fillEmptyArguments(Map<String, JsonScriptValue> target) throws ParameterParseException {
             for(JsonParameter parameter : this.positionMapping) {
                 String name = parameter.getName();
                 if(parameter.getType() == ParameterType.NORMAL) {
-                    throw runtime.exception("argument missing for parameter \"" + name + "\"");
+                    throw new ParameterParseException("argument missing for parameter \"" + name + "\"");
                 }
                 if(target.containsKey(name)) continue;
                 target.put(name, JsonScriptValue.jsonNull());

@@ -5,17 +5,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
-import com.mndk.bteterrarenderer.jsonscript.exp.*;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionCallerInfo;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
+import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
+import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpressionCreator;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptFunctionValue;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
 import javax.annotation.Nonnull;
 
 @JsonDeserialize
-public class FunctionCallExpression implements JsonExpression {
+public class FunctionCallExpression extends JsonExpression {
 
     private final String name;
     private final JsonNode argument;
+    private final ExpressionCallerInfo info;
 
     @JsonCreator
     @JsonExpressionCreator
@@ -23,15 +27,22 @@ public class FunctionCallExpression implements JsonExpression {
                                   @JsonProperty(value = "argument", required = true) JsonNode argument) {
         this.name = name;
         this.argument = argument;
+        this.info = new ExpressionCallerInfo(this, name);
     }
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
-        JsonScriptValue value = runtime.getCurrentScope().getVariableValue(this.name)
-                .orElseThrow(() -> runtime.exception("function " + this.name + " not defined"));
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
+        JsonScriptValue value = runtime.getCurrentScope().getVariableValue(this.name);
+        if(value == null) {
+            return ExpressionResult.error("function " + this.name + " not defined", this.info);
+        }
 
-        JsonScriptFunctionValue function = value.getAsFunction();
-        return function.run(runtime, this.argument);
+        if(!(value instanceof JsonScriptFunctionValue)) {
+            return ExpressionResult.error("variable should be a function type", this.info);
+        }
+
+        JsonScriptFunctionValue function = (JsonScriptFunctionValue) value;
+        return function.run(runtime, this.argument, this.info);
     }
 }

@@ -9,13 +9,14 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.exp.func.PrintExpression;
 import com.mndk.bteterrarenderer.jsonscript.exp.func.StringTemplateFunction;
 import com.mndk.bteterrarenderer.jsonscript.exp.res.*;
-import com.mndk.bteterrarenderer.jsonscript.exp.res.op.BinaryOperationExpression;
+import com.mndk.bteterrarenderer.jsonscript.exp.res.op.BinaryOperatorExpression;
 import com.mndk.bteterrarenderer.jsonscript.exp.res.op.OperatorsExpression;
+import com.mndk.bteterrarenderer.jsonscript.exp.res.op.UnaryOperatorExpression;
 import lombok.Data;
 
 import javax.annotation.Nullable;
@@ -31,7 +32,7 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
 
     public static final BiMap<String, Class<? extends JsonExpression>> RESERVED_EXPRESSIONS = HashBiMap.create();
 
-    public static final JavaType EXPRESSION_LIST_JAVATYPE = BTETerraRendererConstants.JSON_MAPPER
+    public static final JavaType EXPRESSION_LIST_JAVATYPE = JsonScript.jsonMapper()
             .constructType(new TypeReference<List<JsonExpression>>() {});
 
     private static final Map<Class<? extends JsonExpression>, Constructor<? extends JsonExpression>> CONSTRUCTORS =
@@ -93,16 +94,18 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
         // variable operations
         RESERVED_EXPRESSIONS.put("let", DeclareVariableExpression.class);
         RESERVED_EXPRESSIONS.put("lets", DeclareMultiVariableExpression.class);
-//        RESERVED_EXPRESSIONS.put("set", );
+        RESERVED_EXPRESSIONS.put("set", AssignToVariableExpression.class);
         RESERVED_EXPRESSIONS.put("get", GetVariableExpression.class);
         RESERVED_EXPRESSIONS.put("literal", LiteralExpression.class);
 
         // operations
-        RESERVED_EXPRESSIONS.put("bi-op", BinaryOperationExpression.class);
+        RESERVED_EXPRESSIONS.put("un-op", UnaryOperatorExpression.class);
+        RESERVED_EXPRESSIONS.put("bi-op", BinaryOperatorExpression.class);
         RESERVED_EXPRESSIONS.put("ops", OperatorsExpression.class);
 //        RESERVED_EXPRESSIONS.put("setop", );
 
         // control flow statements
+        RESERVED_EXPRESSIONS.put("closure", ClosureExpression.class);
         RESERVED_EXPRESSIONS.put("ifs", IfBranchesExpression.class);
 //        RESERVED_EXPRESSIONS.put("while", );
 //        RESERVED_EXPRESSIONS.put("for", );
@@ -216,7 +219,7 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
                         arrayArgument.size() + " were given");
             }
 
-            ObjectNode result = BTETerraRendererConstants.JSON_MAPPER.createObjectNode();
+            ObjectNode result = JsonScript.jsonMapper().createObjectNode();
             int optionalArgumentLeft = arrayArgument.size() - this.minimumLength;
             int index = 0;
 
@@ -236,7 +239,7 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
                         arrayArgument.size() + " were given");
             }
             else if(this.sizeVariableParameterName != null) {
-                ArrayNode variableSizeParamArgument = BTETerraRendererConstants.JSON_MAPPER.createArrayNode();
+                ArrayNode variableSizeParamArgument = JsonScript.jsonMapper().createArrayNode();
                 for (int i = index; i < arrayArgument.size(); i++) {
                     variableSizeParamArgument.add(arrayArgument.get(i));
                 }

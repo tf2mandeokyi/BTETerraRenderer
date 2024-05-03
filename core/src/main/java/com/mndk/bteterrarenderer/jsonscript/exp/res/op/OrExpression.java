@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpressionCreator;
 
 import javax.annotation.Nonnull;
 
 @JsonDeserialize
-public class OrExpression implements JsonExpression {
+public class OrExpression extends JsonExpression {
 
     private final JsonExpression left, right;
 
@@ -26,7 +25,7 @@ public class OrExpression implements JsonExpression {
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         return JsonBinaryOperator.LOGICAL_OR.run(runtime, this.left, this.right);
     }
 }

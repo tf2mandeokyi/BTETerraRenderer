@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,23 +48,23 @@ public class JsonScriptTest {
         String yml = "" +
                 "- let: [ a, 2045 ]\n" +
                 "- let: [ b, 512 ]\n" +
-                "- print: [ op: [ get: a,   '+', get: b ] ]\n" +
-                "- print: [ op: [ get: a,   '-', get: b ] ]\n" +
-                "- print: [ op: [ get: a,   '*', get: b ] ]\n" +
-                "- print: [ op: [ get: a,   '/', get: b ] ]\n" +
-                "- print: [ op: [ get: a,   '%', get: b ] ]\n" +
-                "- print: [ op: [ get: a,  '==', get: b ] ]\n" +
-                "- print: [ op: [ get: a,  '!=', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '+', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '-', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '*', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '/', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '%', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,  '==', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,  '!=', get: b ] ]\n" +
 
-                "- print: [ op: [ true  , 'and', true   ] ]\n" +
-                "- print: [ op: [ true  , 'and', false  ] ]\n" +
-                "- print: [ op: [ false ,  'or', true   ] ]\n" +
-                "- print: [ op: [ false ,  'or', false  ] ]\n" +
+                "- print: [ bi-op: [ true  , 'and', true   ] ]\n" +
+                "- print: [ bi-op: [ true  , 'and', false  ] ]\n" +
+                "- print: [ bi-op: [ false ,  'or', true   ] ]\n" +
+                "- print: [ bi-op: [ false ,  'or', false  ] ]\n" +
 
-                "- print: [ op: [ get: a,  '>=', get: b ] ]\n" +
-                "- print: [ op: [ get: a,  '<=', get: b ] ]\n" +
-                "- print: [ op: [ get: a,   '>', get: b ] ]\n" +
-                "- print: [ op: [ get: a,   '<', get: b ] ]";
+                "- print: [ bi-op: [ get: a,  '>=', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,  '<=', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '>', get: b ] ]\n" +
+                "- print: [ bi-op: [ get: a,   '<', get: b ] ]";
         executeAndAssertPrintEquals(yml,
                 bigIntNode(2557),
                 bigIntNode(1533),
@@ -114,9 +115,9 @@ public class JsonScriptTest {
                 "  - print: [ get: b ]\n" +
                 "- print: [ get: b ]";
         executeAndAssertPrintEquals(yml,
-                new IntNode(4),
-                new IntNode(5),
-                new IntNode(4));
+                bigIntNode(4),
+                bigIntNode(5),
+                bigIntNode(4));
     }
 
     @Test
@@ -139,22 +140,23 @@ public class JsonScriptTest {
         try {
             List<JsonNode> expected = Arrays.asList(nodes);
             Assert.assertEquals(expected, getPrintOutput(yml));
-        } catch (JsonProcessingException | ExpressionRunException e) {
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private List<JsonNode> getPrintOutput(String yml) throws JsonProcessingException, ExpressionRunException {
+    private List<JsonNode> getPrintOutput(String yml) throws JsonProcessingException {
         JsonExpression expression = BTETerraRendererConstants.YAML_MAPPER.readValue(yml, JsonExpression.class);
         List<JsonNode> outputs = new ArrayList<>();
         JsonScriptRuntime runtime = new JsonScriptRuntime(output -> {
-            try {
-                outputs.add(output.getAsJsonValue());
-            } catch (ExpressionRunException e) {
-                throw new RuntimeException(e.getMessage());
+            if(output instanceof JsonScriptJsonValue) {
+                outputs.add(((JsonScriptJsonValue) output).getNode());
             }
         });
-        expression.run(runtime);
+        ExpressionResult result = expression.run(runtime, null);
+        if(result.isError()) {
+            throw result.makeException();
+        }
         return outputs;
     }
 

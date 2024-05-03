@@ -54,6 +54,7 @@ block: [
   # '-'  : arithmetic minus [unary]
   # '~'  : bitwise not [unary]
   # 'not': not [unary]
+  def: [ un-op, [ operator: str, value: exp ]           , [] ],
   def: [ bi-op, [ left: exp, operator: str, right: exp ], [] ],
   def: [ ops  , elements: list<json>                    , [] ],
   # '+='  : arithmetic plus
@@ -78,6 +79,8 @@ block: [
   def: [ continue, [ label?: str ]                                                            , [] ],
   def: [ break   , [ label?: str ]                                                            , [] ],
   def: [ return  , content?: exp                                                              , [] ],
+  # try
+  # throw
 
   #################### other functions ####################
   def: [ parse-int  , value: exp                                     , [] ],

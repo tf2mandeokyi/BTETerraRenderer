@@ -1,14 +1,20 @@
 package com.mndk.bteterrarenderer.jsonscript.exp.res.op;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,14 +25,47 @@ public enum JsonUnaryOperator implements JsonOperator {
     POSITIVE("+", bd -> bd          , bi -> bi          ),
     NEGATIVE("-", BigDecimal::negate, BigInteger::negate),
     BITWISE_NOT("~", BigInteger::not),
-    LOGICAL_NOT("not", (NodeUnaryOperator) JsonUnaryOperator::notOperation);
+    LOGICAL_NOT("not", JsonUnaryOperator::notOperation);
 
-    @Getter
+    private static final String OPERAND = "operand";
+    private static final ExpressionCallerInfo LOGICAL_NOT_OPERAND = LOGICAL_NOT.info.add(OPERAND);
+
+    @Getter(onMethod_ = @JsonValue)
     private final String symbol;
-    private final ExpressionUnaryOperator instance;
+    private final ExpressionCallerInfo info;
+    @Nonnull
+    private ExpressionUnaryOperator instance;
+
+    JsonUnaryOperator(String symbol) {
+        this.symbol = symbol;
+        this.info = new ExpressionCallerInfo("unary operator", symbol);
+    }
+
+    JsonUnaryOperator(String symbol, NodeUnaryOperator instance) {
+        this(symbol);
+
+        ExpressionCallerInfo operandInfo = this.info.add(OPERAND);
+        this.instance = new EuoNodeImpl(operandInfo, instance);
+    }
 
     JsonUnaryOperator(String symbol, Function<BigDecimal, Object> bd, Function<BigInteger, Object> bi) {
-        this(symbol, NumberUnaryOperator.of(symbol, bd, bi));
+        this(symbol);
+
+        NodeUnaryOperator nuo = (runtime, value) -> {
+            if (!value.isNumber()) {
+                return ExpressionResult.error("Cannot apply unary operator '" + this.getSymbol() + "' " +
+                        "to value of type " + value.getNodeType(), this.info);
+            }
+
+            JsonNode number = JsonParserUtil.toBiggerPrimitiveNode(value);
+            Object result;
+            if(number instanceof DecimalNode) result = bd.apply(number.decimalValue());
+            else result = bi.apply(number.bigIntegerValue());
+            return ExpressionResult.ok(JsonParserUtil.primitiveToBigNode(result));
+        };
+
+        ExpressionCallerInfo operandInfo = this.info.add(OPERAND);
+        this.instance = new EuoNodeImpl(operandInfo, nuo);
     }
 
     JsonUnaryOperator(String symbol, Function<BigInteger, Object> bi) {
@@ -44,8 +83,13 @@ public enum JsonUnaryOperator implements JsonOperator {
     }
 
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime, JsonExpression... expressions) throws ExpressionRunException {
+    public ExpressionResult run(JsonScriptRuntime runtime, JsonExpression... expressions) {
         return this.instance.run(runtime, expressions[0]);
+    }
+
+    @Override
+    public String toString() {
+        return this.symbol;
     }
 
     @Nullable
@@ -56,10 +100,42 @@ public enum JsonUnaryOperator implements JsonOperator {
         return null;
     }
 
-    private static JsonNode notOperation(JsonScriptRuntime runtime, JsonNode value) throws ExpressionRunException {
+    private static ExpressionResult notOperation(JsonScriptRuntime runtime, JsonNode value) {
         if(!value.isBoolean()) {
-            throw runtime.exception("left operand must be a boolean type, instead " + value.getNodeType() + " was given");
+            return ExpressionResult.error("left operand must be a boolean type, " +
+                    "instead " + value.getNodeType() + " was given", LOGICAL_NOT_OPERAND);
         }
-        return BooleanNode.valueOf(!value.booleanValue());
+        return ExpressionResult.ok(BooleanNode.valueOf(!value.booleanValue()));
+    }
+
+    @FunctionalInterface
+    private interface ExpressionUnaryOperator {
+        ExpressionResult run(JsonScriptRuntime runtime, JsonExpression expression);
+    }
+
+    @FunctionalInterface
+    private interface NodeUnaryOperator {
+        ExpressionResult run(JsonScriptRuntime runtime, JsonNode value);
+    }
+
+    @RequiredArgsConstructor
+    private static class EuoNodeImpl implements ExpressionUnaryOperator {
+
+        private final ExpressionCallerInfo operandInfo;
+        private final NodeUnaryOperator instance;
+
+        @Override
+        public ExpressionResult run(JsonScriptRuntime runtime, JsonExpression expression) {
+            ExpressionResult result = expression.run(runtime, operandInfo);
+            if(result.isBreakType()) return result;
+
+            JsonScriptValue value = result.getValue();
+            if(!(value instanceof JsonScriptJsonValue)) {
+                return ExpressionResult.error("value must be a json type", operandInfo);
+            }
+
+            JsonNode node = ((JsonScriptJsonValue) value).getNode();
+            return instance.run(runtime, node);
+        }
     }
 }

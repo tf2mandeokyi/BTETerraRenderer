@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ public interface ArgumentType {
     JsonType JSON = new JsonType();
     ExpType EXP = new ExpType();
 
-    ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) throws ExpressionRunException;
+    ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) throws ParameterParseException;
 
     static ArgumentType from(String typeName) throws IllegalArgumentException {
         typeName = typeName.trim();
@@ -68,10 +68,10 @@ public interface ArgumentType {
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     class ExpType implements ArgumentType {
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) throws ExpressionRunException {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) {
             try {
-                JsonExpression expression = BTETerraRendererConstants.JSON_MAPPER.treeToValue(argument, JsonExpression.class);
-                return expression.run(runtime);
+                JsonExpression expression = JsonScript.jsonMapper().treeToValue(argument, JsonExpression.class);
+                return expression.run(runtime, null);
             } catch (JsonProcessingException e) {
                 throw new IllegalArgumentException(e.getMessage());
             }
@@ -81,18 +81,23 @@ public interface ArgumentType {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class ListType implements ArgumentType {
         private final ArgumentType innerType;
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) throws ExpressionRunException {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument)
+                throws ParameterParseException
+        {
             if(!argument.isArray()) {
                 throw new IllegalArgumentException("expected array, found: " + argument.getNodeType());
             }
 
-            ArrayNode arrayNodeResult = BTETerraRendererConstants.JSON_MAPPER.createArrayNode();
+            ArrayNode arrayNodeResult = JsonScript.jsonMapper().createArrayNode();
             for(JsonNode element : argument) {
                 ExpressionResult result = this.innerType.formatArgument(runtime, element);
                 if(result.isBreakType()) return result;
 
                 JsonScriptValue value = result.getValue();
-                arrayNodeResult.add(value.getAsJsonValue()); // function values will throw exceptions here
+                if(!(value instanceof JsonScriptJsonValue)) {
+                    throw new ParameterParseException("value must be a json type");
+                }
+                arrayNodeResult.add(((JsonScriptJsonValue) value).getNode());
             }
             return ExpressionResult.ok(arrayNodeResult);
         }
@@ -101,13 +106,15 @@ public interface ArgumentType {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class ObjType implements ArgumentType {
         private final ArgumentType innerType;
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) throws ExpressionRunException {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument)
+                throws ParameterParseException
+        {
             if(!argument.isObject()) {
                 throw new IllegalArgumentException("expected object, found: " + argument.getNodeType());
             }
 
             ObjectNode argumentObject = (ObjectNode) argument;
-            ObjectNode objectNodeResult = BTETerraRendererConstants.JSON_MAPPER.createObjectNode();
+            ObjectNode objectNodeResult = JsonScript.jsonMapper().createObjectNode();
             for (Iterator<Map.Entry<String, JsonNode>> it = argumentObject.fields(); it.hasNext(); ) {
                 Map.Entry<String, JsonNode> entry = it.next();
 
@@ -117,7 +124,10 @@ public interface ArgumentType {
 
                 String key = entry.getKey();
                 JsonScriptValue value = result.getValue();
-                objectNodeResult.set(key, value.getAsJsonValue()); // function values will throw exceptions here
+                if(!(value instanceof JsonScriptJsonValue)) {
+                    throw new ParameterParseException("value must be a json type");
+                }
+                objectNodeResult.set(key, ((JsonScriptJsonValue) value).getNode());
             }
             return ExpressionResult.ok(objectNodeResult);
         }

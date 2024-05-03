@@ -9,10 +9,11 @@ import com.mndk.bteterrarenderer.jsonscript.exp.*;
 import javax.annotation.Nonnull;
 
 @JsonDeserialize
-public class DeclareVariableExpression implements JsonExpression {
+public class DeclareVariableExpression extends JsonExpression {
 
     private final String name;
     private final JsonExpression expression;
+    private final ExpressionCallerInfo info;
 
     @JsonCreator
     @JsonExpressionCreator
@@ -20,15 +21,16 @@ public class DeclareVariableExpression implements JsonExpression {
                                      @JsonProperty(value = "value", required = true) JsonExpression expression) {
         this.name = name;
         this.expression = expression;
+        this.info = new ExpressionCallerInfo(this, this.name);
     }
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
-        ExpressionResult result = this.expression.run(runtime);
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
+        ExpressionResult result = this.expression.run(runtime, this.info);
         if(result.isBreakType()) return result;
 
-        runtime.declareVariable(this.name, result.getValue());
+        runtime.getCurrentScope().declareVariable(this.name, result.getValue());
         return result;
     }
 }

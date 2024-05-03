@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.exp.ParameterType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @JsonDeserialize(using = JsonParameter.Deserializer.class)
 public class JsonParameter {
-    public static final JavaType LIST_JAVATYPE = BTETerraRendererConstants.JSON_MAPPER
+    public static final JavaType LIST_JAVATYPE = JsonScript.jsonMapper()
             .constructType(new TypeReference<List<JsonParameter>>() {});
 
     private final String name;

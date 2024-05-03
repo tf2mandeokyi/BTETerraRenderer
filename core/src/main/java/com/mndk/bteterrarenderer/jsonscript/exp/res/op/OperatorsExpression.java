@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
 import com.mndk.bteterrarenderer.jsonscript.exp.res.LiteralExpression;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +22,9 @@ import java.util.List;
 import java.util.Stack;
 
 @JsonDeserialize
-public class OperatorsExpression implements JsonExpression {
+public class OperatorsExpression extends JsonExpression {
+
+    private static final ExpressionCallerInfo INFO = new ExpressionCallerInfo(OperatorsExpression.class);
 
     private final List<Element> postfixExpression;
 
@@ -32,7 +36,7 @@ public class OperatorsExpression implements JsonExpression {
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         Stack<JsonExpression> stack = new Stack<>();
         for(Element element : this.postfixExpression) {
             ExpressionResult result = element.evaluateStack(runtime, stack);
@@ -40,9 +44,10 @@ public class OperatorsExpression implements JsonExpression {
         }
 
         if(stack.size() != 1) {
-            throw runtime.exception("operator error: expected stack size of 1 but found " + stack.size());
+            return ExpressionResult.error("operator error: expected stack size of 1 " +
+                    "but found " + stack.size(), INFO);
         }
-        return stack.pop().run(runtime);
+        return stack.pop().run(runtime, INFO);
     }
 
     private static List<Element> parseNodesToInfix(List<JsonNode> elements) {
@@ -122,7 +127,7 @@ public class OperatorsExpression implements JsonExpression {
 
     private static ExpressionElement newExpression(JsonNode node) {
         try {
-            JsonExpression parsed = BTETerraRendererConstants.JSON_MAPPER.treeToValue(node, JsonExpression.class);
+            JsonExpression parsed = JsonScript.jsonMapper().treeToValue(node, JsonExpression.class);
             return new ExpressionElement(parsed);
         } catch(JsonProcessingException e) {
             throw new IllegalArgumentException(e);
@@ -139,8 +144,7 @@ public class OperatorsExpression implements JsonExpression {
 
     private static abstract class Element {
         protected abstract ElementType getType();
-        protected abstract ExpressionResult evaluateStack(JsonScriptRuntime runtime, Stack<JsonExpression> stack)
-                throws ExpressionRunException;
+        protected abstract ExpressionResult evaluateStack(JsonScriptRuntime runtime, Stack<JsonExpression> stack);
         protected int getPrecedence() {
             return Integer.MIN_VALUE;
         }
@@ -174,9 +178,7 @@ public class OperatorsExpression implements JsonExpression {
             return operator.getSymbol();
         }
 
-        protected ExpressionResult evaluateStack(JsonScriptRuntime runtime, Stack<JsonExpression> stack)
-                throws ExpressionRunException
-        {
+        protected ExpressionResult evaluateStack(JsonScriptRuntime runtime, Stack<JsonExpression> stack) {
             int size = operator.getArgumentCount();
             JsonExpression[] expressions = new JsonExpression[size];
             for(int i = size - 1; i >= 0; i--) {
@@ -186,7 +188,13 @@ public class OperatorsExpression implements JsonExpression {
             ExpressionResult result = operator.run(runtime, expressions);
             if(result.isBreakType()) return result;
 
-            stack.push(new LiteralExpression(result.getValue().getAsJsonValue()));
+            JsonScriptValue value = result.getValue();
+            if(!(value instanceof JsonScriptJsonValue)) {
+                return ExpressionResult.error("value must be a json type", INFO);
+            }
+
+            JsonNode node = ((JsonScriptJsonValue) value).getNode();
+            stack.push(new LiteralExpression(node));
             return ExpressionResult.ok();
         }
     }

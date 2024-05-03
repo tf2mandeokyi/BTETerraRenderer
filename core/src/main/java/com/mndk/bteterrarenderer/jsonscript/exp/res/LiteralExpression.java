@@ -6,13 +6,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
 
 import javax.annotation.Nonnull;
 
 @JsonDeserialize
-public class LiteralExpression implements JsonExpression {
+public class LiteralExpression extends JsonExpression {
 
     private final JsonNode literal;
 
@@ -23,7 +22,7 @@ public class LiteralExpression implements JsonExpression {
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         return ExpressionResult.ok(this.literal);
     }
 }

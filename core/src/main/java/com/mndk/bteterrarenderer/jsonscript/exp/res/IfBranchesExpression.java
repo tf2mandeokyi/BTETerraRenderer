@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
+import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.exp.ExpressionRunException;
 import com.mndk.bteterrarenderer.jsonscript.exp.JsonExpression;
 import com.mndk.bteterrarenderer.jsonscript.util.JsonArrayTuple;
 import com.mndk.bteterrarenderer.jsonscript.util.JsonParserReader;
 import com.mndk.bteterrarenderer.jsonscript.util.JsonParserReaderDeserializer;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +20,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @JsonDeserialize
-public class IfBranchesExpression implements JsonExpression {
+public class IfBranchesExpression extends JsonExpression {
 
     private final List<BranchTuple> branches;
 
@@ -29,17 +31,25 @@ public class IfBranchesExpression implements JsonExpression {
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
+        int i = 0;
         for(BranchTuple branch : this.branches) {
-            ExpressionResult result = branch.getCondition().run(runtime);
+            ExpressionCallerInfo info = new ExpressionCallerInfo(this, "branch #" + i);
+
+            ExpressionResult result = branch.getCondition().run(runtime, info.add("condition"));
             if(result.isBreakType()) return result;
 
-            JsonNode condition = result.getValue().getAsJsonValue();
-            if(!condition.isBoolean()) {
-                throw runtime.exception("condition value must be a boolean type");
+            JsonScriptValue conditionValue = result.getValue();
+            if(!(conditionValue instanceof JsonScriptJsonValue)) {
+                return ExpressionResult.error("condition value must be a boolean type", info.add("condition"));
             }
-            if (condition.asBoolean()) {
-                return branch.getValue().run(runtime);
+
+            JsonNode condition = ((JsonScriptJsonValue) conditionValue).getNode();
+            if(!condition.isBoolean()) {
+                return ExpressionResult.error("condition value must be a boolean type", info.add("condition"));
+            }
+            if(condition.asBoolean()) {
+                return branch.getValue().run(runtime, info.add("value"));
             }
         }
         return ExpressionResult.ok();

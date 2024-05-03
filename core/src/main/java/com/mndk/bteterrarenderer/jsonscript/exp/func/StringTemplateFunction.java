@@ -7,12 +7,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.exp.*;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
+import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
 @JsonDeserialize
-public class StringTemplateFunction implements JsonExpression {
+public class StringTemplateFunction extends JsonExpression {
+
+    private static final ExpressionCallerInfo INFO = new ExpressionCallerInfo(StringTemplateFunction.class);
+    private static final ExpressionCallerInfo TEMPLATE_INFO = INFO.add("template");
+    private static final ExpressionCallerInfo PARAM_INFO = INFO.add("parameter");
 
     private final JsonExpression template;
     private final Map<String, JsonExpression> parameters;
@@ -27,21 +33,33 @@ public class StringTemplateFunction implements JsonExpression {
 
     @Nonnull
     @Override
-    public ExpressionResult run(JsonScriptRuntime runtime) throws ExpressionRunException {
-        ExpressionResult result = this.template.run(runtime);
+    public ExpressionResult runInternal(JsonScriptRuntime runtime) {
+        ExpressionResult result = this.template.run(runtime, INFO);
         if(result.isBreakType()) return result;
 
-        JsonNode templateNode = result.getValue().getAsJsonValue();
+        JsonScriptValue value = result.getValue();
+        if(!(value instanceof JsonScriptJsonValue)) {
+            return ExpressionResult.error("value must be a json type", TEMPLATE_INFO);
+        }
+
+        JsonNode templateNode = ((JsonScriptJsonValue) value).getNode();
         if(!templateNode.isTextual()) {
-            throw runtime.exception("template should be textual");
+            return ExpressionResult.error("template should be textual", TEMPLATE_INFO);
         }
         String template = templateNode.asText();
 
         for (Map.Entry<String, JsonExpression> entry : this.parameters.entrySet()) {
-            result = entry.getValue().run(runtime);
+            String key = entry.getKey();
+
+            result = entry.getValue().run(runtime, INFO);
             if(result.isBreakType()) return result;
 
-            JsonNode replaceNode = result.getValue().getAsJsonValue();
+            value = result.getValue();
+            if(!(value instanceof JsonScriptJsonValue)) {
+                return ExpressionResult.error("value must be a json type", PARAM_INFO.add(key));
+            }
+
+            JsonNode replaceNode = ((JsonScriptJsonValue) value).getNode();
             String replace;
             if(replaceNode.isTextual()) {
                 replace = replaceNode.asText();
@@ -50,10 +68,11 @@ public class StringTemplateFunction implements JsonExpression {
                 replace = replaceNode.toString();
             }
             else {
-                throw runtime.exception("string-template only accept strings, numbers, booleans and null as parameters");
+                return ExpressionResult.error("string-template only accept strings, numbers, booleans and " +
+                        "null as parameters", PARAM_INFO.add(key));
             }
 
-            template = template.replaceAll("\\{" + entry.getKey() + "}", replace);
+            template = template.replaceAll("\\{" + key + "}", replace);
         }
 
         return ExpressionResult.ok(new TextNode(template));
