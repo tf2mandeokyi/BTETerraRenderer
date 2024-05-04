@@ -63,7 +63,7 @@ public class JsonParserUtil {
     }
 
     public static JsonNode primitiveToBigNode(Object object) {
-        if     (object instanceof JsonNode  ) return (JsonNode) object;
+        if     (object instanceof JsonNode  ) return toBiggerPrimitiveNode((JsonNode) object);
 
         else if(object instanceof BigDecimal) return new DecimalNode((BigDecimal) object);
         else if(object instanceof Double    ) return new DecimalNode(BigDecimal.valueOf((Double) object));
