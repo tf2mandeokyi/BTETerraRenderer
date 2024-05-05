@@ -6,12 +6,7 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.ResultTransformer;
-import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptJsonValue;
-import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
+import com.mndk.bteterrarenderer.jsonscript.expression.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -52,21 +47,8 @@ public enum JsonUnaryOperator implements JsonOperator {
     JsonUnaryOperator(String symbol, Function<BigDecimal, Object> bd, Function<BigInteger, Object> bi) {
         this(symbol);
 
-        NodeUnaryOperator nuo = (runtime, value) -> {
-            if (!value.isNumber()) {
-                return ExpressionResult.error("Cannot apply unary operator '" + this.getSymbol() + "' " +
-                        "to value of type " + value.getNodeType(), this.info);
-            }
-
-            JsonNode number = JsonParserUtil.toBiggerPrimitiveNode(value);
-            Object result;
-            if(number instanceof DecimalNode) result = bd.apply(number.decimalValue());
-            else result = bi.apply(number.bigIntegerValue());
-            return ExpressionResult.ok(JsonParserUtil.primitiveToBigNode(result));
-        };
-
         ExpressionCallerInfo operandInfo = this.info.add(OPERAND);
-        this.instance = new EuoNodeImpl(operandInfo, nuo);
+        this.instance = new EuoNodeImpl(operandInfo, new NuoNumberImpl(bd, bi));
     }
 
     JsonUnaryOperator(String symbol, Function<BigInteger, Object> bi) {
@@ -129,12 +111,37 @@ public enum JsonUnaryOperator implements JsonOperator {
         public ExpressionResult run(JsonScriptRuntime runtime, JsonExpression expression) {
             ResultTransformer.JNode transformer = expression.run(runtime, this.operandInfo)
                     .transformer()
-                    .asJsonValue("value must be a json type", this.operandInfo)
+                    .asJsonValue(ErrorMessages.valueMustBeJson("value"), this.operandInfo)
                     .asNode();
             if(transformer.isBreakType()) return transformer.getResult();
 
             JsonNode node = transformer.getWrapped();
             return instance.run(runtime, node);
+        }
+    }
+
+    @RequiredArgsConstructor
+    private class NuoNumberImpl implements NodeUnaryOperator {
+
+        private final Function<BigDecimal, Object> bd;
+        private final Function<BigInteger, Object> bi;
+
+        @Override
+        public ExpressionResult run(JsonScriptRuntime runtime, JsonNode value) {
+            if (!value.isNumber()) {
+                return ExpressionResult.error("Cannot apply unary operator '" + symbol + "' " +
+                        "to value of type " + value.getNodeType(), info);
+            }
+
+            JsonNode number = JsonParserUtil.toBiggerPrimitiveNode(value);
+            Object result;
+            if(number instanceof DecimalNode) {
+                result = bd.apply(number.decimalValue());
+            }
+            else {
+                result = bi.apply(number.bigIntegerValue());
+            }
+            return ExpressionResult.ok(JsonParserUtil.primitiveToBigNode(result));
         }
     }
 }

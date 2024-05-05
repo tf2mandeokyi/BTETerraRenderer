@@ -8,7 +8,7 @@ import com.mndk.bteterrarenderer.jsonscript.JsonScriptScope;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 import com.mndk.bteterrarenderer.jsonscript.expression.literal.LiteralValueExpression;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
@@ -25,7 +25,7 @@ public class AssignOperatorExpression extends JsonExpression {
     private final ExpressionCallerInfo info;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public AssignOperatorExpression(@JsonProperty(value = "name", required = true) String name,
                                     @JsonProperty(value = "operator", required = true) String symbol,
                                     @JsonProperty(value = "value", required = true) JsonExpression expression) {
@@ -50,10 +50,9 @@ public class AssignOperatorExpression extends JsonExpression {
     public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         ExpressionResult result = this.expression.run(runtime, this.info);
         if(result.isBreakType()) return result;
-
-        JsonScriptScope currentScope = runtime.getCurrentScope();
         JsonScriptValue assignerValue = result.getValue();
 
+        JsonScriptScope currentScope = runtime.getCurrentScope();
         JsonScriptValue originalValue = currentScope.getVariableValue(this.name);
         if(originalValue == null) {
             return ExpressionResult.error("variable " + this.name + " not defined", this.info);

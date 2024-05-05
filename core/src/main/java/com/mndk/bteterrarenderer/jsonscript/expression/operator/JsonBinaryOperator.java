@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.ResultTransformer;
+import com.mndk.bteterrarenderer.jsonscript.expression.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -91,27 +88,9 @@ public enum JsonBinaryOperator implements JsonOperator {
     {
         this(symbol, type, assignable);
 
-        NodeBinaryOperator nbo = (runtime, left, right) -> {
-            if (!left.isNumber() || !right.isNumber()) {
-                return ExpressionResult.error("Cannot apply binary operator " +
-                        "'" + this.symbol + "' to values of type - " +
-                        "left: " + left.getNodeType() + ", right: " + right.getNodeType(), this.info);
-            }
-
-            JsonNode leftNumber = JsonParserUtil.toBiggerPrimitiveNode(left);
-            JsonNode rightNumber = JsonParserUtil.toBiggerPrimitiveNode(right);
-            Object result;
-            if(leftNumber instanceof DecimalNode || rightNumber instanceof DecimalNode) {
-                result = bd.apply(leftNumber.decimalValue(), rightNumber.decimalValue());
-            } else {
-                result = bi.apply(leftNumber.bigIntegerValue(), rightNumber.bigIntegerValue());
-            }
-            return ExpressionResult.ok(JsonParserUtil.primitiveToBigNode(result));
-        };
-
         ExpressionCallerInfo leftInfo = this.info.add(LEFT_OPERAND);
         ExpressionCallerInfo rightInfo = this.info.add(RIGHT_OPERAND);
-        this.instance = new EboNodeImpl(leftInfo, rightInfo, nbo);
+        this.instance = new EboNodeImpl(leftInfo, rightInfo, new NboNumberImpl(bd, bi));
     }
 
     JsonBinaryOperator(String symbol, OperatorType type, boolean assignable, BiFunction<BigInteger, BigInteger, Object> bi) {
@@ -165,18 +144,16 @@ public enum JsonBinaryOperator implements JsonOperator {
         // LEFT
         ResultTransformer.Bool leftTransformer = left.run(runtime, AND_INFO_LEFT)
                 .transformer()
-                .asJsonValue("left operand must be a json type", AND_INFO_LEFT)
-                .asNode()
-                .asBoolean("left operand is not a boolean type", AND_INFO_LEFT);
+                .asJsonValue(ErrorMessages.valueMustBeJson("left operand"), AND_INFO_LEFT)
+                .asBoolean(ErrorMessages.nodeMustBeBoolean("left operand"), AND_INFO_LEFT);
         if(leftTransformer.isBreakType()) return leftTransformer.getResult();
         if(!leftTransformer.getWrapped()) return ExpressionResult.ok(BooleanNode.FALSE);
 
         // RIGHT
         ResultTransformer.Exp rightTransformer = right.run(runtime, AND_INFO_RIGHT)
                 .transformer()
-                .asJsonValue("right operand must be a json type", AND_INFO_RIGHT)
-                .asNode()
-                .asBoolean("right operand is not a boolean type", AND_INFO_RIGHT)
+                .asJsonValue(ErrorMessages.valueMustBeJson("right operand"), AND_INFO_RIGHT)
+                .asBoolean(ErrorMessages.nodeMustBeBoolean("right operand"), AND_INFO_RIGHT)
                 .asNode()
                 .asExpressionResult();
         if(rightTransformer.isBreakType()) return rightTransformer.getResult();
@@ -187,18 +164,16 @@ public enum JsonBinaryOperator implements JsonOperator {
         // LEFT
         ResultTransformer.Bool leftTransformer = left.run(runtime, OR_INFO_LEFT)
                 .transformer()
-                .asJsonValue("left operand must be a json type", OR_INFO_LEFT)
-                .asNode()
-                .asBoolean("left operand is not a boolean type", OR_INFO_LEFT);
+                .asJsonValue(ErrorMessages.valueMustBeJson("left operand"), OR_INFO_LEFT)
+                .asBoolean(ErrorMessages.nodeMustBeBoolean("left operand"), OR_INFO_LEFT);
         if(leftTransformer.isBreakType()) return leftTransformer.getResult();
         if(leftTransformer.getWrapped()) return ExpressionResult.ok(BooleanNode.TRUE);
 
         // RIGHT
         ResultTransformer.Exp rightTransformer = right.run(runtime, OR_INFO_RIGHT)
                 .transformer()
-                .asJsonValue("right operand must be a json type", OR_INFO_RIGHT)
-                .asNode()
-                .asBoolean("right operand is not a boolean type", OR_INFO_RIGHT)
+                .asJsonValue(ErrorMessages.valueMustBeJson("right operand"), OR_INFO_RIGHT)
+                .asBoolean(ErrorMessages.nodeMustBeBoolean("right operand"), OR_INFO_RIGHT)
                 .asNode()
                 .asExpressionResult();
         if(rightTransformer.isBreakType()) return rightTransformer.getResult();
@@ -226,7 +201,7 @@ public enum JsonBinaryOperator implements JsonOperator {
             // LEFT
             ResultTransformer.JNode leftTransformer = left.run(runtime, this.leftInfo)
                     .transformer()
-                    .asJsonValue("left operand must be a json type", this.leftInfo)
+                    .asJsonValue(ErrorMessages.valueMustBeJson("left operand"), this.leftInfo)
                     .asNode();
             if(leftTransformer.isBreakType()) return leftTransformer.getResult();
             JsonNode leftNode = leftTransformer.getWrapped();
@@ -234,12 +209,38 @@ public enum JsonBinaryOperator implements JsonOperator {
             // RIGHT
             ResultTransformer.JNode rightTransformer = right.run(runtime, this.rightInfo)
                     .transformer()
-                    .asJsonValue("right operand must be a json type", this.rightInfo)
+                    .asJsonValue(ErrorMessages.valueMustBeJson("right operand"), this.rightInfo)
                     .asNode();
             if(rightTransformer.isBreakType()) return rightTransformer.getResult();
             JsonNode rightValue = rightTransformer.getWrapped();
 
             return this.instance.run(runtime, leftNode, rightValue);
+        }
+    }
+
+    @RequiredArgsConstructor
+    private class NboNumberImpl implements NodeBinaryOperator {
+
+        private final BiFunction<BigDecimal, BigDecimal, Object> bd;
+        private final BiFunction<BigInteger, BigInteger, Object> bi;
+
+        @Override
+        public ExpressionResult run(JsonScriptRuntime runtime, JsonNode left, JsonNode right) {
+            if(!left.isNumber() || !right.isNumber()) {
+                return ExpressionResult.error("Cannot apply binary operator " +
+                        "'" + symbol + "' to values of type - " +
+                        "left: " + left.getNodeType() + ", right: " + right.getNodeType(), info);
+            }
+
+            JsonNode leftNumber = JsonParserUtil.toBiggerPrimitiveNode(left);
+            JsonNode rightNumber = JsonParserUtil.toBiggerPrimitiveNode(right);
+            Object result;
+            if(leftNumber instanceof DecimalNode || rightNumber instanceof DecimalNode) {
+                result = bd.apply(leftNumber.decimalValue(), rightNumber.decimalValue());
+            } else {
+                result = bi.apply(leftNumber.bigIntegerValue(), rightNumber.bigIntegerValue());
+            }
+            return ExpressionResult.ok(JsonParserUtil.primitiveToBigNode(result));
         }
     }
 }

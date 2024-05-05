@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.jsonscript.expression.define;
+package com.mndk.bteterrarenderer.jsonscript.expression.control;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +8,7 @@ import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptFunctionValue;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
@@ -22,7 +22,7 @@ public class FunctionCallExpression extends JsonExpression {
     private final ExpressionCallerInfo info;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public FunctionCallExpression(@JsonProperty(value = "name", required = true) String name,
                                   @JsonProperty(value = "argument", required = true) JsonNode argument) {
         this.name = name;

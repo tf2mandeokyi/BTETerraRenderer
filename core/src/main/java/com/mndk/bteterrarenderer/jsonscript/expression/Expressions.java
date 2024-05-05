@@ -2,13 +2,12 @@ package com.mndk.bteterrarenderer.jsonscript.expression;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.mndk.bteterrarenderer.jsonscript.expression.control.ClosureExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.control.IfBranchesExpression;
+import com.mndk.bteterrarenderer.jsonscript.expression.control.*;
 import com.mndk.bteterrarenderer.jsonscript.expression.define.*;
 import com.mndk.bteterrarenderer.jsonscript.expression.function.PrintExpression;
 import com.mndk.bteterrarenderer.jsonscript.expression.function.StringTemplateFunction;
-import com.mndk.bteterrarenderer.jsonscript.expression.literal.LambdaExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.literal.LiteralExpression;
+import com.mndk.bteterrarenderer.jsonscript.expression.literal.*;
+import com.mndk.bteterrarenderer.jsonscript.expression.operator.AssignOperatorExpression;
 import com.mndk.bteterrarenderer.jsonscript.expression.operator.BinaryOperatorExpression;
 import com.mndk.bteterrarenderer.jsonscript.expression.operator.OperatorsExpression;
 import com.mndk.bteterrarenderer.jsonscript.expression.operator.UnaryOperatorExpression;
@@ -22,7 +21,6 @@ public class Expressions {
 
         // variable & function operations
         RESERVED.put("def", DefineFunctionExpression.class);
-        RESERVED.put("call", FunctionCallExpression.class);
         RESERVED.put("let", DeclareVariableExpression.class);
         RESERVED.put("lets", DeclareMultiVariableExpression.class);
         RESERVED.put("set", AssignToVariableExpression.class);
@@ -30,20 +28,28 @@ public class Expressions {
 
         // variable operations
         RESERVED.put("literal", LiteralExpression.class);
+        RESERVED.put("list", ListExpression.class);
+        RESERVED.put("object", ObjectExpression.class);
+        RESERVED.put("typeof", GetValueTypeExpression.class);
         RESERVED.put("lambda", LambdaExpression.class);
 
         // operations
         RESERVED.put("un-op", UnaryOperatorExpression.class);
         RESERVED.put("bi-op", BinaryOperatorExpression.class);
         RESERVED.put("ops", OperatorsExpression.class);
-//        RESERVED_EXPRESSIONS.put("setop", );
+        RESERVED.put("set-op", AssignOperatorExpression.class);
 
         // control flow statements
         RESERVED.put("closure", ClosureExpression.class);
         RESERVED.put("ifs", IfBranchesExpression.class);
-//        RESERVED_EXPRESSIONS.put("while", );
-//        RESERVED_EXPRESSIONS.put("for", );
-//        RESERVED_EXPRESSIONS.put("foreach", );
+        RESERVED.put("while", WhileExpression.class);
+        RESERVED.put("do-while", DoWhileExpression.class);
+        RESERVED.put("for", ForLoopExpression.class);
+        RESERVED.put("foreach", ForeachLoopExpression.class);
+        RESERVED.put("continue", ContinueLoopExpression.class);
+        RESERVED.put("break", BreakLoopExpression.class);
+        RESERVED.put("return", ReturnFunctionExpression.class);
+        RESERVED.put("call", FunctionCallExpression.class);
 
         // TODO: test only; remove this
         RESERVED.put("print", PrintExpression.class);

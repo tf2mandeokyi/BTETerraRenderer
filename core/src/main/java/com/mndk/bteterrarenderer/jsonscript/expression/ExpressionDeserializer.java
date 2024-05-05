@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.expression.control.ClosureExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.define.FunctionCallExpression;
+import com.mndk.bteterrarenderer.jsonscript.expression.control.FunctionCallExpression;
 import com.mndk.bteterrarenderer.jsonscript.expression.literal.LiteralExpression;
 import lombok.Data;
 
@@ -28,11 +28,8 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
     public static final JavaType EXPRESSION_LIST_JAVATYPE = JsonScript.jsonMapper()
             .constructType(new TypeReference<List<JsonExpression>>() {});
 
-    private static final Map<Class<? extends JsonExpression>, Constructor<? extends JsonExpression>> CONSTRUCTORS =
-            new HashMap<>();
-
-    private static final Map<Class<? extends JsonExpression>, ExpressionCreatorParseResult<?>> PARSED_MAP =
-            new HashMap<>();
+    private static final Map<Class<? extends JsonExpression>, Constructor<? extends JsonExpression>> CONSTRUCTORS = new HashMap<>();
+    private static final Map<Class<? extends JsonExpression>, ExpressionCreatorParseResult<?>> PARSED_MAP = new HashMap<>();
 
     @Override
     public JsonExpression deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -111,12 +108,12 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
         Constructor<?> result = null;
         Constructor<?>[] constructors = expressionClass.getDeclaredConstructors();
         for(Constructor<?> constructor : constructors) {
-            if(!constructor.isAnnotationPresent(JsonExpressionCreator.class)) {
+            if(!constructor.isAnnotationPresent(ArrayArgumentAcceptable.class)) {
                 continue;
             }
             if(result != null) {
                 throw new RuntimeException("class " + expressionClass + " contains more than two constructors annotated " +
-                        "as expression creator");
+                        "with @ArrayArgumentParseable");
             }
             result = constructor;
         }
@@ -131,7 +128,7 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
         private final String sizeVariableParameterName;
 
         private ExpressionCreatorParseResult(Constructor<T> constructor) {
-            JsonExpressionCreator annotation = constructor.getAnnotation(JsonExpressionCreator.class);
+            ArrayArgumentAcceptable annotation = constructor.getAnnotation(ArrayArgumentAcceptable.class);
             Parameter[] parameters = constructor.getParameters();
 
             int minimumLength = 0;
@@ -164,16 +161,11 @@ public class ExpressionDeserializer extends JsonDeserializer<JsonExpression> {
         }
 
         private JsonNode objectifyArgument(JsonNode argument) {
-            if(argument.isObject()) {
-                return argument;
-            }
-            else if(!argument.isArray()) {
-                throw new IllegalArgumentException("expected array type argument, instead found " + argument.getNodeType());
-            }
-            return this.objectifyArgument((ArrayNode) argument);
-        }
+            if     (argument.isObject()) return argument;
+            else if(!argument.isArray()) throw new IllegalArgumentException("expected array type argument, " +
+                    "instead found " + argument.getNodeType());
 
-        private JsonNode objectifyArgument(ArrayNode arrayArgument) {
+            ArrayNode arrayArgument = (ArrayNode) argument;
             if(arrayArgument.size() < this.minimumLength) {
                 throw new IllegalArgumentException("expected minimum array size of " + this.minimumLength + " but " +
                         arrayArgument.size() + " were given");

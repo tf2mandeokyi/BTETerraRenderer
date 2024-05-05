@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,16 +23,16 @@ public class JsonParameter {
     private final ArgumentType argumentType;
     private final ParameterType type;
 
-    public static class Deserializer extends JsonDeserializer<JsonParameter> {
+    static class Deserializer extends JsonDeserializer<JsonParameter> {
         public JsonParameter deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
 
             String name, argumentTypeName;
-            if(node.getNodeType() == JsonNodeType.STRING) {
+            if(node.isTextual()) {
                 name = node.asText();
                 argumentTypeName = "exp";
             }
-            else if(node.getNodeType() == JsonNodeType.OBJECT) {
+            else if(node.isObject()) {
                 if(node.size() != 1) {
                     throw JsonMappingException.from(p, "expected property size of 1, instead found " + node.size());
                 }
@@ -67,7 +66,7 @@ public class JsonParameter {
             ArgumentType argumentType;
             try {
                 argumentType = ArgumentType.from(argumentTypeName);
-            } catch (ParameterParseException e) {
+            } catch (ArgumentType.ParseException e) {
                 throw JsonMappingException.from(p, e.getMessage());
             }
             return new JsonParameter(name, argumentType, parameterType);

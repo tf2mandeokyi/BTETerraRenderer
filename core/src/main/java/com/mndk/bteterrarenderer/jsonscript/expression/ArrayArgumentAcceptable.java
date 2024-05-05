@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
-public @interface JsonExpressionCreator {
+public @interface ArrayArgumentAcceptable {
     boolean variableSize() default false;
 }

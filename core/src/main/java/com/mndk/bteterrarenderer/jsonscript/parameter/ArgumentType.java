@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
+import com.mndk.bteterrarenderer.jsonscript.expression.ErrorMessages;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
 import com.mndk.bteterrarenderer.jsonscript.expression.ResultTransformer;
@@ -24,9 +25,9 @@ public interface ArgumentType {
     JsonType JSON = new JsonType();
     ExpType EXP = new ExpType();
 
-    ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) throws ParameterParseException;
+    ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument);
 
-    static ArgumentType from(String typeName) throws ParameterParseException {
+    static ArgumentType from(String typeName) throws ParseException {
         typeName = typeName.trim();
         Matcher genericMatcher = GENERIC_PATTERN.matcher(typeName);
         if(genericMatcher.matches()) {
@@ -35,7 +36,7 @@ public interface ArgumentType {
             switch(type) {
                 case "list": return new ListType(from(generic));
                 case "obj" : return new ObjType(from(generic));
-                default: throw new ParameterParseException("unknown type " + type);
+                default: throw new ParseException("unknown type " + type);
             }
         }
         else {
@@ -43,18 +44,16 @@ public interface ArgumentType {
                 case "str" : return STR;
                 case "json": return JSON;
                 case "exp" : return EXP;
-                default: throw new ParameterParseException("unknown type " + typeName);
+                default: throw new ParseException("unknown type " + typeName);
             }
         }
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     class StrType implements ArgumentType {
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument)
-                throws ParameterParseException
-        {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) {
             if(!argument.isTextual()) {
-                throw new ParameterParseException("expected string, found: " + argument.getNodeType());
+                return ExpressionResult.error("expected string, found: " + argument.getNodeType(), null);
             }
             return ExpressionResult.ok(argument);
         }
@@ -69,14 +68,12 @@ public interface ArgumentType {
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     class ExpType implements ArgumentType {
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument)
-                throws ParameterParseException
-        {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) {
             try {
                 JsonExpression expression = JsonScript.jsonMapper().treeToValue(argument, JsonExpression.class);
                 return expression.run(runtime, null);
             } catch (JsonProcessingException e) {
-                throw new ParameterParseException(e.getMessage());
+                return ExpressionResult.error(e.getMessage(), null);
             }
         }
     }
@@ -84,18 +81,16 @@ public interface ArgumentType {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class ListType implements ArgumentType {
         private final ArgumentType innerType;
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument)
-                throws ParameterParseException
-        {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) {
             if(!argument.isArray()) {
-                throw new ParameterParseException("expected array, found: " + argument.getNodeType());
+                return ExpressionResult.error("expected array, found: " + argument.getNodeType(), null);
             }
 
             ArrayNode arrayNodeResult = JsonScript.jsonMapper().createArrayNode();
             for(JsonNode element : argument) {
                 ResultTransformer.JNode transformer = this.innerType.formatArgument(runtime, element)
                         .transformer()
-                        .asJsonValue("value must be a json type", null)
+                        .asJsonValue(ErrorMessages.valueMustBeJson("value"), null)
                         .asNode();
                 if(transformer.isBreakType()) return transformer.getResult();
 
@@ -108,11 +103,9 @@ public interface ArgumentType {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class ObjType implements ArgumentType {
         private final ArgumentType innerType;
-        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument)
-                throws ParameterParseException
-        {
+        public ExpressionResult formatArgument(JsonScriptRuntime runtime, JsonNode argument) {
             if(!argument.isObject()) {
-                throw new ParameterParseException("expected object, found: " + argument.getNodeType());
+                return ExpressionResult.error("expected object, found: " + argument.getNodeType(), null);
             }
 
             ObjectNode argumentObject = (ObjectNode) argument;
@@ -123,7 +116,7 @@ public interface ArgumentType {
                 JsonNode element = entry.getValue();
                 ResultTransformer.JNode transformer = this.innerType.formatArgument(runtime, element)
                         .transformer()
-                        .asJsonValue("value must be a json type", null)
+                        .asJsonValue(ErrorMessages.valueMustBeJson("value"), null)
                         .asNode();
                 if(transformer.isBreakType()) return transformer.getResult();
 
@@ -131,6 +124,12 @@ public interface ArgumentType {
                 objectNodeResult.set(key, transformer.getWrapped());
             }
             return ExpressionResult.ok(objectNodeResult);
+        }
+    }
+
+    class ParseException extends Exception {
+        private ParseException(String message) {
+            super(message);
         }
     }
 }

@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +19,7 @@ public class DeclareVariableExpression extends JsonExpression {
     private final ExpressionCallerInfo info;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public DeclareVariableExpression(@JsonProperty(value = "name", required = true) String name,
                                      @JsonProperty(value = "value", required = true) JsonExpression expression) {
         this.name = name;

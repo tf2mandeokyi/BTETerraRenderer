@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 import com.mndk.bteterrarenderer.jsonscript.parameter.JsonParameters;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
@@ -22,7 +22,7 @@ public class DefineFunctionExpression extends JsonExpression {
     private final ExpressionCallerInfo info;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public DefineFunctionExpression(@JsonProperty(value = "name", required = true) String name,
                                     @JsonProperty(value = "parameters", required = true) JsonParameters parameters,
                                     @JsonProperty(value = "expression", required = true) JsonExpression expression) {

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 
 import javax.annotation.Nonnull;
 
@@ -16,7 +16,7 @@ public class OrExpression extends JsonExpression {
     private final JsonExpression left, right;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public OrExpression(@JsonProperty(value = "left", required = true) JsonExpression left,
                         @JsonProperty(value = "right", required = true) JsonExpression right) {
         this.left = left;

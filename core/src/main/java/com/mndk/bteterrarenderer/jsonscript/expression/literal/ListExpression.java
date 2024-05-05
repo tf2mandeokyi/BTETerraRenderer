@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mndk.bteterrarenderer.jsonscript.JsonScript;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.ResultTransformer;
+import com.mndk.bteterrarenderer.jsonscript.expression.*;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -36,7 +33,7 @@ public class ListExpression extends JsonExpression {
 
             ResultTransformer.JNode transformer = this.values.get(i).run(runtime, info)
                     .transformer()
-                    .asJsonValue("value must be a json type", info)
+                    .asJsonValue(ErrorMessages.valueMustBeJson("value"), info)
                     .asNode();
             if(transformer.isBreakType()) return transformer.getResult();
 

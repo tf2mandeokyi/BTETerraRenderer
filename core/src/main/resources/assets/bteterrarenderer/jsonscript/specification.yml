@@ -11,7 +11,6 @@ block: [
   # [suffix] ... - variable parameter size (argument will be list<T>. should be at the end of the parameter list)
   #
   def: [ def   , [ name: str, parameters: params, expression: exp ], [] ],
-  def: [ call  , [ name: str, argument: json ]                     , [] ],
   def: [ let   , [ name: str, value: exp ]                         , [] ],
   def: [ lets  , [ names: list<str>, value: exp ]                  , [] ],
   def: [ set   , [ name: str, value: exp ]                         , [] ],
@@ -19,6 +18,9 @@ block: [
 
   #################### [reserved] value operations ####################
   def: [ literal, literal: json                          , [] ],
+  def: [ int    , value: exp                             , [] ],
+  def: [ float  , value: exp                             , [] ],
+  def: [ string , value: exp                             , [] ],
   def: [ list   , values: list<exp>                      , [] ],
   def: [ object , values: obj<exp>                       , [] ],
   def: [ typeof , value: exp                             , [] ],
@@ -69,24 +71,22 @@ block: [
   def: [ while   , [ label?: str, condition: exp, content: exp ]                              , [] ],
   def: [ do-while, [ label?: str, content: exp, condition: exp ]                              , [] ],
   def: [ for     , [ label?: str, initial: exp, condition: exp, increment: exp, content: exp ], [] ],
-  def: [ foreach , [ label?: str, name: str, list: exp, content: exp ]                        , [] ],
+  def: [ foreach , [ label?: str, name: str, iterable: exp, content: exp ]                    , [] ],
   def: [ continue, [ label?: str ]                                                            , [] ],
   def: [ break   , [ label?: str ]                                                            , [] ],
-  def: [ return  , content?: exp                                                              , [] ],
+  def: [ return  , value?: exp                                                                , [] ],
+  def: [ call    , [ name: str, argument: json ]                                              , [] ],
   # try
   # throw
 
   #################### other functions ####################
-  def: [ parse-int  , value: exp                                     , [] ],
-  def: [ parse-float, value: exp                                     , [] ],
-  def: [ to-string  , value: exp                                     , [] ],
-  def: [ concat     , values: list<exp>                              , [] ],
-  def: [ print      , value: exp                                     , [] ],
-  def: [ printf     , [ format: exp, values...: exp ]                , [] ],
-  def: [ str-format , [ template: exp, parameters: obj<exp> ]        , [] ],
-  def: [ fetch      , [ url: exp, headers?: obj<exp>, payload?: exp ], [] ],
-  def: [ json-path  , [ value: exp, path: exp ]                      , [] ],
-  def: [ parse-json , string: exp                                    , [] ],
+  def: [ concat    , values: list<exp>                              , [] ],
+  def: [ print     , value: exp                                     , [] ],
+  def: [ printf    , [ format: exp, values...: exp ]                , [] ],
+  def: [ str-format, [ template: exp, parameters: obj<exp> ]        , [] ],
+  def: [ fetch     , [ url: exp, headers?: obj<exp>, payload?: exp ], [] ],
+  def: [ json-path , [ value: exp, path: exp ]                      , [] ],
+  def: [ parse-json, string: exp                                    , [] ],
 
   # Example (Google Earth)
   let: [ urlTemplate, 'https://tile.googleapis.com/v1/createSession?key={KEY}' ],

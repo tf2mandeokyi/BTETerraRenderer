@@ -24,7 +24,7 @@ public class ClosureExpression extends JsonExpression {
     @Override
     public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         try {
-            runtime.pushScope(null, runtime.getCurrentScope());
+            runtime.pushScope();
             ExpressionResult result = ExpressionResult.ok();
 
             List<JsonExpression> jsonExpressions = this.parameters;

@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptScope;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 import com.mndk.bteterrarenderer.jsonscript.parameter.JsonParameters;
 import com.mndk.bteterrarenderer.jsonscript.value.JsonScriptValue;
 
@@ -20,7 +20,7 @@ public class LambdaExpression extends JsonExpression {
     private final JsonExpression expression;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public LambdaExpression(@JsonProperty(value = "parameters", required = true) JsonParameters parameters,
                             @JsonProperty(value = "expression", required = true) JsonExpression expression) {
         this.parameters = parameters;

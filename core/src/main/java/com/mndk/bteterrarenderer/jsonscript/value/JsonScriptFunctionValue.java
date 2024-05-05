@@ -13,7 +13,6 @@ import java.util.Map;
 
 public class JsonScriptFunctionValue implements JsonScriptValue {
 
-    private final String name;
     private final JsonParameters parameters;
     private final JsonExpression expression;
     private final JsonScriptScope definedAt;
@@ -21,12 +20,11 @@ public class JsonScriptFunctionValue implements JsonScriptValue {
 
     public JsonScriptFunctionValue(String name, JsonParameters parameters, JsonExpression expression,
                                    JsonScriptScope definedAt) {
-        this.name = name;
         this.parameters = parameters;
         this.expression = expression;
         this.definedAt = definedAt;
 
-        ExpressionCallerInfo info = new ExpressionCallerInfo(name);
+        ExpressionCallerInfo info = new ExpressionCallerInfo("function " + name);
         this.parameterCallerInfo = info.add("parameter");
         this.expressionCallerInfo = info.add("content");
     }
@@ -42,14 +40,17 @@ public class JsonScriptFunctionValue implements JsonScriptValue {
         if(result.isBreakType()) return result;
 
         try {
-            JsonScriptScope functionScope = runtime.pushScope(this.name, this.definedAt);
+            JsonScriptScope functionScope = runtime.pushScope(this.definedAt);
             arguments.forEach(functionScope::declareVariable);
 
             result = this.expression.run(runtime, this.expressionCallerInfo);
-            if (result.isReturn()) {
+            if(result.isReturn()) {
                 return ExpressionResult.ok(result.getValue());
             }
-            else if (result.isLoopBreak() || result.isLoopContinue()) {
+            else if(result.isError()) {
+                return result;
+            }
+            else if(result.isBreakType()) {
                 return ExpressionResult.error("cannot break or continue outside a function", this.expressionCallerInfo);
             }
             return result;
@@ -57,5 +58,10 @@ public class JsonScriptFunctionValue implements JsonScriptValue {
         finally {
             runtime.popScope();
         }
+    }
+
+    @Override
+    public JsonScriptValueType getType() {
+        return JsonScriptValueType.FUNCTION;
     }
 }

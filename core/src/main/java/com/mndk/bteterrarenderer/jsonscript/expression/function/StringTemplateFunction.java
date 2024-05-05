@@ -21,7 +21,7 @@ public class StringTemplateFunction extends JsonExpression {
     private final Map<String, JsonExpression> parameters;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public StringTemplateFunction(@JsonProperty(value = "template", required = true) JsonExpression template,
                                   @JsonProperty(value = "parameters", required = true) Map<String, JsonExpression> parameters) {
         this.template = template;
@@ -33,9 +33,9 @@ public class StringTemplateFunction extends JsonExpression {
     public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         ResultTransformer.Str transformer = this.template.run(runtime, TEMPLATE_INFO)
                 .transformer()
-                .asJsonValue("value must be a json type", TEMPLATE_INFO)
+                .asJsonValue(ErrorMessages.valueMustBeJson("value"), TEMPLATE_INFO)
                 .asNode()
-                .asText("template should be textual", TEMPLATE_INFO);
+                .asText(ErrorMessages.nodeMustBeTextual("template"), TEMPLATE_INFO);
         if(transformer.isBreakType()) return transformer.getResult();
 
         String template = transformer.getWrapped();
@@ -45,10 +45,10 @@ public class StringTemplateFunction extends JsonExpression {
 
             ResultTransformer.Str paramTransformer = entry.getValue().run(runtime, paramInfo)
                     .transformer()
-                    .asJsonValue("value must be a json type", paramInfo)
+                    .asJsonValue(ErrorMessages.valueMustBeJson("value"), paramInfo)
                     .asNode()
-                    .asCastedText("string-template only accept strings, numbers, booleans and " +
-                            "null as parameters", paramInfo);
+                    .asCastedText(type -> "string-template only accept strings, numbers, booleans and " +
+                            "null as parameters, instead " + type + " was given", paramInfo);
             if(paramTransformer.isBreakType()) return paramTransformer.getResult();
 
             String replace = paramTransformer.getWrapped();

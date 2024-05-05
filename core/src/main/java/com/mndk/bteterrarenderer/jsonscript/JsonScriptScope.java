@@ -13,8 +13,6 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class JsonScriptScope {
     @Nullable
-    private final String name;
-    @Nullable
     private final JsonScriptScope creator;
     private final Map<String, JsonScriptValue> variables = new HashMap<>();
 

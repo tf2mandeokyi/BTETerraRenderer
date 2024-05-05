@@ -3,10 +3,7 @@ package com.mndk.bteterrarenderer.jsonscript.expression.control;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
-import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.ResultTransformer;
+import com.mndk.bteterrarenderer.jsonscript.expression.*;
 import com.mndk.bteterrarenderer.jsonscript.util.JsonArrayTuple;
 import com.mndk.bteterrarenderer.jsonscript.util.JsonParserReader;
 import com.mndk.bteterrarenderer.jsonscript.util.JsonParserReaderDeserializer;
@@ -37,9 +34,8 @@ public class IfBranchesExpression extends JsonExpression {
 
             ResultTransformer.Bool conditionTransformer = branch.getCondition().run(runtime, info.add("condition"))
                     .transformer()
-                    .asJsonValue("condition value must be a boolean type", conditionInfo)
-                    .asNode()
-                    .asBoolean("condition value must be a boolean type", conditionInfo);
+                    .asJsonValue(ErrorMessages.valueMustBeJson("condition"), conditionInfo)
+                    .asBoolean(ErrorMessages.nodeMustBeBoolean("condition"), conditionInfo);
             if(conditionTransformer.isBreakType()) return conditionTransformer.getResult();
 
             if(conditionTransformer.getWrapped()) {

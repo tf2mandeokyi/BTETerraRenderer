@@ -22,7 +22,7 @@ public class DeclareMultiVariableExpression extends JsonExpression {
     private final ExpressionCallerInfo info;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public DeclareMultiVariableExpression(@JsonProperty(value = "names", required = true) List<String> names,
                                           @JsonProperty(value = "value", required = true) JsonExpression expression) {
         this.names = names;
@@ -35,7 +35,7 @@ public class DeclareMultiVariableExpression extends JsonExpression {
     public ExpressionResult runInternal(JsonScriptRuntime runtime) {
         ResultTransformer.JNode transformer = this.expression.run(runtime, this.info)
                 .transformer()
-                .asJsonValue("value must be a json type", this.info)
+                .asJsonValue(ErrorMessages.valueMustBeJson("value"), this.info)
                 .asNode();
         if(transformer.isBreakType()) return transformer.getResult();
 

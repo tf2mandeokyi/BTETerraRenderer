@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
-import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpressionCreator;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 
 import javax.annotation.Nonnull;
 
@@ -20,7 +20,7 @@ public class BinaryOperatorExpression extends JsonExpression {
     private final JsonBinaryOperator operator;
 
     @JsonCreator
-    @JsonExpressionCreator
+    @ArrayArgumentAcceptable
     public BinaryOperatorExpression(@JsonProperty(value = "left", required = true) JsonExpression left,
                                     @JsonProperty(value = "operator", required = true) JsonBinaryOperator operator,
                                     @JsonProperty(value = "right", required = true) JsonExpression right) {

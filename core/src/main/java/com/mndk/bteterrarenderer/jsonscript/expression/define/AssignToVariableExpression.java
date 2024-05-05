@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.jsonscript.expression.define;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.jsonscript.JsonScriptRuntime;
+import com.mndk.bteterrarenderer.jsonscript.expression.ArrayArgumentAcceptable;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionCallerInfo;
 import com.mndk.bteterrarenderer.jsonscript.expression.ExpressionResult;
 import com.mndk.bteterrarenderer.jsonscript.expression.JsonExpression;
@@ -17,6 +18,7 @@ public class AssignToVariableExpression extends JsonExpression {
     private final JsonExpression expression;
     private final ExpressionCallerInfo info;
 
+    @ArrayArgumentAcceptable
     public AssignToVariableExpression(@JsonProperty(value = "name", required = true) String name,
                                       @JsonProperty(value = "value", required = true) JsonExpression expression) {
         this.name = name;

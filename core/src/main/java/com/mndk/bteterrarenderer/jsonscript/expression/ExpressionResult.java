@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -16,14 +17,6 @@ public interface ExpressionResult {
      * @return A value expression has returned, or {@code null} if it's either break or continue
      */
     default JsonScriptValue getValue() {
-        return null;
-    }
-
-    /**
-     * @return The name of a loop if any, {@code null} if it's neither break nor continue
-     */
-    @Nullable
-    default String getLoopName() {
         return null;
     }
 
@@ -51,12 +44,15 @@ public interface ExpressionResult {
     default boolean isReturn() {
         return false;
     }
-    default boolean isLoopBreak() {
+    default boolean isLoopBreak(String loopLabel) {
         return false;
     }
-    default boolean isLoopContinue() {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted") // xD
+    default boolean isLoopContinue(String loopLabel) {
         return false;
     }
+
+    // ########## STATIC METHODS ##########
 
     static ExpressionResult ok(JsonNode node) {
         return ok(JsonScriptValue.json(node));
@@ -66,8 +62,16 @@ public interface ExpressionResult {
         return ok(JsonScriptValue.jsonNull());
     }
 
-    static ExpressionResult ok(JsonScriptValue value) {
+    static ExpressionResult ok(@Nonnull JsonScriptValue value) {
         return new Ok(value);
+    }
+
+    static ExpressionResult returnExpression() {
+        return new Return(JsonScriptValue.jsonNull());
+    }
+
+    static ExpressionResult returnExpression(@Nonnull JsonScriptValue value) {
+        return new Return(value);
     }
 
     static ExpressionResult error(JsonScriptValue reason, @Nullable ExpressionCallerInfo callerInfo) {
@@ -85,6 +89,12 @@ public interface ExpressionResult {
     static ExpressionResult breakLoop(@Nullable String loopName) {
         return new BreakLoop(loopName);
     }
+
+    static ExpressionResult continueLoop(@Nullable String loopName) {
+        return new ContinueLoop(loopName);
+    }
+
+    // ########## RESULT IMPLEMENTATIONS ##########
 
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -111,8 +121,9 @@ public interface ExpressionResult {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class BreakLoop extends BreakType {
         private final String loopName;
-        public boolean isLoopBreak() {
-            return true;
+        public boolean isLoopBreak(String loopLabel) {
+            if(this.loopName == null) return true;
+            return this.loopName.equals(loopLabel);
         }
     }
 
@@ -120,8 +131,9 @@ public interface ExpressionResult {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     class ContinueLoop extends BreakType {
         private final String loopName;
-        public boolean isLoopContinue() {
-            return true;
+        public boolean isLoopContinue(String loopLabel) {
+            if(this.loopName == null) return true;
+            return this.loopName.equals(loopLabel);
         }
     }
 
