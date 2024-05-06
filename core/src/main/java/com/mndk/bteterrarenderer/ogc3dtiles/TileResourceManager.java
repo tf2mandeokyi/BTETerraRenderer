@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
@@ -47,12 +46,11 @@ public class TileResourceManager {
         }
         else if (BTRUtil.arrayStartsWith(byteArray, UTF8_BOM)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray, 3, byteArray.length - 3);
-            result = BTETerraRendererConstants.JSON_MAPPER
-                    .readValue((InputStream) new ByteBufInputStream(buf), Tileset.class);
+            result = Ogc3dTiles.jsonMapper().readValue((InputStream) new ByteBufInputStream(buf), Tileset.class);
         }
         else {
             String jsonTry = new String(byteArray);
-            result = BTETerraRendererConstants.JSON_MAPPER.readValue(jsonTry, Tileset.class);
+            result = Ogc3dTiles.jsonMapper().readValue(jsonTry, Tileset.class);
         }
 
         return result;

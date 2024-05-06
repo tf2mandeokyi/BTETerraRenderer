@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.ogc3dtiles.Ogc3dTiles;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +25,7 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     private final List<Object[]> columns = new ArrayList<>();
 
     public static BatchTable from(int batchModelCount, String json, byte[] binary) throws JsonProcessingException {
-        RawBatchTableJson rawBatchTableJson = BTETerraRendererConstants.JSON_MAPPER
-                .readValue(json, RawBatchTableJson.class);
+        RawBatchTableJson rawBatchTableJson = Ogc3dTiles.jsonMapper().readValue(json, RawBatchTableJson.class);
         BatchTable batchTable = new BatchTable(batchModelCount);
 
         rawBatchTableJson.forEach((columnName, tableElement) ->

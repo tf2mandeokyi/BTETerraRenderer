@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.i3dm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.ogc3dtiles.Ogc3dTiles;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BinaryJsonTableElement;
@@ -23,8 +23,7 @@ public class I3dmFeatureTable {
     private final Instance[] instances;
 
     public static I3dmFeatureTable from(String json, byte[] binary) throws JsonProcessingException {
-        RawFeatureTableJson jsonParsed =
-                BTETerraRendererConstants.JSON_MAPPER.readValue(json, RawFeatureTableJson.class);
+        RawFeatureTableJson jsonParsed = Ogc3dTiles.jsonMapper().readValue(json, RawFeatureTableJson.class);
 
         Cartesian3 rtcCenter = jsonParsed.globalRtcCenter == null ? null :
                 Cartesian3.fromArray(jsonParsed.globalRtcCenter.getValue(binary).getElements());

@@ -50,6 +50,8 @@ See [API Documentation](YML_CONFIG.md) for more information.
 ./gradlew :core:build
 
 # Building for specific MC versions:
+# Cleaning is to refresh the core subproject dependency.
+./gradlew :fabric1.18.2:clean
 ./gradlew :fabric1.18.2:build
 
 # Building for all available MC versions:

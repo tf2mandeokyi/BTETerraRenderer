@@ -338,9 +338,12 @@ subprojects { p ->
 
             from "${project.projectDir}/build/libs"
             into "${rootProject.projectDir}/build/libs"
+
             dependsOn('build')
         }
-        tasks.named('build').configure { finalizedBy(copyBuildResultToRoot) }
+        tasks.named('build').configure {
+            finalizedBy('copyBuildResultToRoot')
+        }
     }
 }
 

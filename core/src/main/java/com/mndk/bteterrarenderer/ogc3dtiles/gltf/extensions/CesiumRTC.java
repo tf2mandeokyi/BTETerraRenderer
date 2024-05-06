@@ -11,7 +11,7 @@ public class CesiumRTC {
     private final Cartesian3 center;
 
     @JsonCreator
-    public CesiumRTC(@JsonProperty Cartesian3 center) {
+    public CesiumRTC(@JsonProperty(value = "center") Cartesian3 center) {
         this.center = center;
     }
 }
