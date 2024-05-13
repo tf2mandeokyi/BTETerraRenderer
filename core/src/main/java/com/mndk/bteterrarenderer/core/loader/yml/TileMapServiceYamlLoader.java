@@ -8,7 +8,7 @@ import lombok.val;
 
 import java.io.IOException;
 
-public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile, CategoryMap<TileMapService<?>>> {
+public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile, CategoryMap<TileMapService>> {
 
 	public static final TileMapServiceYamlLoader INSTANCE = new TileMapServiceYamlLoader(
 			"maps", "assets/" + BTETerraRendererConstants.MODID + "/default_maps.yml"
@@ -34,14 +34,14 @@ public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile,
 		super.refresh();
 	}
 
-	protected CategoryMap<TileMapService<?>> load(String fileName, TileMapServiceYamlFile content) throws IOException {
-		CategoryMap<TileMapService<?>> categoryMap = content.getCategories();
+	protected CategoryMap<TileMapService> load(String fileName, TileMapServiceYamlFile content) throws IOException {
+		CategoryMap<TileMapService> categoryMap = content.getCategories();
 		categoryMap.setSource(fileName);
 		return categoryMap;
 	}
 
 	@Override
-	protected void addToResult(CategoryMap<TileMapService<?>> originalT, CategoryMap<TileMapService<?>> newT) {
+	protected void addToResult(CategoryMap<TileMapService> originalT, CategoryMap<TileMapService> newT) {
 		originalT.append(newT);
 	}
 }

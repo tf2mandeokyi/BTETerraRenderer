@@ -14,7 +14,7 @@ public class TileRenderer {
 
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
 
-        TileMapService<?> tms = BTETerraRendererConfig.getTileMapServiceWrapper().getItem();
+        TileMapService tms = BTETerraRendererConfig.getTileMapServiceWrapper().getItem();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 
@@ -29,7 +29,7 @@ public class TileRenderer {
         tms.render(drawContextWrapper,
                 px + hologramConfig.getXAlign(), py, pz + hologramConfig.getZAlign(),
                 (float) hologramConfig.getOpacity());
-        TileMapService.STORAGE.cleanUp();
+        tms.cleanUp();
 
         McConnector.client().glGraphicsManager.glDisableBlend();
         McConnector.client().glGraphicsManager.glDefaultBlendFunc();

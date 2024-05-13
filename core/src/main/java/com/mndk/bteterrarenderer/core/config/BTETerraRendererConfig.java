@@ -148,12 +148,12 @@ public class BTETerraRendererConfig {
     }
 
     @ConfigIgnore
-    private CategoryMap.Wrapper<TileMapService<?>> TMS_ON_DISPLAY;
-    public CategoryMap.Wrapper<TileMapService<?>> getTileMapServiceWrapper() {
+    private CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
+    public CategoryMap.Wrapper<TileMapService> getTileMapServiceWrapper() {
         return TMS_ON_DISPLAY;
     }
 
-    public void setTileMapService(CategoryMap.Wrapper<TileMapService<?>> wrapped) {
+    public void setTileMapService(CategoryMap.Wrapper<TileMapService> wrapped) {
         TMS_ON_DISPLAY = wrapped;
         GENERAL.setMapServiceCategory(wrapped.getParentCategory().getName());
         GENERAL.setMapServiceId(wrapped.getId());

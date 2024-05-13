@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 @Getter
 public abstract class AbstractGuiScreenCopy implements GuiScreenCopy {
 
+    /** Screen dimensions */
     private int width, height;
 
     @Override

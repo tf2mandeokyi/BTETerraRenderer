@@ -1,13 +1,12 @@
 package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
-import com.mndk.bteterrarenderer.core.tile.TMSIdPair;
 import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
 
-public class FlatTileResourceDownloadingBlock extends MappedQueueBlock<TMSIdPair<FlatTileKey>, Integer, String, ByteBuf> {
+public class FlatTileResourceDownloadingBlock extends MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> {
 
     /**
      * @param nThreads Number of threads
@@ -18,12 +17,12 @@ public class FlatTileResourceDownloadingBlock extends MappedQueueBlock<TMSIdPair
     }
 
     @Override
-    protected Integer processorKeyToQueueKey(TMSIdPair<FlatTileKey> key) {
-        return key.getRight().relativeZoom;
+    protected Integer processorKeyToQueueKey(FlatTileKey key) {
+        return key.relativeZoom;
     }
 
     @Override
-    protected ByteBuf processInternal(TMSIdPair<FlatTileKey> key, @Nonnull String s) throws Exception {
+    protected ByteBuf processInternal(FlatTileKey key, @Nonnull String s) throws Exception {
         return HttpResourceManager.download(s);
     }
 }

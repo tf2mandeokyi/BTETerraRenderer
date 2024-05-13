@@ -13,7 +13,7 @@ import org.junit.Test;
 import java.io.File;
 
 public class TileMapServiceTest {
-    private static final CategoryMap<TileMapService<?>> CATEGORY_MAP_DATA;
+    private static final CategoryMap<TileMapService> CATEGORY_MAP_DATA;
 
     @Test
     public void givenYamlConfig_testJacksonReadability() {
@@ -35,7 +35,7 @@ public class TileMapServiceTest {
 
     @Test
     public void givenYamlConfig_testCategory() {
-        CategoryMap.Wrapper<TileMapService<?>> osm = CATEGORY_MAP_DATA.getItemWrapper("Global", "osm");
+        CategoryMap.Wrapper<TileMapService> osm = CATEGORY_MAP_DATA.getItemWrapper("Global", "osm");
 
         Assert.assertEquals("Global", osm.getParentCategory().getName());
         Assert.assertEquals("default", osm.getSource());

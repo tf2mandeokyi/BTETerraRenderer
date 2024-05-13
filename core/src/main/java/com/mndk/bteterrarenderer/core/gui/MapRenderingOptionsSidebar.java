@@ -4,14 +4,6 @@ import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.ImageResizingBlock;
 import com.mndk.bteterrarenderer.core.gui.mapaligner.MapAligner;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXBooleanButton;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown.McFXDropdown;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
@@ -27,9 +19,17 @@ import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXBooleanButton;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown.McFXDropdown;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -51,7 +51,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final IconMaker ICON_MAKER = new IconMaker();
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final McFXDropdown<CategoryMap.Wrapper<TileMapService<?>>> mapSourceDropdown;
+    private final McFXDropdown<CategoryMap.Wrapper<TileMapService>> mapSourceDropdown;
     private final McFXElement mapCopyright;
     private final McFXVerticalList tmsPropertyElementList;
     private final McFXWrapper yAxisInputWrapper;
@@ -169,15 +169,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super.drawScreen(drawContextWrapper);
     }
 
-    private CategoryMap.Wrapper<TileMapService<?>> getWrappedTMS() {
+    private CategoryMap.Wrapper<TileMapService> getWrappedTMS() {
         return BTETerraRendererConfig.getTileMapServiceWrapper();
     }
 
-    private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
+    private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
         // Check null
-        TileMapService<?> tms = Optional.ofNullable(tmsWrapped)
+        TileMapService tms = Optional.ofNullable(tmsWrapped)
                 .map(CategoryMap.Wrapper::getItem)
                 .orElse(null);
         if(tms == null) {
@@ -220,8 +220,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         this.mapCopyright.setTextJsonContent(textComponentJson);
     }
 
-    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService<?>> tmsWrapped) {
-        TileMapService<?> tms = tmsWrapped.getItem();
+    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
+        TileMapService tms = tmsWrapped.getItem();
         if(tms == null) {
             return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
         }
@@ -239,12 +239,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private void updateMapSourceDropdown() {
-        McFXDropdown<CategoryMap.Wrapper<TileMapService<?>>>.ItemListUpdater updater =
+        McFXDropdown<CategoryMap.Wrapper<TileMapService>>.ItemListUpdater updater =
                 mapSourceDropdown.itemListBuilder();
 
-        CategoryMap<TileMapService<?>> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();
+        CategoryMap<TileMapService> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();
         tmsCategoryMap.getCategories().forEach(categoryEntry -> {
-            CategoryMap.Category<TileMapService<?>> category = categoryEntry.getValue();
+            CategoryMap.Category<TileMapService> category = categoryEntry.getValue();
             updater.push(categoryEntry.getKey());
             category.values().forEach(updater::add);
             updater.pop();
@@ -279,8 +279,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
-    private static NativeTextureWrapper getIconTextureObject(CategoryMap.Wrapper<TileMapService<?>> wrapper) {
-        TileMapService<?> tms = wrapper.getItem();
+    private static NativeTextureWrapper getIconTextureObject(CategoryMap.Wrapper<TileMapService> wrapper) {
+        TileMapService tms = wrapper.getItem();
         if(tms == null) return null;
 
         URL iconUrl = tms.getIconUrl();

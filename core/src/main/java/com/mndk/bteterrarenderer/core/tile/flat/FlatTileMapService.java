@@ -14,8 +14,7 @@ import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.tile.TMSIdPair;
-import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedIntPropertyAccessor;
@@ -45,7 +44,7 @@ import java.util.*;
 @Getter
 @JsonSerialize(using = FlatTileMapService.Serializer.class)
 @JsonDeserialize(using = FlatTileMapService.Deserializer.class)
-public class FlatTileMapService extends TileMapService<FlatTileKey> {
+public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
     /**
      * This variable is to prevent z-fighting from happening.<br>
@@ -65,11 +64,11 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     private final FlatTileCoordTranslator coordTranslator;
     private final FlatTileURLConverter urlConverter;
 
-    private transient final ImmediateBlock<TMSIdPair<FlatTileKey>, FlatTileKey, String> tileKeyToUrl;
-    private transient final MappedQueueBlock<TMSIdPair<FlatTileKey>, Integer, String, ByteBuf> imageFetcher;
-    private transient final ImmediateBlock<TMSIdPair<FlatTileKey>, ByteBuf, BufferedImage> byteBufToImage;
+    private transient final ImmediateBlock<FlatTileKey, FlatTileKey, String> tileKeyToUrl;
+    private transient final MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> imageFetcher;
+    private transient final ImmediateBlock<FlatTileKey, ByteBuf, BufferedImage> byteBufToImage;
     // This is to avoid quirky concurrent thingy
-    private transient final SingleQueueBlock<TMSIdPair<FlatTileKey>, BufferedImage, PreBakedModel> imageToPreModel;
+    private transient final SingleQueueBlock<FlatTileKey, BufferedImage, PreBakedModel> imageToPreModel;
 
     @JsonCreator
     private FlatTileMapService(CommonYamlObject commonYamlObject,
@@ -83,7 +82,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
         this.tileKeyToUrl = ImmediateBlock.of((key, input) -> this.getUrlFromTileCoordinate(input));
         this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3, true);
         this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
-        this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, this.computeTileQuad(key.getRight())));
+        this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, this.computeTileQuad(key)));
         this.imageFetcher.setQueueKey(0);
     }
 
@@ -109,7 +108,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
     }
 
     @Override
-    protected CacheableProcessorModel.SequentialBuilder<TMSIdPair<FlatTileKey>, FlatTileKey, List<PreBakedModel>> getModelSequentialBuilder() {
+    protected CacheableProcessorModel.SequentialBuilder<FlatTileKey, FlatTileKey, List<PreBakedModel>> getModelSequentialBuilder() {
         return new CacheableProcessorModel.SequentialBuilder<>(this.tileKeyToUrl)
                 .then(this.imageFetcher)
                 .then(this.byteBufToImage)
@@ -277,7 +276,7 @@ public class FlatTileMapService extends TileMapService<FlatTileKey> {
 
     static {
         try {
-            ClassLoader loader = TileMapService.class.getClassLoader();
+            ClassLoader loader = AbstractTileMapService.class.getClassLoader();
 
             String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
             InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);

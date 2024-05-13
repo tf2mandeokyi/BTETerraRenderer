@@ -11,12 +11,12 @@ import lombok.Getter;
 @JsonDeserialize
 public class TileMapServiceYamlFile {
 
-    private final CategoryMap<TileMapService<?>> categories;
+    private final CategoryMap<TileMapService> categories;
 
     @JsonCreator
     public TileMapServiceYamlFile(
             @JsonProperty(value = "categories", required = true)
-            CategoryMap<TileMapService<?>> categories
+            CategoryMap<TileMapService> categories
     ) {
         this.categories = categories;
     }
