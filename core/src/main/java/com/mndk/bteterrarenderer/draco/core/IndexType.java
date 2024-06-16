@@ -3,43 +3,31 @@ package com.mndk.bteterrarenderer.draco.core;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Iterator;
+
 @Getter
 @AllArgsConstructor
-public class IndexType extends Number implements Comparable<IndexType> {
+public abstract class IndexType<I extends IndexType<I>> extends Number implements Comparable<I> {
 
     private int value;
 
-    public IndexType(IndexType value) {
-        this.value = value.value;
+    public I add(I other) {
+        return this.newInstance(this.value + other.getValue());
     }
 
-    public IndexType add(IndexType other) {
-        return new IndexType(this.value + other.value);
+    public I subtract(I other) {
+        return this.newInstance(this.value - other.getValue());
     }
 
-    public IndexType selfAdd(IndexType other) {
-        this.value += other.value;
-        return this;
+    public I next() {
+        return this.newInstance(this.value + 1);
     }
 
-    public IndexType selfIncrement() {
-        this.value++;
-        return this;
+    public Iterator<I> until(I end) {
+        return new IndexTypeIterator(this.value, end.getValue());
     }
 
-    public IndexType subtract(IndexType other) {
-        return new IndexType(this.value - other.value);
-    }
-
-    public IndexType selfSubtract(IndexType other) {
-        this.value -= other.value;
-        return this;
-    }
-
-    public IndexType selfDecrement() {
-        this.value--;
-        return this;
-    }
+    protected abstract I newInstance(int value);
 
     @Override
     public String toString() {
@@ -57,17 +45,37 @@ public class IndexType extends Number implements Comparable<IndexType> {
         if(obj instanceof Integer) {
             return value == (Integer) obj;
         }
-        if(obj instanceof IndexType) {
-            return value == ((IndexType) obj).value;
+        if(obj instanceof IndexType<?>) {
+            return value == ((IndexType<?>) obj).value;
         }
         return false;
     }
 
-    @Override public int compareTo(IndexType o) {
-        return Integer.compare(value, o.value);
+    @Override public int compareTo(I o) {
+        return Integer.compare(value, o.getValue());
     }
     @Override public int intValue() { return this.value; }
     @Override public long longValue() { return this.value; }
     @Override public float floatValue() { return this.value; }
     @Override public double doubleValue() { return this.value; }
+
+    private class IndexTypeIterator implements Iterator<I> {
+        private final int end;
+        private int current;
+
+        public IndexTypeIterator(int start, int end) {
+            this.end = end;
+            current = start;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current < end;
+        }
+
+        @Override
+        public I next() {
+            return newInstance(current++);
+        }
+    }
 }

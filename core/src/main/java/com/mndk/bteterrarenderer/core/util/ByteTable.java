@@ -1,17 +1,23 @@
 package com.mndk.bteterrarenderer.core.util;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import lombok.experimental.UtilityClass;
 
 import java.nio.ByteBuffer;
 
-// TODO: REMOVE THIS CLASS!!!
 @UtilityClass
 public class ByteTable {
 
     public void print(ByteBuf buf, String prefix) {
-        byte[] bytes = IOUtil.readAllBytes(buf);
+        buf.markReaderIndex().markWriterIndex();
+        byte[] bytes = IOUtil.readAllBytes(Unpooled.copiedBuffer(buf));
+        buf.resetReaderIndex().resetWriterIndex();
         print(bytes, prefix);
+    }
+
+    public void print(ByteBuf buf) {
+        print(buf, "");
     }
 
     public void print(ByteBuffer buffer, String prefix) {
@@ -20,20 +26,24 @@ public class ByteTable {
     }
 
     public void print(byte[] data, String prefix) {
+        print(data, 0, data.length, prefix);
+    }
+
+    public void print(byte[] data, int offset, int size, String prefix) {
         byte[] row = new byte[16];
         int rowCount = 0;
         System.out.print(prefix);
         System.out.println("          |  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F | 0123456789ABCDEF ");
         System.out.print(prefix);
         System.out.println("----------+-------------------------------------------------+------------------");
-        for(int i = 0; i < ((data.length + 15) / 16) * 16; i++) {
+        for(int i = 0; i < ((size + 15) / 16) * 16; i++) {
             if (i % 16 == 0) {
                 System.out.print(prefix);
                 System.out.printf(" %08x | ", i);
             }
-            if(i < data.length) {
-                System.out.printf("%02x ", data[i]);
-                row[i % 16] = data[i];
+            if(i < size) {
+                System.out.printf("%02x ", data[offset + i]);
+                row[i % 16] = data[offset + i];
                 rowCount++;
             }
             else {

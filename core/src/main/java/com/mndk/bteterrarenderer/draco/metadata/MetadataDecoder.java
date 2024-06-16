@@ -1,103 +1,122 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
-import com.mndk.bteterrarenderer.draco.util.DracoCompressionException;
-import com.mndk.bteterrarenderer.draco.util.BitUtils;
-import io.netty.buffer.ByteBuf;
-import lombok.RequiredArgsConstructor;
+import com.mndk.bteterrarenderer.draco.core.*;
+import lombok.AllArgsConstructor;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Class for decoding the metadata.
- */
 public class MetadataDecoder {
 
-    private static final int kMaxSubmetadataLevel = 1000;
+    private DecoderBuffer buffer = null;
 
-    private ByteBuf buf = null;
-
-    public void decodeMetadata(ByteBuf buf, Metadata metadata) throws DracoCompressionException {
-        if(metadata == null) throw new DracoCompressionException("Metadata is null");
-        this.buf = buf;
-        this.decodeMetadata(metadata);
+    public Status decodeMetadata(DecoderBuffer inBuffer, Metadata metadata) {
+        if(metadata == null) {
+            return new Status(Status.Code.INVALID_PARAMETER, "Metadata is null.");
+        }
+        buffer = inBuffer;
+        return decodeMetadata(metadata);
     }
 
-    public void decodeGeometryMetadata(ByteBuf buf, GeometryMetadata metadata) throws DracoCompressionException {
-        if(metadata == null) throw new DracoCompressionException("Metadata is null");
-        this.buf = buf;
-        int numAttMetadata = BitUtils.decodeVariableIntegerLE(buf);
-        for(int i = 0; i < numAttMetadata; i++) {
-            int attUniqueId = BitUtils.decodeVariableIntegerLE(buf);
+    public Status decodeGeometryMetadata(DecoderBuffer inBuffer, GeometryMetadata metadata) {
+        StatusChain chain = Status.newChain();
+        
+        if(metadata == null) {
+            return new Status(Status.Code.INVALID_PARAMETER, "Metadata is null.");
+        }
+        buffer = inBuffer;
+        AtomicReference<Long> numAttMetadata = new AtomicReference<>(0L);
+        if(BitUtils.decodeVarint(DataType.UINT32, numAttMetadata, buffer).isError(chain)) return chain.get();
+
+        // Decode attribute metadata.
+        for(int i = 0; i < numAttMetadata.get(); ++i) {
+            AtomicReference<Long> attUniqueId = new AtomicReference<>(0L);
+            if(BitUtils.decodeVarint(DataType.UINT32, attUniqueId, buffer).isError(chain)) return chain.get();
             AttributeMetadata attMetadata = new AttributeMetadata();
-            attMetadata.setAttUniqueId(attUniqueId);
-            this.decodeMetadata(attMetadata);
+            attMetadata.setAttUniqueId(attUniqueId.get());
+            if(decodeMetadata(attMetadata).isError(chain)) return chain.get();
             metadata.addAttributeMetadata(attMetadata);
         }
-        this.decodeMetadata(metadata);
+        return decodeMetadata(metadata);
     }
 
-    private void decodeMetadata(Metadata metadata) throws DracoCompressionException {
+    private Status decodeMetadata(Metadata metadata) {
+        StatusChain chain = Status.newChain();
 
-        @RequiredArgsConstructor
+        // Limit metadata nesting depth to avoid stack overflow in destructor.
+        final int kMaxSubmetadataLevel = 1000;
+
+        @AllArgsConstructor
         class MetadataTuple {
-            final Metadata parentMetadata;
-            final Metadata decodedMetadata;
-            final int level;
+            Metadata parentMetadata, decodedMetadata;
+            int level;
         }
-        Stack<MetadataTuple> metadataStack = new Stack<>();
-        metadataStack.push(new MetadataTuple(null, metadata, 0));
+        CppVector<MetadataTuple> metadataStack = new CppVector<>();
+        metadataStack.pushBack(new MetadataTuple(null, metadata, 0));
         while(!metadataStack.isEmpty()) {
-            MetadataTuple mp = metadataStack.pop();
+            MetadataTuple mp = metadataStack.popBack();
             metadata = mp.decodedMetadata;
 
             if(mp.parentMetadata != null) {
                 if(mp.level > kMaxSubmetadataLevel) {
-                    throw new DracoCompressionException("stack overflow on metadata decode");
+                    return new Status(Status.Code.DRACO_ERROR, "Metadata nesting depth exceeded.");
                 }
-                String subMetadataName = this.decodeName();
+                AtomicReference<String> subMetadataName = new AtomicReference<>("");
+                if(decodeName(subMetadataName).isError(chain)) return chain.get();
                 Metadata subMetadata = new Metadata();
                 metadata = subMetadata;
-                mp.parentMetadata.addSubMetadata(subMetadataName, subMetadata);
+                if(mp.parentMetadata.addSubMetadata(subMetadataName.get(), subMetadata).isError(chain)) return chain.get();
             }
             if(metadata == null) {
-                throw new DracoCompressionException("metadata is null");
+                return new Status(Status.Code.DRACO_ERROR, "Metadata is null.");
             }
 
-            int numEntries = BitUtils.decodeVariableIntegerLE(buf);
-            for(int i = 0; i < numEntries; i++) {
-                this.decodeEntry(metadata);
+            AtomicReference<Long> numEntries = new AtomicReference<>(0L);
+            if(BitUtils.decodeVarint(DataType.UINT32, numEntries, buffer).isError(chain)) return chain.get();
+            for(int i = 0; i < numEntries.get(); ++i) {
+                if(decodeEntry(metadata).isError(chain)) return chain.get();
             }
-            int numSubMetadata = BitUtils.decodeVariableIntegerLE(buf);
-            if(numSubMetadata > buf.readableBytes()) {
-                throw new DracoCompressionException("submetadata length exceeded");
+            AtomicReference<Long> numSubMetadata = new AtomicReference<>(0L);
+            if(BitUtils.decodeVarint(DataType.UINT32, numSubMetadata, buffer).isError(chain)) return chain.get();
+            if(numSubMetadata.get() > buffer.getRemainingSize()) {
+                return new Status(Status.Code.IO_ERROR, "The decoded number of metadata items is unreasonably high.");
             }
-            for(int i = 0; i < numSubMetadata; i++) {
-                metadataStack.push(new MetadataTuple(metadata, null,
-                        mp.parentMetadata != null ? mp.level + 1 : mp.level));
+            for(int i = 0; i < numSubMetadata.get(); ++i) {
+                metadataStack.pushBack(new MetadataTuple(
+                        metadata, null, mp.parentMetadata != null ? mp.level + 1 : mp.level));
             }
         }
+        return Status.OK;
     }
 
-    private void decodeEntry(Metadata metadata) throws DracoCompressionException {
-        String entryName = this.decodeName();
-        int dataSize = BitUtils.decodeVariableIntegerLE(buf);
-        if(dataSize == 0) {
-            throw new DracoCompressionException("data size is 0");
+    private Status decodeEntry(Metadata metadata) {
+        StatusChain chain = Status.newChain();
+
+        AtomicReference<String> entryName = new AtomicReference<>("");
+        if(decodeName(entryName).isError(chain)) return chain.get();
+        AtomicReference<Long> dataSize = new AtomicReference<>(0L);
+        if(BitUtils.decodeVarint(DataType.UINT32, dataSize, buffer).isError(chain)) return chain.get();
+        if(dataSize.get() == 0) {
+            return new Status(Status.Code.IO_ERROR, "Data size is zero.");
         }
-        if(dataSize > buf.readableBytes()) {
-            throw new DracoCompressionException("data size exceeded");
+        if(dataSize.get() > buffer.getRemainingSize()) {
+            return new Status(Status.Code.IO_ERROR, "Data size exceeds buffer size.");
         }
-        ByteBuf entryValue = buf.readBytes(dataSize);
-        metadata.addEntryBinary(entryName, entryValue);
+        AtomicReference<byte[]> entryValue = new AtomicReference<>(new byte[0]);
+        if(buffer.decode(DataType.bytes((int) (long) dataSize.get()), entryValue).isError(chain)) return chain.get();
+        metadata.addEntryBinary(entryName.get(), entryValue.get());
+        return Status.OK;
     }
 
-    private String decodeName() throws DracoCompressionException {
-        short nameLen = buf.readUnsignedByte();
-        if(nameLen == 0) {
-            throw new DracoCompressionException("name length is 0");
+    private Status decodeName(AtomicReference<String> name) {
+        StatusChain chain = Status.newChain();
+
+        AtomicReference<Short> nameLen = new AtomicReference<>((short) 0);
+        if(buffer.decode(DataType.UINT8, nameLen).isError(chain)) return chain.get();
+        if(nameLen.get() == 0) {
+            return Status.OK;
         }
-        return buf.readBytes(nameLen).toString(StandardCharsets.UTF_8);
+        if(buffer.decode(DataType.string(nameLen.get()), name).isError(chain)) return chain.get();
+        return Status.OK;
     }
 
 }

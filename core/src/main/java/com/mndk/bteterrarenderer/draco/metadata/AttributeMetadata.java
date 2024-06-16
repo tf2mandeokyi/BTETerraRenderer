@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class AttributeMetadata extends Metadata {
 
-    private int attUniqueId;
+    private long attUniqueId;
 
     public AttributeMetadata() {
         super();
