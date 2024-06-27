@@ -4,8 +4,8 @@ import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
-import com.mndk.bteterrarenderer.draco.core.CppVector;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.pointcloud.PointCloud;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +13,10 @@ import lombok.Getter;
 public class Mesh extends PointCloud {
 
     public static class Face {
-        public final PointIndex[] points = new PointIndex[3];
+        private final PointIndex[] points = new PointIndex[3];
+        public Face() {
+            this(PointIndex.INVALID, PointIndex.INVALID, PointIndex.INVALID);
+        }
         public Face(PointIndex p1, PointIndex p2, PointIndex p3) {
             points[0] = p1;
             points[1] = p2;
@@ -22,15 +25,18 @@ public class Mesh extends PointCloud {
         public PointIndex get(int i) {
             return points[i];
         }
+        public void set(int i, PointIndex p) {
+            points[i] = p;
+        }
     }
 
     private static class AttributeData {
         MeshAttributeElementType elementType = MeshAttributeElementType.MESH_CORNER_ATTRIBUTE;
     }
 
-    private final CppVector<AttributeData> attributeData = new CppVector<>();
+    private final CppVector<AttributeData> attributeData = CppVector.create();
     @Getter(AccessLevel.PROTECTED)
-    private final IndexTypeVector<FaceIndex, Face> faces = new IndexTypeVector<>(FaceIndex::of);
+    private final IndexTypeVector<FaceIndex, Face> faces = IndexTypeVector.create(FaceIndex::of);
 
     public Mesh() {
         super();

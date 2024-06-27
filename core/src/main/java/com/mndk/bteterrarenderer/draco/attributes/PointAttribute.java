@@ -1,6 +1,11 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.draco.core.DataBuffer;
+import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
+import com.mndk.bteterrarenderer.datatype.DataIOManager;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +20,8 @@ import java.util.Objects;
 public class PointAttribute extends GeometryAttribute {
 
     /** Mapping between point ids and attribute value ids. */
-    private IndexTypeVector<PointIndex, AttributeValueIndex> indicesMap = new IndexTypeVector<>(PointIndex::of);
+    private IndexTypeVector<PointIndex, AttributeValueIndex> indicesMap =
+            IndexTypeVector.create(PointIndex::of, AttributeValueIndex.arrayManager());
     private int numUniqueEntries;
     /** Flag when the mapping between point ids and attribute values is identity. */
     @Getter
@@ -45,7 +51,7 @@ public class PointAttribute extends GeometryAttribute {
      * identity mapping between point indices and attribute values. To set custom
      * mapping use {@link PointAttribute#setExplicitMapping} function.
      */
-    public final void init(Type attributeType, byte numComponents, DataType<?> dataType,
+    public final void init(Type attributeType, byte numComponents, DataNumberType<?, ?> dataType,
                            boolean normalized, int numAttributeValues)
     {
         this.buffer = new DataBuffer();
@@ -86,7 +92,7 @@ public class PointAttribute extends GeometryAttribute {
         if(buffer == null) {
             buffer = new DataBuffer();
         }
-        int entrySize = this.getDataType().size() * this.getNumComponents();
+        long entrySize = this.getDataType().size() * this.getNumComponents();
         if(buffer.update(null, numAttributeValues * entrySize).isError(chain)) return chain.get();
         // Assign the new buffer to the parent attribute.
         this.resetBuffer(buffer, entrySize, 0);
@@ -107,7 +113,7 @@ public class PointAttribute extends GeometryAttribute {
         return indicesMap.size();
     }
 
-    public final int getBytePosOfMappedIndex(PointIndex pointIndex) {
+    public final long getBytePosOfMappedIndex(PointIndex pointIndex) {
         return getBytePos(indicesMap.get(pointIndex));
     }
 
@@ -152,10 +158,10 @@ public class PointAttribute extends GeometryAttribute {
     }
 
     /**
-     * Same as {@link GeometryAttribute#getValue(AttributeValueIndex, DataType)}, but using point id as the input.
+     * Same as {@link GeometryAttribute#getValue}, but using point id as the input.
      * Mapping to attribute value index is performed automatically.
      */
-    public final <T> T getMappedValue(PointIndex pointIndex, DataType<T> outType) {
+    public final <T> T getMappedValue(PointIndex pointIndex, DataIOManager<T> outType) {
         return this.getValue(this.getMappedIndex(pointIndex), outType);
     }
 

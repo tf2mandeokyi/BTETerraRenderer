@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.draco.core;
 
 public abstract class StatusChain {
 
-    private Status status = new Status();
+    private Status status = Status.OK;
 
     StatusChain() {}
 
@@ -12,5 +12,10 @@ public abstract class StatusChain {
 
     public void set(Status status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return status.toString();
     }
 }

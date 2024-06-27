@@ -1,5 +1,9 @@
 package com.mndk.bteterrarenderer.draco.core;
 
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
 import lombok.experimental.UtilityClass;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -7,125 +11,130 @@ import java.util.concurrent.atomic.AtomicReference;
 @UtilityClass
 public class BitUtils {
 
-    public int countOneBits32(int n) {
-        n -= ((n >> 1) & 0x55555555);
-        n = ((n >> 2) & 0x33333333) + (n & 0x33333333);
-        return (((n + (n >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+    /** Returns the number of '1' bits within the input 32 bit integer. */
+    public int countOneBits32(UInt n) {
+        n = n.sub(n.shr(1).and(0x55555555));
+        n = n.add(n.shr(2).and(0x33333333)).add(n.and(0x33333333));
+        n = n.add(n.shr(4)).and(0x0F0F0F0F).mul(0x01010101).shr(24);
+        return n.intValue();
     }
 
-    public int reverseBits32(int n) {
-        n = ((n >> 1) & 0x55555555) | ((n & 0x55555555) << 1);
-        n = ((n >> 2) & 0x33333333) | ((n & 0x33333333) << 2);
-        n = ((n >> 4) & 0x0F0F0F0F) | ((n & 0x0F0F0F0F) << 4);
-        n = ((n >> 8) & 0x00FF00FF) | ((n & 0x00FF00FF) << 8);
-        return (n >> 16) | (n << 16);
+    public UInt reverseBits32(UInt n) {
+        n = n.shl(1).and(0x55555555).or(n.and(0x55555555).shr(1));
+        n = n.shl(2).and(0x33333333).or(n.and(0x33333333).shr(2));
+        n = n.shl(4).and(0x0F0F0F0F).or(n.and(0x0F0F0F0F).shr(4));
+        n = n.shl(8).and(0x00FF00FF).or(n.and(0x00FF00FF).shr(8));
+        return n.shr(16).or(n.shl(16));
     }
 
-    public void copyBits32(int[] dst, int dstOffset, int src, int srcOffset, int nbits) {
-        int mask = (~0) >> (32 - nbits) << dstOffset;
-        dst[0] = (dst[0] & (~mask)) | (((src >> srcOffset) << dstOffset) & mask);
+    public void copyBits32(AtomicReference<UInt> dst, int dstOffset, UInt src, int srcOffset, int nbits) {
+        UInt mask = UInt.ZERO.not().shr(32 - nbits).shl(dstOffset);
+        dst.set(dst.get().and(mask.not()).or(src.shr(srcOffset).shl(dstOffset).and(mask)));
     }
 
-    public int mostSignificantBit(int n) {
+    public int mostSignificantBit(UInt n) {
         int msb = -1;
-        while (n != 0) {
+        while(!n.equals(0)) {
             msb++;
-            n >>= 1;
+            n = n.shr(1);
         }
         return msb;
     }
 
-    public void convertSignedIntsToSymbols(int[] in, int inValues, long[] out) {
+    public <T, TArray, U, UArray>
+    void convertSignedIntsToSymbols(DataNumberType<T, TArray> inType, TArray in, int inValues,
+                                    DataNumberType<U, UArray> outType, UArray out) {
         for (int i = 0; i < inValues; i++) {
-            out[i] = convertSignedIntToSymbol(DataType.INT32, in[i], DataType.UINT32);
+            outType.set(out, i, convertSignedIntToSymbol(inType, inType.get(in, i), outType));
         }
     }
 
-    public void convertSymbolsToSignedInts(long[] in, int inValues, int[] out) {
+    public <U, UArray, T, TArray>
+    void convertSymbolsToSignedInts(DataNumberType<U, UArray> inType, UArray in, int inValues,
+                                    DataNumberType<T, TArray> outType, TArray out) {
         for (int i = 0; i < inValues; i++) {
-            out[i] = convertSymbolToSignedInt(DataType.UINT32, in[i], DataType.INT32);
+            outType.set(out, i, convertSymbolToSignedInt(inType, inType.get(in, i), outType));
         }
     }
 
-    public <T, U> U convertSignedIntToSymbol(DataType<T> signedType, T val, DataType<U> symbolType) {
+    public <T, U> U convertSignedIntToSymbol(DataNumberType<T, ?> signedType, T val, DataNumberType<U, ?> symbolType) {
         if(!signedType.isIntegral()) throw new IllegalArgumentException("T is not integral.");
-        if(signedType.ge(val, signedType.staticCast(0))) {
-            return symbolType.staticCast(signedType.shiftLeft(val, 1));
+        if(signedType.ge(val, 0)) {
+            return symbolType.shl(symbolType.from(signedType, val), 1);
         }
-        val = signedType.negate(signedType.add(val, signedType.staticCast(1)));
-        U ret = symbolType.staticCast(val);
-        ret = symbolType.shiftLeft(ret, 1);
-        ret = symbolType.or(ret, symbolType.staticCast(1));
+        val = signedType.negate(signedType.add(val, 1));
+        U ret = symbolType.from(signedType, val);
+        ret = symbolType.shl(ret, 1);
+        ret = symbolType.or(ret, 1);
         return ret;
     }
 
-    public <U, T> T convertSymbolToSignedInt(DataType<U> symbolType, U val, DataType<T> signedType) {
+    public <U, T> T convertSymbolToSignedInt(DataNumberType<U, ?> symbolType, U val, DataNumberType<T, ?> signedType) {
         if(!symbolType.isIntegral()) throw new IllegalArgumentException("T is not integral.");
-        boolean isPositive = !DataType.BOOL.staticCast(symbolType.and(val, symbolType.staticCast(1)));
-        val = symbolType.shiftArithRight(val, 1);
-        if(isPositive) {
-            return signedType.staticCast(val);
-        }
-        T ret = signedType.staticCast(val);
-        ret = signedType.negate(signedType.add(ret, signedType.staticCast(1)));
+        boolean isPositive = !DataType.bool().from(symbolType, symbolType.and(val, 1));
+        val = symbolType.shr(val, 1);
+        T ret = signedType.from(symbolType, val);
+        if(isPositive) return ret;
+        ret = signedType.sub(signedType.negate(ret), 1);
         return ret;
     }
 
-    public <T> Status decodeVarintUnsigned(int depth, DataType<T> outType, AtomicReference<T> outValRef, DecoderBuffer buffer) {
+    public <T> Status decodeVarintUnsigned(long depth, DataNumberType<T, ?> outType, AtomicReference<T> outValRef,
+                                           DecoderBuffer buffer) {
         StatusChain chain = Status.newChain();
 
-        int maxDepth = outType.size() + 1 + (outType.size() >> 3);
+        long maxDepth = outType.size() + 1 + (outType.size() >> 3);
         if (depth > maxDepth) {
             return new Status(Status.Code.DRACO_ERROR, "Varint decoding depth exceeded");
         }
-        AtomicReference<Short> inRef = new AtomicReference<>();
-        if(buffer.decode(DataType.UINT8, inRef).isError(chain)) return chain.get();
-        short in = inRef.get();
-        if((in & (1 << 7)) != 0) {
+        AtomicReference<UByte> inRef = new AtomicReference<>();
+        if(buffer.decode(DataType.uint8(), inRef::set).isError(chain)) return chain.get();
+        UByte in = inRef.get();
+        if(!in.and(1 << 7).equals(0)) {
             if(decodeVarintUnsigned(depth + 1, outType, outValRef, buffer).isError(chain)) return chain.get();
-            T outVal = outType.shiftLeft(outValRef.get(), 7);
-            outVal = outType.or(outVal, outType.and(outType.staticCast(in), outType.staticCast((1 << 7) - 1)));
+            T outVal = outType.shl(outValRef.get(), 7);
+            outVal = outType.or(outVal, outType.and(outType.from(in), (1 << 7) - 1));
             outValRef.set(outVal);
         } else {
-            outValRef.set(outType.staticCast(in));
+            outValRef.set(outType.from(in));
         }
         return Status.OK;
     }
 
-    public <T, U> Status decodeVarint(DataType<T> outType, AtomicReference<T> outVal, DecoderBuffer buffer) {
+    public <T, U> Status decodeVarint(DataNumberType<T, ?> outType, AtomicReference<T> outVal, DecoderBuffer buffer) {
         StatusChain chain = Status.newChain();
 
         if (outType.isUnsigned()) {
             return decodeVarintUnsigned(1, outType, outVal, buffer);
         } else {
             // T is a signed value. Decode the symbol and convert to signed.
-            DataType<U> unsigned = outType.getUnsignedType();
-            AtomicReference<U> symbolRef = new AtomicReference<>(unsigned.staticCast(0));
+            DataNumberType<U, ?> unsigned = outType.makeUnsigned();
+            AtomicReference<U> symbolRef = new AtomicReference<>(unsigned.from(0));
             if (decodeVarintUnsigned(1, unsigned, symbolRef, buffer).isError(chain)) return chain.get();
-            outVal.set(convertSymbolToSignedInt(unsigned, symbolRef.get(), outType));
+            U symbol = symbolRef.get();
+            T out = convertSymbolToSignedInt(unsigned, symbol, outType);
+            outVal.set(out);
         }
         return Status.OK;
     }
 
-    public <T, U> Status encodeVarint(DataType<T> inType, T val, EncoderBuffer outBuffer) {
+    public <T, U> Status encodeVarint(DataNumberType<T, ?> inType, T val, EncoderBuffer outBuffer) {
         StatusChain chain = Status.newChain();
 
         if (inType.isUnsigned()) {
             // Coding of unsigned values.
             // 0-6 bit - data
             // 7 bit - next byte?
-            short out = 0;
-            T geMask = inType.staticCast(1 << 7);
-            T orMask = inType.staticCast((1 << 7) - 1);
-            out |= DataType.UINT8.staticCast(inType.and(val, orMask));
-            if(inType.ge(val, geMask)) {
-                out |= 1 << 7;
-                if (outBuffer.encode(DataType.UINT8, out).isError(chain)) return chain.get();
-                return encodeVarint(inType, inType.shiftArithRight(val, 7), outBuffer);
+            UByte out = UByte.ZERO;
+            out = out.or(inType.toUByte(inType.and(val, (1 << 7) - 1)));
+            if(inType.ge(val, 1 << 7)) {
+                out = out.or(1 << 7);
+                if(outBuffer.encode(DataType.uint8(), out).isError(chain)) return chain.get();
+                return encodeVarint(inType, inType.shr(val, 7), outBuffer);
             }
-            return outBuffer.encode(DataType.UINT8, out);
+            return outBuffer.encode(DataType.uint8(), out);
         } else {
-            DataType<U> unsigned = inType.getUnsignedType();
+            DataNumberType<U, ?> unsigned = inType.makeUnsigned();
             U symbol = convertSignedIntToSymbol(inType, val, unsigned);
             return encodeVarint(unsigned, symbol, outBuffer);
         }

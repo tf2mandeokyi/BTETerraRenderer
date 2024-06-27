@@ -1,25 +1,37 @@
 package com.mndk.bteterrarenderer.draco.core;
 
+import com.mndk.bteterrarenderer.datatype.DataArrayManager;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.IntComparator;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 
 @Getter
 @AllArgsConstructor
 public abstract class IndexType<I extends IndexType<I>> extends Number implements Comparable<I> {
 
-    private int value;
+    private final int value;
 
     public I add(I other) {
         return this.newInstance(this.value + other.getValue());
+    }
+    public I add(int other) {
+        return this.newInstance(this.value + other);
     }
 
     public I subtract(I other) {
         return this.newInstance(this.value - other.getValue());
     }
+    public I subtract(int other) {
+        return this.newInstance(this.value - other);
+    }
 
-    public I next() {
+    public I increment() {
         return this.newInstance(this.value + 1);
     }
 
@@ -28,6 +40,10 @@ public abstract class IndexType<I extends IndexType<I>> extends Number implement
     }
 
     protected abstract I newInstance(int value);
+    public abstract boolean isInvalid();
+    public boolean isValid() {
+        return !isInvalid();
+    }
 
     @Override
     public String toString() {
@@ -60,22 +76,44 @@ public abstract class IndexType<I extends IndexType<I>> extends Number implement
     @Override public double doubleValue() { return this.value; }
 
     private class IndexTypeIterator implements Iterator<I> {
-        private final int end;
+        private final int until;
         private int current;
 
-        public IndexTypeIterator(int start, int end) {
-            this.end = end;
+        public IndexTypeIterator(int start, int until) {
+            this.until = until;
             current = start;
         }
 
         @Override
         public boolean hasNext() {
-            return current < end;
+            return current < until;
         }
 
         @Override
         public I next() {
             return newInstance(current++);
         }
+    }
+
+    @FunctionalInterface
+    protected interface IndexArrayManager<I extends IndexType<I>> extends DataArrayManager<I, int[]> {
+
+        I intToIndex(int value);
+
+        default int[] newArray(int length) { return new int[length]; }
+        default I get(int[] array, int index) { return intToIndex(array[index]); }
+        default void set(int[] array, int index, @Nullable I value) {
+            array[index] = value == null ? 0 : value.getValue();
+        }
+        default int length(int[] array) { return array.length; }
+        default void copy(int[] src, int srcIndex, int[] dest, int destIndex, int length) {
+            System.arraycopy(src, srcIndex, dest, destIndex, length);
+        }
+        default void sort(int[] array, int from, int to, @Nullable Comparator<I> comparator) {
+            IntComparator c = comparator == null ? null : (a, b) -> comparator.compare(intToIndex(a), intToIndex(b));
+            Primitive.sort(array, from, to, c);
+        }
+        default int arrayHashCode(int[] array) { return Arrays.hashCode(array); }
+        default boolean arrayEquals(int[] array1, int[] array2) { return Arrays.equals(array1, array2); }
     }
 }

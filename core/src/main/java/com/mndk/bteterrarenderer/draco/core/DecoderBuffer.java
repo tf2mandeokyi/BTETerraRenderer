@@ -1,9 +1,14 @@
 package com.mndk.bteterrarenderer.draco.core;
 
+import com.mndk.bteterrarenderer.datatype.DataIOManager;
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -15,13 +20,15 @@ import java.util.function.Consumer;
  */
 public class DecoderBuffer {
 
+    @Getter
     private DataBuffer data;
-    private int dataSize;
-    private int pos;
+    private long dataSize;
+    @Getter
+    private long pos;
     private final BitDecoder bitDecoder = new BitDecoder();
     @Getter
     private boolean bitMode;
-    @Setter
+    @Getter @Setter
     private int bitstreamVersion;
 
     public DecoderBuffer() {}
@@ -38,7 +45,7 @@ public class DecoderBuffer {
      * made so the data owner needs to keep the data valid and unchanged for
      * runtime of the decoder.
      */
-    public void init(DataBuffer data, int dataSize) {
+    public void init(DataBuffer data, long dataSize) {
         this.init(data, dataSize, bitstreamVersion);
     }
     public void init(DataBuffer data) {
@@ -46,7 +53,7 @@ public class DecoderBuffer {
     }
 
     /** Sets the buffer's internal data. {@code version} is the Draco bitstream version. */
-    public void init(DataBuffer data, int dataSize, int version) {
+    public void init(DataBuffer data, long dataSize, int version) {
         this.data = data;
         this.dataSize = dataSize;
         this.bitstreamVersion = version;
@@ -59,20 +66,20 @@ public class DecoderBuffer {
      * during encoding. The size is then returned to {@code outSize}.
      * Returns either {@link Status#OK} or error type.
      */
-    public Status startBitDecoding(boolean decodeSize, Consumer<Long> outSize) {
+    public Status startBitDecoding(boolean decodeSize, @Nonnull Consumer<ULong> outSize) {
         StatusChain chain = Status.newChain();
 
         if(decodeSize) {
             if(bitstreamVersion < DracoVersions.getBitstreamVersion(2, 2)) {
-                if(decode(DataType.INT64, outSize).isError(chain)) return chain.get();
+                if(decode(DataType.uint64(), outSize).isError(chain)) return chain.get();
             } else {
-                AtomicReference<Long> sizeRef = new AtomicReference<>(0L);
-                if(BitUtils.decodeVarint(DataType.INT64, sizeRef, this).isError(chain)) return chain.get();
+                AtomicReference<ULong> sizeRef = new AtomicReference<>();
+                if(BitUtils.decodeVarint(DataType.uint64(), sizeRef, this).isError(chain)) return chain.get();
                 outSize.accept(sizeRef.get());
             }
         }
         bitMode = true;
-        bitDecoder.reset(data, pos, dataSize - pos);
+        bitDecoder.reset(this.getDataHead(), this.getRemainingSize());
         return Status.OK;
     }
 
@@ -82,19 +89,19 @@ public class DecoderBuffer {
      */
     public void endBitDecoding() {
         bitMode = false;
-        int bitsDecoded = bitDecoder.bitsDecoded();
-        int bytesDecoded = (bitsDecoded + 7) / 8;
+        long bitsDecoded = bitDecoder.bitsDecoded();
+        long bytesDecoded = (bitsDecoded + 7) / 8;
         pos += bytesDecoded;
     }
 
     /**
      * Decodes up to 32 bits into {@code outValue}. Can be called only in between
      * {@link DecoderBuffer#startBitDecoding} and {@link DecoderBuffer#endBitDecoding}.
-     * Returns {@code null} on error.
      */
-    @Nullable
-    public Status decodeLeastSignificantBits32(int nBits, Consumer<Long> outValue) {
-        if(!bitMode) return null;
+    public Status decodeLeastSignificantBits32(UInt nBits, Consumer<UInt> outValue) {
+        if(!bitMode) {
+            return new Status(Status.Code.IO_ERROR, "Bit decoding not started");
+        }
         return bitDecoder.getBits(nBits, outValue);
     }
 
@@ -103,21 +110,24 @@ public class DecoderBuffer {
      * Can be used only when we are not decoding a bit-sequence.
      * Returns {@code false} on error.
      */
-    public <T> Status decode(DataType<T> outType, Consumer<T> outVal) {
+    public <T> Status decode(DataIOManager<T> outType, @Nonnull Consumer<T> outVal) {
         StatusChain chain = Status.newChain();
         if(peek(outType, outVal).isError(chain)) return chain.get();
         pos += outType.size();
         return Status.OK;
     }
     @Nullable
-    public <T> T decode(DataType<T> outType) {
+    public <T> T decode(DataIOManager<T> outType) {
         AtomicReference<T> outVal = new AtomicReference<>();
-        return decode(outType, outVal).isError(null) ? null : outVal.get();
+        return decode(outType, outVal::set).isError(null) ? null : outVal.get();
     }
-    public <T> Status decode(DataType<T> outType, AtomicReference<T> outVal) {
-        return decode(outType, outVal::set);
+    public <T> Status decode(DataIOManager<T> outType, BiConsumer<Integer, T> outData, int size) {
+        StatusChain chain = Status.newChain();
+        if(peek(outType, outData, size).isError(chain)) return chain.get();
+        pos += outType.size() * size;
+        return Status.OK;
     }
-    public <T> Status decode(DataType<T> outType, BiConsumer<Integer, T> outData, int size) {
+    public <T, TArray> Status decode(DataType<T, TArray> outType, TArray outData, int size) {
         StatusChain chain = Status.newChain();
         if(peek(outType, outData, size).isError(chain)) return chain.get();
         pos += outType.size() * size;
@@ -125,33 +135,37 @@ public class DecoderBuffer {
     }
 
     /** Decodes an arbitrary data, but does not advance the reading position. */
-    public <T> Status peek(DataType<T> outType, Consumer<T> outVal) {
+    public <T> Status peek(DataIOManager<T> outType, @Nonnull Consumer<T> outVal) {
         if(dataSize < pos + outType.size()) {
             return new Status(Status.Code.IO_ERROR, "Buffer overflow");
         }
-        outVal.accept(outType.getBuf(data, pos));
+        outVal.accept(this.data.read(outType, pos));
         return Status.OK;
     }
     @Nullable
-    public <T> T peek(DataType<T> outType) {
+    public <T> T peek(DataIOManager<T> outType) {
         AtomicReference<T> outVal = new AtomicReference<>();
         return peek(outType, outVal).isError(null) ? null : outVal.get();
     }
-    public <T> Status peek(DataType<T> outType, AtomicReference<T> outVal) {
+    public <T> Status peek(DataIOManager<T> outType, @Nonnull AtomicReference<T> outVal) {
         return peek(outType, outVal::set);
     }
-    public <T> Status peek(DataType<T> outType, BiConsumer<Integer, T> outData, int size) {
+    public <T, TArray> Status peek(DataType<T, TArray> outType, @Nonnull TArray outData, int size) {
+        return peek(outType, outType.setter(outData), size);
+    }
+    public <T> Status peek(DataIOManager<T> outType, BiConsumer<Integer, T> outData, int size) {
         if(dataSize < pos + outType.size() * size) {
             return new Status(Status.Code.IO_ERROR, "Buffer overflow");
         }
         for(int i = 0; i < size; i++) {
-            outData.accept(i, outType.getBuf(data, pos + outType.size() * i));
+            T value = this.data.read(outType, pos + outType.size() * i);
+            outData.accept(i, value);
         }
         return Status.OK;
     }
 
     /** Discards {@code bytes} from the input buffer. */
-    public void advance(int bytes) {
+    public void advance(long bytes) {
         pos += bytes;
     }
 
@@ -159,42 +173,46 @@ public class DecoderBuffer {
      * Moves the parsing position to a specific offset from the beginning of the
      * input data.
      */
-    public void startDecodingFrom(int offset) {
+    public void startDecodingFrom(long offset) {
         pos = offset;
     }
 
-    public int getRemainingSize() {
+    public DataBuffer getDataHead() {
+        return data.withOffset(pos);
+    }
+
+    public long getRemainingSize() {
         return dataSize - pos;
     }
 
-    public int getDecodedSize() {
+    public long getDecodedSize() {
         return pos;
     }
 
     public static class BitDecoder {
 
         private DataBuffer bitBuffer;
-        private int bitOffset;
-        private int size;
+        private long bitOffset;
+        private long byteSize;
 
         /** Sets the bit buffer to {@code byteBuffer}. */
-        public void reset(DataBuffer b, int offset, int s) {
-            this.bitOffset = offset;
+        public void reset(DataBuffer b, long s) {
+            this.bitOffset = 0;
             this.bitBuffer = b;
-            this.size = s;
+            this.byteSize = s;
         }
 
         /** Returns number of bits decoded so far. */
-        public int bitsDecoded() {
+        public long bitsDecoded() {
             return bitOffset;
         }
 
         /** Returns number of bits available for decoding. */
-        public int availBits() {
-            return (size * 8) - bitOffset;
+        public long availBits() {
+            return (byteSize * 8) - bitOffset;
         }
 
-        public int ensureBits(int k) {
+        public UInt ensureBits(int k) {
             if(k > 24) {
                 throw new IllegalArgumentException("k must be less than or equal to 24");
             }
@@ -205,7 +223,7 @@ public class DecoderBuffer {
             for(int i = 0; i < k; i++) {
                 buf |= peekBit(i) << i;
             }
-            return buf;
+            return UInt.of(buf);
         }
 
         public void consumeBits(int k) {
@@ -213,24 +231,25 @@ public class DecoderBuffer {
         }
 
         /** Returns {@code nBits} bits in {@code x} or {@code null} if fails. */
-        public Status getBits(int nBits, Consumer<Long> x) {
-            if(nBits > 32) {
-                return new Status(Status.Code.IO_ERROR, "nBits must be less than or equal to 32");
+        public Status getBits(UInt nBits, Consumer<UInt> x) {
+            if(nBits.gt(32)) {
+                return new Status(Status.Code.IO_ERROR,
+                        "nBits must be less than or equal to 32, instead got " + nBits);
             }
-            long value = 0;
-            for(int bit = 0; bit < nBits; bit++) {
-                value |= (long) getBit() << bit;
+            UInt value = UInt.ZERO;
+            for(int bit = 0; bit < nBits.intValue(); bit++) {
+                value = value.or(getBit() << bit);
             }
             x.accept(value);
             return Status.OK;
         }
 
         private int getBit() {
-            int off = bitOffset;
-            int byteOffset = off >> 3;
-            int bitShift = off & 0x7;
-            if(byteOffset < size) {
-                int bit = (bitBuffer.get(byteOffset) >>> bitShift) & 1;
+            long off = bitOffset;
+            long byteOffset = off >> 3;
+            int bitShift = (int) (off & 0x7);
+            if(byteOffset < byteSize) {
+                int bit = bitBuffer.get(byteOffset).shr(bitShift).and(1).intValue();
                 bitOffset = off + 1;
                 return bit;
             }
@@ -238,11 +257,11 @@ public class DecoderBuffer {
         }
 
         private int peekBit(int offset) {
-            int off = bitOffset + offset;
-            int byteOffset = off >> 3;
-            int bitShift = off & 0x7;
-            if(byteOffset < size) {
-                return (bitBuffer.get(byteOffset) >>> bitShift) & 1;
+            long off = bitOffset + offset;
+            long byteOffset = off >> 3;
+            int bitShift = (int) (off & 0x7);
+            if(byteOffset < byteSize) {
+                return bitBuffer.get(byteOffset).shr(bitShift).and(1).intValue();
             }
             return 0;
         }

@@ -6,13 +6,14 @@ import com.mndk.bteterrarenderer.draco.compression.config.DecoderOptions;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoHeader;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.config.EncodedGeometryType;
-import com.mndk.bteterrarenderer.draco.core.DataType;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.draco.metadata.GeometryMetadata;
 import com.mndk.bteterrarenderer.draco.metadata.MetadataDecoder;
 import com.mndk.bteterrarenderer.draco.pointcloud.PointCloud;
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -21,24 +22,22 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class PointCloudDecoder {
 
-    private static final String IO_ERROR_MSG = "Failed to parse Draco header.";
-
     @Getter
     private PointCloud pointCloud;
     private final List<AttributesDecoderInterface> attributesDecoders = new ArrayList<>();
     private final List<Integer> attributeToDecoderMap = new ArrayList<>();
     @Getter
     private DecoderBuffer buffer;
-    private short versionMajor;
-    private short versionMinor;
+    private UByte versionMajor;
+    private UByte versionMinor;
     @Getter
     private DecoderOptions options;
 
     public PointCloudDecoder() {
         this.pointCloud = null;
         this.buffer = null;
-        this.versionMajor = 0;
-        this.versionMinor = 0;
+        this.versionMajor = UByte.ZERO;
+        this.versionMinor = UByte.ZERO;
         this.options = null;
     }
 
@@ -48,15 +47,21 @@ public abstract class PointCloudDecoder {
 
     public static Status decodeHeader(DecoderBuffer buffer, DracoHeader outHeader) {
         StatusChain chain = Status.newChain();
-        if (buffer.decode(DataType.string(5), outHeader::setDracoString).isError(chain)) return chain.get();
-        if (!outHeader.getDracoString().equals("DRACO")) {
+        if(buffer.decode(DataType.string(5), outHeader::setDracoString).isError(chain)) return chain.get();
+        if(!outHeader.getDracoString().equals("DRACO")) {
             return new Status(Status.Code.DRACO_ERROR, "Not a Draco file.");
         }
-        if (buffer.decode(DataType.UINT8, outHeader::setVersionMajor).isError(chain)) return chain.get();
-        if (buffer.decode(DataType.UINT8, outHeader::setVersionMinor).isError(chain)) return chain.get();
-        if (buffer.decode(DataType.UINT8, outHeader::setEncoderType).isError(chain)) return chain.get();
-        if (buffer.decode(DataType.UINT8, outHeader::setEncoderMethod).isError(chain)) return chain.get();
-        if (buffer.decode(DataType.UINT16, outHeader::setFlags).isError(chain)) return chain.get();
+        if(buffer.decode(DataType.uint8(), outHeader::setVersionMajor).isError(chain)) return chain.get();
+        if(buffer.decode(DataType.uint8(), outHeader::setVersionMinor).isError(chain)) return chain.get();
+        AtomicReference<UByte> encoderTypeRef = new AtomicReference<>();
+        if(buffer.decode(DataType.uint8(), encoderTypeRef::set).isError(chain)) return chain.get();
+        EncodedGeometryType encoderType = EncodedGeometryType.fromValue(encoderTypeRef.get());
+        if (encoderType == EncodedGeometryType.INVALID_GEOMETRY_TYPE) {
+            return new Status(Status.Code.DRACO_ERROR, "Invalid geometry type.");
+        }
+        outHeader.setEncoderType(encoderType);
+        if(buffer.decode(DataType.uint8(), outHeader::setEncoderMethod).isError(chain)) return chain.get();
+        if(buffer.decode(DataType.uint16(), outHeader::setFlags).isError(chain)) return chain.get();
         return Status.OK;
     }
 
@@ -80,29 +85,29 @@ public abstract class PointCloudDecoder {
         if (decodeHeader(buffer, header).isError(chain)) return chain.get();
         // Sanity check that we are really using the right decoder (mostly for cases
         // where the Decode method was called manually outside our main API)
-        if (header.getEncoderType() != getGeometryType().getValue()) {
+        if (!header.getEncoderType().equals(this.getGeometryType())) {
             return new Status(Status.Code.DRACO_ERROR, "Using incompatible decoder for the input geometry.");
         }
         versionMajor = header.getVersionMajor();
         versionMinor = header.getVersionMinor();
 
-        short maxSupportedMajorVersion = header.getEncoderType() == EncodedGeometryType.POINT_CLOUD.getValue() ?
+        byte maxSupportedMajorVersion = header.getEncoderType() == EncodedGeometryType.POINT_CLOUD ?
                 DracoVersions.POINT_CLOUD_BIT_STREAM_VERSION_MAJOR : DracoVersions.MESH_BIT_STREAM_VERSION_MAJOR;
-        short maxSupportedMinorVersion = header.getEncoderType() == EncodedGeometryType.POINT_CLOUD.getValue() ?
+        byte maxSupportedMinorVersion = header.getEncoderType() == EncodedGeometryType.POINT_CLOUD ?
                 DracoVersions.POINT_CLOUD_BIT_STREAM_VERSION_MINOR : DracoVersions.MESH_BIT_STREAM_VERSION_MINOR;
 
         // Check for version compatibility
-        if (versionMajor < 1 || versionMajor > maxSupportedMajorVersion) {
+        if (versionMajor.lt(1) || versionMajor.gt(maxSupportedMajorVersion)) {
             return new Status(Status.Code.UNKNOWN_VERSION, "Unknown major version.");
         }
-        if (versionMajor == maxSupportedMajorVersion && versionMinor > maxSupportedMinorVersion) {
+        if (versionMajor.equals(maxSupportedMajorVersion) && versionMinor.gt(maxSupportedMinorVersion)) {
             return new Status(Status.Code.UNKNOWN_VERSION, "Unknown minor version.");
         }
 
         buffer.setBitstreamVersion(DracoVersions.getBitstreamVersion(versionMajor, versionMinor));
 
         if (this.getBitstreamVersion() >= DracoVersions.getBitstreamVersion(1, 3) &&
-                (header.getFlags() & DracoHeader.METADATA_FLAG_MASK) != 0) {
+                !header.getFlags().and(DracoHeader.METADATA_FLAG_MASK).equals(0)) {
             if (decodeMetadata().isError(chain)) return chain.get();
         }
         if (initializeDecoder().isError(chain)) return chain.get();
@@ -150,12 +155,13 @@ public abstract class PointCloudDecoder {
     protected Status decodePointAttributes() {
         StatusChain chain = Status.newChain();
 
-        AtomicReference<Short> numAttributesDecoders = new AtomicReference<>((short) 0);
-        if (buffer.decode(DataType.UINT8, numAttributesDecoders::set).isError(chain)) return chain.get();
+        AtomicReference<UByte> numAttributesDecodersRef = new AtomicReference<>();
+        if (buffer.decode(DataType.uint8(), numAttributesDecodersRef::set).isError(chain)) return chain.get();
+        int numAttributesDecoders = numAttributesDecodersRef.get().intValue();
         // Create all attribute decoders. This is implementation specific and the
         // derived classes can use any data encoded in the
         // PointCloudEncoder::EncodeAttributesEncoderIdentifier() call.
-        for (int i = 0; i < numAttributesDecoders.get(); ++i) {
+        for (int i = 0; i < numAttributesDecoders; ++i) {
             if(createAttributesDecoder(i).isError(chain)) return chain.get();
         }
 
@@ -165,12 +171,12 @@ public abstract class PointCloudDecoder {
         }
 
         // Decode any data needed by the attribute decoders.
-        for (int i = 0; i < numAttributesDecoders.get(); ++i) {
+        for (int i = 0; i < numAttributesDecoders; ++i) {
             if(attributesDecoders.get(i).decodeAttributesDecoderData(buffer).isError(chain)) return chain.get();
         }
 
         // Create map between attribute and decoder ids.
-        for (int i = 0; i < numAttributesDecoders.get(); ++i) {
+        for (int i = 0; i < numAttributesDecoders; ++i) {
             int numAttributes = attributesDecoders.get(i).getNumAttributes();
             for (int j = 0; j < numAttributes; ++j) {
                 int attId = attributesDecoders.get(i).getAttributeId(j);

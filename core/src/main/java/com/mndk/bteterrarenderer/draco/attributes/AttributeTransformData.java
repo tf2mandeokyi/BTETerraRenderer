@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
-import com.mndk.bteterrarenderer.draco.core.DataType;
+import com.mndk.bteterrarenderer.datatype.DataIOManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,20 +25,20 @@ public class AttributeTransformData {
     }
 
     /** Returns a parameter value at a given byte offset. */
-    public <T> T getParameterValue(int byteOffset, DataType<T> dataType) {
-        return dataType.getBuf(buffer, byteOffset);
+    public <T> T getParameterValue(DataIOManager<T> dataType, long byteOffset) {
+        return buffer.read(dataType, byteOffset);
     }
 
     /** Sets a parameter value at a given byte offset. */
-    public <T> void setParameterValue(int byteOffset, DataType<T> dataType, T data) {
+    public <T> void setParameterValue(DataIOManager<T> dataType, long byteOffset, T data) {
         if(byteOffset + dataType.size() > buffer.size()) {
             buffer.resize(byteOffset + dataType.size());
         }
-        dataType.setBuf(buffer, byteOffset, data);
+        buffer.write(dataType, byteOffset, data);
     }
 
     /** Sets a parameter value at the end of the buffer. */
-    public <T> void appendParameterValue(DataType<T> dataType, T data) {
-        setParameterValue(buffer.size(), dataType, data);
+    public <T> void appendParameterValue(DataIOManager<T> dataType, T data) {
+        setParameterValue(dataType, buffer.size(), data);
     }
 }

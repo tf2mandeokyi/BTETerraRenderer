@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.draco.core.DataType;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
@@ -61,7 +61,7 @@ public abstract class AttributeTransform {
      */
     public PointAttribute initTransformedAttribute(PointAttribute srcAttribute, int numEntries) {
         int numComponents = this.getTransformedNumComponents(srcAttribute);
-        DataType<?> dataType = this.getTransformedDataType(srcAttribute);
+        DataNumberType<?, ?> dataType = this.getTransformedDataType(srcAttribute);
         GeometryAttribute geometryAttribute = new GeometryAttribute();
         geometryAttribute.init(
                 srcAttribute.getAttributeType(), null, (byte) numComponents, dataType, false,
@@ -73,6 +73,6 @@ public abstract class AttributeTransform {
         return transformedAttribute;
     }
 
-    protected abstract DataType<?> getTransformedDataType(PointAttribute attribute);
+    protected abstract DataNumberType<?, ?> getTransformedDataType(PointAttribute attribute);
     protected abstract int getTransformedNumComponents(PointAttribute attribute);
 }

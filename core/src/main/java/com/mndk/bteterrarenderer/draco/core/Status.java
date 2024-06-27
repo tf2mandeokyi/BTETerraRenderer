@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 
-@Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Status {
 
@@ -38,22 +37,23 @@ public class Status {
 
     private final Code code;
     private final String errorMessage;
+    @Getter
     private final StackTraceElement[] stackTrace;
 
-    public Status() {
+    private Status() {
         this(Code.OK);
     }
     public Status(Status status) {
         this(status.code, status.errorMessage, status.stackTrace);
     }
     public Status(Code code) {
-        this(code, null, code != Code.OK ? getStackTrace() : new StackTraceElement[0]);
+        this(code, null, code != Code.OK ? generateStackTrace() : new StackTraceElement[0]);
     }
     public Status(Code code, String errorMessage) {
-        this(code, errorMessage, getStackTrace());
+        this(code, errorMessage, generateStackTrace());
     }
 
-    private static StackTraceElement[] getStackTrace() {
+    private static StackTraceElement[] generateStackTrace() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         StackTraceElement[] newStackTrace = new StackTraceElement[stackTrace.length - 3];
         System.arraycopy(stackTrace, 3, newStackTrace, 0, newStackTrace.length);
@@ -72,17 +72,18 @@ public class Status {
         return false;
     }
 
-    @Override
-    public String toString() {
+    public String getErrorMessage() {
         return (this.code == null ? "UNKNOWN_STATUS_VALUE" : this.code) + ": " + this.errorMessage;
     }
 
-    public String getStackErrorMessage() {
-        StringBuilder sb = new StringBuilder(this.toString());
-        for(StackTraceElement element : this.stackTrace) {
-            sb.append("\n\tat ").append(element);
-        }
-        return sb.toString();
+    public DracoCompressionException getException() {
+        return new DracoCompressionException(this);
+    }
+
+    @Override
+    public String toString() {
+        if(this.isOk()) return this.code.toString();
+        return this.getErrorMessage();
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.core;
 
+import com.mndk.bteterrarenderer.datatype.DataType;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class Options {
 
@@ -29,15 +29,15 @@ public class Options {
         options.put(name, val);
     }
 
-    public <S, V extends VectorD<S, V>> void setVector(String name, V vec) {
-        setVector(name, vec.getDataType(), vec.getDimension(), vec::get);
+    public <S, SArray, V extends VectorD<S, SArray, V>> void setVector(String name, V vec) {
+        this.setVector(name, vec.getElementType(), vec.getDimension(), vec.getArray());
     }
 
-    public <T> void setVector(String name, DataType<T> dataType, int numDims, Function<Integer, T> vec) {
+    public <T, TArray> void setVector(String name, DataType<T, TArray> dataType, int numDims, TArray vec) {
         StringBuilder out = new StringBuilder();
         for(int i = 0; i < numDims; i++) {
             if(i > 0) out.append(" ");
-            out.append(dataType.toString(vec.apply(i)));
+            out.append(dataType.get(vec, i).toString());
         }
         options.put(name, out.toString());
     }
@@ -78,18 +78,18 @@ public class Options {
         return value == null ? defaultVal : value;
     }
 
-    public <S, V extends VectorD<S, V>> V getVector(String name, V outVec) {
-        getVector(name, outVec.getDataType(), outVec.getDimension(), outVec::set);
+    public <S, SArray, V extends VectorD<S, SArray, V>> V getVector(String name, V outVec) {
+        this.getVector(name, outVec.getElementType(), outVec.getDimension(), outVec.getArray());
         return outVec;
     }
 
-    public <T> boolean getVector(String name, DataType<T> dataType, int numDims, BiConsumer<Integer, T> outVal) {
+    public <T, TArray> boolean getVector(String name, DataType<T, TArray> dataType, int numDims, TArray outVal) {
         String value = options.get(name);
         if(value == null) return false;
         String[] parts = value.split(" ");
         for(int i = 0; i < numDims; i++) {
             if(i >= parts.length) return true;
-            outVal.accept(i, dataType.parse(parts[i]));
+            dataType.set(outVal, i, dataType.parse(parts[i]));
         }
         return true;
     }

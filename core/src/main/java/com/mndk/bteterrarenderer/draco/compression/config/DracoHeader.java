@@ -1,5 +1,7 @@
 package com.mndk.bteterrarenderer.draco.compression.config;
 
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.number.UShort;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,9 +15,9 @@ public class DracoHeader {
     public static final int METADATA_FLAG_MASK = 0x8000;
 
     private String dracoString;
-    private short versionMajor;
-    private short versionMinor;
-    private short encoderType;
-    private short encoderMethod;
-    private int flags;
+    private UByte versionMajor;
+    private UByte versionMinor;
+    private EncodedGeometryType encoderType;
+    private UByte encoderMethod;
+    private UShort flags;
 }

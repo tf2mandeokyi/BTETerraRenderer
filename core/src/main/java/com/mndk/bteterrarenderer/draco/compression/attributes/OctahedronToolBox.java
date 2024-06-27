@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
-import com.mndk.bteterrarenderer.draco.core.DataType;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.core.Status;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 public class OctahedronToolBox {
 
@@ -77,19 +77,20 @@ public class OctahedronToolBox {
         canonicalizeOctahedralCoords(s, t, outS, outT);
     }
 
-    public <T> void floatVectorToQuantizedOctahedralCoords(Function<Integer, T> vector,
-                                                           AtomicInteger outS, AtomicInteger outT) {
-        double absSum = Math.abs(DataType.FLOAT64.staticCast(vector.apply(0))) +
-                        Math.abs(DataType.FLOAT64.staticCast(vector.apply(1))) +
-                        Math.abs(DataType.FLOAT64.staticCast(vector.apply(2)));
+    public <T, TArray>
+    void floatVectorToQuantizedOctahedralCoords(DataNumberType<T, TArray> type, TArray vector,
+                                                AtomicInteger outS, AtomicInteger outT) {
+        double absSum = Math.abs(type.toDouble(type.get(vector, 0))) +
+                        Math.abs(type.toDouble(type.get(vector, 1))) +
+                        Math.abs(type.toDouble(type.get(vector, 2)));
         // Adjust values such that abs sum equals 1.
         double[] scaledVector = new double[3];
         if (absSum > 1e-6) {
             // Scale needed to project the vector to the surface of an octahedron.
             double scale = 1.0 / absSum;
-            scaledVector[0] = DataType.FLOAT64.staticCast(vector.apply(0)) * scale;
-            scaledVector[1] = DataType.FLOAT64.staticCast(vector.apply(1)) * scale;
-            scaledVector[2] = DataType.FLOAT64.staticCast(vector.apply(2)) * scale;
+            scaledVector[0] = type.toDouble(type.get(vector, 0)) * scale;
+            scaledVector[1] = type.toDouble(type.get(vector, 1)) * scale;
+            scaledVector[2] = type.toDouble(type.get(vector, 2)) * scale;
         } else {
             scaledVector[0] = 1.0;
             scaledVector[1] = 0;
@@ -120,28 +121,39 @@ public class OctahedronToolBox {
         integerVectorToQuantizedOctahedralCoords(intVec, outS, outT);
     }
 
-    public <T> void canonicalizeIntegerVector(T[] vec, DataType<T> inType) {
+    public <T, TArray>
+    void canonicalizeIntegerVector(DataNumberType<T, TArray> inType, TArray vec) {
         if(!inType.isIntegral()) throw new IllegalArgumentException("T must be an integral type");
         if(!inType.isSigned()) throw new IllegalArgumentException("T must be a signed type");
-        long absSum = Math.abs(DataType.INT64.staticCast(vec[0])) +
-                      Math.abs(DataType.INT64.staticCast(vec[1])) +
-                      Math.abs(DataType.INT64.staticCast(vec[2]));
+
+        T vec0 = inType.get(vec, 0);
+        T vec1 = inType.get(vec, 1);
+        T vec2 = inType.get(vec, 2);
+        long absSum = inType.toLong(inType.abs(vec0)) + inType.toLong(inType.abs(vec1)) + inType.toLong(inType.abs(vec2));
+        DataNumberType<Long, ?> longType = DataType.int64();
+        DataNumberType<Integer, ?> intType = DataType.int32();
 
         if (absSum == 0) {
-            vec[0] = inType.staticCast(this.centerValue);  // vec[1] == v[2] == 0
+            vec0 = inType.from(this.centerValue);  // vec[1] == v[2] == 0
         } else {
-            vec[0] = inType.divide(inType.multiply(vec[0], inType.staticCast(this.centerValue)), inType.staticCast(absSum));
-            vec[1] = inType.divide(inType.multiply(vec[1], inType.staticCast(this.centerValue)), inType.staticCast(absSum));
-            if (inType.ge(vec[2], inType.staticCast(0))) {
-                vec[2] = inType.subtract(inType.staticCast(this.centerValue), inType.add(inType.abs(vec[0]), inType.abs(vec[1])));
+//            vec[0] = (static_cast<int64_t>(vec[0]) * static_cast<int64_t>(center_value_)) / abs_sum;
+//            vec[1] = (static_cast<int64_t>(vec[1]) * static_cast<int64_t>(center_value_)) / abs_sum;
+            vec0 = inType.from(longType.mul(inType, vec0, intType, this.centerValue) / absSum);
+            vec1 = inType.from(longType.mul(inType, vec1, intType, this.centerValue) / absSum);
+            if (inType.ge(vec2, 0)) {
+                vec2 = inType.sub(inType.sub(this.centerValue, inType.abs(vec0)), inType.abs(vec1));
             } else {
-                vec[2] = inType.negate(inType.subtract(inType.staticCast(this.centerValue), inType.add(inType.abs(vec[0]), inType.abs(vec[1]))));
+                vec2 = inType.negate(inType.sub(inType.sub(this.centerValue, inType.abs(vec0)), inType.abs(vec1)));
             }
         }
+        inType.set(vec, 0, vec0);
+        inType.set(vec, 1, vec1);
+        inType.set(vec, 2, vec2);
     }
 
     public void quantizedOctahedralCoordsToUnitVector(int inS, int inT, float[] out) {
-        octahedralCoordsToUnitVector(inS * this.dequantizationScale - 1.0f, inT * this.dequantizationScale - 1.0f, out);
+        octahedralCoordsToUnitVector(inS * this.dequantizationScale - 1.0f,
+                inT * this.dequantizationScale - 1.0f, out);
     }
 
     public boolean isInDiamond(int s, int t) {
@@ -155,10 +167,10 @@ public class OctahedronToolBox {
     public void invertDiamond(AtomicInteger s, AtomicInteger t) {
         int sout = s.get();
         int tout = t.get();
-        if(sout > this.centerValue) throw new IllegalArgumentException("s must be less than or equal to the center value");
-        if(tout > this.centerValue) throw new IllegalArgumentException("t must be less than or equal to the center value");
-        if(sout < -this.centerValue) throw new IllegalArgumentException("s must be greater than or equal to the negative center value");
-        if(tout < -this.centerValue) throw new IllegalArgumentException("t must be greater than or equal to the negative center value");
+        if(sout > this.centerValue) throw new IllegalArgumentException("s must be <= the center value");
+        if(tout > this.centerValue) throw new IllegalArgumentException("t must be <= the center value");
+        if(sout < -this.centerValue) throw new IllegalArgumentException("s must be >= the negative center value");
+        if(tout < -this.centerValue) throw new IllegalArgumentException("t must be >= the negative center value");
         int signS, signT;
         if (sout >= 0 && tout >= 0) {
             signS = 1;

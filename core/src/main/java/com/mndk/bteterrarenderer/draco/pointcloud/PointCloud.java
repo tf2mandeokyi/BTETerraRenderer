@@ -1,10 +1,11 @@
 package com.mndk.bteterrarenderer.draco.pointcloud;
 
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.draco.attributes.AttributeValueIndex;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.core.BoundingBox;
-import com.mndk.bteterrarenderer.draco.core.DataType;
 import com.mndk.bteterrarenderer.draco.core.VectorD;
 import com.mndk.bteterrarenderer.draco.metadata.AttributeMetadata;
 import com.mndk.bteterrarenderer.draco.metadata.GeometryMetadata;
@@ -77,9 +78,9 @@ public class PointCloud {
     }
 
     /** Returns the named attribute of a given unique id. */
-    public PointAttribute getNamedAttributeByUniqueId(GeometryAttribute.Type type, int uniqueId) {
+    public PointAttribute getNamedAttributeByUniqueId(GeometryAttribute.Type type, UInt uniqueId) {
         for(int attId : namedAttributeIndex.get(type.getIndex())) {
-            if(attributes.get(attId).getUniqueId() == uniqueId) {
+            if(attributes.get(attId).getUniqueId().equals(uniqueId)) {
                 return attributes.get(attId);
             }
         }
@@ -87,16 +88,16 @@ public class PointCloud {
     }
 
     /** Returns the attribute of a given unique id. */
-    public PointAttribute getAttributeByUniqueId(int uniqueId) {
+    public PointAttribute getAttributeByUniqueId(UInt uniqueId) {
         int attId = getAttributeIdByUniqueId(uniqueId);
         if(attId == -1) {
             return null;
         }
         return attributes.get(attId);
     }
-    public int getAttributeIdByUniqueId(int uniqueId) {
+    public int getAttributeIdByUniqueId(UInt uniqueId) {
         for(int attId = 0; attId < attributes.size(); ++attId) {
-            if(attributes.get(attId).getUniqueId() == uniqueId) {
+            if(attributes.get(attId).getUniqueId().equals(uniqueId)) {
                 return attId;
             }
         }
@@ -182,7 +183,7 @@ public class PointCloud {
         if (pa.getAttributeType().getIndex() < GeometryAttribute.NAMED_ATTRIBUTES_COUNT) {
             namedAttributeIndex.get(pa.getAttributeType().getIndex()).add(attId);
         }
-        pa.setUniqueId(attId);
+        pa.setUniqueId(UInt.of(attId));
     }
 
     /**
@@ -194,7 +195,7 @@ public class PointCloud {
             return;  // Attribute does not exist.
         }
         GeometryAttribute.Type attType = attributes.get(attId).getAttributeType();
-        int uniqueId = attributes.get(attId).getUniqueId();
+        UInt uniqueId = attributes.get(attId).getUniqueId();
         attributes.remove(attId);
         // Remove metadata if applicable.
         if (metadata != null) {
@@ -226,7 +227,7 @@ public class PointCloud {
         for(int i = 0; i < pcAtt.size(); ++i) {
             AttributeValueIndex ai = AttributeValueIndex.of(i);
             float[] p = new float[3];
-            pcAtt.getValue(ai, DataType.FLOAT32, p);
+            pcAtt.getValue(ai, DataType.float32(), p);
             VectorD.F3 point = new VectorD.F3(p[0], p[1], p[2]);
             boundingBox.update(point);
         }
@@ -244,14 +245,14 @@ public class PointCloud {
         if(this.metadata == null) {
             this.metadata = new GeometryMetadata();
         }
-        int attUniqueId = getAttribute(attId).getUniqueId();
+        UInt attUniqueId = getAttribute(attId).getUniqueId();
         metadata.setAttUniqueId(attUniqueId);
         this.metadata.addAttributeMetadata(metadata);
     }
 
     public AttributeMetadata getAttributeMetadataByAttributeId(int attId) {
         if(metadata == null) return null;
-        int uniqueId = getAttribute(attId).getUniqueId();
+        UInt uniqueId = getAttribute(attId).getUniqueId();
         return metadata.getAttributeMetadataByUniqueId(uniqueId);
     }
 
@@ -266,7 +267,7 @@ public class PointCloud {
         if(metadata == null) return -1;
         AttributeMetadata attMetadata = metadata.getAttributeMetadataByStringEntry(name, value);
         if(attMetadata == null) return -1;
-        return getAttributeIdByUniqueId((int) attMetadata.getAttUniqueId());
+        return getAttributeIdByUniqueId(attMetadata.getAttUniqueId());
     }
 
     @Override

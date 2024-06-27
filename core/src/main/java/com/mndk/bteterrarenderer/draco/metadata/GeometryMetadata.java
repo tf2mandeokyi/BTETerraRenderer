@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
+import com.mndk.bteterrarenderer.datatype.number.UInt;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -49,20 +50,20 @@ public class GeometryMetadata extends Metadata {
         return true;
     }
 
-    public void deleteAttributeMetadataByUniqueId(int attUniqueId) {
-        if(attUniqueId < 0) return;
+    public void deleteAttributeMetadataByUniqueId(UInt attUniqueId) {
+        if(attUniqueId.lt(0)) return;
         for(int i = 0; i < attributeMetadatas.size(); i++) {
-            if(attributeMetadatas.get(i).getAttUniqueId() == attUniqueId) {
+            if(attributeMetadatas.get(i).getAttUniqueId().equals(attUniqueId)) {
                 attributeMetadatas.remove(i);
                 return;
             }
         }
     }
 
-    public AttributeMetadata getAttributeMetadataByUniqueId(int attUniqueId) {
-        if(attUniqueId < 0) return null;
+    public AttributeMetadata getAttributeMetadataByUniqueId(UInt attUniqueId) {
+        if(attUniqueId.lt(0)) return null;
         for(AttributeMetadata attMetadata : attributeMetadatas) {
-            if (attMetadata.getAttUniqueId() == attUniqueId) {
+            if (attMetadata.getAttUniqueId().equals(attUniqueId)) {
                 return attMetadata;
             }
         }

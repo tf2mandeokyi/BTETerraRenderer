@@ -1,6 +1,11 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.array.UByteArray;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 import lombok.AllArgsConstructor;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,13 +29,14 @@ public class MetadataDecoder {
             return new Status(Status.Code.INVALID_PARAMETER, "Metadata is null.");
         }
         buffer = inBuffer;
-        AtomicReference<Long> numAttMetadata = new AtomicReference<>(0L);
-        if(BitUtils.decodeVarint(DataType.UINT32, numAttMetadata, buffer).isError(chain)) return chain.get();
+        AtomicReference<UInt> numAttMetadataRef = new AtomicReference<>();
+        if(BitUtils.decodeVarint(DataType.uint32(), numAttMetadataRef, buffer).isError(chain)) return chain.get();
+        int numAttMetadata = numAttMetadataRef.get().intValue();
 
         // Decode attribute metadata.
-        for(int i = 0; i < numAttMetadata.get(); ++i) {
-            AtomicReference<Long> attUniqueId = new AtomicReference<>(0L);
-            if(BitUtils.decodeVarint(DataType.UINT32, attUniqueId, buffer).isError(chain)) return chain.get();
+        for(int i = 0; i < numAttMetadata; ++i) {
+            AtomicReference<UInt> attUniqueId = new AtomicReference<>();
+            if(BitUtils.decodeVarint(DataType.uint32(), attUniqueId, buffer).isError(chain)) return chain.get();
             AttributeMetadata attMetadata = new AttributeMetadata();
             attMetadata.setAttUniqueId(attUniqueId.get());
             if(decodeMetadata(attMetadata).isError(chain)) return chain.get();
@@ -50,7 +56,7 @@ public class MetadataDecoder {
             Metadata parentMetadata, decodedMetadata;
             int level;
         }
-        CppVector<MetadataTuple> metadataStack = new CppVector<>();
+        CppVector<MetadataTuple> metadataStack = CppVector.create();
         metadataStack.pushBack(new MetadataTuple(null, metadata, 0));
         while(!metadataStack.isEmpty()) {
             MetadataTuple mp = metadataStack.popBack();
@@ -70,17 +76,19 @@ public class MetadataDecoder {
                 return new Status(Status.Code.DRACO_ERROR, "Metadata is null.");
             }
 
-            AtomicReference<Long> numEntries = new AtomicReference<>(0L);
-            if(BitUtils.decodeVarint(DataType.UINT32, numEntries, buffer).isError(chain)) return chain.get();
-            for(int i = 0; i < numEntries.get(); ++i) {
+            AtomicReference<UInt> numEntriesRef = new AtomicReference<>();
+            if(BitUtils.decodeVarint(DataType.uint32(), numEntriesRef, buffer).isError(chain)) return chain.get();
+            int numEntries = numEntriesRef.get().intValue();
+            for(int i = 0; i < numEntries; ++i) {
                 if(decodeEntry(metadata).isError(chain)) return chain.get();
             }
-            AtomicReference<Long> numSubMetadata = new AtomicReference<>(0L);
-            if(BitUtils.decodeVarint(DataType.UINT32, numSubMetadata, buffer).isError(chain)) return chain.get();
-            if(numSubMetadata.get() > buffer.getRemainingSize()) {
+            AtomicReference<UInt> numSubMetadataRef = new AtomicReference<>();
+            if(BitUtils.decodeVarint(DataType.uint32(), numSubMetadataRef, buffer).isError(chain)) return chain.get();
+            int numSubMetadata = numSubMetadataRef.get().intValue();
+            if(numSubMetadata > buffer.getRemainingSize()) {
                 return new Status(Status.Code.IO_ERROR, "The decoded number of metadata items is unreasonably high.");
             }
-            for(int i = 0; i < numSubMetadata.get(); ++i) {
+            for(int i = 0; i < numSubMetadata; ++i) {
                 metadataStack.pushBack(new MetadataTuple(
                         metadata, null, mp.parentMetadata != null ? mp.level + 1 : mp.level));
             }
@@ -93,16 +101,17 @@ public class MetadataDecoder {
 
         AtomicReference<String> entryName = new AtomicReference<>("");
         if(decodeName(entryName).isError(chain)) return chain.get();
-        AtomicReference<Long> dataSize = new AtomicReference<>(0L);
-        if(BitUtils.decodeVarint(DataType.UINT32, dataSize, buffer).isError(chain)) return chain.get();
-        if(dataSize.get() == 0) {
+        AtomicReference<UInt> dataSizeRef = new AtomicReference<>();
+        if(BitUtils.decodeVarint(DataType.uint32(), dataSizeRef, buffer).isError(chain)) return chain.get();
+        int dataSize = dataSizeRef.get().intValue();
+        if(dataSize == 0) {
             return new Status(Status.Code.IO_ERROR, "Data size is zero.");
         }
-        if(dataSize.get() > buffer.getRemainingSize()) {
+        if(dataSize > buffer.getRemainingSize()) {
             return new Status(Status.Code.IO_ERROR, "Data size exceeds buffer size.");
         }
-        AtomicReference<byte[]> entryValue = new AtomicReference<>(new byte[0]);
-        if(buffer.decode(DataType.bytes((int) (long) dataSize.get()), entryValue).isError(chain)) return chain.get();
+        AtomicReference<UByteArray> entryValue = new AtomicReference<>();
+        if(buffer.decode(DataType.bytes(dataSize), entryValue::set).isError(chain)) return chain.get();
         metadata.addEntryBinary(entryName.get(), entryValue.get());
         return Status.OK;
     }
@@ -110,12 +119,12 @@ public class MetadataDecoder {
     private Status decodeName(AtomicReference<String> name) {
         StatusChain chain = Status.newChain();
 
-        AtomicReference<Short> nameLen = new AtomicReference<>((short) 0);
-        if(buffer.decode(DataType.UINT8, nameLen).isError(chain)) return chain.get();
-        if(nameLen.get() == 0) {
-            return Status.OK;
-        }
-        if(buffer.decode(DataType.string(nameLen.get()), name).isError(chain)) return chain.get();
+        AtomicReference<UByte> nameLenRef = new AtomicReference<>();
+        if(buffer.decode(DataType.uint8(), nameLenRef::set).isError(chain)) return chain.get();
+        int nameLen = nameLenRef.get().intValue();
+        if(nameLen == 0) return Status.OK;
+
+        if(buffer.decode(DataType.bytes(nameLen), val -> name.set(val.decode())).isError(chain)) return chain.get();
         return Status.OK;
     }
 

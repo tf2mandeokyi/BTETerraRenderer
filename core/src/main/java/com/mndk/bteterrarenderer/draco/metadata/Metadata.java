@@ -1,18 +1,17 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
-import com.mndk.bteterrarenderer.draco.core.DataBuffer;
-import com.mndk.bteterrarenderer.draco.core.DataType;
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.array.Endian;
+import com.mndk.bteterrarenderer.datatype.array.UByteArray;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.Data;
 import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Class for holding generic metadata. It has a list of entries which consist of
@@ -30,50 +29,45 @@ public class Metadata {
     @Getter
     public static class EntryValue {
 
-        private final DataBuffer buffer;
+        private final UByteArray buffer;
 
-        public <T> EntryValue(DataType<T> dataType, T data) {
-            int dataTypeSize = dataType.size();
-            this.buffer = new DataBuffer(dataTypeSize);
-            dataType.setBuf(this.buffer, 0, data);
+        public <T> EntryValue(DataType<T, ?> dataType, T data) {
+            long dataTypeSize = dataType.size();
+            this.buffer = UByteArray.create(dataTypeSize);
+            dataType.write(this.buffer, 0, data, Endian.LITTLE);
         }
 
-        public <T> EntryValue(DataType<T> dataType, Function<Integer, T> data, int numEntries) {
-            int dataTypeSize = dataType.size();
-            this.buffer = new DataBuffer(dataTypeSize * numEntries);
+        public <T, TArray> EntryValue(DataType<T, TArray> dataType, TArray data, int numEntries) {
+            long dataTypeSize = dataType.size();
+            this.buffer = UByteArray.create(dataTypeSize * numEntries);
             for(int i = 0; i < numEntries; ++i) {
-                dataType.setBuf(this.buffer, i * dataTypeSize, data.apply(i));
+                dataType.write(this.buffer, i * dataTypeSize, dataType.get(data, i), Endian.LITTLE);
             }
         }
-        public <T> EntryValue(DataType<T> dataType, List<T> data) {
-            this(dataType, data::get, data.size());
-        }
 
-        public EntryValue(byte[] data) {
-            this.buffer = new DataBuffer();
-            this.buffer.update(data, data.length);
+        public EntryValue(UByteArray data) {
+            this.buffer = data;
         }
 
         public EntryValue(String value) {
-            this(value.getBytes(StandardCharsets.UTF_8));
+            this(UByteArray.create(value, StandardCharsets.UTF_8));
         }
 
-        public <T> Status getValue(DataType<T> type, Consumer<T> outVal) {
+        public <T> Status getValue(DataType<T, ?> type, Consumer<T> outVal) {
             if(this.buffer.size() != type.size()) {
                 return new Status(Status.Code.INVALID_PARAMETER, "Data size does not match the expected size");
             }
-            outVal.accept(type.getBuf(this.buffer, 0));
+            outVal.accept(type.read(this.buffer, 0, Endian.LITTLE));
             return Status.OK;
         }
 
-        public <T> Status getValue(DataType<T> type, List<T> outVal) {
+        public <T, TArray> Status getValue(DataType<T, TArray> type, TArray outVal) {
             if(this.buffer.size() % type.size() != 0) {
                 return new Status(Status.Code.INVALID_PARAMETER, "Data size is not a multiple of the expected size");
             }
-            int numEntries = this.buffer.size() / type.size();
-            outVal.clear();
+            long numEntries = this.buffer.size() / type.size();
             for(int i = 0; i < numEntries; ++i) {
-                outVal.add(type.getBuf(this.buffer, i * type.size()));
+                type.set(outVal, i, type.read(this.buffer, i * type.size(), Endian.LITTLE));
             }
             return Status.OK;
         }
@@ -83,14 +77,14 @@ public class Metadata {
                 return new Status(Status.Code.INVALID_PARAMETER, "Data size is zero");
             }
             outVal.setLength(0);
-            outVal.append(new String(this.buffer.getData(), StandardCharsets.UTF_8));
+            outVal.append(this.buffer.decode());
             return Status.OK;
         }
 
-        public Status getValue(AtomicReference<byte[]> outBuf) {
-            byte[] copy = new byte[this.buffer.size()];
-            System.arraycopy(this.buffer.getData(), 0, copy, 0, this.buffer.size());
-            outBuf.set(copy);
+        public Status getValue(AtomicReference<UByteArray> outBuf) {
+            UByteArray array = UByteArray.create(this.buffer.size());
+            array.copyTo(0, this.buffer, 0, this.buffer.size());
+            outBuf.set(array);
             return Status.OK;
         }
 
@@ -111,39 +105,39 @@ public class Metadata {
     }
 
     public void addEntryInt(String name, int value) {
-        this.entries.put(name, new EntryValue(DataType.INT32, value));
+        this.entries.put(name, new EntryValue(DataType.int32(), value));
     }
 
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
     public Status getEntryInt(String name, Consumer<Integer> value) {
-        return this.entries.get(name).getValue(DataType.INT32, value);
+        return this.entries.get(name).getValue(DataType.int32(), value);
     }
 
-    public void addEntryIntArray(String name, List<Integer> value) {
-        this.entries.put(name, new EntryValue(DataType.INT32, value));
+    public void addEntryIntArray(String name, int[] value) {
+        this.entries.put(name, new EntryValue(DataType.int32(), value, value.length));
     }
 
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
-    public Status getEntryIntArray(String name, List<Integer> value) {
-        return this.entries.get(name).getValue(DataType.INT32, value);
+    public Status getEntryIntArray(String name, int[] value) {
+        return this.entries.get(name).getValue(DataType.int32(), value);
     }
 
     public void addEntryDouble(String name, double value) {
-        this.entries.put(name, new EntryValue(DataType.FLOAT64, value));
+        this.entries.put(name, new EntryValue(DataType.float64(), value));
     }
 
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
     public Status getEntryDouble(String name, Consumer<Double> value) {
-        return this.entries.get(name).getValue(DataType.FLOAT64, value);
+        return this.entries.get(name).getValue(DataType.float64(), value);
     }
 
-    public void addEntryDoubleArray(String name, List<Double> value) {
-        this.entries.put(name, new EntryValue(DataType.FLOAT64, value));
+    public void addEntryDoubleArray(String name, double[] value) {
+        this.entries.put(name, new EntryValue(DataType.float64(), value, value.length));
     }
 
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
-    public Status getEntryDoubleArray(String name, List<Double> value) {
-        return this.entries.get(name).getValue(DataType.FLOAT64, value);
+    public Status getEntryDoubleArray(String name, double[] value) {
+        return this.entries.get(name).getValue(DataType.float64(), value);
     }
 
     public void addEntryString(String name, String value) {
@@ -154,11 +148,11 @@ public class Metadata {
         return this.entries.get(name).getValue(outVal);
     }
 
-    public void addEntryBinary(String name, byte[] buf) {
+    public void addEntryBinary(String name, UByteArray buf) {
         this.entries.put(name, new EntryValue(buf));
     }
 
-    public Status getEntryBinary(String name, AtomicReference<byte[]> outBuf) {
+    public Status getEntryBinary(String name, AtomicReference<UByteArray> outBuf) {
         return this.entries.get(name).getValue(outBuf);
     }
 

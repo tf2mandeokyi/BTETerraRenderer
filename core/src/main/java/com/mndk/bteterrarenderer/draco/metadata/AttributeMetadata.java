@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
+import com.mndk.bteterrarenderer.datatype.number.UInt;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,16 +13,16 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class AttributeMetadata extends Metadata {
 
-    private long attUniqueId;
+    private UInt attUniqueId;
 
     public AttributeMetadata() {
         super();
-        this.attUniqueId = 0;
+        this.attUniqueId = UInt.ZERO;
     }
 
     public AttributeMetadata(Metadata metadata) {
         super(metadata);
-        this.attUniqueId = 0;
+        this.attUniqueId = UInt.ZERO;
     }
 
     public AttributeMetadata(AttributeMetadata metadata) {

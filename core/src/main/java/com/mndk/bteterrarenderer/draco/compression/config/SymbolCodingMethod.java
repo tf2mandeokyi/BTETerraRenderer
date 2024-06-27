@@ -1,15 +1,34 @@
 package com.mndk.bteterrarenderer.draco.compression.config;
 
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
+import javax.annotation.Nullable;
 
 /** Different methods used for symbol entropy encoding. */
-@Getter @RequiredArgsConstructor
+@Getter
 public enum SymbolCodingMethod {
     SYMBOL_CODING_TAGGED(0),
     SYMBOL_CODING_RAW(1);
 
     public static final int NUM_SYMBOL_CODING_METHODS = values().length;
 
-    private final int value;
+    private final UByte value;
+
+    SymbolCodingMethod(int value) {
+        this.value = UByte.of(value);
+    }
+
+    @Nullable
+    public static SymbolCodingMethod fromValue(int value) {
+        return fromValue(UByte.of(value));
+    }
+
+    @Nullable
+    public static SymbolCodingMethod fromValue(UByte value) {
+        for(SymbolCodingMethod method : values()) {
+            if(method.value.equals(value)) return method;
+        }
+        return null;
+    }
 }

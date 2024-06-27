@@ -131,6 +131,7 @@ subprojects { p ->
         shadowDep(group: 'net.daporkchop.lib', name: 'common', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'binary', version: '0.5.7-SNAPSHOT') { exclude group: 'io.netty' }
         shadowDep(group: 'net.daporkchop.lib', name: 'unsafe', version: '0.5.7-SNAPSHOT')
+        shadowDep(group: 'net.mintern', name: 'primitive', version: '1.3')
         shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-anim'      , version: '1.17')
         shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-awt-util'  , version: '1.17')
         shadowDep(group: 'org.apache.xmlgraphics', name: 'batik-bridge'    , version: '1.17')

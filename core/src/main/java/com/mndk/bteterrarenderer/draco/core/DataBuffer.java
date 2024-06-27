@@ -1,8 +1,11 @@
 package com.mndk.bteterrarenderer.draco.core;
 
-import com.mndk.bteterrarenderer.core.util.ByteTable;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.mndk.bteterrarenderer.datatype.DataIOManager;
+import com.mndk.bteterrarenderer.datatype.array.Endian;
+import com.mndk.bteterrarenderer.datatype.array.UByteArray;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.number.ULong;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -10,22 +13,25 @@ import javax.annotation.Nullable;
 @Getter
 public class DataBuffer {
 
-    private static final byte[] EMPTY_ORIGIN = new byte[0];
+    private static final UByteArray EMPTY_ORIGIN = UByteArray.create(0);
 
-    private byte[] data = EMPTY_ORIGIN;
+    private UByteArray data = EMPTY_ORIGIN;
 
     public DataBuffer() {}
-    public DataBuffer(int size) {
+    public DataBuffer(long size) {
         this.resize(size);
+    }
+    public DataBuffer(UByteArray data) {
+        this.data = data;
     }
 
     public Status update(DataBuffer buffer) {
-        return update(buffer.data, buffer.data.length);
+        return update(buffer.data, buffer.data.size());
     }
-    public Status update(byte[] bytes, int size) {
+    public Status update(UByteArray bytes, long size) {
         return update(bytes, 0, size);
     }
-    public Status update(@Nullable byte[] bytes, int offset, int size) {
+    public Status update(@Nullable UByteArray bytes, long offset, long size) {
         if(bytes == null) {
             if(size + offset < 0) {
                 return new Status(Status.Code.INVALID_PARAMETER, "Invalid offset: " + offset);
@@ -37,50 +43,61 @@ public class DataBuffer {
             if(size < 0) {
                 return new Status(Status.Code.INVALID_PARAMETER, "Invalid size: " + size);
             }
-            if(size + offset > this.data.length) {
+            if(size + offset > this.data.size()) {
                 this.resize(size + offset);
             }
-            System.arraycopy(bytes, 0, this.data, offset, size);
+            bytes.copyTo(0, this.data, offset, size);
         }
         return Status.OK;
     }
 
-    public void resize(int newSize) {
-        if(newSize > data.length) {
-            byte[] newOrigin = new byte[newSize];
-            System.arraycopy(data, 0, newOrigin, 0, data.length);
-            data = newOrigin;
-        }
+    public void resize(long newSize) {
+        if(newSize == data.size()) return;
+        UByteArray newOrigin = UByteArray.create(newSize);
+        data.copyTo(0, newOrigin, 0, Math.min(newSize, data.size()));
+        data = newOrigin;
     }
 
-    public void printAsTable(String prefix) {
-        ByteTable.print(data, 0, data.length, prefix);
+    public DataBuffer withOffset(ULong offset) {
+        return this.withOffset(offset.longValue());
+    }
+    public DataBuffer withOffset(long offset) {
+        return new DataBuffer(data.withOffset(offset));
     }
 
-    public ByteBuf wrappedBuf(int offset, int size) {
-        return Unpooled.wrappedBuffer(data, offset, size);
+    public void copyFrom(long dstOffset, DataBuffer src, long srcOffset, long size) {
+        src.data.copyTo(srcOffset, this.data, dstOffset, size);
     }
 
-    public void copy(int dstOffset, DataBuffer src, int srcOffset, int size) {
-        System.arraycopy(src.data, srcOffset, this.data, dstOffset, size);
+    public long size() {
+        return this.data.size();
     }
 
-    public int size() {
-        return this.data.length;
+    public UByte get(long index) {
+        return data.get(index);
     }
 
-    public byte get(int index) {
-        return data[index];
+    public void set(long index, UByte value) {
+        data.set(index, value);
     }
 
-    public void set(int index, byte value) {
-        data[index] = value;
+    public <T> T read(DataIOManager<T> type, long index) {
+        return type.read(data, index, Endian.LITTLE);
     }
+
+    public <T> void write(DataIOManager<T> type, long index, T value) {
+        type.write(data, index, value, Endian.LITTLE);
+    }
+
+    public UInt getLE16(long offset) { return data.getUInt16(offset, Endian.LITTLE).uIntValue(); }
+    public UInt getLE24(long offset) { return data.getUInt24(offset, Endian.LITTLE); }
+    public UInt getLE32(long offset) { return data.getUInt32(offset, Endian.LITTLE); }
+    public void memPutLe16(long offset, UInt val) { data.setUInt16(offset, val.uShortValue(), Endian.LITTLE); }
+    public void memPutLe24(long offset, UInt val) { data.setUInt24(offset, val, Endian.LITTLE); }
+    public void memPutLe32(long offset, UInt val) { data.setUInt32(offset, val, Endian.LITTLE); }
 
     @Override
     public int hashCode() {
-        int result = size();
-        for (byte element : data) result = 31 * result + element;
-        return result;
+        return data.hashCode();
     }
 }

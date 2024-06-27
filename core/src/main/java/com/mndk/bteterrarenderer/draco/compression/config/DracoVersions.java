@@ -1,5 +1,7 @@
 package com.mndk.bteterrarenderer.draco.compression.config;
 
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+
 public class DracoVersions {
 
     // Latest Draco bit-stream version.
@@ -20,6 +22,9 @@ public class DracoVersions {
     public static final int MESH_BIT_STREAM_VERSION = getBitstreamVersion(
             MESH_BIT_STREAM_VERSION_MAJOR, MESH_BIT_STREAM_VERSION_MINOR);
 
+    public static int getBitstreamVersion(UByte major, UByte minor) {
+        return getBitstreamVersion(major.intValue(), minor.intValue());
+    }
     public static int getBitstreamVersion(int major, int minor) {
         return (short) ((major << 8) | minor);
     }

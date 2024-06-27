@@ -1,18 +1,27 @@
 package com.mndk.bteterrarenderer.draco.core;
 
-import com.mndk.bteterrarenderer.draco.util.DracoCompressionException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class StatusOr<T> {
 
+    public static <T> StatusOr<T> ok(T value) {
+        return new StatusOr<>(value);
+    }
+    public static <T> StatusOr<T> error(Status status) {
+        return new StatusOr<>(status);
+    }
+    public static <T> StatusOr<T> error(Status.Code code, String message) {
+        return new StatusOr<>(new Status(code, message));
+    }
+
     @Getter
     private final Status status;
     private final T value;
 
     public StatusOr() {
-        this(new Status(), null);
+        this(Status.OK, null);
     }
 
     public StatusOr(StatusOr<T> other) {
@@ -24,7 +33,7 @@ public class StatusOr<T> {
     }
 
     public StatusOr(T value) {
-        this(new Status(), value);
+        this(Status.OK, value);
     }
 
     public T getValue() throws DracoCompressionException {

@@ -6,7 +6,7 @@ public class StatusAssert {
 
     public static void assertOk(Status status) {
         if(!status.isOk()) {
-            Assert.fail(status.getStackErrorMessage());
+            throw new AssertionError(status.getException());
         }
     }
 
