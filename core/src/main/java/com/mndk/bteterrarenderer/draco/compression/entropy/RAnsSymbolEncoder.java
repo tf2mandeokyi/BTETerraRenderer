@@ -84,7 +84,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
                         RAnsSymbol symbol = probabilityTable.get(symbolId);
                         if(symbol.prob.le(1)) {
                             if(j == numSymbols - 1) {
-                                return new Status(Status.Code.IO_ERROR, "Most frequent symbol is empty");
+                                return Status.ioError("Most frequent symbol is empty");
                             }
                             break;
                         }
@@ -119,7 +119,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
             totalProb = totalProb.add(symbol.prob);
         }
         if(!totalProb.equals(ransPrecision)) {
-            return new Status(Status.Code.IO_ERROR, "Total probability is not equal to ransPrecision");
+            return Status.ioError("Total probability is not equal to ransPrecision");
         }
 
         // Estimate the number of bits needed to encode the input.
@@ -165,7 +165,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
 
         ULong bytesWritten = ans.writeEnd();
         EncoderBuffer varSizeBuffer = new EncoderBuffer();
-        BitUtils.encodeVarint(DataType.uint64(), bytesWritten, varSizeBuffer);
+        varSizeBuffer.encodeVarint(DataType.uint64(), bytesWritten);
         UInt sizeLen = UInt.of(varSizeBuffer.size());
         long dst = src + sizeLen.longValue();
         dataBuffer.copyFrom(dst, dataBuffer, src, bytesWritten.longValue());
@@ -177,9 +177,9 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
     }
 
     private Status encodeTable(EncoderBuffer buffer) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
-        if(BitUtils.encodeVarint(DataType.uint32(), numSymbols, buffer).isError(chain)) return chain.get();
+        if(buffer.encodeVarint(DataType.uint32(), numSymbols).isError(chain)) return chain.get();
         // Use varint encoding for the probabilities (first two bits represent the
         // number of bytes used - 1).
         for(UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {
@@ -192,7 +192,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
                     if(prob.ge(1 << 22)) {
                         // The maximum number of precision bits is 20, so we should not really
                         // get to this point.
-                        return new Status(Status.Code.IO_ERROR, "The maximum number of precision bits is 20");
+                        return Status.ioError("The maximum number of precision bits is 20");
                     }
                 }
             }
@@ -224,7 +224,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
                 }
             }
         }
-        return Status.OK;
+        return Status.ok();
     }
 
 }

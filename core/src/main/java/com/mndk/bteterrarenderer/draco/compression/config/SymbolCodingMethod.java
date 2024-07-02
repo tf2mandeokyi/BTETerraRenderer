@@ -20,12 +20,12 @@ public enum SymbolCodingMethod {
     }
 
     @Nullable
-    public static SymbolCodingMethod fromValue(int value) {
-        return fromValue(UByte.of(value));
+    public static SymbolCodingMethod valueOf(int value) {
+        return valueOf(UByte.of(value));
     }
 
     @Nullable
-    public static SymbolCodingMethod fromValue(UByte value) {
+    public static SymbolCodingMethod valueOf(UByte value) {
         for(SymbolCodingMethod method : values()) {
             if(method.value.equals(value)) return method;
         }

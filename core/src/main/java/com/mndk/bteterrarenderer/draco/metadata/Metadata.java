@@ -55,37 +55,37 @@ public class Metadata {
 
         public <T> Status getValue(DataType<T, ?> type, Consumer<T> outVal) {
             if(this.buffer.size() != type.size()) {
-                return new Status(Status.Code.INVALID_PARAMETER, "Data size does not match the expected size");
+                return Status.invalidParameter("Data size does not match the expected size");
             }
             outVal.accept(type.read(this.buffer, 0, Endian.LITTLE));
-            return Status.OK;
+            return Status.ok();
         }
 
         public <T, TArray> Status getValue(DataType<T, TArray> type, TArray outVal) {
             if(this.buffer.size() % type.size() != 0) {
-                return new Status(Status.Code.INVALID_PARAMETER, "Data size is not a multiple of the expected size");
+                return Status.invalidParameter("Data size is not a multiple of the expected size");
             }
             long numEntries = this.buffer.size() / type.size();
             for(int i = 0; i < numEntries; ++i) {
                 type.set(outVal, i, type.read(this.buffer, i * type.size(), Endian.LITTLE));
             }
-            return Status.OK;
+            return Status.ok();
         }
 
         public Status getValue(StringBuilder outVal) {
             if(this.buffer.size() == 0) {
-                return new Status(Status.Code.INVALID_PARAMETER, "Data size is zero");
+                return Status.invalidParameter("Data size is zero");
             }
             outVal.setLength(0);
             outVal.append(this.buffer.decode());
-            return Status.OK;
+            return Status.ok();
         }
 
         public Status getValue(AtomicReference<UByteArray> outBuf) {
             UByteArray array = UByteArray.create(this.buffer.size());
             array.copyTo(0, this.buffer, 0, this.buffer.size());
             outBuf.set(array);
-            return Status.OK;
+            return Status.ok();
         }
 
         @Override
@@ -158,10 +158,10 @@ public class Metadata {
 
     public Status addSubMetadata(String name, Metadata metadata) {
         if(subMetadatas.containsKey(name)) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Metadata already contains sub-metadata with name " + name);
+            return Status.invalidParameter("Metadata already contains sub-metadata with name " + name);
         }
         this.subMetadatas.put(name, metadata);
-        return Status.OK;
+        return Status.ok();
     }
 
     public Metadata getSubMetadata(String name) {

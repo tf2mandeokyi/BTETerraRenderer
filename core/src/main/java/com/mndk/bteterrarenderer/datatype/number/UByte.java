@@ -22,6 +22,8 @@ public class UByte extends CppNumber<UByte> {
 
     private final byte value;
 
+    public static UByte min(UByte a, UByte b) { return a.compareTo(b) <= 0 ? a : b; }
+
     @Override public boolean equals(UByte other) { return value == other.value; }
     @Override public int hashCode() { return Byte.hashCode(value); }
     @Override public String toString() { return Integer.toString(value & MASK); }

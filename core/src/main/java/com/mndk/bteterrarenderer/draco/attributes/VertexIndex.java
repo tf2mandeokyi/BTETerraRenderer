@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataArrayManager;
-import com.mndk.bteterrarenderer.draco.core.IndexType;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
-public class VertexIndex extends IndexType<VertexIndex> {
+public class VertexIndex extends IndexTypeImpl<VertexIndex> {
     // kInvalidVertexIndex
     public static final VertexIndex INVALID = new VertexIndex(-1);
 

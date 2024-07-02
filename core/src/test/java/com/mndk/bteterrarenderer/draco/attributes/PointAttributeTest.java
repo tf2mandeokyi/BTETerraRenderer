@@ -1,12 +1,12 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.draco.core.StatusAssert;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.draco.core.DracoDataType;
+import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 public class PointAttributeTest {
 
@@ -15,7 +15,7 @@ public class PointAttributeTest {
         // This test verifies that PointAttribute can copy data from another point
         // attribute.
         PointAttribute pa = new PointAttribute();
-        pa.init(GeometryAttribute.Type.POSITION, (byte) 1, DataType.int32(), false, 10);
+        pa.init(GeometryAttribute.Type.POSITION, (byte) 1, DracoDataType.DT_INT32, false, 10);
 
         for(int i = 0; i < 10; i++) {
             pa.setAttributeValue(AttributeValueIndex.of(i), DataType.int32(), i);
@@ -40,7 +40,7 @@ public class PointAttributeTest {
     @Test
     public void testGetValueFloat() {
         PointAttribute pa = new PointAttribute();
-        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DataType.float32(), false, 5);
+        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.DT_FLOAT32, false, 5);
         float[] points = new float[3];
         for(int i = 0; i < 5; i++) {
             points[0] = i * 3;
@@ -60,7 +60,7 @@ public class PointAttributeTest {
     @Test
     public void testGetArray() {
         PointAttribute pa = new PointAttribute();
-        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DataType.float32(), false, 5);
+        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.DT_FLOAT32, false, 5);
         float[] points = new float[3];
         for(int i = 0; i < 5; i++) {
             points[0] = i * 3;
@@ -70,7 +70,7 @@ public class PointAttributeTest {
         }
 
         for(int i = 0; i < 5; i++) {
-            List<Float> attValue = pa.getValue(AttributeValueIndex.of(i), DataType.float32(), 3);
+            CppVector<Float> attValue = pa.getValue(AttributeValueIndex.of(i), DataType.float32(), 3);
             Assert.assertEquals(attValue.get(0), i * 3, 0);
             Assert.assertEquals(attValue.get(1), (i * 3) + 1, 0);
             Assert.assertEquals(attValue.get(2), (i * 3) + 2, 0);
@@ -86,7 +86,7 @@ public class PointAttributeTest {
     @Test
     public void testArrayReadError() {
         PointAttribute pa = new PointAttribute();
-        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DataType.float32(), false, 5);
+        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.DT_FLOAT32, false, 5);
         float[] points = new float[3];
         for(int i = 0; i < 5; i++) {
             points[0] = i * 3;
@@ -101,7 +101,7 @@ public class PointAttributeTest {
     @Test
     public void testResize() {
         PointAttribute pa = new PointAttribute();
-        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DataType.float32(), false, 5);
+        pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.DT_FLOAT32, false, 5);
         Assert.assertEquals(pa.size(), 5);
         Assert.assertEquals(pa.getBuffer().size(), 5 * 3 * DataType.float32().size());
 

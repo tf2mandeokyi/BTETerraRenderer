@@ -18,10 +18,10 @@ public class Dequantizer {
     */
     public Status init(float range, int maxQuantizedValue) {
         if(maxQuantizedValue <= 0) {
-            return new Status(Status.Code.INVALID_PARAMETER, "max_quantized_value must be greater than 0");
+            return Status.invalidParameter("max_quantized_value must be greater than 0");
         }
         this.delta = range / maxQuantizedValue;
-        return Status.OK;
+        return Status.ok();
     }
 
     /** Initializes the dequantizer using the {@code delta} between two quantized values. */

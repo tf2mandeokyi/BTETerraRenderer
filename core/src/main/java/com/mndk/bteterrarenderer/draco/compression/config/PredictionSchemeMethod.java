@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.draco.compression.config;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nullable;
 import java.util.stream.Stream;
 
 /** List of all prediction methods currently supported by our framework. */
@@ -26,4 +27,12 @@ public enum PredictionSchemeMethod {
             .count();
 
     private final int value;
+
+    @Nullable
+    public static PredictionSchemeMethod valueOf(int value) {
+        for (PredictionSchemeMethod type : values()) {
+            if (type.value == value) return type;
+        }
+        return null;
+    }
 }

@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-interface CustomIndexCppVector<I, E> extends Iterable<E> {
+interface CustomIndexCppVector<I, E, V extends CustomIndexCppVector<I, E, V>> extends Iterable<E> {
     // From C++ reference:
     // - Assigns new contents to the vector, replacing its current contents, and
     //   modifying its size accordingly.
@@ -25,13 +25,18 @@ interface CustomIndexCppVector<I, E> extends Iterable<E> {
     boolean contains(E value);
 
     E set(I index, E value);
+    default E set(I index, Function<E, E> function) {
+        return this.set(index, function.apply(this.get(index)));
+    }
     void insert(I index, E value);
     void pushBack(E value);
     void clear();
     void erase(I index);
     E popBack();
-    void swap(CustomIndexCppVector<I, E> other);
+    void swap(V other);
     void sort(@Nullable Comparator<E> comparator);
+
+    V withOffset(I offset);
 
     // From C++ reference:
     // - Requests that the vector capacity be at least enough to contain n elements.

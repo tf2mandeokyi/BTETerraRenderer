@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 import lombok.experimental.UtilityClass;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,19 +42,15 @@ public class BitUtils {
         return msb;
     }
 
-    public <T, TArray, U, UArray>
-    void convertSignedIntsToSymbols(DataNumberType<T, TArray> inType, TArray in, int inValues,
-                                    DataNumberType<U, UArray> outType, UArray out) {
+    public void convertSignedIntsToSymbols(CppVector<Integer> inVector, int inValues, CppVector<UInt> outVector) {
         for (int i = 0; i < inValues; i++) {
-            outType.set(out, i, convertSignedIntToSymbol(inType, inType.get(in, i), outType));
+            outVector.set(i, convertSignedIntToSymbol(DataType.int32(), inVector.get(i), DataType.uint32()));
         }
     }
 
-    public <U, UArray, T, TArray>
-    void convertSymbolsToSignedInts(DataNumberType<U, UArray> inType, UArray in, int inValues,
-                                    DataNumberType<T, TArray> outType, TArray out) {
+    public void convertSymbolsToSignedInts(CppVector<UInt> inVector, int inValues, CppVector<Integer> outVector) {
         for (int i = 0; i < inValues; i++) {
-            outType.set(out, i, convertSymbolToSignedInt(inType, inType.get(in, i), outType));
+            outVector.set(i, convertSymbolToSignedInt(DataType.uint32(), inVector.get(i), DataType.int32()));
         }
     }
 
@@ -79,13 +76,13 @@ public class BitUtils {
         return ret;
     }
 
-    public <T> Status decodeVarintUnsigned(long depth, DataNumberType<T, ?> outType, AtomicReference<T> outValRef,
-                                           DecoderBuffer buffer) {
-        StatusChain chain = Status.newChain();
+    private <T> Status decodeVarintUnsigned(long depth, DataNumberType<T, ?> outType, AtomicReference<T> outValRef,
+                                            DecoderBuffer buffer) {
+        StatusChain chain = new StatusChain();
 
         long maxDepth = outType.size() + 1 + (outType.size() >> 3);
         if (depth > maxDepth) {
-            return new Status(Status.Code.DRACO_ERROR, "Varint decoding depth exceeded");
+            return Status.dracoError("Varint decoding depth exceeded");
         }
         AtomicReference<UByte> inRef = new AtomicReference<>();
         if(buffer.decode(DataType.uint8(), inRef::set).isError(chain)) return chain.get();
@@ -98,11 +95,11 @@ public class BitUtils {
         } else {
             outValRef.set(outType.from(in));
         }
-        return Status.OK;
+        return Status.ok();
     }
 
-    public <T, U> Status decodeVarint(DataNumberType<T, ?> outType, AtomicReference<T> outVal, DecoderBuffer buffer) {
-        StatusChain chain = Status.newChain();
+    <T, U> Status decodeVarint(DataNumberType<T, ?> outType, AtomicReference<T> outVal, DecoderBuffer buffer) {
+        StatusChain chain = new StatusChain();
 
         if (outType.isUnsigned()) {
             return decodeVarintUnsigned(1, outType, outVal, buffer);
@@ -115,11 +112,11 @@ public class BitUtils {
             T out = convertSymbolToSignedInt(unsigned, symbol, outType);
             outVal.set(out);
         }
-        return Status.OK;
+        return Status.ok();
     }
 
-    public <T, U> Status encodeVarint(DataNumberType<T, ?> inType, T val, EncoderBuffer outBuffer) {
-        StatusChain chain = Status.newChain();
+    <T, U> Status encodeVarint(DataNumberType<T, ?> inType, T val, EncoderBuffer outBuffer) {
+        StatusChain chain = new StatusChain();
 
         if (inType.isUnsigned()) {
             // Coding of unsigned values.

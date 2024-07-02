@@ -21,7 +21,7 @@ public class Status {
 
         private final int value;
 
-        public static Code fromValue(int value) {
+        public static Code valueOf(int value) {
             for(Code code : Code.values()) {
                 if(code.value == value) return code;
             }
@@ -29,27 +29,24 @@ public class Status {
         }
     }
 
-    public static final Status OK = new Status();
-
-    public static StatusChain newChain() {
-        return new StatusChain() {};
-    }
+    private static final Status OK = new Status();
+    public static Status ok() { return OK; }
+    public static Status dracoError(String message) { return new Status(Code.DRACO_ERROR, message, generateStackTrace()); }
+    public static Status ioError(String message) { return new Status(Code.IO_ERROR, message, generateStackTrace()); }
+    public static Status invalidParameter(String message) { return new Status(Code.INVALID_PARAMETER, message, generateStackTrace()); }
+    public static Status unsupportedVersion(String message) { return new Status(Code.UNSUPPORTED_VERSION, message, generateStackTrace()); }
+    public static Status unknownVersion(String message) { return new Status(Code.UNKNOWN_VERSION, message, generateStackTrace()); }
+    public static Status unsupportedFeature(String message) { return new Status(Code.UNSUPPORTED_FEATURE, message, generateStackTrace()); }
 
     private final Code code;
     private final String errorMessage;
     @Getter
     private final StackTraceElement[] stackTrace;
 
-    private Status() {
-        this(Code.OK);
+    Status() {
+        this(Code.OK, null, new StackTraceElement[0]);
     }
-    public Status(Status status) {
-        this(status.code, status.errorMessage, status.stackTrace);
-    }
-    public Status(Code code) {
-        this(code, null, code != Code.OK ? generateStackTrace() : new StackTraceElement[0]);
-    }
-    public Status(Code code, String errorMessage) {
+    Status(Code code, String errorMessage) {
         this(code, errorMessage, generateStackTrace());
     }
 
@@ -64,6 +61,10 @@ public class Status {
         return this.code == Code.OK;
     }
 
+    public boolean isError() {
+        return this.code != Code.OK;
+    }
+
     public boolean isError(@Nullable StatusChain chain) {
         if(this.code != Code.OK) {
             if(chain != null) chain.set(this);
@@ -76,8 +77,8 @@ public class Status {
         return (this.code == null ? "UNKNOWN_STATUS_VALUE" : this.code) + ": " + this.errorMessage;
     }
 
-    public DracoCompressionException getException() {
-        return new DracoCompressionException(this);
+    public RuntimeException getRuntimeException() {
+        return new IllegalArgumentException(new DracoCompressionException(this));
     }
 
     @Override

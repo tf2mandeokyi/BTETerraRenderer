@@ -1,18 +1,17 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataIOManager;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
-import com.mndk.bteterrarenderer.draco.core.DataBuffer;
-import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.DracoCompressionException;
+import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -52,10 +51,16 @@ public class GeometryAttribute {
         private final int index;
         private final String string;
 
-        // GeometryAttribute.TypeToString()
         @Override
         public String toString() {
             return this.string;
+        }
+
+        public static Type valueOf(UByte value) {
+            for(Type type : values()) {
+                if(value.equals(type.index)) return type;
+            }
+            return INVALID;
         }
 
         // Search by string
@@ -68,8 +73,8 @@ public class GeometryAttribute {
     }
 
     protected DataBuffer buffer = null;
-    private short numComponents = 1;
-    private DataNumberType<?, ?> dataType = DataType.float32();
+    private UByte numComponents = UByte.of(1);
+    private DracoDataType dataType = DracoDataType.DT_FLOAT32;
     private boolean normalized;
     private long byteStride = 0;
     private long byteOffset = 0;
@@ -83,7 +88,7 @@ public class GeometryAttribute {
     }
 
     /** Initializes and enables the attribute. */
-    public final void init(Type attributeType, DataBuffer buffer, short numComponents, DataNumberType<?, ?> dataType,
+    public final void init(Type attributeType, DataBuffer buffer, UByte numComponents, DracoDataType dataType,
                            boolean normalized, long byteStride, long byteOffset)
     {
         this.buffer = buffer;
@@ -116,12 +121,12 @@ public class GeometryAttribute {
         }
         else {
             if(this.buffer == null) {
-                return new Status(Status.Code.INVALID_PARAMETER, "buffer is null");
+                return Status.invalidParameter("buffer is null");
             }
             // Copy buffer data
             this.buffer.update(srcAtt.buffer);
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     /**
@@ -135,13 +140,13 @@ public class GeometryAttribute {
         long bytePos = this.getBytePos(attIndex);
         long byteSize = outType.size();
         if(bytePos + byteSize * attComponents > buffer.size()) {
-            return new Status(Status.Code.IO_ERROR, "buffer capacity exceeded");
+            return Status.ioError("buffer capacity exceeded");
         }
         for(int i = 0; i < attComponents; i++) {
             T value = buffer.read(outType, bytePos + i * byteSize);
             out.accept(i, value);
         }
-        return Status.OK;
+        return Status.ok();
     }
     public final <T, TArray> Status getValue(AttributeValueIndex attIndex, DataType<T, TArray> outType, TArray out,
                                              int attComponents) {
@@ -150,11 +155,11 @@ public class GeometryAttribute {
     public final <T, TArray> Status getValue(AttributeValueIndex attIndex, DataType<T, TArray> outType, TArray out) {
         return this.getValue(attIndex, outType, out, outType.length(out));
     }
-    public final <T, TArray> List<T> getValue(AttributeValueIndex attIndex, DataType<T, TArray> outType,
-                                              int attComponents) {
+    public final <T, TArray> CppVector<T> getValue(AttributeValueIndex attIndex, DataType<T, TArray> outType,
+                                                   int attComponents) {
         TArray out = outType.newArray(attComponents);
         this.getValue(attIndex, outType, outType.setter(out), attComponents);
-        return outType.asList(out);
+        return CppVector.view(outType, out);
     }
 
     /** Returns the byte position of the attribute entry in the data buffer. */
@@ -192,8 +197,8 @@ public class GeometryAttribute {
     void setAttributeValues(AttributeValueIndex entryIndex, DataType<T, TArray> inType, TArray in, int attComponents) {
         this.setAttributeValues(entryIndex, inType, inType.getter(in), attComponents);
     }
-    public <T, TArray>
-    void setAttributeValues(AttributeValueIndex entryIndex, DataType<T, TArray> inType, TArray in) {
+    public <TArray>
+    void setAttributeValues(AttributeValueIndex entryIndex, DataType<?, TArray> inType, TArray in) {
         this.setAttributeValues(entryIndex, inType, in, inType.length(in));
     }
     public final <T> void setAttributeValue(AttributeValueIndex entryIndex, DataIOManager<T> inType, long index, T value) {
@@ -206,13 +211,11 @@ public class GeometryAttribute {
      *
      * @param outType the desired data type of the attribute.
      * @param outVal  needs to be able to store outNumComponents values.
-     * @throws DracoCompressionException when the conversion fails.
      */
-    public final <T, TArray> void convertValue(AttributeValueIndex attId, short outNumComponents,
-                                               DataNumberType<T, TArray> outType, TArray outVal)
-            throws DracoCompressionException
+    public final <TArray> void convertValue(AttributeValueIndex attId, UByte outNumComponents,
+                                            DataNumberType<?, TArray> outType, TArray outVal)
     {
-        if(outVal == null) throw new DracoCompressionException("out value is null");
+        if(outVal == null) throw new IllegalArgumentException("out value is null");
         this.convertTypedValue(attId, outNumComponents, outType, outVal);
     }
 
@@ -220,13 +223,18 @@ public class GeometryAttribute {
      * Function for conversion of an attribute to a specific output format.
      * @param outValue must be able to store all components of a single attribute entry.
      * @param outType the desired data type of the attribute.
-     * @throws DracoCompressionException when the conversion fails.
+     * @throws IllegalArgumentException when the conversion fails.
      */
-    public final <T, TArray> void convertValue(AttributeValueIndex attIndex,
-                                               DataNumberType<T, TArray> outType, TArray outValue)
-            throws DracoCompressionException
+    public final <TArray>
+    void convertValue(AttributeValueIndex attIndex, DataNumberType<?, TArray> outType, TArray outValue)
     {
         this.convertValue(attIndex, this.numComponents, outType, outValue);
+    }
+
+    public final <TArray>
+    void convertValue(AttributeValueIndex attIndex, VectorD<?, TArray, ?> outValue)
+    {
+        this.convertValue(attIndex, this.numComponents, outValue.getElementType(), outValue.getArray());
     }
 
     @Override
@@ -235,7 +243,7 @@ public class GeometryAttribute {
         if(!(obj instanceof GeometryAttribute)) return false;
 
         GeometryAttribute other = (GeometryAttribute) obj;
-        if(this.numComponents != other.numComponents) return false;
+        if(!this.numComponents.equals(other.numComponents)) return false;
         if(this.dataType != other.dataType) return false;
         if(this.byteStride != other.byteStride) return false;
         return this.byteOffset == other.byteOffset;
@@ -259,19 +267,19 @@ public class GeometryAttribute {
      * format of the stored attribute.
      * @param outType the desired data type of the attribute.
      */
-    private <T, TArray> void convertTypedValue(AttributeValueIndex attId, short outNumComponents,
+    private <T, TArray> void convertTypedValue(AttributeValueIndex attId, UByte outNumComponents,
                                                DataNumberType<T, TArray> outType, TArray outValue)
-            throws DracoCompressionException
     {
         long bytePos = this.getBytePos(attId);
-        long byteSize = this.dataType.size();
+        long byteSize = this.dataType.getDataTypeLength();
         // Convert all components available in both the original and output formats.
-        for(int i = 0; i < Math.min(this.numComponents, outNumComponents); i++) {
-            T value = convertComponentValue(this.dataType, bytePos + i * byteSize, outType, this.normalized);
+        for(int i = 0, until = UByte.min(this.numComponents, outNumComponents).intValue(); i < until; i++) {
+            DataNumberType<?, ?> inType = this.dataType.getDataType();
+            T value = convertComponentValue(inType, bytePos + i * byteSize, outType, this.normalized);
             outType.set(outValue, i, value);
         }
         // Fill empty data for unused output components if needed.
-        for(int i = this.numComponents; i < outNumComponents; i++) {
+        for(int i = this.numComponents.intValue(), until = outNumComponents.intValue(); i < until; i++) {
             outType.set(outValue, i, outType.from(0));
         }
     }
@@ -284,7 +292,6 @@ public class GeometryAttribute {
      */
     private <T, OutT> OutT convertComponentValue(DataNumberType<T, ?> inType, long byteIndex,
                                                  DataNumberType<OutT, ?> outType, boolean normalized)
-            throws DracoCompressionException
     {
         T inValue = buffer.read(inType, byteIndex);
         // Make sure inValue can be represented as an integral type U.
@@ -294,7 +301,7 @@ public class GeometryAttribute {
             if(outType != DataType.bool() && inType.isIntegral()) {
                 OutT kOutMin = inType.isSigned() ? outType.min() : outType.from(0);
                 if(inType.lt(inValue, outType, kOutMin) || inType.gt(inValue, outType, outType.max())) {
-                    throw new DracoCompressionException("inValue out of range");
+                    throw new IllegalArgumentException("inValue out of range");
                 }
             }
 
@@ -306,21 +313,21 @@ public class GeometryAttribute {
                 if(inType.size() == DataType.float64().size()) {
                     double value = inType.toDouble(inValue);
                     if(Double.isNaN(value) || Double.isInfinite(value)) {
-                        throw new DracoCompressionException("not a valid floating point value");
+                        throw new IllegalArgumentException("not a valid floating point value");
                     }
                 }
                 else if(inType.size() == DataType.float32().size()) {
                     float value = inType.toFloat(inValue);
                     if(Float.isNaN(value) || Float.isInfinite(value)) {
-                        throw new DracoCompressionException("not a valid floating point value");
+                        throw new IllegalArgumentException("not a valid floating point value");
                     }
                 }
-                else throw new DracoCompressionException("unsupported floating point size");
+                else throw new IllegalArgumentException("unsupported floating point size");
 
                 // Make sure the floating point inValue fits within the range of
                 // values that integral type OutT is able to present.
                 if(inType.lt(inValue, outType, outType.min()) || inType.ge(inValue, outType, outType.max())) {
-                    throw new DracoCompressionException("inValue out of range");
+                    throw new IllegalArgumentException("inValue out of range");
                 }
             }
         }
@@ -334,13 +341,13 @@ public class GeometryAttribute {
             // Converting from floating point to a normalized integer.
             if(inType.gt(inValue, 1) || inType.lt(inValue, 0)) {
                 // Normalized float values need to be between 0 and 1.
-                throw new DracoCompressionException("input value outside normalized range: " + inValue);
+                throw new IllegalArgumentException("input value outside normalized range: " + inValue);
             }
             // From Google's repository: "Consider allowing float to normalized integer conversion
             // for 64-bit integer types. It doesn't work currently because we don't
             // have a floating point type that could store all 64-bit integers."
             if(outType.size() > 4) {
-                throw new DracoCompressionException("output type size bigger than 4");
+                throw new IllegalArgumentException("output type size bigger than 4");
             }
             // Expand the float to the range of the output integer and round it to the
             // nearest representable value. Use doubles for the math to ensure the

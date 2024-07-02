@@ -17,28 +17,28 @@ import java.util.function.Supplier;
 @UtilityClass
 public class SymbolDecoding {
 
-    public Status decodeSymbols(UInt numValues, int numComponents,
-                                DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
-        StatusChain chain = Status.newChain();
+    public Status decode(UInt numValues, int numComponents,
+                         DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+        StatusChain chain = new StatusChain();
 
-        if(numValues.equals(0)) return Status.OK;
+        if(numValues.equals(0)) return Status.ok();
 
         // Decode which scheme to use.
         AtomicReference<UByte> schemeRef = new AtomicReference<>();
         if(srcBuffer.decode(DataType.uint8(), schemeRef::set).isError(chain)) return chain.get();
-        SymbolCodingMethod scheme = SymbolCodingMethod.fromValue(schemeRef.get());
+        SymbolCodingMethod scheme = SymbolCodingMethod.valueOf(schemeRef.get());
 
         if(scheme == SymbolCodingMethod.SYMBOL_CODING_TAGGED) {
-            return decodeTaggedSymbols(RAnsSymbolDecoder::new, numValues, numComponents, srcBuffer, outValues);
+            return decodeTagged(RAnsSymbolDecoder::new, numValues, numComponents, srcBuffer, outValues);
         } else if(scheme == SymbolCodingMethod.SYMBOL_CODING_RAW) {
-            return decodeRawSymbols(RAnsSymbolDecoder::new, numValues, srcBuffer, outValues);
+            return decodeRaw(RAnsSymbolDecoder::new, numValues, srcBuffer, outValues);
         }
-        return new Status(Status.Code.IO_ERROR, "Invalid symbol coding method: " + schemeRef.get());
+        return Status.ioError("Invalid symbol coding method: " + schemeRef.get());
     }
 
-    private Status decodeTaggedSymbols(Function<Integer, SymbolDecoder> decoderMaker, UInt numValues, int numComponents,
-                                       DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
-        StatusChain chain = Status.newChain();
+    private Status decodeTagged(Function<Integer, SymbolDecoder> decoderMaker, UInt numValues, int numComponents,
+                                DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+        StatusChain chain = new StatusChain();
 
         SymbolDecoder tagDecoder = decoderMaker.apply(5);
         if(tagDecoder.create(srcBuffer).isError(chain)) return chain.get();
@@ -46,7 +46,7 @@ public class SymbolDecoding {
         if(tagDecoder.startDecoding(srcBuffer).isError(chain)) return chain.get();
 
         if(numValues.gt(0) && tagDecoder.getNumSymbols().equals(0)) {
-            return new Status(Status.Code.DRACO_ERROR, "Wrong number of symbols.");
+            return Status.dracoError("Wrong number of symbols.");
         }
 
         // srcBuffer now points behind the encoded tag data (to the place where the
@@ -65,18 +65,18 @@ public class SymbolDecoding {
         }
         tagDecoder.endDecoding();
         srcBuffer.endBitDecoding();
-        return Status.OK;
+        return Status.ok();
     }
 
-    private Status decodeRawSymbolsInternal(Supplier<SymbolDecoder> decoderMaker, UInt numValues,
-                                             DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
-        StatusChain chain = Status.newChain();
+    private Status decodeRawInternal(Supplier<SymbolDecoder> decoderMaker, UInt numValues,
+                                     DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+        StatusChain chain = new StatusChain();
 
         SymbolDecoder decoder = decoderMaker.get();
         if(decoder.create(srcBuffer).isError(chain)) return chain.get();
 
         if(numValues.gt(0) && decoder.getNumSymbols().equals(0)) {
-            return new Status(Status.Code.DRACO_ERROR, "Wrong number of symbols.");
+            return Status.dracoError("Wrong number of symbols.");
         }
 
         if(decoder.startDecoding(srcBuffer).isError(chain)) return chain.get();
@@ -86,21 +86,21 @@ public class SymbolDecoding {
             outValues.set(i, value);
         }
         decoder.endDecoding();
-        return Status.OK;
+        return Status.ok();
     }
 
-    private Status decodeRawSymbols(Function<Integer, SymbolDecoder> decoderMaker, UInt numValues,
-                                    DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
-        StatusChain chain = Status.newChain();
+    private Status decodeRaw(Function<Integer, SymbolDecoder> decoderMaker, UInt numValues,
+                             DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+        StatusChain chain = new StatusChain();
 
         AtomicReference<UByte> maxBitLengthRef = new AtomicReference<>();
         if(srcBuffer.decode(DataType.uint8(), maxBitLengthRef::set).isError(chain)) return chain.get();
         int maxBitLength = maxBitLengthRef.get().intValue();
 
         if(maxBitLength < 1 || maxBitLength > 18) {
-            return new Status(Status.Code.IO_ERROR, "Invalid max bit length: " + maxBitLength);
+            return Status.ioError("Invalid max bit length: " + maxBitLength);
         }
-        return decodeRawSymbolsInternal(() -> decoderMaker.apply(maxBitLength), numValues, srcBuffer, outValues);
+        return decodeRawInternal(() -> decoderMaker.apply(maxBitLength), numValues, srcBuffer, outValues);
     }
 
 }

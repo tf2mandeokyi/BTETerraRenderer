@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.draco.core;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
@@ -38,10 +39,10 @@ public class EncoderBuffer {
      */
     public Status startBitEncoding(long requiredBits, boolean encodeSize) {
         if(bitEncoderActive()) {
-            return new Status(Status.Code.IO_ERROR, "Bit encoding mode active");
+            return Status.ioError("Bit encoding mode active");
         }
         if(requiredBits <= 0) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Invalid size");
+            return Status.invalidParameter("Invalid size");
         }
         encodeBitSequenceSize = encodeSize;
         long requiredBytes = (requiredBits + 7) / 8;
@@ -53,7 +54,7 @@ public class EncoderBuffer {
         buffer.resize(bufferStartSize + requiredBytes);
         DataBuffer data = buffer.withOffset(bufferStartSize);
         bitEncoder = new BitEncoder(data);
-        return Status.OK;
+        return Status.ok();
     }
 
     public void endBitEncoding() {
@@ -71,7 +72,7 @@ public class EncoderBuffer {
             outMem -= bitEncoderReservedBytes + DataType.uint64().size();
 
             EncoderBuffer varSizeBuffer = new EncoderBuffer();
-            BitUtils.encodeVarint(DataType.uint64(), ULong.of(encodedBytes), varSizeBuffer);
+            varSizeBuffer.encodeVarint(DataType.uint64(), ULong.of(encodedBytes));
             long sizeLen = varSizeBuffer.size();
             long dst = outMem + sizeLen;
             long src = outMem + DataType.uint64().size();
@@ -91,34 +92,38 @@ public class EncoderBuffer {
 
     public Status encodeLeastSignificantBits32(int nbits, UInt value) {
         if(!bitEncoderActive()) {
-            return new Status(Status.Code.IO_ERROR, "Bit encoding mode not active");
+            return Status.ioError("Bit encoding mode not active");
         }
         bitEncoder.putBits(value, nbits);
-        return Status.OK;
+        return Status.ok();
+    }
+
+    public <T> Status encodeVarint(DataNumberType<T, ?> inType, T val) {
+        return BitUtils.encodeVarint(inType, val, this);
     }
 
     public <T> Status encode(DataType<T, ?> inType, T data) {
         if(bitEncoderActive()) {
-            return new Status(Status.Code.IO_ERROR, "Bit encoding mode active");
+            return Status.ioError("Bit encoding mode active");
         }
         long oldSize = this.buffer.size();
         this.buffer.resize(oldSize + inType.size());
         this.buffer.write(inType, oldSize, data);
-        return Status.OK;
+        return Status.ok();
     }
     public <T, TArray> Status encode(DataType<T, TArray> inType, TArray data, long size) {
         return encode(inType, inType.getter(data), size);
     }
     public <T> Status encode(DataType<T, ?> inType, Function<Integer, T> data, long size) {
         if(bitEncoderActive()) {
-            return new Status(Status.Code.IO_ERROR, "Bit encoding mode active");
+            return Status.ioError("Bit encoding mode active");
         }
         long oldSize = this.buffer.size();
         this.buffer.resize(oldSize + inType.size() * size);
         for(int i = 0; i < size; i++) {
             this.buffer.write(inType, oldSize + i * inType.size(), data.apply(i));
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     public boolean bitEncoderActive() {

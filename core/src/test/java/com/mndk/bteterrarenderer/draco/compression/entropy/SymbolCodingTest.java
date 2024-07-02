@@ -32,16 +32,16 @@ public class SymbolCodingTest {
         // This test verifies that SymbolCoding successfully encodes an array of large
         // numbers.
         int[] in = {12345678, 1223333, 111, 5};
-        CppVector<UInt> inVector = CppVector.create(DataType.uint32(), in);
+        CppVector<UInt> inVector = CppVector.view(DataType.uint32(), in);
         int numValues = in.length;
         EncoderBuffer eb = new EncoderBuffer();
-        StatusAssert.assertOk(SymbolEncoding.encodeSymbols(inVector, numValues, 1, null, eb));
+        StatusAssert.assertOk(SymbolEncoding.encode(inVector, numValues, 1, null, eb));
 
         CppVector<UInt> out = CppVector.create(DataType.uint32(), numValues);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
-        StatusAssert.assertOk(SymbolDecoding.decodeSymbols(UInt.of(numValues), 1, db, out));
+        StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(numValues), 1, db, out));
         for(int i = 0; i < numValues; ++i) {
             Assert.assertEquals(UInt.of(in[i]), out.get(i));
         }
@@ -70,18 +70,18 @@ public class SymbolCodingTest {
         for(int method = 0; method < SymbolCodingMethod.NUM_SYMBOL_CODING_METHODS; ++method) {
             // Test the encoding using all available symbol coding methods.
             Options options = new Options();
-            SymbolCodingMethod symbolCodingMethod = SymbolCodingMethod.fromValue(UByte.of(method));
+            SymbolCodingMethod symbolCodingMethod = SymbolCodingMethod.valueOf(UByte.of(method));
             Assert.assertNotNull(symbolCodingMethod);
             SymbolEncoding.setSymbolEncodingMethod(options, symbolCodingMethod);
 
             EncoderBuffer eb = new EncoderBuffer();
-            StatusAssert.assertOk(SymbolEncoding.encodeSymbols(inValues, inValues.size(), 1, options, eb));
+            StatusAssert.assertOk(SymbolEncoding.encode(inValues, inValues.size(), 1, options, eb));
 
             CppVector<UInt> outValues = CppVector.create(DataType.uint32(), inValues.size());
             DecoderBuffer db = new DecoderBuffer();
             db.init(eb.getData(), eb.size());
             db.setBitstreamVersion(BITSTREAM_VERSION);
-            StatusAssert.assertOk(SymbolDecoding.decodeSymbols(UInt.of(inValues.size()), 1, db, outValues));
+            StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(inValues.size()), 1, db, outValues));
 
             for(int i = 0; i < inValues.size(); ++i) {
                 Assert.assertEquals("Assertion fail on method=" + symbolCodingMethod + ", i=" + i,
@@ -94,11 +94,11 @@ public class SymbolCodingTest {
     public void testEmpty() {
         // This test verifies that SymbolCoding successfully encodes an empty array.
         EncoderBuffer eb = new EncoderBuffer();
-        StatusAssert.assertOk(SymbolEncoding.encodeSymbols(null, 0, 1, null, eb));
+        StatusAssert.assertOk(SymbolEncoding.encode(null, 0, 1, null, eb));
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
-        StatusAssert.assertOk(SymbolDecoding.decodeSymbols(UInt.ZERO, 1, db, null));
+        StatusAssert.assertOk(SymbolDecoding.decode(UInt.ZERO, 1, db, null));
     }
 
     @Test
@@ -108,13 +108,13 @@ public class SymbolCodingTest {
         EncoderBuffer eb = new EncoderBuffer();
         int inLength = 1200;
         CppVector<UInt> inVector = CppVector.create(DataType.uint32(), 1200, UInt.ZERO);
-        StatusAssert.assertOk(SymbolEncoding.encodeSymbols(inVector, inVector.size(), 1, null, eb));
+        StatusAssert.assertOk(SymbolEncoding.encode(inVector, inVector.size(), 1, null, eb));
 
         CppVector<UInt> out = CppVector.create(DataType.uint32(), inLength);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
-        StatusAssert.assertOk(SymbolDecoding.decodeSymbols(UInt.of(inVector.size()), 1, db, out));
+        StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(inVector.size()), 1, db, out));
         for(int i = 0; i < inLength; ++i) {
             Assert.assertEquals(inVector.get(i), out.get(i));
         }
@@ -133,12 +133,12 @@ public class SymbolCodingTest {
         CppVector<UInt> out = CppVector.create(DataType.uint32(), in.size());
         for(int i = 0; i < bitLengths; ++i) {
             eb.clear();
-            StatusAssert.assertOk(SymbolEncoding.encodeSymbols(in, i + 1, 1, null, eb));
+            StatusAssert.assertOk(SymbolEncoding.encode(in, i + 1, 1, null, eb));
             DecoderBuffer db = new DecoderBuffer();
 
             db.init(eb.getData(), eb.size());
             db.setBitstreamVersion(BITSTREAM_VERSION);
-            StatusAssert.assertOk(SymbolDecoding.decodeSymbols(UInt.of(i + 1), 1, db, out));
+            StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(i + 1), 1, db, out));
             for (int j = 0; j < i + 1; ++j) {
                 Assert.assertEquals(in.get(j), out.get(j));
             }
@@ -152,13 +152,13 @@ public class SymbolCodingTest {
         EncoderBuffer eb = new EncoderBuffer();
         final int numSymbols = 1000000;
         CppVector<UInt> in = CppVector.create(DataType.uint32(), numSymbols, UInt.of(1 << 18));
-        StatusAssert.assertOk(SymbolEncoding.encodeSymbols(in, in.size(), 1, null, eb));
+        StatusAssert.assertOk(SymbolEncoding.encode(in, in.size(), 1, null, eb));
 
         CppVector<UInt> out = CppVector.create(DataType.uint32(), in.size());
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
-        StatusAssert.assertOk(SymbolDecoding.decodeSymbols(UInt.of(in.size()), 1, db, out));
+        StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(in.size()), 1, db, out));
         for(int i = 0; i < in.size(); ++i) {
             Assert.assertEquals(in.get(i), out.get(i));
         }

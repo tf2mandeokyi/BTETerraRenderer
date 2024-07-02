@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 class IndexTypeVectorImpl<I extends IndexType<I>, E, EArray>
-        extends CustomIndexCppVectorImpl<I, E, EArray>
+        extends CustomIndexCppVectorImpl<I, E, EArray, IndexTypeVector<I, E>>
         implements IndexTypeVector<I, E> {
 
     private final Function<Integer, I> indexConstructor;

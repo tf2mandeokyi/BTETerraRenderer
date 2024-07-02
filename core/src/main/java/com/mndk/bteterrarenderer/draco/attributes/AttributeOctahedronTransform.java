@@ -4,10 +4,7 @@ import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.*;
 import com.mndk.bteterrarenderer.draco.compression.attributes.OctahedronToolBox;
-import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
-import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
-import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.*;
 import lombok.Getter;
 
 import java.util.List;
@@ -29,10 +26,10 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     public Status initFromAttribute(PointAttribute attribute) {
         AttributeTransformData transformData = attribute.getAttributeTransformData();
         if(transformData == null || transformData.getTransformType() != AttributeTransformType.ATTRIBUTE_OCTAHEDRON_TRANSFORM) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Wrong transform type");
+            return Status.invalidParameter("Wrong transform type");
         }
         quantizationBits = transformData.getParameterValue(DataType.int32(), 0);
-        return Status.OK;
+        return Status.ok();
     }
 
     @Override
@@ -48,17 +45,16 @@ public class AttributeOctahedronTransform extends AttributeTransform {
 
     @Override
     public Status inverseTransformAttribute(PointAttribute attribute, PointAttribute targetAttribute) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
-        DataNumberType<Float, ?> f = DataType.float32();
-        if(!targetAttribute.getDataType().equals(f)) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Target attribute must have FLOAT32 data type");
+        if(targetAttribute.getDataType() != DracoDataType.DT_FLOAT32) {
+            return Status.invalidParameter("Target attribute must have FLOAT32 data type");
         }
 
         int numPoints = targetAttribute.size();
-        int numComponents = targetAttribute.getNumComponents();
+        int numComponents = targetAttribute.getNumComponents().intValue();
         if(numComponents != 3) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Attribute must have 3 components");
+            return Status.invalidParameter("Attribute must have 3 components");
         }
         float[] attVal = new float[3];
         int[] sourceAttributeData = new int[numPoints * 2];
@@ -66,6 +62,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         OctahedronToolBox octahedronToolBox = new OctahedronToolBox();
         if(octahedronToolBox.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
 
+        DataNumberType<Float, ?> f = DataType.float32();
         for(int i = 0; i < numPoints; i++) {
             int s = sourceAttributeData[i * 2];
             int t = sourceAttributeData[i * 2 + 1];
@@ -74,7 +71,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
             targetAttribute.setAttributeValue(AttributeValueIndex.of(0), f, i * 3L + 1, attVal[1]);
             targetAttribute.setAttributeValue(AttributeValueIndex.of(0), f, i * 3L + 2, attVal[2]);
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     public void setParameters(int quantizationBits) {
@@ -84,10 +81,10 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     @Override
     public Status encodeParameters(EncoderBuffer encoderBuffer) {
         if(!isInitialized()) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Octahedron transform not initialized");
+            return Status.invalidParameter("Octahedron transform not initialized");
         }
         encoderBuffer.encode(DataType.uint8(), UByte.of(quantizationBits));
-        return Status.OK;
+        return Status.ok();
     }
 
     @Override
@@ -100,8 +97,8 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     }
 
     @Override
-    protected DataNumberType<?, ?> getTransformedDataType(PointAttribute attribute) {
-        return DataType.uint32();
+    protected DracoDataType getTransformedDataType(PointAttribute attribute) {
+        return DracoDataType.DT_UINT32;
     }
 
     @Override
@@ -111,10 +108,10 @@ public class AttributeOctahedronTransform extends AttributeTransform {
 
     protected Status generatePortableAttribute(PointAttribute attribute, List<PointIndex> pointIds,
                                                 int numPoints, PointAttribute targetAttribute) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         if(!isInitialized()) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Octahedron transform not initialized");
+            return Status.invalidParameter("Octahedron transform not initialized");
         }
 
         int[] portableAttributeData = new int[2 * (pointIds.isEmpty() ? numPoints : pointIds.size())];
@@ -137,6 +134,6 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         }
 
         targetAttribute.setAttributeValues(AttributeValueIndex.of(0), DataType.int32(), portableAttributeData);
-        return Status.OK;
+        return Status.ok();
     }
 }

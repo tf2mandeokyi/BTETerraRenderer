@@ -2,10 +2,7 @@ package com.mndk.bteterrarenderer.draco.compression.pointcloud;
 
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.compression.attributes.AttributesDecoderInterface;
-import com.mndk.bteterrarenderer.draco.compression.config.DecoderOptions;
-import com.mndk.bteterrarenderer.draco.compression.config.DracoHeader;
-import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
-import com.mndk.bteterrarenderer.draco.compression.config.EncodedGeometryType;
+import com.mndk.bteterrarenderer.draco.compression.config.*;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
@@ -46,37 +43,52 @@ public abstract class PointCloudDecoder {
     }
 
     public static Status decodeHeader(DecoderBuffer buffer, DracoHeader outHeader) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
+        // Draco string
         if(buffer.decode(DataType.string(5), outHeader::setDracoString).isError(chain)) return chain.get();
         if(!outHeader.getDracoString().equals("DRACO")) {
-            return new Status(Status.Code.DRACO_ERROR, "Not a Draco file.");
+            return Status.dracoError("Not a Draco file.");
         }
+
+        // Version major & minor
         if(buffer.decode(DataType.uint8(), outHeader::setVersionMajor).isError(chain)) return chain.get();
         if(buffer.decode(DataType.uint8(), outHeader::setVersionMinor).isError(chain)) return chain.get();
+
+        // Encoder type
         AtomicReference<UByte> encoderTypeRef = new AtomicReference<>();
         if(buffer.decode(DataType.uint8(), encoderTypeRef::set).isError(chain)) return chain.get();
-        EncodedGeometryType encoderType = EncodedGeometryType.fromValue(encoderTypeRef.get());
+        EncodedGeometryType encoderType = EncodedGeometryType.valueOf(encoderTypeRef.get());
         if (encoderType == EncodedGeometryType.INVALID_GEOMETRY_TYPE) {
-            return new Status(Status.Code.DRACO_ERROR, "Invalid geometry type.");
+            return Status.dracoError("Unsupported / invalid geometry type: " + encoderTypeRef.get());
         }
         outHeader.setEncoderType(encoderType);
-        if(buffer.decode(DataType.uint8(), outHeader::setEncoderMethod).isError(chain)) return chain.get();
+
+        // Encoder method
+        AtomicReference<UByte> encoderMethodRef = new AtomicReference<>();
+        if(buffer.decode(DataType.uint8(), encoderMethodRef::set).isError(chain)) return chain.get();
+        MeshEncoderMethod encoderMethod = MeshEncoderMethod.valueOf(encoderMethodRef.get());
+        if(encoderMethod == null) {
+            return Status.dracoError("Unsupported / invalid encoder method: " + encoderMethodRef.get());
+        }
+        outHeader.setEncoderMethod(encoderMethod);
+
+        // Flags
         if(buffer.decode(DataType.uint16(), outHeader::setFlags).isError(chain)) return chain.get();
-        return Status.OK;
+        return Status.ok();
     }
 
     protected Status decodeMetadata() {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         GeometryMetadata metadata = new GeometryMetadata();
         MetadataDecoder metadataDecoder = new MetadataDecoder();
         if(metadataDecoder.decodeGeometryMetadata(buffer, metadata).isError(chain)) return chain.get();
         pointCloud.addMetadata(metadata);
-        return Status.OK;
+        return Status.ok();
     }
 
     public Status decode(DecoderOptions options, DecoderBuffer inBuffer, PointCloud outPointCloud) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         this.options = options;
         this.buffer = inBuffer;
@@ -86,7 +98,7 @@ public abstract class PointCloudDecoder {
         // Sanity check that we are really using the right decoder (mostly for cases
         // where the Decode method was called manually outside our main API)
         if (!header.getEncoderType().equals(this.getGeometryType())) {
-            return new Status(Status.Code.DRACO_ERROR, "Using incompatible decoder for the input geometry.");
+            return Status.dracoError("Using incompatible decoder for the input geometry.");
         }
         versionMajor = header.getVersionMajor();
         versionMinor = header.getVersionMinor();
@@ -98,10 +110,10 @@ public abstract class PointCloudDecoder {
 
         // Check for version compatibility
         if (versionMajor.lt(1) || versionMajor.gt(maxSupportedMajorVersion)) {
-            return new Status(Status.Code.UNKNOWN_VERSION, "Unknown major version.");
+            return Status.unknownVersion("Unknown major version.");
         }
         if (versionMajor.equals(maxSupportedMajorVersion) && versionMinor.gt(maxSupportedMinorVersion)) {
-            return new Status(Status.Code.UNKNOWN_VERSION, "Unknown minor version.");
+            return Status.unknownVersion("Unknown minor version.");
         }
 
         buffer.setBitstreamVersion(DracoVersions.getBitstreamVersion(versionMajor, versionMinor));
@@ -113,17 +125,17 @@ public abstract class PointCloudDecoder {
         if (initializeDecoder().isError(chain)) return chain.get();
         if (decodeGeometryData().isError(chain)) return chain.get();
         if (decodePointAttributes().isError(chain)) return chain.get();
-        return Status.OK;
+        return Status.ok();
     }
 
     public Status setAttributesDecoder(int attDecoderId, AttributesDecoderInterface decoder) {
-        if (attDecoderId < 0) return new Status(Status.Code.INVALID_PARAMETER, "Invalid attribute decoder id.");
+        if (attDecoderId < 0) return Status.invalidParameter("Invalid attribute decoder id.");
         if (attDecoderId >= attributesDecoders.size()) {
             attributesDecoders.add(attDecoderId, decoder);
         } else {
             attributesDecoders.set(attDecoderId, decoder);
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     public PointAttribute getPortableAttribute(int parentAttId) {
@@ -147,13 +159,13 @@ public abstract class PointCloudDecoder {
      * Can be implemented by derived classes to perform any custom initialization
      * of the decoder. Called in the {@link #decode} method.
      */
-    protected Status initializeDecoder() { return Status.OK; }
+    protected Status initializeDecoder() { return Status.ok(); }
 
     /** Creates an attribute decoder. */
     protected abstract Status createAttributesDecoder(int attDecoderId);
-    protected Status decodeGeometryData() { return Status.OK; }
+    protected Status decodeGeometryData() { return Status.ok(); }
     protected Status decodePointAttributes() {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         AtomicReference<UByte> numAttributesDecodersRef = new AtomicReference<>();
         if (buffer.decode(DataType.uint8(), numAttributesDecodersRef::set).isError(chain)) return chain.get();
@@ -194,11 +206,11 @@ public abstract class PointCloudDecoder {
     }
 
     protected Status decodeAllAttributes() {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
         for (AttributesDecoderInterface attDec : attributesDecoders) {
             if (attDec.decodeAttributes(buffer).isError(chain)) return chain.get();
         }
-        return Status.OK;
+        return Status.ok();
     }
-    protected Status onAttributesDecoded() { return Status.OK; }
+    protected Status onAttributesDecoded() { return Status.ok(); }
 }

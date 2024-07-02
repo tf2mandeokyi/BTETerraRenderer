@@ -25,32 +25,32 @@ public class RAnsDecoder {
     }
 
     public Status readInit(DataBuffer buf, long offset) {
-        if(offset < 1) return new Status(Status.Code.DRACO_ERROR, "Invalid offset: " + offset);
+        if(offset < 1) return Status.dracoError("Invalid offset: " + offset);
         ans.buf = buf;
         int x = buf.get(offset - 1).shr(6).intValue();
         if(x == 0) {
             ans.bufOffset = offset - 1;
             ans.state = buf.get(offset - 1).and(0x3F).uIntValue();
         } else if(x == 1) {
-            if(offset < 2) return new Status(Status.Code.DRACO_ERROR, "Invalid offset: " + offset);
+            if(offset < 2) return Status.dracoError("Invalid offset: " + offset);
             ans.bufOffset = offset - 2;
             ans.state = buf.getLE16(offset - 2).and(0x3FFF).uIntValue();
         } else if(x == 2) {
-            if(offset < 3) return new Status(Status.Code.DRACO_ERROR, "Invalid offset: " + offset);
+            if(offset < 3) return Status.dracoError("Invalid offset: " + offset);
             ans.bufOffset = offset - 3;
             ans.state = buf.getLE24(offset - 3).and(0x3FFFFF);
         } else if(x == 3) {
             ans.bufOffset = offset - 4;
             ans.state = buf.getLE32(offset - 4).and(0x3FFFFFFF);
         } else {
-            return new Status(Status.Code.DRACO_ERROR, "Invalid x: " + x);
+            return Status.dracoError("Invalid x: " + x);
         }
         ans.state = ans.state.add(lRansBase);
         if(ans.state.ge(lRansBase * Ans.DRACO_ANS_IO_BASE)) {
-            return new Status(Status.Code.DRACO_ERROR, "state is too large: (state = "
+            return Status.dracoError("state is too large: (state = "
                     + ans.state + ") >= " + lRansBase * Ans.DRACO_ANS_IO_BASE);
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     public boolean readEnd() {
@@ -85,7 +85,7 @@ public class RAnsDecoder {
             symbol.cumProb = cumProb;
             cumProb = cumProb.add(tokenProb);
             if(cumProb.gt(ransPrecision)) {
-                return new Status(Status.Code.DRACO_ERROR, "cumProb > ransPrecision");
+                return Status.dracoError("cumProb > ransPrecision");
             }
             for(UInt j = actProb; j.lt(cumProb); j = j.add(1)) {
                 this.lutTable.set(j, i);
@@ -93,9 +93,9 @@ public class RAnsDecoder {
             actProb = cumProb;
         }
         if(!cumProb.equals(ransPrecision)) {
-            return new Status(Status.Code.DRACO_ERROR, "cumProb != ransPrecision");
+            return Status.dracoError("cumProb != ransPrecision");
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     private void fetchSym(RAnsDecoderSymbol out, UInt rem) {

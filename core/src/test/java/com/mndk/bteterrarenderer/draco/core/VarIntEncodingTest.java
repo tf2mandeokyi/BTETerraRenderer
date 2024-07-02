@@ -29,7 +29,7 @@ public class VarIntEncodingTest {
         DecoderBuffer decoderBuffer = new DecoderBuffer();
         decoderBuffer.init(dataBuffer);
         AtomicReference<T> decodedRef = new AtomicReference<>();
-        BitUtils.decodeVarint(dataType, decodedRef, decoderBuffer);
+        decoderBuffer.decodeVarint(dataType, decodedRef);
         Assert.assertEquals(number, decodedRef.get());
     }
 

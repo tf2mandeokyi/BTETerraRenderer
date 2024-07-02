@@ -20,10 +20,10 @@ public class SymbolEncoding {
     public static final int MAX_RAW_ENCODING_BIT_LENGTH = 18;
     public static final int DEFAULT_SYMBOL_CODING_COMPRESSION_LEVEL = 7;
 
-    public Status encodeSymbols(CppVector<UInt> symbols, int numValues, int numComponents,
-                                Options options, EncoderBuffer targetBuffer) {
-        if(numValues < 0) return new Status(Status.Code.INVALID_PARAMETER, "Invalid number of values");
-        if(numValues == 0) return Status.OK;
+    public Status encode(CppVector<UInt> symbols, int numValues, int numComponents,
+                         Options options, EncoderBuffer targetBuffer) {
+        if(numValues < 0) return Status.invalidParameter("Invalid number of values");
+        if(numValues == 0) return Status.ok();
         if(numComponents <= 0) numComponents = 1;
         CppVector<UInt> bitLengths = CppVector.create(DataType.uint32());
         AtomicReference<UInt> maxValueRef = new AtomicReference<>();
@@ -44,10 +44,9 @@ public class SymbolEncoding {
         SymbolCodingMethod method;
         if(options != null && options.isOptionSet("symbol_encoding_method")) {
             int methodValue = options.getInt("symbol_encoding_method");
-            method = SymbolCodingMethod.fromValue(methodValue);
+            method = SymbolCodingMethod.valueOf(methodValue);
             if(method == null) {
-                return new Status(Status.Code.INVALID_PARAMETER,
-                        "Invalid symbol encoding method: " + methodValue);
+                return Status.invalidParameter("Invalid symbol encoding method: " + methodValue);
             }
         } else {
             if(taggedSchemeTotalBits < rawSchemeTotalBits || maxValueBitLength > MAX_RAW_ENCODING_BIT_LENGTH) {
@@ -60,19 +59,19 @@ public class SymbolEncoding {
         // Use the tagged scheme.
         targetBuffer.encode(DataType.uint8(), method.getValue());
         if(method == SymbolCodingMethod.SYMBOL_CODING_TAGGED) {
-            return encodeTaggedSymbols(RAnsSymbolEncoder::new, symbols, numValues, numComponents, bitLengths, targetBuffer);
+            return encodeTagged(RAnsSymbolEncoder::new, symbols, numValues, numComponents, bitLengths, targetBuffer);
         }
         if(method == SymbolCodingMethod.SYMBOL_CODING_RAW) {
-            return encodeRawSymbols(RAnsSymbolEncoder::new, symbols, numValues, maxValue, numUniqueSymbols, options, targetBuffer);
+            return encodeRaw(RAnsSymbolEncoder::new, symbols, numValues, maxValue, numUniqueSymbols, options, targetBuffer);
         }
         // Unknown method selected.
-        return new Status(Status.Code.INVALID_PARAMETER, "Unknown symbol encoding method: " + method);
+        return Status.invalidParameter("Unknown symbol encoding method: " + method);
     }
 
-    private Status encodeTaggedSymbols(Function<Integer, SymbolEncoder> encoderMaker,
-                                       CppVector<UInt> symbols, int numValues, int numComponents,
-                                       CppVector<UInt> bitLengths, EncoderBuffer targetBuffer) {
-        StatusChain chain = Status.newChain();
+    private Status encodeTagged(Function<Integer, SymbolEncoder> encoderMaker,
+                                CppVector<UInt> symbols, int numValues, int numComponents,
+                                CppVector<UInt> bitLengths, EncoderBuffer targetBuffer) {
+        StatusChain chain = new StatusChain();
 
         // Create entries for entropy coding. Each entry corresponds to a different
         // number of bits that are necessary to encode a given value. Every value
@@ -139,10 +138,10 @@ public class SymbolEncoding {
         return targetBuffer.encode(DataType.bytes(valueBuffer.size()), valueBuffer.getData().getData());
     }
 
-    private Status encodeRawSymbolsInternal(Supplier<SymbolEncoder> encoderMaker,
-                                            CppVector<UInt> symbols, int numValues, UInt maxEntryValue,
-                                            EncoderBuffer targetBuffer) {
-        StatusChain chain = Status.newChain();
+    private Status encodeRawInternal(Supplier<SymbolEncoder> encoderMaker,
+                                     CppVector<UInt> symbols, int numValues, UInt maxEntryValue,
+                                     EncoderBuffer targetBuffer) {
+        StatusChain chain = new StatusChain();
 
         // Count the frequency of each entry value.
         CppVector<ULong> frequencies = CppVector.create(DataType.uint64(), maxEntryValue.intValue() + 1, ULong.ZERO);
@@ -165,12 +164,12 @@ public class SymbolEncoding {
             }
         }
         encoder.endEncoding(targetBuffer);
-        return Status.OK;
+        return Status.ok();
     }
 
-    private Status encodeRawSymbols(Function<Integer, SymbolEncoder> encoderMaker,
-                                    CppVector<UInt> symbols, int numValues, UInt maxEntryValue, int numUniqueSymbols,
-                                    Options options, EncoderBuffer targetBuffer) {
+    private Status encodeRaw(Function<Integer, SymbolEncoder> encoderMaker,
+                             CppVector<UInt> symbols, int numValues, UInt maxEntryValue, int numUniqueSymbols,
+                             Options options, EncoderBuffer targetBuffer) {
         int symbolBits = 0;
         if(numUniqueSymbols > 0) {
             symbolBits = BitUtils.mostSignificantBit(UInt.of(numUniqueSymbols));
@@ -178,8 +177,7 @@ public class SymbolEncoding {
         int uniqueSymbolsBitLength = symbolBits + 1;
         // Currently, we don't support encoding of more than 2^18 unique symbols.
         if(uniqueSymbolsBitLength > MAX_RAW_ENCODING_BIT_LENGTH) {
-            return new Status(Status.Code.INVALID_PARAMETER,
-                    "Too long unique symbols bit length: " + uniqueSymbolsBitLength);
+            return Status.invalidParameter("Too long unique symbols bit length: " + uniqueSymbolsBitLength);
         }
         if(uniqueSymbolsBitLength <= 0) uniqueSymbolsBitLength = 1;
         int compressionLevel = DEFAULT_SYMBOL_CODING_COMPRESSION_LEVEL;
@@ -203,7 +201,7 @@ public class SymbolEncoding {
 
         // Use appropriate symbol encoder based on the maximum symbol bit length.
         int uniqueSymbolsBitLengthFinal = uniqueSymbolsBitLength;
-        return encodeRawSymbolsInternal(() -> encoderMaker.apply(uniqueSymbolsBitLengthFinal),
+        return encodeRawInternal(() -> encoderMaker.apply(uniqueSymbolsBitLengthFinal),
                 symbols, numValues, maxEntryValue, targetBuffer);
     }
 

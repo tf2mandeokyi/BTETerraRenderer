@@ -18,6 +18,6 @@ public class DracoHeader {
     private UByte versionMajor;
     private UByte versionMinor;
     private EncodedGeometryType encoderType;
-    private UByte encoderMethod;
+    private MeshEncoderMethod encoderMethod;
     private UShort flags;
 }

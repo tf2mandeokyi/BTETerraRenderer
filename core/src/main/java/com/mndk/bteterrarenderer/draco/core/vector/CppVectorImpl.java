@@ -7,7 +7,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-class CppVectorImpl<E, EArray> extends CustomIndexCppVectorImpl<Integer, E, EArray> implements CppVector<E> {
+class CppVectorImpl<E, EArray>
+        extends CustomIndexCppVectorImpl<Integer, E, EArray, CppVector<E>>
+        implements CppVector<E> {
 
     CppVectorImpl(DataArrayManager<E, EArray> arrayManager) {
         super(arrayManager);

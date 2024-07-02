@@ -3,27 +3,28 @@ package com.mndk.bteterrarenderer.draco.compression.attributes;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.core.Status;
+import lombok.Getter;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class OctahedronToolBox {
 
-    private int quantizationBits = -1;
-    private int maxQuantizedValue = -1;
-    private int maxValue = -1;
+    @Getter private int quantizationBits = -1;
+    @Getter private int maxQuantizedValue = -1;
+    @Getter private int maxValue = -1;
     private float dequantizationScale = 1.0f;
-    private int centerValue = -1;
+    @Getter private int centerValue = -1;
 
     public Status setQuantizationBits(int q) {
         if (q < 2 || q > 30) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Quantization bits must be between 2 and 30");
+            return Status.invalidParameter("Quantization bits must be between 2 and 30");
         }
         this.quantizationBits = q;
         this.maxQuantizedValue = (1 << this.quantizationBits) - 1;
         this.maxValue = this.maxQuantizedValue - 1;
         this.dequantizationScale = 2.0f / this.maxValue;
         this.centerValue = this.maxValue / 2;
-        return Status.OK;
+        return Status.ok();
     }
 
     public boolean isInitialized() {

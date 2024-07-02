@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataArrayManager;
-import com.mndk.bteterrarenderer.draco.core.IndexType;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
-public class AttributeValueIndex extends IndexType<AttributeValueIndex> {
+public class AttributeValueIndex extends IndexTypeImpl<AttributeValueIndex> {
     // kInvalidAttributeValueIndex
     public static final AttributeValueIndex INVALID = new AttributeValueIndex(-1);
 

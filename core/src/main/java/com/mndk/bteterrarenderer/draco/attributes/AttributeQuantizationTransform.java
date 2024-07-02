@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.draco.core.*;
@@ -35,18 +34,18 @@ public class AttributeQuantizationTransform extends AttributeTransform {
     public Status initFromAttribute(PointAttribute attribute) {
         AttributeTransformData transformData = attribute.getAttributeTransformData();
         if(transformData == null || transformData.getTransformType() != AttributeTransformType.ATTRIBUTE_QUANTIZATION_TRANSFORM) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Wrong transform type");
+            return Status.invalidParameter("Wrong transform type");
         }
         int byteOffset = 0;
         quantizationBits = transformData.getParameterValue(DataType.int32(), byteOffset);
         byteOffset += 4;
-        minValues.resize(attribute.getNumComponents(), 0f);
-        for(int i = 0; i < attribute.getNumComponents(); i++) {
+        minValues.resize(attribute.getNumComponents().intValue(), 0f);
+        for(int i = 0, until = attribute.getNumComponents().intValue(); i < until; i++) {
             minValues.set(i, transformData.getParameterValue(DataType.float32(), byteOffset));
             byteOffset += 4;
         }
         range = transformData.getParameterValue(DataType.float32(), byteOffset);
-        return Status.OK;
+        return Status.ok();
     }
 
     @Override
@@ -62,9 +61,9 @@ public class AttributeQuantizationTransform extends AttributeTransform {
     @Override
     public Status transformAttribute(PointAttribute attribute, List<PointIndex> pointIds, PointAttribute targetAttribute) {
         if(!isInitialized()) {
-            return new Status(Status.Code.INVALID_PARAMETER, "AttributeQuantizationTransform is not initialized");
+            return Status.invalidParameter("AttributeQuantizationTransform is not initialized");
         }
-        int numComponents = attribute.getNumComponents();
+        int numComponents = attribute.getNumComponents().intValue();
 
         // Quantize all values using the order given by point_ids.
         int pointCount = pointIds.isEmpty() ? attribute.size() : pointIds.size();
@@ -89,34 +88,34 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         }
 
         targetAttribute.setAttributeValues(AttributeValueIndex.of(0), DataType.int32(), portableAttributeData);
-        return Status.OK;
+        return Status.ok();
     }
 
     @Override
     public Status inverseTransformAttribute(PointAttribute attribute, PointAttribute targetAttribute) {
-        return new Status(Status.Code.UNSUPPORTED_FEATURE, "Inverse transform is not supported");
+        return Status.unsupportedFeature("Inverse transform is not supported");
     }
 
     public Status setParameters(int quantizationBits, float[] minValues, int numComponents, float range) {
         if(!isQuantizationValid(quantizationBits)) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Invalid quantization bits: " + quantizationBits);
+            return Status.invalidParameter("Invalid quantization bits: " + quantizationBits);
         }
         this.quantizationBits = quantizationBits;
         this.minValues.assign(i -> minValues[i], 0, numComponents);
         this.range = range;
-        return Status.OK;
+        return Status.ok();
     }
 
     public Status computeParameters(PointAttribute attribute, int quantizationBits) {
         if(this.quantizationBits != -1) {
-            return new Status(Status.Code.INVALID_PARAMETER, "AttributeQuantizationTransform is already initialized");
+            return Status.invalidParameter("AttributeQuantizationTransform is already initialized");
         }
         if(!isQuantizationValid(quantizationBits)) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Invalid quantization bits: " + quantizationBits);
+            return Status.invalidParameter("Invalid quantization bits: " + quantizationBits);
         }
         this.quantizationBits = quantizationBits;
 
-        int numComponents = attribute.getNumComponents();
+        int numComponents = attribute.getNumComponents().intValue();
         range = 0;
         minValues.assign(numComponents, 0f);
         float[] maxValues = new float[numComponents];
@@ -128,7 +127,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
             attribute.getValue(AttributeValueIndex.of(i), DataType.float32(), attVal, numComponents);
             for(int c = 0; c < numComponents; c++) {
                 if(Float.isNaN(attVal[c])) {
-                    return new Status(Status.Code.INVALID_PARAMETER, "Attribute value is NaN");
+                    return Status.invalidParameter("Attribute value is NaN");
                 }
                 if(minValues.get(c) > attVal[c]) {
                     minValues.set(c, attVal[c]);
@@ -141,7 +140,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         for(int c = 0; c < numComponents; c++) {
             if(minValues.get(c).isNaN() || minValues.get(c).isInfinite() ||
                     Float.isNaN(maxValues[c]) || Float.isInfinite(maxValues[c])) {
-                return new Status(Status.Code.INVALID_PARAMETER, "Attribute value is NaN or infinite");
+                return Status.invalidParameter("Attribute value is NaN or infinite");
             }
             float dif = maxValues[c] - minValues.get(c);
             if(range < dif) {
@@ -151,7 +150,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         if(range == 0) {
             range = 1;
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     @Override
@@ -160,16 +159,16 @@ public class AttributeQuantizationTransform extends AttributeTransform {
             encoderBuffer.encode(DataType.float32(), minValues.getter(), minValues.size());
             encoderBuffer.encode(DataType.float32(), range);
             encoderBuffer.encode(DataType.uint8(), UByte.of(quantizationBits));
-            return Status.OK;
+            return Status.ok();
         }
-        return new Status(Status.Code.INVALID_PARAMETER, "AttributeQuantizationTransform is not initialized");
+        return Status.invalidParameter("AttributeQuantizationTransform is not initialized");
     }
 
     @Override
     public Status decodeParameters(PointAttribute attribute, DecoderBuffer decoderBuffer) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
-        minValues.resize(attribute.getNumComponents());
+        minValues.resize(attribute.getNumComponents().intValue());
         if(decoderBuffer.decode(DataType.float32(), minValues.setter(), minValues.size()).isError(chain)) return chain.get();
 
         if(decoderBuffer.decode(DataType.float32(), val -> this.range = val).isError(chain)) return chain.get();
@@ -179,10 +178,10 @@ public class AttributeQuantizationTransform extends AttributeTransform {
 
         int quantizationBits = quantizationBitsRef.get().intValue();
         if(!isQuantizationValid(quantizationBits)) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Invalid quantization bits: " + quantizationBits);
+            return Status.invalidParameter("Invalid quantization bits: " + quantizationBits);
         }
         this.quantizationBits = quantizationBits;
-        return Status.OK;
+        return Status.ok();
     }
 
     public float getMinValue(int axis) {
@@ -198,12 +197,12 @@ public class AttributeQuantizationTransform extends AttributeTransform {
     }
 
     @Override
-    protected DataNumberType<?, ?> getTransformedDataType(PointAttribute attribute) {
-        return DataType.int32();
+    protected DracoDataType getTransformedDataType(PointAttribute attribute) {
+        return DracoDataType.DT_UINT32;
     }
 
     @Override
     protected int getTransformedNumComponents(PointAttribute attribute) {
-        return attribute.getNumComponents();
+        return attribute.getNumComponents().intValue();
     }
 }

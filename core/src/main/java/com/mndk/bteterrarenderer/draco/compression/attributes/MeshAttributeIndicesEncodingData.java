@@ -5,9 +5,11 @@ import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /** Data used for encoding and decoding of mesh attributes. */
 @Getter
+@Setter
 @RequiredArgsConstructor
 public class MeshAttributeIndicesEncodingData {
 

@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataArrayManager;
-import com.mndk.bteterrarenderer.draco.core.IndexType;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
-public class FaceIndex extends IndexType<FaceIndex> {
+public class FaceIndex extends IndexTypeImpl<FaceIndex> {
     // kInvalidFaceIndex
     public static final FaceIndex INVALID = new FaceIndex(-1);
 

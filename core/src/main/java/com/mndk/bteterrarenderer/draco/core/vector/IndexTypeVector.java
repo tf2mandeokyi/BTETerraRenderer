@@ -6,7 +6,8 @@ import com.mndk.bteterrarenderer.draco.core.IndexType;
 
 import java.util.function.Function;
 
-public interface IndexTypeVector<I extends IndexType<I>, E> extends CustomIndexCppVector<I, E> {
+public interface IndexTypeVector<I extends IndexType<I>, E>
+        extends CustomIndexCppVector<I, E, IndexTypeVector<I, E>> {
 
     static <I extends IndexType<I>, E>
     IndexTypeVector<I, E> create(Function<Integer, I> indexConstructor) {
@@ -42,4 +43,7 @@ public interface IndexTypeVector<I extends IndexType<I>, E> extends CustomIndexC
         return new IndexTypeVectorImpl<>(indexConstructor, arrayManager, size, value);
     }
 
+    default IndexTypeVector<I, E> withOffset(I offset) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

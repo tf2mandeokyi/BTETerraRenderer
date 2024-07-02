@@ -1,7 +1,8 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 
@@ -22,11 +23,11 @@ public abstract class AttributeTransform {
     /** Copy parameter values into the provided AttributeTransformData instance. */
     public abstract void copyToAttributeTransformData(AttributeTransformData outData);
 
-    public boolean transferToAttribute(PointAttribute attribute) {
+    public Status transferToAttribute(PointAttribute attribute) {
         AttributeTransformData transformData = new AttributeTransformData();
         this.copyToAttributeTransformData(transformData);
         attribute.setAttributeTransformData(transformData);
-        return true;
+        return Status.ok();
     }
 
     /**
@@ -61,11 +62,10 @@ public abstract class AttributeTransform {
      */
     public PointAttribute initTransformedAttribute(PointAttribute srcAttribute, int numEntries) {
         int numComponents = this.getTransformedNumComponents(srcAttribute);
-        DataNumberType<?, ?> dataType = this.getTransformedDataType(srcAttribute);
+        DracoDataType dataType = this.getTransformedDataType(srcAttribute);
         GeometryAttribute geometryAttribute = new GeometryAttribute();
-        geometryAttribute.init(
-                srcAttribute.getAttributeType(), null, (byte) numComponents, dataType, false,
-                numComponents * dataType.size(), 0);
+        geometryAttribute.init(srcAttribute.getAttributeType(), null, UByte.of(numComponents), dataType,
+                false, numComponents * dataType.getDataTypeLength(), 0);
         PointAttribute transformedAttribute = new PointAttribute(geometryAttribute);
         transformedAttribute.reset(numEntries);
         transformedAttribute.setIdentityMapping();
@@ -73,6 +73,6 @@ public abstract class AttributeTransform {
         return transformedAttribute;
     }
 
-    protected abstract DataNumberType<?, ?> getTransformedDataType(PointAttribute attribute);
+    protected abstract DracoDataType getTransformedDataType(PointAttribute attribute);
     protected abstract int getTransformedNumComponents(PointAttribute attribute);
 }

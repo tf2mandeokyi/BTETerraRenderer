@@ -1,8 +1,9 @@
 package com.mndk.bteterrarenderer.draco.compression.entropy;
 
-import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
+import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -62,6 +63,10 @@ public class Ans {
             }
         }
 
+        public void rabsWrite(int val, UByte p0) {
+            this.rabsDescWrite(val, p0);
+        }
+
         /**
          * rABS with descending spread.
          * p or p0 takes the place of l_s from the paper.
@@ -78,24 +83,6 @@ public class Ans {
             UInt quot = this.state.div(l_s);
             UInt rem = this.state.sub(quot.mul(l_s));
             this.state = quot.mul(DRACO_ANS_P8_PRECISION).add(rem).add(val != 0 ? UInt.ZERO : p.uIntValue());
-        }
-
-        public boolean rabsDescRead(UByte p0) {
-            UByte p = UByte.of(DRACO_ANS_P8_PRECISION).sub(p0);
-            if(this.state.lt(DRACO_ANS_L_BASE) && this.bufOffset > 0) {
-                this.state = this.state.mul(DRACO_ANS_IO_BASE).add(this.buf.get(--this.bufOffset).uIntValue());
-            }
-            UInt x = this.state;
-            UInt quot = x.div(DRACO_ANS_P8_PRECISION);
-            UInt rem = x.mod(DRACO_ANS_P8_PRECISION);
-            UInt xn = quot.mul(p.uIntValue());
-            boolean val = rem.lt(p.uIntValue());
-            if(val) {
-                this.state = xn.add(rem);
-            } else {
-                this.state = x.sub(xn).sub(p.uIntValue());
-            }
-            return val;
         }
 
         /**
@@ -134,6 +121,28 @@ public class Ans {
         public DataBuffer buf = null;
         public long bufOffset = 0;
         public UInt state = UInt.ZERO;
+
+        public boolean rabsRead(UByte p0) {
+            return this.rabsDescRead(p0);
+        }
+
+        public boolean rabsDescRead(UByte p0) {
+            UByte p = UByte.of(DRACO_ANS_P8_PRECISION).sub(p0);
+            if(this.state.lt(DRACO_ANS_L_BASE) && this.bufOffset > 0) {
+                this.state = this.state.mul(DRACO_ANS_IO_BASE).add(this.buf.get(--this.bufOffset).uIntValue());
+            }
+            UInt x = this.state;
+            UInt quot = x.div(DRACO_ANS_P8_PRECISION);
+            UInt rem = x.mod(DRACO_ANS_P8_PRECISION);
+            UInt xn = quot.mul(p.uIntValue());
+            boolean val = rem.lt(p.uIntValue());
+            if(val) {
+                this.state = xn.add(rem);
+            } else {
+                this.state = x.sub(xn).sub(p.uIntValue());
+            }
+            return val;
+        }
 
         public boolean rabsAscRead(UByte p0) {
             UByte p = UByte.of(DRACO_ANS_P8_PRECISION).sub(p0);
@@ -180,9 +189,9 @@ public class Ans {
             return s;
         }
 
-        public boolean ansReadInit(DataBuffer buf, int offset) {
+        public Status ansReadInit(DataBuffer buf, int offset) {
             if(offset < 1) {
-                return true;
+                return Status.ioError("Buffer offset is too small");
             }
             this.buf = buf;
             int x = buf.get(offset - 1).shr(6).intValue();
@@ -191,21 +200,24 @@ public class Ans {
                 this.state = buf.get(offset - 1).and(0x3F).uIntValue();
             } else if(x == 1) {
                 if(offset < 2) {
-                    return true;
+                    return Status.ioError("Buffer offset is too small");
                 }
                 this.bufOffset = offset - 2;
                 this.state = buf.getLE16(offset - 2).and(0x3FFF).uIntValue();
             } else if(x == 2) {
                 if(offset < 3) {
-                    return true;
+                    return Status.ioError("Buffer offset is too small");
                 }
                 this.bufOffset = offset - 3;
                 this.state = buf.getLE24(offset - 3).and(0x3FFFFF);
             } else {
-                return true;
+                return Status.ioError("Invalid buffer offset");
             }
             this.state = this.state.add(DRACO_ANS_L_BASE);
-            return this.state.ge(DRACO_ANS_L_BASE * DRACO_ANS_IO_BASE);
+            if(this.state.ge(DRACO_ANS_L_BASE * DRACO_ANS_IO_BASE)) {
+                return Status.ioError("Invalid buffer offset");
+            }
+            return Status.ok();
         }
 
         public boolean ansReadEnd() {

@@ -10,7 +10,7 @@ public class VertexCornersIterator<T extends ICornerTable> implements Iterator<C
     private final T cornerTable;
     private final CornerIndex startCorner;
     private CornerIndex corner;
-    private boolean leftTraversal;
+    private boolean leftTraversal, started = false;
 
     public VertexCornersIterator() {
         this.cornerTable = null;
@@ -40,6 +40,10 @@ public class VertexCornersIterator<T extends ICornerTable> implements Iterator<C
 
     @Override
     public CornerIndex next() {
+        if(!started) {
+            started = true;
+            return startCorner;
+        }
         if(leftTraversal) {
             corner = cornerTable.swingLeft(corner);
             if(corner == CornerIndex.INVALID) {

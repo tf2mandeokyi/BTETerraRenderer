@@ -15,15 +15,18 @@ public enum EncodedGeometryType {
             .filter(e -> e != INVALID_GEOMETRY_TYPE)
             .count();
 
-    private final UByte value;
+    private final int value;
 
     EncodedGeometryType(int value) {
-        this.value = UByte.of(value);
+        this.value = value;
     }
 
-    public static EncodedGeometryType fromValue(UByte value) {
+    public static EncodedGeometryType valueOf(UByte value) {
+        return valueOf(value.intValue());
+    }
+    public static EncodedGeometryType valueOf(int value) {
         for(EncodedGeometryType type : values()) {
-            if(type.value.equals(value)) return type;
+            if(type.value == value) return type;
         }
         return INVALID_GEOMETRY_TYPE;
     }

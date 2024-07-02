@@ -35,7 +35,7 @@ public class GeometryMetadata extends Metadata {
     public AttributeMetadata getAttributeMetadataByStringEntry(String entryName, String entryValue) {
         for(AttributeMetadata attMetadata : attributeMetadatas) {
             StringBuilder value = new StringBuilder();
-            if(attMetadata.getEntryString(entryName, value).isError(null)) {
+            if(attMetadata.getEntryString(entryName, value).isError()) {
                 continue;
             }
             if(value.toString().equals(entryValue)) return attMetadata;

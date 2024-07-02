@@ -7,7 +7,7 @@ import com.mndk.bteterrarenderer.datatype.number.UInt;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface CppVector<E> extends CustomIndexCppVector<Integer, E> {
+public interface CppVector<E> extends CustomIndexCppVector<Integer, E, CppVector<E>> {
 
     static <E> CppVector<E> create() {
         return new CppVectorImpl<>(DataType.object());
@@ -34,17 +34,21 @@ public interface CppVector<E> extends CustomIndexCppVector<Integer, E> {
     static <E> CppVector<E> create(DataArrayManager<E, ?> arrayManager, int size, E value) {
         return new CppVectorImpl<>(arrayManager, size, value);
     }
-    static <E, EArray> CppVector<E> create(DataArrayManager<E, EArray> arrayManager, EArray array) {
+    static <E, EArray> CppVector<E> view(DataArrayManager<E, EArray> arrayManager, EArray array) {
         return new CppVectorImpl<>(arrayManager, array);
     }
-    static <E> CppVector<E> create(DataArrayManager<E, ?> arrayManager, int size, Supplier<E> value) {
-        return new CppVectorImpl<>(arrayManager, size, value);
-    }
-    static <E> CppVector<E> create(DataArrayManager<E, ?> arrayManager, int size, Function<Integer, E> value) {
-        return new CppVectorImpl<>(arrayManager, size, value);
+
+    default CppVector<E> withOffset(Integer offset) {
+        return new CppVectorOffsetView<>(this, offset);
     }
 
     default E get(UInt index) { return get(index.intValue()); }
     default void set(UInt index, E value) { set(index.intValue(), value); }
+    default <U> CppVector<U> cast(Function<E, U> cast, Function<U, E> inverse) {
+        return new CppVectorCastView<E, U>(this) {
+            @Override protected E inBound(U value) { return inverse.apply(value); }
+            @Override protected U outBound(E value) { return cast.apply(value); }
+        };
+    }
 
 }

@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataArrayManager;
-import com.mndk.bteterrarenderer.draco.core.IndexType;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
-public class CornerIndex extends IndexType<CornerIndex> {
+public class CornerIndex extends IndexTypeImpl<CornerIndex> {
     // kInvalidCornerIndex
     public static final CornerIndex INVALID = new CornerIndex(-1);
 

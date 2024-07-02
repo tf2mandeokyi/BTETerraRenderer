@@ -51,7 +51,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
 
     public Status initEmpty(CornerTable table) {
         if (table == null) {
-            return new Status(Status.Code.INVALID_PARAMETER, "Table is null");
+            return Status.invalidParameter("Table is null");
         }
         valenceCache.clearValenceCache();
         valenceCache.clearValenceCacheInaccurate();
@@ -62,11 +62,11 @@ public class MeshAttributeCornerTable implements ICornerTable {
         vertexToLeftMostCornerMap.reserve(table.getNumVertices());
         cornerTable = table;
         noInteriorSeams = true;
-        return Status.OK;
+        return Status.ok();
     }
 
     public Status initFromAttribute(Mesh mesh, CornerTable table, PointAttribute att) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         if(initEmpty(table).isError(chain)) return chain.get();
         valenceCache.clearValenceCache();
@@ -173,7 +173,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
                     if(actC.equals(c)) {
                         // We reached the initial corner which shouldn't happen when we swing
                         // left from |c|.
-                        return new Status(Status.Code.DRACO_ERROR, "Unexpected corner reached");
+                        return Status.dracoError("Unexpected corner reached");
                     }
                 }
             }
@@ -196,7 +196,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
                 actC = cornerTable.swingRight(actC);
             }
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     public boolean isCornerOppositeToSeamEdge(CornerIndex corner) {

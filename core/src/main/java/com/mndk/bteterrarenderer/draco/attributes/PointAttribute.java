@@ -1,11 +1,12 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
+import com.mndk.bteterrarenderer.datatype.DataIOManager;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
+import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
-import com.mndk.bteterrarenderer.datatype.DataIOManager;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +25,6 @@ public class PointAttribute extends GeometryAttribute {
             IndexTypeVector.create(PointIndex::of, AttributeValueIndex.arrayManager());
     private int numUniqueEntries;
     /** Flag when the mapping between point ids and attribute values is identity. */
-    @Getter
     private boolean identityMapping;
 
     /**
@@ -51,20 +51,19 @@ public class PointAttribute extends GeometryAttribute {
      * identity mapping between point indices and attribute values. To set custom
      * mapping use {@link PointAttribute#setExplicitMapping} function.
      */
-    public final void init(Type attributeType, byte numComponents, DataNumberType<?, ?> dataType,
+    public final void init(Type attributeType, byte numComponents, DracoDataType dataType,
                            boolean normalized, int numAttributeValues)
     {
         this.buffer = new DataBuffer();
-        super.init(attributeType, this.buffer,
-                numComponents, dataType, normalized,
-                dataType.size() * numComponents, 0);
+        super.init(attributeType, this.buffer, UByte.of(numComponents), dataType, normalized,
+                dataType.getDataTypeLength() * numComponents, 0);
         this.reset(numAttributeValues);
         this.setIdentityMapping();
     }
 
     /** Copies attribute data from the provided {@code srcAtt} attribute. */
     public final Status copyFrom(PointAttribute srcAtt) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         if(this.getBuffer() == null) {
             this.resetBuffer(new DataBuffer(), 0, 0);
@@ -80,24 +79,24 @@ public class PointAttribute extends GeometryAttribute {
             attributeTransformData = null;
         }
 
-        return Status.OK;
+        return Status.ok();
     }
 
     /**
      * Prepares the attribute storage for the specified number of entries.
      */
     public final Status reset(int numAttributeValues) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         if(buffer == null) {
             buffer = new DataBuffer();
         }
-        long entrySize = this.getDataType().size() * this.getNumComponents();
+        long entrySize = this.getDataType().getDataTypeLength() * this.getNumComponents().intValue();
         if(buffer.update(null, numAttributeValues * entrySize).isError(chain)) return chain.get();
         // Assign the new buffer to the parent attribute.
         this.resetBuffer(buffer, entrySize, 0);
         numUniqueEntries = numAttributeValues;
-        return Status.OK;
+        return Status.ok();
     }
 
     public final int size() {
@@ -163,6 +162,10 @@ public class PointAttribute extends GeometryAttribute {
      */
     public final <T> T getMappedValue(PointIndex pointIndex, DataIOManager<T> outType) {
         return this.getValue(this.getMappedIndex(pointIndex), outType);
+    }
+
+    public boolean isMappingIdentity() {
+        return this.identityMapping;
     }
 
     @Override

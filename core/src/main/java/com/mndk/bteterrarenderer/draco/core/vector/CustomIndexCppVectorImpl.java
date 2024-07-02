@@ -10,7 +10,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-abstract class CustomIndexCppVectorImpl<I, E, EArray> implements CustomIndexCppVector<I, E> {
+abstract class CustomIndexCppVectorImpl<I, E, EArray, V extends CustomIndexCppVector<I, E, V>>
+        implements CustomIndexCppVector<I, E, V> {
 
     private int size = 0;
     private EArray array; // capacity = arrayManager.length(array)
@@ -148,9 +149,9 @@ abstract class CustomIndexCppVectorImpl<I, E, EArray> implements CustomIndexCppV
     public boolean isEmpty() { return this.size == 0; }
 
     @Override
-    public void swap(CustomIndexCppVector<I, E> other) {
+    public void swap(V other) {
         if(other instanceof CustomIndexCppVectorImpl) {
-            CustomIndexCppVectorImpl<I, E, EArray> otherImpl = (CustomIndexCppVectorImpl<I, E, EArray>) other;
+            CustomIndexCppVectorImpl<I, E, EArray, V> otherImpl = BTRUtil.uncheckedCast(other);
             EArray tempArray = this.array;
             int tempSize = this.size;
             this.array = otherImpl.array;
@@ -194,7 +195,7 @@ abstract class CustomIndexCppVectorImpl<I, E, EArray> implements CustomIndexCppV
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomIndexCppVectorImpl<?, ?, ?> that = (CustomIndexCppVectorImpl<?, ?, ?>) o;
+        CustomIndexCppVectorImpl<?, ?, ?, ?> that = (CustomIndexCppVectorImpl<?, ?, ?, ?>) o;
         // Check size, array type, array content
         if(!array.getClass().equals(that.array.getClass())) return false;
         EArray thatArray = BTRUtil.uncheckedCast(that.array);

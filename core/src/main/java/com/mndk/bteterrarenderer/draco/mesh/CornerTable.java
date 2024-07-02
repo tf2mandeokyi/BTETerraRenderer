@@ -53,7 +53,7 @@ public class CornerTable implements ICornerTable {
     private final ValenceCache<CornerTable> valenceCache = new ValenceCache<>(this);
 
     public static StatusOr<CornerTable> create(IndexTypeVector<FaceIndex, FaceType> faces) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
         CornerTable ct = new CornerTable();
         return ct.init(faces).isError(chain) ? StatusOr.error(chain.get()) : StatusOr.ok(ct);
     }
@@ -64,7 +64,7 @@ public class CornerTable implements ICornerTable {
      * non-manifold edges and vertices are going to be split.
      */
     public Status init(IndexTypeVector<FaceIndex, FaceType> faces) {
-        StatusChain chain = Status.newChain();
+        StatusChain chain = new StatusChain();
 
         valenceCache.clearValenceCache();
         valenceCache.clearValenceCacheInaccurate();
@@ -88,17 +88,17 @@ public class CornerTable implements ICornerTable {
     /** Resets the corner table to the given number of invalid faces and vertices. */
     public Status reset(int numFaces, int numVertices) {
         if (numFaces < 0 || numVertices < 0) {
-            return new Status(Status.Code.DRACO_ERROR, "Invalid number of faces or vertices");
+            return Status.dracoError("Invalid number of faces or vertices");
         }
         if (numFaces > Integer.MAX_VALUE / 3) {
-            return new Status(Status.Code.DRACO_ERROR, "Number of faces is too large");
+            return Status.dracoError("Number of faces is too large");
         }
         cornerToVertexMap.assign(numFaces * 3, VertexIndex.INVALID);
         oppositeCorners.assign(numFaces * 3, CornerIndex.INVALID);
         vertexCorners.reserve(numVertices);
         valenceCache.clearValenceCache();
         valenceCache.clearValenceCacheInaccurate();
-        return Status.OK;
+        return Status.ok();
     }
 
     public int getNumVertices() {
@@ -345,7 +345,7 @@ public class CornerTable implements ICornerTable {
     private Status computeOppositeCorners(AtomicReference<Integer> numVertices) {
         this.checkValenceCacheEmpty();
         if(numVertices == null) {
-            return new Status(Status.Code.DRACO_ERROR, "numVertices is null");
+            return Status.dracoError("numVertices is null");
         }
         oppositeCorners.resize(this.getNumCorners(), CornerIndex.INVALID);
 
@@ -449,7 +449,7 @@ public class CornerTable implements ICornerTable {
             }
         }
         numVertices.set(numCornersOnVertices.size());
-        return Status.OK;
+        return Status.ok();
     }
 
     private Status breakNonManifoldEdges() {
@@ -547,7 +547,7 @@ public class CornerTable implements ICornerTable {
             }
         } while(meshConnectivityUpdated);
 
-        return Status.OK;
+        return Status.ok();
     }
 
     private Status computeVertexCorners(int numVertices) {
@@ -625,7 +625,7 @@ public class CornerTable implements ICornerTable {
         for(boolean visited : visitedVertices) {
             if(!visited) ++this.numIsolatedVertices;
         }
-        return Status.OK;
+        return Status.ok();
     }
 
     private void checkValenceCacheEmpty() {

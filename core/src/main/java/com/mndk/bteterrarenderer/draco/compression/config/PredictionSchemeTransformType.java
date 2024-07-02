@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.draco.compression.config;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nullable;
 import java.util.stream.Stream;
 
 /** List of all prediction scheme transforms used by our framework. */
@@ -33,4 +34,12 @@ public enum PredictionSchemeTransformType {
             .count();
 
     private final int value;
+
+    @Nullable
+    public static PredictionSchemeTransformType valueOf(int value) {
+        for (PredictionSchemeTransformType type : values()) {
+            if (type.value == value) return type;
+        }
+        return null;
+    }
 }
