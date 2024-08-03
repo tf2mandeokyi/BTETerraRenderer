@@ -1,0 +1,37 @@
+package com.mndk.bteterrarenderer.datatype.pointer;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.ByteComparator;
+
+import javax.annotation.Nullable;
+import java.util.Comparator;
+
+@Getter
+@RequiredArgsConstructor
+public abstract class AbstractBorrowedRawByteArray<E> extends BorrowedArray<E> implements RawBytePointer {
+    protected final byte[] array;
+    protected final int offset;
+
+    @Override public final E get() { return fromRaw(array[offset]); }
+    @Override public final E get(int index) { return fromRaw(array[this.offset + index]); }
+    @Override public final void set(E value) { array[offset] = toRaw(value); }
+    @Override public final void set(int index, E value) { array[this.offset + index] = toRaw(value); }
+    @Override public final RawPointer asRaw() { return this; }
+    @Override public final void sort(int length, @Nullable Comparator<E> comparator) {
+        ByteComparator objectComparator = comparator == null
+                ? Byte::compare : (a, b) -> comparator.compare(fromRaw(a), fromRaw(b));
+        Primitive.sort(array, this.offset, this.offset + length, objectComparator);
+    }
+    @Override public final void swap(int a, int b) {
+        byte temp = array[offset + a];
+        array[offset + a] = array[offset + b];
+        array[offset + b] = temp;
+    }
+
+    protected abstract byte toRaw(E value);
+    protected abstract E fromRaw(byte raw);
+    @Override public final byte getRawByte(long index) { return array[checkIndex(offset + index)]; }
+    @Override public final void setRawByte(long index, byte value) { array[checkIndex(offset + index)] = value; }
+}

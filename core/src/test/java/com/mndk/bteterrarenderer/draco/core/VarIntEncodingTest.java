@@ -1,49 +1,35 @@
 package com.mndk.bteterrarenderer.draco.core;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.*;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.mndk.bteterrarenderer.datatype.PointerAssert;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class VarIntEncodingTest {
 
-    private ByteBuf copyBuffer(ByteBuf buffer) {
-        buffer.markReaderIndex().markWriterIndex();
-        ByteBuf result = Unpooled.copiedBuffer(buffer);
-        buffer.resetReaderIndex().resetWriterIndex();
-        return result;
-    }
-
-    private <T> void testVarint(DataNumberType<T, ?> dataType, T number, byte[] expected) {
+    private <T> void testVarint(Pointer<T> number, byte[] expected) {
         EncoderBuffer buffer = new EncoderBuffer();
-        StatusAssert.assertOk(BitUtils.encodeVarint(dataType, number, buffer));
-        DataBuffer dataBuffer = buffer.getData();
-        for(int i = 0; i < expected.length; ++i) {
-            Assert.assertEquals("Byte at index " + i, UByte.of(expected[i]), dataBuffer.get(i));
-        }
+        StatusAssert.assertOk(BitUtils.encodeVarint(number.getType().asNumber(), number.get(), buffer));
+        PointerAssert.dataEquals(expected, buffer);
 
         DecoderBuffer decoderBuffer = new DecoderBuffer();
-        decoderBuffer.init(dataBuffer);
-        AtomicReference<T> decodedRef = new AtomicReference<>();
-        decoderBuffer.decodeVarint(dataType, decodedRef);
-        Assert.assertEquals(number, decodedRef.get());
+        decoderBuffer.init(buffer.getData(), buffer.size());
+        Pointer<T> decodedRef = number.getType().newOwned();
+        decoderBuffer.decodeVarint(decodedRef);
+        Assert.assertEquals(number.get(), decodedRef.get());
     }
 
     @Test
     public void givenNumber_whenEncoded_thenCheck() {
-        testVarint(DataType.uint16(), UShort.of(300), new byte[] { (byte) 0xac, (byte) 0x02 });
-        testVarint(DataType.uint32(), UInt.of(300), new byte[] { (byte) 0xac, (byte) 0x02 });
-        testVarint(DataType.uint64(), ULong.of(300), new byte[] { (byte) 0xac, (byte) 0x02 });
-        testVarint(DataType.int16(), (short) 300, new byte[] { (byte) 0xd8, (byte) 0x04 });
-        testVarint(DataType.int16(), (short) -300, new byte[] { (byte) 0xd7, (byte) 0x04 });
-        testVarint(DataType.int32(), 300, new byte[] { (byte) 0xd8, (byte) 0x04 });
-        testVarint(DataType.int32(), -300, new byte[] { (byte) 0xd7, (byte) 0x04 });
-        testVarint(DataType.int64(), 300L, new byte[] { (byte) 0xd8, (byte) 0x04 });
-        testVarint(DataType.int64(), -300L, new byte[] { (byte) 0xd7, (byte) 0x04 });
+        testVarint(Pointer.newUShort((short) 300), new byte[] { (byte) 0xac, (byte) 0x02 });
+        testVarint(Pointer.newUInt(300), new byte[] { (byte) 0xac, (byte) 0x02 });
+        testVarint(Pointer.newULong(300), new byte[] { (byte) 0xac, (byte) 0x02 });
+        testVarint(Pointer.newShort((short) 300), new byte[] { (byte) 0xd8, (byte) 0x04 });
+        testVarint(Pointer.newShort((short) -300), new byte[] { (byte) 0xd7, (byte) 0x04 });
+        testVarint(Pointer.newInt(300), new byte[] { (byte) 0xd8, (byte) 0x04 });
+        testVarint(Pointer.newInt(-300), new byte[] { (byte) 0xd7, (byte) 0x04 });
+        testVarint(Pointer.newLong(300), new byte[] { (byte) 0xd8, (byte) 0x04 });
+        testVarint(Pointer.newLong(-300), new byte[] { (byte) 0xd7, (byte) 0x04 });
     }
 
 }

@@ -1,31 +1,28 @@
 package com.mndk.bteterrarenderer.draco.compression.entropy;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.compression.config.SymbolCodingMethod;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 import lombok.experimental.UtilityClass;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 @UtilityClass
 public class SymbolDecoding {
 
-    public Status decode(UInt numValues, int numComponents,
-                         DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+    public Status decode(UInt numValues, int numComponents, DecoderBuffer srcBuffer, Pointer<UInt> outValues) {
         StatusChain chain = new StatusChain();
 
         if(numValues.equals(0)) return Status.ok();
 
         // Decode which scheme to use.
-        AtomicReference<UByte> schemeRef = new AtomicReference<>();
-        if(srcBuffer.decode(DataType.uint8(), schemeRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> schemeRef = Pointer.newUByte((byte) 0);
+        if(srcBuffer.decode(schemeRef).isError(chain)) return chain.get();
         SymbolCodingMethod scheme = SymbolCodingMethod.valueOf(schemeRef.get());
 
         if(scheme == SymbolCodingMethod.SYMBOL_CODING_TAGGED) {
@@ -37,7 +34,7 @@ public class SymbolDecoding {
     }
 
     private Status decodeTagged(Function<Integer, SymbolDecoder> decoderMaker, UInt numValues, int numComponents,
-                                DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+                                DecoderBuffer srcBuffer, Pointer<UInt> outValues) {
         StatusChain chain = new StatusChain();
 
         SymbolDecoder tagDecoder = decoderMaker.apply(5);
@@ -51,15 +48,15 @@ public class SymbolDecoding {
 
         // srcBuffer now points behind the encoded tag data (to the place where the
         // values are encoded).
-        srcBuffer.startBitDecoding(false, val -> {});
+        srcBuffer.startBitDecoding(false, Pointer.newULong());
         int valueId = 0;
         for(UInt i = UInt.ZERO; i.lt(numValues); i = i.add(numComponents)) {
             // Decode the tag.
             UInt bitLength = tagDecoder.decodeSymbol();
             // Decode the actual value.
             for(int j = 0; j < numComponents; j++) {
-                AtomicReference<UInt> val = new AtomicReference<>();
-                if(srcBuffer.decodeLeastSignificantBits32(bitLength, val::set).isError(chain)) return chain.get();
+                Pointer<UInt> val = Pointer.newUInt();
+                if(srcBuffer.decodeLeastSignificantBits32(bitLength, val).isError(chain)) return chain.get();
                 outValues.set(valueId++, val.get());
             }
         }
@@ -69,7 +66,7 @@ public class SymbolDecoding {
     }
 
     private Status decodeRawInternal(Supplier<SymbolDecoder> decoderMaker, UInt numValues,
-                                     DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+                                     DecoderBuffer srcBuffer, Pointer<UInt> outValues) {
         StatusChain chain = new StatusChain();
 
         SymbolDecoder decoder = decoderMaker.get();
@@ -80,7 +77,7 @@ public class SymbolDecoding {
         }
 
         if(decoder.startDecoding(srcBuffer).isError(chain)) return chain.get();
-        for(UInt i = UInt.ZERO; i.lt(numValues); i = i.add(1)) {
+        for(int i = 0, until = numValues.intValue(); i < until; i++) {
             // Decode a symbol into the value.
             UInt value = decoder.decodeSymbol();
             outValues.set(i, value);
@@ -90,11 +87,11 @@ public class SymbolDecoding {
     }
 
     private Status decodeRaw(Function<Integer, SymbolDecoder> decoderMaker, UInt numValues,
-                             DecoderBuffer srcBuffer, CppVector<UInt> outValues) {
+                             DecoderBuffer srcBuffer, Pointer<UInt> outValues) {
         StatusChain chain = new StatusChain();
 
-        AtomicReference<UByte> maxBitLengthRef = new AtomicReference<>();
-        if(srcBuffer.decode(DataType.uint8(), maxBitLengthRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> maxBitLengthRef = Pointer.newUByte();
+        if(srcBuffer.decode(maxBitLengthRef).isError(chain)) return chain.get();
         int maxBitLength = maxBitLengthRef.get().intValue();
 
         if(maxBitLength < 1 || maxBitLength > 18) {

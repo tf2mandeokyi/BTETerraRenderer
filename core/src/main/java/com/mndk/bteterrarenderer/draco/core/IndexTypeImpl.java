@@ -1,14 +1,10 @@
 package com.mndk.bteterrarenderer.draco.core;
 
-import com.mndk.bteterrarenderer.datatype.DataArrayManager;
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.pointer.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.mintern.primitive.Primitive;
-import net.mintern.primitive.comparators.IntComparator;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 
 @Getter
@@ -30,19 +26,11 @@ public abstract class IndexTypeImpl<I extends IndexTypeImpl<I>> implements Index
     protected abstract I newInstance(int value);
     public abstract boolean isInvalid();
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName() + "(" + value + ")";
-    }
+    @Override public String toString() { return String.valueOf(value); }
+    @Override public int hashCode() { return Integer.hashCode(value); }
 
-    @Override
-    public int hashCode() {
-        return Integer.valueOf(value).hashCode();
-    }
-
-    public boolean equals(I other) {
-        return value == other.getValue();
-    }
+    public boolean equals(int other) { return value == other; }
+    public boolean equals(I other) { return value == other.getValue(); }
 
     @Override
     public boolean equals(Object obj) {
@@ -59,42 +47,65 @@ public abstract class IndexTypeImpl<I extends IndexTypeImpl<I>> implements Index
     private class IndexTypeIterator implements Iterator<I> {
         private final int until;
         private int current;
-
         public IndexTypeIterator(int start, int until) {
             this.until = until;
             current = start;
         }
+        @Override public boolean hasNext() { return current < until; }
+        @Override public I next() { return newInstance(current++); }
+    }
 
-        @Override
-        public boolean hasNext() {
-            return current < until;
+    private static class OwnedIndexType<I extends IndexTypeImpl<I>> extends AbstractOwnedRawInt<I> {
+        private final IndexTypeManager<I> manager;
+        public OwnedIndexType(IndexTypeManager<I> manager, int value) {
+            super(value);
+            this.manager = manager;
         }
+        @Override public DataType<I> getType() { return manager; }
+        @Override protected int toRaw(I value) { return value.getValue(); }
+        @Override protected I fromRaw(int raw) { return manager.intToIndex(raw); }
+    }
 
-        @Override
-        public I next() {
-            return newInstance(current++);
+    private static class BorrowedIndexArray<I extends IndexTypeImpl<I>> extends AbstractBorrowedRawIntArray<I> {
+        private final IndexTypeManager<I> manager;
+        public BorrowedIndexArray(IndexTypeManager<I> manager, int[] array, int offset) {
+            super(array, offset);
+            this.manager = manager;
+        }
+        @Override public DataType<I> getType() { return manager; }
+        @Override protected int toRaw(I value) { return value.getValue(); }
+        @Override protected I fromRaw(int raw) { return manager.intToIndex(raw); }
+        @Override public Pointer<I> add(int offset) {
+            return new BorrowedIndexArray<>(manager, array, this.offset + offset);
         }
     }
 
     @FunctionalInterface
-    protected interface IndexArrayManager<I extends IndexTypeImpl<I>> extends DataArrayManager<I, int[]> {
+    protected interface IndexTypeManager<I extends IndexTypeImpl<I>> extends DataType<I> {
 
         I intToIndex(int value);
 
-        default int[] newArray(int length) { return new int[length]; }
-        default I get(int[] array, int index) { return intToIndex(array[index]); }
-        default void set(int[] array, int index, @Nullable I value) {
-            array[index] = value == null ? 0 : value.getValue();
+        @Override default I parse(String value) { return intToIndex(Integer.parseInt(value)); }
+        @Override default I defaultValue() { return intToIndex(0); }
+        @Override default boolean equals(I left, I right) { return left.equals(right); }
+        @Override default int hashCode(I value) { return value.hashCode(); }
+        @Override default String toString(I value) { return value.toString(); }
+
+        @Override default long byteSize() { return 4; }
+        @Override default I read(RawPointer src) {
+            return intToIndex(src.getRawInt());
         }
-        default int length(int[] array) { return array.length; }
-        default void copy(int[] src, int srcIndex, int[] dest, int destIndex, int length) {
-            System.arraycopy(src, srcIndex, dest, destIndex, length);
+        @Override default void write(RawPointer dst, I value) {
+            dst.setRawInt(value.getValue());
         }
-        default void sort(int[] array, int from, int to, @Nullable Comparator<I> comparator) {
-            IntComparator c = comparator == null ? null : (a, b) -> comparator.compare(intToIndex(a), intToIndex(b));
-            Primitive.sort(array, from, to, c);
+
+        @Override default Pointer<I> newOwned(I value) { return new OwnedIndexType<>(this, value.getValue()); }
+        @Override default Pointer<I> newArray(int length) {
+            return new BorrowedIndexArray<>(this, new int[length], 0);
         }
-        default int arrayHashCode(int[] array) { return Arrays.hashCode(array); }
-        default boolean arrayEquals(int[] array1, int[] array2) { return Arrays.equals(array1, array2); }
+        @Override default Pointer<I> castPointer(RawPointer pointer) {
+            throw new UnsupportedOperationException("Cannot cast pointer from " + pointer.getClass().getSimpleName()
+                    + " to " + this.getClass().getSimpleName());
+        }
     }
 }

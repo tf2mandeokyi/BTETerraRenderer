@@ -4,9 +4,13 @@ import org.junit.Assert;
 
 public class StatusAssert {
 
+    public static void fail(Status status) {
+        throw status.getRuntimeException();
+    }
+
     public static void assertOk(Status status) {
         if(!status.isOk()) {
-            throw new AssertionError(status.getRuntimeException());
+            fail(status);
         }
     }
 

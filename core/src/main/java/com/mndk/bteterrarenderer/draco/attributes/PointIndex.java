@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.DataArrayManager;
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
 public class PointIndex extends IndexTypeImpl<PointIndex> {
     // kInvalidPointIndex
     public static final PointIndex INVALID = new PointIndex(-1);
 
-    private static final IndexArrayManager<PointIndex> ARRAY_MANAGER = PointIndex::new;
-    public static DataArrayManager<PointIndex, int[]> arrayManager() { return ARRAY_MANAGER; }
+    private static final IndexTypeManager<PointIndex> ARRAY_MANAGER = PointIndex::new;
+    public static DataType<PointIndex> type() { return ARRAY_MANAGER; }
 
     public static PointIndex of(int value) {
         return new PointIndex(value);

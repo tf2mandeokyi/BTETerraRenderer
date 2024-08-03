@@ -1,9 +1,11 @@
 package com.mndk.bteterrarenderer.draco.core;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class Options {
 
@@ -29,15 +31,15 @@ public class Options {
         options.put(name, val);
     }
 
-    public <S, SArray, V extends VectorD<S, SArray, V>> void setVector(String name, V vec) {
-        this.setVector(name, vec.getElementType(), vec.getDimension(), vec.getArray());
+    public <S, V extends VectorD<S, V>> void setVector(String name, V vec) {
+        this.setVector(name, vec.getDimension(), vec.getPointer());
     }
 
-    public <T, TArray> void setVector(String name, DataType<T, TArray> dataType, int numDims, TArray vec) {
+    public <T> void setVector(String name, int numDims, Pointer<T> vec) {
         StringBuilder out = new StringBuilder();
         for(int i = 0; i < numDims; i++) {
             if(i > 0) out.append(" ");
-            out.append(dataType.get(vec, i).toString());
+            out.append(vec.get(i).toString());
         }
         options.put(name, out.toString());
     }
@@ -49,6 +51,11 @@ public class Options {
     public int getInt(String name, int defaultVal) {
         String value = options.get(name);
         return value == null ? defaultVal : Integer.parseInt(value);
+    }
+
+    public <T extends Enum<T>> T getEnum(String name, Function<Integer, T> function, T defaultVal) {
+        String value = options.get(name);
+        return value == null ? defaultVal : function.apply(Integer.parseInt(value));
     }
 
     public float getFloat(String name) {
@@ -78,18 +85,19 @@ public class Options {
         return value == null ? defaultVal : value;
     }
 
-    public <S, SArray, V extends VectorD<S, SArray, V>> V getVector(String name, V outVec) {
-        this.getVector(name, outVec.getElementType(), outVec.getDimension(), outVec.getArray());
+    public <S, V extends VectorD<S, V>> V getVector(String name, V outVec) {
+        this.getVector(name, outVec.getDimension(), outVec.getPointer());
         return outVec;
     }
 
-    public <T, TArray> boolean getVector(String name, DataType<T, TArray> dataType, int numDims, TArray outVal) {
+    public <T> boolean getVector(String name, int numDims, Pointer<T> outVal) {
         String value = options.get(name);
         if(value == null) return false;
         String[] parts = value.split(" ");
+        DataType<T> dataType = outVal.getType();
         for(int i = 0; i < numDims; i++) {
             if(i >= parts.length) return true;
-            dataType.set(outVal, i, dataType.parse(parts[i]));
+            outVal.set(i, dataType.parse(parts[i]));
         }
         return true;
     }
@@ -98,4 +106,17 @@ public class Options {
         return options.containsKey(name);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        boolean first = true;
+        for(Map.Entry<String, String> entry : options.entrySet()) {
+            if(first) first = false;
+            else sb.append(", ");
+            sb.append(entry.getKey()).append(": ").append(entry.getValue());
+        }
+        sb.append("}");
+        return sb.toString();
+    }
 }

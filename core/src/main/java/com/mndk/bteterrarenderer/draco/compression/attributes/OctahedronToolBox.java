@@ -1,11 +1,10 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.Getter;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class OctahedronToolBox {
 
@@ -36,7 +35,7 @@ public class OctahedronToolBox {
      * their corresponding position in the bottom left and top right quadrants.
      * Convert all corner edge points to the top right corner.
      */
-    public void canonicalizeOctahedralCoords(int s, int t, AtomicInteger outS, AtomicInteger outT) {
+    public void canonicalizeOctahedralCoords(int s, int t, Pointer<Integer> outS, Pointer<Integer> outT) {
         if ((s == 0 && t == 0) || (s == 0 && t == this.maxValue) || (s == this.maxValue && t == 0)) {
             s = this.maxValue;
             t = this.maxValue;
@@ -53,45 +52,48 @@ public class OctahedronToolBox {
         outT.set(t);
     }
 
-    public void integerVectorToQuantizedOctahedralCoords(int[] intVec, AtomicInteger outS, AtomicInteger outT) {
-        if(Math.abs(intVec[0]) + Math.abs(intVec[1]) + Math.abs(intVec[2]) != this.centerValue) {
+    public void integerVectorToQuantizedOctahedralCoords(Pointer<Integer> intVec,
+                                                         Pointer<Integer> outS, Pointer<Integer> outT) {
+        int vec0 = intVec.get(0), vec1 = intVec.get(1), vec2 = intVec.get(2);
+        if(Math.abs(vec0) + Math.abs(vec1) + Math.abs(vec2) != this.centerValue) {
             throw new IllegalArgumentException("The absolute sum of the integer vector must equal the center value");
         }
         int s, t;
-        if (intVec[0] >= 0) {
+        if (vec0 >= 0) {
             // Right hemisphere.
-            s = (intVec[1] + this.centerValue);
-            t = (intVec[2] + this.centerValue);
+            s = (vec1 + this.centerValue);
+            t = (vec2 + this.centerValue);
         } else {
             // Left hemisphere.
-            if (intVec[1] < 0) {
-                s = Math.abs(intVec[2]);
+            if (vec1 < 0) {
+                s = Math.abs(vec2);
             } else {
-                s = (this.maxValue - Math.abs(intVec[2]));
+                s = (this.maxValue - Math.abs(vec2));
             }
-            if (intVec[2] < 0) {
-                t = Math.abs(intVec[1]);
+            if (vec2 < 0) {
+                t = Math.abs(vec1);
             } else {
-                t = (this.maxValue - Math.abs(intVec[1]));
+                t = (this.maxValue - Math.abs(vec1));
             }
         }
         canonicalizeOctahedralCoords(s, t, outS, outT);
     }
 
-    public <T, TArray>
-    void floatVectorToQuantizedOctahedralCoords(DataNumberType<T, TArray> type, TArray vector,
-                                                AtomicInteger outS, AtomicInteger outT) {
-        double absSum = Math.abs(type.toDouble(type.get(vector, 0))) +
-                        Math.abs(type.toDouble(type.get(vector, 1))) +
-                        Math.abs(type.toDouble(type.get(vector, 2)));
+    public <T>
+    void floatVectorToQuantizedOctahedralCoords(Pointer<T> vector,
+                                                Pointer<Integer> outS, Pointer<Integer> outT) {
+        DataNumberType<T> type = vector.getType().asNumber();
+        double absSum = Math.abs(type.toDouble(vector.get(0))) +
+                        Math.abs(type.toDouble(vector.get(1))) +
+                        Math.abs(type.toDouble(vector.get(2)));
         // Adjust values such that abs sum equals 1.
         double[] scaledVector = new double[3];
         if (absSum > 1e-6) {
             // Scale needed to project the vector to the surface of an octahedron.
             double scale = 1.0 / absSum;
-            scaledVector[0] = type.toDouble(type.get(vector, 0)) * scale;
-            scaledVector[1] = type.toDouble(type.get(vector, 1)) * scale;
-            scaledVector[2] = type.toDouble(type.get(vector, 2)) * scale;
+            scaledVector[0] = type.toDouble(vector.get(0)) * scale;
+            scaledVector[1] = type.toDouble(vector.get(1)) * scale;
+            scaledVector[2] = type.toDouble(vector.get(2)) * scale;
         } else {
             scaledVector[0] = 1.0;
             scaledVector[1] = 0;
@@ -119,26 +121,24 @@ public class OctahedronToolBox {
             intVec[2] *= -1;
         }
 
-        integerVectorToQuantizedOctahedralCoords(intVec, outS, outT);
+        integerVectorToQuantizedOctahedralCoords(Pointer.wrap(intVec), outS, outT);
     }
 
-    public <T, TArray>
-    void canonicalizeIntegerVector(DataNumberType<T, TArray> inType, TArray vec) {
+    public <T> void canonicalizeIntegerVector(Pointer<T> vec) {
+        DataNumberType<T> inType = vec.getType().asNumber();
         if(!inType.isIntegral()) throw new IllegalArgumentException("T must be an integral type");
         if(!inType.isSigned()) throw new IllegalArgumentException("T must be a signed type");
 
-        T vec0 = inType.get(vec, 0);
-        T vec1 = inType.get(vec, 1);
-        T vec2 = inType.get(vec, 2);
+        T vec0 = vec.get(0);
+        T vec1 = vec.get(1);
+        T vec2 = vec.get(2);
         long absSum = inType.toLong(inType.abs(vec0)) + inType.toLong(inType.abs(vec1)) + inType.toLong(inType.abs(vec2));
-        DataNumberType<Long, ?> longType = DataType.int64();
-        DataNumberType<Integer, ?> intType = DataType.int32();
+        DataNumberType<Long> longType = DataType.int64();
+        DataNumberType<Integer> intType = DataType.int32();
 
         if (absSum == 0) {
-            vec0 = inType.from(this.centerValue);  // vec[1] == v[2] == 0
+            vec0 = inType.from(this.centerValue);
         } else {
-//            vec[0] = (static_cast<int64_t>(vec[0]) * static_cast<int64_t>(center_value_)) / abs_sum;
-//            vec[1] = (static_cast<int64_t>(vec[1]) * static_cast<int64_t>(center_value_)) / abs_sum;
             vec0 = inType.from(longType.mul(inType, vec0, intType, this.centerValue) / absSum);
             vec1 = inType.from(longType.mul(inType, vec1, intType, this.centerValue) / absSum);
             if (inType.ge(vec2, 0)) {
@@ -147,12 +147,12 @@ public class OctahedronToolBox {
                 vec2 = inType.negate(inType.sub(inType.sub(this.centerValue, inType.abs(vec0)), inType.abs(vec1)));
             }
         }
-        inType.set(vec, 0, vec0);
-        inType.set(vec, 1, vec1);
-        inType.set(vec, 2, vec2);
+        vec.set(0, vec0);
+        vec.set(1, vec1);
+        vec.set(2, vec2);
     }
 
-    public void quantizedOctahedralCoordsToUnitVector(int inS, int inT, float[] out) {
+    public void quantizedOctahedralCoordsToUnitVector(int inS, int inT, Pointer<Float> out) {
         octahedralCoordsToUnitVector(inS * this.dequantizationScale - 1.0f,
                 inT * this.dequantizationScale - 1.0f, out);
     }
@@ -165,7 +165,7 @@ public class OctahedronToolBox {
         return st <= this.centerValue;
     }
 
-    public void invertDiamond(AtomicInteger s, AtomicInteger t) {
+    public void invertDiamond(Pointer<Integer> s, Pointer<Integer> t) {
         int sout = s.get();
         int tout = t.get();
         if(sout > this.centerValue) throw new IllegalArgumentException("s must be <= the center value");
@@ -211,7 +211,7 @@ public class OctahedronToolBox {
         t.set(ut);
     }
 
-    public void invertDirection(AtomicInteger s, AtomicInteger t) {
+    public void invertDirection(Pointer<Integer> s, Pointer<Integer> t) {
         // Expect center already at origin.
         if(s.get() > this.centerValue) throw new IllegalArgumentException("s must be less than or equal to the center value");
         if(t.get() > this.centerValue) throw new IllegalArgumentException("t must be less than or equal to the center value");
@@ -235,7 +235,7 @@ public class OctahedronToolBox {
         return x;
     }
 
-    private void octahedralCoordsToUnitVector(float inS, float inT, float[] out) {
+    private void octahedralCoordsToUnitVector(float inS, float inT, Pointer<Float> out) {
         // Background about the encoding:
         //   A normal is encoded in a normalized space <s, t> depicted below. The
         //   encoding correponds to an octahedron that is unwrapped to a 2D plane.
@@ -290,14 +290,14 @@ public class OctahedronToolBox {
         // Normalize the computed vector.
         float normSquared = x * x + y * y + z * z;
         if (normSquared < 1e-6) {
-            out[0] = 0;
-            out[1] = 0;
-            out[2] = 0;
+            out.set(0, 0f);
+            out.set(1, 0f);
+            out.set(2, 0f);
         } else {
             float d = 1.0f / (float) Math.sqrt(normSquared);
-            out[0] = x * d;
-            out[1] = y * d;
-            out[2] = z * d;
+            out.set(0, x * d);
+            out.set(1, y * d);
+            out.set(2, z * d);
         }
     }
 }

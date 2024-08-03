@@ -1,13 +1,16 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.UByteArray;
-import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
-import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MetadataDecoder {
@@ -29,14 +32,14 @@ public class MetadataDecoder {
             return Status.invalidParameter("Metadata is null.");
         }
         buffer = inBuffer;
-        AtomicReference<UInt> numAttMetadataRef = new AtomicReference<>();
-        if(buffer.decodeVarint(DataType.uint32(), numAttMetadataRef).isError(chain)) return chain.get();
+        Pointer<UInt> numAttMetadataRef = Pointer.newUInt();
+        if(buffer.decodeVarint(numAttMetadataRef).isError(chain)) return chain.get();
         int numAttMetadata = numAttMetadataRef.get().intValue();
 
         // Decode attribute metadata.
         for(int i = 0; i < numAttMetadata; ++i) {
-            AtomicReference<UInt> attUniqueId = new AtomicReference<>();
-            if(buffer.decodeVarint(DataType.uint32(), attUniqueId).isError(chain)) return chain.get();
+            Pointer<UInt> attUniqueId = Pointer.newUInt();
+            if(buffer.decodeVarint(attUniqueId).isError(chain)) return chain.get();
             AttributeMetadata attMetadata = new AttributeMetadata();
             attMetadata.setAttUniqueId(attUniqueId.get());
             if(decodeMetadata(attMetadata).isError(chain)) return chain.get();
@@ -56,10 +59,10 @@ public class MetadataDecoder {
             Metadata parentMetadata, decodedMetadata;
             int level;
         }
-        CppVector<MetadataTuple> metadataStack = CppVector.create();
-        metadataStack.pushBack(new MetadataTuple(null, metadata, 0));
+        List<MetadataTuple> metadataStack = new ArrayList<>();
+        metadataStack.add(new MetadataTuple(null, metadata, 0));
         while(!metadataStack.isEmpty()) {
-            MetadataTuple mp = metadataStack.popBack();
+            MetadataTuple mp = metadataStack.remove(metadataStack.size() - 1);
             metadata = mp.decodedMetadata;
 
             if(mp.parentMetadata != null) {
@@ -76,20 +79,20 @@ public class MetadataDecoder {
                 return Status.dracoError("Metadata is null.");
             }
 
-            AtomicReference<UInt> numEntriesRef = new AtomicReference<>();
-            if(buffer.decodeVarint(DataType.uint32(), numEntriesRef).isError(chain)) return chain.get();
+            Pointer<UInt> numEntriesRef = Pointer.newUInt();
+            if(buffer.decodeVarint(numEntriesRef).isError(chain)) return chain.get();
             int numEntries = numEntriesRef.get().intValue();
             for(int i = 0; i < numEntries; ++i) {
                 if(decodeEntry(metadata).isError(chain)) return chain.get();
             }
-            AtomicReference<UInt> numSubMetadataRef = new AtomicReference<>();
-            if(buffer.decodeVarint(DataType.uint32(), numSubMetadataRef).isError(chain)) return chain.get();
+            Pointer<UInt> numSubMetadataRef = Pointer.newUInt();
+            if(buffer.decodeVarint(numSubMetadataRef).isError(chain)) return chain.get();
             int numSubMetadata = numSubMetadataRef.get().intValue();
             if(numSubMetadata > buffer.getRemainingSize()) {
                 return Status.ioError("The decoded number of metadata items is unreasonably high.");
             }
             for(int i = 0; i < numSubMetadata; ++i) {
-                metadataStack.pushBack(new MetadataTuple(
+                metadataStack.add(new MetadataTuple(
                         metadata, null, mp.parentMetadata != null ? mp.level + 1 : mp.level));
             }
         }
@@ -101,8 +104,8 @@ public class MetadataDecoder {
 
         AtomicReference<String> entryName = new AtomicReference<>("");
         if(decodeName(entryName).isError(chain)) return chain.get();
-        AtomicReference<UInt> dataSizeRef = new AtomicReference<>();
-        if(buffer.decodeVarint(DataType.uint32(), dataSizeRef).isError(chain)) return chain.get();
+        Pointer<UInt> dataSizeRef = Pointer.newUInt();
+        if(buffer.decodeVarint(dataSizeRef).isError(chain)) return chain.get();
         int dataSize = dataSizeRef.get().intValue();
         if(dataSize == 0) {
             return Status.ioError("Data size is zero.");
@@ -110,21 +113,23 @@ public class MetadataDecoder {
         if(dataSize > buffer.getRemainingSize()) {
             return Status.ioError("Data size exceeds buffer size.");
         }
-        AtomicReference<UByteArray> entryValue = new AtomicReference<>();
-        if(buffer.decode(DataType.bytes(dataSize), entryValue::set).isError(chain)) return chain.get();
-        metadata.addEntryBinary(entryName.get(), entryValue.get());
+        BigUByteArray entryValue = BigUByteArray.create(dataSize);
+        if(buffer.decode(entryValue, dataSize).isError(chain)) return chain.get();
+        metadata.addEntryBinary(entryName.get(), entryValue);
         return Status.ok();
     }
 
     private Status decodeName(AtomicReference<String> name) {
         StatusChain chain = new StatusChain();
 
-        AtomicReference<UByte> nameLenRef = new AtomicReference<>();
-        if(buffer.decode(DataType.uint8(), nameLenRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> nameLenRef = Pointer.newUByte();
+        if(buffer.decode(nameLenRef).isError(chain)) return chain.get();
         int nameLen = nameLenRef.get().intValue();
         if(nameLen == 0) return Status.ok();
 
-        if(buffer.decode(DataType.bytes(nameLen), val -> name.set(val.decode())).isError(chain)) return chain.get();
+        BigUByteArray nameBuffer = BigUByteArray.create(nameLen);
+        if(buffer.decode(nameBuffer, nameLen).isError(chain)) return chain.get();
+        name.set(nameBuffer.decode());
         return Status.ok();
     }
 

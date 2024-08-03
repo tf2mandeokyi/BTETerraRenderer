@@ -4,10 +4,13 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.config.SymbolCodingMethod;
 import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.printer.ByteTablePrinter;
+import com.mndk.bteterrarenderer.printer.Printer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,8 +23,8 @@ public class SymbolCodingTest {
     private static final int BITSTREAM_VERSION = DracoVersions.MESH_BIT_STREAM_VERSION;
 
     @SuppressWarnings("SameParameterValue")
-    private <T, U> void testConvertToSymbolAndBack(DataNumberType<T, ?> signedType, T value) {
-        DataNumberType<U, ?> symbolType = signedType.makeUnsigned();
+    private <T, U> void testConvertToSymbolAndBack(DataNumberType<T> signedType, T value) {
+        DataNumberType<U> symbolType = signedType.makeUnsigned();
         U symbol = BitUtils.convertSignedIntToSymbol(signedType, value, symbolType);
         T result = BitUtils.convertSymbolToSignedInt(symbolType, symbol, signedType);
         Assert.assertEquals(value, result);
@@ -31,13 +34,13 @@ public class SymbolCodingTest {
     public void testLargeNumbers() {
         // This test verifies that SymbolCoding successfully encodes an array of large
         // numbers.
-        int[] in = {12345678, 1223333, 111, 5};
-        CppVector<UInt> inVector = CppVector.view(DataType.uint32(), in);
+        int[] in = new int[] { 12345678, 1223333, 111, 5 };
+        Pointer<UInt> inPointer = Pointer.wrapUnsigned(in);
         int numValues = in.length;
         EncoderBuffer eb = new EncoderBuffer();
-        StatusAssert.assertOk(SymbolEncoding.encode(inVector, numValues, 1, null, eb));
+        StatusAssert.assertOk(SymbolEncoding.encode(inPointer, numValues, 1, null, eb));
 
-        CppVector<UInt> out = CppVector.create(DataType.uint32(), numValues);
+        Pointer<UInt> out = Pointer.wrapUnsigned(new int[numValues]);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
@@ -59,7 +62,7 @@ public class SymbolCodingTest {
             add(Pair.of(UInt.of(9), 5));
             add(Pair.of(UInt.of(0), 6432));
         }};
-        CppVector<UInt> inValues = CppVector.create(DataType.uint32());
+        CppVector<UInt> inValues = new CppVector<>(DataType.uint32());
         for (Pair<UInt, Integer> pair : in) {
             UInt left = pair.getLeft();
             int right = pair.getRight();
@@ -75,9 +78,10 @@ public class SymbolCodingTest {
             SymbolEncoding.setSymbolEncodingMethod(options, symbolCodingMethod);
 
             EncoderBuffer eb = new EncoderBuffer();
-            StatusAssert.assertOk(SymbolEncoding.encode(inValues, inValues.size(), 1, options, eb));
+            Status status = SymbolEncoding.encode(inValues.getPointer(), inValues.size(), 1, options, eb);
+            StatusAssert.assertOk(status);
 
-            CppVector<UInt> outValues = CppVector.create(DataType.uint32(), inValues.size());
+            Pointer<UInt> outValues = Pointer.wrapUnsigned(new int[inValues.size()]);
             DecoderBuffer db = new DecoderBuffer();
             db.init(eb.getData(), eb.size());
             db.setBitstreamVersion(BITSTREAM_VERSION);
@@ -107,14 +111,15 @@ public class SymbolCodingTest {
         // symbol.
         EncoderBuffer eb = new EncoderBuffer();
         int inLength = 1200;
-        CppVector<UInt> inVector = CppVector.create(DataType.uint32(), 1200, UInt.ZERO);
-        StatusAssert.assertOk(SymbolEncoding.encode(inVector, inVector.size(), 1, null, eb));
+        Pointer<UInt> inVector = Pointer.wrapUnsigned(new int[inLength]);
+        StatusAssert.assertOk(SymbolEncoding.encode(inVector, inLength, 1, null, eb));
+        ByteTablePrinter.print(Printer.stdout(), eb.getData(), eb.size());
 
-        CppVector<UInt> out = CppVector.create(DataType.uint32(), inLength);
+        Pointer<UInt> out = Pointer.wrapUnsigned(new int[inLength]);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
-        StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(inVector.size()), 1, db, out));
+        StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(inLength), 1, db, out));
         for(int i = 0; i < inLength; ++i) {
             Assert.assertEquals(inVector.get(i), out.get(i));
         }
@@ -125,15 +130,16 @@ public class SymbolCodingTest {
         // This test verifies that SymbolCoding successfully encodes symbols of
         // various bit lengths
         EncoderBuffer eb = new EncoderBuffer();
-        CppVector<UInt> in = CppVector.create(DataType.uint32());
+        CppVector<UInt> in = new CppVector<>(DataType.uint32());
         final int bitLengths = 18;
         for(int i = 0; i < bitLengths; ++i) {
             in.pushBack(UInt.of(1 << i));
         }
-        CppVector<UInt> out = CppVector.create(DataType.uint32(), in.size());
+        Pointer<UInt> out = Pointer.wrapUnsigned(new int[in.size()]);
         for(int i = 0; i < bitLengths; ++i) {
             eb.clear();
-            StatusAssert.assertOk(SymbolEncoding.encode(in, i + 1, 1, null, eb));
+            Status status = SymbolEncoding.encode(in.getPointer(), i + 1, 1, null, eb);
+            StatusAssert.assertOk(status);
             DecoderBuffer db = new DecoderBuffer();
 
             db.init(eb.getData(), eb.size());
@@ -151,10 +157,11 @@ public class SymbolCodingTest {
         // that are on the boundary between raw scheme and tagged scheme (18 bits).
         EncoderBuffer eb = new EncoderBuffer();
         final int numSymbols = 1000000;
-        CppVector<UInt> in = CppVector.create(DataType.uint32(), numSymbols, UInt.of(1 << 18));
-        StatusAssert.assertOk(SymbolEncoding.encode(in, in.size(), 1, null, eb));
+        CppVector<UInt> in = new CppVector<>(DataType.uint32(), numSymbols, UInt.of(1 << 18));
+        Status status = SymbolEncoding.encode(in.getPointer(), in.size(), 1, null, eb);
+        StatusAssert.assertOk(status);
 
-        CppVector<UInt> out = CppVector.create(DataType.uint32(), in.size());
+        Pointer<UInt> out = Pointer.wrapUnsigned(new int[in.size()]);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);

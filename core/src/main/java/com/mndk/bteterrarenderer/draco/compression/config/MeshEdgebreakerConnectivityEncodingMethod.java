@@ -12,9 +12,9 @@ import javax.annotation.Nullable;
  */
 @Getter @RequiredArgsConstructor
 public enum MeshEdgebreakerConnectivityEncodingMethod {
-    MESH_EDGEBREAKER_STANDARD_ENCODING(0),
-    MESH_EDGEBREAKER_PREDICTIVE_ENCODING(1),  // Deprecated.
-    MESH_EDGEBREAKER_VALENCE_ENCODING(2);
+    STANDARD(0),
+    PREDICTIVE(1),  // Deprecated.
+    VALENCE(2);
 
     private final int value;
 

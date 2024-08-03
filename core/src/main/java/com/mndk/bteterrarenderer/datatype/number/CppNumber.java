@@ -17,28 +17,28 @@ public abstract class CppNumber<T extends CppNumber<T>> extends Number implement
     public abstract int hashCode();
     public abstract String toString();
     public abstract String toHexString();
-    public abstract DataNumberType<T, ?> getType();
+    public abstract DataNumberType<T> getType();
 
     // #################### Arithmetic operations ####################
 
     public abstract T add(T other);
-    public <U> T add(DataNumberType<U, ?> type, U other) { return this.add(this.getType().from(type, other)); }
+    public <U> T add(DataNumberType<U> type, U other) { return this.add(this.getType().from(type, other)); }
     public T add(int other) { return this.add(this.getType().from(other)); }
     public T add(long other) { return this.add(this.getType().from(other)); }
     public abstract T sub(T other);
-    public <U> T sub(DataNumberType<U, ?> type, U other) { return this.add(this.getType().from(type, other)); }
+    public <U> T sub(DataNumberType<U> type, U other) { return this.add(this.getType().from(type, other)); }
     public T sub(int other) { return this.sub(this.getType().from(other)); }
     public T sub(long other) { return this.sub(this.getType().from(other)); }
     public abstract T mul(T other);
-    public <U> T mul(DataNumberType<U, ?> type, U other) { return this.add(this.getType().from(type, other)); }
+    public <U> T mul(DataNumberType<U> type, U other) { return this.add(this.getType().from(type, other)); }
     public T mul(int other) { return this.mul(this.getType().from(other)); }
     public T mul(long other) { return this.mul(this.getType().from(other)); }
     public abstract T div(T other);
-    public <U> T div(DataNumberType<U, ?> type, U other) { return this.add(this.getType().from(type, other)); }
+    public <U> T div(DataNumberType<U> type, U other) { return this.add(this.getType().from(type, other)); }
     public T div(int other) { return this.div(this.getType().from(other)); }
     public T div(long other) { return this.div(this.getType().from(other)); }
     public abstract T mod(T other);
-    public <U> T mod(DataNumberType<U, ?> type, U other) { return this.add(this.getType().from(type, other)); }
+    public <U> T mod(DataNumberType<U> type, U other) { return this.add(this.getType().from(type, other)); }
     public T mod(int other) { return this.mod(this.getType().from(other)); }
     public T mod(long other) { return this.mod(this.getType().from(other)); }
     public abstract T negate();

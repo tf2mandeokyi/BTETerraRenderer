@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.draco.compression.config;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.Options;
 import com.mndk.bteterrarenderer.draco.core.VectorD;
 import lombok.Getter;
@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class DracoOptions<AttKeyT> {
 
@@ -39,22 +40,20 @@ public class DracoOptions<AttKeyT> {
         this.getAttributeOptions(attKey).setBool(name, val);
     }
 
-    public <S, SArray, V extends VectorD<S, SArray, V>> V getAttributeVector(AttKeyT attKey, String name, V outVec) {
+    public <S, V extends VectorD<S, V>> V getAttributeVector(AttKeyT attKey, String name, V outVec) {
         return this.attributeOrGlobalOptions(attKey, name).getVector(name, outVec);
     }
 
-    public <S, SArray, V extends VectorD<S, SArray, V>> void setAttributeVector(AttKeyT attKey, String name, V val) {
+    public <S, V extends VectorD<S, V>> void setAttributeVector(AttKeyT attKey, String name, V val) {
         this.getAttributeOptions(attKey).setVector(name, val);
     }
 
-    public <T, TArray>
-    boolean getAttributeVector(AttKeyT attKey, String name, DataType<T, TArray> dataType, int numDims, TArray val) {
-        return this.attributeOrGlobalOptions(attKey, name).getVector(name, dataType, numDims, val);
+    public <T> boolean getAttributeVector(AttKeyT attKey, String name, int numDims, Pointer<T> array) {
+        return this.attributeOrGlobalOptions(attKey, name).getVector(name, numDims, array);
     }
 
-    public <T, TArray>
-    void setAttributeVector(AttKeyT attKey, String name, DataType<T, TArray> dataType, int numDims, TArray val) {
-        this.getAttributeOptions(attKey).setVector(name, dataType, numDims, val);
+    public <T> void setAttributeVector(AttKeyT attKey, String name, int numDims, Pointer<T> array) {
+        this.getAttributeOptions(attKey).setVector(name, numDims, array);
     }
 
     public boolean isAttributeOptionSet(AttKeyT attKey, String name) {
@@ -63,6 +62,10 @@ public class DracoOptions<AttKeyT> {
 
     public int getGlobalInt(String name, int defaultVal) {
         return globalOptions.getInt(name, defaultVal);
+    }
+
+    public <T extends Enum<T>> T getGlobalEnum(String name, Function<Integer, T> function, T defaultVal) {
+        return globalOptions.getEnum(name, function, defaultVal);
     }
 
     public void setGlobalInt(String name, int val) {
@@ -85,22 +88,20 @@ public class DracoOptions<AttKeyT> {
         globalOptions.setBool(name, val);
     }
 
-    public <S, SArray, V extends VectorD<S, SArray, V>> V getGlobalVector(String name, V outVec) {
+    public <S, V extends VectorD<S, V>> V getGlobalVector(String name, V outVec) {
         return globalOptions.getVector(name, outVec);
     }
 
-    public <S, SArray, V extends VectorD<S, SArray, V>> void setGlobalVector(String name, V val) {
+    public <S, V extends VectorD<S, V>> void setGlobalVector(String name, V val) {
         globalOptions.setVector(name, val);
     }
 
-    public <T, TArray>
-    boolean getGlobalVector(String name, DataType<T, TArray> dataType, int numDims, TArray val) {
-        return globalOptions.getVector(name, dataType, numDims, val);
+    public <T> boolean getGlobalVector(String name, Pointer<T> vec, int numDims) {
+        return globalOptions.getVector(name, numDims, vec);
     }
 
-    public <T, TArray>
-    void setGlobalVector(String name, DataType<T, TArray> dataType, int numDims, TArray val) {
-        globalOptions.setVector(name, dataType, numDims, val);
+    public <T> void setGlobalVector(String name, Pointer<T> vec, int numDims) {
+        globalOptions.setVector(name, numDims, vec);
     }
 
     public boolean isGlobalOptionSet(String name) {

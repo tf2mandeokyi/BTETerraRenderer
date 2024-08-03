@@ -1,22 +1,20 @@
 package com.mndk.bteterrarenderer.draco.core;
 
-import com.mndk.bteterrarenderer.datatype.DataIOManager;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.nio.ByteBuffer;
 
 /**
  * Class is a wrapper around input data used by MeshDecoder. It provides a
@@ -25,7 +23,7 @@ import java.util.function.Consumer;
 public class DecoderBuffer {
 
     @Getter
-    private DataBuffer data;
+    private RawPointer data;
     private long dataSize;
     @Getter
     private long pos;
@@ -37,19 +35,7 @@ public class DecoderBuffer {
 
     public DecoderBuffer() {}
     public DecoderBuffer(DecoderBuffer buffer) {
-        this.data = buffer.data;
-        this.dataSize = buffer.dataSize;
-        this.pos = buffer.pos;
-        this.bitDecoderActive = buffer.bitDecoderActive;
-        this.bitstreamVersion = buffer.bitstreamVersion;
-    }
-
-    public void init(InputStream inputStream) throws IOException {
-        this.init(new DataBuffer(inputStream));
-    }
-
-    public void init(ByteBuf byteBuf) {
-        this.init(new DataBuffer(byteBuf));
+        this.reset(buffer);
     }
 
     /**
@@ -57,19 +43,30 @@ public class DecoderBuffer {
      * made so the data owner needs to keep the data valid and unchanged for
      * runtime of the decoder.
      */
-    public void init(DataBuffer data, long dataSize) {
+    public void init(RawPointer data, long dataSize) {
         this.init(data, dataSize, bitstreamVersion);
     }
-    public void init(DataBuffer data) {
-        this.init(data, data.size());
+    public void init(BigUByteArray data) {
+        this.init(data.getRawPointer(), data.size());
     }
+    public void init(InputStream inputStream) throws IOException { this.init(BigUByteArray.create(inputStream)); }
+    public void init(ByteBuf byteBuf) { this.init(BigUByteArray.create(byteBuf)); }
+    public void init(ByteBuffer byteBuffer) { this.init(BigUByteArray.create(byteBuffer)); }
 
     /** Sets the buffer's internal data. {@code version} is the Draco bitstream version. */
-    public void init(DataBuffer data, long dataSize, int version) {
+    public void init(RawPointer data, long dataSize, int version) {
         this.data = data;
         this.dataSize = dataSize;
         this.bitstreamVersion = version;
         this.pos = 0;
+    }
+
+    public void reset(DecoderBuffer buffer) {
+        this.data = buffer.data;
+        this.dataSize = buffer.dataSize;
+        this.pos = buffer.pos;
+        this.bitDecoderActive = buffer.bitDecoderActive;
+        this.bitstreamVersion = buffer.bitstreamVersion;
     }
 
     /**
@@ -78,16 +75,14 @@ public class DecoderBuffer {
      * during encoding. The size is then returned to {@code outSize}.
      * Returns either {@link Status#ok()} or error type.
      */
-    public Status startBitDecoding(boolean decodeSize, @Nonnull Consumer<ULong> outSize) {
+    public Status startBitDecoding(boolean decodeSize, Pointer<ULong> outSize) {
         StatusChain chain = new StatusChain();
 
         if(decodeSize) {
             if(bitstreamVersion < DracoVersions.getBitstreamVersion(2, 2)) {
-                if(decode(DataType.uint64(), outSize).isError(chain)) return chain.get();
+                if(this.decode(outSize).isError(chain)) return chain.get();
             } else {
-                AtomicReference<ULong> sizeRef = new AtomicReference<>();
-                if(decodeVarint(DataType.uint64(), sizeRef).isError(chain)) return chain.get();
-                outSize.accept(sizeRef.get());
+                if(this.decodeVarint(outSize).isError(chain)) return chain.get();
             }
         }
         bitDecoderActive = true;
@@ -110,7 +105,7 @@ public class DecoderBuffer {
      * Decodes up to 32 bits into {@code outValue}. Can be called only in between
      * {@link DecoderBuffer#startBitDecoding} and {@link DecoderBuffer#endBitDecoding}.
      */
-    public Status decodeLeastSignificantBits32(UInt nBits, Consumer<UInt> outValue) {
+    public Status decodeLeastSignificantBits32(UInt nBits, Pointer<UInt> outValue) {
         if(!bitDecoderActive) return Status.ioError("Bit decoding not started");
         return bitDecoder.getBits(nBits.intValue(), outValue);
     }
@@ -119,13 +114,13 @@ public class DecoderBuffer {
      * Decodes up to 32 bits into {@code outValue}. Can be called only in between
      * {@link DecoderBuffer#startBitDecoding} and {@link DecoderBuffer#endBitDecoding}.
      */
-    public Status decodeLeastSignificantBits32(int nBits, Consumer<UInt> outValue) {
+    public Status decodeLeastSignificantBits32(int nBits, Pointer<UInt> outValue) {
         if(!bitDecoderActive) return Status.ioError("Bit decoding not started");
         return bitDecoder.getBits(nBits, outValue);
     }
 
-    public <T> Status decodeVarint(DataNumberType<T, ?> outType, AtomicReference<T> outVal) {
-        return BitUtils.decodeVarint(outType, outVal, this);
+    public <T> Status decodeVarint(Pointer<T> outVal) {
+        return BitUtils.decodeVarint(outVal, this);
     }
 
     /**
@@ -133,56 +128,59 @@ public class DecoderBuffer {
      * Can be used only when we are not decoding a bit-sequence.
      * Returns {@code false} on error.
      */
-    public <T> Status decode(DataIOManager<T> outType, @Nonnull Consumer<T> outVal) {
-        StatusChain chain = new StatusChain();
-        if(peek(outType, outVal).isError(chain)) return chain.get();
-        pos += outType.size();
+    public <T> Status decode(Pointer<T> outVal) {
+        Status status = peek(outVal);
+        if(status.isError()) return status;
+        pos += outVal.getType().byteSize();
         return Status.ok();
     }
     @Nullable
-    public <T> T decode(DataIOManager<T> outType) {
-        AtomicReference<T> outVal = new AtomicReference<>();
-        return decode(outType, outVal::set).isError() ? null : outVal.get();
+    public <T> T decode(DataType<T> outType) {
+        Pointer<T> outVal = outType.newOwned();
+        return decode(outVal).isError() ? null : outVal.get();
     }
-    public <T> Status decode(DataIOManager<T> outType, BiConsumer<Integer, T> outData, int size) {
-        StatusChain chain = new StatusChain();
-        if(peek(outType, outData, size).isError(chain)) return chain.get();
-        pos += outType.size() * size;
+    public <T> Status decode(Pointer<T> outData, int size) {
+        Status status = peek(outData, size);
+        if(status.isError()) return status;
+        pos += outData.getType().byteSize() * size;
         return Status.ok();
     }
-    public <T, TArray> Status decode(DataType<T, TArray> outType, TArray outData, int size) {
-        StatusChain chain = new StatusChain();
-        if(peek(outType, outData, size).isError(chain)) return chain.get();
-        pos += outType.size() * size;
+    public Status decode(BigUByteArray outVal, int size) {
+        Status status = peek(outVal, size);
+        if(status.isError()) return status;
+        pos += size;
         return Status.ok();
     }
 
     /** Decodes an arbitrary data, but does not advance the reading position. */
-    public <T> Status peek(DataIOManager<T> outType, @Nonnull Consumer<T> outVal) {
-        if(dataSize < pos + outType.size()) {
+    public <T> Status peek(Pointer<T> outVal) {
+        DataType<T> outType = outVal.getType();
+        if(dataSize < pos + outType.byteSize()) {
             return Status.ioError("Buffer overflow");
         }
-        outVal.accept(this.data.read(outType, pos));
+        outType.read(this.data.rawAdd(pos), outVal);
+        return Status.ok();
+    }
+    public Status peek(BigUByteArray outVal, long size) {
+        if(dataSize < pos + size) {
+            return Status.ioError("Buffer overflow");
+        }
+        this.data.rawAdd(pos).rawCopyTo(outVal.getRawPointer(), size);
         return Status.ok();
     }
     @Nullable
-    public <T> T peek(DataIOManager<T> outType) {
-        AtomicReference<T> outVal = new AtomicReference<>();
-        return peek(outType, outVal).isError() ? null : outVal.get();
+    public <T> T peek(DataType<T> outType) {
+        Pointer<T> outVal = outType.newOwned();
+        return peek(outVal).isError() ? null : outVal.get();
     }
-    public <T> Status peek(DataIOManager<T> outType, @Nonnull AtomicReference<T> outVal) {
-        return peek(outType, outVal::set);
-    }
-    public <T, TArray> Status peek(DataType<T, TArray> outType, @Nonnull TArray outData, int size) {
-        return peek(outType, outType.setter(outData), size);
-    }
-    public <T> Status peek(DataIOManager<T> outType, BiConsumer<Integer, T> outData, int size) {
-        if(dataSize < pos + outType.size() * size) {
+    public <T> Status peek(Pointer<T> outVal, long size) {
+        DataType<T> outType = outVal.getType();
+        long byteSize = outType.byteSize();
+        if(dataSize < pos + byteSize * size) {
             return Status.ioError("Buffer overflow");
         }
-        for(int i = 0; i < size; i++) {
-            T value = this.data.read(outType, pos + outType.size() * i);
-            outData.accept(i, value);
+        for(long i = 0; i < size; i++) {
+            outType.read(this.data.rawAdd(pos + i * byteSize), outVal.add(i));
         }
         return Status.ok();
     }
@@ -200,8 +198,8 @@ public class DecoderBuffer {
         pos = offset;
     }
 
-    public DataBuffer getDataHead() {
-        return data.withOffset(pos);
+    public RawPointer getDataHead() {
+        return data.rawAdd(pos);
     }
 
     public long getRemainingSize() {
@@ -212,20 +210,14 @@ public class DecoderBuffer {
         return pos;
     }
 
-//    public void skipLine() { DracoParserUtils.skipLine(this); }
-//    public void skipWhitespace() { DracoParserUtils.skipWhitespace(this); }
-//    public boolean peekWhitespace(AtomicBoolean endReached) { return DracoParserUtils.peekWhitespace(this, endReached); }
-//    public Status parseFloat(AtomicReference<Float> valRef) { return DracoParserUtils.parseFloat(this, valRef); }
-//    public DecoderBuffer parseLine() { return DracoParserUtils.parseLineIntoDecoderBuffer(this); }
-
     public static class BitDecoder {
 
-        private DataBuffer bitBuffer;
+        private RawPointer bitBuffer;
         private long bitOffset;
         private long byteSize;
 
         /** Sets the bit buffer to {@code byteBuffer}. */
-        public void reset(DataBuffer b, long s) {
+        public void reset(RawPointer b, long s) {
             this.bitOffset = 0;
             this.bitBuffer = b;
             this.byteSize = s;
@@ -260,7 +252,7 @@ public class DecoderBuffer {
         }
 
         /** Returns {@code nBits} bits in {@code x} or {@code null} if fails. */
-        public Status getBits(int nBits, Consumer<UInt> x) {
+        public Status getBits(int nBits, Pointer<UInt> x) {
             if(nBits > 32) {
                 return Status.ioError("nBits must be less than or equal to 32, instead got " + nBits);
             }
@@ -268,7 +260,7 @@ public class DecoderBuffer {
             for(int bit = 0; bit < nBits; bit++) {
                 value = value.or(getBit() << bit);
             }
-            x.accept(value);
+            x.set(value);
             return Status.ok();
         }
 
@@ -277,7 +269,7 @@ public class DecoderBuffer {
             long byteOffset = off >> 3;
             int bitShift = (int) (off & 0x7);
             if(byteOffset < byteSize) {
-                int bit = bitBuffer.get(byteOffset).shr(bitShift).and(1).intValue();
+                int bit = bitBuffer.getRawUByte(byteOffset).shr(bitShift).and(1).intValue();
                 bitOffset = off + 1;
                 return bit;
             }
@@ -289,7 +281,7 @@ public class DecoderBuffer {
             long byteOffset = off >> 3;
             int bitShift = (int) (off & 0x7);
             if(byteOffset < byteSize) {
-                return bitBuffer.get(byteOffset).shr(bitShift).and(1).intValue();
+                return bitBuffer.getRawUByte(byteOffset).shr(bitShift).and(1).intValue();
             }
             return 0;
         }

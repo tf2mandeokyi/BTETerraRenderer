@@ -27,7 +27,7 @@ public class ULong extends CppNumber<ULong> {
     @Override public int hashCode() { return Long.hashCode(value); }
     @Override public String toString() { return Long.toUnsignedString(value); }
     @Override public String toHexString() { return Long.toHexString(value); }
-    @Override public DataNumberType<ULong, ?> getType() { return DataType.uint64(); }
+    @Override public DataNumberType<ULong> getType() { return DataType.uint64(); }
 
     // Arithmetic operations
     @Override public ULong add(ULong other) { return new ULong(value + other.value); }

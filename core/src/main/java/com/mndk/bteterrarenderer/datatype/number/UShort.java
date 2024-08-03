@@ -14,7 +14,9 @@ public class UShort extends CppNumber<UShort> {
     public static final UShort MIN = new UShort((short) 0);
     public static final UShort MAX = new UShort((short) -1);
     private static final int MASK = 0xFFFF;
+    public static final UShort ZERO = new UShort((short) 0);
 
+    public static UShort of(short value) { return new UShort(value); }
     public static UShort of(int value) { return new UShort((short) value); }
     public static UShort[] array(Integer... values) { return Stream.of(values).map(UShort::of).toArray(UShort[]::new); }
     public static List<UShort> list(Integer... values) { return Stream.of(values).map(UShort::of).collect(Collectors.toList()); }
@@ -25,7 +27,7 @@ public class UShort extends CppNumber<UShort> {
     @Override public int hashCode() { return Short.hashCode(value); }
     @Override public String toString() { return Integer.toString(value & MASK); }
     @Override public String toHexString() { return Integer.toHexString(value & MASK); }
-    @Override public DataNumberType<UShort, ?> getType() { return DataType.uint16(); }
+    @Override public DataNumberType<UShort> getType() { return DataType.uint16(); }
 
     // Arithmetic operations
     @Override public UShort add(UShort other) { return new UShort((short) (value + other.value)); }

@@ -2,19 +2,23 @@ package com.mndk.bteterrarenderer.draco.pointcloud;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.attributes.AttributeValueIndex;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
+import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
 import com.mndk.bteterrarenderer.draco.core.BoundingBox;
+import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.VectorD;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.metadata.AttributeMetadata;
 import com.mndk.bteterrarenderer.draco.metadata.GeometryMetadata;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * PointCloud is a collection of n-dimensional points that are described by a
@@ -26,9 +30,9 @@ public class PointCloud {
     @Getter
     private GeometryMetadata metadata = null;
     private final List<PointAttribute> attributes = new ArrayList<>();
-    private final List<List<Integer>> namedAttributeIndex = new ArrayList<List<Integer>>() {{
+    private final List<CppVector<Integer>> namedAttributeIndex = new ArrayList<CppVector<Integer>>() {{
         for(int i = 0; i < GeometryAttribute.NAMED_ATTRIBUTES_COUNT; ++i) {
-            add(new ArrayList<>());
+            add(new CppVector<>(DataType.int32()));
         }
     }};
     @Getter @Setter
@@ -38,10 +42,10 @@ public class PointCloud {
 
     /** Returns the number of named attributes of a given type */
     public int numNamedAttributes(GeometryAttribute.Type type) {
-        if(type == GeometryAttribute.Type.INVALID || type.ordinal() >= GeometryAttribute.NAMED_ATTRIBUTES_COUNT) {
+        if(type == GeometryAttribute.Type.INVALID || type == null) {
             return 0;
         }
-        return namedAttributeIndex.get(type.ordinal()).size();
+        return namedAttributeIndex.get(type.getIndex()).size();
     }
 
     /**
@@ -181,7 +185,7 @@ public class PointCloud {
             attributes.set(attId, pa);
         }
         if (pa.getAttributeType().getIndex() < GeometryAttribute.NAMED_ATTRIBUTES_COUNT) {
-            namedAttributeIndex.get(pa.getAttributeType().getIndex()).add(attId);
+            namedAttributeIndex.get(pa.getAttributeType().getIndex()).pushBack(attId);
         }
         pa.setUniqueId(UInt.of(attId));
     }
@@ -204,7 +208,7 @@ public class PointCloud {
 
         // Remove the attribute from the named attribute list if applicable.
         if (attType.getIndex() < GeometryAttribute.NAMED_ATTRIBUTES_COUNT) {
-            namedAttributeIndex.get(attType.getIndex()).remove((Integer) attId);
+            namedAttributeIndex.get(attType.getIndex()).erase(attId);
         }
 
         // Update ids of all subsequent named attributes (decrease them by one).
@@ -217,6 +221,94 @@ public class PointCloud {
         }
     }
 
+    public void deduplicatePointIds() {
+        @RequiredArgsConstructor
+        class PointIndexWrapper {
+            final PointIndex pointIndex;
+
+            @Override
+            public String toString() {
+                return pointIndex.toString();
+            }
+
+            @Override public int hashCode() {
+                int hash = 0;
+                for(int i = 0; i < getNumAttributes(); ++i) {
+                    AttributeValueIndex attId = getAttribute(i).getMappedIndex(pointIndex);
+                    hash = Objects.hash(attId.hashCode(), hash);
+                }
+                return hash;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if(o == this) return true;
+                if(!(o instanceof PointIndexWrapper)) return false;
+                PointIndex index = ((PointIndexWrapper) o).pointIndex;
+                for(int i = 0; i < getNumAttributes(); ++i) {
+                    AttributeValueIndex attId0 = getAttribute(i).getMappedIndex(pointIndex);
+                    AttributeValueIndex attId1 = getAttribute(i).getMappedIndex(index);
+                    if(!attId0.equals(attId1)) return false;
+                }
+                return true;
+            }
+        }
+
+        Map<PointIndexWrapper, PointIndex> uniquePointMap = new HashMap<>();
+        int numUniquePoints = 0;
+        IndexTypeVector<PointIndex, PointIndex> indexMap =
+                new IndexTypeVector<>(PointIndex.type(), numPoints);
+        CppVector<PointIndex> uniquePoints = new CppVector<>(PointIndex.type());
+
+        // Go through all vertices and find their duplicates.
+        for(PointIndex i : PointIndex.range(0, numPoints)) {
+            PointIndexWrapper pointIndexWrapper = new PointIndexWrapper(i);
+            if(uniquePointMap.containsKey(pointIndexWrapper)) {
+                indexMap.set(i, uniquePointMap.get(pointIndexWrapper));
+            } else {
+                uniquePointMap.putIfAbsent(pointIndexWrapper, PointIndex.of(numUniquePoints));
+                indexMap.set(i, PointIndex.of(numUniquePoints));
+                uniquePoints.pushBack(i);
+                ++numUniquePoints;
+            }
+        }
+        if(numUniquePoints == numPoints) return;  // All vertices are already unique.
+
+        this.applyPointIdDeduplication(indexMap, uniquePoints);
+        this.numPoints = numUniquePoints;
+    }
+
+    protected void applyPointIdDeduplication(IndexTypeVector<PointIndex, PointIndex> idMap,
+                                             CppVector<PointIndex> uniquePointIds) {
+        int numUniquePoints = 0;
+        for(PointIndex i : uniquePointIds) {
+            PointIndex newPointId = idMap.get(i);
+            if(newPointId.getValue() >= numUniquePoints) {
+                // New unique vertex reached. Copy attribute indices to the proper position.
+                for(int a = 0; a < getNumAttributes(); ++a) {
+                    getAttribute(a).setPointMapEntry(newPointId, getAttribute(a).getMappedIndex(i));
+                }
+                numUniquePoints = newPointId.getValue() + 1;
+            }
+        }
+        for(int a = 0; a < getNumAttributes(); ++a) {
+            getAttribute(a).setExplicitMapping(numUniquePoints);
+        }
+    }
+
+    public Status deduplicateAttributeValues() {
+        // Go over all attributes and create mapping between duplicate entries.
+        if(numPoints == 0) return Status.ok();  // Nothing to deduplicate.
+
+        // Deduplicate all attributes.
+        for(int attId = 0; attId < getNumAttributes(); ++attId) {
+            if(this.getAttribute(attId).deduplicateValues(this.getAttribute(attId)) == 0) {
+                return Status.dracoError("Failed to deduplicate attribute values");
+            }
+        }
+        return Status.ok();
+    }
+
     /** Get bounding box. */
     public BoundingBox computeBoundingBox() {
         BoundingBox boundingBox = new BoundingBox();
@@ -226,9 +318,9 @@ public class PointCloud {
         }
         for(int i = 0; i < pcAtt.size(); ++i) {
             AttributeValueIndex ai = AttributeValueIndex.of(i);
-            float[] p = new float[3];
-            pcAtt.getValue(ai, DataType.float32(), p);
-            VectorD.F3 point = new VectorD.F3(p[0], p[1], p[2]);
+            Pointer<Float> p = Pointer.wrap(new float[3]);
+            pcAtt.getValue(ai, p);
+            VectorD.F3 point = new VectorD.F3(p.get(0), p.get(1), p.get(2));
             boundingBox.update(point);
         }
         return boundingBox;

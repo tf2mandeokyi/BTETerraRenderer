@@ -2,9 +2,8 @@ package com.mndk.bteterrarenderer.draco.compression.entropy;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
-
-import java.util.concurrent.atomic.AtomicReference;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 public class ShannonEntropyTracker {
 
@@ -15,18 +14,18 @@ public class ShannonEntropyTracker {
         public int numUniqueSymbols = 0;
     }
 
-    private final CppVector<Integer> frequencies = CppVector.create(DataType.int32());
+    private final CppVector<Integer> frequencies = new CppVector<>(DataType.int32());
     private EntropyData entropyData = new EntropyData();
 
-    public EntropyData push(CppVector<UInt> symbols, int numSymbols) {
+    public EntropyData push(Pointer<UInt> symbols, int numSymbols) {
         return updateSymbols(symbols, numSymbols, true);
     }
 
-    public EntropyData peek(CppVector<UInt> symbols, int numSymbols) {
+    public EntropyData peek(Pointer<UInt> symbols, int numSymbols) {
         return updateSymbols(symbols, numSymbols, false);
     }
 
-    public EntropyData updateSymbols(CppVector<UInt> symbols, int numSymbols, boolean pushChanges) {
+    public EntropyData updateSymbols(Pointer<UInt> symbols, int numSymbols, boolean pushChanges) {
         EntropyData retData = entropyData;
         retData.numValues += numSymbols;
         for(int i = 0; i < numSymbols; ++i) {
@@ -55,7 +54,7 @@ public class ShannonEntropyTracker {
         } else {
             for(int i = 0; i < numSymbols; ++i) {
                 UInt symbol = symbols.get(i);
-                frequencies.set(symbol, frequencies.get(symbol) - 1);
+                frequencies.set(symbol, val -> val - 1);
             }
         }
         return retData;
@@ -83,10 +82,10 @@ public class ShannonEntropyTracker {
         return Ans.approximateRAnsFrequencyTableBits(entropyData.maxSymbol + 1, entropyData.numUniqueSymbols);
     }
 
-    public static long computeEntropy(CppVector<UInt> symbols, int numSymbols, int maxValue,
-                                      AtomicReference<Integer> outNumUniqueSymbols) {
+    public static long computeEntropy(Pointer<UInt> symbols, int numSymbols, int maxValue,
+                                      Pointer<Integer> outNumUniqueSymbols) {
         int numUniqueSymbols = 0;
-        CppVector<Integer> symbolFrequencies = CppVector.create(DataType.int32(), maxValue + 1, 0);
+        CppVector<Integer> symbolFrequencies = new CppVector<>(DataType.int32(), maxValue + 1, 0);
         for(int i = 0; i < numSymbols; ++i) {
             UInt symbol = symbols.get(i);
             int oldValue = symbolFrequencies.get(symbol);
@@ -106,12 +105,12 @@ public class ShannonEntropyTracker {
         return (long) -totalBits;
     }
 
-    public static double computeBinaryShannonEntropy(int numValues, int numTrueValues) {
-        if(numValues == 0) return 0;
+    public static double computeBinaryShannonEntropy(UInt numValues, UInt numTrueValues) {
+        if(numValues.equals(0)) return 0;
 
         // We can exit early if the data set has 0 entropy.
-        if(numTrueValues == 0 || numValues == numTrueValues) return 0;
-        double trueFreq = (double) numTrueValues / numValues;
+        if(numTrueValues.equals(0) || numValues.equals(numTrueValues)) return 0;
+        double trueFreq = numTrueValues.doubleValue() / numValues.doubleValue();
         double falseFreq = 1.0 - trueFreq;
         return -(trueFreq * Ans.log2(trueFreq) + falseFreq * Ans.log2(falseFreq));
     }

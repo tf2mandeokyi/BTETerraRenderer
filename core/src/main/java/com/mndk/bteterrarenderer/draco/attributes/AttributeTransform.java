@@ -5,8 +5,7 @@ import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
-
-import java.util.List;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 /**
  * Virtual base class for various attribute transforms, enforcing common
@@ -36,7 +35,7 @@ public abstract class AttributeTransform {
      * remap values during the transform.
      */
     public abstract Status transformAttribute(
-            PointAttribute attribute, List<PointIndex> pointIds, PointAttribute targetAttribute);
+            PointAttribute attribute, CppVector<PointIndex> pointIds, PointAttribute targetAttribute);
 
     /**
      * Applies an inverse transform to {@code attribute} and stores the result in

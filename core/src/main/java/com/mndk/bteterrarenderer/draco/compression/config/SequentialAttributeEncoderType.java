@@ -13,10 +13,10 @@ import javax.annotation.Nullable;
  */
 @Getter @RequiredArgsConstructor
 public enum SequentialAttributeEncoderType {
-    SEQUENTIAL_ATTRIBUTE_ENCODER_GENERIC(0),
-    SEQUENTIAL_ATTRIBUTE_ENCODER_INTEGER(1),
-    SEQUENTIAL_ATTRIBUTE_ENCODER_QUANTIZATION(2),
-    SEQUENTIAL_ATTRIBUTE_ENCODER_NORMALS(3);
+    GENERIC(0),
+    INTEGER(1),
+    QUANTIZATION(2),
+    NORMALS(3);
 
     private final int value;
 

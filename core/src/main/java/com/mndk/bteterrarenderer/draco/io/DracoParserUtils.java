@@ -1,15 +1,16 @@
 package com.mndk.bteterrarenderer.draco.io;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
-import com.mndk.bteterrarenderer.draco.core.DataBuffer;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,34 +23,27 @@ public class DracoParserUtils {
     }
 
     public void parseLine(DecoderBuffer buffer, @Nullable AtomicReference<String> outString) {
-        if(outString != null) {
-            outString.set("");
-        }
-        AtomicReference<Byte> cRef = new AtomicReference<>();
+        ByteBuf buf = Unpooled.buffer();
+        Pointer<Byte> cRef = Pointer.newByte();
         int numDelims = 0;
         byte lastDelim = 0;
-        while(buffer.peek(DataType.int8(), cRef::set).isOk()) {
+        while(buffer.peek(cRef).isOk()) {
             byte c = cRef.get();
             boolean isDelim = (c == '\r' || c == '\n');
             if(isDelim) {
                 if(numDelims == 0) {
                     lastDelim = c;
                 } else if(numDelims == 1) {
-                    if(c == lastDelim || c != '\n') {
-                        return;
-                    }
-                } else {
-                    return;
-                }
+                    if(c == lastDelim || c != '\n') break;
+                } else break;
                 numDelims++;
             }
-            if(!isDelim && numDelims > 0) {
-                return;
-            }
+            if(!isDelim && numDelims > 0) break;
             buffer.advance(1);
-            if(!isDelim && outString != null) {
-                outString.set(outString.get() + c);
-            }
+            if(!isDelim && outString != null) buf.writeByte(c);
+        }
+        if(outString != null) {
+            outString.set(buf.toString(StandardCharsets.UTF_8));
         }
     }
 
@@ -62,8 +56,8 @@ public class DracoParserUtils {
     }
 
     public boolean peekWhitespace(DecoderBuffer buffer, AtomicBoolean endReached) {
-        AtomicReference<Byte> cRef = new AtomicReference<>();
-        if(buffer.peek(DataType.int8(), cRef::set).isError()) {
+        Pointer<Byte> cRef = Pointer.newByte();
+        if(buffer.peek(cRef).isError()) {
             endReached.set(true);
             return false; // eof reached.
         }
@@ -74,8 +68,8 @@ public class DracoParserUtils {
     public Status parseFloat(DecoderBuffer buffer, AtomicReference<Float> out) {
         StatusChain chain = new StatusChain();
 
-        AtomicReference<Byte> chRef = new AtomicReference<>();
-        if(buffer.peek(DataType.int8(), chRef::set).isError(chain)) return chain.get();
+        Pointer<Byte> chRef = Pointer.newByte();
+        if(buffer.peek(chRef).isError(chain)) return chain.get();
         byte ch = chRef.get();
         int sign = getSignValue(ch);
         if(sign != 0) {
@@ -86,7 +80,7 @@ public class DracoParserUtils {
 
         boolean haveDigits = false;
         double v = 0.0;
-        while(buffer.peek(DataType.int8(), chRef::set).isOk()) {
+        while(buffer.peek(chRef).isOk()) {
             ch = chRef.get();
             if(ch < '0' || ch > '9') break;
 
@@ -98,7 +92,7 @@ public class DracoParserUtils {
         if(ch == '.') {
             buffer.advance(1);
             double fraction = 1.0;
-            while(buffer.peek(DataType.int8(), chRef::set).isOk()) {
+            while(buffer.peek(chRef).isOk()) {
                 ch = chRef.get();
                 if(ch < '0' || ch > '9') break;
 
@@ -120,7 +114,7 @@ public class DracoParserUtils {
             if(ch == 'e' || ch == 'E') {
                 buffer.advance(1);
                 AtomicReference<Integer> exponentRef = new AtomicReference<>();
-                if(!parseSignedInt(buffer, exponentRef).isError(chain)) return chain.get();
+                if(parseSignedInt(buffer, exponentRef).isError(chain)) return chain.get();
                 int exponent = exponentRef.get();
                 v *= Math.pow(10.0, exponent);
             }
@@ -133,15 +127,15 @@ public class DracoParserUtils {
     public static Status parseSignedInt(DecoderBuffer buffer, AtomicReference<Integer> out) {
         StatusChain chain = new StatusChain();
 
-        AtomicReference<Byte> chRef = new AtomicReference<>();
-        if(buffer.peek(DataType.int8(), chRef::set).isError(chain)) return chain.get();
+        Pointer<Byte> chRef = Pointer.newByte();
+        if(buffer.peek(chRef).isError(chain)) return chain.get();
         int sign = getSignValue(chRef.get());
         if(sign != 0) {
             buffer.advance(1);
         }
 
         AtomicReference<UInt> vRef = new AtomicReference<>();
-        if(!parseUnsignedInt(buffer, vRef).isError(chain)) return chain.get();
+        if(parseUnsignedInt(buffer, vRef).isError(chain)) return chain.get();
         int v = vRef.get().intValue();
 
         out.set(sign < 0 ? -v : v);
@@ -149,48 +143,46 @@ public class DracoParserUtils {
     }
 
     public static Status parseUnsignedInt(DecoderBuffer buffer, AtomicReference<UInt> out) {
-        AtomicReference<UInt> vRef = new AtomicReference<>(UInt.of(0));
-        AtomicReference<Byte> chRef = new AtomicReference<>();
+        UInt v = UInt.ZERO;
+        Pointer<Byte> chRef = Pointer.newByte();
         boolean haveDigits = false;
-        while(buffer.peek(DataType.int8(), chRef::set).isOk()) {
+        while(buffer.peek(chRef).isOk()) {
             byte ch = chRef.get();
             if(ch < '0' || ch > '9') break;
 
-            UInt v = vRef.get();
             v = v.mul(10);
             v = v.add(ch - '0');
-            vRef.set(v);
             buffer.advance(1);
             haveDigits = true;
         }
         if(!haveDigits) {
             return Status.ioError("No digits found");
         }
-        out.set(vRef.get());
+        out.set(v);
         return Status.ok();
     }
 
     public static Status parseString(DecoderBuffer buffer, AtomicReference<String> out) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(0);
+        ByteBuf buf = Unpooled.buffer(0);
         skipWhitespace(buffer);
         AtomicBoolean endReached = new AtomicBoolean();
         while(!peekWhitespace(buffer, endReached) && !endReached.get()) {
-            AtomicReference<Byte> cRef = new AtomicReference<>();
-            if(buffer.decode(DataType.int8(), cRef::set).isError()) {
+            Pointer<Byte> cRef = Pointer.newByte();
+            if(buffer.decode(cRef).isError()) {
                 return Status.ioError("Failed to decode string");
             }
             byte c = cRef.get();
-            byteBuffer.put(c);
+            buf.writeByte(c);
         }
-        out.set(new String(byteBuffer.array(), StandardCharsets.UTF_8));
+        out.set(buf.toString(StandardCharsets.UTF_8));
         return Status.ok();
     }
 
     public static DecoderBuffer parseLineIntoDecoderBuffer(DecoderBuffer buffer) {
-        DataBuffer head = buffer.getDataHead();
+        RawPointer head = buffer.getDataHead();
         long size = 0;
-        AtomicReference<Byte> cRef = new AtomicReference<>();
-        while(buffer.peek(DataType.int8(), cRef::set).isOk()) {
+        Pointer<Byte> cRef = Pointer.newByte();
+        while(buffer.peek(cRef).isOk()) {
             buffer.advance(1);
             size++;
             byte c = cRef.get();
@@ -205,22 +197,18 @@ public class DracoParserUtils {
         return ch == '-' ? -1 : ch == '+' ? 1 : 0;
     }
 
-    public static void skipCharacters(DecoderBuffer buffer, String skipString) {
-        if(skipString == null) return;
-        int numSkipChars = skipString.length();
-        AtomicReference<Byte> cRef = new AtomicReference<>();
-        while(buffer.peek(DataType.int8(), cRef::set).isOk()) {
+    public static void skipCharacters(DecoderBuffer buffer, byte[] skipChars) {
+        if(skipChars == null) return;
+        Pointer<Byte> cRef = Pointer.newByte();
+        while(buffer.peek(cRef).isOk()) {
             byte c = cRef.get();
             boolean skip = false;
-            for(int i = 0; i < numSkipChars; ++i) {
-                if(c == skipString.charAt(i)) {
-                    skip = true;
-                    break;
-                }
+            for(byte skipChar : skipChars) {
+                if(c != skipChar) continue;
+                skip = true;
+                break;
             }
-            if(!skip) {
-                return;
-            }
+            if(!skip) return;
             buffer.advance(1);
         }
     }

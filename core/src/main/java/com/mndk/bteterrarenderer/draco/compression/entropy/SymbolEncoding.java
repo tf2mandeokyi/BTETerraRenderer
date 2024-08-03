@@ -4,12 +4,12 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.compression.config.SymbolCodingMethod;
 import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.experimental.UtilityClass;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,13 +20,13 @@ public class SymbolEncoding {
     public static final int MAX_RAW_ENCODING_BIT_LENGTH = 18;
     public static final int DEFAULT_SYMBOL_CODING_COMPRESSION_LEVEL = 7;
 
-    public Status encode(CppVector<UInt> symbols, int numValues, int numComponents,
+    public Status encode(Pointer<UInt> symbols, int numValues, int numComponents,
                          Options options, EncoderBuffer targetBuffer) {
         if(numValues < 0) return Status.invalidParameter("Invalid number of values");
         if(numValues == 0) return Status.ok();
         if(numComponents <= 0) numComponents = 1;
-        CppVector<UInt> bitLengths = CppVector.create(DataType.uint32());
-        AtomicReference<UInt> maxValueRef = new AtomicReference<>();
+        CppVector<UInt> bitLengths = new CppVector<>(DataType.uint32());
+        Pointer<UInt> maxValueRef = Pointer.newUInt();
         computeBitLengths(symbols, numValues, numComponents, bitLengths, maxValueRef);
         UInt maxValue = maxValueRef.get();
 
@@ -34,12 +34,12 @@ public class SymbolEncoding {
         long taggedSchemeTotalBits = approximateTaggedSchemeBits(bitLengths, numComponents);
 
         // Approximate number of bits needed for storing the symbols using the raw scheme.
-        AtomicReference<Integer> numUniqueSymbolsRef = new AtomicReference<>();
+        Pointer<Integer> numUniqueSymbolsRef = Pointer.newInt();
         long rawSchemeTotalBits = approximateRawSchemeBits(symbols, numValues, maxValue, numUniqueSymbolsRef);
         int numUniqueSymbols = numUniqueSymbolsRef.get();
 
         // The maximum bit length of a single entry value that we can encode using the raw scheme.
-        int maxValueBitLength = BitUtils.mostSignificantBit(UInt.max(UInt.of(1), maxValue)) + 1;
+        int maxValueBitLength = BitUtils.mostSignificantBit(DataType.uint32(), UInt.max(UInt.of(1), maxValue)) + 1;
 
         SymbolCodingMethod method;
         if(options != null && options.isOptionSet("symbol_encoding_method")) {
@@ -57,7 +57,7 @@ public class SymbolEncoding {
         }
 
         // Use the tagged scheme.
-        targetBuffer.encode(DataType.uint8(), method.getValue());
+        targetBuffer.encode(method.getValue());
         if(method == SymbolCodingMethod.SYMBOL_CODING_TAGGED) {
             return encodeTagged(RAnsSymbolEncoder::new, symbols, numValues, numComponents, bitLengths, targetBuffer);
         }
@@ -69,7 +69,7 @@ public class SymbolEncoding {
     }
 
     private Status encodeTagged(Function<Integer, SymbolEncoder> encoderMaker,
-                                CppVector<UInt> symbols, int numValues, int numComponents,
+                                Pointer<UInt> symbols, int numValues, int numComponents,
                                 CppVector<UInt> bitLengths, EncoderBuffer targetBuffer) {
         StatusChain chain = new StatusChain();
 
@@ -79,7 +79,7 @@ public class SymbolEncoding {
         // bit_length [1-32]). For each entry we compute the frequency of a given
         // bit-length in our data set.
         // Set frequency for each entry to zero. (Java already does this)
-        CppVector<ULong> frequencies = CppVector.create(DataType.uint64(), MAX_TAG_SYMBOL_BIT_LENGTH, ULong.ZERO);
+        CppVector<ULong> frequencies = new CppVector<>(DataType.uint64(), MAX_TAG_SYMBOL_BIT_LENGTH, ULong.ZERO);
 
         // Compute the frequencies from input data.
         // Maximum integer value for the values across all components.
@@ -135,16 +135,16 @@ public class SymbolEncoding {
         valueBuffer.endBitEncoding();
 
         // Append the values to the end of the target buffer.
-        return targetBuffer.encode(DataType.bytes(valueBuffer.size()), valueBuffer.getData().getData());
+        return targetBuffer.encode(DataType.bytes(valueBuffer.size()), valueBuffer.getData());
     }
 
     private Status encodeRawInternal(Supplier<SymbolEncoder> encoderMaker,
-                                     CppVector<UInt> symbols, int numValues, UInt maxEntryValue,
+                                     Pointer<UInt> symbols, int numValues, UInt maxEntryValue,
                                      EncoderBuffer targetBuffer) {
         StatusChain chain = new StatusChain();
 
         // Count the frequency of each entry value.
-        CppVector<ULong> frequencies = CppVector.create(DataType.uint64(), maxEntryValue.intValue() + 1, ULong.ZERO);
+        CppVector<ULong> frequencies = new CppVector<>(DataType.uint64(), maxEntryValue.intValue() + 1, ULong.ZERO);
         for (int i = 0; i < numValues; ++i) {
             ULong freq = frequencies.get(symbols.get(i));
             frequencies.set(symbols.get(i), freq.add(1));
@@ -168,11 +168,11 @@ public class SymbolEncoding {
     }
 
     private Status encodeRaw(Function<Integer, SymbolEncoder> encoderMaker,
-                             CppVector<UInt> symbols, int numValues, UInt maxEntryValue, int numUniqueSymbols,
+                             Pointer<UInt> symbols, int numValues, UInt maxEntryValue, int numUniqueSymbols,
                              Options options, EncoderBuffer targetBuffer) {
         int symbolBits = 0;
         if(numUniqueSymbols > 0) {
-            symbolBits = BitUtils.mostSignificantBit(UInt.of(numUniqueSymbols));
+            symbolBits = BitUtils.mostSignificantBit(DataType.uint32(), UInt.of(numUniqueSymbols));
         }
         int uniqueSymbolsBitLength = symbolBits + 1;
         // Currently, we don't support encoding of more than 2^18 unique symbols.
@@ -197,7 +197,7 @@ public class SymbolEncoding {
         }
         // Clamp the bit_length to a valid range.
         uniqueSymbolsBitLength = Math.min(Math.max(1, uniqueSymbolsBitLength), MAX_RAW_ENCODING_BIT_LENGTH);
-        targetBuffer.encode(DataType.uint8(), UByte.of(uniqueSymbolsBitLength));
+        targetBuffer.encode(UByte.of(uniqueSymbolsBitLength));
 
         // Use appropriate symbol encoder based on the maximum symbol bit length.
         int uniqueSymbolsBitLengthFinal = uniqueSymbolsBitLength;
@@ -205,8 +205,8 @@ public class SymbolEncoding {
                 symbols, numValues, maxEntryValue, targetBuffer);
     }
 
-    private void computeBitLengths(CppVector<UInt> symbols, int numValues, int numComponents,
-                                   CppVector<UInt> outBitLengths, AtomicReference<UInt> outMaxValue) {
+    private void computeBitLengths(Pointer<UInt> symbols, int numValues, int numComponents,
+                                   CppVector<UInt> outBitLengths, Pointer<UInt> outMaxValue) {
         outBitLengths.reserve(numValues);
         outMaxValue.set(UInt.ZERO);
         // Maximum integer value across all components.
@@ -220,7 +220,7 @@ public class SymbolEncoding {
             }
             int valueMsbPos = 0;
             if (maxComponentValue.gt( 0)) {
-                valueMsbPos = BitUtils.mostSignificantBit(maxComponentValue);
+                valueMsbPos = BitUtils.mostSignificantBit(DataType.uint32(), maxComponentValue);
             }
             if (maxComponentValue.gt(outMaxValue.get())) {
                 outMaxValue.set(maxComponentValue);
@@ -237,16 +237,17 @@ public class SymbolEncoding {
             totalBitLength = totalBitLength.add(DataType.uint32(), bitLengths.get(i));
         }
         // Compute the number of entropy bits for tags.
-        AtomicReference<Integer> numUniqueSymbolsRef = new AtomicReference<>();
-        long tagBits = ShannonEntropyTracker.computeEntropy(bitLengths, bitLengths.size(), 32, numUniqueSymbolsRef);
+        Pointer<Integer> numUniqueSymbolsRef = Pointer.newInt();
+        long tagBits = ShannonEntropyTracker.computeEntropy(
+                bitLengths.getPointer(), bitLengths.size(), 32, numUniqueSymbolsRef);
         int numUniqueSymbols = numUniqueSymbolsRef.get();
         long tagTableBits = Ans.approximateRAnsFrequencyTableBits(numUniqueSymbols, numUniqueSymbols);
         return tagBits + tagTableBits + totalBitLength.longValue() * numComponents;
     }
 
-    private long approximateRawSchemeBits(CppVector<UInt> symbols, int numSymbols, UInt maxValue,
-                                          AtomicReference<Integer> outNumUniqueSymbols) {
-        AtomicReference<Integer> numUniqueSymbolsRef = new AtomicReference<>();
+    private long approximateRawSchemeBits(Pointer<UInt> symbols, int numSymbols, UInt maxValue,
+                                          Pointer<Integer> outNumUniqueSymbols) {
+        Pointer<Integer> numUniqueSymbolsRef = Pointer.newInt();
         long dataBits = ShannonEntropyTracker.computeEntropy(symbols, numSymbols, maxValue.intValue(), numUniqueSymbolsRef);
         int numUniqueSymbols = numUniqueSymbolsRef.get();
         long tableBits = Ans.approximateRAnsFrequencyTableBits(maxValue.intValue(), numUniqueSymbols);

@@ -1,19 +1,21 @@
 package com.mndk.bteterrarenderer.draco.compression.entropy;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
-import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import lombok.Getter;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class RAnsSymbolDecoder implements SymbolDecoder {
 
-    private final CppVector<UInt> probabilityTable = CppVector.create(DataType.uint32());
+    private final CppVector<UInt> probabilityTable = new CppVector<>(DataType.uint32());
     @Getter
     private UInt numSymbols = UInt.ZERO;
     private final RAnsDecoder ans;
@@ -32,11 +34,11 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
             return Status.dracoError("Buffer version not set");
         }
         // Decode the number of alphabet symbols.
-        AtomicReference<UInt> numSymbolsRef = new AtomicReference<>();
+        Pointer<UInt> numSymbolsRef = Pointer.newUInt();
         if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(DataType.uint32(), numSymbolsRef::set).isError(chain)) return chain.get();
+            if(buffer.decode(numSymbolsRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(DataType.uint32(), numSymbolsRef).isError(chain)) return chain.get();
+            if(buffer.decodeVarint(numSymbolsRef).isError(chain)) return chain.get();
         }
         this.numSymbols = numSymbolsRef.get();
 
@@ -52,10 +54,10 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
 
         // Decode the table.
         for (UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {
-            AtomicReference<UByte> probDataRef = new AtomicReference<>();
+            Pointer<UByte> probDataRef = Pointer.newUByte();
             // Decode the first byte and extract the number of extra bytes we need to
             // get, or the offset to the next symbol with non-zero probability.
-            if(buffer.decode(DataType.uint8(), probDataRef::set).isError(chain)) return chain.get();
+            if(buffer.decode(probDataRef).isError(chain)) return chain.get();
             UByte probData = probDataRef.get();
 
             // Token is stored in the first two bits of the first byte. Values 0-2 are
@@ -76,8 +78,8 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
             } else {
                 UInt prob = probData.shr(2).uIntValue();
                 for (int b = 0; b < token; ++b) {
-                    AtomicReference<UByte> ebRef = new AtomicReference<>();
-                    if(buffer.decode(DataType.uint8(), ebRef::set).isError(chain)) return chain.get();
+                    Pointer<UByte> ebRef = Pointer.newUByte();
+                    if(buffer.decode(ebRef).isError(chain)) return chain.get();
                     UByte eb = ebRef.get();
                     // Shift 8 bits for each extra byte and subtract 2 for the two first
                     // bits.
@@ -94,18 +96,18 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
         StatusChain chain = new StatusChain();
 
         // Decode the number of bytes encoded by the encoder.
-        AtomicReference<ULong> bytesEncodedRef = new AtomicReference<>();
+        Pointer<ULong> bytesEncodedRef = Pointer.newULong();
         if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(DataType.uint64(), bytesEncodedRef::set).isError(chain)) return chain.get();
+            if(buffer.decode(bytesEncodedRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(DataType.uint64(), bytesEncodedRef).isError(chain)) return chain.get();
+            if(buffer.decodeVarint(bytesEncodedRef).isError(chain)) return chain.get();
         }
         ULong bytesEncoded = bytesEncodedRef.get();
 
         if(bytesEncoded.gt(buffer.getRemainingSize())) {
             return Status.ioError("Bytes encoded exceeds buffer size");
         }
-        DataBuffer dataHead = buffer.getDataHead();
+        RawPointer dataHead = buffer.getDataHead();
         // Advance the buffer past the rANS data.
         buffer.advance(bytesEncoded.longValue());
         return ans.readInit(dataHead, bytesEncoded.longValue());

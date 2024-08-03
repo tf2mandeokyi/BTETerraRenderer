@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
-import com.mndk.bteterrarenderer.datatype.array.UByteArray;
-import com.mndk.bteterrarenderer.draco.core.DataBuffer;
+import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.StatusAssert;
@@ -20,25 +19,23 @@ public class MetadataEncoderTest {
 
         private void testEncodingMetadata() {
             StatusAssert.assertOk(encoder.encodeMetadata(encoderBuffer, metadata));
-            DataBuffer buffer = encoderBuffer.getData();
 
             Metadata decodedMetadata = new Metadata();
-            decoderBuffer.init(buffer);
+            decoderBuffer.init(encoderBuffer.getData(), encoderBuffer.size());
             StatusAssert.assertOk(decoder.decodeMetadata(decoderBuffer, decodedMetadata));
             this.checkMetadatasAreEqual(metadata, decodedMetadata);
         }
 
         private void testEncodingGeometryMetadata() {
             StatusAssert.assertOk(encoder.encodeGeometryMetadata(encoderBuffer, geometryMetadata));
-            DataBuffer buffer = encoderBuffer.getData();
 
             GeometryMetadata decodedMetadata = new GeometryMetadata();
-            decoderBuffer.init(buffer);
+            decoderBuffer.init(encoderBuffer.getData(), encoderBuffer.size());
             StatusAssert.assertOk(decoder.decodeGeometryMetadata(decoderBuffer, decodedMetadata));
             this.checkGeometryMetadatasAreEqual(geometryMetadata, decodedMetadata);
         }
 
-        private void checkBlobOfDataAreEqual(UByteArray data0, UByteArray data1) {
+        private void checkBlobOfDataAreEqual(BigUByteArray data0, BigUByteArray data1) {
             Assert.assertEquals(data0.size(), data1.size());
             Assert.assertTrue(data0.equals(data1));
         }
@@ -54,8 +51,8 @@ public class MetadataEncoderTest {
         private void checkMetadatasAreEqual(Metadata metadata0, Metadata metadata1) {
             Assert.assertEquals(metadata0.getNumEntries(), metadata1.getNumEntries());
             for(String entryName : metadata0.getEntries().keySet()) {
-                UByteArray data0 = metadata0.getEntries().get(entryName).getBuffer();
-                UByteArray data1 = metadata1.getEntries().get(entryName).getBuffer();
+                BigUByteArray data0 = metadata0.getEntries().get(entryName).getBuffer();
+                BigUByteArray data1 = metadata1.getEntries().get(entryName).getBuffer();
                 this.checkBlobOfDataAreEqual(data0, data1);
             }
             Assert.assertEquals(metadata0.getSubMetadatas().size(), metadata1.getSubMetadatas().size());
@@ -100,7 +97,7 @@ public class MetadataEncoderTest {
     public void testEncodingBinaryEntry() {
         Package p = new Package();
         byte[] binaryData = new byte[] { 0x1, 0x2, 0x3, 0x4 };
-        p.metadata.addEntryBinary("binary_data", UByteArray.create(binaryData));
+        p.metadata.addEntryBinary("binary_data", BigUByteArray.create(binaryData));
 
         p.testEncodingMetadata();
     }

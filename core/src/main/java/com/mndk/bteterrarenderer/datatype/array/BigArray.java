@@ -1,6 +1,10 @@
 package com.mndk.bteterrarenderer.datatype.array;
 
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+
 public interface BigArray<E> {
+
+    int MAX_INNER_SIZE = Integer.MAX_VALUE - 8;
 
     E get(long index);
     void set(long index, E value);
@@ -9,9 +13,9 @@ public interface BigArray<E> {
     boolean equals(Object obj);
     boolean equals(BigArray<E> other);
     int hashCode();
+    int hashCode(long offset, long length);
     String toString();
 
-    default BigArray<E> withOffset(long offset) {
-        return new BigArrayView<>(this, offset);
-    }
+    default RawPointer getRawPointer() { return this.getRawPointer(0); }
+    RawPointer getRawPointer(long byteOffset);
 }

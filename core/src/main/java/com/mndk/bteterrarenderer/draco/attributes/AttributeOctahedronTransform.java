@@ -1,14 +1,13 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.*;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.compression.attributes.OctahedronToolBox;
 import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.Getter;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -19,13 +18,13 @@ public class AttributeOctahedronTransform extends AttributeTransform {
 
     @Override
     public AttributeTransformType getType() {
-        return AttributeTransformType.ATTRIBUTE_OCTAHEDRON_TRANSFORM;
+        return AttributeTransformType.OCTAHEDRON;
     }
 
     @Override
     public Status initFromAttribute(PointAttribute attribute) {
         AttributeTransformData transformData = attribute.getAttributeTransformData();
-        if(transformData == null || transformData.getTransformType() != AttributeTransformType.ATTRIBUTE_OCTAHEDRON_TRANSFORM) {
+        if(transformData == null || transformData.getTransformType() != AttributeTransformType.OCTAHEDRON) {
             return Status.invalidParameter("Wrong transform type");
         }
         quantizationBits = transformData.getParameterValue(DataType.int32(), 0);
@@ -34,12 +33,12 @@ public class AttributeOctahedronTransform extends AttributeTransform {
 
     @Override
     public void copyToAttributeTransformData(AttributeTransformData outData) {
-        outData.setTransformType(AttributeTransformType.ATTRIBUTE_OCTAHEDRON_TRANSFORM);
+        outData.setTransformType(AttributeTransformType.OCTAHEDRON);
         outData.appendParameterValue(DataType.int32(), quantizationBits);
     }
 
     @Override
-    public Status transformAttribute(PointAttribute attribute, List<PointIndex> pointIds, PointAttribute targetAttribute) {
+    public Status transformAttribute(PointAttribute attribute, CppVector<PointIndex> pointIds, PointAttribute targetAttribute) {
         return generatePortableAttribute(attribute, pointIds, targetAttribute.size(), targetAttribute);
     }
 
@@ -47,7 +46,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     public Status inverseTransformAttribute(PointAttribute attribute, PointAttribute targetAttribute) {
         StatusChain chain = new StatusChain();
 
-        if(targetAttribute.getDataType() != DracoDataType.DT_FLOAT32) {
+        if(targetAttribute.getDataType() != DracoDataType.FLOAT32) {
             return Status.invalidParameter("Target attribute must have FLOAT32 data type");
         }
 
@@ -56,20 +55,17 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         if(numComponents != 3) {
             return Status.invalidParameter("Attribute must have 3 components");
         }
-        float[] attVal = new float[3];
-        int[] sourceAttributeData = new int[numPoints * 2];
-        attribute.getValue(AttributeValueIndex.of(0), DataType.int32(), sourceAttributeData);
+        Pointer<Float> attVal = Pointer.wrap(new float[3]);
+        Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
+        Pointer<Float> targetAddress = targetAttribute.getAddress(AttributeValueIndex.of(0), DataType.float32());
         OctahedronToolBox octahedronToolBox = new OctahedronToolBox();
         if(octahedronToolBox.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
 
-        DataNumberType<Float, ?> f = DataType.float32();
         for(int i = 0; i < numPoints; i++) {
-            int s = sourceAttributeData[i * 2];
-            int t = sourceAttributeData[i * 2 + 1];
+            int s = sourceAttributeData.get(i * 2);
+            int t = sourceAttributeData.get(i * 2 + 1);
             octahedronToolBox.quantizedOctahedralCoordsToUnitVector(s, t, attVal);
-            targetAttribute.setAttributeValue(AttributeValueIndex.of(0), f, i * 3L,     attVal[0]);
-            targetAttribute.setAttributeValue(AttributeValueIndex.of(0), f, i * 3L + 1, attVal[1]);
-            targetAttribute.setAttributeValue(AttributeValueIndex.of(0), f, i * 3L + 2, attVal[2]);
+            targetAddress.add(3 * i).copyFrom(attVal, 3);
         }
         return Status.ok();
     }
@@ -83,13 +79,17 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         if(!isInitialized()) {
             return Status.invalidParameter("Octahedron transform not initialized");
         }
-        encoderBuffer.encode(DataType.uint8(), UByte.of(quantizationBits));
+        encoderBuffer.encode(UByte.of(quantizationBits));
         return Status.ok();
     }
 
     @Override
     public Status decodeParameters(PointAttribute attribute, DecoderBuffer decoderBuffer) {
-        return decoderBuffer.decode(DataType.uint8(), val -> quantizationBits = val.intValue());
+        Pointer<UByte> quantizationBitsRef = Pointer.newUByte();
+        Status status = decoderBuffer.decode(quantizationBitsRef);
+        if(status.isError()) return status;
+        quantizationBits = quantizationBitsRef.get().intValue();
+        return Status.ok();
     }
 
     public boolean isInitialized() {
@@ -98,7 +98,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
 
     @Override
     protected DracoDataType getTransformedDataType(PointAttribute attribute) {
-        return DracoDataType.DT_UINT32;
+        return DracoDataType.UINT32;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         return 2;
     }
 
-    protected Status generatePortableAttribute(PointAttribute attribute, List<PointIndex> pointIds,
+    protected Status generatePortableAttribute(PointAttribute attribute, CppVector<PointIndex> pointIds,
                                                 int numPoints, PointAttribute targetAttribute) {
         StatusChain chain = new StatusChain();
 
@@ -114,8 +114,9 @@ public class AttributeOctahedronTransform extends AttributeTransform {
             return Status.invalidParameter("Octahedron transform not initialized");
         }
 
-        int[] portableAttributeData = new int[2 * (pointIds.isEmpty() ? numPoints : pointIds.size())];
-        float[] attVal = new float[3];
+        Pointer<Integer> portableAttributeData =
+                targetAttribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
+        Pointer<Float> attVal = Pointer.wrap(new float[3]);
         int dstIndex = 0;
         OctahedronToolBox converter = new OctahedronToolBox();
         if(converter.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
@@ -125,15 +126,13 @@ public class AttributeOctahedronTransform extends AttributeTransform {
                 pointIds.stream();
         Stream<AttributeValueIndex> attributeStream = pointStream.map(attribute::getMappedIndex);
         for(AttributeValueIndex attValId : (Iterable<AttributeValueIndex>) attributeStream::iterator) {
-            attribute.getValue(attValId, DataType.float32(), attVal);
-            AtomicInteger s = new AtomicInteger();
-            AtomicInteger t = new AtomicInteger();
-            converter.floatVectorToQuantizedOctahedralCoords(DataType.float32(), attVal, s, t);
-            portableAttributeData[dstIndex++] = s.get();
-            portableAttributeData[dstIndex++] = t.get();
+            attribute.getValue(attValId, attVal);
+            Pointer<Integer> s = Pointer.newInt();
+            Pointer<Integer> t = Pointer.newInt();
+            converter.floatVectorToQuantizedOctahedralCoords(attVal, s, t);
+            portableAttributeData.set(dstIndex++, s.get());
+            portableAttributeData.set(dstIndex++, t.get());
         }
-
-        targetAttribute.setAttributeValues(AttributeValueIndex.of(0), DataType.int32(), portableAttributeData);
         return Status.ok();
     }
 }

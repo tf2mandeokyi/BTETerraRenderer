@@ -4,15 +4,15 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.attributes.*;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import lombok.Getter;
 
 public class MeshAttributeCornerTable implements ICornerTable {
 
     private final IndexTypeVector<CornerIndex, Boolean> isEdgeOnSeam =
-            IndexTypeVector.create(CornerIndex::of, DataType.bool());
+            new IndexTypeVector<>(DataType.bool());
     private final IndexTypeVector<VertexIndex, Boolean> isVertexOnSeam =
-            IndexTypeVector.create(VertexIndex::of, DataType.bool());
+            new IndexTypeVector<>(DataType.bool());
 
     /**
      * If this is set to true, it means that there are no attribute seams between
@@ -22,7 +22,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
     private boolean noInteriorSeams = true;
 
     private final IndexTypeVector<CornerIndex, VertexIndex> cornerToVertexMap =
-            IndexTypeVector.create(CornerIndex::of, VertexIndex.arrayManager());
+            new IndexTypeVector<>(VertexIndex.type());
 
     /**
      * Map between vertices and their associated left most corners. A left most
@@ -32,7 +32,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
      * vertex can be used.
      */
     private final IndexTypeVector<VertexIndex, CornerIndex> vertexToLeftMostCornerMap =
-            IndexTypeVector.create(VertexIndex::of, CornerIndex.arrayManager());
+            new IndexTypeVector<>(CornerIndex.type());
 
     /**
      * Map between vertex ids and attribute entry ids (i.e. the values stored in
@@ -40,7 +40,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
      * VertexParent() method.
      */
     private final IndexTypeVector<VertexIndex, AttributeValueIndex> vertexToAttributeEntryIdMap =
-            IndexTypeVector.create(VertexIndex::of, AttributeValueIndex.arrayManager());
+            new IndexTypeVector<>(AttributeValueIndex.type());
 
     @Getter
     private CornerTable cornerTable = null;

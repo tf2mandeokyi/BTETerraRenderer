@@ -2,12 +2,11 @@ package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.Getter;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -18,7 +17,7 @@ import java.util.stream.Stream;
 public class AttributeQuantizationTransform extends AttributeTransform {
 
     private int quantizationBits = -1;
-    private final CppVector<Float> minValues = CppVector.create(DataType.float32());
+    private final CppVector<Float> minValues = new CppVector<>(DataType.float32());
     private float range = 0;
 
     public AttributeQuantizationTransform() {
@@ -27,13 +26,13 @@ public class AttributeQuantizationTransform extends AttributeTransform {
 
     @Override
     public AttributeTransformType getType() {
-        return AttributeTransformType.ATTRIBUTE_QUANTIZATION_TRANSFORM;
+        return AttributeTransformType.QUANTIZATION;
     }
 
     @Override
     public Status initFromAttribute(PointAttribute attribute) {
         AttributeTransformData transformData = attribute.getAttributeTransformData();
-        if(transformData == null || transformData.getTransformType() != AttributeTransformType.ATTRIBUTE_QUANTIZATION_TRANSFORM) {
+        if(transformData == null || transformData.getTransformType() != AttributeTransformType.QUANTIZATION) {
             return Status.invalidParameter("Wrong transform type");
         }
         int byteOffset = 0;
@@ -50,7 +49,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
 
     @Override
     public void copyToAttributeTransformData(AttributeTransformData outData) {
-        outData.setTransformType(AttributeTransformType.ATTRIBUTE_QUANTIZATION_TRANSFORM);
+        outData.setTransformType(AttributeTransformType.QUANTIZATION);
         outData.appendParameterValue(DataType.int32(), quantizationBits);
         for(int i = 0; i < minValues.size(); i++) {
             outData.appendParameterValue(DataType.float32(), minValues.get(i));
@@ -59,7 +58,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
     }
 
     @Override
-    public Status transformAttribute(PointAttribute attribute, List<PointIndex> pointIds, PointAttribute targetAttribute) {
+    public Status transformAttribute(PointAttribute attribute, CppVector<PointIndex> pointIds, PointAttribute targetAttribute) {
         if(!isInitialized()) {
             return Status.invalidParameter("AttributeQuantizationTransform is not initialized");
         }
@@ -79,7 +78,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
                 pointIds.stream();
         Stream<AttributeValueIndex> attributeStream = pointStream.map(attribute::getMappedIndex);
         for(AttributeValueIndex attValId : (Iterable<AttributeValueIndex>) attributeStream::iterator) {
-            attribute.getValue(attValId, DataType.float32(), attVal, numComponents);
+            attribute.getValue(attValId, Pointer.wrap(attVal), numComponents);
             for(int c = 0; c < numComponents; c++) {
                 float value = attVal[c] - minValues.get(c);
                 int qVal = quantizer.quantizeFloat(value);
@@ -87,7 +86,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
             }
         }
 
-        targetAttribute.setAttributeValues(AttributeValueIndex.of(0), DataType.int32(), portableAttributeData);
+        targetAttribute.setAttributeValue(AttributeValueIndex.of(0), Pointer.wrap(portableAttributeData));
         return Status.ok();
     }
 
@@ -96,12 +95,12 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         return Status.unsupportedFeature("Inverse transform is not supported");
     }
 
-    public Status setParameters(int quantizationBits, float[] minValues, int numComponents, float range) {
+    public Status setParameters(int quantizationBits, Pointer<Float> minValues, int numComponents, float range) {
         if(!isQuantizationValid(quantizationBits)) {
             return Status.invalidParameter("Invalid quantization bits: " + quantizationBits);
         }
         this.quantizationBits = quantizationBits;
-        this.minValues.assign(i -> minValues[i], 0, numComponents);
+        this.minValues.assign(minValues, numComponents);
         this.range = range;
         return Status.ok();
     }
@@ -120,11 +119,11 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         minValues.assign(numComponents, 0f);
         float[] maxValues = new float[numComponents];
         float[] attVal = new float[numComponents];
-        attribute.getValue(AttributeValueIndex.of(0), DataType.float32(), attVal, numComponents);
-        attribute.getValue(AttributeValueIndex.of(0), DataType.float32(), minValues.setter(), numComponents);
-        attribute.getValue(AttributeValueIndex.of(0), DataType.float32(), maxValues, numComponents);
+        attribute.getValue(AttributeValueIndex.of(0), Pointer.wrap(attVal), numComponents);
+        attribute.getValue(AttributeValueIndex.of(0), minValues.getPointer(), numComponents);
+        attribute.getValue(AttributeValueIndex.of(0), Pointer.wrap(maxValues), numComponents);
         for(int i = 1; i < attribute.size(); i++) {
-            attribute.getValue(AttributeValueIndex.of(i), DataType.float32(), attVal, numComponents);
+            attribute.getValue(AttributeValueIndex.of(i), Pointer.wrap(attVal), numComponents);
             for(int c = 0; c < numComponents; c++) {
                 if(Float.isNaN(attVal[c])) {
                     return Status.invalidParameter("Attribute value is NaN");
@@ -156,9 +155,9 @@ public class AttributeQuantizationTransform extends AttributeTransform {
     @Override
     public Status encodeParameters(EncoderBuffer encoderBuffer) {
         if(isInitialized()) {
-            encoderBuffer.encode(DataType.float32(), minValues.getter(), minValues.size());
+            encoderBuffer.encode(minValues.getPointer(), minValues.size());
             encoderBuffer.encode(DataType.float32(), range);
-            encoderBuffer.encode(DataType.uint8(), UByte.of(quantizationBits));
+            encoderBuffer.encode(UByte.of(quantizationBits));
             return Status.ok();
         }
         return Status.invalidParameter("AttributeQuantizationTransform is not initialized");
@@ -169,12 +168,14 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         StatusChain chain = new StatusChain();
 
         minValues.resize(attribute.getNumComponents().intValue());
-        if(decoderBuffer.decode(DataType.float32(), minValues.setter(), minValues.size()).isError(chain)) return chain.get();
+        if(decoderBuffer.decode(minValues.getPointer(), minValues.size()).isError(chain)) return chain.get();
 
-        if(decoderBuffer.decode(DataType.float32(), val -> this.range = val).isError(chain)) return chain.get();
+        Pointer<Float> rangeRef = Pointer.newFloat();
+        if(decoderBuffer.decode(rangeRef).isError(chain)) return chain.get();
+        this.range = rangeRef.get();
 
-        AtomicReference<UByte> quantizationBitsRef = new AtomicReference<>();
-        if(decoderBuffer.decode(DataType.uint8(), quantizationBitsRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> quantizationBitsRef = Pointer.newUByte();
+        if(decoderBuffer.decode(quantizationBitsRef).isError(chain)) return chain.get();
 
         int quantizationBits = quantizationBitsRef.get().intValue();
         if(!isQuantizationValid(quantizationBits)) {
@@ -198,7 +199,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
 
     @Override
     protected DracoDataType getTransformedDataType(PointAttribute attribute) {
-        return DracoDataType.DT_UINT32;
+        return DracoDataType.UINT32;
     }
 
     @Override

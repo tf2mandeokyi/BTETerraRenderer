@@ -1,5 +1,9 @@
 package com.mndk.bteterrarenderer.draco.compression.pointcloud;
 
+import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.number.UShort;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.compression.attributes.AttributesDecoderInterface;
 import com.mndk.bteterrarenderer.draco.compression.config.*;
@@ -9,13 +13,10 @@ import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.draco.metadata.GeometryMetadata;
 import com.mndk.bteterrarenderer.draco.metadata.MetadataDecoder;
 import com.mndk.bteterrarenderer.draco.pointcloud.PointCloud;
-import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class PointCloudDecoder {
 
@@ -45,18 +46,26 @@ public abstract class PointCloudDecoder {
     public static Status decodeHeader(DecoderBuffer buffer, DracoHeader outHeader) {
         StatusChain chain = new StatusChain();
         // Draco string
-        if(buffer.decode(DataType.string(5), outHeader::setDracoString).isError(chain)) return chain.get();
+        BigUByteArray dracoStringRef = BigUByteArray.create(5);
+        if(buffer.decode(dracoStringRef, 5).isError(chain)) return chain.get();
+        outHeader.setDracoString(dracoStringRef.decode());
         if(!outHeader.getDracoString().equals("DRACO")) {
             return Status.dracoError("Not a Draco file.");
         }
 
-        // Version major & minor
-        if(buffer.decode(DataType.uint8(), outHeader::setVersionMajor).isError(chain)) return chain.get();
-        if(buffer.decode(DataType.uint8(), outHeader::setVersionMinor).isError(chain)) return chain.get();
+        // Version major
+        Pointer<UByte> versionMajorRef = Pointer.newUByte();
+        if(buffer.decode(versionMajorRef).isError(chain)) return chain.get();
+        outHeader.setVersionMajor(versionMajorRef.get());
+
+        // Version minor
+        Pointer<UByte> versionMinorRef = Pointer.newUByte();
+        if(buffer.decode(versionMinorRef).isError(chain)) return chain.get();
+        outHeader.setVersionMinor(versionMinorRef.get());
 
         // Encoder type
-        AtomicReference<UByte> encoderTypeRef = new AtomicReference<>();
-        if(buffer.decode(DataType.uint8(), encoderTypeRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> encoderTypeRef = Pointer.newUByte();
+        if(buffer.decode(encoderTypeRef).isError(chain)) return chain.get();
         EncodedGeometryType encoderType = EncodedGeometryType.valueOf(encoderTypeRef.get());
         if (encoderType == EncodedGeometryType.INVALID_GEOMETRY_TYPE) {
             return Status.dracoError("Unsupported / invalid geometry type: " + encoderTypeRef.get());
@@ -64,8 +73,8 @@ public abstract class PointCloudDecoder {
         outHeader.setEncoderType(encoderType);
 
         // Encoder method
-        AtomicReference<UByte> encoderMethodRef = new AtomicReference<>();
-        if(buffer.decode(DataType.uint8(), encoderMethodRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> encoderMethodRef = Pointer.newUByte();
+        if(buffer.decode(encoderMethodRef).isError(chain)) return chain.get();
         MeshEncoderMethod encoderMethod = MeshEncoderMethod.valueOf(encoderMethodRef.get());
         if(encoderMethod == null) {
             return Status.dracoError("Unsupported / invalid encoder method: " + encoderMethodRef.get());
@@ -73,7 +82,9 @@ public abstract class PointCloudDecoder {
         outHeader.setEncoderMethod(encoderMethod);
 
         // Flags
-        if(buffer.decode(DataType.uint16(), outHeader::setFlags).isError(chain)) return chain.get();
+        Pointer<UShort> flagsRef = Pointer.newUShort();
+        if(buffer.decode(flagsRef).isError(chain)) return chain.get();
+        outHeader.setFlags(flagsRef.get());
         return Status.ok();
     }
 
@@ -167,8 +178,8 @@ public abstract class PointCloudDecoder {
     protected Status decodePointAttributes() {
         StatusChain chain = new StatusChain();
 
-        AtomicReference<UByte> numAttributesDecodersRef = new AtomicReference<>();
-        if (buffer.decode(DataType.uint8(), numAttributesDecodersRef::set).isError(chain)) return chain.get();
+        Pointer<UByte> numAttributesDecodersRef = Pointer.newUByte();
+        if (buffer.decode(numAttributesDecodersRef).isError(chain)) return chain.get();
         int numAttributesDecoders = numAttributesDecodersRef.get().intValue();
         // Create all attribute decoders. This is implementation specific and the
         // derived classes can use any data encoded in the

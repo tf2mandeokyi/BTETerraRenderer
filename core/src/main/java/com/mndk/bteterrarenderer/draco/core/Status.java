@@ -74,11 +74,15 @@ public class Status {
     }
 
     public String getErrorMessage() {
-        return (this.code == null ? "UNKNOWN_STATUS_VALUE" : this.code) + ": " + this.errorMessage;
+        return (this.code == null ? "UNKNOWN_STATUS_VALUE" : this.code) + " - " + this.errorMessage;
     }
 
-    public RuntimeException getRuntimeException() {
-        return new IllegalArgumentException(new DracoCompressionException(this));
+    public DracoCompressionException getException() {
+        return new DracoCompressionException(this);
+    }
+
+    public DracoCompressionRuntimeException getRuntimeException() {
+        return new DracoCompressionRuntimeException(this);
     }
 
     @Override

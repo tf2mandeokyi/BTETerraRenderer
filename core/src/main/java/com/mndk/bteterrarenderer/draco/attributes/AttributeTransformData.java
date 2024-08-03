@@ -1,7 +1,8 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
+import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
-import com.mndk.bteterrarenderer.datatype.DataIOManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +16,7 @@ import lombok.Setter;
 public class AttributeTransformData {
 
     @Getter @Setter
-    private AttributeTransformType transformType = AttributeTransformType.ATTRIBUTE_INVALID_TRANSFORM;
+    private AttributeTransformType transformType = AttributeTransformType.INVALID;
     private final DataBuffer buffer = new DataBuffer();
 
     public AttributeTransformData() {}
@@ -25,20 +26,22 @@ public class AttributeTransformData {
     }
 
     /** Returns a parameter value at a given byte offset. */
-    public <T> T getParameterValue(DataIOManager<T> dataType, long byteOffset) {
-        return buffer.read(dataType, byteOffset);
+    public <T> T getParameterValue(DataType<T> dataType, long byteOffset) {
+        Pointer<T> outData = dataType.newOwned();
+        buffer.read(byteOffset, outData);
+        return outData.get();
     }
 
     /** Sets a parameter value at a given byte offset. */
-    public <T> void setParameterValue(DataIOManager<T> dataType, long byteOffset, T data) {
-        if(byteOffset + dataType.size() > buffer.size()) {
-            buffer.resize(byteOffset + dataType.size());
+    public <T> void setParameterValue(DataType<T> dataType, long byteOffset, T data) {
+        if(byteOffset + dataType.byteSize() > buffer.size()) {
+            buffer.resize(byteOffset + dataType.byteSize());
         }
-        buffer.write(dataType, byteOffset, data);
+        buffer.write(byteOffset, dataType, data);
     }
 
     /** Sets a parameter value at the end of the buffer. */
-    public <T> void appendParameterValue(DataIOManager<T> dataType, T data) {
+    public <T> void appendParameterValue(DataType<T> dataType, T data) {
         setParameterValue(dataType, buffer.size(), data);
     }
 }

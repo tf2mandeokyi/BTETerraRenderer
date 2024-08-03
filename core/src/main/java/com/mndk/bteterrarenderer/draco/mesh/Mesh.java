@@ -1,14 +1,17 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
-import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.pointcloud.PointCloud;
 import lombok.AccessLevel;
 import lombok.Getter;
+
+import java.util.Objects;
 
 public class Mesh extends PointCloud {
 
@@ -22,21 +25,27 @@ public class Mesh extends PointCloud {
             points[1] = p2;
             points[2] = p3;
         }
-        public PointIndex get(int i) {
-            return points[i];
+        public PointIndex get(int i) { return points[i]; }
+        public int getValue(int i) { return points[i].getValue(); }
+        public void set(int i, PointIndex p) { points[i] = p; }
+        public String toString() {
+            return "Face{" + points[0] + ", " + points[1] + ", " + points[2] + "}";
         }
-        public void set(int i, PointIndex p) {
-            points[i] = p;
+        public int hashCode() {
+            return Objects.hash(points[0].hashCode() + points[1].hashCode() + points[2].hashCode());
         }
     }
 
     private static class AttributeData {
-        MeshAttributeElementType elementType = MeshAttributeElementType.MESH_CORNER_ATTRIBUTE;
+        MeshAttributeElementType elementType = MeshAttributeElementType.CORNER;
+        @Override public String toString() {
+            return "AttributeData{elementType=" + elementType + "}";
+        }
     }
 
-    private final CppVector<AttributeData> attributeData = CppVector.create();
+    private final CppVector<AttributeData> attributeData = new CppVector<>(DataType.object(AttributeData::new));
     @Getter(AccessLevel.PROTECTED)
-    private final IndexTypeVector<FaceIndex, Face> faces = IndexTypeVector.create(FaceIndex::of);
+    private final IndexTypeVector<FaceIndex, Face> faces = new IndexTypeVector<>(Face::new);
 
     public Mesh() {
         super();
@@ -93,4 +102,20 @@ public class Mesh extends PointCloud {
         return cornerToPointId(ci.getValue());
     }
 
+    @Override
+    protected void applyPointIdDeduplication(IndexTypeVector<PointIndex, PointIndex> idMap, CppVector<PointIndex> uniquePointIds) {
+        //PointCloud::ApplyPointIdDeduplication(id_map, unique_point_ids);
+        //for (FaceIndex f(0); f < num_faces(); ++f) {
+        //  for (int32_t c = 0; c < 3; ++c) {
+        //    faces_[f][c] = id_map[faces_[f][c]];
+        //  }
+        //}
+        super.applyPointIdDeduplication(idMap, uniquePointIds);
+        for(FaceIndex f : FaceIndex.range(0, getNumFaces())) {
+            for(int c = 0; c < 3; ++c) {
+                PointIndex p = faces.get(f).get(c);
+                faces.get(f).set(c, idMap.get(p));
+            }
+        }
+    }
 }

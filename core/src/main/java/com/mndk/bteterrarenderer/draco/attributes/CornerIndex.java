@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.DataArrayManager;
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
 public class CornerIndex extends IndexTypeImpl<CornerIndex> {
     // kInvalidCornerIndex
     public static final CornerIndex INVALID = new CornerIndex(-1);
 
-    private static final IndexArrayManager<CornerIndex> ARRAY_MANAGER = CornerIndex::new;
-    public static DataArrayManager<CornerIndex, int[]> arrayManager() { return ARRAY_MANAGER; }
+    private static final IndexTypeManager<CornerIndex> ARRAY_MANAGER = CornerIndex::new;
+    public static DataType<CornerIndex> type() { return ARRAY_MANAGER; }
 
     public static CornerIndex of(int value) {
         return new CornerIndex(value);

@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.draco.compression.entropy;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
-import com.mndk.bteterrarenderer.draco.core.DataBuffer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
 
 /**
  * Class for performing rANS decoding using a desired number of precision bits.
@@ -15,8 +15,8 @@ public class RAnsDecoder {
 
     private final int ransPrecision;
     private final int lRansBase;
-    private final CppVector<UInt> lutTable = CppVector.create(DataType.uint32());
-    private final CppVector<RAnsSymbol> probabilityTable = CppVector.create();
+    private final CppVector<UInt> lutTable = new CppVector<>(DataType.uint32());
+    private final CppVector<RAnsSymbol> probabilityTable = new CppVector<>(RAnsSymbol::new);
     private final Ans.Decoder ans = new Ans.Decoder();
 
     public RAnsDecoder(int ransPrecisionBits) {
@@ -24,24 +24,24 @@ public class RAnsDecoder {
         this.lRansBase = this.ransPrecision * 4;
     }
 
-    public Status readInit(DataBuffer buf, long offset) {
+    public Status readInit(RawPointer buf, long offset) {
         if(offset < 1) return Status.dracoError("Invalid offset: " + offset);
         ans.buf = buf;
-        int x = buf.get(offset - 1).shr(6).intValue();
+        int x = buf.getRawUByte(offset - 1).shr(6).intValue();
         if(x == 0) {
             ans.bufOffset = offset - 1;
-            ans.state = buf.get(offset - 1).and(0x3F).uIntValue();
+            ans.state = buf.getRawUByte(offset - 1).and(0x3F).uIntValue();
         } else if(x == 1) {
             if(offset < 2) return Status.dracoError("Invalid offset: " + offset);
             ans.bufOffset = offset - 2;
-            ans.state = buf.getLE16(offset - 2).and(0x3FFF).uIntValue();
+            ans.state = Ans.getLE16(buf.rawAdd(offset - 2)).and(0x3FFF).uIntValue();
         } else if(x == 2) {
             if(offset < 3) return Status.dracoError("Invalid offset: " + offset);
             ans.bufOffset = offset - 3;
-            ans.state = buf.getLE24(offset - 3).and(0x3FFFFF);
+            ans.state = Ans.getLE24(buf.rawAdd(offset - 3)).and(0x3FFFFF);
         } else if(x == 3) {
             ans.bufOffset = offset - 4;
-            ans.state = buf.getLE32(offset - 4).and(0x3FFFFFFF);
+            ans.state = Ans.getLE32(buf.rawAdd(offset - 4)).and(0x3FFFFFFF);
         } else {
             return Status.dracoError("Invalid x: " + x);
         }
@@ -64,7 +64,7 @@ public class RAnsDecoder {
     public UInt ransRead() {
         RAnsDecoderSymbol sym = new RAnsDecoderSymbol();
         while(ans.state.lt(lRansBase) && ans.bufOffset > 0) {
-            ans.state = ans.state.mul(Ans.DRACO_ANS_IO_BASE).add(ans.buf.get(--ans.bufOffset).uIntValue());
+            ans.state = ans.state.mul(Ans.DRACO_ANS_IO_BASE).add(ans.buf.getRawUByte(--ans.bufOffset).uIntValue());
         }
         UInt quo = ans.state.div(ransPrecision);
         UInt rem = ans.state.mod(ransPrecision);
@@ -75,7 +75,7 @@ public class RAnsDecoder {
 
     public Status ransBuildLookUpTable(CppVector<UInt> tokenProbs, UInt numSymbols) {
         this.lutTable.resize(ransPrecision);
-        this.probabilityTable.resize(numSymbols.intValue(), RAnsSymbol::new);
+        this.probabilityTable.resize(numSymbols.intValue());
         UInt cumProb = UInt.ZERO;
         UInt actProb = UInt.ZERO;
         for(UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {

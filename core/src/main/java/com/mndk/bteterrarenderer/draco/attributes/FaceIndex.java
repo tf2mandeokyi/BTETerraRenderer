@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.DataArrayManager;
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.core.IndexTypeImpl;
 
 public class FaceIndex extends IndexTypeImpl<FaceIndex> {
     // kInvalidFaceIndex
     public static final FaceIndex INVALID = new FaceIndex(-1);
 
-    private static final IndexArrayManager<FaceIndex> ARRAY_MANAGER = FaceIndex::new;
-    public static DataArrayManager<FaceIndex, int[]> arrayManager() { return ARRAY_MANAGER; }
+    private static final IndexTypeManager<FaceIndex> ARRAY_MANAGER = FaceIndex::new;
+    public static DataType<FaceIndex> type() { return ARRAY_MANAGER; }
 
     public static FaceIndex of(int value) {
         return new FaceIndex(value);

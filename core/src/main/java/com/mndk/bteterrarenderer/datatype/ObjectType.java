@@ -1,42 +1,39 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.datatype.array.Endian;
-import com.mndk.bteterrarenderer.datatype.array.UByteArray;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.RequiredArgsConstructor;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.function.Supplier;
 
-public class ObjectType<T> implements DataType<T, Object[]> {
+@RequiredArgsConstructor
+public class ObjectType<T> implements DataType<T> {
+
+    private final Supplier<T> defaultValueMaker;
+
+    // Java overrides
+    @Override public String toString() { return "object"; }
+
     // IO operations
-    @Override public long size() { throw new UnsupportedOperationException(); }
-    @Override public T read(UByteArray array, long index, Endian endian) {
+    @Override public long byteSize() { throw new UnsupportedOperationException(); }
+    @Override public T read(RawPointer src) {
         throw new UnsupportedOperationException();
     }
-    @Override public void write(UByteArray array, long index, T value, Endian endian) {
+    @Override public void write(RawPointer dst, T value) {
         throw new UnsupportedOperationException();
     }
 
     // General conversions
     @Override public T parse(String value) { throw new UnsupportedOperationException(); }
+    @Override public T defaultValue() { return defaultValueMaker.get(); }
     @Override public boolean equals(T left, T right) { return left.equals(right); }
     @Override public int hashCode(T value) { return value.hashCode(); }
     @Override public String toString(T value) { return value.toString(); }
 
-    // Array operations
-    @Override public Object[] newArray(int length) { return new Object[length]; }
-    @Override public T get(Object[] array, int index) { return BTRUtil.uncheckedCast(array[index]); }
-    @Override public void set(Object[] array, int index, T value) { array[index] = value; }
-    @Override public int length(Object[] array) { return array.length; }
-    @Override public void copy(Object[] src, int srcIndex, Object[] dest, int destIndex, int length) {
-        System.arraycopy(src, srcIndex, dest, destIndex, length);
+    // Pointer operations
+    @Override public Pointer<T> newOwned(T value) { return Pointer.newObject(this, value); }
+    @Override public Pointer<T> newArray(int length) { return Pointer.wrap(this, new Object[length], 0); }
+    @Override public Pointer<T> castPointer(RawPointer pointer) {
+        throw new UnsupportedOperationException();
     }
-    @Override public void sort(Object[] objects, int from, int to, @Nullable Comparator<T> comparator) {
-        if (comparator == null) throw new IllegalArgumentException("Comparator cannot be null");
-        Comparator<Object> c = (a, b) -> comparator.compare(BTRUtil.uncheckedCast(a), BTRUtil.uncheckedCast(b));
-        Arrays.sort(objects, from, to, c);
-    }
-    @Override public int arrayHashCode(Object[] objects) { return Arrays.hashCode(objects); }
-    @Override public boolean arrayEquals(Object[] array1, Object[] array2) { return Arrays.equals(array1, array2); }
 }

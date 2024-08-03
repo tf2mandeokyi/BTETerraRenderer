@@ -92,6 +92,12 @@ public interface DataCalculator<T> {
     T negate(T value);
 
     // Comparison operations
+    boolean equals(T left, T right);
+    default boolean equals(T left, int right) { return this.equals(left, this.from(right)); }
+    default boolean equals(T left, long right) { return this.equals(left, this.from(right)); }
+    default boolean equals(T left, float right) { return this.equals(left, this.from(right)); }
+    default boolean equals(T left, double right) { return this.equals(left, this.from(right)); }
+
     int compareTo(T left, T right);
     boolean lt(T left, T right);
     default <U> boolean lt(T left, DataCalculator<U> type, U right) { return this.lt(left, this.from(type, right)); }

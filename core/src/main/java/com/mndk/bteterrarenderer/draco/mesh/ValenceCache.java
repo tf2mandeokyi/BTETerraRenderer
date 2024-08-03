@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.draco.mesh;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
-import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 
 /**
  * ValenceCache provides support for the caching of valences off of some kind of
@@ -16,9 +16,9 @@ public class ValenceCache<T extends ICornerTable> {
 
     private final T table;
     private final IndexTypeVector<VertexIndex, Byte> vertexValenceCache8Bit =
-            IndexTypeVector.create(VertexIndex::of, DataType.int8());
+            new IndexTypeVector<>(DataType.int8());
     private final IndexTypeVector<VertexIndex, Integer> vertexValenceCache32Bit =
-            IndexTypeVector.create(VertexIndex::of, DataType.int32());
+            new IndexTypeVector<>(DataType.int32());
 
     public ValenceCache(T table) {
         this.table = table;

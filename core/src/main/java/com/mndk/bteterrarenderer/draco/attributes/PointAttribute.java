@@ -1,15 +1,19 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.DataIOManager;
+import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
 import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -22,7 +26,7 @@ public class PointAttribute extends GeometryAttribute {
 
     /** Mapping between point ids and attribute value ids. */
     private IndexTypeVector<PointIndex, AttributeValueIndex> indicesMap =
-            IndexTypeVector.create(PointIndex::of, AttributeValueIndex.arrayManager());
+            new IndexTypeVector<>(AttributeValueIndex.type());
     private int numUniqueEntries;
     /** Flag when the mapping between point ids and attribute values is identity. */
     private boolean identityMapping;
@@ -130,6 +134,76 @@ public class PointAttribute extends GeometryAttribute {
         buffer.resize(newNumUniqueEntries * this.getByteStride());
     }
 
+    public int deduplicateValues(GeometryAttribute inAtt) {
+        return this.deduplicateValues(inAtt, AttributeValueIndex.of(0));
+    }
+
+    public int deduplicateValues(GeometryAttribute inAtt, AttributeValueIndex inAttOffset) {
+        DataNumberType<?> dataType = inAtt.getDataType().getActualType();
+        int numComponents = inAtt.getNumComponents().intValue();
+        if(numComponents < 1 || numComponents > 4) return -1;
+
+        int uniqueVals = this.deduplicateFormattedValues(dataType, numComponents, inAtt, inAttOffset);
+        return uniqueVals == 0 ? -1 : uniqueVals;
+    }
+
+    private <T> int deduplicateFormattedValues(DataNumberType<T> dataType, int numComponents, GeometryAttribute inAtt,
+                                               AttributeValueIndex inAttOffset) {
+        @RequiredArgsConstructor
+        class HashableValue {
+            final Pointer<T> value;
+            @Override public boolean equals(Object obj) {
+                if(!(obj instanceof HashableValue)) return false;
+                HashableValue other = (HashableValue) obj;
+                return value.contentEquals(other.value, numComponents);
+            }
+            @Override public int hashCode() { return value.contentHashCode(numComponents); }
+            @Override public String toString() { return "HashableValue{" + value + " -> hash=" + hashCode() + '}'; }
+        }
+
+        AttributeValueIndex uniqueVals = AttributeValueIndex.of(0);
+        Map<HashableValue, AttributeValueIndex> valueToIndexMap = new HashMap<>();
+        IndexTypeVector<AttributeValueIndex, AttributeValueIndex> valueMap =
+                new IndexTypeVector<>(AttributeValueIndex.type(), numUniqueEntries);
+
+        for(AttributeValueIndex i : AttributeValueIndex.range(0, numUniqueEntries)) {
+            AttributeValueIndex attPos = i.add(inAttOffset);
+            Pointer<T> attValue = inAtt.getValue(attPos, dataType, numComponents);
+            HashableValue hashableValue = new HashableValue(attValue);
+
+            boolean inserted = valueToIndexMap.putIfAbsent(hashableValue, uniqueVals) == null;
+
+            // Try to update the hash map with a new entry pointing to the latest unique vertex index.
+            if(!inserted) {
+                // Duplicated value found. Update index mapping.
+                valueMap.set(i, /*previousValue*/ /*uniqueVals*/ valueToIndexMap.get(hashableValue));
+            } else {
+                this.setAttributeValue(uniqueVals, attValue);
+                valueMap.set(i, uniqueVals);
+                uniqueVals = uniqueVals.add(1);
+            }
+        }
+        if(uniqueVals.equals(numUniqueEntries)) {
+            return uniqueVals.getValue();  // Nothing has changed.
+        }
+        if(this.isMappingIdentity()) {
+            // Change identity mapping to the explicit one.
+            // The number of points is equal to the number of old unique values.
+            this.setExplicitMapping(numUniqueEntries);
+            // Update the explicit map.
+            for(PointIndex i : PointIndex.range(0, numUniqueEntries)) {
+                this.setPointMapEntry(i, valueMap.get(AttributeValueIndex.of(i.getValue())));
+            }
+        } else {
+            // Update point to value map using the mapping between old and new values.
+            for(PointIndex i : PointIndex.range(0, indicesMapSize())) {
+                this.setPointMapEntry(i, valueMap.get(indicesMap.get(i)));
+            }
+        }
+        this.numUniqueEntries = uniqueVals.getValue();
+        return this.numUniqueEntries;
+    }
+
     /**
      * Functions for setting the type of mapping between point indices and
      * attribute entry ids.<br>
@@ -160,8 +234,8 @@ public class PointAttribute extends GeometryAttribute {
      * Same as {@link GeometryAttribute#getValue}, but using point id as the input.
      * Mapping to attribute value index is performed automatically.
      */
-    public final <T> T getMappedValue(PointIndex pointIndex, DataIOManager<T> outType) {
-        return this.getValue(this.getMappedIndex(pointIndex), outType);
+    public final <T> void getMappedValue(PointIndex pointIndex, Pointer<T> outType) {
+        this.getValue(this.getMappedIndex(pointIndex), outType);
     }
 
     public boolean isMappingIdentity() {

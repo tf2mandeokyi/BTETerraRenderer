@@ -1,12 +1,11 @@
 package com.mndk.bteterrarenderer.draco.core;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
-import com.mndk.bteterrarenderer.datatype.number.UInt;
-import com.mndk.bteterrarenderer.datatype.number.ULong;
-
-import java.util.function.Function;
+import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.datatype.number.*;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
 
 /**
  * Class representing a buffer that can be used for either for byte-aligned
@@ -15,13 +14,13 @@ import java.util.function.Function;
  */
 public class EncoderBuffer {
 
-    private DataBuffer buffer = new DataBuffer();
+    private BigUByteVector buffer = new BigUByteVector();
     private BitEncoder bitEncoder = null;
     private long bitEncoderReservedBytes = 0;
     private boolean encodeBitSequenceSize = false;
 
     public void clear() {
-        buffer = new DataBuffer();
+        buffer = new BigUByteVector();
         bitEncoderReservedBytes = 0;
     }
 
@@ -49,10 +48,10 @@ public class EncoderBuffer {
         bitEncoderReservedBytes = requiredBytes;
         long bufferStartSize = buffer.size();
         if(encodeSize) {
-            bufferStartSize += DataType.uint64().size();
+            bufferStartSize += DataType.uint64().byteSize();
         }
         buffer.resize(bufferStartSize + requiredBytes);
-        DataBuffer data = buffer.withOffset(bufferStartSize);
+        RawPointer data = buffer.getRawPointer(bufferStartSize);
         bitEncoder = new BitEncoder(data);
         return Status.ok();
     }
@@ -69,22 +68,22 @@ public class EncoderBuffer {
         // Encode size if needed.
         if(encodeBitSequenceSize) {
             long outMem = buffer.size();
-            outMem -= bitEncoderReservedBytes + DataType.uint64().size();
+            outMem -= bitEncoderReservedBytes + DataType.uint64().byteSize();
 
             EncoderBuffer varSizeBuffer = new EncoderBuffer();
-            varSizeBuffer.encodeVarint(DataType.uint64(), ULong.of(encodedBytes));
+            varSizeBuffer.encodeVarint(ULong.of(encodedBytes));
             long sizeLen = varSizeBuffer.size();
             long dst = outMem + sizeLen;
-            long src = outMem + DataType.uint64().size();
-            this.buffer.copyFrom(dst, this.buffer, src, encodedBytes);
+            long src = outMem + DataType.uint64().byteSize();
+            this.buffer.copyTo(src, this.buffer, dst, encodedBytes);
 
             // Store the size of the encoded data.
-            this.buffer.copyFrom(outMem, varSizeBuffer.buffer, 0, sizeLen);
+            this.buffer.copyTo(0, varSizeBuffer.buffer, outMem, sizeLen);
 
             // We need to account for the difference between the preallocated and actual
             // storage needed for storing the encoded length. This will be used later to
             // compute the correct size of buffer.
-            bitEncoderReservedBytes += DataType.uint64().size() - sizeLen;
+            bitEncoderReservedBytes += DataType.uint64().byteSize() - sizeLen;
         }
         this.resize(buffer.size() - bitEncoderReservedBytes + encodedBytes);
         bitEncoderReservedBytes = 0;
@@ -98,31 +97,42 @@ public class EncoderBuffer {
         return Status.ok();
     }
 
-    public <T> Status encodeVarint(DataNumberType<T, ?> inType, T val) {
+    public <T> Status encodeVarint(DataNumberType<T> inType, T val) {
         return BitUtils.encodeVarint(inType, val, this);
     }
+    public <T extends CppNumber<T>> Status encodeVarint(T val) {
+        return encodeVarint(val.getType(), val);
+    }
 
-    public <T> Status encode(DataType<T, ?> inType, T data) {
+    public <T> Status encode(DataType<T> inType, T data) {
         if(bitEncoderActive()) {
             return Status.ioError("Bit encoding mode active");
         }
         long oldSize = this.buffer.size();
-        this.buffer.resize(oldSize + inType.size());
-        this.buffer.write(inType, oldSize, data);
+        this.buffer.resize(oldSize + inType.byteSize());
+        inType.write(this.buffer.getRawPointer(oldSize), data);
         return Status.ok();
     }
-    public <T, TArray> Status encode(DataType<T, TArray> inType, TArray data, long size) {
-        return encode(inType, inType.getter(data), size);
-    }
-    public <T> Status encode(DataType<T, ?> inType, Function<Integer, T> data, long size) {
+    public Status encode(BigUByteArray inValue, long size) {
         if(bitEncoderActive()) {
             return Status.ioError("Bit encoding mode active");
         }
         long oldSize = this.buffer.size();
-        this.buffer.resize(oldSize + inType.size() * size);
-        for(int i = 0; i < size; i++) {
-            this.buffer.write(inType, oldSize + i * inType.size(), data.apply(i));
+        this.buffer.resize(oldSize + size);
+        inValue.copyTo(0, this.buffer, oldSize, size);
+        return Status.ok();
+    }
+    public <T extends CppNumber<T>> Status encode(T val) {
+        return encode(val.getType(), val);
+    }
+    public <T> Status encode(Pointer<T> data, long size) {
+        if(bitEncoderActive()) {
+            return Status.ioError("Bit encoding mode active");
         }
+        DataType<T> inType = data.getType();
+        long oldSize = this.buffer.size();
+        this.buffer.resize(oldSize + inType.byteSize() * size);
+        inType.write(this.buffer.getRawPointer(oldSize), data, size);
         return Status.ok();
     }
 
@@ -130,8 +140,8 @@ public class EncoderBuffer {
         return bitEncoderReservedBytes > 0;
     }
 
-    public DataBuffer getData() {
-        return buffer;
+    public RawPointer getData() {
+        return buffer.getRawPointer();
     }
 
     public long size() {
@@ -140,10 +150,10 @@ public class EncoderBuffer {
 
     public static class BitEncoder {
 
-        private final DataBuffer bitBuffer;
+        private final RawPointer bitBuffer;
         private long bitOffset;
 
-        public BitEncoder(DataBuffer bitBuffer) {
+        public BitEncoder(RawPointer bitBuffer) {
             this.bitBuffer = bitBuffer;
             this.bitOffset = 0;
         }
@@ -163,7 +173,7 @@ public class EncoderBuffer {
         }
 
         public static int bitsRequired(UInt x) {
-            return BitUtils.mostSignificantBit(x);
+            return BitUtils.mostSignificantBit(DataType.uint32(), x);
         }
 
         private void putBit(UByte value) {
@@ -172,10 +182,10 @@ public class EncoderBuffer {
             final long byteOffset = off / byteSize;
             final int bitShift = (int) (off % byteSize);
 
-            UByte bufferValue = bitBuffer.get(byteOffset);
+            UByte bufferValue = bitBuffer.getRawUByte(byteOffset);
             bufferValue = bufferValue.and(UByte.of(~(1 << bitShift)));
             bufferValue = bufferValue.or(value.shl(bitShift));
-            bitBuffer.set(byteOffset, bufferValue);
+            bitBuffer.setRawByte(byteOffset, bufferValue);
             bitOffset++;
         }
     }

@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.draco.compression.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -22,7 +22,8 @@ public class MeshAttributeIndicesEncodingData {
      * e.g., if multiple corners share the same attribute value, only one of these
      * corners will usually be included.
      */
-    private final CppVector<CornerIndex> encodedAttributeValueIndexToCornerMap = CppVector.create();
+    private final CppVector<CornerIndex> encodedAttributeValueIndexToCornerMap =
+            new CppVector<>(CornerIndex.type());
 
     /**
      * Map for storing encoding order of attribute entries for each vertex.
@@ -30,7 +31,7 @@ public class MeshAttributeIndicesEncodingData {
      * that are going to be used by the decoder.
      * -1 if an attribute entry hasn't been encoded/decoded yet.
      */
-    private final CppVector<Integer> vertexToEncodedAttributeValueIndexMap = CppVector.create(DataType.int32());
+    private final CppVector<Integer> vertexToEncodedAttributeValueIndexMap = new CppVector<>(DataType.int32());
 
     /**
      * Total number of encoded/decoded attribute entries.

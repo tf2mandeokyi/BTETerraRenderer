@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum AttributeTransformType {
-    ATTRIBUTE_INVALID_TRANSFORM(-1),
-    ATTRIBUTE_NO_TRANSFORM(0),
-    ATTRIBUTE_QUANTIZATION_TRANSFORM(1),
-    ATTRIBUTE_OCTAHEDRON_TRANSFORM(2);
+    INVALID(-1),
+    NONE(0),
+    QUANTIZATION(1),
+    OCTAHEDRON(2);
 
     private final int value;
 }

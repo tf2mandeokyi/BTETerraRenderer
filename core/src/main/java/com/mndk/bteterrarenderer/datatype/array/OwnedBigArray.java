@@ -9,30 +9,26 @@ import java.util.List;
 
 abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
 
-    protected static final int MAX_INNER_SIZE = Integer.MAX_VALUE - 8;
-
     private final long size;
-    private final EArray[] value;
+    private final EArray[] arrays;
 
     OwnedBigArray(long size) {
-        DataType<E, EArray> eHelper = this.getElementType();
         int outerLength = size == 0 ? 0 : (int) ((size - 1) / MAX_INNER_SIZE) + 1;
 
         this.size = size;
-        this.value = this.createOuterArray(outerLength);
+        this.arrays = this.createOuterArray(outerLength);
         long max = 0;
         for(int i = 0; i < outerLength; ++i) {
             max += MAX_INNER_SIZE;
-            if(size >= max) value[i] = eHelper.newArray(MAX_INNER_SIZE);
-            else value[i] = eHelper.newArray((int) (size - (max - MAX_INNER_SIZE)));
+            if(size >= max) arrays[i] = newInnerArray(MAX_INNER_SIZE);
+            else arrays[i] = newInnerArray((int) (size - (max - MAX_INNER_SIZE)));
         }
     }
-    OwnedBigArray(EArray value) {
-        DataType<E, EArray> eHelper = this.getElementType();
-        this.size = eHelper.length(value);
+    OwnedBigArray(EArray array) {
+        this.size = getInnerLength(array);
         // Since the size of the given array cannot exceed MAX_INNER_ARRAY_SIZE, the outer length can be 1
-        this.value = this.createOuterArray(1);
-        this.value[0] = value;
+        this.arrays = this.createOuterArray(1);
+        this.arrays[0] = array;
     }
     OwnedBigArray(BigArray<E> other) {
         this(other.size());
@@ -41,16 +37,12 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
 
     public E get(long index) {
         if(index < 0 || index >= this.size) throw new IndexOutOfBoundsException("size = " + this.size + ", index = " + index);
-        int outerIndex = (int) (index / MAX_INNER_SIZE);
-        int innerIndex = (int) (index % MAX_INNER_SIZE);
-        return this.getElementType().get(value[outerIndex], innerIndex);
+        return getFromInnerArray(arrays[(int) (index / MAX_INNER_SIZE)], (int) (index % MAX_INNER_SIZE));
     }
 
     public void set(long index, E value) {
         if(index < 0 || index >= this.size) throw new IndexOutOfBoundsException("size = " + this.size + ", index = " + index);
-        int outerIndex = (int) (index / MAX_INNER_SIZE);
-        int innerIndex = (int) (index % MAX_INNER_SIZE);
-        this.getElementType().set(this.value[outerIndex], innerIndex, value);
+        setToInnerArray(arrays[(int) (index / MAX_INNER_SIZE)], (int) (index % MAX_INNER_SIZE), value);
     }
 
     public long size() {
@@ -69,17 +61,16 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
         if(srcIndex + size > this.size) throw new IndexOutOfBoundsException();
         if(dstIndex + size > dest.size()) throw new IndexOutOfBoundsException();
 
-        DataType<E, EArray> eHelper = this.getElementType();
         int srcOuterIndex = (int) (srcIndex / MAX_INNER_SIZE);
         int srcInnerIndex = (int) (srcIndex % MAX_INNER_SIZE);
         int dstOuterIndex = (int) (dstIndex / MAX_INNER_SIZE);
         int dstInnerIndex = (int) (dstIndex % MAX_INNER_SIZE);
 
         while(size > 0) {
-            int srcInnerLength = Math.min(eHelper.length(this.value[srcOuterIndex]) - srcInnerIndex, (int) size);
-            int dstInnerLength = Math.min(eHelper.length(dest.value[dstOuterIndex]) - dstInnerIndex, (int) size);
+            int srcInnerLength = Math.min(getInnerLength(this.arrays[srcOuterIndex]) - srcInnerIndex, (int) size);
+            int dstInnerLength = Math.min(getInnerLength(dest.arrays[dstOuterIndex]) - dstInnerIndex, (int) size);
             int length = Math.min(srcInnerLength, dstInnerLength);
-            eHelper.copy(this.value[srcOuterIndex], srcInnerIndex, dest.value[dstOuterIndex], dstInnerIndex, length);
+            copyInnerArray(this.arrays[srcOuterIndex], srcInnerIndex, dest.arrays[dstOuterIndex], dstInnerIndex, length);
             size -= length;
             srcInnerIndex += length;
             if(srcInnerIndex >= MAX_INNER_SIZE) {
@@ -98,20 +89,20 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
         if(dest instanceof OwnedBigArray) {
             this.internalCopyTo(srcIndex, (OwnedBigArray<E, EArray>) dest, dstIndex, size);
         } else {
-            for(InnerArrayChunk chunk : this.getInnerChunks(srcIndex, size)) {
+            for(InnerArrayChunk<EArray> chunk : this.getInnerChunks(srcIndex, size)) {
                 EArray array = chunk.array;
                 for (int i = 0; i < chunk.length; ++i) {
-                    dest.set(dstIndex + i, this.getElementType().get(array, chunk.offset + i));
+                    dest.set(dstIndex + i, getFromInnerArray(array, chunk.offset + i));
                 }
             }
         }
     }
 
-    List<InnerArrayChunk> getInnerChunks(long start, long length) {
+    List<InnerArrayChunk<EArray>> getInnerChunks(long start, long length) {
         if(length < 0) throw new IllegalArgumentException("Length must be non-negative.");
         if(start + length > this.size) throw new IndexOutOfBoundsException();
 
-        List<InnerArrayChunk> result = new ArrayList<>();
+        List<InnerArrayChunk<EArray>> result = new ArrayList<>();
         long end = start + length - 1;
         int outerStart = (int) (start / MAX_INNER_SIZE);
         int outerEnd = (int) (end / MAX_INNER_SIZE);
@@ -119,7 +110,7 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
             int innerStart = i == outerStart ? (int) (start % MAX_INNER_SIZE) : 0;
             int innerEnd = i == outerEnd ? (int) (end % MAX_INNER_SIZE) : (MAX_INNER_SIZE - 1);
             int innerLength = innerEnd - innerStart + 1;
-            result.add(new InnerArrayChunk(this.value[i], innerStart, innerLength));
+            result.add(new InnerArrayChunk<>(this.arrays[i], innerStart, innerLength));
         }
         return result;
     }
@@ -138,13 +129,13 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
         if(other.size() != this.size) return false;
         if(other instanceof OwnedBigArray) {
             OwnedBigArray<E, EArray> casted = (OwnedBigArray<E, EArray>) other;
-            return this.deepEquals(this.value, casted.value);
+            return this.deepEquals(this.arrays, casted.arrays);
         }
         else {
-            for(InnerArrayChunk chunk : this.getInnerChunks(0, this.size)) {
+            for(InnerArrayChunk<EArray> chunk : this.getInnerChunks(0, this.size)) {
                 EArray array = chunk.array;
                 for (int i = 0; i < chunk.length; ++i) {
-                    E thisValue = this.getElementType().get(array, chunk.offset + i);
+                    E thisValue = getFromInnerArray(array, chunk.offset + i);
                     E otherValue = other.get(i);
                     if(!this.getElementType().equals(thisValue, otherValue)) return false;
                 }
@@ -155,7 +146,24 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
 
     @Override
     public int hashCode() {
-        return this.deepHashCode(this.value);
+        return this.hashCode(0, this.size);
+    }
+
+    @Override
+    public int hashCode(long offset, long length) {
+        if(offset < 0 || offset >= this.size) throw new IndexOutOfBoundsException();
+        if(length < 0) throw new IllegalArgumentException("Length must be non-negative.");
+        if(offset + length > this.size) throw new IndexOutOfBoundsException();
+        int result = 1;
+        DataType<E> elementType = this.getElementType();
+        for(InnerArrayChunk<EArray> chunk : this.getInnerChunks(offset, length)) {
+            EArray array = chunk.array;
+            for (int i = 0; i < chunk.length; ++i) {
+                E value = getFromInnerArray(array, chunk.offset + i);
+                result = 31 * result + elementType.hashCode(value);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -164,19 +172,22 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
     }
 
     protected EArray getFirstInnerArray() {
-        return this.value[0];
+        return this.arrays[0];
     }
 
-    protected abstract DataType<E, EArray> getElementType();
+    protected abstract DataType<E> getElementType();
+    protected abstract EArray newInnerArray(int length);
+    protected abstract int getInnerLength(EArray array);
+    protected abstract E getFromInnerArray(EArray array, int index);
+    protected abstract void setToInnerArray(EArray array, int index, E value);
+    protected abstract void copyInnerArray(EArray src, int srcIndex, EArray dest, int destIndex, int length);
     protected abstract EArray[] createOuterArray(int outerLength);
     protected abstract boolean deepEquals(EArray[] a, EArray[] b);
-    protected abstract int deepHashCode(EArray[] a);
 
     @RequiredArgsConstructor
-    public class InnerArrayChunk {
+    private static class InnerArrayChunk<EArray> {
         public final EArray array;
         public final int offset;
         public final int length;
     }
-
 }

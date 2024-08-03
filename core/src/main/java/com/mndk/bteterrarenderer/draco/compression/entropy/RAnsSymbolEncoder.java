@@ -4,14 +4,15 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 public class RAnsSymbolEncoder implements SymbolEncoder {
 
     private final int ransPrecision;
 
-    private final CppVector<RAnsSymbol> probabilityTable = CppVector.create();
+    private final CppVector<RAnsSymbol> probabilityTable = new CppVector<>(RAnsSymbol::new);
     /** The number of symbols in the input alphabet. */
     private UInt numSymbols;
     /** Expected number of bits that is needed to encode the input. */
@@ -38,7 +39,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
         }
         numSymbols = maxValidSymbol + 1;
         this.numSymbols = UInt.of(numSymbols);
-        probabilityTable.resize(numSymbols, RAnsSymbol::new);
+        probabilityTable.resize(numSymbols);
         final double totalFreqD = totalFreq.doubleValue();
         final double ransPrecisionD = ransPrecision;
         // Compute probabilities by rescaling the normalized frequencies into interval
@@ -62,7 +63,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
         // Because of rounding errors, the total precision may not be exactly accurate
         // and we may need to adjust the entries a little bit.
         if(totalRansProb != ransPrecision) {
-            CppVector<Integer> sortedProbabilities = CppVector.create(DataType.int32(), numSymbols);
+            CppVector<Integer> sortedProbabilities = new CppVector<>(DataType.int32(), numSymbols);
             for(int i = 0; i < numSymbols; ++i) {
                 sortedProbabilities.set(i, i);
             }
@@ -148,9 +149,9 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
 
         bufferOffset = ULong.of(buffer.size());
         long requiredBytes = requiredBits.add(7).div(8).longValue();
-        buffer.resize(bufferOffset.add(requiredBytes).add(bufferOffset.getType().size()).longValue());
-        DataBuffer data = buffer.getData();
-        ans.writeInit(data.withOffset(bufferOffset));
+        buffer.resize(bufferOffset.add(requiredBytes).add(bufferOffset.getType().byteSize()).longValue());
+        RawPointer data = buffer.getData();
+        ans.writeInit(data.rawAdd(bufferOffset.longValue()));
     }
 
     @Override
@@ -160,18 +161,18 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
 
     @Override
     public void endEncoding(EncoderBuffer buffer) {
-        DataBuffer dataBuffer = buffer.getData();
+        RawPointer dataBuffer = buffer.getData();
         long src = bufferOffset.longValue();
 
         ULong bytesWritten = ans.writeEnd();
         EncoderBuffer varSizeBuffer = new EncoderBuffer();
-        varSizeBuffer.encodeVarint(DataType.uint64(), bytesWritten);
+        varSizeBuffer.encodeVarint(bytesWritten);
         UInt sizeLen = UInt.of(varSizeBuffer.size());
         long dst = src + sizeLen.longValue();
-        dataBuffer.copyFrom(dst, dataBuffer, src, bytesWritten.longValue());
+        dataBuffer.rawAdd(src).rawCopyTo(dataBuffer.rawAdd(dst), bytesWritten.longValue());
 
         // Store the size of the encoded data.
-        dataBuffer.copyFrom(bufferOffset.longValue(), varSizeBuffer.getData(), 0, sizeLen.longValue());
+        varSizeBuffer.getData().rawCopyTo(dataBuffer.rawAdd(src), sizeLen.longValue());
 
         buffer.resize(bufferOffset.add(bytesWritten).add(sizeLen.uLongValue()).longValue());
     }
@@ -179,7 +180,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
     private Status encodeTable(EncoderBuffer buffer) {
         StatusChain chain = new StatusChain();
 
-        if(buffer.encodeVarint(DataType.uint32(), numSymbols).isError(chain)) return chain.get();
+        if(buffer.encodeVarint(numSymbols).isError(chain)) return chain.get();
         // Use varint encoding for the probabilities (first two bits represent the
         // number of bytes used - 1).
         for(UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {
@@ -211,16 +212,16 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
                     }
                 }
                 UByte temp = offset.shl(2).or(3).uByteValue();
-                if(buffer.encode(DataType.uint8(), temp).isError(chain)) return chain.get();
+                if(buffer.encode(temp).isError(chain)) return chain.get();
                 i = i.add(offset);
             } else {
                 // Encode the first byte (including the number of extra bytes).
                 UByte temp = prob.shl(2).or(numExtraBytes & 3).uByteValue();
-                if(buffer.encode(DataType.uint8(), temp).isError(chain)) return chain.get();
+                if(buffer.encode(temp).isError(chain)) return chain.get();
                 // Encode the extra bytes
                 for(int b = 0; b < numExtraBytes; ++b) {
                     UByte temp1 = prob.shr(8 * (b + 1) - 2).uByteValue();
-                    if(buffer.encode(DataType.uint8(), temp1).isError(chain)) return chain.get();
+                    if(buffer.encode(temp1).isError(chain)) return chain.get();
                 }
             }
         }

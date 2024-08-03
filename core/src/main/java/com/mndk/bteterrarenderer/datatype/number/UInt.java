@@ -35,7 +35,7 @@ public class UInt extends CppNumber<UInt> {
     @Override public int hashCode() { return Integer.hashCode(value); }
     @Override public String toString() { return Integer.toUnsignedString(value); }
     @Override public String toHexString() { return Integer.toHexString(value); }
-    @Override public DataNumberType<UInt, ?> getType() { return DataType.uint32(); }
+    @Override public DataNumberType<UInt> getType() { return DataType.uint32(); }
 
     // Arithmetic operations
     @Override public UInt add(UInt other) { return new UInt(value + other.value); }

@@ -7,11 +7,13 @@ import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.draco.core.StatusOr;
-import com.mndk.bteterrarenderer.draco.core.vector.CppVector;
-import com.mndk.bteterrarenderer.draco.core.vector.IndexTypeVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CornerTable implements ICornerTable {
@@ -38,16 +40,16 @@ public class CornerTable implements ICornerTable {
     }
 
     private final IndexTypeVector<CornerIndex, VertexIndex> cornerToVertexMap =
-            IndexTypeVector.create(CornerIndex::of, VertexIndex.arrayManager());
+            new IndexTypeVector<>(VertexIndex.type());
     private final IndexTypeVector<CornerIndex, CornerIndex> oppositeCorners =
-            IndexTypeVector.create(CornerIndex::of, CornerIndex.arrayManager());
+            new IndexTypeVector<>(CornerIndex.type());
     private final IndexTypeVector<VertexIndex, CornerIndex> vertexCorners =
-            IndexTypeVector.create(VertexIndex::of, CornerIndex.arrayManager());
+            new IndexTypeVector<>(CornerIndex.type());
 
     @Getter
     private int numOriginalVertices = 0, numDegeneratedFaces = 0, numIsolatedVertices = 0;
     private final IndexTypeVector<VertexIndex, VertexIndex> nonManifoldVertexParents =
-            IndexTypeVector.create(VertexIndex::of, VertexIndex.arrayManager());
+            new IndexTypeVector<>(VertexIndex.type());
 
     @Getter
     private final ValenceCache<CornerTable> valenceCache = new ValenceCache<>(this);
@@ -311,6 +313,10 @@ public class CornerTable implements ICornerTable {
         vertexCorners.set(vert, CornerIndex.INVALID);
     }
 
+    public boolean isVertexIsolated(VertexIndex v) {
+        return this.getLeftMostCorner(v).isInvalid();
+    }
+
     public void makeFaceInvalid(FaceIndex face) {
         this.checkValenceCacheEmpty();
         if(face.isInvalid()) return;
@@ -360,7 +366,7 @@ public class CornerTable implements ICornerTable {
         // First compute the number of outgoing half-edges (corners) attached to each
         // vertex.
         IndexTypeVector<VertexIndex, Integer> numCornersOnVertices =
-                IndexTypeVector.create(VertexIndex::of, DataType.int32());
+                new IndexTypeVector<>(DataType.int32());
         numCornersOnVertices.reserve(this.getNumCorners());
         for (CornerIndex c : CornerIndex.range(0, this.getNumCorners())) {
             VertexIndex v1 = this.getVertex(c);
@@ -370,14 +376,14 @@ public class CornerTable implements ICornerTable {
             numCornersOnVertices.set(v1, numCornersOnVertices.get(v1) + 1);
         }
 
-        CppVector<VertexEdgePair> vertexEdges = CppVector.create(this.getNumCorners(), VertexEdgePair::new);
+        CppVector<VertexEdgePair> vertexEdges = new CppVector<>(VertexEdgePair::new, this.getNumCorners());
 
         // For each vertex compute the offset (location where the first half-edge
         // entry of a given vertex is going to be stored). This way each vertex is
         // guaranteed to have a non-overlapping storage with respect to the other
         // vertices.
         IndexTypeVector<VertexIndex, Integer> vertexOffset =
-                IndexTypeVector.create(VertexIndex::of, DataType.int32(), numCornersOnVertices.size());
+                new IndexTypeVector<>(DataType.int32(), numCornersOnVertices.size());
         int offset = 0;
         for (VertexIndex i : VertexIndex.range(0, numCornersOnVertices.size())) {
             vertexOffset.set(i, offset);
@@ -468,8 +474,8 @@ public class CornerTable implements ICornerTable {
         // on disjoint 1-ring surface patches.
 
         IndexTypeVector<CornerIndex, Boolean> visitedCorners =
-                IndexTypeVector.create(CornerIndex::of, DataType.bool(), this.getNumCorners(), false);
-        CppVector<Pair<VertexIndex, CornerIndex>> sinkVertices = CppVector.create();
+                new IndexTypeVector<>(DataType.bool(), this.getNumCorners(), false);
+        List<Pair<VertexIndex, CornerIndex>> sinkVertices = new ArrayList<>();
         boolean meshConnectivityUpdated;
         do {
             meshConnectivityUpdated = false;
@@ -540,7 +546,7 @@ public class CornerTable implements ICornerTable {
                     Pair<VertexIndex, CornerIndex> newSinkVert = Pair.of(
                             this.cornerToVertexMap.get(this.previous(currentC)), sinkC
                     );
-                    sinkVertices.pushBack(newSinkVert);
+                    sinkVertices.add(newSinkVert);
 
                     currentC = this.swingRight(currentC);
                 } while(!currentC.equals(firstC) && currentC.isValid());
@@ -557,9 +563,9 @@ public class CornerTable implements ICornerTable {
         // Arrays for marking visited vertices and corners that allow us to detect
         // non-manifold vertices.
         IndexTypeVector<VertexIndex, Boolean> visitedVertices =
-                IndexTypeVector.create(VertexIndex::of, DataType.bool(), numVertices, false);
+                new IndexTypeVector<>(DataType.bool(), numVertices, false);
         IndexTypeVector<CornerIndex, Boolean> visitedCorners =
-                IndexTypeVector.create(CornerIndex::of, DataType.bool(), this.getNumCorners(), false);
+                new IndexTypeVector<>(DataType.bool(), this.getNumCorners(), false);
 
         for(FaceIndex f : FaceIndex.range(0, this.getNumFaces())) {
             CornerIndex firstFaceCorner = this.getFirstCorner(f);
