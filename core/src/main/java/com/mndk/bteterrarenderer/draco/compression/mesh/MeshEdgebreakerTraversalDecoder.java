@@ -10,18 +10,14 @@ import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import lombok.AccessLevel;
 import lombok.Setter;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MeshEdgebreakerTraversalDecoder {
 
-    @Setter(AccessLevel.PROTECTED)
-    private DecoderBuffer buffer = new DecoderBuffer();
-    private DecoderBuffer symbolBuffer = new DecoderBuffer();
+    private final DecoderBuffer buffer = new DecoderBuffer();
+    private final DecoderBuffer symbolBuffer = new DecoderBuffer();
     private final RAnsBitDecoder startFaceDecoder = new RAnsBitDecoder();
-    private DecoderBuffer startFaceBuffer = new DecoderBuffer();
+    private final DecoderBuffer startFaceBuffer = new DecoderBuffer();
     private RAnsBitDecoder[] attributeConnectivityDecoders = null;
     @Setter
     private int numAttributeData = 0;
@@ -37,14 +33,14 @@ public class MeshEdgebreakerTraversalDecoder {
         return decoderImpl.getDecoder().getBitstreamVersion();
     }
 
-    public Status start(AtomicReference<DecoderBuffer> outBufferRef) {
+    public Status start(DecoderBuffer outBufferRef) {
         StatusChain chain = new StatusChain();
 
         if(this.decodeTraversalSymbols().isError(chain)) return chain.get();
         if(this.decodeStartFaces().isError(chain)) return chain.get();
         if(this.decodeAttributeSeams().isError(chain)) return chain.get();
 
-        outBufferRef.set(this.buffer);
+        outBufferRef.reset(this.buffer);
         return Status.ok();
     }
 
@@ -52,7 +48,7 @@ public class MeshEdgebreakerTraversalDecoder {
         if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> faceConfigurationRef = Pointer.newUInt();
             Status status = startFaceBuffer.decodeLeastSignificantBits32(1, faceConfigurationRef);
-            if(status.isError()) throw new IllegalStateException(status.getException());
+            if(status.isError()) throw status.getRuntimeException();
             return faceConfigurationRef.get().intValue() != 0;
         } else {
             return startFaceDecoder.decodeNextBit();
@@ -96,10 +92,10 @@ public class MeshEdgebreakerTraversalDecoder {
         StatusChain chain = new StatusChain();
 
         Pointer<ULong> traversalSizeRef = Pointer.newULong();
-        this.symbolBuffer = this.buffer;
+        this.symbolBuffer.reset(this.buffer);
         if(symbolBuffer.startBitDecoding(true, traversalSizeRef).isError(chain)) return chain.get();
         ULong traversalSize = traversalSizeRef.get();
-        this.buffer = this.symbolBuffer;
+        this.buffer.reset(this.symbolBuffer);
         if(traversalSize.gt(this.buffer.getRemainingSize())) {
             return Status.ioError("Traversal size is larger than remaining buffer size.");
         }
@@ -111,11 +107,11 @@ public class MeshEdgebreakerTraversalDecoder {
         StatusChain chain = new StatusChain();
 
         if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
-            this.startFaceBuffer = this.buffer;
+            this.startFaceBuffer.reset(this.buffer);
             Pointer<ULong> traversalSizeRef = Pointer.newULong();
             if(startFaceBuffer.startBitDecoding(true, traversalSizeRef).isError(chain)) return chain.get();
             ULong traversalSize = traversalSizeRef.get();
-            this.buffer = this.startFaceBuffer;
+            this.buffer.reset(this.startFaceBuffer);
             if(traversalSize.gt(this.buffer.getRemainingSize())) {
                 return Status.ioError("Traversal size is larger than remaining buffer size.");
             }

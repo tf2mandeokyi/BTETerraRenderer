@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 public class CppVector<E> implements Iterable<E> {
 
-    private int size = 0, capacity = 0;
+    private long size = 0, capacity = 0;
     private Pointer<E> array;
     private final DataType<E> type;
 
@@ -23,11 +23,11 @@ public class CppVector<E> implements Iterable<E> {
         this.type = type;
         this.clear();
     }
-    public CppVector(DataType<E> type, int size) {
+    public CppVector(DataType<E> type, long size) {
         this(type);
         this.resize(size);
     }
-    public CppVector(DataType<E> type, int size, E value) {
+    public CppVector(DataType<E> type, long size, E value) {
         this(type);
         this.resize(size, value);
     }
@@ -35,7 +35,7 @@ public class CppVector<E> implements Iterable<E> {
     public CppVector(Supplier<E> defaultValueMaker) {
         this(DataType.object(defaultValueMaker));
     }
-    public CppVector(Supplier<E> defaultValueMaker, int size) {
+    public CppVector(Supplier<E> defaultValueMaker, long size) {
         this(DataType.object(defaultValueMaker), size);
     }
 
@@ -48,56 +48,50 @@ public class CppVector<E> implements Iterable<E> {
     // From C++ reference:
     // - Assigns new contents to the vector, replacing its current contents, and
     //   modifying its size accordingly.
-    public void assign(int count, E value) {
+    public void assign(long count, E value) {
         this.clear();
-        for(int i = 0; i < count; i++) this.pushBack(value);
+        for(long i = 0; i < count; i++) this.pushBack(value);
     }
-    public void assign(Pointer<E> value, int count) {
+    public void assign(Pointer<E> value, long count) {
         this.clear();
-        for(int i = 0; i < count; i++) this.pushBack(value.get(i));
+        for(long i = 0; i < count; i++) this.pushBack(value.get(i));
     }
 
-    public int size() { return this.size; }
+    public long size() { return this.size; }
     public boolean isEmpty() { return this.size == 0; }
 
-    public E front() {
-        if(size == 0) throw new IndexOutOfBoundsException("Vector is empty");
-        return array.get(0);
+    private void checkNotEmpty() {
+        if(this.size != 0) return;
+        throw new IndexOutOfBoundsException("Vector is empty");
     }
-    public E back() {
-        if(size == 0) throw new IndexOutOfBoundsException("Vector is empty");
-        return array.get(size - 1);
+    private void checkIndex(long index) {
+        if(index >= 0 && index < size) return;
+        throw new IndexOutOfBoundsException("Index " + index + " is out of bounds (size = " + size + ")");
     }
-    public E get(UInt index) {
-        return this.get(index.intValue());
-    }
-    public E get(int index) {
-        if(index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds (size = " + size + ")");
-        }
-        return array.get(index);
-    }
+
+    public E front() { checkNotEmpty(); return array.get(0); }
+    public E back() { checkNotEmpty(); return array.get(size - 1); }
+    public E get(UInt index) { return this.get(index.intValue()); }
+    public E get(long index) { checkIndex(index); return array.get(index); }
     public boolean contains(E element) {
-        for(int i = 0; i < this.size; i++) {
+        for(long i = 0; i < this.size; i++) {
             if(Objects.equals(array.get(i), element)) return true;
         }
         return false;
     }
 
     public E set(UInt index, E value) { return this.set(index.intValue(), value); }
-    public E set(int index, E value) {
-        if(index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds (size = " + size + ")");
-        }
+    public E set(long index, E value) {
+        checkIndex(index);
         E oldValue = array.get(index);
         array.set(index, value);
         return oldValue;
     }
     public E set(UInt index, Function<E, E> function) { return this.set(index.intValue(), function); }
-    public E set(int index, Function<E, E> function) {
+    public E set(long index, Function<E, E> function) {
         return this.set(index, function.apply(this.get(index)));
     }
-    public void insert(int index, E value) {
+    public void insert(long index, E value) {
         this.reserve(this.size + 1);
         array.add(index).copyFrom(array.add(index + 1), this.size - index);
         array.set(index, value);
@@ -108,7 +102,7 @@ public class CppVector<E> implements Iterable<E> {
         array.set(this.size, value);
         this.size++;
     }
-    public void erase(int index) {
+    public void erase(long index) {
         array.add(index + 1).copyFrom(array.add(index), this.size - index - 1);
         array.reset(this.size - 1);
         this.size--;
@@ -123,8 +117,8 @@ public class CppVector<E> implements Iterable<E> {
     public void swap(CppVector<E> other) {
         if(other instanceof CppVector) {
             Pointer<E> tempArray = this.array;
-            int tempSize = this.size;
-            int tempCapacity = this.capacity;
+            long tempSize = this.size;
+            long tempCapacity = this.capacity;
             this.array = other.array;
             this.size = other.size;
             this.capacity = other.capacity;
@@ -148,10 +142,10 @@ public class CppVector<E> implements Iterable<E> {
     // - In all other cases, the function call does not cause a reallocation and the
     //   vector capacity is not affected.
     // - This function has no effect on the vector size and cannot alter its elements.
-    public void reserve(int minCapacity) {
-        int oldCapacity = capacity;
+    public void reserve(long minCapacity) {
+        long oldCapacity = capacity;
         if(oldCapacity < minCapacity) {
-            int newCapacity = oldCapacity + oldCapacity >> 1;
+            long newCapacity = oldCapacity + oldCapacity >> 1;
             if(newCapacity < minCapacity) newCapacity = minCapacity;
             Pointer<E> newArray = type.newArray(newCapacity);
             newArray.copyFrom(array, size);
@@ -170,19 +164,19 @@ public class CppVector<E> implements Iterable<E> {
     //   otherwise, they are value-initialized.
     // - If n is also greater than the current container capacity, an automatic
     //   reallocation of the allocated storage space takes place.
-    public void resize(int size) { this.resize(size, i -> type.defaultValue()); }
-    public void resize(int size, E value) { this.resize(size, i -> value); }
-    public void resize(int size, Supplier<E> value) { this.resize(size, i -> value.get()); }
-    public void resize(int size, Function<Integer, E> value) {
+    public void resize(long size) { this.resize(size, i -> type.defaultValue()); }
+    public void resize(long size, E value) { this.resize(size, i -> value); }
+    public void resize(long size, Supplier<E> value) { this.resize(size, i -> value.get()); }
+    public void resize(long size, Function<Long, E> value) {
         if(size > this.size) {
             this.reserve(size);
-            for(int i = this.size; i < size; i++) {
+            for(long i = this.size; i < size; i++) {
                 array.set(i, value.apply(i));
             }
         }
         else if(size < this.size) {
             // Set the rest of the array to default values
-            for(int i = size; i < this.size; i++) {
+            for(long i = size; i < this.size; i++) {
                 array.reset(i);
             }
         }
@@ -211,7 +205,7 @@ public class CppVector<E> implements Iterable<E> {
         sb.append("[size = ").append(this.size);
         if(this.size > 0) {
             sb.append("; ");
-            for (int i = 0; i < this.size; i++) {
+            for (long i = 0; i < this.size; i++) {
                 if (i != 0) sb.append(", ");
                 sb.append(array.get(i));
             }

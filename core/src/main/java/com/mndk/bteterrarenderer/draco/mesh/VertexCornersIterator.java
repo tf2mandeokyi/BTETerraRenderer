@@ -5,62 +5,59 @@ import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
 
 import java.util.Iterator;
 
-public class VertexCornersIterator<T extends ICornerTable> implements Iterator<CornerIndex> {
+public class VertexCornersIterator implements Iterator<CornerIndex> {
 
-    private final T cornerTable;
+    public static Iterable<CornerIndex> iterable(ICornerTable cornerTable, VertexIndex vertexIndex) {
+        return () -> new VertexCornersIterator(cornerTable, vertexIndex);
+    }
+    public static Iterable<CornerIndex> iterable(ICornerTable cornerTable, CornerIndex cornerIndex) {
+        return () -> new VertexCornersIterator(cornerTable, cornerIndex);
+    }
+
+    private final ICornerTable cornerTable;
     private final CornerIndex startCorner;
     private CornerIndex corner;
-    private boolean leftTraversal, started = false;
+    private boolean leftTraversal;
 
-    public VertexCornersIterator() {
-        this.cornerTable = null;
-        this.startCorner = CornerIndex.INVALID;
-        this.corner = startCorner;
+    private VertexCornersIterator(ICornerTable table, VertexIndex vertexIndex) {
+        this.cornerTable = table;
+        this.startCorner = table.getLeftMostCorner(vertexIndex);
+        this.corner = null;
         this.leftTraversal = true;
     }
 
-    public VertexCornersIterator(T cornerTable, VertexIndex vertexIndex) {
-        this.cornerTable = cornerTable;
-        this.startCorner = cornerTable.getLeftMostCorner(vertexIndex);
-        this.corner = startCorner;
-        this.leftTraversal = true;
-    }
-
-    public VertexCornersIterator(T cornerTable, CornerIndex cornerIndex) {
-        this.cornerTable = cornerTable;
+    private VertexCornersIterator(ICornerTable table, CornerIndex cornerIndex) {
+        this.cornerTable = table;
         this.startCorner = cornerIndex;
-        this.corner = startCorner;
+        this.corner = null;
         this.leftTraversal = true;
     }
 
-    @Override
-    public boolean hasNext() {
-        return corner != CornerIndex.INVALID;
-    }
+    @Override public boolean hasNext() { return getNext(false).isValid(); }
+    @Override public CornerIndex next() { return getNext(true); }
 
-    @Override
-    public CornerIndex next() {
-        if(!started) {
-            started = true;
-            return startCorner;
-        }
-        if(leftTraversal) {
-            corner = cornerTable.swingLeft(corner);
-            if(corner == CornerIndex.INVALID) {
-                corner = cornerTable.swingRight(startCorner);
-                leftTraversal = false;
-            } else if(corner.equals(startCorner)) {
-                corner = CornerIndex.INVALID;
+    private CornerIndex getNext(boolean apply) {
+        CornerIndex tempCorner = corner;
+        boolean tempTraversal = leftTraversal;
+
+        if(tempCorner == null) {
+            tempCorner = startCorner;
+        } else if(tempTraversal) {
+            tempCorner = cornerTable.swingLeft(tempCorner);
+            if(tempCorner.isInvalid()) {
+                tempCorner = cornerTable.swingRight(startCorner);
+                tempTraversal = false;
+            } else if(tempCorner.equals(startCorner)) {
+                tempCorner = CornerIndex.INVALID;
             }
         } else {
-            corner = cornerTable.swingRight(corner);
+            tempCorner = cornerTable.swingRight(tempCorner);
         }
-        return corner;
-    }
 
-    public static <T extends ICornerTable> VertexCornersIterator<T> endIterator(VertexCornersIterator<T> other) {
-        VertexCornersIterator<T> ret = new VertexCornersIterator<>();
-        ret.corner = CornerIndex.INVALID;
-        return ret;
+        if(apply) {
+            corner = tempCorner;
+            leftTraversal = tempTraversal;
+        }
+        return tempCorner;
     }
 }

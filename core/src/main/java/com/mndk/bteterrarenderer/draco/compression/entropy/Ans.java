@@ -198,7 +198,7 @@ public class Ans {
 
         public Status ansReadInit(RawPointer buf, int offset) {
             if(offset < 1) {
-                return Status.ioError("Buffer offset is too small");
+                return Status.ioError("Buffer offset is too small: " + offset);
             }
             this.buf = buf;
             int x = buf.getRawUByte(offset - 1).shr(6).intValue();
@@ -218,7 +218,7 @@ public class Ans {
                 this.bufOffset = offset - 3;
                 this.state = getLE24(buf.rawAdd(offset - 3)).and(0x3FFFFF);
             } else {
-                return Status.ioError("Invalid buffer offset");
+                return Status.ioError("Invalid buffer offset: " + x);
             }
             this.state = this.state.add(DRACO_ANS_L_BASE);
             if(this.state.ge(DRACO_ANS_L_BASE * DRACO_ANS_IO_BASE)) {

@@ -89,7 +89,7 @@ public class PointAttribute extends GeometryAttribute {
     /**
      * Prepares the attribute storage for the specified number of entries.
      */
-    public final Status reset(int numAttributeValues) {
+    public final Status reset(long numAttributeValues) {
         StatusChain chain = new StatusChain();
 
         if(buffer == null) {
@@ -99,7 +99,7 @@ public class PointAttribute extends GeometryAttribute {
         if(buffer.update(null, numAttributeValues * entrySize).isError(chain)) return chain.get();
         // Assign the new buffer to the parent attribute.
         this.resetBuffer(buffer, entrySize, 0);
-        numUniqueEntries = numAttributeValues;
+        numUniqueEntries = (int) numAttributeValues;
         return Status.ok();
     }
 
@@ -112,8 +112,8 @@ public class PointAttribute extends GeometryAttribute {
         }
         return indicesMap.get(pointIndex);
     }
-    public final int indicesMapSize() {
-        return indicesMap.size();
+    public final long indicesMapSize() {
+        return isMappingIdentity() ? 0 : indicesMap.size();
     }
 
     public final long getBytePosOfMappedIndex(PointIndex pointIndex) {
@@ -196,7 +196,7 @@ public class PointAttribute extends GeometryAttribute {
             }
         } else {
             // Update point to value map using the mapping between old and new values.
-            for(PointIndex i : PointIndex.range(0, indicesMapSize())) {
+            for(PointIndex i : PointIndex.range(0, (int) indicesMap.size())) {
                 this.setPointMapEntry(i, valueMap.get(indicesMap.get(i)));
             }
         }
@@ -219,7 +219,7 @@ public class PointAttribute extends GeometryAttribute {
      * This function sets the mapping to be explicitly using the {@code indicesMap}
      * array that needs to be initialized by the caller.
      */
-    public final void setExplicitMapping(int numPoints) {
+    public final void setExplicitMapping(long numPoints) {
         identityMapping = false;
         indicesMap.resize(numPoints, AttributeValueIndex.INVALID);
     }

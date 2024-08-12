@@ -28,11 +28,16 @@ public class Mesh extends PointCloud {
         public PointIndex get(int i) { return points[i]; }
         public int getValue(int i) { return points[i].getValue(); }
         public void set(int i, PointIndex p) { points[i] = p; }
-        public String toString() {
+        @Override public String toString() {
             return "Face{" + points[0] + ", " + points[1] + ", " + points[2] + "}";
         }
-        public int hashCode() {
+        @Override public int hashCode() {
             return Objects.hash(points[0].hashCode() + points[1].hashCode() + points[2].hashCode());
+        }
+        @Override public boolean equals(Object obj) {
+            if(!(obj instanceof Face)) return false;
+            Face other = (Face) obj;
+            return points[0].equals(other.points[0]) && points[1].equals(other.points[1]) && points[2].equals(other.points[2]);
         }
     }
 
@@ -64,7 +69,7 @@ public class Mesh extends PointCloud {
     }
 
     public int getNumFaces() {
-        return faces.size();
+        return (int) faces.size();
     }
 
     public Face getFace(FaceIndex index) {
@@ -103,13 +108,8 @@ public class Mesh extends PointCloud {
     }
 
     @Override
-    protected void applyPointIdDeduplication(IndexTypeVector<PointIndex, PointIndex> idMap, CppVector<PointIndex> uniquePointIds) {
-        //PointCloud::ApplyPointIdDeduplication(id_map, unique_point_ids);
-        //for (FaceIndex f(0); f < num_faces(); ++f) {
-        //  for (int32_t c = 0; c < 3; ++c) {
-        //    faces_[f][c] = id_map[faces_[f][c]];
-        //  }
-        //}
+    protected void applyPointIdDeduplication(IndexTypeVector<PointIndex, PointIndex> idMap,
+                                             CppVector<PointIndex> uniquePointIds) {
         super.applyPointIdDeduplication(idMap, uniquePointIds);
         for(FaceIndex f : FaceIndex.range(0, getNumFaces())) {
             for(int c = 0; c < 3; ++c) {

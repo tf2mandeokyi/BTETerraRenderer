@@ -42,7 +42,7 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
 
         flipNormalBitEncoder.startEncoding();
 
-        int cornerMapSize = this.getMeshData().getDataToCornerMap().size();
+        int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
 
         VectorD.I3 predNormal3D = new VectorD.I3();
         VectorD.I2 posPredNormalOct = new VectorD.I2();

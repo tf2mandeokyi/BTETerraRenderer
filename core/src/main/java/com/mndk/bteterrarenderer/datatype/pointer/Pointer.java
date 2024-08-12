@@ -108,25 +108,24 @@ public interface Pointer<T> {
         Spliterator<T> spliterator = Spliterators.spliterator(iterator(length), length, Spliterator.ORDERED);
         return StreamSupport.stream(spliterator, false);
     }
-    default void copyFrom(Pointer<T> source, int sourceLength) {
+    default void copyFrom(Pointer<T> source, long sourceLength) {
         if(sourceLength == 0) return;
         // In case of copying from the same array,
         // We first copy the source array to a temporary array, and then paste it back
-        Object[] array = new Object[sourceLength];
-        for(int i = 0; i < sourceLength; ++i) {
-            array[i] = source.get(i);
-        }
-        for(int i = 0; i < sourceLength; ++i) {
-            this.set(i, BTRUtil.<T>uncheckedCast(array[i]));
-        }
+        Pointer<T> temp = source.getType().newArray(sourceLength);
+        for(long i = 0; i < sourceLength; ++i) temp.set(i, source.get(i));
+        for(long i = 0; i < sourceLength; ++i) this.set(i, temp.get(i));
     }
-    default void sort(int length, @Nullable Comparator<T> comparator) {
+    default void sort(long length, @Nullable Comparator<T> comparator) {
         if(length <= 1) return;
+        if(length > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Array length is too large: " + length);
+        }
 
         // Default behaviour: copy to temporary array, sort it, and paste it back
         // This is slow, so it is recommended to override this method
         // Copy to the temporary array
-        Object[] array = new Object[length];
+        Object[] array = new Object[(int) length];
         for(int i = 0; i < length; ++i) {
             array[i] = this.get(i);
         }

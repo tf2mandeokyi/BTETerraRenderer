@@ -139,13 +139,13 @@ public class DecoderBuffer {
         Pointer<T> outVal = outType.newOwned();
         return decode(outVal).isError() ? null : outVal.get();
     }
-    public <T> Status decode(Pointer<T> outData, int size) {
+    public <T> Status decode(Pointer<T> outData, long size) {
         Status status = peek(outData, size);
         if(status.isError()) return status;
         pos += outData.getType().byteSize() * size;
         return Status.ok();
     }
-    public Status decode(BigUByteArray outVal, int size) {
+    public Status decode(BigUByteArray outVal, long size) {
         Status status = peek(outVal, size);
         if(status.isError()) return status;
         pos += size;

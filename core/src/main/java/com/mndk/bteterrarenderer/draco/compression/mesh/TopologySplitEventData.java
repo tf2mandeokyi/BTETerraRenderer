@@ -3,7 +3,9 @@ package com.mndk.bteterrarenderer.draco.compression.mesh;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 public class TopologySplitEventData {
     private int splitSymbolId;
     private int sourceSymbolId;

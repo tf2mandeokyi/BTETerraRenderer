@@ -8,7 +8,7 @@ import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 
 class UByteType extends PredefinedDataNumberType<UByte> {
     // Java overrides
-    @Override public String toString() { return "uint8_t"; }
+    @Override public String toString() { return "uint8"; }
     @Override public boolean equals(Object obj) { return obj instanceof UByteType; }
     @Override public int hashCode() { return UByteType.class.hashCode(); }
 

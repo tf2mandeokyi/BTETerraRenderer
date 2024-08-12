@@ -42,7 +42,7 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
 
         // Initialize valences of all vertices.
         vertexValences.resize(cornerTable.getNumVertices());
-        for(VertexIndex i : VertexIndex.range(0, vertexValences.size())) {
+        for(VertexIndex i : VertexIndex.range(0, (int) vertexValences.size())) {
             vertexValences.set(i, cornerTable.getValence(i));
         }
 
@@ -98,7 +98,7 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
 
                     // Create a new vertex for the right side and count the number of
                     // faces that should be attached to this vertex.
-                    int newVertId = vertexValences.size();
+                    int newVertId = (int) vertexValences.size();
                     int numRightFaces = 0;
 
                     actC = cornerTable.opposite(next);
@@ -150,11 +150,10 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
         super.encodeAttributeSeams();
 
         // Store the contexts.
-        for(int i = 0; i < contextSymbols.size(); ++i) {
-            CppVector<UInt> context = contextSymbols.get(i);
+        for(CppVector<UInt> context : contextSymbols) {
             this.getOutputBuffer().encodeVarint(DataType.uint32(), UInt.of(context.size()));
-            if(!context.isEmpty()) {
-                SymbolEncoding.encode(context.getPointer(), context.size(),
+            if (!context.isEmpty()) {
+                SymbolEncoding.encode(context.getPointer(), (int) context.size(),
                         1, null, this.getOutputBuffer());
             }
         }

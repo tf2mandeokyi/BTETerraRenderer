@@ -23,7 +23,7 @@ public enum DracoDataType {
     FLOAT64(10, DataType.float64()),
     BOOL(11, DataType.bool());
 
-    public static final int DT_TYPES_COUNT = values().length;
+    public static final int COUNT = values().length;
 
     private final UByte id;
     private final DataNumberType<?> actualType;

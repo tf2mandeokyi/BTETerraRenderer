@@ -3,20 +3,19 @@ package com.mndk.bteterrarenderer.draco.compression.mesh;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.entropy.SymbolDecoding;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.mesh.CornerTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTraversalDecoder {
 
@@ -44,7 +43,7 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
     }
 
     @Override
-    public Status start(AtomicReference<DecoderBuffer> outBufferRef) {
+    public Status start(DecoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
 
         if(this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
@@ -52,7 +51,6 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
         }
         if(super.decodeStartFaces().isError(chain)) return chain.get();
         if(super.decodeAttributeSeams().isError(chain)) return chain.get();
-        DecoderBuffer outBuffer = outBufferRef.get();
 
         if(this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> numSplitSymbols = Pointer.newUInt();

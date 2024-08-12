@@ -63,7 +63,7 @@ public class SequentialAttributeDecoder {
         // attribute to the portable attribute.
         if(!attribute.isMappingIdentity() && portableAttribute != null && portableAttribute.isMappingIdentity()) {
             portableAttribute.setExplicitMapping(attribute.indicesMapSize());
-            for(PointIndex i : PointIndex.range(0, attribute.indicesMapSize())) {
+            for(PointIndex i : PointIndex.range(0, (int) attribute.indicesMapSize())) {
                 portableAttribute.setPointMapEntry(i, attribute.getMappedIndex(i));
             }
         }
@@ -95,7 +95,7 @@ public class SequentialAttributeDecoder {
     protected Status decodeValues(CppVector<PointIndex> pointIds, DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
 
-        int numValues = pointIds.size();
+        int numValues = (int) pointIds.size();
         int entrySize = (int) attribute.getByteStride();
         Pointer<UByte> valueData = BigUByteArray.create(entrySize).getPointer(DataType.uint8());
         int outBytePos = 0;

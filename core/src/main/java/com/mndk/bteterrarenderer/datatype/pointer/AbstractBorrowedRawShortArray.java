@@ -15,11 +15,11 @@ public abstract class AbstractBorrowedRawShortArray<E> extends BorrowedArray<E> 
     protected final int offset;
 
     @Override public final E get() { return fromRaw(array[offset]); }
-    @Override public final E get(int index) { return fromRaw(array[this.offset + index]); }
     @Override public final void set(E value) { array[offset] = toRaw(value); }
-    @Override public final void set(int index, E value) { array[this.offset + index] = toRaw(value); }
     @Override public final RawPointer asRaw() { return this; }
-    @Override public final void sort(int length, @Nullable Comparator<E> comparator) {
+    @Override protected final E get(int index) { return fromRaw(array[this.offset + index]); }
+    @Override protected final void set(int index, E value) { array[this.offset + index] = toRaw(value); }
+    @Override protected final void sort(int length, @Nullable Comparator<E> comparator) {
         ShortComparator objectComparator = comparator == null
                 ? Short::compare : (a, b) -> comparator.compare(fromRaw(a), fromRaw(b));
         Primitive.sort(array, this.offset, this.offset + length, objectComparator);

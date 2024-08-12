@@ -2,16 +2,15 @@ package com.mndk.bteterrarenderer.draco.pointcloud;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
-import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.AttributeValueIndex;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
 import com.mndk.bteterrarenderer.draco.core.BoundingBox;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.VectorD;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.metadata.AttributeMetadata;
 import com.mndk.bteterrarenderer.draco.metadata.GeometryMetadata;
 import lombok.Getter;
@@ -45,7 +44,7 @@ public class PointCloud {
         if(type == GeometryAttribute.Type.INVALID || type == null) {
             return 0;
         }
-        return namedAttributeIndex.get(type.getIndex()).size();
+        return (int) namedAttributeIndex.get(type.getIndex()).size();
     }
 
     /**
@@ -225,12 +224,9 @@ public class PointCloud {
         @RequiredArgsConstructor
         class PointIndexWrapper {
             final PointIndex pointIndex;
-
-            @Override
-            public String toString() {
+            @Override public String toString() {
                 return pointIndex.toString();
             }
-
             @Override public int hashCode() {
                 int hash = 0;
                 for(int i = 0; i < getNumAttributes(); ++i) {
@@ -239,9 +235,7 @@ public class PointCloud {
                 }
                 return hash;
             }
-
-            @Override
-            public boolean equals(Object o) {
+            @Override public boolean equals(Object o) {
                 if(o == this) return true;
                 if(!(o instanceof PointIndexWrapper)) return false;
                 PointIndex index = ((PointIndexWrapper) o).pointIndex;
@@ -318,9 +312,8 @@ public class PointCloud {
         }
         for(int i = 0; i < pcAtt.size(); ++i) {
             AttributeValueIndex ai = AttributeValueIndex.of(i);
-            Pointer<Float> p = Pointer.wrap(new float[3]);
-            pcAtt.getValue(ai, p);
-            VectorD.F3 point = new VectorD.F3(p.get(0), p.get(1), p.get(2));
+            VectorD.F3 point = new VectorD.F3();
+            pcAtt.getValue(ai, point.getPointer());
             boundingBox.update(point);
         }
         return boundingBox;

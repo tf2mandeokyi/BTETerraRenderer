@@ -1,12 +1,10 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.draco.attributes.*;
-import com.mndk.bteterrarenderer.draco.core.VectorD;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.attributes.*;
+import com.mndk.bteterrarenderer.draco.core.*;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -14,7 +12,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 public class MeshAreEquivalent {
 
@@ -53,35 +50,44 @@ public class MeshAreEquivalent {
     @Setter
     private PrintStream printStream = System.out;
 
-    public boolean equals(Mesh mesh0, Mesh mesh1) {
+    public <T> Status equals(Mesh mesh0, Mesh mesh1) {
+        StatusChain chain = new StatusChain();
+
         if(mesh0.getNumFaces() != mesh1.getNumFaces()) {
-            return false;
+            return Status.invalidParameter("Number of faces mismatch");
         }
         if(mesh0.getNumAttributes() != mesh1.getNumAttributes()) {
-            return false;
+            return Status.invalidParameter("Number of attributes mismatch");
         }
 
-        this.init(mesh0, mesh1);
+        if(this.init(mesh0, mesh1).isError(chain)) return chain.get();
 
         int attMax = GeometryAttribute.Type.NAMED_ATTRIBUTES_COUNT;
         for(int attId = 0; attId < attMax; ++attId) {
-            PointAttribute att0 = mesh0.getNamedAttribute(GeometryAttribute.Type.valueOf(attId));
-            PointAttribute att1 = mesh1.getNamedAttribute(GeometryAttribute.Type.valueOf(attId));
+            GeometryAttribute.Type namedType = GeometryAttribute.Type.valueOf(attId);
+            PointAttribute att0 = mesh0.getNamedAttribute(namedType);
+            PointAttribute att1 = mesh1.getNamedAttribute(namedType);
             if (att0 == null && att1 == null) continue;
+            if (att0 == null) return Status.invalidParameter("Attribute 0 for type " + namedType + " is null");
+            if (att1 == null) return Status.invalidParameter("Attribute 1 for type " + namedType + " is null");
 
-            if (att0 == null) return false;
-            if (att1 == null) return false;
+            if (att0.getDataType() != att1.getDataType()) return Status.invalidParameter("Attribute data type mismatch" +
+                    " (" + namedType + "): left=" + att0.getDataType() + ", right=" + att1.getDataType());
+            if (!att0.getNumComponents().equals(att1.getNumComponents())) return Status.invalidParameter("Attribute component count mismatch" +
+                    " (" + namedType + "): left=" + att0.getNumComponents() + ", right=" + att1.getNumComponents());
+            if (att0.isNormalized() != att1.isNormalized()) return Status.invalidParameter("Attribute normalization mismatch" +
+                    " (" + namedType + "): left=" + att0.isNormalized() + ", right=" + att1.isNormalized());
+            if (att0.getByteStride() != att1.getByteStride()) return Status.invalidParameter("Attribute byte stride mismatch" +
+                    " (" + namedType + "): left=" + att0.getByteStride() + ", right=" + att1.getByteStride());
 
-            if (att0.getDataType() != att1.getDataType()) return false;
-            if (!Objects.equals(att0.getNumComponents(), att1.getNumComponents())) return false;
-            if (att0.isNormalized() != att1.isNormalized()) return false;
-            if (att0.getByteStride() != att1.getByteStride()) return false;
+            if (!att0.isValid()) return Status.invalidParameter("Attribute 0 for type " + namedType + " is not valid");
+            if (!att1.isValid()) return Status.invalidParameter("Attribute 1 for type " + namedType + " is not valid");
 
-            if (!att0.isValid()) throw new IllegalStateException("Attribute 0 is not valid");
-            if (!att1.isValid()) throw new IllegalStateException("Attribute 1 is not valid");
+            DataType<T> dataType = att0.getDataType().getActualType();
+            int numComponents = att0.getNumComponents().intValue();
 
-            Pointer<UByte> data0 = Pointer.wrapUnsigned(new byte[(int) att0.getByteStride()]);
-            Pointer<UByte> data1 = Pointer.wrapUnsigned(new byte[(int) att1.getByteStride()]);
+            Pointer<T> data0 = dataType.newArray(numComponents);
+            Pointer<T> data1 = dataType.newArray(numComponents);
 
             // Check every corner of every face.
             for(int i = 0; i < numFaces; i++) {
@@ -99,14 +105,16 @@ public class MeshAreEquivalent {
                     // Obtaining the data.
                     att0.getValue(index0, data0);
                     att1.getValue(index1, data1);
-                    if(!data0.contentEquals(data1, (int) att0.getByteStride())) return false;
+                    if(!data0.contentEquals(data1, numComponents)) {
+                        return Status.invalidParameter("Attribute data mismatch");
+                    }
                 }
             }
         }
-        return true;
+        return Status.ok();
     }
 
-    private void init(Mesh mesh0, Mesh mesh1) {
+    private Status init(Mesh mesh0, Mesh mesh1) {
         meshInfos.clear();
 
         numFaces = mesh1.getNumFaces();
@@ -114,23 +122,24 @@ public class MeshAreEquivalent {
         meshInfos.add(new MeshInfo(mesh1));
 
         if(meshInfos.size() != 2) {
-            throw new IllegalStateException("Mesh infos size mismatch");
+            return Status.invalidParameter("Mesh infos size mismatch");
         }
         if(!meshInfos.get(0).cornerIndexOfSmallestVertex.isEmpty()) {
-            throw new IllegalStateException("Corner index of smallest vertex is not empty");
+            return Status.invalidParameter("Corner index of smallest vertex is not empty");
         }
         if(!meshInfos.get(1).cornerIndexOfSmallestVertex.isEmpty()) {
-            throw new IllegalStateException("Corner index of smallest vertex is not empty");
+            return Status.invalidParameter("Corner index of smallest vertex is not empty");
         }
         if(!meshInfos.get(0).orderedIndexOfFace.isEmpty()) {
-            throw new IllegalStateException("Ordered index of face is not empty");
+            return Status.invalidParameter("Ordered index of face is not empty");
         }
         if(!meshInfos.get(1).orderedIndexOfFace.isEmpty()) {
-            throw new IllegalStateException("Ordered index of face is not empty");
+            return Status.invalidParameter("Ordered index of face is not empty");
         }
 
         this.initCornerIndexOfSmallestPointXYZ();
         this.initOrderedFaceIndex();
+        return Status.ok();
     }
 
     private static VectorD.F3 getPosition(Mesh mesh, FaceIndex f, int c) {

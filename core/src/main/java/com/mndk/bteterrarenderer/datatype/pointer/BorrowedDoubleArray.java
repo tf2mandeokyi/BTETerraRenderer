@@ -20,12 +20,12 @@ class BorrowedDoubleArray extends BorrowedArray<Double> implements RawLongPointe
 
     @Override public DataType<Double> getType() { return DataType.float64(); }
     @Override public Double get() { return array[offset]; }
-    @Override public Double get(int index) { return array[this.offset + index]; }
     @Override public void set(Double value) { array[offset] = value; }
-    @Override public void set(int index, Double value) { array[this.offset + index] = value; }
-    @Override public Pointer<Double> add(int offset) { return new BorrowedDoubleArray(array, this.offset + offset); }
     @Override public RawPointer asRaw() { return this; }
-    @Override public void sort(int length, @Nullable Comparator<Double> comparator) {
+    @Override protected Double get(int index) { return array[this.offset + index]; }
+    @Override protected void set(int index, Double value) { array[this.offset + index] = value; }
+    @Override protected Pointer<Double> add(int offset) { return new BorrowedDoubleArray(array, this.offset + offset); }
+    @Override protected void sort(int length, @Nullable Comparator<Double> comparator) {
         DoubleComparator objectComparator = comparator == null ? Double::compare : comparator::compare;
         Primitive.sort(array, offset, offset + length, objectComparator);
     }

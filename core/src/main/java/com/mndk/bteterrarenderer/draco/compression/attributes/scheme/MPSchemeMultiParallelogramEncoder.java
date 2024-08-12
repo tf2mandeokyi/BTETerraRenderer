@@ -33,7 +33,7 @@ public class MPSchemeMultiParallelogramEncoder<DataT, CorrT> extends MPSchemeEnc
 
         // We start processing from the end because this prediction uses data from
         // previous entries that could be overwritten when an entry is processed.
-        for(int p = this.getMeshData().getDataToCornerMap().size() - 1; p > 0; p--) {
+        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
             CornerIndex startCornerId = this.getMeshData().getDataToCornerMap().get(p);
 
             // Go over all corners attached to the vertex and compute the predicted

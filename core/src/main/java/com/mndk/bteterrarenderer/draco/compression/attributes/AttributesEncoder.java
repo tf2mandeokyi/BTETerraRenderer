@@ -80,7 +80,7 @@ public abstract class AttributesEncoder {
         if(id >= pointAttributeToLocalIdMap.size()) {
             pointAttributeToLocalIdMap.resize(id + 1, -1);
         }
-        pointAttributeToLocalIdMap.set(id, pointAttributeIds.size() - 1);
+        pointAttributeToLocalIdMap.set(id, (int) (pointAttributeIds.size() - 1));
     }
 
     public void setAttributeIds(CppVector<Integer> pointAttributeIds) {
@@ -96,7 +96,7 @@ public abstract class AttributesEncoder {
     }
 
     public int getNumAttributes() {
-        return pointAttributeIds.size();
+        return (int) pointAttributeIds.size();
     }
 
     protected Status transformAttributesToPortableFormat() {
@@ -110,7 +110,7 @@ public abstract class AttributesEncoder {
     }
 
     public int getLocalIdForPointAttribute(int pointAttributeId) {
-        int idMapSize = pointAttributeToLocalIdMap.size();
+        int idMapSize = (int) pointAttributeToLocalIdMap.size();
         if(pointAttributeId >= idMapSize) {
             return -1;
         }

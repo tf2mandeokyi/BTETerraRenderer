@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
 import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.Getter;
 
 @Getter

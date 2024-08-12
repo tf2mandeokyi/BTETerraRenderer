@@ -62,5 +62,9 @@ public interface DataType<T> {
     Pointer<T> newOwned(T value);
     Pointer<T> newArray(int length);
     Pointer<T> castPointer(RawPointer pointer);
+    default Pointer<T> newArray(long length) {
+        if (length <= Integer.MAX_VALUE) return this.newArray((int) length);
+        throw new IllegalArgumentException("Array length is too large");
+    }
     default Pointer<T> newOwned() { return this.newOwned(this.defaultValue()); }
 }

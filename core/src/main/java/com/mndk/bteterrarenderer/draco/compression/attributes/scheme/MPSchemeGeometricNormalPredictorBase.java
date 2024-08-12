@@ -15,15 +15,15 @@ import lombok.Setter;
 public abstract class MPSchemeGeometricNormalPredictorBase<DataT> {
 
     @Getter
-    private final DataNumberType<DataT> dataType;
+    protected final DataNumberType<DataT> dataType;
     @Setter
-    private PointAttribute positionAttribute = null;
+    protected PointAttribute positionAttribute = null;
     @Setter
-    private Pointer<PointIndex> entryToPointIdMap = Pointer.nullPointer();
+    protected Pointer<PointIndex> entryToPointIdMap = Pointer.nullPointer();
     @Getter
-    private final MPSchemeData<?> meshData;
+    protected final MPSchemeData<?> meshData;
     @Getter
-    private NormalPredictionMode normalPredictionMode;
+    protected NormalPredictionMode normalPredictionMode;
 
     protected MPSchemeGeometricNormalPredictorBase(DataNumberType<DataT> dataType, MPSchemeData<?> meshData) {
         this.dataType = dataType;

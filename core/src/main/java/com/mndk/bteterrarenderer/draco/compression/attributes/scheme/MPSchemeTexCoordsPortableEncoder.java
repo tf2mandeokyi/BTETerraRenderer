@@ -32,7 +32,7 @@ public class MPSchemeTexCoordsPortableEncoder<DataT, CorrT> extends MPSchemeEnco
         this.getTransform().init(inData, size, numComponents);
         // We start processing from the end because this prediction uses data from
         // previous entries that could be overwritten when an entry is processed.
-        for(int p = this.getMeshData().getDataToCornerMap().size() - 1; p >= 0; p--) {
+        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p >= 0; p--) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
             if(predictor.computePredictedValue(cornerId, inData, p, true).isError(chain)) return chain.get();
 
@@ -44,7 +44,7 @@ public class MPSchemeTexCoordsPortableEncoder<DataT, CorrT> extends MPSchemeEnco
 
     @Override
     public Status encodePredictionData(EncoderBuffer buffer) {
-        int numOrientations = predictor.getNumOrientations();
+        int numOrientations = (int) predictor.getNumOrientations();
         buffer.encode(DataType.int32(), numOrientations);
         boolean lastOrientation = true;
         RAnsBitEncoder encoder = new RAnsBitEncoder();

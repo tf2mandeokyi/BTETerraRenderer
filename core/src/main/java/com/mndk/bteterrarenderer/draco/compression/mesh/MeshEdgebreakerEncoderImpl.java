@@ -142,7 +142,8 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 || att.getAttributeType() == GeometryAttribute.Type.POSITION
                 || elementType == MeshAttributeElementType.VERTEX
                 || (elementType == MeshAttributeElementType.CORNER
-                    && !attributeData.get(attDataId).connectivityData.isNoInteriorSeams())) {
+                    && attributeData.get(attDataId).connectivityData.isNoInteriorSeams()
+                )) {
             // Per-vertex attribute reached, use the basic corner table to traverse the mesh.
             MeshAttributeIndicesEncodingData encodingData;
             if(useSingleConnectivity || att.getAttributeType() == GeometryAttribute.Type.POSITION) {
@@ -157,7 +158,8 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 attributeData.get(attDataId).isConnectivityUsed = false;
             }
 
-            if(this.getEncoder().getOptions().getSpeed() == 0 && att.getAttributeType() == GeometryAttribute.Type.POSITION) {
+            if(this.getEncoder().getOptions().getSpeed() == 0 &&
+                    att.getAttributeType() == GeometryAttribute.Type.POSITION) {
                 traversalMethod = MeshTraversalMethod.PREDICTION_DEGREE;
                 if(useSingleConnectivity && mesh.getNumAttributes() > 1) {
                     // Make sure we don't use the prediction degree traversal when we encode
@@ -167,11 +169,9 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             }
             // Defining sequencer via a traversal scheme.
             if(traversalMethod == MeshTraversalMethod.PREDICTION_DEGREE) {
-                MaxPredictionDegreeTraverser traverser = new MaxPredictionDegreeTraverser();
-                sequencer = createVertexTraversalSequencer(traverser, encodingData);
+                sequencer = createVertexTraversalSequencer(new MaxPredictionDegreeTraverser(), encodingData);
             } else /* if(traversalMethod == MeshTraversalMethod.DEPTH_FIRST) */ {
-                DepthFirstTraverser traverser = new DepthFirstTraverser();
-                sequencer = createVertexTraversalSequencer(traverser, encodingData);
+                sequencer = createVertexTraversalSequencer(new DepthFirstTraverser(), encodingData);
             }
         }
         else {
@@ -191,11 +191,6 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             traversalSequencer.setCornerOrder(processedConnectivityCorners);
             traversalSequencer.setTraverser(attTraverser);
             sequencer = traversalSequencer;
-        }
-
-        //noinspection ConstantValue
-        if(sequencer == null) {
-            return Status.dracoError("Failed to create sequencer");
         }
 
         if(attDataId == -1) {
@@ -271,7 +266,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         visitedFaces.assign(mesh.getNumFaces(), false);
         posEncodingData.getVertexToEncodedAttributeValueIndexMap().assign(cornerTable.getNumVertices(), -1);
         posEncodingData.getEncodedAttributeValueIndexToCornerMap().clear();
-        posEncodingData.getEncodedAttributeValueIndexToCornerMap().reserve(cornerTable.getNumFaces() * 3);
+        posEncodingData.getEncodedAttributeValueIndexToCornerMap().reserve(cornerTable.getNumFaces() * 3L);
         visitedVertexIds.assign(cornerTable.getNumVertices(), false);
         vertexTraversalLength.clear();
         lastEncodedSymbolId = -1;
@@ -287,7 +282,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         if(this.findHoles().isError(chain)) return chain.get();
         if(this.initAttributeData().isError(chain)) return chain.get();
 
-        int numAttributeData = attributeData.size();
+        int numAttributeData = (int) attributeData.size();
         encoder.getBuffer().encode(UByte.of(numAttributeData));
         traversalEncoder.setNumAttributeData(numAttributeData);
 
@@ -450,7 +445,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             // Currently processed corner.
             cornerId = cornerTraversalStack.popBack();
             // Make sure the face hasn't been visited yet.
-            if(cornerId.isInvalid() && visitedFaces.get(cornerTable.getFace(cornerId).getValue())) {
+            if(cornerId.isInvalid() || visitedFaces.get(cornerTable.getFace(cornerId).getValue())) {
                 // This face has been already traversed.
                 continue;
             }
@@ -567,7 +562,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     }
 
     private Status encodeSplitData() {
-        int numEvents = topologySplitEventData.size();
+        int numEvents = (int) topologySplitEventData.size();
         encoder.getBuffer().encodeVarint(UInt.of(numEvents));
         if(numEvents > 0) {
             // Encode split symbols using delta and varint coding.
@@ -632,7 +627,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                     continue;
                 }
                 // Traverse along the new boundary and mark all visited vertices.
-                int boundaryId = visitedHoles.size();
+                int boundaryId = (int) visitedHoles.size();
                 visitedHoles.pushBack(false);
 
                 CornerIndex cornerId = i;

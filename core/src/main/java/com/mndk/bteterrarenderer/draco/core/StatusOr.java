@@ -36,7 +36,7 @@ public class StatusOr<T> {
     }
 
     public T getValue() {
-        if(status.isError()) throw new IllegalStateException(new DracoCompressionException(status));
+        if(status.isError()) throw new DracoCompressionRuntimeException(status);
         return value;
     }
 }

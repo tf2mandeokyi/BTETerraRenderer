@@ -28,7 +28,7 @@ public class MPSchemeParallelogramEncoder<DataT, CorrT> extends MPSchemeEncoder<
         // previous entries that could be overwritten when an entry is processed.
         ICornerTable table = this.getMeshData().getCornerTable();
         CppVector<Integer> vertexToDataMap = this.getMeshData().getVertexToDataMap();
-        for(int p = this.getMeshData().getDataToCornerMap().size() - 1; p > 0; p--) {
+        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
             int dstOffset = p * numComponents;
             Status status = MPSchemeParallelogram.computeParallelogramPrediction(

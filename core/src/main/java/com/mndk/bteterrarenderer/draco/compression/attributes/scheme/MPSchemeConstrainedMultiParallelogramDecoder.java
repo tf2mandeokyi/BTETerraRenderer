@@ -57,7 +57,7 @@ public class MPSchemeConstrainedMultiParallelogramDecoder<DataT, CorrT> extends 
         // Used to store predicted value for multi-parallelogram prediction.
         CppVector<DataT> multiPredVals = new CppVector<>(dataType, numComponents);
 
-        int cornerMapSize = this.getMeshData().getDataToCornerMap().size();
+        int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
         for (int p = 1; p < cornerMapSize; ++p) {
             CornerIndex startCornerId = this.getMeshData().getDataToCornerMap().get(p);
             CornerIndex cornerId = startCornerId;

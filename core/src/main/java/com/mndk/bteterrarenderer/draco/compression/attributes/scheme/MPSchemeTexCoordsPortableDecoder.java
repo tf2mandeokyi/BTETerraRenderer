@@ -35,7 +35,7 @@ public class MPSchemeTexCoordsPortableDecoder<DataT, CorrT> extends MPSchemeDeco
         predictor.setEntryToPointIdMap(entryToPointIdMap);
         this.getTransform().init(numComponents);
 
-        int cornerMapSize = this.getMeshData().getDataToCornerMap().size();
+        int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
         for (int p = 0; p < cornerMapSize; ++p) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
             if (predictor.computePredictedValue(cornerId, outData, p, false).isError(chain)) return chain.get();

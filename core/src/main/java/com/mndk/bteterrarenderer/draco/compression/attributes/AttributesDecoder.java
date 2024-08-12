@@ -128,7 +128,7 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
 
     @Override
     public int getNumAttributes() {
-        return this.pointAttributeIds.size();
+        return (int) this.pointAttributeIds.size();
     }
 
     @Override
@@ -137,7 +137,7 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
     }
 
     protected int getLocalIdForPointAttribute(int pointAttributeId) {
-        int idMapSize = this.pointAttributeToLocalIdMap.size();
+        int idMapSize = (int) this.pointAttributeToLocalIdMap.size();
         if(pointAttributeId >= idMapSize) {
             return -1;
         }

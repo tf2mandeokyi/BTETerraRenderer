@@ -45,7 +45,7 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
             return Status.invalidParameter("Expecting 2 components");
         }
 
-        int cornerMapSize = this.getMeshData().getDataToCornerMap().size();
+        int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
 
         VectorD.I3 predNormal3D = new VectorD.I3();
         Pointer<Integer> predNormalOct = Pointer.wrap(new int[2]);

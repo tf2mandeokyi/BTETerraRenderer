@@ -119,7 +119,7 @@ public class MeshSequentialEncoder extends MeshEncoder {
                 lastIndexValue = indexValue;
             }
         }
-        SymbolEncoding.encode(indicesBuffer.getPointer(), indicesBuffer.size(), 1, null,
+        SymbolEncoding.encode(indicesBuffer.getPointer(), (int) indicesBuffer.size(), 1, null,
                 this.getBuffer());
         return Status.ok();
     }

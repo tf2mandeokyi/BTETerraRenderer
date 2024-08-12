@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.draco.compression.DracoTestFileUtil;
+import com.mndk.bteterrarenderer.draco.core.StatusAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ public class MeshAreEquivalentTest {
         Assert.assertNotNull("Failed to load test model: " + fileName, mesh);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
-        Assert.assertTrue(equiv.equals(mesh, mesh));
+        StatusAssert.assertOk(equiv.equals(mesh, mesh));
     }
 
     @Test
@@ -29,9 +30,9 @@ public class MeshAreEquivalentTest {
         Assert.assertNotNull("Failed to load test model: " + fileName2, mesh2);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
-        Assert.assertTrue(equiv.equals(mesh0, mesh0));
-        Assert.assertTrue(equiv.equals(mesh0, mesh1)); // Face rotated
-        Assert.assertFalse(equiv.equals(mesh0, mesh2)); // Face inverted
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh1)); // Face rotated
+        StatusAssert.assertError(equiv.equals(mesh0, mesh2)); // Face inverted
     }
 
     @Test
@@ -44,9 +45,9 @@ public class MeshAreEquivalentTest {
         Assert.assertNotNull("Failed to load test model: " + fileName1, mesh1);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
-        Assert.assertTrue(equiv.equals(mesh0, mesh0));
-        Assert.assertTrue(equiv.equals(mesh1, mesh1));
-        Assert.assertTrue(equiv.equals(mesh0, mesh1));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
+        StatusAssert.assertOk(equiv.equals(mesh1, mesh1));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh1));
     }
 
     @Test
@@ -59,9 +60,9 @@ public class MeshAreEquivalentTest {
         Assert.assertNotNull("Failed to load test model: " + fileName1, mesh1);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
-        Assert.assertTrue(equiv.equals(mesh0, mesh0));
-        Assert.assertTrue(equiv.equals(mesh1, mesh1));
-        Assert.assertTrue(equiv.equals(mesh0, mesh1));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
+        StatusAssert.assertOk(equiv.equals(mesh1, mesh1));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh1));
     }
 
     @Test
@@ -74,9 +75,9 @@ public class MeshAreEquivalentTest {
         Assert.assertNotNull("Failed to load test model: " + fileName, mesh1);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
-        Assert.assertTrue(equiv.equals(mesh0, mesh0));
-        Assert.assertTrue(equiv.equals(mesh1, mesh1));
-        Assert.assertTrue(equiv.equals(mesh0, mesh1));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
+        StatusAssert.assertOk(equiv.equals(mesh1, mesh1));
+        StatusAssert.assertOk(equiv.equals(mesh0, mesh1));
     }
 
 }

@@ -77,10 +77,6 @@ public class Status {
         return (this.code == null ? "UNKNOWN_STATUS_VALUE" : this.code) + " - " + this.errorMessage;
     }
 
-    public DracoCompressionException getException() {
-        return new DracoCompressionException(this);
-    }
-
     public DracoCompressionRuntimeException getRuntimeException() {
         return new DracoCompressionRuntimeException(this);
     }

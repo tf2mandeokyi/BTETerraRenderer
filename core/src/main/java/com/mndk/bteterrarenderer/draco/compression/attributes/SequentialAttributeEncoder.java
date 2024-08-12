@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.draco.compression.attributes;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.AttributeValueIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
@@ -12,7 +13,6 @@ import com.mndk.bteterrarenderer.draco.compression.pointcloud.PointCloudEncoder;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,7 +64,7 @@ public class SequentialAttributeEncoder {
     }
 
     public int getNumParentAttributes() {
-        return parentAttributes.size();
+        return (int) parentAttributes.size();
     }
 
     public int getParentAttributeId(int i) {
@@ -109,9 +109,7 @@ public class SequentialAttributeEncoder {
 
         for(int i = 0; i < ps.getNumParentAttributes(); i++) {
             int attId = encoder.getPointCloud().getNamedAttributeId(ps.getParentAttributeType(i));
-            if(attId == -1) {
-                return Status.dracoError("Requested attribute does not exist.");
-            }
+            if(attId == -1) return Status.dracoError("Requested attribute does not exist.");
             if(ps.setParentAttribute(encoder.getPortableAttribute(attId)).isError(chain)) return chain.get();
         }
         return Status.ok();

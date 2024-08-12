@@ -20,12 +20,12 @@ class BorrowedFloatArray extends BorrowedArray<Float> implements RawIntPointer {
 
     @Override public DataType<Float> getType() { return DataType.float32(); }
     @Override public Float get() { return array[offset]; }
-    @Override public Float get(int index) { return array[this.offset + index]; }
     @Override public void set(Float value) { array[offset] = value; }
-    @Override public void set(int index, Float value) { array[this.offset + index] = value; }
-    @Override public Pointer<Float> add(int offset) { return new BorrowedFloatArray(array, this.offset + offset); }
     @Override public RawPointer asRaw() { return this; }
-    @Override public void sort(int length, @Nullable Comparator<Float> comparator) {
+    @Override protected Float get(int index) { return array[this.offset + index]; }
+    @Override protected void set(int index, Float value) { array[this.offset + index] = value; }
+    @Override protected Pointer<Float> add(int offset) { return new BorrowedFloatArray(array, this.offset + offset); }
+    @Override protected void sort(int length, @Nullable Comparator<Float> comparator) {
         FloatComparator objectComparator = comparator == null ? Float::compare : comparator::compare;
         Primitive.sort(array, this.offset, this.offset + length, objectComparator);
     }

@@ -67,18 +67,18 @@ public class EncoderBuffer {
         bitEncoder.flush(0);
         // Encode size if needed.
         if(encodeBitSequenceSize) {
-            long outMem = buffer.size();
-            outMem -= bitEncoderReservedBytes + DataType.uint64().byteSize();
+            RawPointer outMem = buffer.getRawPointer(size());
+            outMem = outMem.rawAdd(-bitEncoderReservedBytes - DataType.uint64().byteSize());
 
             EncoderBuffer varSizeBuffer = new EncoderBuffer();
             varSizeBuffer.encodeVarint(ULong.of(encodedBytes));
             long sizeLen = varSizeBuffer.size();
-            long dst = outMem + sizeLen;
-            long src = outMem + DataType.uint64().byteSize();
-            this.buffer.copyTo(src, this.buffer, dst, encodedBytes);
+            RawPointer dst = outMem.rawAdd(sizeLen);
+            RawPointer src = outMem.rawAdd(DataType.uint64().byteSize());
+            src.rawCopyTo(dst, encodedBytes);
 
             // Store the size of the encoded data.
-            this.buffer.copyTo(0, varSizeBuffer.buffer, outMem, sizeLen);
+            varSizeBuffer.getData().rawCopyTo(outMem, sizeLen);
 
             // We need to account for the difference between the preallocated and actual
             // storage needed for storing the encoded length. This will be used later to
@@ -101,7 +101,7 @@ public class EncoderBuffer {
         return BitUtils.encodeVarint(inType, val, this);
     }
     public <T extends CppNumber<T>> Status encodeVarint(T val) {
-        return encodeVarint(val.getType(), val);
+        return BitUtils.encodeVarint(val.getType(), val, this);
     }
 
     public <T> Status encode(DataType<T> inType, T data) {
@@ -111,6 +111,7 @@ public class EncoderBuffer {
         long oldSize = this.buffer.size();
         this.buffer.resize(oldSize + inType.byteSize());
         inType.write(this.buffer.getRawPointer(oldSize), data);
+
         return Status.ok();
     }
     public Status encode(BigUByteArray inValue, long size) {
@@ -120,6 +121,7 @@ public class EncoderBuffer {
         long oldSize = this.buffer.size();
         this.buffer.resize(oldSize + size);
         inValue.copyTo(0, this.buffer, oldSize, size);
+
         return Status.ok();
     }
     public <T extends CppNumber<T>> Status encode(T val) {
@@ -133,6 +135,7 @@ public class EncoderBuffer {
         long oldSize = this.buffer.size();
         this.buffer.resize(oldSize + inType.byteSize() * size);
         inType.write(this.buffer.getRawPointer(oldSize), data, size);
+
         return Status.ok();
     }
 

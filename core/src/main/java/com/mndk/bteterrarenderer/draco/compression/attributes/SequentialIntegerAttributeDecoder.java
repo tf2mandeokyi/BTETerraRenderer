@@ -68,7 +68,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
 
         if (this.decodeIntegerValues(pointIds, inBuffer).isError(chain)) return chain.get();
 
-        int numValues = pointIds.size();
+        int numValues = (int) pointIds.size();
         PointCloudDecoder decoder = this.getDecoder();
         if (decoder != null && decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
             // For older files, revert the transform right after we decode the data.
@@ -83,9 +83,9 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
         int numComponents = this.getNumValueComponents();
         if(numComponents <= 0) return Status.ioError("Invalid number of components: " + numComponents);
 
-        int numEntries = pointIds.size();
-        int numValues = numEntries * numComponents;
-        this.preparePortableAttribute(numEntries, numComponents);
+        long numEntries = pointIds.size();
+        long numValues = numEntries * numComponents;
+        this.preparePortableAttribute((int) numEntries, numComponents);
         Pointer<Integer> portableAttributeData = this.getPortableAttributeData();
         if(portableAttributeData == null) return Status.ioError("Portable attribute data is null");
 
@@ -129,16 +129,15 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
 
         if(numValues > 0 && (this.predictionScheme == null || !this.predictionScheme.areCorrectionsPositive())) {
             // Convert the values back to the original signed format.
-            BitUtils.convertSymbolsToSignedInts(portableAttributeData.asRawToUInt(), numValues, portableAttributeData);
+            BitUtils.convertSymbolsToSignedInts(portableAttributeData.asRawToUInt(), (int) numValues, portableAttributeData);
         }
 
         // If the data was encoded with a prediction scheme, we must revert it.
         if(this.predictionScheme != null) {
             if(this.predictionScheme.decodePredictionData(inBuffer).isError(chain)) return chain.get();
             if(numValues > 0) {
-                if(this.predictionScheme.computeOriginalValues(
-                        portableAttributeData, portableAttributeData,
-                        numValues, numComponents, pointIds.getPointer()).isError(chain)) return chain.get();
+                if(this.predictionScheme.computeOriginalValues(portableAttributeData, portableAttributeData,
+                        (int) numValues, numComponents, pointIds.getPointer()).isError(chain)) return chain.get();
             }
         }
         return Status.ok();
@@ -150,7 +149,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
             return null;  // For now we support only wrap transform.
         }
         return PSchemeDecoderFactory.createPredictionSchemeForDecoder(
-                method, this.getAttribute().getUniqueId().intValue(), this.getDecoder(),
+                method, this.getAttributeId(), this.getDecoder(),
                 new PSchemeWrapDecodingTransform<>(DataType.int32(), DataType.int32()));
     }
 

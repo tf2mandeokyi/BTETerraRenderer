@@ -3,10 +3,10 @@ package com.mndk.bteterrarenderer.draco.mesh;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.draco.attributes.*;
-import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.attributes.*;
 import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.experimental.UtilityClass;
 
 import java.util.HashSet;
@@ -60,6 +60,8 @@ public class MeshCleanup {
             while (face.get(0).getValue() > face.get(1).getValue() || face.get(0).getValue() > face.get(2).getValue()) {
                 PointIndex temp = face.get(0);
                 face.set(0, face.get(1));
+                face.set(1, temp);
+                temp = face.get(1);
                 face.set(1, face.get(2));
                 face.set(2, temp);
             }

@@ -85,7 +85,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
         // We start processing the vertices from the end because this prediction uses
         // data from previous entries that could be overwritten when an entry is processed.
-        for(int p = this.getMeshData().getDataToCornerMap().size() - 1; p > 0; p--) {
+        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
             CornerIndex startCornerId = this.getMeshData().getDataToCornerMap().get(p);
 
             // Go over all corners attached to the vertex and compute the predicted
@@ -220,7 +220,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
                 RAnsBitEncoder encoder = new RAnsBitEncoder();
                 encoder.startEncoding();
 
-                for(int j = isCreaseEdge.get(i).size() - numUsedParallelograms; j >= 0; j -= numUsedParallelograms) {
+                for(int j = (int) (isCreaseEdge.get(i).size() - numUsedParallelograms); j >= 0; j -= numUsedParallelograms) {
                     for(int k = 0; k < numUsedParallelograms; ++k) {
                         encoder.encodeBit(isCreaseEdge.get(i).get(j + k));
                     }

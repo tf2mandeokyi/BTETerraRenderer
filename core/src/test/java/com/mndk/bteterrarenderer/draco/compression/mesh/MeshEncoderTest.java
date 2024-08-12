@@ -121,7 +121,6 @@ package com.mndk.bteterrarenderer.draco.compression.mesh;
 
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.compression.DracoExpertEncoder;
 import com.mndk.bteterrarenderer.draco.compression.DracoTestFileUtil;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
@@ -174,13 +173,6 @@ public class MeshEncoderTest {
         Mesh mesh = DracoTestFileUtil.decode(fileName);
         // TEST vvv
         System.out.println(goldenFileName);
-        System.out.println(fileName + " (" + params + ")");
-        for(int i = 0; i < mesh.getNumAttributes(); i++) {
-            PointAttribute attribute = mesh.getAttribute(i);
-            System.out.println("\t" + attribute.getAttributeType() + " - " + attribute.getDataType() + ", " +
-                    attribute.getNumComponents() + " * " +
-                    (attribute.getBuffer().size() / attribute.getDataType().getDataTypeLength() / attribute.getNumComponents().intValue()));
-        }
         // TEST ^^^
         Assert.assertNotNull("Failed to load test model " + fileName, mesh);
 

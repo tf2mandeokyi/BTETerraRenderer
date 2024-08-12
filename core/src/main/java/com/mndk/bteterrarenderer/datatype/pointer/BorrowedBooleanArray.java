@@ -20,12 +20,12 @@ class BorrowedBooleanArray extends BorrowedArray<Boolean> implements RawBytePoin
 
     @Override public DataType<Boolean> getType() { return DataType.bool(); }
     @Override public Boolean get() { return array[offset]; }
-    @Override public Boolean get(int index) { return array[this.offset + index]; }
     @Override public void set(Boolean value) { array[offset] = value; }
-    @Override public void set(int index, Boolean value) { array[this.offset + index] = value; }
-    @Override public Pointer<Boolean> add(int offset) { return new BorrowedBooleanArray(array, this.offset + offset); }
     @Override public RawPointer asRaw() { return this; }
-    @Override public void sort(int length, @Nullable Comparator<Boolean> comparator) {
+    @Override protected Boolean get(int index) { return array[this.offset + index]; }
+    @Override protected void set(int index, Boolean value) { array[this.offset + index] = value; }
+    @Override protected Pointer<Boolean> add(int offset) { return new BorrowedBooleanArray(array, this.offset + offset); }
+    @Override protected void sort(int length, @Nullable Comparator<Boolean> comparator) {
         BooleanComparator objectComparator = comparator == null ? Boolean::compare : comparator::compare;
         Primitive.sort(array, offset, offset + length, objectComparator);
     }

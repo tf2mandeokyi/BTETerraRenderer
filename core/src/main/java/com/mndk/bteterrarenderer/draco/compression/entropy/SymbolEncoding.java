@@ -151,7 +151,7 @@ public class SymbolEncoding {
         }
 
         SymbolEncoder encoder = encoderMaker.get();
-        if(encoder.create(frequencies, frequencies.size(), targetBuffer).isError(chain)) return chain.get();
+        if(encoder.create(frequencies, (int) frequencies.size(), targetBuffer).isError(chain)) return chain.get();
         encoder.startEncoding(targetBuffer);
         // Encode all values.
         if(encoder.needsReverseEncoding()) {
@@ -239,7 +239,7 @@ public class SymbolEncoding {
         // Compute the number of entropy bits for tags.
         Pointer<Integer> numUniqueSymbolsRef = Pointer.newInt();
         long tagBits = ShannonEntropyTracker.computeEntropy(
-                bitLengths.getPointer(), bitLengths.size(), 32, numUniqueSymbolsRef);
+                bitLengths.getPointer(), (int) bitLengths.size(), 32, numUniqueSymbolsRef);
         int numUniqueSymbols = numUniqueSymbolsRef.get();
         long tagTableBits = Ans.approximateRAnsFrequencyTableBits(numUniqueSymbols, numUniqueSymbols);
         return tagBits + tagTableBits + totalBitLength.longValue() * numComponents;

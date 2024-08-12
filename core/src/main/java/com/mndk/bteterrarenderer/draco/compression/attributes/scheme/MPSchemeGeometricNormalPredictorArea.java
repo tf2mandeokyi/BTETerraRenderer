@@ -30,7 +30,7 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
 
         VectorD.L3 normal = new VectorD.L3();
         CornerIndex cNext, cPrev;
-        for(CornerIndex corner : (Iterable<CornerIndex>) () -> new VertexCornersIterator<>(cornerTable, cornerId)) {
+        for(CornerIndex corner : VertexCornersIterator.iterable(cornerTable, cornerId)) {
             // Getting corners.
             if(this.getNormalPredictionMode() == NormalPredictionMode.ONE_TRIANGLE) {
                 cNext = cornerTable.next(cornerId);
@@ -82,7 +82,7 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
         if(mode != NormalPredictionMode.ONE_TRIANGLE && mode != NormalPredictionMode.TRIANGLE_AREA) {
             return Status.invalidParameter("Invalid normal prediction mode");
         }
-        this.setNormalPredictionMode(mode);
+        this.normalPredictionMode = mode;
         return Status.ok();
     }
 }

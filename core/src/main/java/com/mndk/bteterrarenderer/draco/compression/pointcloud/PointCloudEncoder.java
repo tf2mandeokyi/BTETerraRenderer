@@ -91,13 +91,13 @@ public abstract class PointCloudEncoder {
         return parentAttEncoder.markParentAttribute(parentAttId);
     }
 
-    public PointAttribute getPortableAttribute(int pointAttributeId) {
-        if(pointAttributeId < 0 || pointAttributeId >= pointCloud.getNumAttributes()) {
+    public PointAttribute getPortableAttribute(int parentAttributeId) {
+        if(parentAttributeId < 0 || parentAttributeId >= pointCloud.getNumAttributes()) {
             return null;
         }
-        int parentAttEncoderId = attributeToEncoderMap.get(pointAttributeId);
+        int parentAttEncoderId = attributeToEncoderMap.get(parentAttributeId);
         AttributesEncoder parentAttEncoder = attributesEncoders.get(parentAttEncoderId);
-        return parentAttEncoder.getPortableAttribute(pointAttributeId);
+        return parentAttEncoder.getPortableAttribute(parentAttributeId);
     }
 
     protected Status initializeEncoder() { return Status.ok(); }

@@ -33,7 +33,7 @@ public class MPSchemeMultiParallelogramDecoder<DataT, CorrT> extends MPSchemeDec
         ICornerTable table = this.getMeshData().getCornerTable();
         CppVector<Integer> vertexToDataMap = this.getMeshData().getVertexToDataMap();
 
-        int cornerMapSize = this.getMeshData().getDataToCornerMap().size();
+        int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
         for(int p = 1; p < cornerMapSize; ++p) {
             CornerIndex startCornerId = this.getMeshData().getDataToCornerMap().get(p);
             int numParallelograms = 0;

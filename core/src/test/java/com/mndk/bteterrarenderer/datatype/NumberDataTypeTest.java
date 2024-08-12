@@ -9,11 +9,6 @@ import org.junit.Test;
 
 public class NumberDataTypeTest {
 
-    // Because addition, subtraction, multiplication, left shift, bitwise operations work
-    // the same way for both signed and unsigned numbers, we only need to test
-    // for string representation, division(div), modulus(mod), and right shift(shr).
-    // TODO: Add tests for other operations
-
     @Test
     public void givenNumber_testToString() {
         // byte

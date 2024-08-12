@@ -58,7 +58,7 @@ public class MeshEdgebreakerTraversalEncoder {
     }
 
     public int getNumEncodedSymbols() {
-        return symbols.size();
+        return (int) symbols.size();
     }
 
     public EncoderBuffer getBuffer() {
@@ -67,7 +67,7 @@ public class MeshEdgebreakerTraversalEncoder {
 
     protected void encodeTraversalSymbols() {
         traversalBuffer.startBitEncoding(encoderImpl.getEncoder().getMesh().getNumFaces() * 3L, true);
-        for (int i = symbols.size() - 1; i >= 0; --i) {
+        for (int i = (int) (symbols.size() - 1); i >= 0; --i) {
             EdgebreakerTopology symbol = symbols.get(i);
             UInt value = UInt.of(symbol.getBitPattern());
             traversalBuffer.encodeLeastSignificantBits32(symbol.getBitPatternLength(), value);

@@ -14,7 +14,7 @@ public abstract class SingleVariablePointer<T> implements Pointer<T> {
 
     @Override public final String toString() {
         int origin = System.identityHashCode(this);
-        return "Pointer<" + getType() + ">[" + String.format("%08x", origin) + ']';
+        return "Pointer<" + getType() + ">{hash=" + String.format("%08x", origin) + ",value=" + get() + "}";
     }
     @Override public final int hashCode() { return System.identityHashCode(this); }
     @Override public final boolean equals(Object obj) { return this == obj; }
@@ -27,7 +27,7 @@ public abstract class SingleVariablePointer<T> implements Pointer<T> {
         if(a == 0 && b == 0) return;
         throw new UnsupportedOperationException("Cannot swap a single variable");
     }
-    @Override public final void sort(int length, @Nullable Comparator<T> comparator) {
+    @Override public final void sort(long length, @Nullable Comparator<T> comparator) {
         if(length <= 1) return;
         throw new UnsupportedOperationException("Sorting is not supported for single variable pointers");
     }

@@ -59,7 +59,7 @@ public class SequentialNormalAttributeEncoder extends SequentialIntegerAttribute
         StatusChain chain = new StatusChain();
 
         PointAttribute portableAtt = attributeOctahedronTransform.initTransformedAttribute(
-                this.getAttribute(), pointIds.size());
+                this.getAttribute(), (int) pointIds.size());
         if(attributeOctahedronTransform.transformAttribute(
                 this.getAttribute(), pointIds, portableAtt).isError(chain)) return chain.get();
         this.setPortableAttribute(portableAtt);

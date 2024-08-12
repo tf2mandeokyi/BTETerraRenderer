@@ -3,7 +3,6 @@ package com.mndk.bteterrarenderer.draco.compression.bitcoder;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.entropy.Ans;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
@@ -41,8 +40,7 @@ public class RAnsBitDecoder {
             return Status.ioError("Decoded number of symbols is unreasonably high");
         }
 
-        RawPointer data = sourceBuffer.getDataHead();
-        if(ansDecoder.ansReadInit(data, sizeInBytes).isError(chain)) return chain.get();
+        if(ansDecoder.ansReadInit(sourceBuffer.getDataHead(), sizeInBytes).isError(chain)) return chain.get();
         sourceBuffer.advance(sizeInBytes);
         return Status.ok();
     }

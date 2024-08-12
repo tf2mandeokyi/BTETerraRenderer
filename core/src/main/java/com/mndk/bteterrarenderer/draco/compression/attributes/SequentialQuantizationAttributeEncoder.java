@@ -69,7 +69,7 @@ public class SequentialQuantizationAttributeEncoder extends SequentialIntegerAtt
         StatusChain chain = new StatusChain();
 
         PointAttribute portableAttribute = attributeQuantizationTransform.initTransformedAttribute(
-                this.getAttribute(), pointIds.size());
+                this.getAttribute(), (int) pointIds.size());
         if(attributeQuantizationTransform.transformAttribute(
                 this.getAttribute(), pointIds, portableAttribute).isError(chain)) return chain.get();
 

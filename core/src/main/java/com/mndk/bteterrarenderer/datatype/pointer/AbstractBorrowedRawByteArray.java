@@ -15,16 +15,16 @@ public abstract class AbstractBorrowedRawByteArray<E> extends BorrowedArray<E> i
     protected final int offset;
 
     @Override public final E get() { return fromRaw(array[offset]); }
-    @Override public final E get(int index) { return fromRaw(array[this.offset + index]); }
     @Override public final void set(E value) { array[offset] = toRaw(value); }
-    @Override public final void set(int index, E value) { array[this.offset + index] = toRaw(value); }
     @Override public final RawPointer asRaw() { return this; }
-    @Override public final void sort(int length, @Nullable Comparator<E> comparator) {
+    @Override protected final E get(int index) { return fromRaw(array[this.offset + index]); }
+    @Override protected final void set(int index, E value) { array[this.offset + index] = toRaw(value); }
+    @Override protected final void sort(int length, @Nullable Comparator<E> comparator) {
         ByteComparator objectComparator = comparator == null
                 ? Byte::compare : (a, b) -> comparator.compare(fromRaw(a), fromRaw(b));
         Primitive.sort(array, this.offset, this.offset + length, objectComparator);
     }
-    @Override public final void swap(int a, int b) {
+    @Override protected final void swap(int a, int b) {
         byte temp = array[offset + a];
         array[offset + a] = array[offset + b];
         array[offset + b] = temp;

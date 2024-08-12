@@ -2,9 +2,9 @@ package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.attributes.*;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import lombok.Getter;
 
 public class MeshAttributeCornerTable implements ICornerTable {
@@ -148,7 +148,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
         vertexToLeftMostCornerMap.clear();
         int numNewVertices = 0;
         for(VertexIndex v : VertexIndex.range(0, cornerTable.getNumVertices())) {
-            CornerIndex c = this.getLeftMostCorner(v);
+            CornerIndex c = cornerTable.getLeftMostCorner(v);
             if(c.isInvalid()) continue; // Isolated vertex?
 
             AttributeValueIndex firstVertId = AttributeValueIndex.of(numNewVertices++);
@@ -234,7 +234,7 @@ public class MeshAttributeCornerTable implements ICornerTable {
         return this.next(this.opposite(this.next(corner)));
     }
 
-    public int getNumVertices() { return vertexToAttributeEntryIdMap.size(); }
+    public int getNumVertices() { return (int) vertexToAttributeEntryIdMap.size(); }
     public int getNumFaces() { return cornerTable.getNumFaces(); }
     public int getNumCorners() { return cornerTable.getNumCorners(); }
 

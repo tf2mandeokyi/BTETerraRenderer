@@ -35,7 +35,7 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
 
     public boolean getOrientation(int i) { return orientations.get(i); }
     public void setOrientation(int i, boolean v) { orientations.set(i, v); }
-    public int getNumOrientations() { return orientations.size(); }
+    public long getNumOrientations() { return orientations.size(); }
     public void resizeOrientations(int numOrientations) { orientations.resize(numOrientations); }
 
     public boolean isInitialized() {
@@ -147,7 +147,7 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
         }
         // Else we don't have available textures on both corners or the position data
         // is invalid.
-        int dataOffset = 0;
+        int dataOffset;
         if(prevDataId < dataId) {
             dataOffset = prevDataId * NUM_COMPONENTS;
         }

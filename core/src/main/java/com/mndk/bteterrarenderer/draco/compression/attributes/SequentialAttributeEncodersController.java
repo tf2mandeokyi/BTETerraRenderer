@@ -75,6 +75,44 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     }
 
     @Override
+    public int getNumParentAttributes(int pointAttributeId) {
+        int locId = getLocalIdForPointAttribute(pointAttributeId);
+        if(locId < 0) return 0;
+        return sequentialEncoders.get(locId).getNumParentAttributes();
+    }
+
+    @Override
+    public int getParentAttributeId(int pointAttributeId, int parentIndex) {
+        int locId = getLocalIdForPointAttribute(pointAttributeId);
+        if(locId < 0) return -1;
+        return sequentialEncoders.get(locId).getParentAttributeId(parentIndex);
+    }
+
+    @Override
+    public Status markParentAttribute(int pointAttributeId) {
+        int locId = getLocalIdForPointAttribute(pointAttributeId);
+        if(locId < 0) return Status.ok();
+        // Mark the attribute encoder as parent (even when if it is not created yet).
+        if (sequentialEncoderMarkedAsParent.size() <= locId) {
+            sequentialEncoderMarkedAsParent.resize(locId + 1, false);
+        }
+        sequentialEncoderMarkedAsParent.set(locId, true);
+
+        if(sequentialEncoders.size() > locId) {
+            // Sequential encoders are generated.
+            sequentialEncoders.get(locId).markParentAttribute();
+        }
+        return Status.ok();
+    }
+
+    @Override
+    public PointAttribute getPortableAttribute(int pointAttributeId) {
+        int locId = getLocalIdForPointAttribute(pointAttributeId);
+        if(locId < 0) return null;
+        return sequentialEncoders.get(locId).getPortableAttribute();
+    }
+
+    @Override
     protected Status transformAttributesToPortableFormat() {
         StatusChain chain = new StatusChain();
 

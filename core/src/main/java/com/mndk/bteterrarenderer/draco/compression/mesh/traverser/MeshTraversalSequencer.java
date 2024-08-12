@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.draco.compression.mesh.traverser;
 
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.*;
 import com.mndk.bteterrarenderer.draco.compression.attributes.MeshAttributeIndicesEncodingData;
 import com.mndk.bteterrarenderer.draco.compression.attributes.PointsSequencer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.mesh.ICornerTable;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import lombok.Setter;
@@ -40,9 +40,12 @@ public class MeshTraversalSequencer extends PointsSequencer {
                 }
                 AttributeValueIndex attEntryId = AttributeValueIndex.of(
                         encodingData.getVertexToEncodedAttributeValueIndexMap().get(vertId.getValue()));
-                if(pointId.getValue() >= numPoints || attEntryId.getValue() >= numPoints) {
+                if (pointId.getValue() >= numPoints) {
                     // There cannot be more attribute values than the number of points.
-                    return Status.ioError("Invalid point index: " + pointId + " or attribute value index: " + attEntryId);
+                    return Status.ioError("Invalid point index " + pointId + ": should be less than " + numPoints);
+                } else if (attEntryId.getValue() >= numPoints) {
+                    // There cannot be more attribute values than the number of points.
+                    return Status.ioError("Invalid point index " + pointId + ": should be less than " + numPoints);
                 }
                 attribute.setPointMapEntry(pointId, attEntryId);
             }
@@ -58,14 +61,13 @@ public class MeshTraversalSequencer extends PointsSequencer {
 
         traverser.onTraversalStart();
         if(cornerOrder != null) {
-            for(CornerIndex corner : cornerOrder) {
-                if(this.processCorner(corner).isError(chain)) return chain.get();
+            for(CornerIndex cornerIndex : cornerOrder) {
+                if(this.processCorner(cornerIndex).isError(chain)) return chain.get();
             }
         } else {
             int numFaces = traverser.getCornerTable().getNumFaces();
             for(int i = 0; i < numFaces; ++i) {
-                CornerIndex cornerId = CornerIndex.of(3 * i);
-                if(this.processCorner(cornerId).isError(chain)) return chain.get();
+                if(this.processCorner(CornerIndex.of(3 * i)).isError(chain)) return chain.get();
             }
         }
         traverser.onTraversalEnd();

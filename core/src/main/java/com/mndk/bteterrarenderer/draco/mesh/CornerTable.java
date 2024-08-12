@@ -4,11 +4,8 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
-import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.draco.core.StatusOr;
+import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -19,8 +16,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class CornerTable implements ICornerTable {
 
     public static class FaceType {
-        public static final FaceType INVALID_FACE = new FaceType();
-
         public final VertexIndex[] vertices = new VertexIndex[3];
 
         public FaceType() {
@@ -71,7 +66,7 @@ public class CornerTable implements ICornerTable {
         valenceCache.clearValenceCache();
         valenceCache.clearValenceCacheInaccurate();
         cornerToVertexMap.resize(faces.size() * 3);
-        for (FaceIndex fi : FaceIndex.range(0, faces.size())) {
+        for (FaceIndex fi : FaceIndex.range(0, (int) faces.size())) {
             for (int i = 0; i < 3; ++i) {
                 cornerToVertexMap.set(this.getFirstCorner(fi).add(i), faces.get(fi).get(i));
             }
@@ -103,15 +98,9 @@ public class CornerTable implements ICornerTable {
         return Status.ok();
     }
 
-    public int getNumVertices() {
-        return vertexCorners.size();
-    }
-    public int getNumCorners() {
-        return cornerToVertexMap.size();
-    }
-    public int getNumFaces() {
-        return cornerToVertexMap.size() / 3;
-    }
+    public int getNumVertices() { return (int) vertexCorners.size(); }
+    public int getNumCorners() { return (int) cornerToVertexMap.size(); }
+    public int getNumFaces() { return (int) cornerToVertexMap.size() / 3; }
 
     public CornerIndex opposite(CornerIndex corner) {
         if(corner.isInvalid()) return corner;
@@ -270,14 +259,14 @@ public class CornerTable implements ICornerTable {
     public VertexIndex addNewVertex() {
         this.checkValenceCacheEmpty();
         vertexCorners.pushBack(CornerIndex.INVALID);
-        return VertexIndex.of(vertexCorners.size() - 1);
+        return VertexIndex.of((int) (vertexCorners.size() - 1));
     }
 
     public FaceIndex addNewFace(VertexIndex[] vertices) {
         FaceIndex newFaceIndex = FaceIndex.of(this.getNumFaces());
         for(int i = 0; i < 3; ++i) {
             cornerToVertexMap.pushBack(vertices[i]);
-            this.setLeftMostCorner(vertices[i], CornerIndex.of(cornerToVertexMap.size() - 1));
+            this.setLeftMostCorner(vertices[i], CornerIndex.of((int) (cornerToVertexMap.size() - 1)));
         }
         oppositeCorners.resize(cornerToVertexMap.size(), CornerIndex.INVALID);
         return newFaceIndex;
@@ -330,9 +319,7 @@ public class CornerTable implements ICornerTable {
         if(!this.getValenceCache().isCacheEmpty()) {
             throw new IllegalStateException("Valence cache is not empty");
         }
-        VertexCornersIterator<CornerTable> it = new VertexCornersIterator<>(this, vertex);
-        while(it.hasNext()) {
-            CornerIndex corner = it.next();
+        for(CornerIndex corner : VertexCornersIterator.iterable(this, vertex)) {
             cornerToVertexMap.set(corner, vertex);
         }
     }
@@ -385,7 +372,7 @@ public class CornerTable implements ICornerTable {
         IndexTypeVector<VertexIndex, Integer> vertexOffset =
                 new IndexTypeVector<>(DataType.int32(), numCornersOnVertices.size());
         int offset = 0;
-        for (VertexIndex i : VertexIndex.range(0, numCornersOnVertices.size())) {
+        for (VertexIndex i : VertexIndex.range(0, (int) numCornersOnVertices.size())) {
             vertexOffset.set(i, offset);
             offset += numCornersOnVertices.get(i);
         }
@@ -454,7 +441,7 @@ public class CornerTable implements ICornerTable {
                 oppositeCorners.set(oppositeC, c);
             }
         }
-        numVertices.set(numCornersOnVertices.size());
+        numVertices.set((int) numCornersOnVertices.size());
         return Status.ok();
     }
 

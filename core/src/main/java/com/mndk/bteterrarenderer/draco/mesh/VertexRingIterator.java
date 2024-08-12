@@ -12,46 +12,39 @@ public class VertexRingIterator<T extends ICornerTable> implements Iterator<Vert
     private CornerIndex corner;
     private boolean leftTraversal;
 
-    public VertexRingIterator() {
-        this.cornerTable = null;
-        this.startCorner = CornerIndex.INVALID;
-        this.corner = startCorner;
-        this.leftTraversal = true;
-    }
-
     public VertexRingIterator(T cornerTable, VertexIndex vertexIndex) {
         this.cornerTable = cornerTable;
         this.startCorner = cornerTable.getLeftMostCorner(vertexIndex);
-        this.corner = startCorner;
+        this.corner = null;
         this.leftTraversal = true;
     }
 
-    @Override
-    public boolean hasNext() {
-        return corner != CornerIndex.INVALID;
-    }
+    @Override public boolean hasNext() { return getNext(false).isValid(); }
+    @Override public VertexIndex next() { return getNext(true); }
 
-    @Override
-    public VertexIndex next() {
-        if(leftTraversal) {
-            corner = cornerTable.swingLeft(corner);
-            if(corner == CornerIndex.INVALID) {
-                corner = startCorner;
-                leftTraversal = false;
-            } else if(corner.equals(startCorner)) {
-                corner = CornerIndex.INVALID;
+    private VertexIndex getNext(boolean apply) {
+        CornerIndex tempCorner = corner;
+        boolean tempTraversal = leftTraversal;
+
+        if(tempCorner == null) {
+            tempCorner = startCorner;
+        } else if(tempTraversal) {
+            tempCorner = cornerTable.swingLeft(tempCorner);
+            if (tempCorner.isInvalid()) {
+                tempCorner = startCorner;
+                tempTraversal = false;
+            } else if (tempCorner.equals(startCorner)) {
+                tempCorner = CornerIndex.INVALID;
             }
         } else {
-            corner = cornerTable.swingRight(corner);
+            tempCorner = cornerTable.swingRight(tempCorner);
         }
 
-        CornerIndex ringCorner = leftTraversal ? cornerTable.previous(corner) : cornerTable.next(corner);
+        CornerIndex ringCorner = tempTraversal ? cornerTable.previous(tempCorner) : cornerTable.next(tempCorner);
+        if(apply) {
+            corner = tempCorner;
+            leftTraversal = tempTraversal;
+        }
         return cornerTable.getVertex(ringCorner);
-    }
-
-    public static <T extends ICornerTable> VertexRingIterator<T> endIterator(VertexRingIterator<T> other) {
-        VertexRingIterator<T> ret = new VertexRingIterator<>();
-        ret.corner = CornerIndex.INVALID;
-        return ret;
     }
 }

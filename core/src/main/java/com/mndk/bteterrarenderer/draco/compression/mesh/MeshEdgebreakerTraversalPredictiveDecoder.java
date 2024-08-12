@@ -11,8 +11,6 @@ import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.mesh.CornerTable;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class MeshEdgebreakerTraversalPredictiveDecoder extends MeshEdgebreakerTraversalDecoder {
 
     private CornerTable cornerTable = null;
@@ -34,10 +32,9 @@ public class MeshEdgebreakerTraversalPredictiveDecoder extends MeshEdgebreakerTr
     }
 
     @Override
-    public Status start(AtomicReference<DecoderBuffer> outBufferRef) {
+    public Status start(DecoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
-        if(super.start(outBufferRef).isError(chain)) return chain.get();
-        DecoderBuffer outBuffer = outBufferRef.get();
+        if(super.start(outBuffer).isError(chain)) return chain.get();
 
         Pointer<Integer> numSplitSymbolsRef = Pointer.newInt();
         if(outBuffer.decode(numSplitSymbolsRef).isError(chain)) return chain.get();

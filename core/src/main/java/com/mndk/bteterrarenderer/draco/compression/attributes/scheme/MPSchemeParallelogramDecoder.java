@@ -31,7 +31,7 @@ public class MPSchemeParallelogramDecoder<DataT, CorrT> extends MPSchemeDecoder<
         // Restore the first value.
         this.getTransform().computeOriginalValue(predVals, inCorr, outData);
 
-        int cornerMapSize = this.getMeshData().getDataToCornerMap().size();
+        int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
         for(int p = 1; p < cornerMapSize; ++p) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
             int dstOffset = p * numComponents;

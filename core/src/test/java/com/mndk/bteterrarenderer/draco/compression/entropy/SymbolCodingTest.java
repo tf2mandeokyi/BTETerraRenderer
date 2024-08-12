@@ -78,10 +78,10 @@ public class SymbolCodingTest {
             SymbolEncoding.setSymbolEncodingMethod(options, symbolCodingMethod);
 
             EncoderBuffer eb = new EncoderBuffer();
-            Status status = SymbolEncoding.encode(inValues.getPointer(), inValues.size(), 1, options, eb);
+            Status status = SymbolEncoding.encode(inValues.getPointer(), (int) inValues.size(), 1, options, eb);
             StatusAssert.assertOk(status);
 
-            Pointer<UInt> outValues = Pointer.wrapUnsigned(new int[inValues.size()]);
+            Pointer<UInt> outValues = Pointer.wrapUnsigned(new int[(int) inValues.size()]);
             DecoderBuffer db = new DecoderBuffer();
             db.init(eb.getData(), eb.size());
             db.setBitstreamVersion(BITSTREAM_VERSION);
@@ -135,7 +135,7 @@ public class SymbolCodingTest {
         for(int i = 0; i < bitLengths; ++i) {
             in.pushBack(UInt.of(1 << i));
         }
-        Pointer<UInt> out = Pointer.wrapUnsigned(new int[in.size()]);
+        Pointer<UInt> out = Pointer.wrapUnsigned(new int[(int) in.size()]);
         for(int i = 0; i < bitLengths; ++i) {
             eb.clear();
             Status status = SymbolEncoding.encode(in.getPointer(), i + 1, 1, null, eb);
@@ -158,10 +158,10 @@ public class SymbolCodingTest {
         EncoderBuffer eb = new EncoderBuffer();
         final int numSymbols = 1000000;
         CppVector<UInt> in = new CppVector<>(DataType.uint32(), numSymbols, UInt.of(1 << 18));
-        Status status = SymbolEncoding.encode(in.getPointer(), in.size(), 1, null, eb);
+        Status status = SymbolEncoding.encode(in.getPointer(), (int) in.size(), 1, null, eb);
         StatusAssert.assertOk(status);
 
-        Pointer<UInt> out = Pointer.wrapUnsigned(new int[in.size()]);
+        Pointer<UInt> out = Pointer.wrapUnsigned(new int[(int) in.size()]);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);

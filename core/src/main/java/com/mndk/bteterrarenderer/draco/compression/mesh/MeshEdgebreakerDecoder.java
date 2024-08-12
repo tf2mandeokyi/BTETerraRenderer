@@ -45,18 +45,13 @@ public class MeshEdgebreakerDecoder extends MeshDecoder {
         }
 
         impl = null;
+        MeshEdgebreakerTraversalDecoder traversalDecoder = null;
         switch(traversalDecoderType) {
-            case STANDARD:
-                impl = new MeshEdgebreakerDecoderImpl(new MeshEdgebreakerTraversalDecoder());
-                break;
-            case PREDICTIVE:
-                impl = new MeshEdgebreakerDecoderImpl(new MeshEdgebreakerTraversalPredictiveDecoder());
-                break;
-            case VALENCE:
-                impl = new MeshEdgebreakerDecoderImpl(new MeshEdgebreakerTraversalValenceDecoder());
-                break;
+            case STANDARD: traversalDecoder = new MeshEdgebreakerTraversalDecoder(); break;
+            case PREDICTIVE: traversalDecoder = new MeshEdgebreakerTraversalPredictiveDecoder(); break;
+            case VALENCE: traversalDecoder = new MeshEdgebreakerTraversalValenceDecoder(); break;
         }
-
+        impl = new MeshEdgebreakerDecoderImpl(traversalDecoder);
         return impl.init(this);
     }
 

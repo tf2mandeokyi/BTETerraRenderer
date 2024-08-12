@@ -33,10 +33,8 @@ public enum EdgebreakerTopology {
 
     private static final EdgebreakerTopology[] SYMBOL_TO_TOPOLOGY = { C, S, L, R, E };
     public static EdgebreakerTopology fromSymbol(int symbol) { return SYMBOL_TO_TOPOLOGY[symbol]; }
-    public static EdgebreakerTopology fromSymbol(UInt symbol) { return fromSymbol(symbol.intValue()); }
 
     private static class OwnedBitPattern extends AbstractOwnedRawByte<EdgebreakerTopology> {
-        private OwnedBitPattern(byte value) { super(value); }
         private OwnedBitPattern(EdgebreakerTopology value) { super(value.getBitPattern()); }
         @Override public DataType<EdgebreakerTopology> getType() { return BIT_PATTERN_TYPE; }
         @Override protected byte toRaw(EdgebreakerTopology value) { return value.getBitPattern(); }
@@ -47,7 +45,7 @@ public enum EdgebreakerTopology {
         private BorrowedBitPatternArray(byte[] array, int offset) { super(array, offset); }
         private BorrowedBitPatternArray(int length, int offset) { super(new byte[length], offset); }
         @Override public DataType<EdgebreakerTopology> getType() { return BIT_PATTERN_TYPE; }
-        @Override protected byte toRaw(EdgebreakerTopology value) { return (byte) value.getBitPattern(); }
+        @Override protected byte toRaw(EdgebreakerTopology value) { return value.getBitPattern(); }
         @Override protected EdgebreakerTopology fromRaw(byte raw) { return fromBitPattern(raw); }
         @Override public Pointer<EdgebreakerTopology> add(int offset) {
             return new BorrowedBitPatternArray(array, this.offset + offset);

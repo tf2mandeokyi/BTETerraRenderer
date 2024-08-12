@@ -65,7 +65,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         int numComponents = attribute.getNumComponents().intValue();
 
         // Quantize all values using the order given by point_ids.
-        int pointCount = pointIds.isEmpty() ? attribute.size() : pointIds.size();
+        int pointCount = pointIds.isEmpty() ? attribute.size() : (int) pointIds.size();
         int[] portableAttributeData = new int[numComponents * pointCount];
         int maxQuantizedValue = (1 << quantizationBits) - 1;
         Quantizer quantizer = new Quantizer();
@@ -92,7 +92,34 @@ public class AttributeQuantizationTransform extends AttributeTransform {
 
     @Override
     public Status inverseTransformAttribute(PointAttribute attribute, PointAttribute targetAttribute) {
-        return Status.unsupportedFeature("Inverse transform is not supported");
+        StatusChain chain = new StatusChain();
+
+        if(targetAttribute.getDataType() != DracoDataType.FLOAT32) {
+            return Status.invalidParameter("Target attribute data type is not FLOAT32");
+        }
+
+        // Convert all quantized values back to floats.
+        int maxQuantizedValue = (1 << quantizationBits) - 1;
+        int numComponents = targetAttribute.getNumComponents().intValue();
+        Pointer<Float> attVal = Pointer.wrap(new float[numComponents]);
+        int quantValId = 0;
+        int outBytePos = 0;
+        Dequantizer dequantizer = new Dequantizer();
+        if(dequantizer.init(range, maxQuantizedValue).isError(chain)) return chain.get();
+        Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
+
+        int numValues = targetAttribute.size();
+
+        for(int i = 0; i < numValues; i++) {
+            for(int c = 0; c < numComponents; c++) {
+                float value = dequantizer.dequantizeFloat(sourceAttributeData.get(quantValId++));
+                value += minValues.get(c);
+                attVal.set(c, value);
+            }
+            targetAttribute.getBuffer().write(outBytePos, attVal, numComponents);
+            outBytePos += numComponents * 4;
+        }
+        return Status.ok();
     }
 
     public Status setParameters(int quantizationBits, Pointer<Float> minValues, int numComponents, float range) {

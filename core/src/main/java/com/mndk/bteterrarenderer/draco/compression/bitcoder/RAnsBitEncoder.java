@@ -95,7 +95,7 @@ public class RAnsBitEncoder {
             UByte bit = localBits.shr(i).and(1).uByteValue();
             ansCoder.rabsWrite(bit.intValue(), zeroProb);
         }
-        for(int i = bits.size() - 1; i >= 0; --i) {
+        for(long i = bits.size() - 1; i >= 0; --i) {
             UInt bits = this.bits.get(i);
             for(int j = 31; j >= 0; --j) {
                 UByte bit = bits.shr(j).and(1).uByteValue();

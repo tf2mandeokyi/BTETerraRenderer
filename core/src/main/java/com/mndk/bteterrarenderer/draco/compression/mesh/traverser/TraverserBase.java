@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.draco.compression.mesh.traverser;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
 import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.mesh.ICornerTable;
 import lombok.Getter;
 

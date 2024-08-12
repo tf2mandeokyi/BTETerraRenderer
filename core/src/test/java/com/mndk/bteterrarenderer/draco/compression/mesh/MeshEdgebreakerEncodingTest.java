@@ -252,6 +252,7 @@ import com.mndk.bteterrarenderer.draco.compression.config.DecoderOptions;
 import com.mndk.bteterrarenderer.draco.compression.config.EncoderOptions;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.StatusAssert;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.draco.mesh.MeshAreEquivalent;
 import com.mndk.bteterrarenderer.draco.mesh.MeshCleanup;
@@ -285,13 +286,13 @@ public class MeshEdgebreakerEncodingTest {
 
         Mesh decodedMesh = new Mesh();
         DecoderOptions decOptions = new DecoderOptions();
-        Assert.assertTrue(decoder.decode(decOptions, decBuffer, decodedMesh).isOk());
+        StatusAssert.assertOk(decoder.decode(decOptions, decBuffer, decodedMesh));
 
         MeshCleanupOptions options = new MeshCleanupOptions();
-        Assert.assertTrue(MeshCleanup.cleanup(mesh, options).isOk());
+        StatusAssert.assertOk(MeshCleanup.cleanup(mesh, options));
 
         MeshAreEquivalent eq = new MeshAreEquivalent();
-        Assert.assertTrue(eq.equals(mesh, decodedMesh));
+        StatusAssert.assertOk(eq.equals(mesh, decodedMesh));
     }
 
     @Test

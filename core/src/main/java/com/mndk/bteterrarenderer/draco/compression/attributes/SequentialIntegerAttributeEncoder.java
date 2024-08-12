@@ -135,7 +135,7 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
                         10 - this.getEncoder().getOptions().getSpeed());
             }
             if(SymbolEncoding.encode(
-                    encodedData.getPointer().asRawToUInt(), pointIds.size() * numComponents, numComponents,
+                    encodedData.getPointer().asRawToUInt(), (int) pointIds.size() * numComponents, numComponents,
                     symbolEncodingOptions, outBuffer).isError(chain)) {
                 return chain.get();
             }
@@ -194,7 +194,7 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
     protected Status prepareValues(CppVector<PointIndex> pointIds, int numPoints) {
         PointAttribute attrib = this.getAttribute();
         int numComponents = attrib.getNumComponents().intValue();
-        int numEntries = pointIds.size();
+        int numEntries = (int) pointIds.size();
         this.preparePortableAttribute(numEntries, numComponents, numPoints);
         int dstIndex = 0;
         Pointer<Integer> portableAttributeData = this.getPortableAttributeData();
