@@ -346,6 +346,28 @@ subprojects { p ->
             finalizedBy('copyBuildResultToRoot')
         }
     }
+    else {
+        tasks.register('gitSubmoduleUpdate', Exec) {
+            group = 'other'
+            description = 'Updates submodules'
+
+            commandLine 'git', 'submodule', 'update', '--init'
+
+            def stdout = new ByteArrayOutputStream()
+            standardOutput = stdout
+            doLast {
+                println('Submodule update command output: ')
+                if(stdout.size() > 0) {
+                    println(stdout.toString())
+                } else {
+                    println('(none)')
+                }
+            }
+        }
+        tasks.named('test').configure {
+            dependsOn('gitSubmoduleUpdate')
+        }
+    }
 }
 
 allprojects { p ->

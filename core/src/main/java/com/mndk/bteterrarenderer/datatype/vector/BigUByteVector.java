@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.array.BigArray;
 import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 
 import java.nio.charset.Charset;
@@ -42,15 +43,21 @@ public class BigUByteVector implements BigUByteArray {
         this.size = size;
     }
 
-    public <T> void insert(long index, Pointer<T> in, long count) {
-        DataType<T> type = in.getType();
-        long elementByteCount = type.byteSize(), totalByteCount = type.byteSize() * count;
+    public <T> void insert(long index, DataType<T> type, T data) {
+        long totalByteCount = type.byteSize();
         reserve(this.size + totalByteCount);
         array.copyTo(index, array, index + totalByteCount, this.size - index);
-        for(long i = 0; i < count; i++) {
-            type.write(array.getRawPointer(size + i * elementByteCount), in.get(i));
-        }
-        size += totalByteCount;
+        type.write(array.getRawPointer(this.size), data);
+        this.size += totalByteCount;
+    }
+
+    public <T> void insert(long index, Pointer<T> in, long count) {
+        DataType<T> type = in.getType();
+        long totalByteCount = type.byteSize() * count;
+        reserve(this.size + totalByteCount);
+        array.copyTo(index, array, index + totalByteCount, this.size - index);
+        PointerHelper.copyMultiple(in, array.getRawPointer(this.size), count);
+        this.size += totalByteCount;
     }
 
     public void insertRaw(long index, RawPointer in, long byteCount) {

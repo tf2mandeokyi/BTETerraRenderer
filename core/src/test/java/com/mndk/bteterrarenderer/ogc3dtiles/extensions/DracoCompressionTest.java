@@ -49,7 +49,7 @@ public class DracoCompressionTest {
 
     @Test
     public void givenModelTestGlbFile_testDecode() throws IOException {
-        GltfModel model = this.readGltfModel("draco/model_test.glb");
+        GltfModel model = this.readGltfModel("glb_models/model_test.glb");
         DecoderBuffer decoderBuffer = this.getDecoderBuffer(model);
 
         DracoDecoder decoder = new DracoDecoder();

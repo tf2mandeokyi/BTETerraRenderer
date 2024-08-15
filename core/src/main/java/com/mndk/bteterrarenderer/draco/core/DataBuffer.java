@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -78,22 +79,22 @@ public class DataBuffer {
 
     /** Reads data from the buffer. */
     public <T> void read(long index, Pointer<T> out) {
-        data.getRawPointer(index).writeTo(out);
+        PointerHelper.copySingle(data.getRawPointer(index), out);
     }
 
     /** Reads data from the buffer. */
     public <T> void read(long index, Pointer<T> out, long count) {
-        data.getRawPointer(index).writeTo(out, count);
+        PointerHelper.copyMultiple(data.getRawPointer(index), out, count);
     }
 
     /** Writes data to the buffer. */
     public <T> void write(long index, DataType<T> type, T in) {
-        data.getRawPointer(index).readFrom(type.newOwned(in));
+        PointerHelper.copySingle(type.newOwned(in), data.getRawPointer(index));
     }
 
     /** Writes data to the buffer. */
     public <T> void write(long index, Pointer<T> in, long count) {
-        data.getRawPointer(index).readFrom(in, count);
+        PointerHelper.copyMultiple(in, data.getRawPointer(index), count);
     }
 
     @Override

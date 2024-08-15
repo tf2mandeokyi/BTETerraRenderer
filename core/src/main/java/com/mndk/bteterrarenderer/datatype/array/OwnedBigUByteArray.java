@@ -83,6 +83,7 @@ class OwnedBigUByteArray extends OwnedBigArray<UByte, byte[]> implements BigUByt
         @Override public void set(UByte value) { OwnedBigUByteArray.this.set(offset, value); }
         @Override public void set(long index, UByte value) { OwnedBigUByteArray.this.set(offset + index, value); }
         @Override public Pointer<UByte> add(long offset) { return new UByteArrayRawPointer(this.offset + offset); }
+        @Override public Object getOrigin() { return OwnedBigUByteArray.this; }
         @Override public RawPointer asRaw() { return this; }
 
         @Override public byte getRawByte(long index) { return OwnedBigUByteArray.this.get(offset + index).byteValue(); }

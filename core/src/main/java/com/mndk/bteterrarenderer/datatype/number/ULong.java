@@ -5,21 +5,20 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ULong extends CppNumber<ULong> {
-    public static final ULong MIN = new ULong(0);
-    public static final ULong MAX = new ULong(-1);
-    public static final ULong ZERO = new ULong(0);
+
+    private static final ULong[] CACHE = new ULong[256];
+    static { for(int i = 0; i < 256; ++i) CACHE[i] = new ULong(i); }
+
+    public static final ULong MIN = of(0);
+    public static final ULong MAX = of(-1);
+    public static final ULong ZERO = of(0);
     private static final float POW_63F = (float) Math.pow(2, 63);
     private static final double POW_63D = Math.pow(2, 63);
 
-    public static ULong of(long value) { return new ULong(value); }
-    public static ULong[] array(Long... values) { return Stream.of(values).map(ULong::of).toArray(ULong[]::new); }
-    public static List<ULong> list(Long... values) { return Stream.of(values).map(ULong::of).collect(Collectors.toList()); }
+    public static ULong of(long value) { return 0 <= value && value < 256 ? CACHE[(int) value] : new ULong(value); }
 
     private final long value;
 
@@ -30,12 +29,12 @@ public class ULong extends CppNumber<ULong> {
     @Override public DataNumberType<ULong> getType() { return DataType.uint64(); }
 
     // Arithmetic operations
-    @Override public ULong add(ULong other) { return new ULong(value + other.value); }
-    @Override public ULong sub(ULong other) { return new ULong(value - other.value); }
-    @Override public ULong mul(ULong other) { return new ULong(value * other.value); }
-    @Override public ULong div(ULong other) { return new ULong(Long.divideUnsigned(value, other.value)); }
-    @Override public ULong mod(ULong other) { return new ULong(Long.remainderUnsigned(value, other.value)); }
-    @Override public ULong negate() { return new ULong(-value); }
+    @Override public ULong add(ULong other) { return of(value + other.value); }
+    @Override public ULong sub(ULong other) { return of(value - other.value); }
+    @Override public ULong mul(ULong other) { return of(value * other.value); }
+    @Override public ULong div(ULong other) { return of(Long.divideUnsigned(value, other.value)); }
+    @Override public ULong mod(ULong other) { return of(Long.remainderUnsigned(value, other.value)); }
+    @Override public ULong negate() { return of(-value); }
 
     // Comparison operations
     @Override public int compareTo(@Nonnull ULong other) { return Long.compareUnsigned(value, other.value); }
@@ -43,15 +42,15 @@ public class ULong extends CppNumber<ULong> {
     // Math functions
     @Override public ULong abs() { return this; }
     @Override public ULong floor() { return this; }
-    @Override public ULong sqrt() { return new ULong((long) Math.sqrt(this.doubleValue())); }
+    @Override public ULong sqrt() { return of((long) Math.sqrt(this.doubleValue())); }
 
     // Bitwise operations
-    @Override public ULong and(ULong other) { return new ULong(value & other.value);}
-    @Override public ULong or(ULong other) { return new ULong(value | other.value); }
-    @Override public ULong xor(ULong other) { return new ULong(value ^ other.value); }
-    @Override public ULong not() { return new ULong(~value); }
-    @Override public ULong shl(int shift) { return new ULong(value << shift); }
-    @Override public ULong shr(int shift) { return new ULong(value >>> shift); }
+    @Override public ULong and(ULong other) { return of(value & other.value);}
+    @Override public ULong or(ULong other) { return of(value | other.value); }
+    @Override public ULong xor(ULong other) { return of(value ^ other.value); }
+    @Override public ULong not() { return of(~value); }
+    @Override public ULong shl(int shift) { return of(value << shift); }
+    @Override public ULong shr(int shift) { return of(value >>> shift); }
 
     @Override public boolean booleanValue() { return value != 0; }
     @Override public byte byteValue() { return (byte) value; }

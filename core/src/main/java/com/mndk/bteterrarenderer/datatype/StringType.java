@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.datatype;
 
 import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 
 import java.nio.charset.Charset;
@@ -26,7 +27,7 @@ class StringType extends ObjectType<String> {
     @Override public long byteSize() { return byteLength; }
     @Override public String read(RawPointer src) { return BigUByteArray.create(src, byteLength).decode(charset); }
     @Override public void write(RawPointer dst, String value) {
-        BigUByteArray.create(value, charset).getRawPointer().rawCopyTo(dst, byteLength);
+        PointerHelper.rawCopy(BigUByteArray.create(value, charset).getRawPointer(), dst, byteLength);
     }
 
     // General conversions

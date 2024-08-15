@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.*;
 import com.mndk.bteterrarenderer.draco.core.*;
@@ -105,7 +106,7 @@ public class MeshAreEquivalent {
                     // Obtaining the data.
                     att0.getValue(index0, data0);
                     att1.getValue(index1, data1);
-                    if(!data0.contentEquals(data1, numComponents)) {
+                    if(!PointerHelper.contentEquals(data0, data1, numComponents)) {
                         return Status.invalidParameter("Attribute data mismatch");
                     }
                 }
@@ -149,12 +150,6 @@ public class MeshAreEquivalent {
         float[] pos = new float[3];
         posAtt.getValue(posIndex, Pointer.wrap(pos));
         return new VectorD.F3(pos[0], pos[1], pos[2]);
-    }
-
-    private void printPosition(Mesh mesh, FaceIndex f, int c) {
-        printStream.printf("Printing position for (%d, %d)\n", f.getValue(), c);
-        VectorD.F3 pos = getPosition(mesh, f, c);
-        printStream.printf("Position (%f, %f, %f)\n", pos.get(0), pos.get(1), pos.get(2));
     }
 
     private static int computeCornerIndexOfSmallestPointXYZ(Mesh mesh, FaceIndex f) {

@@ -16,18 +16,14 @@ public abstract class BorrowedArray<T> implements Pointer<T> {
     protected abstract void sort(int length, @Nullable Comparator<T> comparator);
 
     protected final int checkIndex(long index) {
-        if(index <= Integer.MAX_VALUE && index >= Integer.MIN_VALUE) return (int) index;
+        if(index >> 32 == 0) return (int) index;
         throw new IndexOutOfBoundsException("Index out of bounds: " + index);
     }
     @Override public final T get(long index) { return get(checkIndex(index)); }
     @Override public final void set(long index, T value) { set(checkIndex(index), value); }
     @Override public final Pointer<T> add(long offset) { return add(checkIndex(offset)); }
+    @Override public final Object getOrigin() { return getArray(); }
     @Override public final void swap(long a, long b) { swap(checkIndex(a), checkIndex(b)); }
-
-    @Override public void sort(long length, @Nullable Comparator<T> comparator) {
-        if(0 <= length && length <= Integer.MAX_VALUE) sort((int) length, comparator);
-        else throw new IndexOutOfBoundsException("Length out of bounds: " + length);
-    }
 
     @Override public final String toString() {
         // We only print the array address and offset.

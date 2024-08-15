@@ -18,7 +18,7 @@ class CastedAsFloatPointer extends CastedPointer<Float> implements RawIntPointer
 
     @Override public int getRawInt(long index) { return pointer.getRawInt(offset + index); }
     @Override public void setRawInt(long index, int value) { pointer.setRawInt(offset + index, value); }
-    @Override public Pointer<Integer> asRawToInt() { return new CastedAsIntPointer(pointer, offset); }
-    @Override public Pointer<UInt> asRawToUInt() { return new CastedAsUIntPointer(pointer, offset); }
+    @Override public Pointer<Integer> toInt() { return new CastedAsIntPointer(pointer, offset); }
+    @Override public Pointer<UInt> toUInt() { return new CastedAsUIntPointer(pointer, offset); }
     @Override public Pointer<Float> toFloat() { return this; }
 }

@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
@@ -169,10 +170,10 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
         varSizeBuffer.encodeVarint(bytesWritten);
         UInt sizeLen = UInt.of(varSizeBuffer.size());
         long dst = src + sizeLen.longValue();
-        dataBuffer.rawAdd(src).rawCopyTo(dataBuffer.rawAdd(dst), bytesWritten.longValue());
+        PointerHelper.rawCopy(dataBuffer.rawAdd(src), dataBuffer.rawAdd(dst), bytesWritten.longValue());
 
         // Store the size of the encoded data.
-        varSizeBuffer.getData().rawCopyTo(dataBuffer.rawAdd(src), sizeLen.longValue());
+        PointerHelper.rawCopy(varSizeBuffer.getData(), dataBuffer.rawAdd(src), sizeLen.longValue());
 
         buffer.resize(bufferOffset.add(bytesWritten).add(sizeLen.uLongValue()).longValue());
     }

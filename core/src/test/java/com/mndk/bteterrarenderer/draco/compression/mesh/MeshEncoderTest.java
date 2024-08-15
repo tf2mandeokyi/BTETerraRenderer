@@ -204,8 +204,8 @@ public class MeshEncoderTest {
             new TestParams("edgebreaker", 10)
         };
         String[] fileNames = new String[] {
-            "draco/test_nm.obj",
-            "draco/cube_att.obj"
+                "draco/testdata/test_nm.obj",
+                "draco/testdata/cube_att.obj"
         };
         for(String fileName : fileNames) {
             for(TestParams param : params) {

@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
@@ -101,6 +102,7 @@ abstract class OwnedBigArray<E, EArray> implements BigArray<E> {
     List<InnerArrayChunk<EArray>> getInnerChunks(long start, long length) {
         if(length < 0) throw new IllegalArgumentException("Length must be non-negative.");
         if(start + length > this.size) throw new IndexOutOfBoundsException();
+        if(length == 0) return Collections.emptyList();
 
         List<InnerArrayChunk<EArray>> result = new ArrayList<>();
         long end = start + length - 1;

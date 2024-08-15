@@ -5,21 +5,20 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class UShort extends CppNumber<UShort> {
-    public static final UShort MIN = new UShort((short) 0);
-    public static final UShort MAX = new UShort((short) -1);
-    private static final int MASK = 0xFFFF;
-    public static final UShort ZERO = new UShort((short) 0);
 
-    public static UShort of(short value) { return new UShort(value); }
-    public static UShort of(int value) { return new UShort((short) value); }
-    public static UShort[] array(Integer... values) { return Stream.of(values).map(UShort::of).toArray(UShort[]::new); }
-    public static List<UShort> list(Integer... values) { return Stream.of(values).map(UShort::of).collect(Collectors.toList()); }
+    private static final UShort[] CACHE = new UShort[256];
+    static { for(short i = 0; i < 256; ++i) CACHE[i] = new UShort(i); }
+
+    public static final UShort MIN = of((short) 0);
+    public static final UShort MAX = of((short) -1);
+    private static final int MASK = 0xFFFF;
+    public static final UShort ZERO = of((short) 0);
+
+    public static UShort of(int value) { return of((short) value); }
+    public static UShort of(short value) { return 0 <= value && value < 256 ? CACHE[value] : new UShort(value); }
 
     private final short value;
 
@@ -30,12 +29,12 @@ public class UShort extends CppNumber<UShort> {
     @Override public DataNumberType<UShort> getType() { return DataType.uint16(); }
 
     // Arithmetic operations
-    @Override public UShort add(UShort other) { return new UShort((short) (value + other.value)); }
-    @Override public UShort sub(UShort other) { return new UShort((short) (value - other.value)); }
-    @Override public UShort mul(UShort other) { return new UShort((short) (value * other.value)); }
-    @Override public UShort div(UShort other) { return new UShort((short) ((value & MASK) / (other.value & MASK))); }
-    @Override public UShort mod(UShort other) { return new UShort((short) ((value & MASK) % (other.value & MASK))); }
-    @Override public UShort negate() { return new UShort((short) -value); }
+    @Override public UShort add(UShort other) { return of((short) (value + other.value)); }
+    @Override public UShort sub(UShort other) { return of((short) (value - other.value)); }
+    @Override public UShort mul(UShort other) { return of((short) (value * other.value)); }
+    @Override public UShort div(UShort other) { return of((short) ((value & MASK) / (other.value & MASK))); }
+    @Override public UShort mod(UShort other) { return of((short) ((value & MASK) % (other.value & MASK))); }
+    @Override public UShort negate() { return of((short) -value); }
 
     // Comparison operations
     @Override public int compareTo(@Nonnull UShort other) { return Integer.compare(value & MASK, other.value & MASK); }
@@ -43,15 +42,15 @@ public class UShort extends CppNumber<UShort> {
     // Math functions
     @Override public UShort abs() { return this; }
     @Override public UShort floor() { return this; }
-    @Override public UShort sqrt() { return new UShort((short) Math.sqrt(value & MASK)); }
+    @Override public UShort sqrt() { return of((short) Math.sqrt(value & MASK)); }
 
     // Bitwise operations
-    @Override public UShort and(UShort other) { return new UShort((short) (value & other.value));}
-    @Override public UShort or(UShort other) { return new UShort((short) (value | other.value)); }
-    @Override public UShort xor(UShort other) { return new UShort((short) (value ^ other.value)); }
-    @Override public UShort not() { return new UShort((short) ~value); }
-    @Override public UShort shl(int shift) { return new UShort((short) (value << shift)); }
-    @Override public UShort shr(int shift) { return new UShort((short) ((value & MASK) >>> shift)); }
+    @Override public UShort and(UShort other) { return of((short) (value & other.value));}
+    @Override public UShort or(UShort other) { return of((short) (value | other.value)); }
+    @Override public UShort xor(UShort other) { return of((short) (value ^ other.value)); }
+    @Override public UShort not() { return of((short) ~value); }
+    @Override public UShort shl(int shift) { return of((short) (value << shift)); }
+    @Override public UShort shr(int shift) { return of((short) ((value & MASK) >>> shift)); }
 
     @Override public boolean booleanValue() { return value != 0; }
     @Override public byte byteValue() { return (byte) value; }

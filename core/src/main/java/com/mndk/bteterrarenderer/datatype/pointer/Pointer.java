@@ -1,19 +1,14 @@
 package com.mndk.bteterrarenderer.datatype.pointer;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.number.UShort;
 
-import javax.annotation.Nullable;
-import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public interface Pointer<T> {
 
@@ -89,6 +84,7 @@ public interface Pointer<T> {
     void set(long index, T value);
     Pointer<T> add(long offset);
     DataType<T> getType();
+    Object getOrigin();
 
     RawPointer asRaw();
     default RawPointer asRaw(long byteOffset) { return this.asRaw().rawAdd(byteOffset); }
@@ -97,109 +93,6 @@ public interface Pointer<T> {
     default void reset(long offset) { this.add(offset).reset(); }
     default void set(Function<T, T> value) { this.set(value.apply(this.get())); }
     default void set(long offset, Function<T, T> value) { this.add(offset).set(value.apply(this.get())); }
-    default Iterator<T> iterator(long length) {
-        return new Iterator<T>() {
-            private long index = 0;
-            @Override public boolean hasNext() { return index < length; }
-            @Override public T next() { return get(index++); }
-        };
-    }
-    default Stream<T> stream(long length) {
-        Spliterator<T> spliterator = Spliterators.spliterator(iterator(length), length, Spliterator.ORDERED);
-        return StreamSupport.stream(spliterator, false);
-    }
-    default void copyFrom(Pointer<T> source, long sourceLength) {
-        if(sourceLength == 0) return;
-        // In case of copying from the same array,
-        // We first copy the source array to a temporary array, and then paste it back
-        Pointer<T> temp = source.getType().newArray(sourceLength);
-        for(long i = 0; i < sourceLength; ++i) temp.set(i, source.get(i));
-        for(long i = 0; i < sourceLength; ++i) this.set(i, temp.get(i));
-    }
-    default void sort(long length, @Nullable Comparator<T> comparator) {
-        if(length <= 1) return;
-        if(length > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("Array length is too large: " + length);
-        }
-
-        // Default behaviour: copy to temporary array, sort it, and paste it back
-        // This is slow, so it is recommended to override this method
-        // Copy to the temporary array
-        Object[] array = new Object[(int) length];
-        for(int i = 0; i < length; ++i) {
-            array[i] = this.get(i);
-        }
-        // Sort the temporary array
-        Comparator<Object> c = comparator == null
-                ? null : (a, b) -> comparator.compare(BTRUtil.uncheckedCast(a), BTRUtil.uncheckedCast(b));
-        Arrays.sort(array, c);
-        // Paste it back
-        for(int i = 0; i < length; ++i) {
-            this.set(i, BTRUtil.<T>uncheckedCast(array[i]));
-        }
-    }
-    default boolean isSorted(long length, @Nullable Comparator<T> comparator) {
-        if(length <= 1) return true;
-        Comparator<T> realComparator = comparator != null ? comparator : this.getType().asNumber()::compareTo;
-        T previous = this.get(0);
-        for(int i = 1; i < length; ++i) {
-            if(realComparator.compare(previous, this.get(i)) > 0) {
-                return false;
-            }
-            previous = this.get(i);
-        }
-        return true;
-    }
-    default void reverse(long length) {
-        for(long i = 0; i < length / 2; ++i) {
-            this.swap(i, length - i - 1);
-        }
-    }
-    default String contentToString(long length) {
-        StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        for (int i = 0; i < length; i++) {
-            if (i > 0) sb.append(", ");
-            sb.append(this.get(i));
-        }
-        sb.append(']');
-        return sb.toString();
-    }
-    default boolean contentEquals(Pointer<T> other, long length) {
-        DataType<T> type = this.getType();
-        for(int i = 0; i < length; ++i) {
-            if(!type.equals(this.get(i), other.get(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-    default int contentHashCode(long length) {
-        int hash = 0;
-        DataType<T> type = this.getType();
-        for(int i = 0; i < length; ++i) {
-            hash = 31 * hash + type.hashCode(this.get(i));
-        }
-        return hash;
-    }
-    default boolean nextPermutation(long length, @Nullable Comparator<T> comparator) {
-        if(length <= 1) return false;
-
-        Comparator<T> realComparator = comparator != null ? comparator : this.getType().asNumber()::compareTo;
-        long i = length - 1, j = length - 1;
-
-        while(i > 0 && realComparator.compare(this.get(i - 1), this.get(i)) >= 0) i--;
-        if(i == 0) return false;
-
-        while(realComparator.compare(this.get(i - 1), this.get(j)) >= 0) j--;
-        this.swap(i - 1, j);
-
-        j = length - 1;
-        for(; i < j; i++, j--) {
-            this.swap(i, j);
-        }
-        return true;
-    }
     default void swap(long a, long b) {
         if(a == b) return;
         T temp = this.get(a);

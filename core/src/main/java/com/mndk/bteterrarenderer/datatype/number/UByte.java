@@ -5,9 +5,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class UByte extends CppNumber<UByte> {
@@ -24,12 +21,10 @@ public class UByte extends CppNumber<UByte> {
 
     public static UByte of(int value) { return of((byte) value); }
     public static UByte of(byte value) { return CACHE[value + CACHE_OFFSET]; }
-    public static UByte[] array(Integer... values) { return Stream.of(values).map(UByte::of).toArray(UByte[]::new); }
-    public static List<UByte> list(Integer... values) { return Stream.of(values).map(UByte::of).collect(Collectors.toList()); }
+    public static UByte min(UByte a, UByte b) { return a.compareTo(b) <= 0 ? a : b; }
+    public static UByte max(UByte a, UByte b) { return a.compareTo(b) >= 0 ? a : b; }
 
     private final byte value;
-
-    public static UByte min(UByte a, UByte b) { return a.compareTo(b) <= 0 ? a : b; }
 
     @Override public boolean equals(UByte other) { return value == other.value; }
     @Override public int hashCode() { return Byte.hashCode(value); }

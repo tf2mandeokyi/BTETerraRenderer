@@ -76,11 +76,11 @@ public class PlyProperty {
     }
 
     public long getListEntryOffset(int entryId) {
-        return listData.get(entryId * 2);
+        return listData.get(entryId * 2L);
     }
 
     public long getListEntryNumValues(int entryId) {
-        return listData.get(entryId * 2 + 1);
+        return listData.get(entryId * 2L + 1);
     }
 
     public <T> Pointer<T> getDataEntryAddress(int entryId, DataType<T> type) {

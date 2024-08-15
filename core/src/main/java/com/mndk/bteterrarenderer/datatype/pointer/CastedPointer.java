@@ -9,6 +9,7 @@ abstract class CastedPointer<E> implements RawPointer, Pointer<E> {
     protected final RawPointer pointer;
     protected final long offset;
 
+    @Override public final Object getOrigin() { return pointer.getOrigin(); }
     @Override public final RawPointer asRaw() { return this; }
 
     @Override public final String toString() {

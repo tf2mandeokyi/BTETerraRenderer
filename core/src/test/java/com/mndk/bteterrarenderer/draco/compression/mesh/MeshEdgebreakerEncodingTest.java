@@ -278,7 +278,7 @@ public class MeshEdgebreakerEncodingTest {
         EncoderOptions encoderOptions = EncoderOptions.createDefaultOptions();
         encoderOptions.setSpeed(10 - compressionLevel, 10 - compressionLevel);
         encoder.setMesh(mesh);
-        Assert.assertTrue(encoder.encode(encoderOptions, buffer).isOk());
+        StatusAssert.assertOk(encoder.encode(encoderOptions, buffer));
 
         DecoderBuffer decBuffer = new DecoderBuffer();
         decBuffer.init(buffer.getData(), buffer.size());
@@ -297,24 +297,24 @@ public class MeshEdgebreakerEncodingTest {
 
     @Test
     public void testNmOBJ() {
-        testFile("draco/test_nm.obj");
+        testFile("draco/testdata/test_nm.obj");
     }
 
     @Test
     public void threeFacesOBJ() {
-        testFile("draco/extra_vertex.obj");
+        testFile("draco/testdata/extra_vertex.obj");
     }
 
     // TODO Add test code for .ply files
 
     @Test
     public void testMultiAttributes() {
-        testFile("draco/cube_att.obj", 10);
+        testFile("draco/testdata/cube_att.obj", 10);
     }
 
     @Test
     public void testEncoderReuse() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/test_pos_color.ply");
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/test_pos_color.ply");
         Assert.assertNotNull("Failed to load test model test_pos_color.ply", mesh);
 
         MeshEdgebreakerEncoder encoder = new MeshEdgebreakerEncoder();
@@ -322,8 +322,8 @@ public class MeshEdgebreakerEncodingTest {
         encoder.setMesh(mesh);
         EncoderBuffer buffer0 = new EncoderBuffer();
         EncoderBuffer buffer1 = new EncoderBuffer();
-        Assert.assertTrue(encoder.encode(encoderOptions, buffer0).isOk());
-        Assert.assertTrue(encoder.encode(encoderOptions, buffer1).isOk());
+        StatusAssert.assertOk(encoder.encode(encoderOptions, buffer0));
+        StatusAssert.assertOk(encoder.encode(encoderOptions, buffer1));
 
         Assert.assertEquals(buffer0.size(), buffer1.size());
         for (int i = 0; i < buffer0.size(); ++i) {

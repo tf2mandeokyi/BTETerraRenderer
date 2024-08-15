@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.draco.metadata;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.Data;
 import lombok.Getter;
@@ -41,7 +42,7 @@ public class Metadata {
             DataType<T> dataType = data.getType();
             long dataTypeSize = dataType.byteSize();
             this.buffer = BigUByteArray.create(dataTypeSize * numEntries);
-            dataType.write(this.buffer.getRawPointer(), data, numEntries);
+            PointerHelper.copyMultiple(data, this.buffer.getRawPointer(), numEntries);
         }
 
         public EntryValue(BigUByteArray data) {
@@ -66,7 +67,7 @@ public class Metadata {
                 return Status.invalidParameter("Data size is not a multiple of the expected size");
             }
             long numEntries = this.buffer.size() / type.byteSize();
-            type.read(this.buffer.getRawPointer(), outVal, (int) numEntries);
+            PointerHelper.copyMultiple(this.buffer.getRawPointer(), outVal, (int) numEntries);
             return Status.ok();
         }
 

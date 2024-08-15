@@ -261,7 +261,7 @@ public class DracoDecoderTest {
 
     @Test
     public void testSkipAttributeTransformUniqueId() {
-        String fileName = "draco/cube_att.obj";
+        String fileName = "draco/testdata/cube_att.obj";
         Mesh srcMesh = DracoTestFileUtil.decode(fileName);
         Assert.assertNotNull(srcMesh);
 

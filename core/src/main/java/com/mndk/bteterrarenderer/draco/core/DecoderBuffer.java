@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import io.netty.buffer.ByteBuf;
@@ -158,14 +159,14 @@ public class DecoderBuffer {
         if(dataSize < pos + outType.byteSize()) {
             return Status.ioError("Buffer overflow");
         }
-        outType.read(this.data.rawAdd(pos), outVal);
+        PointerHelper.copySingle(this.data.rawAdd(pos), outVal);
         return Status.ok();
     }
     public Status peek(BigUByteArray outVal, long size) {
         if(dataSize < pos + size) {
             return Status.ioError("Buffer overflow");
         }
-        this.data.rawAdd(pos).rawCopyTo(outVal.getRawPointer(), size);
+        PointerHelper.rawCopy(this.data.rawAdd(pos), outVal.getRawPointer(), size);
         return Status.ok();
     }
     @Nullable
@@ -179,9 +180,7 @@ public class DecoderBuffer {
         if(dataSize < pos + byteSize * size) {
             return Status.ioError("Buffer overflow");
         }
-        for(long i = 0; i < size; i++) {
-            outType.read(this.data.rawAdd(pos + i * byteSize), outVal.add(i));
-        }
+        PointerHelper.copyMultiple(this.data.rawAdd(pos), outVal, size);
         return Status.ok();
     }
 

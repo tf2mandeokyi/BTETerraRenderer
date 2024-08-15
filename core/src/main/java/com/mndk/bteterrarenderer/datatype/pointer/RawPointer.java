@@ -10,6 +10,7 @@ import com.mndk.bteterrarenderer.datatype.number.UShort;
 public interface RawPointer {
     default RawPointer rawAdd(long byteOffset) { return toUByte().add(byteOffset).asRaw(); }
 
+    Object getOrigin();
     byte getRawByte(long byteIndex);
     short getRawShort(long shortIndex);
     int getRawInt(long intIndex);
@@ -77,21 +78,6 @@ public interface RawPointer {
     default void setRawInt24(UInt value) { setRawInt24(0, value.intValue()); }
     default void setRawInt(UInt value) { setRawInt(0, value.intValue()); }
     default void setRawLong(ULong value) { setRawLong(0, value.longValue()); }
-
-    default void rawCopyTo(RawPointer dst, long byteSize) { PointerManager.copy(this, dst, byteSize); }
-    default void rawCopyFrom(RawPointer src, long byteSize) { PointerManager.copy(src, this, byteSize); }
-
-    default void rawCopyTo(byte[] dst, int byteSize) { PointerManager.copy(this, dst, 0, byteSize); }
-    default void rawCopyTo(byte[] dst, int dstOffset, int byteSize) { PointerManager.copy(this, dst, dstOffset, byteSize); }
-
-    default boolean rawContentEquals(RawPointer other, long byteSize) {
-        return PointerManager.contentEquals(this, other, byteSize);
-    }
-
-    default <T> void writeTo(Pointer<T> out) { PointerManager.copy(this, out); }
-    default <T> void writeTo(Pointer<T> out, long count) { PointerManager.copy(this, out, count); }
-    default <T> void readFrom(Pointer<T> in) { PointerManager.copy(in, this); }
-    default <T> void readFrom(Pointer<T> in, long count) { PointerManager.copy(in, this, count); }
 
     default <U> Pointer<U> toType(DataType<U> type) { return type.castPointer(this); }
     default Pointer<Boolean> toBool() { return new CastedAsBooleanPointer(this, 0); }

@@ -15,5 +15,6 @@ class NullPointer<T> implements Pointer<T> {
     @Override public void set(T value) { fail(); }
     @Override public void set(long index, T value) { fail(); }
     @Override public Pointer<T> add(long offset) { return this; }
+    @Override public Object getOrigin() { return null; }
     @Override public RawPointer asRaw() { throw new UnsupportedOperationException(); }
 }

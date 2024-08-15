@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.datatype;
 
 import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 
 import java.nio.charset.StandardCharsets;
@@ -23,7 +24,7 @@ class RawPointerType extends ObjectType<RawPointer> {
     // IO operations
     @Override public long byteSize() { return size; }
     @Override public RawPointer read(RawPointer src) { return BigUByteArray.create(src, size).getRawPointer(); }
-    @Override public void write(RawPointer dst, RawPointer value) { value.rawCopyTo(dst, size); }
+    @Override public void write(RawPointer dst, RawPointer value) { PointerHelper.rawCopy(value, dst, size); }
 
     // General conversions
     @Override public RawPointer parse(String value) {

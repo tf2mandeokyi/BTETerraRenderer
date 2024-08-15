@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -93,7 +94,7 @@ public class CppVector<E> implements Iterable<E> {
     }
     public void insert(long index, E value) {
         this.reserve(this.size + 1);
-        array.add(index).copyFrom(array.add(index + 1), this.size - index);
+        PointerHelper.copyMultiple(array.add(index), array.add(index + 1), this.size - index);
         array.set(index, value);
         this.size++;
     }
@@ -103,7 +104,7 @@ public class CppVector<E> implements Iterable<E> {
         this.size++;
     }
     public void erase(long index) {
-        array.add(index + 1).copyFrom(array.add(index), this.size - index - 1);
+        PointerHelper.copyMultiple(array.add(index + 1), array.add(index), this.size - index - 1);
         array.reset(this.size - 1);
         this.size--;
     }
@@ -128,12 +129,12 @@ public class CppVector<E> implements Iterable<E> {
         }
     }
 
-    public void sort(@Nullable Comparator<E> comparator) { array.sort(size, comparator); }
-    public boolean isSorted(@Nullable Comparator<E> comparator) { return array.isSorted(size, comparator); }
-    public void reverse() { array.reverse(size); }
+    public void sort(@Nullable Comparator<E> comparator) { PointerHelper.sortContent(array, size, comparator); }
+    public boolean isSorted(@Nullable Comparator<E> comparator) { return PointerHelper.isContentSorted(array, size, comparator); }
+    public void reverse() { PointerHelper.reverse(array, size); }
     public Pointer<E> getPointer() { return array; }
-    public Stream<E> stream() { return array.stream(size); }
-    @Override @Nonnull public java.util.Iterator<E> iterator() { return array.iterator(size); }
+    public Stream<E> stream() { return PointerHelper.stream(array, size); }
+    @Override @Nonnull public java.util.Iterator<E> iterator() { return PointerHelper.iterator(array, size); }
 
     // From C++ reference:
     // - Requests that the vector capacity be at least enough to contain n elements.
@@ -148,7 +149,7 @@ public class CppVector<E> implements Iterable<E> {
             long newCapacity = oldCapacity + oldCapacity >> 1;
             if(newCapacity < minCapacity) newCapacity = minCapacity;
             Pointer<E> newArray = type.newArray(newCapacity);
-            newArray.copyFrom(array, size);
+            PointerHelper.copyMultiple(array, newArray, size);
             array = newArray;
             capacity = newCapacity;
         }
@@ -191,12 +192,12 @@ public class CppVector<E> implements Iterable<E> {
         // Check size, array type, array content
         if(!array.getClass().equals(that.array.getClass())) return false;
         Pointer<E> thatArray = BTRUtil.uncheckedCast(that.array);
-        return size == that.size && array.contentEquals(thatArray, size);
+        return size == that.size && PointerHelper.contentEquals(array, thatArray, size);
     }
 
     @Override
     public int hashCode() {
-        return array.contentHashCode(size);
+        return PointerHelper.contentHashCode(array, size);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.draco.compression;
 
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.draco.io.ObjDecoder;
@@ -49,7 +50,7 @@ public class DracoTestFileUtil {
         RawPointer pointer = buffer.getData();
         RawPointer goldenPointer = goldenBuffer.getData();
         if(buffer.size() == goldenBuffer.getDecodedSize()) {
-            contentEquals = pointer.rawContentEquals(goldenPointer, buffer.size());
+            contentEquals = PointerHelper.rawContentEquals(pointer, goldenPointer, buffer.size());
         }
         if(contentEquals) {
             TablePrinter tablePrinter = new TablePrinter();

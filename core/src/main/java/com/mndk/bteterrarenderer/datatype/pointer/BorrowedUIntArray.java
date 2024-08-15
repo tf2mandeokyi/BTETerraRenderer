@@ -12,5 +12,5 @@ public class BorrowedUIntArray extends AbstractBorrowedRawIntArray<UInt> {
 
     @Override protected int toRaw(UInt value) { return value.intValue(); }
     @Override protected UInt fromRaw(int raw) { return UInt.of(raw); }
-    @Override public Pointer<UInt> asRawToUInt() { return this; }
+    @Override public Pointer<UInt> toUInt() { return this; }
 }

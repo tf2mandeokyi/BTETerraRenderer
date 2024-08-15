@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.draco.attributes;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.draco.compression.attributes.OctahedronToolBox;
 import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
@@ -62,10 +63,10 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         if(octahedronToolBox.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
 
         for(int i = 0; i < numPoints; i++) {
-            int s = sourceAttributeData.get(i * 2);
-            int t = sourceAttributeData.get(i * 2 + 1);
+            int s = sourceAttributeData.get(i * 2L);
+            int t = sourceAttributeData.get(i * 2L + 1);
             octahedronToolBox.quantizedOctahedralCoordsToUnitVector(s, t, attVal);
-            targetAddress.add(3 * i).copyFrom(attVal, 3);
+            PointerHelper.copyMultiple(attVal, targetAddress.add(3L * i), 3);
         }
         return Status.ok();
     }

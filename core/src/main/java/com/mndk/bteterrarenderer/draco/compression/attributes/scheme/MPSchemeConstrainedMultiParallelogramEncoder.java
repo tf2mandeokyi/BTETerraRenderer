@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
@@ -179,7 +180,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
                         bestPrediction.predictedValue.assign(multiPredVals.getPointer(), multiPredVals.size());
                         bestPrediction.residuals.assign(currentResiduals.getPointer(), currentResiduals.size());
                     }
-                } while(excludedParallelograms.nextPermutation(numParallelograms, Boolean::compare));
+                } while(PointerHelper.nextPermutation(excludedParallelograms, numParallelograms, Boolean::compare));
             }
             if(numParallelograms > 0) {
                 totalUsedParallelograms[numParallelograms - 1] += bestPrediction.numUsedParallelograms;

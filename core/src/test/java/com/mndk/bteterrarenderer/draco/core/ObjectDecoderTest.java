@@ -19,17 +19,17 @@ public class ObjectDecoderTest {
 
     @Test
     public void extraVertexObj() {
-        DracoTestFileUtil.testDecoding("draco/extra_vertex.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/extra_vertex.obj");
     }
 
     @Test
     public void partialAttributesObj() {
-        DracoTestFileUtil.testDecoding("draco/cube_att_partial.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/cube_att_partial.obj");
     }
 
     @Test
     public void subObjects() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/cube_att_sub_o.obj");
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/cube_att_sub_o.obj");
         Assert.assertTrue(mesh.getNumFaces() > 0);
         Assert.assertEquals(4, mesh.getNumAttributes());
         Assert.assertEquals(GeometryAttribute.Type.GENERIC, mesh.getAttribute(3).getAttributeType());
@@ -39,7 +39,7 @@ public class ObjectDecoderTest {
 
     @Test
     public void subObjectsWithMetadata() {
-        Mesh mesh = DracoTestFileUtil.decodeWithMetadata("draco/cube_att_sub_o.obj");
+        Mesh mesh = DracoTestFileUtil.decodeWithMetadata("draco/testdata/cube_att_sub_o.obj");
         Assert.assertTrue(mesh.getNumFaces() > 0);
 
         Assert.assertEquals(4, mesh.getNumAttributes());
@@ -56,7 +56,7 @@ public class ObjectDecoderTest {
 
     @Test
     public void quadTriangulateObj() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/cube_quads.obj");
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/cube_quads.obj");
         Assert.assertEquals(12, mesh.getNumFaces());
         Assert.assertEquals(3, mesh.getNumAttributes());
         Assert.assertEquals(4 * 6, mesh.getNumPoints());
@@ -64,7 +64,7 @@ public class ObjectDecoderTest {
 
     @Test
     public void quadPreserveObj() {
-        Mesh mesh = DracoTestFileUtil.decodeWithPolygons("draco/cube_quads.obj");
+        Mesh mesh = DracoTestFileUtil.decodeWithPolygons("draco/testdata/cube_quads.obj");
         Assert.assertEquals(12, mesh.getNumFaces());
 
         Assert.assertEquals(4, mesh.getNumAttributes());
@@ -93,7 +93,7 @@ public class ObjectDecoderTest {
 
     @Test
     public void octagonTriangulatedObj() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/octagon.obj");
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/octagon.obj");
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(8, mesh.getNumPoints());
         Assert.assertEquals(GeometryAttribute.Type.POSITION, mesh.getAttribute(0).getAttributeType());
@@ -102,7 +102,7 @@ public class ObjectDecoderTest {
 
     @Test
     public void octagonPreservedObj() {
-        Mesh mesh = DracoTestFileUtil.decodeWithPolygons("draco/octagon.obj");
+        Mesh mesh = DracoTestFileUtil.decodeWithPolygons("draco/testdata/octagon.obj");
         Assert.assertEquals(2, mesh.getNumAttributes());
 
         PointAttribute attribute = mesh.getAttribute(0);
@@ -144,14 +144,14 @@ public class ObjectDecoderTest {
 
     @Test
     public void emptyNameObj() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/empty_name.obj");
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/empty_name.obj");
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(3, mesh.getAttribute(0).size());
     }
 
     @Test
     public void pointCloudObj() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/test_lines.obj", false);
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/test_lines.obj", false);
         Assert.assertEquals(0, mesh.getNumFaces());
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(484, mesh.getAttribute(0).size());
@@ -159,33 +159,33 @@ public class ObjectDecoderTest {
 
     @Test
     public void wrongAttributeMapping() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/test_wrong_attribute_mapping.obj");
+        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/test_wrong_attribute_mapping.obj");
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(3, mesh.getAttribute(0).size());
     }
 
     @Test
     public void testObjDecodingAll() {
-        DracoTestFileUtil.testDecoding("draco/bunny_norm.obj");
-        DracoTestFileUtil.testDecoding("draco/cube_att.obj");
-        DracoTestFileUtil.testDecoding("draco/cube_att_partial.obj");
-        DracoTestFileUtil.testDecoding("draco/cube_att_sub_o.obj");
-        DracoTestFileUtil.testDecoding("draco/cube_quads.obj");
-        DracoTestFileUtil.testDecoding("draco/cube_subd.obj");
-        DracoTestFileUtil.testDecoding("draco/eof_test.obj");
-        DracoTestFileUtil.testDecoding("draco/extra_vertex.obj");
-        DracoTestFileUtil.testDecoding("draco/mat_test.obj");
-        DracoTestFileUtil.testDecoding("draco/one_face_123.obj");
-        DracoTestFileUtil.testDecoding("draco/one_face_312.obj");
-        DracoTestFileUtil.testDecoding("draco/one_face_321.obj");
-        DracoTestFileUtil.testDecoding("draco/sphere.obj");
-        DracoTestFileUtil.testDecoding("draco/test_nm.obj");
-        DracoTestFileUtil.testDecoding("draco/test_nm_trans.obj");
-        DracoTestFileUtil.testDecoding("draco/test_sphere.obj");
-        DracoTestFileUtil.testDecoding("draco/three_faces_123.obj");
-        DracoTestFileUtil.testDecoding("draco/three_faces_312.obj");
-        DracoTestFileUtil.testDecoding("draco/two_faces_123.obj");
-        DracoTestFileUtil.testDecoding("draco/two_faces_312.obj");
-        DracoTestFileUtil.testDecoding("draco/inf_nan.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/bunny_norm.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/cube_att.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/cube_att_partial.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/cube_att_sub_o.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/cube_quads.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/cube_subd.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/eof_test.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/extra_vertex.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/mat_test.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/one_face_123.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/one_face_312.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/one_face_321.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/sphere.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/test_nm.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/test_nm_trans.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/test_sphere.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/three_faces_123.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/three_faces_312.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/two_faces_123.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/two_faces_312.obj");
+        DracoTestFileUtil.testDecoding("draco/testdata/inf_nan.obj");
     }
 }

@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.*;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
 
@@ -75,10 +76,10 @@ public class EncoderBuffer {
             long sizeLen = varSizeBuffer.size();
             RawPointer dst = outMem.rawAdd(sizeLen);
             RawPointer src = outMem.rawAdd(DataType.uint64().byteSize());
-            src.rawCopyTo(dst, encodedBytes);
+            PointerHelper.rawCopy(src, dst, encodedBytes);
 
             // Store the size of the encoded data.
-            varSizeBuffer.getData().rawCopyTo(outMem, sizeLen);
+            PointerHelper.rawCopy(varSizeBuffer.getData(), outMem, sizeLen);
 
             // We need to account for the difference between the preallocated and actual
             // storage needed for storing the encoded length. This will be used later to
@@ -90,9 +91,7 @@ public class EncoderBuffer {
     }
 
     public Status encodeLeastSignificantBits32(int nbits, UInt value) {
-        if(!bitEncoderActive()) {
-            return Status.ioError("Bit encoding mode not active");
-        }
+        if(!bitEncoderActive()) return Status.ioError("Bit encoding mode not active");
         bitEncoder.putBits(value, nbits);
         return Status.ok();
     }
@@ -105,37 +104,21 @@ public class EncoderBuffer {
     }
 
     public <T> Status encode(DataType<T> inType, T data) {
-        if(bitEncoderActive()) {
-            return Status.ioError("Bit encoding mode active");
-        }
-        long oldSize = this.buffer.size();
-        this.buffer.resize(oldSize + inType.byteSize());
-        inType.write(this.buffer.getRawPointer(oldSize), data);
-
+        if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
+        this.buffer.insert(this.buffer.size(), inType, data);
         return Status.ok();
     }
     public Status encode(BigUByteArray inValue, long size) {
-        if(bitEncoderActive()) {
-            return Status.ioError("Bit encoding mode active");
-        }
-        long oldSize = this.buffer.size();
-        this.buffer.resize(oldSize + size);
-        inValue.copyTo(0, this.buffer, oldSize, size);
-
+        if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
+        this.buffer.insertRaw(this.buffer.size(), inValue.getRawPointer(), size);
         return Status.ok();
     }
     public <T extends CppNumber<T>> Status encode(T val) {
         return encode(val.getType(), val);
     }
     public <T> Status encode(Pointer<T> data, long size) {
-        if(bitEncoderActive()) {
-            return Status.ioError("Bit encoding mode active");
-        }
-        DataType<T> inType = data.getType();
-        long oldSize = this.buffer.size();
-        this.buffer.resize(oldSize + inType.byteSize() * size);
-        inType.write(this.buffer.getRawPointer(oldSize), data, size);
-
+        if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
+        this.buffer.insert(this.buffer.size(), data, size);
         return Status.ok();
     }
 

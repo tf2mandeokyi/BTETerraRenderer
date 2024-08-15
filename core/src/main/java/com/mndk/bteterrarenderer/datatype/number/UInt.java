@@ -5,28 +5,21 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class UInt extends CppNumber<UInt> {
-    public static final UInt MIN = new UInt(0);
-    public static final UInt MAX = new UInt(-1);
+
+    private static final UInt[] CACHE = new UInt[256];
+    static { for(int i = 0; i < 256; ++i) CACHE[i] = new UInt(i); }
+
+    public static final UInt MIN = of(0);
+    public static final UInt MAX = of(-1);
     private static final long MASK = 0xFFFFFFFFL;
-    public static final UInt ZERO = new UInt(0);
+    public static final UInt ZERO = of(0);
 
-    public static UInt of(int value) { return new UInt(value); }
-    public static UInt of(long value) { return new UInt((int) value);}
-    public static Stream<UInt> range(UInt startInclusive, UInt endExclusive) {
-        return IntStream.range(startInclusive.value, endExclusive.value).mapToObj(UInt::of);
-    }
-    public static UInt[] array(Integer... values) { return Stream.of(values).map(UInt::of).toArray(UInt[]::new); }
-    public static UInt[] array(Long... values) { return Stream.of(values).map(UInt::of).toArray(UInt[]::new); }
-    public static List<UInt> list(Integer... values) { return Stream.of(values).map(UInt::of).collect(Collectors.toList()); }
-    public static List<UInt> list(Long... values) { return Stream.of(values).map(UInt::of).collect(Collectors.toList()); }
-
+    public static UInt of(long value) { return of((int) value);}
+    public static UInt of(int value) { return 0 <= value && value < 256 ? CACHE[value] : new UInt(value); }
+    public static UInt min(UInt a, UInt b) { return a.compareTo(b) <= 0 ? a : b; }
     public static UInt max(UInt a, UInt b) { return a.compareTo(b) >= 0 ? a : b; }
 
     private final int value;
@@ -38,12 +31,12 @@ public class UInt extends CppNumber<UInt> {
     @Override public DataNumberType<UInt> getType() { return DataType.uint32(); }
 
     // Arithmetic operations
-    @Override public UInt add(UInt other) { return new UInt(value + other.value); }
-    @Override public UInt sub(UInt other) { return new UInt(value - other.value); }
-    @Override public UInt mul(UInt other) { return new UInt(value * other.value); }
-    @Override public UInt div(UInt other) { return new UInt(Integer.divideUnsigned(value, other.value)); }
-    @Override public UInt mod(UInt other) { return new UInt(Integer.remainderUnsigned(value, other.value)); }
-    @Override public UInt negate() { return new UInt(-value); }
+    @Override public UInt add(UInt other) { return of(value + other.value); }
+    @Override public UInt sub(UInt other) { return of(value - other.value); }
+    @Override public UInt mul(UInt other) { return of(value * other.value); }
+    @Override public UInt div(UInt other) { return of(Integer.divideUnsigned(value, other.value)); }
+    @Override public UInt mod(UInt other) { return of(Integer.remainderUnsigned(value, other.value)); }
+    @Override public UInt negate() { return of(-value); }
 
     // Comparison operations
     @Override public int compareTo(@Nonnull UInt other) { return Integer.compareUnsigned(value, other.value); }
@@ -51,15 +44,15 @@ public class UInt extends CppNumber<UInt> {
     // Math functions
     @Override public UInt abs() { return this; }
     @Override public UInt floor() { return this; }
-    @Override public UInt sqrt() { return new UInt((int) Math.sqrt(value & MASK)); }
+    @Override public UInt sqrt() { return of((int) Math.sqrt(value & MASK)); }
 
     // Bitwise operations
-    @Override public UInt and(UInt other) { return new UInt(value & other.value);}
-    @Override public UInt or(UInt other) { return new UInt(value | other.value); }
-    @Override public UInt xor(UInt other) { return new UInt(value ^ other.value); }
-    @Override public UInt not() { return new UInt(~value); }
-    @Override public UInt shl(int shift) { return new UInt(value << shift); }
-    @Override public UInt shr(int shift) { return new UInt(value >>> shift); }
+    @Override public UInt and(UInt other) { return of(value & other.value);}
+    @Override public UInt or(UInt other) { return of(value | other.value); }
+    @Override public UInt xor(UInt other) { return of(value ^ other.value); }
+    @Override public UInt not() { return of(~value); }
+    @Override public UInt shl(int shift) { return of(value << shift); }
+    @Override public UInt shr(int shift) { return of(value >>> shift); }
 
     @Override public boolean booleanValue() { return value != 0; }
     @Override public byte byteValue() { return (byte) value; }

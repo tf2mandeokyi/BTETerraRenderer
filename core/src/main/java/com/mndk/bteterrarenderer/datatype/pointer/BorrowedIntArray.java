@@ -10,5 +10,5 @@ class BorrowedIntArray extends AbstractBorrowedRawIntArray<Integer> {
 
     @Override protected int toRaw(Integer value) { return value; }
     @Override protected Integer fromRaw(int raw) { return raw; }
-    @Override public Pointer<Integer> asRawToInt() { return this; }
+    @Override public Pointer<Integer> toInt() { return this; }
 }

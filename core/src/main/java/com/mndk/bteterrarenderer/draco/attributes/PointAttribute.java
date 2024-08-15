@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.draco.attributes;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
 import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.Status;
@@ -155,9 +156,9 @@ public class PointAttribute extends GeometryAttribute {
             @Override public boolean equals(Object obj) {
                 if(!(obj instanceof HashableValue)) return false;
                 HashableValue other = (HashableValue) obj;
-                return value.contentEquals(other.value, numComponents);
+                return PointerHelper.contentEquals(value, other.value, numComponents);
             }
-            @Override public int hashCode() { return value.contentHashCode(numComponents); }
+            @Override public int hashCode() { return PointerHelper.contentHashCode(value, numComponents); }
             @Override public String toString() { return "HashableValue{" + value + " -> hash=" + hashCode() + '}'; }
         }
 
