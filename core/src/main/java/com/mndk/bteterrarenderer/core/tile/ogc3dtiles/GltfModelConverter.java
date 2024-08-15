@@ -10,6 +10,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTrian
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.CesiumRTC;
+import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttributes;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
@@ -93,6 +94,14 @@ public class GltfModelConverter {
         }
 
         private PreBakedModel convertMeshPrimitiveModel(MeshPrimitiveModel meshPrimitiveModel) {
+            DracoMeshCompression draco = GltfExtensionsUtil.getExtension(meshPrimitiveModel, DracoMeshCompression.class);
+            if(draco != null) {
+                ByteBuffer buffer = topLevelModel.getBufferViewModels()
+                        .get(draco.getBufferView())
+                        .getBufferViewData();
+                ByteBuf buf = Unpooled.wrappedBuffer(buffer);
+//                DracoDecodeResult decodeResult = DracoDecodeResult.read(new LoggableByteBuf(buf));
+            }
             ParsedPoint[] parsedPoints = this.parsePoints(meshPrimitiveModel);
             GraphicsShapes shapes = this.parsedPointsToShapes(meshPrimitiveModel, parsedPoints);
             BufferedImage image = this.readMaterialModel(meshPrimitiveModel.getMaterialModel());
@@ -125,12 +134,7 @@ public class GltfModelConverter {
         }
 
         private Cartesian3 readPosition(AccessorModel positionAccessor, int index) {
-            AccessorData data = positionAccessor.getAccessorData();
-            float[] position = readFloatArray(data, index, 3);
-            Cartesian3 cartesian = new Cartesian3(position[0], position[1], position[2]);
-
-            Web3dQuantizedAttributes extension = GltfExtensionsUtil.getExtension(positionAccessor, Web3dQuantizedAttributes.class);
-            if(extension != null) cartesian = cartesian.transform(extension.getDecodeMatrix());
+            Cartesian3 cartesian = this.readCartesian3(positionAccessor, index);
             if(this.cesiumRTC != null) cartesian = cartesian.add(this.cesiumRTC.getCenter());
 
             return cartesian;
@@ -145,14 +149,18 @@ public class GltfModelConverter {
         }
 
         private Cartesian3 readNormal(AccessorModel normalAccessor, int index) {
-            AccessorData data = normalAccessor.getAccessorData();
-            float[] position = readFloatArray(data, index, 3);
-            Cartesian3 cartesian = new Cartesian3(position[0], position[1], position[2]);
+            Cartesian3 cartesian = this.readCartesian3(normalAccessor, index);
 
             Web3dQuantizedAttributes extension = GltfExtensionsUtil.getExtension(normalAccessor, Web3dQuantizedAttributes.class);
             if(extension != null) cartesian = cartesian.transform(extension.getDecodeMatrix());
 
             return cartesian;
+        }
+
+        private Cartesian3 readCartesian3(AccessorModel accessor, int index) {
+            AccessorData data = accessor.getAccessorData();
+            float[] position = readFloatArray(data, index, 3);
+            return new Cartesian3(position[0], position[1], position[2]);
         }
 
         private GraphicsShapes parsedPointsToShapes(MeshPrimitiveModel meshPrimitiveModel, ParsedPoint[] points) {

@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.i3dm;
 
+import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
@@ -47,12 +48,12 @@ public class Instanced3DModel extends TileData {
         int gltfFormat = buf.readIntLE();
 
         String featureTableJson = buf.readBytes(featureTableJSONByteLength).toString(StandardCharsets.UTF_8);
-        byte[] featureTableBinary = buf.readBytes(featureTableBinaryByteLength).array();
+        byte[] featureTableBinary = IOUtil.readAllBytes(buf.readBytes(featureTableBinaryByteLength));
         I3dmFeatureTable featureTable = I3dmFeatureTable.from(featureTableJson, featureTableBinary);
 
         int batchModelCount = featureTable.getInstances().length;
         String batchTableJson = buf.readBytes(batchTableJSONByteLength).toString(StandardCharsets.UTF_8);
-        byte[] batchTableBinary = buf.readBytes(batchTableBinaryByteLength).array();
+        byte[] batchTableBinary = IOUtil.readAllBytes(buf.readBytes(batchTableBinaryByteLength));
         BatchTable batchTable = BatchTable.from(batchModelCount, batchTableJson, batchTableBinary);
 
         TileGltfModel gltfModel = TileGltfModel.from(buf);
