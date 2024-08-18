@@ -155,7 +155,7 @@ public class MeshCleanup {
                     if(isAttIndexUsed.get(i)) {
                         attIndexMap.set(i, AttributeValueIndex.of(numUsedEntries));
                         if(i.getValue() > numUsedEntries) {
-                            Pointer<UByte> srcAdd = att.getAddress(i, DataType.uint8());
+                            Pointer<UByte> srcAdd = att.getAddress(i).toUByte();
                             att.getBuffer().write(att.getBytePos(AttributeValueIndex.of(numUsedEntries)),
                                     srcAdd, att.getByteStride());
                         }

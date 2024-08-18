@@ -12,9 +12,7 @@ class OwnedDouble extends SingleVariablePointer<Double> implements RawLongPointe
 
     @Override public DataType<Double> getType() { return DataType.float64(); }
     @Override public Double get() { return value; }
-    @Override public Double get(long index) { checkIndex(index); return value; }
     @Override public void set(Double value) { this.value = value; }
-    @Override public void set(long index, Double value) { checkIndex(index); this.value = value; }
     @Override public RawPointer asRaw() { return this; }
 
     @Override public long getRawLong(long index) { checkIndex(index); return toRaw(value); }

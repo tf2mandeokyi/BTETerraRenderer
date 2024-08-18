@@ -12,9 +12,7 @@ class OwnedFloat extends SingleVariablePointer<Float> implements RawIntPointer {
 
     @Override public DataType<Float> getType() { return DataType.float32(); }
     @Override public Float get() { return value; }
-    @Override public Float get(long index) { checkIndex(index); return value; }
     @Override public void set(Float value) { this.value = value; }
-    @Override public void set(long index, Float value) { checkIndex(index); this.value = value; }
     @Override public RawPointer asRaw() { return this; }
 
     @Override public int getRawInt(long index) { checkIndex(index); return toRaw(value); }

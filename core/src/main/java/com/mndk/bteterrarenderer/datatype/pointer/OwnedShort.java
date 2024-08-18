@@ -9,9 +9,7 @@ class OwnedShort extends SingleVariablePointer<Short> implements RawShortPointer
 
     @Override public DataType<Short> getType() { return DataType.int16(); }
     @Override public Short get() { return value; }
-    @Override public Short get(long index) { checkIndex(index); return value; }
     @Override public void set(Short value) { this.value = value; }
-    @Override public void set(long index, Short value) { checkIndex(index); this.value = value; }
     @Override public RawPointer asRaw() { return this; }
 
     @Override public short getRawShort(long index) { checkIndex(index); return value; }

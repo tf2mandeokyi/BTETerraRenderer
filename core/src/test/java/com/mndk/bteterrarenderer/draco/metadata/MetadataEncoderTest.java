@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.StatusAssert;
@@ -35,9 +38,9 @@ public class MetadataEncoderTest {
             this.checkGeometryMetadatasAreEqual(geometryMetadata, decodedMetadata);
         }
 
-        private void checkBlobOfDataAreEqual(BigUByteArray data0, BigUByteArray data1) {
+        private void checkBlobOfDataAreEqual(CppVector<UByte> data0, CppVector<UByte> data1) {
             Assert.assertEquals(data0.size(), data1.size());
-            Assert.assertTrue(data0.equals(data1));
+            Assert.assertEquals(data0, data1);
         }
 
         private void checkGeometryMetadatasAreEqual(GeometryMetadata metadata0, GeometryMetadata metadata1) {
@@ -51,8 +54,8 @@ public class MetadataEncoderTest {
         private void checkMetadatasAreEqual(Metadata metadata0, Metadata metadata1) {
             Assert.assertEquals(metadata0.getNumEntries(), metadata1.getNumEntries());
             for(String entryName : metadata0.getEntries().keySet()) {
-                BigUByteArray data0 = metadata0.getEntries().get(entryName).getBuffer();
-                BigUByteArray data1 = metadata1.getEntries().get(entryName).getBuffer();
+                CppVector<UByte> data0 = metadata0.getEntries().get(entryName).getBuffer();
+                CppVector<UByte> data1 = metadata1.getEntries().get(entryName).getBuffer();
                 this.checkBlobOfDataAreEqual(data0, data1);
             }
             Assert.assertEquals(metadata0.getSubMetadatas().size(), metadata1.getSubMetadatas().size());
@@ -97,7 +100,8 @@ public class MetadataEncoderTest {
     public void testEncodingBinaryEntry() {
         Package p = new Package();
         byte[] binaryData = new byte[] { 0x1, 0x2, 0x3, 0x4 };
-        p.metadata.addEntryBinary("binary_data", BigUByteArray.create(binaryData));
+        RawPointer pointer = Pointer.wrap(binaryData).asRaw();
+        p.metadata.addEntryBinary("binary_data", pointer, binaryData.length);
 
         p.testEncodingMetadata();
     }

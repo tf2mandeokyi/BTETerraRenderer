@@ -45,16 +45,16 @@
 package com.mndk.bteterrarenderer.draco.io;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
-import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import lombok.Getter;
 
 @Getter
 public class PlyProperty {
 
-    private final BigUByteVector data = new BigUByteVector();
+    private final CppVector<UByte> data = new CppVector<>(DataType.uint8());
     private final CppVector<Long> listData = new CppVector<>(DataType.int64());
 
     private final String name;
@@ -84,19 +84,11 @@ public class PlyProperty {
     }
 
     public <T> Pointer<T> getDataEntryAddress(int entryId, DataType<T> type) {
-        return data.getPointer(type, (long) entryId * dataTypeNumBytes);
+        return data.getRawPointer().rawAdd((long) entryId * dataTypeNumBytes).toType(type);
     }
 
     public <T> void pushBackValue(Pointer<T> data) {
-        DataType<T> dataType = data.getType();
-        long byteSize = dataType.byteSize();
-        if(byteSize != dataTypeNumBytes) {
-            throw new IllegalArgumentException("Mismatching data type size: Expected data type " +
-                    this.dataType.getActualType() + ", instead got " + data.getType());
-        }
-        long oldSize = this.data.size();
-        this.data.resize(oldSize + byteSize);
-        dataType.write(this.data.getRawPointer(oldSize), data.get());
+        this.data.insert(this.data.size(), data.asRawToUByte(), dataTypeNumBytes);
     }
 
     public boolean isList() {

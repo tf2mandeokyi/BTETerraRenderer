@@ -43,10 +43,10 @@ public interface RawIntPointer extends RawPointer {
         boolean isBigEndian = DataType.endian() == Endian.BIG;
         if(isBigEndian) {
             setRawInt(2 * longIndex + 1, (int) value);
-            setRawInt(2 * longIndex,/**/ (int) (value >> 32));
+            setRawInt(2 * longIndex,/**/ (int) (value >>> 32));
         } else {
             setRawInt(2 * longIndex,/**/ (int) value);
-            setRawInt(2 * longIndex + 1, (int) (value >> 32));
+            setRawInt(2 * longIndex + 1, (int) (value >>> 32));
         }
     }
 }

@@ -186,7 +186,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
     protected Pointer<Integer> getPortableAttributeData() {
         PointAttribute portableAttribute = this.getPortableAttribute();
         if(portableAttribute.size() == 0) return null;
-        return portableAttribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
+        return portableAttribute.getAddress(AttributeValueIndex.of(0)).toInt();
     }
 
     private <U> void storeTypedValues(DataNumberType<U> type, UInt numValues) {

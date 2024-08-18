@@ -101,7 +101,7 @@ class PointerTimSort<T> {
             assert left == right;
 
             long n = start - left;
-            if(n >> 32 == 0) switch ((int) n) {
+            if(n >>> 32 == 0) switch ((int) n) {
                 case 2: a.set(left + 2, a.get(left + 1));
                 case 1: a.set(left + 1, a.get(left));
                     break;

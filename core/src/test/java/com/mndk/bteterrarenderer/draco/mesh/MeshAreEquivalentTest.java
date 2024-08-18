@@ -1,17 +1,20 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
-import com.mndk.bteterrarenderer.draco.compression.DracoTestFileUtil;
+import com.mndk.bteterrarenderer.draco.io.DracoTestFileUtil;
 import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.io.MeshIOUtil;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
 
 public class MeshAreEquivalentTest {
 
     @Test
     public void testOnIdenticalMesh() {
-        String fileName = "draco/testdata/test_nm.obj";
-        Mesh mesh = DracoTestFileUtil.decode(fileName);
-        Assert.assertNotNull("Failed to load test model: " + fileName, mesh);
+        File file = DracoTestFileUtil.toFile("draco/testdata/test_nm.obj");
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model: " + file, mesh);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
         StatusAssert.assertOk(equiv.equals(mesh, mesh));
@@ -19,15 +22,15 @@ public class MeshAreEquivalentTest {
 
     @Test
     public void testPermutedOneFace() {
-        String fileName0 = "draco/testdata/one_face_123.obj";
-        String fileName1 = "draco/testdata/one_face_312.obj";
-        String fileName2 = "draco/testdata/one_face_321.obj";
-        Mesh mesh0 = DracoTestFileUtil.decode(fileName0);
-        Mesh mesh1 = DracoTestFileUtil.decode(fileName1);
-        Mesh mesh2 = DracoTestFileUtil.decode(fileName2);
-        Assert.assertNotNull("Failed to load test model: " + fileName0, mesh0);
-        Assert.assertNotNull("Failed to load test model: " + fileName1, mesh1);
-        Assert.assertNotNull("Failed to load test model: " + fileName2, mesh2);
+        File file0 = DracoTestFileUtil.toFile("draco/testdata/one_face_123.obj");
+        File file1 = DracoTestFileUtil.toFile("draco/testdata/one_face_312.obj");
+        File file2 = DracoTestFileUtil.toFile("draco/testdata/one_face_321.obj");
+        Mesh mesh0 = MeshIOUtil.decode(file0).getValueOr(StatusAssert.consumer());
+        Mesh mesh1 = MeshIOUtil.decode(file1).getValueOr(StatusAssert.consumer());
+        Mesh mesh2 = MeshIOUtil.decode(file2).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model: " + file0, mesh0);
+        Assert.assertNotNull("Failed to load test model: " + file1, mesh1);
+        Assert.assertNotNull("Failed to load test model: " + file2, mesh2);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
         StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
@@ -37,12 +40,12 @@ public class MeshAreEquivalentTest {
 
     @Test
     public void testPermutedTwoFaces() {
-        String fileName0 = "draco/testdata/two_faces_123.obj";
-        String fileName1 = "draco/testdata/two_faces_312.obj";
-        Mesh mesh0 = DracoTestFileUtil.decode(fileName0);
-        Mesh mesh1 = DracoTestFileUtil.decode(fileName1);
-        Assert.assertNotNull("Failed to load test model: " + fileName0, mesh0);
-        Assert.assertNotNull("Failed to load test model: " + fileName1, mesh1);
+        File file0 = DracoTestFileUtil.toFile("draco/testdata/two_faces_123.obj");
+        File file1 = DracoTestFileUtil.toFile("draco/testdata/two_faces_312.obj");
+        Mesh mesh0 = MeshIOUtil.decode(file0).getValueOr(StatusAssert.consumer());
+        Mesh mesh1 = MeshIOUtil.decode(file1).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model: " + file0, mesh0);
+        Assert.assertNotNull("Failed to load test model: " + file1, mesh1);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
         StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
@@ -52,12 +55,12 @@ public class MeshAreEquivalentTest {
 
     @Test
     public void testPermutedThreeFaces() {
-        String fileName0 = "draco/testdata/three_faces_123.obj";
-        String fileName1 = "draco/testdata/three_faces_312.obj";
-        Mesh mesh0 = DracoTestFileUtil.decode(fileName0);
-        Mesh mesh1 = DracoTestFileUtil.decode(fileName1);
-        Assert.assertNotNull("Failed to load test model: " + fileName0, mesh0);
-        Assert.assertNotNull("Failed to load test model: " + fileName1, mesh1);
+        File file0 = DracoTestFileUtil.toFile("draco/testdata/three_faces_123.obj");
+        File file1 = DracoTestFileUtil.toFile("draco/testdata/three_faces_312.obj");
+        Mesh mesh0 = MeshIOUtil.decode(file0).getValueOr(StatusAssert.consumer());
+        Mesh mesh1 = MeshIOUtil.decode(file1).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model: " + file0, mesh0);
+        Assert.assertNotNull("Failed to load test model: " + file1, mesh1);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
         StatusAssert.assertOk(equiv.equals(mesh0, mesh0));
@@ -67,12 +70,12 @@ public class MeshAreEquivalentTest {
 
     @Test
     public void testOnBigMesh() {
-        String fileName = "draco/testdata/test_nm.obj";
-        Mesh mesh0 = DracoTestFileUtil.decode(fileName);
-        Assert.assertNotNull("Failed to load test model: " + fileName, mesh0);
+        File file = DracoTestFileUtil.toFile("draco/testdata/test_nm.obj");
+        Mesh mesh0 = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model: " + file, mesh0);
 
-        Mesh mesh1 = DracoTestFileUtil.decode(fileName);
-        Assert.assertNotNull("Failed to load test model: " + fileName, mesh1);
+        Mesh mesh1 = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model: " + file, mesh1);
 
         MeshAreEquivalent equiv = new MeshAreEquivalent();
         StatusAssert.assertOk(equiv.equals(mesh0, mesh0));

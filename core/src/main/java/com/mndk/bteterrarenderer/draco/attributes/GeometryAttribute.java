@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.DataBuffer;
 import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.Status;
@@ -167,8 +168,8 @@ public class GeometryAttribute {
         return byteOffset + byteStride * attIndex.getValue();
     }
 
-    public final <T> Pointer<T> getAddress(AttributeValueIndex attIndex, DataType<T> type) {
-        return buffer.getData().getPointer(type, this.getBytePos(attIndex));
+    public final RawPointer getAddress(AttributeValueIndex attIndex) {
+        return buffer.getData().asRaw(this.getBytePos(attIndex));
     }
 
     /**
@@ -224,7 +225,7 @@ public class GeometryAttribute {
     private <T, OutT> Status convertTypedValue(AttributeValueIndex attId, UByte outNumComponents,
                                                DataNumberType<T> inType, Pointer<OutT> outValue) {
         DataNumberType<OutT> outType = outValue.getType().asNumber();
-        Pointer<T> srcAddress = this.getAddress(attId, inType);
+        Pointer<T> srcAddress = this.getAddress(attId).toType(inType);
         // Convert all components available in both the original and output formats.
         for(int i = 0, until = UByte.min(this.numComponents, outNumComponents).intValue(); i < until; i++) {
             Status status = this.convertComponentValue(srcAddress.add(i), this.normalized, outValue.add(i));

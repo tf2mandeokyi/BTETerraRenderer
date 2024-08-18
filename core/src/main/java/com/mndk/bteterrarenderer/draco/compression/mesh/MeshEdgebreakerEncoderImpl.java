@@ -364,7 +364,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         // Append the traversal buffer.
         if(this.encodeSplitData().isError(chain)) return chain.get();
         EncoderBuffer buffer = traversalEncoder.getBuffer();
-        encoder.getBuffer().encode(DataType.bytes(buffer.size()), buffer.getData());
+        encoder.getBuffer().encode(buffer.getData(), buffer.size());
 
         return Status.ok();
     }

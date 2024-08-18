@@ -7,9 +7,7 @@ public abstract class AbstractOwnedRawShort<E> extends SingleVariablePointer<E> 
     protected short value;
 
     @Override public final E get() { return fromRaw(value); }
-    @Override public final E get(long index) { checkIndex(index); return fromRaw(value); }
     @Override public final void set(E value) { this.value = toRaw(value); }
-    @Override public final void set(long index, E value) { checkIndex(index); this.value = toRaw(value); }
     @Override public final RawPointer asRaw() { return this; }
 
     protected abstract short toRaw(E value);

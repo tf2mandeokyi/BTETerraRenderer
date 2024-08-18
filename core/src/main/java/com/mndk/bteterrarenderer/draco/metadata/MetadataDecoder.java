@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
@@ -113,9 +114,9 @@ public class MetadataDecoder {
         if(dataSize > buffer.getRemainingSize()) {
             return Status.ioError("Data size exceeds buffer size.");
         }
-        BigUByteArray entryValue = BigUByteArray.create(dataSize);
+        RawPointer entryValue = RawPointer.newArray(dataSize);
         if(buffer.decode(entryValue, dataSize).isError(chain)) return chain.get();
-        metadata.addEntryBinary(entryName.get(), entryValue);
+        metadata.addEntryBinary(entryName.get(), entryValue, dataSize);
         return Status.ok();
     }
 
@@ -127,9 +128,9 @@ public class MetadataDecoder {
         int nameLen = nameLenRef.get().intValue();
         if(nameLen == 0) return Status.ok();
 
-        BigUByteArray nameBuffer = BigUByteArray.create(nameLen);
+        RawPointer nameBuffer = RawPointer.newArray(nameLen);
         if(buffer.decode(nameBuffer, nameLen).isError(chain)) return chain.get();
-        name.set(nameBuffer.decode());
+        name.set(PointerHelper.rawToString(nameBuffer, nameLen));
         return Status.ok();
     }
 

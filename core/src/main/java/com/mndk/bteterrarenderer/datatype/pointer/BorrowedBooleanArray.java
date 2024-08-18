@@ -26,7 +26,7 @@ class BorrowedBooleanArray extends BorrowedArray<Boolean> implements RawBytePoin
         array[offset + b] = temp;
     }
 
-    @Override public byte getRawByte(long index) { return toRaw(array[checkIndex(offset + index)]); }
-    @Override public void setRawByte(long index, byte value) { array[checkIndex(offset + index)] = fromRaw(value); }
+    @Override public byte getRawByte(long index) { return toRaw(array[DataType.intLimit(offset + index)]); }
+    @Override public void setRawByte(long index, byte value) { array[DataType.intLimit(offset + index)] = fromRaw(value); }
     @Override public Pointer<Boolean> toBool() { return this; }
 }

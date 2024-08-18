@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -98,6 +99,12 @@ public class CppVector<E> implements Iterable<E> {
         array.set(index, value);
         this.size++;
     }
+    public void insert(long index, Pointer<E> data, long count) {
+        this.reserve(this.size + count);
+        PointerHelper.copyMultiple(array.add(index), array.add(index + count), this.size - index);
+        PointerHelper.copyMultiple(data, array.add(index), count);
+        this.size += count;
+    }
     public void pushBack(E value) {
         this.reserve(this.size + 1);
         array.set(this.size, value);
@@ -133,6 +140,7 @@ public class CppVector<E> implements Iterable<E> {
     public boolean isSorted(@Nullable Comparator<E> comparator) { return PointerHelper.isContentSorted(array, size, comparator); }
     public void reverse() { PointerHelper.reverse(array, size); }
     public Pointer<E> getPointer() { return array; }
+    public RawPointer getRawPointer() { return array.asRaw(); }
     public Stream<E> stream() { return PointerHelper.stream(array, size); }
     @Override @Nonnull public java.util.Iterator<E> iterator() { return PointerHelper.iterator(array, size); }
 

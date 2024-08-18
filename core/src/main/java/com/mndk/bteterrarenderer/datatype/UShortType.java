@@ -23,7 +23,7 @@ class UShortType extends PredefinedDataNumberType<UShort> {
 
     // Pointer operations
     @Override public Pointer<UShort> newOwned(UShort value) { return Pointer.newUShort(value); }
-    @Override public Pointer<UShort> newArray(int length) { return Pointer.wrapUnsigned(new short[length], 0); }
+    @Override public Pointer<UShort> newArray(int length) { return Pointer.newUShortArray(length); }
     @Override public Pointer<UShort> castPointer(RawPointer pointer) { return pointer.toUShort(); }
 
     // Number properties

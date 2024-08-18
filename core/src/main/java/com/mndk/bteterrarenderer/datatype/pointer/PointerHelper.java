@@ -1,10 +1,10 @@
 package com.mndk.bteterrarenderer.datatype.pointer;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;
+import java.nio.charset.Charset;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -33,19 +33,19 @@ public class PointerHelper {
         return -1;
     }
 
-    public <T> int contentHashCode(Pointer<T> pointer, long elementCount) {
-        int hash = 0;
-        DataType<T> type = pointer.getType();
-        for(long i = 0; i < elementCount; i++) hash = 31 * hash + type.hashCode(pointer.get(i));
-        return hash;
-    }
-
     public boolean rawContentEquals(RawPointer a, RawPointer b, long byteSize) {
         return searchRawDifference(a, b, byteSize) == -1;
     }
 
     public <T> boolean contentEquals(Pointer<T> a, Pointer<T> b, long elementCount) {
         return searchDifference(a, b, elementCount) == -1;
+    }
+
+    public <T> int contentHashCode(Pointer<T> pointer, long elementCount) {
+        int hash = 0;
+        DataType<T> type = pointer.getType();
+        for(long i = 0; i < elementCount; i++) hash = 31 * hash + type.hashCode(pointer.get(i));
+        return hash;
     }
 
     public <T> String contentToString(Pointer<T> pointer, long count) {
@@ -92,6 +92,18 @@ public class PointerHelper {
         return StreamSupport.stream(spliterator, false);
     }
 
+    public String rawToString(RawPointer pointer, long byteSize) {
+        byte[] bytes = new byte[(int) byteSize];
+        rawCopy(pointer, bytes, 0, (int) byteSize);
+        return new String(bytes);
+    }
+
+    public String rawToString(RawPointer pointer, long byteSize, Charset charset) {
+        byte[] bytes = new byte[(int) byteSize];
+        rawCopy(pointer, bytes, 0, (int) byteSize);
+        return new String(bytes, charset);
+    }
+
     // "Unsafe copy" methods directly copy data from src to dst,
     // without checking if the data is being overwritten.
     private void unsafeRawCopy(RawPointer src, RawPointer dst, long byteSize) {
@@ -126,9 +138,9 @@ public class PointerHelper {
     // the copy operation would not work correctly due to the fact that the data would be overwritten.
     public void rawCopy(RawPointer src, RawPointer dst, long byteSize) {
         if(src.getOrigin() == dst.getOrigin()) {
-            BigUByteArray temp = BigUByteArray.create(byteSize);
-            unsafeRawCopy(src, temp.getRawPointer(), byteSize);
-            unsafeRawCopy(temp.getRawPointer(), dst, byteSize);
+            RawPointer temp = DataType.uint8().newArray(byteSize).asRaw();
+            unsafeRawCopy(src, temp, byteSize);
+            unsafeRawCopy(temp, dst, byteSize);
         } else {
             unsafeRawCopy(src, dst, byteSize);
         }
@@ -157,9 +169,9 @@ public class PointerHelper {
         DataType<T> type = dst.getType();
         if(src.getOrigin() == dst.getOrigin()) {
             long byteSize = type.byteSize();
-            BigUByteArray temp = BigUByteArray.create(byteSize);
-            unsafeRawCopy(src, temp.getRawPointer(), byteSize);
-            dst.set(type.read(temp.getRawPointer()));
+            RawPointer temp = DataType.uint8().newArray(byteSize).asRaw();
+            unsafeRawCopy(src, temp, byteSize);
+            dst.set(type.read(temp));
         } else {
             dst.set(type.read(src));
         }
@@ -169,9 +181,9 @@ public class PointerHelper {
         if(src.getOrigin() == dst.getOrigin()) {
             DataType<T> type = dst.getType();
             long elementByteSize = type.byteSize();
-            BigUByteArray temp = BigUByteArray.create(elementByteSize * dstElementCount);
-            unsafeRawCopy(src, temp.getRawPointer(), elementByteSize * dstElementCount);
-            unsafeCopyMultiple(temp.getRawPointer(), dst, dstElementCount);
+            RawPointer temp = DataType.uint8().newArray(elementByteSize * dstElementCount).asRaw();
+            unsafeRawCopy(src, temp, elementByteSize * dstElementCount);
+            unsafeCopyMultiple(temp, dst, dstElementCount);
         } else {
             unsafeCopyMultiple(src, dst, dstElementCount);
         }
@@ -181,9 +193,9 @@ public class PointerHelper {
         DataType<T> type = src.getType();
         if(src.getOrigin() == dst.getOrigin()) {
             long byteSize = type.byteSize();
-            BigUByteArray temp = BigUByteArray.create(byteSize);
-            type.write(temp.getRawPointer(), src.get());
-            unsafeRawCopy(temp.getRawPointer(), dst, byteSize);
+            RawPointer temp = DataType.uint8().newArray(byteSize).asRaw();
+            type.write(temp, src.get());
+            unsafeRawCopy(temp, dst, byteSize);
         } else {
             type.write(dst, src.get());
         }
@@ -192,9 +204,9 @@ public class PointerHelper {
     public <T> void copyMultiple(Pointer<T> src, RawPointer dst, long srcElementCount) {
         if(src.getOrigin() == dst.getOrigin()) {
             long elementByteSize = src.getType().byteSize();
-            BigUByteArray temp = BigUByteArray.create(elementByteSize * srcElementCount);
-            unsafeCopyMultiple(src, temp.getRawPointer(), srcElementCount);
-            unsafeRawCopy(temp.getRawPointer(), dst, elementByteSize * srcElementCount);
+            RawPointer temp = DataType.uint8().newArray(elementByteSize * srcElementCount).asRaw();
+            unsafeCopyMultiple(src, temp, srcElementCount);
+            unsafeRawCopy(temp, dst, elementByteSize * srcElementCount);
         } else {
             unsafeCopyMultiple(src, dst, srcElementCount);
         }

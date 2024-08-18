@@ -4,8 +4,6 @@ import com.mndk.bteterrarenderer.datatype.number.*;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 public interface DataType<T> {
@@ -22,9 +20,6 @@ public interface DataType<T> {
     static DataNumberType<ULong> uint64() { return DataTypeStorage.ULONG; }
     static DataNumberType<Float> float32() { return DataTypeStorage.FLOAT; }
     static DataNumberType<Double> float64() { return DataTypeStorage.DOUBLE; }
-    static DataType<RawPointer> bytes(long size) { return new RawPointerType(size); }
-    static DataType<String> string(int byteLength, Charset charset) { return new StringType(byteLength, charset); }
-    static DataType<String> string(int byteLength) { return new StringType(byteLength, StandardCharsets.UTF_8); }
 
     static long toRaw(double value) { return Double.doubleToRawLongBits(value); }
     static double fromRaw(long raw) { return Double.longBitsToDouble(raw); }
@@ -32,6 +27,11 @@ public interface DataType<T> {
     static float fromRaw(int raw) { return Float.intBitsToFloat(raw); }
     static byte toRaw(boolean value) { return (byte) (value ? 1 : 0); }
     static boolean fromRaw(byte raw) { return raw != 0; }
+
+    static int intLimit(long value) {
+        if(Integer.MIN_VALUE <= value && value <= Integer.MAX_VALUE) return (int) value;
+        throw new IllegalArgumentException("Value is too large: " + value);
+    }
 
     static Endian endian() { return DataTypeStorage.ENDIAN; }
     static void endian(Endian endian) { DataTypeStorage.ENDIAN = endian; }
@@ -53,9 +53,6 @@ public interface DataType<T> {
     Pointer<T> newOwned(T value);
     Pointer<T> newArray(int length);
     Pointer<T> castPointer(RawPointer pointer);
-    default Pointer<T> newArray(long length) {
-        if (length >> 32 == 0) return this.newArray((int) length);
-        throw new IllegalArgumentException("Array length is too large");
-    }
+    default Pointer<T> newArray(long length) { return this.newArray(DataType.intLimit(length)); }
     default Pointer<T> newOwned() { return this.newOwned(this.defaultValue()); }
 }

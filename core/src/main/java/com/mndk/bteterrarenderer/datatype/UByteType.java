@@ -23,7 +23,7 @@ class UByteType extends PredefinedDataNumberType<UByte> {
 
     // Pointer operations
     @Override public Pointer<UByte> newOwned(UByte value) { return Pointer.newUByte(value); }
-    @Override public Pointer<UByte> newArray(int length) { return Pointer.wrapUnsigned(new byte[length], 0); }
+    @Override public Pointer<UByte> newArray(int length) { return Pointer.newUByteArray(length); }
     @Override public Pointer<UByte> castPointer(RawPointer pointer) { return pointer.toUByte(); }
 
     // Number properties

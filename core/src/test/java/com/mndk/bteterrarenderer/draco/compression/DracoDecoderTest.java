@@ -252,17 +252,24 @@ package com.mndk.bteterrarenderer.draco.compression;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
-import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.DracoDataType;
+import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.io.DracoTestFileUtil;
+import com.mndk.bteterrarenderer.draco.io.MeshIOUtil;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
 
 public class DracoDecoderTest {
 
     @Test
     public void testSkipAttributeTransformUniqueId() {
-        String fileName = "draco/testdata/cube_att.obj";
-        Mesh srcMesh = DracoTestFileUtil.decode(fileName);
+        File file = DracoTestFileUtil.toFile("draco/testdata/cube_att.obj");
+        Mesh srcMesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
         Assert.assertNotNull(srcMesh);
 
         UInt kPosUniqueId = UInt.of(7);

@@ -25,7 +25,7 @@ class FloatType extends JavaNumberBridgeType<Float> {
 
     // Pointer operations
     @Override public Pointer<Float> newOwned(Float value) { return Pointer.newFloat(value); }
-    @Override public Pointer<Float> newArray(int length) { return Pointer.wrap(new float[length], 0); }
+    @Override public Pointer<Float> newArray(int length) { return Pointer.newFloatArray(length); }
     @Override public Pointer<Float> castPointer(RawPointer pointer) { return pointer.toFloat(); }
 
     // Number properties

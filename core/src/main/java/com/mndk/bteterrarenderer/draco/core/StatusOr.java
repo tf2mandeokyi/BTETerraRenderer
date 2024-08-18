@@ -3,6 +3,9 @@ package com.mndk.bteterrarenderer.draco.core;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 @RequiredArgsConstructor
 public class StatusOr<T> {
 
@@ -33,6 +36,19 @@ public class StatusOr<T> {
 
     public boolean isError(StatusChain chain) {
         return status.isError(chain);
+    }
+
+    public T getValueOr(Consumer<Status> consumer) {
+        if(status.isError()) {
+            consumer.accept(status);
+            return null;
+        }
+        return value;
+    }
+
+    public T getValueOr(Function<Status, T> function) {
+        if(status.isError()) return function.apply(status);
+        return value;
     }
 
     public T getValue() {

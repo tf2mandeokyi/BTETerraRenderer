@@ -1,12 +1,12 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
+import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.number.UInt;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
-import com.mndk.bteterrarenderer.datatype.number.UInt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -22,9 +22,9 @@ public class MetadataEncoder {
         // Encode all entries.
         for(Map.Entry<String, Metadata.EntryValue> entry : entries.entrySet()) {
             if(encodeString(outBuffer, entry.getKey()).isError(chain)) return chain.get();
-            BigUByteArray entryValue = entry.getValue().getBuffer();
+            CppVector<UByte> entryValue = entry.getValue().getBuffer();
             outBuffer.encodeVarint(UInt.of(entryValue.size()));
-            outBuffer.encode(DataType.bytes(entryValue.size()), entryValue.getRawPointer());
+            outBuffer.encode(entryValue.getRawPointer(), entryValue.size());
         }
 
         Map<String, Metadata> subMetadatas = metadata.getSubMetadatas();
@@ -71,15 +71,15 @@ public class MetadataEncoder {
     public Status encodeString(EncoderBuffer outBuffer, String str) {
         // We only support string of maximum length 255 which is using one byte to
         // encode the length.
-        BigUByteArray bytes = BigUByteArray.create(str, StandardCharsets.UTF_8);
-        if(bytes.size() > 255) {
+        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        if(bytes.length > 255) {
             return Status.invalidParameter("string is longer than 255 bytes");
         }
-        if(bytes.size() == 0) {
+        if(bytes.length == 0) {
             outBuffer.encode(UByte.ZERO);
         } else {
             outBuffer.encode(UByte.of(str.length()));
-            outBuffer.encode(DataType.bytes(bytes.size()), bytes.getRawPointer());
+            outBuffer.encode(Pointer.wrap(bytes).asRaw(), bytes.length);
         }
         return Status.ok();
     }

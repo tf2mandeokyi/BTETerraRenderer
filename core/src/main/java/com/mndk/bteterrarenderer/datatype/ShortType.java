@@ -23,7 +23,7 @@ class ShortType extends JavaNumberBridgeType<Short> {
 
     // Pointer operations
     @Override public Pointer<Short> newOwned(Short value) { return Pointer.newShort(value); }
-    @Override public Pointer<Short> newArray(int length) { return Pointer.wrap(new short[length], 0); }
+    @Override public Pointer<Short> newArray(int length) { return Pointer.newShortArray(length); }
     @Override public Pointer<Short> castPointer(RawPointer pointer) { return pointer.toShort(); }
 
     // Number properties

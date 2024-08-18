@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
 import com.mndk.bteterrarenderer.draco.compression.attributes.scheme.PSchemeInterface;
@@ -12,7 +12,6 @@ import com.mndk.bteterrarenderer.draco.compression.pointcloud.PointCloudDecoder;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import lombok.Getter;
 
 @Getter
@@ -97,7 +96,7 @@ public class SequentialAttributeDecoder {
 
         int numValues = (int) pointIds.size();
         int entrySize = (int) attribute.getByteStride();
-        Pointer<UByte> valueData = BigUByteArray.create(entrySize).getPointer(DataType.uint8());
+        Pointer<UByte> valueData = DataType.uint8().newArray(entrySize);
         int outBytePos = 0;
         for(int i = 0; i < numValues; i++) {
             if(inBuffer.decode(valueData, entrySize).isError(chain)) return chain.get();

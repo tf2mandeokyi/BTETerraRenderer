@@ -1,9 +1,11 @@
 package com.mndk.bteterrarenderer.draco.metadata;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.Data;
 import lombok.Getter;
@@ -11,7 +13,6 @@ import lombok.Getter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -30,27 +31,33 @@ public class Metadata {
     @Getter
     public static class EntryValue {
 
-        private final BigUByteArray buffer;
+        private final CppVector<UByte> buffer;
 
         public <T> EntryValue(DataType<T> dataType, T data) {
             long dataTypeSize = dataType.byteSize();
-            this.buffer = BigUByteArray.create(dataTypeSize);
+            this.buffer = new CppVector<>(DataType.uint8(), dataTypeSize);
             dataType.write(this.buffer.getRawPointer(), data);
         }
 
         public <T> EntryValue(Pointer<T> data, int numEntries) {
             DataType<T> dataType = data.getType();
             long dataTypeSize = dataType.byteSize();
-            this.buffer = BigUByteArray.create(dataTypeSize * numEntries);
+            this.buffer = new CppVector<>(DataType.uint8(), dataTypeSize * numEntries);
             PointerHelper.copyMultiple(data, this.buffer.getRawPointer(), numEntries);
         }
 
-        public EntryValue(BigUByteArray data) {
-            this.buffer = data;
+        public EntryValue(RawPointer data, long byteLength) {
+            this.buffer = new CppVector<>(DataType.uint8(), byteLength);
+            PointerHelper.rawCopy(data, this.buffer.getRawPointer(), byteLength);
+        }
+
+        public EntryValue(byte[] data) {
+            this.buffer = new CppVector<>(DataType.uint8(), data.length);
+            PointerHelper.rawCopy(data, 0, this.buffer.getRawPointer(), data.length);
         }
 
         public EntryValue(String value) {
-            this(BigUByteArray.create(value, StandardCharsets.UTF_8));
+            this(value.getBytes(StandardCharsets.UTF_8));
         }
 
         public <T> Status getValue(DataType<T> type, Consumer<T> outVal) {
@@ -72,18 +79,16 @@ public class Metadata {
         }
 
         public Status getValue(StringBuilder outVal) {
-            if(this.buffer.size() == 0) {
+            if(this.buffer.isEmpty()) {
                 return Status.invalidParameter("Data size is zero");
             }
             outVal.setLength(0);
-            outVal.append(this.buffer.decode());
+            outVal.append(PointerHelper.rawToString(this.buffer.getRawPointer(), this.buffer.size()));
             return Status.ok();
         }
 
-        public Status getValue(AtomicReference<BigUByteArray> outBuf) {
-            BigUByteArray array = BigUByteArray.create(this.buffer.size());
-            array.copyTo(0, this.buffer, 0, this.buffer.size());
-            outBuf.set(array);
+        public Status getValue(RawPointer outBuf) {
+            PointerHelper.rawCopy(this.buffer.getRawPointer(), outBuf, this.buffer.size());
             return Status.ok();
         }
 
@@ -157,11 +162,11 @@ public class Metadata {
         return entry.getValue(outVal);
     }
 
-    public void addEntryBinary(String name, BigUByteArray buf) {
-        this.entries.put(name, new EntryValue(buf));
+    public void addEntryBinary(String name, RawPointer buf, long size) {
+        this.entries.put(name, new EntryValue(buf, size));
     }
 
-    public Status getEntryBinary(String name, AtomicReference<BigUByteArray> outBuf) {
+    public Status getEntryBinary(String name, RawPointer outBuf) {
         EntryValue entry = this.entries.get(name);
         if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(outBuf);

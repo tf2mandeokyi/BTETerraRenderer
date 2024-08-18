@@ -12,10 +12,6 @@ public class TableColumnPrinter implements Printer {
     }
 
     public void print(String content) {
-        List<String> split = Arrays.asList(content.split("\n"));
-        int lineCount = split.size();
-        for(int i = 0; i < lineCount; ++i) {
-            lines.add(content);
-        }
+        lines.addAll(Arrays.asList(content.split("\n")));
     }
 }

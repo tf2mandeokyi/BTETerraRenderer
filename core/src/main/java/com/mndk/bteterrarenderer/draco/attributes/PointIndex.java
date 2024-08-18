@@ -11,7 +11,7 @@ public class PointIndex extends IndexTypeImpl<PointIndex> {
     public static DataType<PointIndex> type() { return ARRAY_MANAGER; }
 
     public static PointIndex of(int value) {
-        return new PointIndex(value);
+        return value == -1 ? INVALID : new PointIndex(value);
     }
     public static Iterable<PointIndex> range(int start, int until) {
         PointIndex startIdx = new PointIndex(start);
@@ -19,17 +19,7 @@ public class PointIndex extends IndexTypeImpl<PointIndex> {
         return () -> startIdx.until(untilIdx);
     }
 
-    private PointIndex(int value) {
-        super(value);
-    }
-
-    @Override
-    protected PointIndex newInstance(int value) {
-        return new PointIndex(value);
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return this.getValue() == INVALID.getValue();
-    }
+    private PointIndex(int value) { super(value); }
+    @Override protected PointIndex newInstance(int value) { return new PointIndex(value); }
+    @Override public boolean isInvalid() { return this.getValue() == INVALID.getValue(); }
 }

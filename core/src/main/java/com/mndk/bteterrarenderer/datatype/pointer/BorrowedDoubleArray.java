@@ -26,7 +26,7 @@ class BorrowedDoubleArray extends BorrowedArray<Double> implements RawLongPointe
         array[offset + b] = temp;
     }
 
-    @Override public long getRawLong(long index) { return toRaw(array[checkIndex(offset + index)]); }
-    @Override public void setRawLong(long index, long value) { array[checkIndex(offset + index)] = fromRaw(value); }
+    @Override public long getRawLong(long index) { return toRaw(array[DataType.intLimit(offset + index)]); }
+    @Override public void setRawLong(long index, long value) { array[DataType.intLimit(offset + index)] = fromRaw(value); }
     @Override public Pointer<Double> toDouble() { return this; }
 }

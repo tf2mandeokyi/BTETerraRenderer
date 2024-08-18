@@ -8,6 +8,9 @@ import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.number.UShort;
 
 public interface RawPointer {
+
+    static RawPointer newArray(long byteSize) { return Pointer.newByteArray(byteSize).asRaw(); }
+
     default RawPointer rawAdd(long byteOffset) { return toUByte().add(byteOffset).asRaw(); }
 
     Object getOrigin();

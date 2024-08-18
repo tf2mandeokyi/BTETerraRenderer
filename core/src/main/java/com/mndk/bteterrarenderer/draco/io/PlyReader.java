@@ -1,8 +1,11 @@
 package com.mndk.bteterrarenderer.draco.io;
 
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
+import com.mndk.bteterrarenderer.core.util.StringUtil;
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.*;
 
 import java.util.ArrayList;
@@ -10,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 public class PlyReader {
 
@@ -33,6 +37,7 @@ public class PlyReader {
         DracoParserUtils.skipLine(buffer);
 
         DracoParserUtils.parseLine(buffer, valueRef);
+        value = valueRef.get();
         String format, version;
         List<String> words = this.splitWords(value);
         if(words.size() >= 3 && words.get(0).equals("format")) {
@@ -95,9 +100,9 @@ public class PlyReader {
         StatusChain chain = new StatusChain();
 
         DracoParserUtils.skipWhitespace(buffer);
-        BigUByteArray c = BigUByteArray.create(10);
+        RawPointer c = RawPointer.newArray(10);
         if(buffer.peek(c, 10).isError(chain)) return StatusOr.error(chain.get());
-        if(!c.decode().equals("end_header")) {
+        if(!PointerHelper.rawToString(c, 10).equals("end_header")) {
             return StatusOr.ok(false);
         }
         DracoParserUtils.skipLine(buffer);
@@ -200,23 +205,83 @@ public class PlyReader {
                     prop.getListData().pushBack(numEntries);
                     // Read and store the actual property data
                     long numBytesToRead = prop.getDataTypeNumBytes() * numEntries;
-                    prop.getData().insertRaw(prop.getData().size(), buffer.getDataHead(), numBytesToRead);
+                    prop.getData().insert(prop.getData().size(), buffer.getDataHead().toUByte(), numBytesToRead);
+                    buffer.advance(numBytesToRead);
+                } else {
+                    prop.getData().insert(prop.getData().size(), buffer.getDataHead().toUByte(), prop.getDataTypeNumBytes());
+                    buffer.advance(prop.getDataTypeNumBytes());
                 }
             }
         }
-        throw new UnsupportedOperationException("TODO");
+        return Status.ok();
     }
 
     private Status parseElementDataAscii(DecoderBuffer buffer, int elementIndex) {
-        throw new UnsupportedOperationException("TODO");
+        StatusChain chain = new StatusChain();
+
+        PlyElement element = this.elements.get(elementIndex);
+        for(int entry = 0; entry < element.getNumEntries(); entry++) {
+            for(int i = 0; i < element.getNumProperties(); i++) {
+                PlyProperty prop = element.getProperty(i);
+                PlyPropertyWriter<Double> propWriter = new PlyPropertyWriter<>(DataType.float64(), prop);
+                int numEntries = 1;
+                if(prop.isList()) {
+                    DracoParserUtils.skipWhitespace(buffer);
+                    AtomicReference<Integer> numEntriesRef = new AtomicReference<>();
+                    if(DracoParserUtils.parseSignedInt(buffer, numEntriesRef).isError(chain)) return chain.get();
+                    numEntries = numEntriesRef.get();
+                    prop.getListData().pushBack(prop.getData().size() / prop.getDataTypeNumBytes());
+                    prop.getListData().pushBack((long) numEntries);
+                }
+                for(int v = 0; v < numEntries; v++) {
+                    DracoParserUtils.skipWhitespace(buffer);
+                    if(prop.getDataType() == DracoDataType.FLOAT32 || prop.getDataType() == DracoDataType.FLOAT64) {
+                        AtomicReference<Float> valRef = new AtomicReference<>();
+                        if(DracoParserUtils.parseFloat(buffer, valRef).isError(chain)) return chain.get();
+                        propWriter.pushBackValue((double) valRef.get());
+                    } else {
+                        AtomicReference<Integer> valRef = new AtomicReference<>();
+                        if(DracoParserUtils.parseSignedInt(buffer, valRef).isError(chain)) return chain.get();
+                        propWriter.pushBackValue((double) valRef.get());
+                    }
+                }
+            }
+        }
+        return Status.ok();
     }
 
     private List<String> splitWords(String line) {
-        throw new UnsupportedOperationException("TODO");
+        List<String> output = new ArrayList<>();
+        int start = 0;
+        int end;
+
+        while((end = StringUtil.indexOf(Pattern.compile("[ \t\n\f\r]"), line, start)) != -1) {
+            String word = line.substring(start, end);
+            if(!word.chars().allMatch(Character::isWhitespace)) {
+                output.add(word);
+            }
+            start = end + 1;
+        }
+
+        String lastWord = line.substring(start);
+        if(!lastWord.chars().allMatch(Character::isWhitespace)) {
+            output.add(lastWord);
+        }
+        return output;
     }
 
     private DracoDataType getDataTypeFromString(String name) {
-        throw new UnsupportedOperationException("TODO");
+        switch(name) {
+            case "char": case "int8": return DracoDataType.INT8;
+            case "uchar": case "uint8": return DracoDataType.UINT8;
+            case "short": case "int16": return DracoDataType.INT16;
+            case "ushort": case "uint16": return DracoDataType.UINT16;
+            case "int": case "int32": return DracoDataType.INT32;
+            case "uint": case "uint32": return DracoDataType.UINT32;
+            case "float": case "float32": return DracoDataType.FLOAT32;
+            case "double": case "float64": return DracoDataType.FLOAT64;
+            default: return DracoDataType.INVALID;
+        }
     }
 
 }

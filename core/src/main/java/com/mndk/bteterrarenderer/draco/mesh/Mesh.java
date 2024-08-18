@@ -16,28 +16,22 @@ import java.util.Objects;
 public class Mesh extends PointCloud {
 
     public static class Face {
-        private final PointIndex[] points = new PointIndex[3];
-        public Face() {
-            this(PointIndex.INVALID, PointIndex.INVALID, PointIndex.INVALID);
-        }
+        private final int[] points = new int[3];
+        public Face() { this(PointIndex.INVALID, PointIndex.INVALID, PointIndex.INVALID); }
         public Face(PointIndex p1, PointIndex p2, PointIndex p3) {
-            points[0] = p1;
-            points[1] = p2;
-            points[2] = p3;
+            points[0] = p1.getValue();
+            points[1] = p2.getValue();
+            points[2] = p3.getValue();
         }
-        public PointIndex get(int i) { return points[i]; }
-        public int getValue(int i) { return points[i].getValue(); }
-        public void set(int i, PointIndex p) { points[i] = p; }
-        @Override public String toString() {
-            return "Face{" + points[0] + ", " + points[1] + ", " + points[2] + "}";
-        }
-        @Override public int hashCode() {
-            return Objects.hash(points[0].hashCode() + points[1].hashCode() + points[2].hashCode());
-        }
+        public PointIndex get(int i) { return PointIndex.of(points[i]); }
+        public int getValue(int i) { return points[i]; }
+        public void set(int i, PointIndex p) { points[i] = p.getValue(); }
+        @Override public String toString() { return "Face{" + points[0] + ", " + points[1] + ", " + points[2] + "}"; }
+        @Override public int hashCode() { return Objects.hash(points[0], points[1], points[2]); }
         @Override public boolean equals(Object obj) {
             if(!(obj instanceof Face)) return false;
             Face other = (Face) obj;
-            return points[0].equals(other.points[0]) && points[1].equals(other.points[1]) && points[2].equals(other.points[2]);
+            return points[0] == other.points[0] && points[1] == other.points[1] && points[2] == other.points[2];
         }
     }
 
@@ -64,7 +58,7 @@ public class Mesh extends PointCloud {
         faces.set(index, face);
     }
 
-    public void setNumFaces(int numFaces) {
+    public void setNumFaces(long numFaces) {
         faces.resize(numFaces);
     }
 

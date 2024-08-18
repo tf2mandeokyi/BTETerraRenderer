@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.draco.core;
 
+import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
@@ -47,12 +47,12 @@ public class DecoderBuffer {
     public void init(RawPointer data, long dataSize) {
         this.init(data, dataSize, bitstreamVersion);
     }
-    public void init(BigUByteArray data) {
-        this.init(data.getRawPointer(), data.size());
+    public void init(byte[] data) {
+        this.init(Pointer.wrap(data).asRaw(), data.length);
     }
-    public void init(InputStream inputStream) throws IOException { this.init(BigUByteArray.create(inputStream)); }
-    public void init(ByteBuf byteBuf) { this.init(BigUByteArray.create(byteBuf)); }
-    public void init(ByteBuffer byteBuffer) { this.init(BigUByteArray.create(byteBuffer)); }
+    public void init(InputStream inputStream) throws IOException { this.init(IOUtil.readAllBytes(inputStream)); }
+    public void init(ByteBuf byteBuf) { this.init(IOUtil.readAllBytes(byteBuf)); }
+    public void init(ByteBuffer byteBuffer) { this.init(IOUtil.readAllBytes(byteBuffer)); }
 
     /** Sets the buffer's internal data. {@code version} is the Draco bitstream version. */
     public void init(RawPointer data, long dataSize, int version) {
@@ -146,7 +146,7 @@ public class DecoderBuffer {
         pos += outData.getType().byteSize() * size;
         return Status.ok();
     }
-    public Status decode(BigUByteArray outVal, long size) {
+    public Status decode(RawPointer outVal, long size) {
         Status status = peek(outVal, size);
         if(status.isError()) return status;
         pos += size;
@@ -162,11 +162,11 @@ public class DecoderBuffer {
         PointerHelper.copySingle(this.data.rawAdd(pos), outVal);
         return Status.ok();
     }
-    public Status peek(BigUByteArray outVal, long size) {
+    public Status peek(RawPointer outVal, long size) {
         if(dataSize < pos + size) {
             return Status.ioError("Buffer overflow");
         }
-        PointerHelper.rawCopy(this.data.rawAdd(pos), outVal.getRawPointer(), size);
+        PointerHelper.rawCopy(this.data.rawAdd(pos), outVal, size);
         return Status.ok();
     }
     @Nullable

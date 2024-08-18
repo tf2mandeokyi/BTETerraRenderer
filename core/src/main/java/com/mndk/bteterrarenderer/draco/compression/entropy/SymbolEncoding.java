@@ -85,8 +85,7 @@ public class SymbolEncoding {
         // Maximum integer value for the values across all components.
         for (int i = 0; i < bitLengths.size(); ++i) {
             // Update the frequency of the associated entry id.
-            ULong freq = frequencies.get(bitLengths.get(i));
-            frequencies.set(bitLengths.get(i), freq.add(1));
+            frequencies.set(bitLengths.get(i), val -> val.add(1));
         }
 
         // Create one extra buffer to store raw value.
@@ -97,7 +96,7 @@ public class SymbolEncoding {
 
         // Create encoder for encoding the bit tags.
         SymbolEncoder tagEncoder = encoderMaker.apply(5);
-        if(tagEncoder.create(frequencies, MAX_TAG_SYMBOL_BIT_LENGTH, targetBuffer).isError(chain)) return chain.get();
+        if(tagEncoder.create(frequencies.getPointer(), MAX_TAG_SYMBOL_BIT_LENGTH, targetBuffer).isError(chain)) return chain.get();
 
         // Start encoding bit tags.
         tagEncoder.startEncoding(targetBuffer);
@@ -135,7 +134,7 @@ public class SymbolEncoding {
         valueBuffer.endBitEncoding();
 
         // Append the values to the end of the target buffer.
-        return targetBuffer.encode(DataType.bytes(valueBuffer.size()), valueBuffer.getData());
+        return targetBuffer.encode(valueBuffer.getData(), valueBuffer.size());
     }
 
     private Status encodeRawInternal(Supplier<SymbolEncoder> encoderMaker,
@@ -151,7 +150,7 @@ public class SymbolEncoding {
         }
 
         SymbolEncoder encoder = encoderMaker.get();
-        if(encoder.create(frequencies, (int) frequencies.size(), targetBuffer).isError(chain)) return chain.get();
+        if(encoder.create(frequencies.getPointer(), (int) frequencies.size(), targetBuffer).isError(chain)) return chain.get();
         encoder.startEncoding(targetBuffer);
         // Encode all values.
         if(encoder.needsReverseEncoding()) {
@@ -219,7 +218,7 @@ public class SymbolEncoding {
                 }
             }
             int valueMsbPos = 0;
-            if (maxComponentValue.gt( 0)) {
+            if (maxComponentValue.gt(0)) {
                 valueMsbPos = BitUtils.mostSignificantBit(DataType.uint32(), maxComponentValue);
             }
             if (maxComponentValue.gt(outMaxValue.get())) {

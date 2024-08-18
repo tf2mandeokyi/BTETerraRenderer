@@ -23,7 +23,7 @@ class LongType extends JavaNumberBridgeType<Long> {
 
     // Pointer operations
     @Override public Pointer<Long> newOwned(Long value) { return Pointer.newLong(value); }
-    @Override public Pointer<Long> newArray(int length) { return Pointer.wrap(new long[length], 0); }
+    @Override public Pointer<Long> newArray(int length) { return Pointer.newLongArray(length); }
     @Override public Pointer<Long> castPointer(RawPointer pointer) { return pointer.toLong(); }
 
     // Number properties

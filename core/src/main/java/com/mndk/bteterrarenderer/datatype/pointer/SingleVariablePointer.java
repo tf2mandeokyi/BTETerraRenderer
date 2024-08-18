@@ -7,6 +7,8 @@ public abstract class SingleVariablePointer<T> implements Pointer<T> {
         throw new IndexOutOfBoundsException("index = " + index);
     }
 
+    @Override public final T get(long index) { checkIndex(index); return get(); }
+    @Override public final void set(long index, T value) { checkIndex(index); set(value); }
     @Override public final Pointer<T> add(long offset) { checkIndex(offset); return this; }
     @Override public final Object getOrigin() { return this; }
 

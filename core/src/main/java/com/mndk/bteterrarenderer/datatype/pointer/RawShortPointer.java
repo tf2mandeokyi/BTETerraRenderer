@@ -47,23 +47,23 @@ public interface RawShortPointer extends RawPointer {
     @Override default void setRawInt(long intIndex, int value) {
         if(DataType.endian() == Endian.BIG) {
             setRawShort(2 * intIndex + 1, (short) value);
-            setRawShort(2 * intIndex,/**/ (short) (value >> 16));
+            setRawShort(2 * intIndex,/**/ (short) (value >>> 16));
         } else {
             setRawShort(2 * intIndex,/**/ (short) value);
-            setRawShort(2 * intIndex + 1, (short) (value >> 16));
+            setRawShort(2 * intIndex + 1, (short) (value >>> 16));
         }
     }
     @Override default void setRawLong(long longIndex, long value) {
         if(DataType.endian() == Endian.BIG) {
             setRawShort(4 * longIndex + 3, (short) value);
-            setRawShort(4 * longIndex + 2, (short) (value >> 16));
-            setRawShort(4 * longIndex + 1, (short) (value >> 32));
-            setRawShort(4 * longIndex,/**/ (short) (value >> 48));
+            setRawShort(4 * longIndex + 2, (short) (value >>> 16));
+            setRawShort(4 * longIndex + 1, (short) (value >>> 32));
+            setRawShort(4 * longIndex,/**/ (short) (value >>> 48));
         } else {
             setRawShort(4 * longIndex,/**/ (short) value);
-            setRawShort(4 * longIndex + 1, (short) (value >> 16));
-            setRawShort(4 * longIndex + 2, (short) (value >> 32));
-            setRawShort(4 * longIndex + 3, (short) (value >> 48));
+            setRawShort(4 * longIndex + 1, (short) (value >>> 16));
+            setRawShort(4 * longIndex + 2, (short) (value >>> 32));
+            setRawShort(4 * longIndex + 3, (short) (value >>> 48));
         }
     }
 }

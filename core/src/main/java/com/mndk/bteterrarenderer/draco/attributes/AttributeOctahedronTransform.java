@@ -56,9 +56,9 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         if(numComponents != 3) {
             return Status.invalidParameter("Attribute must have 3 components");
         }
-        Pointer<Float> attVal = Pointer.wrap(new float[3]);
-        Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
-        Pointer<Float> targetAddress = targetAttribute.getAddress(AttributeValueIndex.of(0), DataType.float32());
+        Pointer<Float> attVal = Pointer.newFloatArray(3);
+        Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0)).toInt();
+        Pointer<Float> targetAddress = targetAttribute.getAddress(AttributeValueIndex.of(0)).toFloat();
         OctahedronToolBox octahedronToolBox = new OctahedronToolBox();
         if(octahedronToolBox.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
 
@@ -115,9 +115,8 @@ public class AttributeOctahedronTransform extends AttributeTransform {
             return Status.invalidParameter("Octahedron transform not initialized");
         }
 
-        Pointer<Integer> portableAttributeData =
-                targetAttribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
-        Pointer<Float> attVal = Pointer.wrap(new float[3]);
+        Pointer<Integer> portableAttributeData = targetAttribute.getAddress(AttributeValueIndex.of(0)).toInt();
+        Pointer<Float> attVal = Pointer.newFloatArray(3);
         int dstIndex = 0;
         OctahedronToolBox converter = new OctahedronToolBox();
         if(converter.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();

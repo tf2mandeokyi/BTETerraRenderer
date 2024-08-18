@@ -221,6 +221,6 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
     }
 
     protected Pointer<Integer> getPortableAttributeData() {
-        return this.getPortableAttributeInternal().getAddress(AttributeValueIndex.of(0), DataType.int32());
+        return this.getPortableAttributeInternal().getAddress(AttributeValueIndex.of(0)).toInt();
     }
 }

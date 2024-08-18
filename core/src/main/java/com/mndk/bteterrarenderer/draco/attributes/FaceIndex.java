@@ -11,7 +11,7 @@ public class FaceIndex extends IndexTypeImpl<FaceIndex> {
     public static DataType<FaceIndex> type() { return ARRAY_MANAGER; }
 
     public static FaceIndex of(int value) {
-        return new FaceIndex(value);
+        return value == -1 ? INVALID : new FaceIndex(value);
     }
     public static Iterable<FaceIndex> range(int start, int until) {
         FaceIndex startIdx = new FaceIndex(start);
@@ -19,17 +19,7 @@ public class FaceIndex extends IndexTypeImpl<FaceIndex> {
         return () -> startIdx.until(untilIdx);
     }
 
-    private FaceIndex(int value) {
-        super(value);
-    }
-
-    @Override
-    protected FaceIndex newInstance(int value) {
-        return new FaceIndex(value);
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return this.getValue() == INVALID.getValue();
-    }
+    private FaceIndex(int value) { super(value); }
+    @Override protected FaceIndex newInstance(int value) { return new FaceIndex(value); }
+    @Override public boolean isInvalid() { return this.getValue() == INVALID.getValue(); }
 }

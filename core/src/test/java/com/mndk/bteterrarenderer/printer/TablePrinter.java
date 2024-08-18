@@ -6,10 +6,13 @@ import java.util.List;
 
 public class TablePrinter {
 
-    private static final String ATTACH_DELIMITER = " ";
-
     // Outer list = column, inner list = row
     private final List<List<String>> table = new ArrayList<>();
+    private final String attachDelimiter;
+
+    public TablePrinter(String attachDelimiter) {
+        this.attachDelimiter = attachDelimiter;
+    }
 
     public void print(PrintStream stream) {
         int[] widths = new int[table.size()];
@@ -29,7 +32,7 @@ public class TablePrinter {
                 String cell = lineIndex < column.size() ? column.get(lineIndex) : "";
                 if(widths[columnIndex] != -1) {
                     stream.printf("%-" + widths[columnIndex] + "s", cell);
-                    stream.print(ATTACH_DELIMITER);
+                    if(columnIndex != table.size() - 1) stream.print(attachDelimiter);
                 }
             }
             stream.println();

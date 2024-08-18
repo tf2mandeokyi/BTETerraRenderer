@@ -5,7 +5,6 @@ import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.compression.entropy.Ans;
 import com.mndk.bteterrarenderer.draco.core.BitUtils;
@@ -87,7 +86,7 @@ public class RAnsBitEncoder {
         zeroProb = zeroProb.add(zeroProb.equals(0) ? 1 : 0);
 
         // Space for 32 bit integer and some extra space.
-        BigUByteVector buffer = new BigUByteVector((bits.size() + 8) * 8L);
+        CppVector<UByte> buffer = new CppVector<>(DataType.uint8(), (bits.size() + 8) * 8L);
         Ans.Coder ansCoder = new Ans.Coder();
         ansCoder.ansWriteInit(buffer.getRawPointer());
 
@@ -106,7 +105,7 @@ public class RAnsBitEncoder {
         long sizeInBytes = ansCoder.ansWriteEnd();
         targetBuffer.encode(zeroProb);
         targetBuffer.encodeVarint(DataType.uint32(), UInt.of(sizeInBytes));
-        targetBuffer.encode(buffer.getPointer(DataType.uint8()), sizeInBytes);
+        targetBuffer.encode(buffer.getPointer(), sizeInBytes);
 
         this.clear();
     }

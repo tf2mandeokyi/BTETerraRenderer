@@ -13,27 +13,27 @@ public abstract class IndexTypeImpl<I extends IndexTypeImpl<I>> implements Index
 
     private final int value;
 
-    public I add(int other) {
+    public final I add(int other) {
         return this.newInstance(this.value + other);
     }
-    public I subtract(int other) {
+    public final I subtract(int other) {
         return this.newInstance(this.value - other);
     }
-    public Iterator<I> until(I end) {
+    public final Iterator<I> until(I end) {
         return new IndexTypeIterator(this.value, end.getValue());
     }
 
     protected abstract I newInstance(int value);
     public abstract boolean isInvalid();
 
-    @Override public String toString() { return String.valueOf(value); }
-    @Override public int hashCode() { return Integer.hashCode(value); }
+    @Override public final String toString() { return String.valueOf(value); }
+    @Override public final int hashCode() { return Integer.hashCode(value); }
 
-    public boolean equals(int other) { return value == other; }
-    public boolean equals(I other) { return value == other.getValue(); }
+    public final boolean equals(int other) { return value == other; }
+    public final boolean equals(I other) { return value == other.getValue(); }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if(obj == this) return true;
         if(obj instanceof Integer) {
             return value == (Integer) obj;

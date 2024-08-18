@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.draco.core;
 
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
@@ -12,7 +11,7 @@ public class BufferBitCodingTest {
     @Test
     public void testBitCodersByteAligned() {
         int bufferSize = 32;
-        RawPointer pointer = BigUByteArray.create(bufferSize).getRawPointer();
+        RawPointer pointer = RawPointer.newArray(bufferSize);
         EncoderBuffer.BitEncoder encoder = new EncoderBuffer.BitEncoder(pointer);
         byte[] data = {0x76, 0x54, 0x32, 0x10, 0x76, 0x54, 0x32, 0x10};
         int bytesToEncode = data.length;
@@ -37,7 +36,7 @@ public class BufferBitCodingTest {
     @Test
     public void testBitCodersNonByte() {
         int bufferSize = 32;
-        RawPointer pointer = BigUByteArray.create(bufferSize).getRawPointer();
+        RawPointer pointer = RawPointer.newArray(bufferSize);
         EncoderBuffer.BitEncoder encoder = new EncoderBuffer.BitEncoder(pointer);
         byte[] data = {0x76, 0x54, 0x32, 0x10, 0x76, 0x54, 0x32, 0x10};
         int bitsToEncode = 51;
@@ -85,7 +84,7 @@ public class BufferBitCodingTest {
     @Test
     public void testMultipleBits() {
         byte[] data = { 0x76, 0x54, 0x32, 0x10, 0x76, 0x54, 0x32, 0x10 };
-        RawPointer pointer = BigUByteArray.create(data).getRawPointer();
+        RawPointer pointer = Pointer.wrap(data).asRaw();
 
         DecoderBuffer.BitDecoder decoder = new DecoderBuffer.BitDecoder();
         decoder.reset(pointer, data.length);

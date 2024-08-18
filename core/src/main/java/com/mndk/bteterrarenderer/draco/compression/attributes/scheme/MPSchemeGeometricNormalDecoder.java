@@ -48,7 +48,7 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
         int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
 
         VectorD.I3 predNormal3D = new VectorD.I3();
-        Pointer<Integer> predNormalOct = Pointer.wrap(new int[2]);
+        Pointer<Integer> predNormalOct = Pointer.newIntArray(2);
 
         for(int dataId = 0; dataId < cornerMapSize; ++dataId) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(dataId);

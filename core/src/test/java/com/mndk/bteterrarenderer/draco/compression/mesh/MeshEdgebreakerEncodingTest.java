@@ -247,12 +247,13 @@
 
 package com.mndk.bteterrarenderer.draco.compression.mesh;
 
-import com.mndk.bteterrarenderer.draco.compression.DracoTestFileUtil;
 import com.mndk.bteterrarenderer.draco.compression.config.DecoderOptions;
 import com.mndk.bteterrarenderer.draco.compression.config.EncoderOptions;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.io.DracoTestFileUtil;
+import com.mndk.bteterrarenderer.draco.io.MeshIOUtil;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.draco.mesh.MeshAreEquivalent;
 import com.mndk.bteterrarenderer.draco.mesh.MeshCleanup;
@@ -260,15 +261,17 @@ import com.mndk.bteterrarenderer.draco.mesh.MeshCleanupOptions;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+
 public class MeshEdgebreakerEncodingTest {
 
-    private void testFile(String fileName) {
-        testFile(fileName, -1);
+    private void testFile(File file) {
+        testFile(file, -1);
     }
 
-    private void testFile(String fileName, int compressionLevel) {
-        Mesh mesh = DracoTestFileUtil.decode(fileName);
-        Assert.assertNotNull("Failed to load test model " + fileName, mesh);
+    private void testFile(File file, int compressionLevel) {
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Assert.assertNotNull("Failed to load test model " + file, mesh);
         testMesh(mesh, compressionLevel);
     }
 
@@ -297,24 +300,25 @@ public class MeshEdgebreakerEncodingTest {
 
     @Test
     public void testNmOBJ() {
-        testFile("draco/testdata/test_nm.obj");
+        testFile(DracoTestFileUtil.toFile("draco/testdata/test_nm.obj"));
     }
 
     @Test
     public void threeFacesOBJ() {
-        testFile("draco/testdata/extra_vertex.obj");
+        testFile(DracoTestFileUtil.toFile("draco/testdata/extra_vertex.obj"));
     }
 
     // TODO Add test code for .ply files
 
     @Test
     public void testMultiAttributes() {
-        testFile("draco/testdata/cube_att.obj", 10);
+        testFile(DracoTestFileUtil.toFile("draco/testdata/cube_att.obj"), 10);
     }
 
     @Test
     public void testEncoderReuse() {
-        Mesh mesh = DracoTestFileUtil.decode("draco/testdata/test_pos_color.ply");
+        File file = DracoTestFileUtil.toFile("draco/testdata/test_pos_color.ply");
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
         Assert.assertNotNull("Failed to load test model test_pos_color.ply", mesh);
 
         MeshEdgebreakerEncoder encoder = new MeshEdgebreakerEncoder();

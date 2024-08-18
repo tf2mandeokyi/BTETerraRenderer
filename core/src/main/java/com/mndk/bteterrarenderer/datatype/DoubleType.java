@@ -23,7 +23,7 @@ class DoubleType extends JavaNumberBridgeType<Double> {
 
     // Pointer operations
     @Override public Pointer<Double> newOwned(Double value) { return Pointer.newDouble(value); }
-    @Override public Pointer<Double> newArray(int length) { return Pointer.wrap(new double[length], 0); }
+    @Override public Pointer<Double> newArray(int length) { return Pointer.newDoubleArray(length); }
     @Override public Pointer<Double> castPointer(RawPointer pointer) { return pointer.toDouble(); }
 
     // Number properties

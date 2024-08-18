@@ -101,12 +101,12 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         // Convert all quantized values back to floats.
         int maxQuantizedValue = (1 << quantizationBits) - 1;
         int numComponents = targetAttribute.getNumComponents().intValue();
-        Pointer<Float> attVal = Pointer.wrap(new float[numComponents]);
+        Pointer<Float> attVal = Pointer.newFloatArray(numComponents);
         int quantValId = 0;
         int outBytePos = 0;
         Dequantizer dequantizer = new Dequantizer();
         if(dequantizer.init(range, maxQuantizedValue).isError(chain)) return chain.get();
-        Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0), DataType.int32());
+        Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0)).toInt();
 
         int numValues = targetAttribute.size();
 

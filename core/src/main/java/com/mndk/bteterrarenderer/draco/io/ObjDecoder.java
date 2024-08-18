@@ -2,12 +2,16 @@ package com.mndk.bteterrarenderer.draco.io;
 
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.attributes.*;
-import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
+import com.mndk.bteterrarenderer.draco.core.DracoDataType;
+import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.draco.metadata.AttributeMetadata;
 import com.mndk.bteterrarenderer.draco.pointcloud.PointCloud;
@@ -307,9 +311,9 @@ public class ObjDecoder {
     }
 
     private boolean parseVertexPosition(StatusChain chain) {
-        BigUByteArray cBuffer = BigUByteArray.create(2);
+        RawPointer cBuffer = RawPointer.newArray(2);
         if(buffer.peek(cBuffer, 2).isError()) return false;
-        if(!"v ".equals(cBuffer.decode())) return false;
+        if(!PointerHelper.rawToString(cBuffer, 2).equals("v ")) return false;
 
         // Vertex definition found!
         buffer.advance(2);
@@ -327,9 +331,9 @@ public class ObjDecoder {
     }
 
     private boolean parseNormal(StatusChain chain) {
-        BigUByteArray cBuffer = BigUByteArray.create(2);
+        RawPointer cBuffer = RawPointer.newArray(2);
         if(buffer.peek(cBuffer, 2).isError()) return false;
-        if(!"vn".equals(cBuffer.decode())) return false;
+        if(!PointerHelper.rawToString(cBuffer, 2).equals("vn")) return false;
 
         // Normal definition found!
         buffer.advance(2);
@@ -347,9 +351,9 @@ public class ObjDecoder {
     }
 
     private boolean parseTexCoord(StatusChain chain) {
-        BigUByteArray cBuffer = BigUByteArray.create(2);
+        RawPointer cBuffer = RawPointer.newArray(2);
         if(buffer.peek(cBuffer, 2).isError()) return false;
-        if(!"vt".equals(cBuffer.decode())) return false;
+        if(!PointerHelper.rawToString(cBuffer, 2).equals("vt")) return false;
 
         // Texture coord definition found!
         buffer.advance(2);
@@ -434,9 +438,9 @@ public class ObjDecoder {
     private boolean parseMaterialLib(StatusChain chain) {
         if(!this.materialNameToId.isEmpty()) return false;
 
-        BigUByteArray cBuffer = BigUByteArray.create(6);
+        RawPointer cBuffer = RawPointer.newArray(6);
         if(buffer.peek(cBuffer, 6).isError()) return false;
-        if(!"mtllib".equals(cBuffer.decode())) return false;
+        if(!PointerHelper.rawToString(cBuffer, 6).equals("mtllib")) return false;
 
         buffer.advance(6);
         DecoderBuffer lineBuffer = DracoParserUtils.parseLineIntoDecoderBuffer(buffer);
@@ -464,9 +468,9 @@ public class ObjDecoder {
     private boolean parseMaterial() {
         if(!countingMode && materialAttId < 0) return false;
 
-        BigUByteArray cBuffer = BigUByteArray.create(6);
+        RawPointer cBuffer = RawPointer.newArray(6);
         if(buffer.peek(cBuffer, 6).isError()) return false;
-        if(!"usemtl".equals(cBuffer.decode())) return false;
+        if(!PointerHelper.rawToString(cBuffer, 6).equals("usemtl")) return false;
 
         buffer.advance(6);
         DecoderBuffer lineBuffer = DracoParserUtils.parseLineIntoDecoderBuffer(buffer);
@@ -485,9 +489,9 @@ public class ObjDecoder {
     }
 
     private boolean parseObject(StatusChain chain) {
-        BigUByteArray cBuffer = BigUByteArray.create(2);
+        RawPointer cBuffer = RawPointer.newArray(2);
         if(buffer.peek(cBuffer, 2).isError()) return false;
-        if(!"o ".equals(cBuffer.decode())) return false;
+        if(!PointerHelper.rawToString(cBuffer, 2).equals("o ")) return false;
 
         buffer.advance(1);
         DecoderBuffer lineBuffer = DracoParserUtils.parseLineIntoDecoderBuffer(buffer);

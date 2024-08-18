@@ -1,12 +1,11 @@
 package com.mndk.bteterrarenderer.draco.core;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.*;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
-import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 /**
  * Class representing a buffer that can be used for either for byte-aligned
@@ -15,13 +14,13 @@ import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
  */
 public class EncoderBuffer {
 
-    private BigUByteVector buffer = new BigUByteVector();
+    private final CppVector<UByte> buffer = new CppVector<>(DataType.uint8());
     private BitEncoder bitEncoder = null;
     private long bitEncoderReservedBytes = 0;
     private boolean encodeBitSequenceSize = false;
 
     public void clear() {
-        buffer = new BigUByteVector();
+        buffer.clear();
         bitEncoderReservedBytes = 0;
     }
 
@@ -52,7 +51,7 @@ public class EncoderBuffer {
             bufferStartSize += DataType.uint64().byteSize();
         }
         buffer.resize(bufferStartSize + requiredBytes);
-        RawPointer data = buffer.getRawPointer(bufferStartSize);
+        RawPointer data = buffer.getRawPointer().rawAdd(bufferStartSize);
         bitEncoder = new BitEncoder(data);
         return Status.ok();
     }
@@ -68,7 +67,7 @@ public class EncoderBuffer {
         bitEncoder.flush(0);
         // Encode size if needed.
         if(encodeBitSequenceSize) {
-            RawPointer outMem = buffer.getRawPointer(size());
+            RawPointer outMem = buffer.getRawPointer().rawAdd(size());
             outMem = outMem.rawAdd(-bitEncoderReservedBytes - DataType.uint64().byteSize());
 
             EncoderBuffer varSizeBuffer = new EncoderBuffer();
@@ -105,12 +104,12 @@ public class EncoderBuffer {
 
     public <T> Status encode(DataType<T> inType, T data) {
         if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
-        this.buffer.insert(this.buffer.size(), inType, data);
+        this.buffer.insert(this.buffer.size(), inType.newOwned(data).asRawToUByte(), inType.byteSize());
         return Status.ok();
     }
-    public Status encode(BigUByteArray inValue, long size) {
+    public Status encode(RawPointer inValue, long size) {
         if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
-        this.buffer.insertRaw(this.buffer.size(), inValue.getRawPointer(), size);
+        this.buffer.insert(this.buffer.size(), inValue.toUByte(), size);
         return Status.ok();
     }
     public <T extends CppNumber<T>> Status encode(T val) {
@@ -118,7 +117,7 @@ public class EncoderBuffer {
     }
     public <T> Status encode(Pointer<T> data, long size) {
         if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
-        this.buffer.insert(this.buffer.size(), data, size);
+        this.buffer.insert(this.buffer.size(), data.asRawToUByte(), data.getType().byteSize() * size);
         return Status.ok();
     }
 

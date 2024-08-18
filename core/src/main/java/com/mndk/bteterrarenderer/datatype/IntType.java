@@ -23,7 +23,7 @@ class IntType extends JavaNumberBridgeType<Integer> {
 
     // Pointer operations
     @Override public Pointer<Integer> newOwned(Integer value) { return Pointer.newInt(value); }
-    @Override public Pointer<Integer> newArray(int length) { return Pointer.wrap(new int[length], 0); }
+    @Override public Pointer<Integer> newArray(int length) { return Pointer.newIntArray(length); }
     @Override public Pointer<Integer> castPointer(RawPointer pointer) { return pointer.toInt(); }
 
     // Number properties

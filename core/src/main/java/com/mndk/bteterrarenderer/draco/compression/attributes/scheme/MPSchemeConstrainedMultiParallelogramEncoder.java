@@ -75,8 +75,8 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
         }
 
         // Bit-field used for computing permutations of excluded edges (parallelograms).
-        Pointer<Boolean> excludedParallelograms = Pointer.wrap(
-                new boolean[MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS]);
+        Pointer<Boolean> excludedParallelograms = Pointer.newBoolArray(
+                MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS);
 
         // Data about the number of used parallelogram and total number of available
         // parallelogram for each context.

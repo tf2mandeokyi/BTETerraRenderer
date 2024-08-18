@@ -7,9 +7,7 @@ public abstract class AbstractOwnedRawLong<E> extends SingleVariablePointer<E> i
     protected long value;
 
     @Override public final E get() { return fromRaw(value); }
-    @Override public final E get(long index) { checkIndex(index); return fromRaw(value); }
     @Override public final void set(E value) { this.value = toRaw(value); }
-    @Override public final void set(long index, E value) { checkIndex(index); this.value = toRaw(value); }
     @Override public final RawPointer asRaw() { return this; }
 
     protected abstract long toRaw(E value);

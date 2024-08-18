@@ -26,7 +26,7 @@ class BorrowedFloatArray extends BorrowedArray<Float> implements RawIntPointer {
         array[offset + b] = temp;
     }
 
-    @Override public int getRawInt(long index) { return toRaw(array[checkIndex(offset + index)]); }
-    @Override public void setRawInt(long index, int value) { array[checkIndex(offset + index)] = fromRaw(value); }
+    @Override public int getRawInt(long index) { return toRaw(array[DataType.intLimit(offset + index)]); }
+    @Override public void setRawInt(long index, int value) { array[DataType.intLimit(offset + index)] = fromRaw(value); }
     @Override public Pointer<Float> toFloat() { return this; }
 }

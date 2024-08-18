@@ -60,44 +60,44 @@ public interface RawBytePointer extends RawPointer {
     @Override default void setRawShort(long shortIndex, short value) {
         if(DataType.endian() == Endian.BIG) {
             setRawByte(2 * shortIndex + 1, (byte) value);
-            setRawByte(2 * shortIndex,/**/ (byte) (value >> 8));
+            setRawByte(2 * shortIndex,/**/ (byte) (value >>> 8));
         } else {
             setRawByte(2 * shortIndex,/**/ (byte) value);
-            setRawByte(2 * shortIndex + 1, (byte) (value >> 8));
+            setRawByte(2 * shortIndex + 1, (byte) (value >>> 8));
         }
     }
     @Override default void setRawInt(long intIndex, int value) {
         if(DataType.endian() == Endian.BIG) {
             setRawByte(4 * intIndex + 3, (byte) value);
-            setRawByte(4 * intIndex + 2, (byte) (value >> 8));
-            setRawByte(4 * intIndex + 1, (byte) (value >> 16));
-            setRawByte(4 * intIndex,/**/ (byte) (value >> 24));
+            setRawByte(4 * intIndex + 2, (byte) (value >>> 8));
+            setRawByte(4 * intIndex + 1, (byte) (value >>> 16));
+            setRawByte(4 * intIndex,/**/ (byte) (value >>> 24));
         } else {
             setRawByte(4 * intIndex,/**/ (byte) value);
-            setRawByte(4 * intIndex + 1, (byte) (value >> 8));
-            setRawByte(4 * intIndex + 2, (byte) (value >> 16));
-            setRawByte(4 * intIndex + 3, (byte) (value >> 24));
+            setRawByte(4 * intIndex + 1, (byte) (value >>> 8));
+            setRawByte(4 * intIndex + 2, (byte) (value >>> 16));
+            setRawByte(4 * intIndex + 3, (byte) (value >>> 24));
         }
     }
     @Override default void setRawLong(long longIndex, long value) {
         if(DataType.endian() == Endian.BIG) {
             setRawByte(8 * longIndex + 7, (byte) value);
-            setRawByte(8 * longIndex + 6, (byte) (value >> 8));
-            setRawByte(8 * longIndex + 5, (byte) (value >> 16));
-            setRawByte(8 * longIndex + 4, (byte) (value >> 24));
-            setRawByte(8 * longIndex + 3, (byte) (value >> 32));
-            setRawByte(8 * longIndex + 2, (byte) (value >> 40));
-            setRawByte(8 * longIndex + 1, (byte) (value >> 48));
-            setRawByte(8 * longIndex,/**/ (byte) (value >> 56));
+            setRawByte(8 * longIndex + 6, (byte) (value >>> 8));
+            setRawByte(8 * longIndex + 5, (byte) (value >>> 16));
+            setRawByte(8 * longIndex + 4, (byte) (value >>> 24));
+            setRawByte(8 * longIndex + 3, (byte) (value >>> 32));
+            setRawByte(8 * longIndex + 2, (byte) (value >>> 40));
+            setRawByte(8 * longIndex + 1, (byte) (value >>> 48));
+            setRawByte(8 * longIndex,/**/ (byte) (value >>> 56));
         } else {
             setRawByte(8 * longIndex,/**/ (byte) value);
-            setRawByte(8 * longIndex + 1, (byte) (value >> 8));
-            setRawByte(8 * longIndex + 2, (byte) (value >> 16));
-            setRawByte(8 * longIndex + 3, (byte) (value >> 24));
-            setRawByte(8 * longIndex + 4, (byte) (value >> 32));
-            setRawByte(8 * longIndex + 5, (byte) (value >> 40));
-            setRawByte(8 * longIndex + 6, (byte) (value >> 48));
-            setRawByte(8 * longIndex + 7, (byte) (value >> 56));
+            setRawByte(8 * longIndex + 1, (byte) (value >>> 8));
+            setRawByte(8 * longIndex + 2, (byte) (value >>> 16));
+            setRawByte(8 * longIndex + 3, (byte) (value >>> 24));
+            setRawByte(8 * longIndex + 4, (byte) (value >>> 32));
+            setRawByte(8 * longIndex + 5, (byte) (value >>> 40));
+            setRawByte(8 * longIndex + 6, (byte) (value >>> 48));
+            setRawByte(8 * longIndex + 7, (byte) (value >>> 56));
         }
     }
 }

@@ -11,7 +11,7 @@ public class VertexIndex extends IndexTypeImpl<VertexIndex> {
     public static DataType<VertexIndex> type() { return ARRAY_MANAGER; }
 
     public static VertexIndex of(int value) {
-        return new VertexIndex(value);
+        return value == -1 ? INVALID : new VertexIndex(value);
     }
     public static Iterable<VertexIndex> range(int start, int until) {
         VertexIndex startIdx = new VertexIndex(start);
@@ -19,17 +19,7 @@ public class VertexIndex extends IndexTypeImpl<VertexIndex> {
         return () -> startIdx.until(untilIdx);
     }
 
-    private VertexIndex(int value) {
-        super(value);
-    }
-
-    @Override
-    protected VertexIndex newInstance(int value) {
-        return new VertexIndex(value);
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return this.getValue() == INVALID.getValue();
-    }
+    private VertexIndex(int value) { super(value); }
+    @Override protected VertexIndex newInstance(int value) { return new VertexIndex(value); }
+    @Override public boolean isInvalid() { return this.getValue() == INVALID.getValue(); }
 }

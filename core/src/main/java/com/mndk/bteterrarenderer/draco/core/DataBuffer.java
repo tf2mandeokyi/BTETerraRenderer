@@ -1,44 +1,53 @@
 package com.mndk.bteterrarenderer.draco.core;
 
+import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
-import com.mndk.bteterrarenderer.datatype.vector.BigUByteVector;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-@Getter
 public class DataBuffer {
 
-    private final BigUByteVector data;
+    private final CppVector<UByte> data;
 
     public DataBuffer() {
-        this.data = new BigUByteVector();
+        this.data = new CppVector<>(DataType.uint8());
     }
     public DataBuffer(long size) {
-        this.data = new BigUByteVector();
-        this.resize(size);
+        this.data = new CppVector<>(DataType.uint8(), size);
     }
-    public DataBuffer(BigUByteArray array) { this.data = new BigUByteVector(array); }
-    public DataBuffer(InputStream inputStream) throws IOException { this(BigUByteArray.create(inputStream)); }
-    public DataBuffer(ByteBuf buf) { this(BigUByteArray.create(buf)); }
-    public DataBuffer(ByteBuffer buffer) { this(BigUByteArray.create(buffer)); }
+    public DataBuffer(RawPointer pointer, long size) {
+        this.data = new CppVector<>(DataType.uint8(), size);
+        PointerHelper.rawCopy(pointer, this.data.getRawPointer(), size);
+    }
+    public DataBuffer(byte[] data) {
+        this.data = new CppVector<>(DataType.uint8(), data.length);
+        PointerHelper.rawCopy(data, 0, this.data.getRawPointer(), data.length);
+    }
+    public DataBuffer(InputStream inputStream) throws IOException {this(IOUtil.readAllBytes(inputStream)); }
+    public DataBuffer(ByteBuf buf) {this(IOUtil.readAllBytes(buf)); }
+    public DataBuffer(ByteBuffer buffer) {this(IOUtil.readAllBytes(buffer)); }
+
+    public Pointer<UByte> getData() {
+        return data.getPointer();
+    }
 
     public Status update(DataBuffer buffer) {
-        return this.update(buffer.data, buffer.data.size());
+        return this.update(buffer.data.getRawPointer(), buffer.data.size());
     }
-    public Status update(BigUByteArray bytes, long size) {
-        return this.update(bytes, 0, size);
+    public Status update(RawPointer data, long size) {
+        return this.update(data, 0, size);
     }
-    public Status update(@Nullable BigUByteArray bytes, long offset, long size) {
-        if(bytes == null) {
+    public Status update(@Nullable RawPointer data, long offset, long size) {
+        if(data == null) {
             if(size + offset < 0) {
                 return Status.invalidParameter("Invalid offset: " + offset);
             }
@@ -52,7 +61,8 @@ public class DataBuffer {
             if(size + offset > this.data.size()) {
                 this.resize(size + offset);
             }
-            bytes.copyTo(0, this.data, offset, size);
+//            bytes.copyTo(0, this.data, offset, size);
+            PointerHelper.rawCopy(data, this.data.getRawPointer().rawAdd(offset), size);
         }
         return Status.ok();
     }
@@ -62,7 +72,9 @@ public class DataBuffer {
     }
 
     public void copyFrom(long dstOffset, DataBuffer src, long srcOffset, long size) {
-        src.data.copyTo(srcOffset, this.data, dstOffset, size);
+        RawPointer srcPointer = src.data.getRawPointer().rawAdd(srcOffset);
+        RawPointer dstPointer = this.data.getRawPointer().rawAdd(dstOffset);
+        PointerHelper.rawCopy(srcPointer, dstPointer, size);
     }
 
     public long size() {
@@ -79,22 +91,22 @@ public class DataBuffer {
 
     /** Reads data from the buffer. */
     public <T> void read(long index, Pointer<T> out) {
-        PointerHelper.copySingle(data.getRawPointer(index), out);
+        PointerHelper.copySingle(data.getRawPointer().rawAdd(index), out);
     }
 
     /** Reads data from the buffer. */
     public <T> void read(long index, Pointer<T> out, long count) {
-        PointerHelper.copyMultiple(data.getRawPointer(index), out, count);
+        PointerHelper.copyMultiple(data.getRawPointer().rawAdd(index), out, count);
     }
 
     /** Writes data to the buffer. */
     public <T> void write(long index, DataType<T> type, T in) {
-        PointerHelper.copySingle(type.newOwned(in), data.getRawPointer(index));
+        PointerHelper.copySingle(type.newOwned(in), data.getRawPointer().rawAdd(index));
     }
 
     /** Writes data to the buffer. */
     public <T> void write(long index, Pointer<T> in, long count) {
-        PointerHelper.copyMultiple(in, data.getRawPointer(index), count);
+        PointerHelper.copyMultiple(in, data.getRawPointer().rawAdd(index), count);
     }
 
     @Override

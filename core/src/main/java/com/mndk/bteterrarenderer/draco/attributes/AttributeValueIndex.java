@@ -11,7 +11,7 @@ public class AttributeValueIndex extends IndexTypeImpl<AttributeValueIndex> {
     public static DataType<AttributeValueIndex> type() { return ARRAY_MANAGER; }
 
     public static AttributeValueIndex of(int value) {
-        return new AttributeValueIndex(value);
+        return value == -1 ? INVALID : new AttributeValueIndex(value);
     }
     public static Iterable<AttributeValueIndex> range(int start, int until) {
         AttributeValueIndex startIdx = new AttributeValueIndex(start);
@@ -19,17 +19,7 @@ public class AttributeValueIndex extends IndexTypeImpl<AttributeValueIndex> {
         return () -> startIdx.until(untilIdx);
     }
 
-    private AttributeValueIndex(int value) {
-        super(value);
-    }
-
-    @Override
-    protected AttributeValueIndex newInstance(int value) {
-        return new AttributeValueIndex(value);
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return this.getValue() == INVALID.getValue();
-    }
+    private AttributeValueIndex(int value) { super(value); }
+    @Override protected AttributeValueIndex newInstance(int value) { return new AttributeValueIndex(value); }
+    @Override public boolean isInvalid() { return this.getValue() == INVALID.getValue(); }
 }

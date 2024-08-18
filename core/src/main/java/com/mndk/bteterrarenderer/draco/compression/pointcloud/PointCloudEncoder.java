@@ -3,6 +3,8 @@ package com.mndk.bteterrarenderer.draco.compression.pointcloud;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UShort;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.compression.attributes.AttributesEncoder;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoHeader;
@@ -12,7 +14,6 @@ import com.mndk.bteterrarenderer.draco.compression.config.EncoderOptions;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.metadata.MetadataEncoder;
 import com.mndk.bteterrarenderer.draco.pointcloud.PointCloud;
 import lombok.AccessLevel;
@@ -175,7 +176,7 @@ public abstract class PointCloudEncoder {
     protected abstract void computeNumberOfEncodedPoints();
 
     private Status encodeHeader() {
-        buffer.encode(DataType.string(5), "DRACO");
+        buffer.encode(Pointer.wrap("DRACO".getBytes()), 5);
         EncodedGeometryType encoderType = this.getGeometryType();
         // Version (major, minor).
         byte versionMajor = encoderType == EncodedGeometryType.POINT_CLOUD

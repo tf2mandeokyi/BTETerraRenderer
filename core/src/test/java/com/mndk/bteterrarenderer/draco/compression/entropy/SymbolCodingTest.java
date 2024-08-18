@@ -40,7 +40,7 @@ public class SymbolCodingTest {
         EncoderBuffer eb = new EncoderBuffer();
         StatusAssert.assertOk(SymbolEncoding.encode(inPointer, numValues, 1, null, eb));
 
-        Pointer<UInt> out = Pointer.wrapUnsigned(new int[numValues]);
+        Pointer<UInt> out = Pointer.newUIntArray(numValues);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
@@ -111,11 +111,11 @@ public class SymbolCodingTest {
         // symbol.
         EncoderBuffer eb = new EncoderBuffer();
         int inLength = 1200;
-        Pointer<UInt> inVector = Pointer.wrapUnsigned(new int[inLength]);
+        Pointer<UInt> inVector = Pointer.newUIntArray(inLength);
         StatusAssert.assertOk(SymbolEncoding.encode(inVector, inLength, 1, null, eb));
         ByteTablePrinter.print(Printer.stdout(), eb.getData(), eb.size());
 
-        Pointer<UInt> out = Pointer.wrapUnsigned(new int[inLength]);
+        Pointer<UInt> out = Pointer.newUIntArray(inLength);
         DecoderBuffer db = new DecoderBuffer();
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);

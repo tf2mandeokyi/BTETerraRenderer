@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
+import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.*;
@@ -29,7 +30,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
     }
 
     @Override
-    public Status create(CppVector<ULong> frequencies, int numSymbols, EncoderBuffer buffer) {
+    public Status create(Pointer<ULong> frequencies, int numSymbols, EncoderBuffer buffer) {
         ULong totalFreq = ULong.ZERO;
         int maxValidSymbol = 0;
         for (int i = 0; i < numSymbols; ++i) {

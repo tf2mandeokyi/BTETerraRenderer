@@ -23,7 +23,7 @@ class ByteType extends JavaNumberBridgeType<Byte> {
 
     // Pointer operations
     @Override public Pointer<Byte> newOwned(Byte value) { return Pointer.newByte(value); }
-    @Override public Pointer<Byte> newArray(int length) { return Pointer.wrap(new byte[length], 0); }
+    @Override public Pointer<Byte> newArray(int length) { return Pointer.newByteArray(length); }
     @Override public Pointer<Byte> castPointer(RawPointer pointer) { return pointer.toByte(); }
 
     // Number properties

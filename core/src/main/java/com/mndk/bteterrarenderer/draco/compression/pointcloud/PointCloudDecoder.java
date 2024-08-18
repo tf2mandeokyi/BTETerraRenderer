@@ -1,9 +1,10 @@
 package com.mndk.bteterrarenderer.draco.compression.pointcloud;
 
-import com.mndk.bteterrarenderer.datatype.array.BigUByteArray;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UShort;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.compression.attributes.AttributesDecoderInterface;
 import com.mndk.bteterrarenderer.draco.compression.config.*;
@@ -46,9 +47,9 @@ public abstract class PointCloudDecoder {
     public static Status decodeHeader(DecoderBuffer buffer, DracoHeader outHeader) {
         StatusChain chain = new StatusChain();
         // Draco string
-        BigUByteArray dracoStringRef = BigUByteArray.create(5);
+        RawPointer dracoStringRef = RawPointer.newArray(5);
         if(buffer.decode(dracoStringRef, 5).isError(chain)) return chain.get();
-        outHeader.setDracoString(dracoStringRef.decode());
+        outHeader.setDracoString(PointerHelper.rawToString(dracoStringRef, 5));
         if(!outHeader.getDracoString().equals("DRACO")) {
             return Status.dracoError("Not a Draco file.");
         }

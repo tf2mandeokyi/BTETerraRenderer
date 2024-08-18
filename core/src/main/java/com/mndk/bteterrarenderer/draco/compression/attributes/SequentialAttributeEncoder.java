@@ -117,7 +117,7 @@ public class SequentialAttributeEncoder {
 
     protected Status encodeValues(CppVector<PointIndex> pointIds, EncoderBuffer outBuffer) {
         int entrySize = (int) attribute.getByteStride();
-        Pointer<UByte> valueData = Pointer.wrapUnsigned(new byte[entrySize]);
+        Pointer<UByte> valueData = Pointer.newUByteArray(entrySize);
         for(int i = 0; i < pointIds.size(); i++) {
             AttributeValueIndex entryId = attribute.getMappedIndex(pointIds.get(i));
             attribute.getValue(entryId, valueData, entrySize);

@@ -11,7 +11,7 @@ public class CornerIndex extends IndexTypeImpl<CornerIndex> {
     public static DataType<CornerIndex> type() { return ARRAY_MANAGER; }
 
     public static CornerIndex of(int value) {
-        return new CornerIndex(value);
+        return value == -1 ? INVALID : new CornerIndex(value);
     }
     public static Iterable<CornerIndex> range(int start, int until) {
         CornerIndex startIdx = new CornerIndex(start);
@@ -19,17 +19,7 @@ public class CornerIndex extends IndexTypeImpl<CornerIndex> {
         return () -> startIdx.until(untilIdx);
     }
 
-    private CornerIndex(int value) {
-        super(value);
-    }
-
-    @Override
-    protected CornerIndex newInstance(int value) {
-        return new CornerIndex(value);
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return this.getValue() == INVALID.getValue();
-    }
+    private CornerIndex(int value) { super(value); }
+    @Override protected CornerIndex newInstance(int value) { return new CornerIndex(value); }
+    @Override public boolean isInvalid() { return this.getValue() == INVALID.getValue(); }
 }

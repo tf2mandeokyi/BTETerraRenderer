@@ -23,7 +23,7 @@ class ULongType extends PredefinedDataNumberType<ULong> {
 
     // Pointer operations
     @Override public Pointer<ULong> newOwned(ULong value) { return Pointer.newULong(value); }
-    @Override public Pointer<ULong> newArray(int length) { return Pointer.wrapUnsigned(new long[length], 0); }
+    @Override public Pointer<ULong> newArray(int length) { return Pointer.newULongArray(length); }
     @Override public Pointer<ULong> castPointer(RawPointer pointer) { return pointer.toULong(); }
 
     // Number properties

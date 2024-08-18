@@ -22,7 +22,7 @@ class UIntType extends PredefinedDataNumberType<UInt> {
     @Override public UInt defaultValue() { return UInt.ZERO; }
 
     @Override public Pointer<UInt> newOwned(UInt value) { return Pointer.newUInt(value); }
-    @Override public Pointer<UInt> newArray(int length) { return Pointer.wrapUnsigned(new int[length], 0); }
+    @Override public Pointer<UInt> newArray(int length) { return Pointer.newUIntArray(length); }
     @Override public Pointer<UInt> castPointer(RawPointer pointer) { return pointer.toUInt(); }
 
     // Number properties

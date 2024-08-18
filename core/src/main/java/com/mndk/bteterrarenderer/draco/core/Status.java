@@ -80,6 +80,9 @@ public class Status {
     public DracoCompressionRuntimeException getRuntimeException() {
         return new DracoCompressionRuntimeException(this);
     }
+    public void throwRuntimeException() {
+        throw this.getRuntimeException();
+    }
 
     @Override
     public String toString() {

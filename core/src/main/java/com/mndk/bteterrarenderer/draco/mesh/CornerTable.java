@@ -1,16 +1,20 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
-import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.StatusOr;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CornerTable implements ICornerTable {
@@ -31,6 +35,19 @@ public class CornerTable implements ICornerTable {
         }
         public void set(int i, VertexIndex v) {
             vertices[i] = v;
+        }
+
+        public boolean equals(FaceType o) {
+            return vertices[0].equals(o.vertices[0]) && vertices[1].equals(o.vertices[1]) && vertices[2].equals(o.vertices[2]);
+        }
+        @Override public boolean equals(Object obj) {
+            return obj instanceof FaceType && this.equals((FaceType) obj);
+        }
+        @Override public int hashCode() {
+            return Objects.hash(vertices[0], vertices[1], vertices[2]);
+        }
+        @Override public String toString() {
+            return "FaceType[" + vertices[0] + ", " + vertices[1] + ", " + vertices[2] + ']';
         }
     }
 

@@ -25,7 +25,7 @@ class BooleanType implements DataNumberType<Boolean> {
 
     // Pointer operations
     @Override public Pointer<Boolean> newOwned(Boolean value) { return Pointer.newBool(value); }
-    @Override public Pointer<Boolean> newArray(int length) { return Pointer.wrap(new boolean[length], 0); }
+    @Override public Pointer<Boolean> newArray(int length) { return Pointer.newBoolArray(length); }
     @Override public Pointer<Boolean> castPointer(RawPointer pointer) { return pointer.toBool(); }
 
     // Number properties

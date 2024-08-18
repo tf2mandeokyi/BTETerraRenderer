@@ -122,15 +122,18 @@ package com.mndk.bteterrarenderer.draco.compression.mesh;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.compression.DracoExpertEncoder;
-import com.mndk.bteterrarenderer.draco.compression.DracoTestFileUtil;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.config.MeshEncoderMethod;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.io.DracoTestFileUtil;
+import com.mndk.bteterrarenderer.draco.io.MeshIOUtil;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
 
 public class MeshEncoderTest {
 
@@ -170,10 +173,8 @@ public class MeshEncoderTest {
         goldenFileName += "." + DracoVersions.MESH_BIT_STREAM_VERSION_MAJOR;
         goldenFileName += "." + DracoVersions.MESH_BIT_STREAM_VERSION_MINOR;
         goldenFileName += ".drc";
-        Mesh mesh = DracoTestFileUtil.decode(fileName);
-        // TEST vvv
-        System.out.println(goldenFileName);
-        // TEST ^^^
+        File file = DracoTestFileUtil.toFile(fileName);
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
         Assert.assertNotNull("Failed to load test model " + fileName, mesh);
 
         DracoExpertEncoder encoder = new DracoExpertEncoder(mesh);
@@ -193,7 +194,8 @@ public class MeshEncoderTest {
         StatusAssert.assertOk(decoderBuffer.decode(encodedMethodRef));
         Assert.assertEquals(method.getValue(), encodedMethodRef.get().intValue());
 
-        DracoTestFileUtil.compareGoldenFile(goldenFileName, buffer);
+        File goldenFile = DracoTestFileUtil.toFile(goldenFileName);
+        DracoTestFileUtil.compareGoldenFile(goldenFile, buffer);
     }
 
     @Test

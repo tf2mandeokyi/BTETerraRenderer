@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.datatype.pointer;
 
+import com.mndk.bteterrarenderer.datatype.DataType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,6 @@ public abstract class AbstractBorrowedRawShortArray<E> extends BorrowedArray<E> 
 
     protected abstract short toRaw(E value);
     protected abstract E fromRaw(short raw);
-    @Override public final short getRawShort(long index) { return array[checkIndex(offset + index)]; }
-    @Override public final void setRawShort(long index, short value) { array[checkIndex(offset + index)] = value; }
+    @Override public final short getRawShort(long index) { return array[DataType.intLimit(offset + index)]; }
+    @Override public final void setRawShort(long index, short value) { array[DataType.intLimit(offset + index)] = value; }
 }
