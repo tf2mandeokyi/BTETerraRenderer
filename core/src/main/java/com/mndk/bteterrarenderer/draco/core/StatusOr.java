@@ -64,7 +64,7 @@ public class StatusOr<T> {
     }
 
     public T getValue() {
-        if(status.isError()) throw new DracoCompressionRuntimeException(status);
+        if(status.isError()) throw status.getException();
         return value;
     }
 }

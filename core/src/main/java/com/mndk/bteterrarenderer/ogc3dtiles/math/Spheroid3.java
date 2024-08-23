@@ -31,4 +31,22 @@ public class Spheroid3 {
         latitude = Math.abs(Math.PI - (latitude - Math.PI / 2) % (2 * Math.PI)) - Math.PI / 2;
         return new Spheroid3((longitude + other.longitude) % (2 * Math.PI), latitude, height + other.height);
     }
+
+    @Override
+    public String toString() {
+        String latitudeString = toDegreeMinuteSecond(Math.toDegrees(latitude), true);
+        String longitudeString = toDegreeMinuteSecond(Math.toDegrees(longitude), false);
+        return String.format("Spheroid3[%s %s, height=%.2fm]", latitudeString, longitudeString, height);
+    }
+
+    private static String toDegreeMinuteSecond(double value, boolean isLatitude) {
+        String direction = isLatitude ? (value < 0 ? "S" : "N") : (value < 0 ? "W" : "E");
+        value = Math.abs(value);
+        int deg = (int) value;
+        value = (value - deg) * 60;
+        int min = (int) value;
+        value = (value - min) * 60;
+        double sec = value;
+        return String.format("%02d°%02d'%05.2f\"%s", deg, min, sec, direction);
+    }
 }

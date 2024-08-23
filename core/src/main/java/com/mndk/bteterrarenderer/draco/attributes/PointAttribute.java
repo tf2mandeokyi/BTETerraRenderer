@@ -1,14 +1,9 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
-import com.mndk.bteterrarenderer.draco.core.DataBuffer;
-import com.mndk.bteterrarenderer.draco.core.DracoDataType;
-import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.StatusChain;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -60,8 +55,7 @@ public class PointAttribute extends GeometryAttribute {
                            boolean normalized, int numAttributeValues)
     {
         this.buffer = new DataBuffer();
-        super.init(attributeType, this.buffer, UByte.of(numComponents), dataType, normalized,
-                dataType.getDataTypeLength() * numComponents, 0);
+        super.init(attributeType, this.buffer, numComponents, dataType, normalized);
         this.reset(numAttributeValues);
         this.setIdentityMapping();
     }

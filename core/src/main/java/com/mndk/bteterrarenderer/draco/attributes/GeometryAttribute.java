@@ -71,14 +71,6 @@ public class GeometryAttribute {
             }
             return INVALID;
         }
-
-        // Search by string
-        public static Type fromString(String string) {
-            for(Type type : values()) {
-                if(type.string.equals(string)) return type;
-            }
-            return INVALID;
-        }
     }
 
     protected DataBuffer buffer = null;
@@ -107,6 +99,16 @@ public class GeometryAttribute {
         this.byteStride = byteStride;
         this.byteOffset = byteOffset;
         this.attributeType = attributeType;
+    }
+
+    public final void init(Type attributeType, DataBuffer buffer, int numComponents, DracoDataType dataType, boolean normalized) {
+        long byteStride = numComponents * dataType.getDataTypeLength();
+        this.init(attributeType, buffer, UByte.of(numComponents), dataType, normalized, byteStride, 0);
+    }
+
+    public final void init(Type attributeType, DataBuffer buffer, UByte numComponents, DracoDataType dataType, boolean normalized) {
+        long byteStride = numComponents.intValue() * dataType.getDataTypeLength();
+        this.init(attributeType, buffer, numComponents, dataType, normalized, byteStride, 0);
     }
 
     public final boolean isValid() {

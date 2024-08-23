@@ -10,10 +10,13 @@ import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 
 public class MeshEdgebreakerTraversalDecoder {
 
+    @Getter(AccessLevel.PROTECTED)
     private final DecoderBuffer buffer = new DecoderBuffer();
     private final DecoderBuffer symbolBuffer = new DecoderBuffer();
     private final RAnsBitDecoder startFaceDecoder = new RAnsBitDecoder();

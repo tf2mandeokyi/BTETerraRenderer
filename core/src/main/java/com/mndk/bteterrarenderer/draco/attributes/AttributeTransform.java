@@ -1,11 +1,10 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
-import com.mndk.bteterrarenderer.datatype.number.UByte;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.DracoDataType;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 /**
  * Virtual base class for various attribute transforms, enforcing common
@@ -63,8 +62,7 @@ public abstract class AttributeTransform {
         int numComponents = this.getTransformedNumComponents(srcAttribute);
         DracoDataType dataType = this.getTransformedDataType(srcAttribute);
         GeometryAttribute geometryAttribute = new GeometryAttribute();
-        geometryAttribute.init(srcAttribute.getAttributeType(), null, UByte.of(numComponents), dataType,
-                false, numComponents * dataType.getDataTypeLength(), 0);
+        geometryAttribute.init(srcAttribute.getAttributeType(), null, numComponents, dataType, false);
         PointAttribute transformedAttribute = new PointAttribute(geometryAttribute);
         transformedAttribute.reset(numEntries);
         transformedAttribute.setIdentityMapping();

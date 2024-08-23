@@ -173,8 +173,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
     protected void preparePortableAttribute(int numEntries, int numComponents) {
         GeometryAttribute ga = new GeometryAttribute();
         DracoDataType dataType = DracoDataType.INT32;
-        ga.init(this.getAttribute().getAttributeType(), null, UByte.of(numComponents), dataType,
-                false, numComponents * dataType.getDataTypeLength(), 0);
+        ga.init(this.getAttribute().getAttributeType(), null, numComponents, dataType, false);
         PointAttribute portAtt = new PointAttribute(ga);
         portAtt.setIdentityMapping();
         portAtt.reset(numEntries);

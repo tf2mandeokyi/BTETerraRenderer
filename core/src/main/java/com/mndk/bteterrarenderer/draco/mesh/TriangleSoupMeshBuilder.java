@@ -1,12 +1,11 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.*;
 import com.mndk.bteterrarenderer.draco.core.DracoDataType;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.metadata.AttributeMetadata;
 import com.mndk.bteterrarenderer.draco.metadata.GeometryMetadata;
 
@@ -27,8 +26,7 @@ public class TriangleSoupMeshBuilder {
     }
     public int addAttribute(GeometryAttribute.Type attributeType, byte numComponents, DracoDataType dataType, boolean normalized) {
         GeometryAttribute attribute = new GeometryAttribute();
-        attribute.init(attributeType, null, UByte.of(numComponents), dataType, normalized,
-                dataType.getDataTypeLength() * numComponents, 0);
+        attribute.init(attributeType, null, numComponents, dataType, normalized);
         attributeElementTypes.pushBack((byte) -1);
         return mesh.addAttribute(attribute, true, mesh.getNumPoints());
     }

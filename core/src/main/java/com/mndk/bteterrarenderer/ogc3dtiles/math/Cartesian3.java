@@ -9,11 +9,13 @@ import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 @Data
+@RequiredArgsConstructor
 @JsonDeserialize(using = Cartesian3.Deserializer.class)
 public class Cartesian3 {
     public static final Cartesian3 ORIGIN = new Cartesian3(0, 0, 0);
@@ -26,6 +28,9 @@ public class Cartesian3 {
 
     // TODO: Consider changing these to float and add a center coordinate
     private final double x, y, z;
+
+    public Cartesian3(float[] array) { this(array[0], array[1], array[2]); }
+    public Cartesian3(double[] array) { this(array[0], array[1], array[2]); }
 
     /**
      * @link <a href="https://gssc.esa.int/navipedia/index.php/Ellipsoidal_and_Cartesian_Coordinates_Conversion">
@@ -162,6 +167,11 @@ public class Cartesian3 {
      */
     public Cartesian3 cross(Cartesian3 other) {
         return new Cartesian3(y*other.z - z*other.y, z*other.x - x*other.z, x*other.y - y*other.x);
+    }
+
+    @Override
+    public String toString() {
+        return "Cartesian3[" + x + ", " + y + ", " + z + "]";
     }
 
     public static Cartesian3 fromArray(double[] array) {

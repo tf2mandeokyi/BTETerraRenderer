@@ -63,7 +63,7 @@ public class Status {
     static StackTraceElement[] generateStackTrace() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         StackTraceElement[] newStackTrace = new StackTraceElement[stackTrace.length - 4];
-        System.arraycopy(stackTrace, 3, newStackTrace, 0, newStackTrace.length);
+        System.arraycopy(stackTrace, 4, newStackTrace, 0, newStackTrace.length);
         return newStackTrace;
     }
 

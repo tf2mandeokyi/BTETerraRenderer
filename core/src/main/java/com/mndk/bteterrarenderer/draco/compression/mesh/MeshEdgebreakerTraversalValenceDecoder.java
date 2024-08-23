@@ -8,10 +8,7 @@ import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
 import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.entropy.SymbolDecoding;
-import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
-import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
-import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.draco.mesh.CornerTable;
 
 import java.util.ArrayList;
@@ -51,6 +48,7 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
         }
         if(super.decodeStartFaces().isError(chain)) return chain.get();
         if(super.decodeAttributeSeams().isError(chain)) return chain.get();
+        outBuffer.reset(this.getBuffer());
 
         if(this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> numSplitSymbols = Pointer.newUInt();
@@ -87,6 +85,7 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
         int numUniqueValences = maxValence - minValence + 1;
 
         // Decode all symbols for all contexts.
+        contextSymbols.clear();
         contextCounters.resize(numUniqueValences);
         for(int i = 0; i < numUniqueValences; ++i) {
             Pointer<UInt> numSymbols = Pointer.newUInt();
@@ -100,7 +99,7 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
                 contextSymbol.resize(numSymbolsValue.intValue());
                 SymbolDecoding.decode(numSymbolsValue, 1, outBuffer, contextSymbol.getPointer());
                 contextCounters.set(i, numSymbolsValue.intValue());
-                contextSymbols.set(i, contextSymbol);
+                contextSymbols.add(contextSymbol);
             }
         }
         return Status.ok();

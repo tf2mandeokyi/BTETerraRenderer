@@ -210,8 +210,7 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
     protected void preparePortableAttribute(int numEntries, int numComponents, int numPoints) {
         GeometryAttribute va = new GeometryAttribute();
         DracoDataType type = DracoDataType.INT32;
-        va.init(this.getAttribute().getAttributeType(), null, UByte.of(numComponents), type,
-                false, numComponents * type.getDataTypeLength(), 0);
+        va.init(this.getAttribute().getAttributeType(), null, numComponents, type, false);
         PointAttribute portableAtt = new PointAttribute(va);
         portableAtt.reset(numEntries);
         this.setPortableAttribute(portableAtt);

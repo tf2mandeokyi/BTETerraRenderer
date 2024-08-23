@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
+import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
@@ -27,6 +28,7 @@ import lombok.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ import java.util.Optional;
 public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     private static final GraphicsModelTextureBakingBlock<?> MODEL_BAKER = new GraphicsModelTextureBakingBlock<>();
+    private static final ImageTexturePair MISSING_TEXTURE;
+    private static boolean MISSING_TEXTURE_BAKED = false;
     public static final int DEFAULT_MAX_THREAD = 2;
 
     protected final int nThreads;
@@ -71,6 +75,11 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     public final void render(@Nonnull DrawContextWrapper<?> drawContextWrapper,
                              double px, double py, double pz, float opacity) {
         // Bake textures
+        if(!MISSING_TEXTURE_BAKED) {
+            MISSING_TEXTURE.bake();
+            MODEL_BAKER.setDefaultTexture(MISSING_TEXTURE.getTextureObject());
+            MISSING_TEXTURE_BAKED = true;
+        }
         this.preRender(px, py, pz);
         MODEL_BAKER.process(2);
 
@@ -278,5 +287,16 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             TRANSLATABLE_STRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<String>>() {});
             TRANSLATABLE_JSONSTRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<JsonString>>() {});
         }
+    }
+
+    static {
+        BufferedImage missingTexture = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
+        for(int x = 0; x < 256; x++) {
+            for(int y = 0; y < 256; y++) {
+                int color = (x / 32 + y / 32) % 2 == 0 ? 0xFFFFFFFF : 0xFFFF00FF;
+                missingTexture.setRGB(x, y, color);
+            }
+        }
+        MISSING_TEXTURE = new ImageTexturePair(missingTexture);
     }
 }

@@ -132,7 +132,7 @@ public class PlyDecoder {
             }
 
             GeometryAttribute va = new GeometryAttribute();
-            va.init(GeometryAttribute.Type.POSITION, null, UByte.of(3), dt, false, dt.getDataTypeLength() * 3, 0);
+            va.init(GeometryAttribute.Type.POSITION, null, 3, dt, false);
             int attId = outPointCloud.addAttribute(va, true, numVertices);
             List<PlyProperty> properties = new ArrayList<>();
             properties.add(xProp);
@@ -156,7 +156,7 @@ public class PlyDecoder {
                     PlyPropertyReader<Float> yReader = new PlyPropertyReader<>(DataType.float32(), nYProp);
                     PlyPropertyReader<Float> zReader = new PlyPropertyReader<>(DataType.float32(), nZProp);
                     GeometryAttribute normalAttribute = new GeometryAttribute();
-                    normalAttribute.init(GeometryAttribute.Type.NORMAL, null, UByte.of(3), DracoDataType.FLOAT32, false, 4 * 3, 0);
+                    normalAttribute.init(GeometryAttribute.Type.NORMAL, null, 3, DracoDataType.FLOAT32, false);
                     int normalAttributeId = outPointCloud.addAttribute(normalAttribute, true, numVertices);
                     for (int i = 0; i < numVertices; i++) {
                         float[] val = new float[3];

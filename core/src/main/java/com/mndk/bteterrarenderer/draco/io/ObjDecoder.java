@@ -3,7 +3,6 @@ package com.mndk.bteterrarenderer.draco.io;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
-import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
@@ -148,22 +147,22 @@ public class ObjDecoder {
         // Add attributes if they are present in the input data.
         if(numPositions > 0) {
             GeometryAttribute va = new GeometryAttribute();
-            va.init(GeometryAttribute.Type.POSITION, null, UByte.of(3), DracoDataType.FLOAT32, false, 3 * 4, 0);
+            va.init(GeometryAttribute.Type.POSITION, null, 3, DracoDataType.FLOAT32, false);
             this.posAttId = this.outPointCloud.addAttribute(va, useIdentityMapping, numPositions);
         }
         if(numTexCoords > 0) {
             GeometryAttribute va = new GeometryAttribute();
-            va.init(GeometryAttribute.Type.TEX_COORD, null, UByte.of(2), DracoDataType.FLOAT32, false, 2 * 4, 0);
+            va.init(GeometryAttribute.Type.TEX_COORD, null, 2, DracoDataType.FLOAT32, false);
             this.texAttId = this.outPointCloud.addAttribute(va, useIdentityMapping, numTexCoords);
         }
         if(numNormals > 0) {
             GeometryAttribute va = new GeometryAttribute();
-            va.init(GeometryAttribute.Type.NORMAL, null, UByte.of(3), DracoDataType.FLOAT32, false, 3 * 4, 0);
+            va.init(GeometryAttribute.Type.NORMAL, null, 3, DracoDataType.FLOAT32, false);
             this.normAttId = this.outPointCloud.addAttribute(va, useIdentityMapping, numNormals);
         }
         if(preservePolygons && hasPolygons) {
             GeometryAttribute va = new GeometryAttribute();
-            va.init(GeometryAttribute.Type.GENERIC, null, UByte.of(1), DracoDataType.UINT8, false, 1, 0);
+            va.init(GeometryAttribute.Type.GENERIC, null, 1, DracoDataType.UINT8, false);
             PointCloud pc = this.outPointCloud;
             this.addedEdgeAttId = pc.addAttribute(va, false, 2);
 
@@ -182,13 +181,13 @@ public class ObjDecoder {
             GeometryAttribute.Type geometryAttributeType = GeometryAttribute.Type.GENERIC;
             DataNumberType<T> dataType;
             if(numMaterials < 256) {
-                va.init(geometryAttributeType, null, UByte.of(1), DracoDataType.UINT8, false, 1, 0);
+                va.init(geometryAttributeType, null, 1, DracoDataType.UINT8, false);
                 dataType = BTRUtil.uncheckedCast(DataType.uint8());
             } else if(numMaterials < 65536) {
-                va.init(geometryAttributeType, null, UByte.of(1), DracoDataType.UINT16, false, 2, 0);
+                va.init(geometryAttributeType, null, 1, DracoDataType.UINT16, false);
                 dataType = BTRUtil.uncheckedCast(DataType.uint16());
             } else {
-                va.init(geometryAttributeType, null, UByte.of(1), DracoDataType.UINT32, false, 4, 0);
+                va.init(geometryAttributeType, null, 1, DracoDataType.UINT32, false);
                 dataType = BTRUtil.uncheckedCast(DataType.uint32());
             }
             this.materialAttId = this.outPointCloud.addAttribute(va, false, numMaterials);
@@ -215,13 +214,13 @@ public class ObjDecoder {
             GeometryAttribute va = new GeometryAttribute();
             DataNumberType<T> dataType;
             if(this.objNameToId.size() < 256) {
-                va.init(GeometryAttribute.Type.GENERIC, null, UByte.of(1), DracoDataType.UINT8, false, 1, 0);
+                va.init(GeometryAttribute.Type.GENERIC, null, 1, DracoDataType.UINT8, false);
                 dataType = BTRUtil.uncheckedCast(DataType.uint8());
             } else if(this.objNameToId.size() < 65536) {
-                va.init(GeometryAttribute.Type.GENERIC, null, UByte.of(1), DracoDataType.UINT16, false, 2, 0);
+                va.init(GeometryAttribute.Type.GENERIC, null, 1, DracoDataType.UINT16, false);
                 dataType = BTRUtil.uncheckedCast(DataType.uint16());
             } else {
-                va.init(GeometryAttribute.Type.GENERIC, null, UByte.of(1), DracoDataType.UINT32, false, 4, 0);
+                va.init(GeometryAttribute.Type.GENERIC, null, 1, DracoDataType.UINT32, false);
                 dataType = BTRUtil.uncheckedCast(DataType.uint32());
             }
             this.subObjAttId = this.outPointCloud.addAttribute(va, false, this.objNameToId.size());

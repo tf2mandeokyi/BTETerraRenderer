@@ -86,8 +86,7 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
 
             // Add the attribute to the point cloud
             GeometryAttribute ga = new GeometryAttribute();
-            ga.init(attType, null, numComponents, dataType, normalized.gt(UByte.ZERO),
-                    dataType.getDataTypeLength() * numComponents.intValue(), 0);
+            ga.init(attType, null, numComponents, dataType, normalized.gt(UByte.ZERO));
             Pointer<UInt> uniqueIdRef = Pointer.newUInt();
             if(pointCloudDecoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 3)) {
                 Pointer<UShort> customIdRef = Pointer.newUShort();
