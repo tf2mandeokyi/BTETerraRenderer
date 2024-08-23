@@ -12,6 +12,15 @@ public class ShannonEntropyTracker {
         public int numValues = 0;
         public int maxSymbol = 0;
         public int numUniqueSymbols = 0;
+
+        public EntropyData copy() {
+            EntropyData copy = new EntropyData();
+            copy.entropyNorm = this.entropyNorm;
+            copy.numValues = this.numValues;
+            copy.maxSymbol = this.maxSymbol;
+            copy.numUniqueSymbols = this.numUniqueSymbols;
+            return copy;
+        }
     }
 
     private final CppVector<Integer> frequencies = new CppVector<>(DataType.int32());
@@ -26,7 +35,7 @@ public class ShannonEntropyTracker {
     }
 
     public EntropyData updateSymbols(Pointer<UInt> symbols, int numSymbols, boolean pushChanges) {
-        EntropyData retData = entropyData;
+        EntropyData retData = entropyData.copy();
         retData.numValues += numSymbols;
         for(int i = 0; i < numSymbols; ++i) {
             UInt symbol = symbols.get(i);
@@ -50,7 +59,7 @@ public class ShannonEntropyTracker {
             frequencies.set(symbol, frequency);
         }
         if(pushChanges) {
-            entropyData = retData;
+            entropyData = retData.copy();
         } else {
             for(int i = 0; i < numSymbols; ++i) {
                 UInt symbol = symbols.get(i);
@@ -82,8 +91,9 @@ public class ShannonEntropyTracker {
         return Ans.approximateRAnsFrequencyTableBits(entropyData.maxSymbol + 1, entropyData.numUniqueSymbols);
     }
 
-    public static long computeEntropy(Pointer<UInt> symbols, int numSymbols, int maxValue,
-                                      Pointer<Integer> outNumUniqueSymbols) {
+    // draco::ComputeShannonEntropy
+    public static long compute(Pointer<UInt> symbols, int numSymbols, int maxValue,
+                               Pointer<Integer> outNumUniqueSymbols) {
         int numUniqueSymbols = 0;
         CppVector<Integer> symbolFrequencies = new CppVector<>(DataType.int32(), maxValue + 1, 0);
         for(int i = 0; i < numSymbols; ++i) {
@@ -105,7 +115,8 @@ public class ShannonEntropyTracker {
         return (long) -totalBits;
     }
 
-    public static double computeBinaryShannonEntropy(UInt numValues, UInt numTrueValues) {
+    // draco::ComputeBinaryShannonEntropy
+    public static double computeBinary(UInt numValues, UInt numTrueValues) {
         if(numValues.equals(0)) return 0;
 
         // We can exit early if the data set has 0 entropy.

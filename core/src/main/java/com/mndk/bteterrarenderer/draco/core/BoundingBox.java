@@ -5,15 +5,15 @@ import lombok.Getter;
 @Getter
 public class BoundingBox {
 
-    private final VectorD.F3 minPoint;
-    private final VectorD.F3 maxPoint;
+    private final VectorD.D3<Float> minPoint;
+    private final VectorD.D3<Float> maxPoint;
 
     public BoundingBox() {
-        this.minPoint = new VectorD.F3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-        this.maxPoint = new VectorD.F3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+        this.minPoint = VectorD.float3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+        this.maxPoint = VectorD.float3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
     }
 
-    public BoundingBox(VectorD.F3 minPoint, VectorD.F3 maxPoint) {
+    public BoundingBox(VectorD.D3<Float> minPoint, VectorD.D3<Float> maxPoint) {
         this.minPoint = minPoint;
         this.maxPoint = maxPoint;
     }
@@ -27,7 +27,7 @@ public class BoundingBox {
                maxPoint.get(2) != Float.MIN_VALUE;
     }
 
-    public void update(VectorD.F3 newPoint) {
+    public void update(VectorD.D3<Float> newPoint) {
         for (int i = 0; i < 3; i++) {
             if (newPoint.get(i) < minPoint.get(i)) {
                 minPoint.set(i, newPoint.get(i));
@@ -43,11 +43,11 @@ public class BoundingBox {
         update(other.maxPoint);
     }
 
-    public VectorD.F3 size() {
+    public VectorD.D3<Float> size() {
         return maxPoint.subtract(minPoint);
     }
 
-    public VectorD.F3 center() {
+    public VectorD.D3<Float> center() {
         return minPoint.add(maxPoint).divide(2f);
     }
 }

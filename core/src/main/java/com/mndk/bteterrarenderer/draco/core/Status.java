@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+import static com.mndk.bteterrarenderer.draco.core.Status.Code.*;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Status {
 
     @Getter @RequiredArgsConstructor
-    public enum Code {
+    enum Code {
         OK(0),
         DRACO_ERROR(-1),
         IO_ERROR(-2),
@@ -20,39 +22,47 @@ public class Status {
         UNSUPPORTED_FEATURE(-6);
 
         private final int value;
-
-        public static Code valueOf(int value) {
-            for(Code code : Code.values()) {
-                if(code.value == value) return code;
-            }
-            return null;
-        }
     }
 
     private static final Status OK = new Status();
     public static Status ok() { return OK; }
-    public static Status dracoError(String message) { return new Status(Code.DRACO_ERROR, message, generateStackTrace()); }
-    public static Status ioError(String message) { return new Status(Code.IO_ERROR, message, generateStackTrace()); }
-    public static Status invalidParameter(String message) { return new Status(Code.INVALID_PARAMETER, message, generateStackTrace()); }
-    public static Status unsupportedVersion(String message) { return new Status(Code.UNSUPPORTED_VERSION, message, generateStackTrace()); }
-    public static Status unknownVersion(String message) { return new Status(Code.UNKNOWN_VERSION, message, generateStackTrace()); }
-    public static Status unsupportedFeature(String message) { return new Status(Code.UNSUPPORTED_FEATURE, message, generateStackTrace()); }
+    public static Status dracoError(String message) { return of(DRACO_ERROR, message); }
+    public static Status dracoError(String message, Throwable t) { return of(DRACO_ERROR, message, t); }
+    public static Status ioError(String message) { return of(IO_ERROR, message); }
+    public static Status ioError(String message, Throwable t) { return of(IO_ERROR, message, t); }
+    public static Status invalidParameter(String message) { return of(INVALID_PARAMETER, message); }
+    public static Status invalidParameter(String message, Throwable t) { return of(INVALID_PARAMETER, message, t); }
+    public static Status unsupportedVersion(String message) { return of(UNSUPPORTED_VERSION, message); }
+    public static Status unsupportedVersion(String message, Throwable t) { return of(UNSUPPORTED_VERSION, message, t); }
+    public static Status unknownVersion(String message) { return of(UNKNOWN_VERSION, message); }
+    public static Status unknownVersion(String message, Throwable t) { return of(UNKNOWN_VERSION, message, t); }
+    public static Status unsupportedFeature(String message) { return of(UNSUPPORTED_FEATURE, message); }
+    public static Status unsupportedFeature(String message, Throwable t) { return of(UNSUPPORTED_FEATURE, message, t); }
+
+    private static Status of(Code code, String message) {
+        return new Status(code, message, generateStackTrace(), null);
+    }
+    private static Status of(Code code, String message, Throwable cause) {
+        return new Status(code, message, generateStackTrace(), cause);
+    }
 
     private final Code code;
     private final String errorMessage;
     @Getter
     private final StackTraceElement[] stackTrace;
+    @Nullable
+    private final Throwable cause;
 
     Status() {
-        this(Code.OK, null, new StackTraceElement[0]);
+        this(Code.OK, null, new StackTraceElement[0], null);
     }
     Status(Code code, String errorMessage) {
-        this(code, errorMessage, generateStackTrace());
+        this(code, errorMessage, generateStackTrace(), null);
     }
 
-    private static StackTraceElement[] generateStackTrace() {
+    static StackTraceElement[] generateStackTrace() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        StackTraceElement[] newStackTrace = new StackTraceElement[stackTrace.length - 3];
+        StackTraceElement[] newStackTrace = new StackTraceElement[stackTrace.length - 4];
         System.arraycopy(stackTrace, 3, newStackTrace, 0, newStackTrace.length);
         return newStackTrace;
     }
@@ -77,11 +87,14 @@ public class Status {
         return (this.code == null ? "UNKNOWN_STATUS_VALUE" : this.code) + " - " + this.errorMessage;
     }
 
-    public DracoCompressionRuntimeException getRuntimeException() {
-        return new DracoCompressionRuntimeException(this);
+    public DracoCompressionRuntimeException getException() {
+        return cause != null
+                ? new DracoCompressionRuntimeException(this, cause)
+                : new DracoCompressionRuntimeException(this);
     }
-    public void throwRuntimeException() {
-        throw this.getRuntimeException();
+
+    public void throwException() {
+        if(this.isError()) throw this.getException();
     }
 
     @Override

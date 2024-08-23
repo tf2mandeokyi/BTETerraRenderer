@@ -35,16 +35,16 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
     @Override
     public void computeOriginalValue(Pointer<DataT> predVals, Pointer<DataT> corrVals, Pointer<DataT> outOrigVals) {
         DataNumberType<DataT> dataType = this.getDataType();
-        if(dataType.gt(predVals.get(0), dataType.mul(this.getCenterValue() , 2))) {
+        if(dataType.gt(predVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Predicted value is greater than 2 * center value");
         }
-        if(dataType.gt(predVals.get(1), dataType.mul(this.getCenterValue() , 2))) {
+        if(dataType.gt(predVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Predicted value is greater than 2 * center value");
         }
-        if(dataType.gt(corrVals.get(0), dataType.mul(this.getCenterValue() , 2))) {
+        if(dataType.gt(corrVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Correction value is greater than 2 * center value");
         }
-        if(dataType.gt(corrVals.get(1), dataType.mul(this.getCenterValue() , 2))) {
+        if(dataType.gt(corrVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Correction value is greater than 2 * center value");
         }
 
@@ -61,26 +61,21 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
             throw new IllegalStateException("Correction value is less than 0");
         }
 
-        Point2 pred = new Point2(predVals.get(0), predVals.get(1));
-        Point2 corr = new Point2(corrVals.get(0), corrVals.get(1));
-        Point2 orig = computeOriginalValue(pred, corr);
+        VectorD.D2<DataT> pred = new VectorD.D2<>(dataType, predVals.get(0), predVals.get(1));
+        VectorD.D2<DataT> corr = new VectorD.D2<>(dataType, corrVals.get(0), corrVals.get(1));
+        VectorD.D2<DataT> orig = computeOriginalValue(pred, corr);
 
         outOrigVals.set(0, orig.get(0));
         outOrigVals.set(1, orig.get(1));
     }
 
-    private <U> Point2 computeOriginalValue(Point2 pred, Point2 corr) {
+    private <U> VectorD.D2<DataT> computeOriginalValue(VectorD.D2<DataT> pred, VectorD.D2<DataT> corr) {
         DataNumberType<DataT> dataType = this.getDataType();
         DataNumberType<U> unsignedType = this.getDataType().makeUnsigned();
-        class Point2u extends VectorD<U, Point2u> {
-            public Point2u() { super(2); }
-            public <T> Point2u(VectorD<T, ?> another) { super(another); }
-            @Override public DataNumberType<U> getElementType() { return unsignedType; }
-            @Override protected Point2u create() { return new Point2u(); }
-        }
 
-        Point2 t = new Point2(this.getCenterValue(), this.getCenterValue());
-        pred = new Point2(new Point2u(pred).subtract(new Point2u(t)));
+        VectorD.D2<DataT> t = new VectorD.D2<>(dataType, this.getCenterValue(), this.getCenterValue());
+        pred = new VectorD.D2<>(dataType,
+                new VectorD.D2<>(unsignedType, pred).subtract(new VectorD.D2<>(unsignedType, t)));
 
         boolean predIsInDiamond = this.isInDiamond(pred.get(0), pred.get(1));
         if(!predIsInDiamond) {
@@ -88,7 +83,8 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
         }
 
         // Perform the addition in unsigned type to avoid signed integer overflow.
-        Point2 orig = new Point2(new Point2u(pred).add(new Point2u(corr)));
+        VectorD.D2<DataT> orig = new VectorD.D2<>(dataType,
+                new VectorD.D2<>(unsignedType, pred).add(new VectorD.D2<>(unsignedType, corr)));
 
         orig.set(0, this.modMax(orig.get(0)));
         orig.set(1, this.modMax(orig.get(1)));
@@ -96,7 +92,8 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
             this.invertDiamond(orig.getPointer(0), orig.getPointer(1));
         }
 
-        orig = new Point2(new Point2u(orig).add(new Point2u(t)));
+        orig = new VectorD.D2<>(dataType,
+                new VectorD.D2<>(unsignedType, orig).add(new VectorD.D2<>(unsignedType, t)));
         return orig;
     }
 }

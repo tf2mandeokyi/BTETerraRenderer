@@ -237,7 +237,7 @@ public class SymbolEncoding {
         }
         // Compute the number of entropy bits for tags.
         Pointer<Integer> numUniqueSymbolsRef = Pointer.newInt();
-        long tagBits = ShannonEntropyTracker.computeEntropy(
+        long tagBits = ShannonEntropyTracker.compute(
                 bitLengths.getPointer(), (int) bitLengths.size(), 32, numUniqueSymbolsRef);
         int numUniqueSymbols = numUniqueSymbolsRef.get();
         long tagTableBits = Ans.approximateRAnsFrequencyTableBits(numUniqueSymbols, numUniqueSymbols);
@@ -247,7 +247,7 @@ public class SymbolEncoding {
     private long approximateRawSchemeBits(Pointer<UInt> symbols, int numSymbols, UInt maxValue,
                                           Pointer<Integer> outNumUniqueSymbols) {
         Pointer<Integer> numUniqueSymbolsRef = Pointer.newInt();
-        long dataBits = ShannonEntropyTracker.computeEntropy(symbols, numSymbols, maxValue.intValue(), numUniqueSymbolsRef);
+        long dataBits = ShannonEntropyTracker.compute(symbols, numSymbols, maxValue.intValue(), numUniqueSymbolsRef);
         int numUniqueSymbols = numUniqueSymbolsRef.get();
         long tableBits = Ans.approximateRAnsFrequencyTableBits(maxValue.intValue(), numUniqueSymbols);
         outNumUniqueSymbols.set(numUniqueSymbols);

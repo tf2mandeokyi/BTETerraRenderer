@@ -65,8 +65,7 @@ public class AttributeQuantizationTransform extends AttributeTransform {
         int numComponents = attribute.getNumComponents().intValue();
 
         // Quantize all values using the order given by point_ids.
-        int pointCount = pointIds.isEmpty() ? attribute.size() : (int) pointIds.size();
-        int[] portableAttributeData = new int[numComponents * pointCount];
+        Pointer<Integer> portableAttributeData = targetAttribute.getAddress(AttributeValueIndex.of(0)).toInt();
         int maxQuantizedValue = (1 << quantizationBits) - 1;
         Quantizer quantizer = new Quantizer();
         quantizer.init(range, maxQuantizedValue);
@@ -82,11 +81,9 @@ public class AttributeQuantizationTransform extends AttributeTransform {
             for(int c = 0; c < numComponents; c++) {
                 float value = attVal[c] - minValues.get(c);
                 int qVal = quantizer.quantizeFloat(value);
-                portableAttributeData[dstIndex++] = qVal;
+                portableAttributeData.set(dstIndex++, qVal);
             }
         }
-
-        targetAttribute.setAttributeValue(AttributeValueIndex.of(0), Pointer.wrap(portableAttributeData));
         return Status.ok();
     }
 

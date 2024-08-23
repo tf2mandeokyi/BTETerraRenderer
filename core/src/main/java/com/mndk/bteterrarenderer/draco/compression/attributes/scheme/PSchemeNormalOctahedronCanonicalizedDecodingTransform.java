@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.VectorD;
 
 public class PSchemeNormalOctahedronCanonicalizedDecodingTransform<DataT>
         extends PSchemeNormalOctahedronCanonicalizedTransformBase<DataT>
@@ -66,17 +67,17 @@ public class PSchemeNormalOctahedronCanonicalizedDecodingTransform<DataT>
             throw new IllegalArgumentException("Correction value must be greater than or equal to 0");
         }
 
-        Point2 pred = new Point2(predVals.get(0), predVals.get(1));
-        Point2 corr = new Point2(corrVals.get(0), corrVals.get(1));
-        Point2 orig = computeOriginalValue(pred, corr);
+        VectorD.D2<DataT> pred = new VectorD.D2<>(dataType, predVals.get(0), predVals.get(1));
+        VectorD.D2<DataT> corr = new VectorD.D2<>(dataType, corrVals.get(0), corrVals.get(1));
+        VectorD.D2<DataT> orig = computeOriginalValue(pred, corr);
 
         outOrigVals.set(0, orig.get(0));
         outOrigVals.set(1, orig.get(1));
     }
 
-    private Point2 computeOriginalValue(Point2 pred, Point2 corr) {
+    private VectorD.D2<DataT> computeOriginalValue(VectorD.D2<DataT> pred, VectorD.D2<DataT> corr) {
         DataNumberType<DataT> dataType = this.getDataType();
-        Point2 t = new Point2(this.getCenterValue(), this.getCenterValue());
+        VectorD.D2<DataT> t = new VectorD.D2<>(dataType, this.getCenterValue(), this.getCenterValue());
         pred = pred.subtract(t);
         boolean predIsInDiamond = this.isInDiamond(pred.get(0), pred.get(1));
         if(!predIsInDiamond) {
@@ -87,7 +88,7 @@ public class PSchemeNormalOctahedronCanonicalizedDecodingTransform<DataT>
         if(!predIsInBottomLeft) {
             pred = this.rotatePoint(pred, rotationCount);
         }
-        Point2 orig = new Point2(
+        VectorD.D2<DataT> orig = new VectorD.D2<>(dataType,
                 this.modMax(dataType.add(pred.get(0), corr.get(0))),
                 this.modMax(dataType.add(pred.get(1), corr.get(1)))
         );

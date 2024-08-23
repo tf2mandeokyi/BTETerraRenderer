@@ -6,6 +6,7 @@ import com.mndk.bteterrarenderer.draco.attributes.AttributeValueIndex;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
+import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusAssert;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.draco.metadata.AttributeMetadata;
@@ -31,7 +32,7 @@ public class ObjectDecoderTest {
     @Test
     public void subObjects() {
         File file = DracoTestFileUtil.toFile("draco/testdata/cube_att_sub_o.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertTrue(mesh.getNumFaces() > 0);
         Assert.assertEquals(4, mesh.getNumAttributes());
         Assert.assertEquals(GeometryAttribute.Type.GENERIC, mesh.getAttribute(3).getAttributeType());
@@ -42,7 +43,7 @@ public class ObjectDecoderTest {
     @Test
     public void subObjectsWithMetadata() {
         File file = DracoTestFileUtil.toFile("draco/testdata/cube_att_sub_o.obj");
-        Mesh mesh = MeshIOUtil.decodeWithMetadata(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decodeWithMetadata(file).getValueOr(Status::throwException);
         Assert.assertTrue(mesh.getNumFaces() > 0);
 
         Assert.assertEquals(4, mesh.getNumAttributes());
@@ -60,7 +61,7 @@ public class ObjectDecoderTest {
     @Test
     public void quadTriangulateObj() {
         File file = DracoTestFileUtil.toFile("draco/testdata/cube_quads.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertEquals(12, mesh.getNumFaces());
         Assert.assertEquals(3, mesh.getNumAttributes());
         Assert.assertEquals(4 * 6, mesh.getNumPoints());
@@ -69,7 +70,7 @@ public class ObjectDecoderTest {
     @Test
     public void quadPreserveObj() {
         File file = DracoTestFileUtil.toFile("draco/testdata/cube_quads.obj");
-        Mesh mesh = MeshIOUtil.decodeWithPolygons(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decodeWithPolygons(file).getValueOr(Status::throwException);
         Assert.assertEquals(12, mesh.getNumFaces());
 
         Assert.assertEquals(4, mesh.getNumAttributes());
@@ -99,7 +100,7 @@ public class ObjectDecoderTest {
     @Test
     public void octagonTriangulatedObj() {
         File file = DracoTestFileUtil.toFile("draco/testdata/octagon.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(8, mesh.getNumPoints());
         Assert.assertEquals(GeometryAttribute.Type.POSITION, mesh.getAttribute(0).getAttributeType());
@@ -109,7 +110,7 @@ public class ObjectDecoderTest {
     @Test
     public void octagonPreservedObj() {
         File file = DracoTestFileUtil.toFile("draco/testdata/octagon.obj");
-        Mesh mesh = MeshIOUtil.decodeWithPolygons(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decodeWithPolygons(file).getValueOr(Status::throwException);
         Assert.assertEquals(2, mesh.getNumAttributes());
 
         PointAttribute attribute = mesh.getAttribute(0);
@@ -152,7 +153,7 @@ public class ObjectDecoderTest {
     @Test
     public void emptyNameObj() {
         File file = DracoTestFileUtil.toFile("draco/testdata/empty_name.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(3, mesh.getAttribute(0).size());
     }
@@ -160,7 +161,7 @@ public class ObjectDecoderTest {
     @Test
     public void pointCloudObj() {
         File file = DracoTestFileUtil.toFile("draco/testdata/test_lines.obj");
-        Mesh mesh = MeshIOUtil.decode(file, false).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file, false).getValueOr(Status::throwException);
         Assert.assertEquals(0, mesh.getNumFaces());
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(484, mesh.getAttribute(0).size());
@@ -169,7 +170,7 @@ public class ObjectDecoderTest {
     @Test
     public void wrongAttributeMapping() {
         File file = DracoTestFileUtil.toFile("draco/testdata/test_wrong_attribute_mapping.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertEquals(1, mesh.getNumAttributes());
         Assert.assertEquals(3, mesh.getAttribute(0).size());
     }

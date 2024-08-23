@@ -5,4 +5,8 @@ public class DracoCompressionRuntimeException extends RuntimeException {
         super(status.toString());
         this.setStackTrace(status.getStackTrace());
     }
+    public DracoCompressionRuntimeException(Status status, Throwable cause) {
+        super(status.toString(), cause);
+        this.setStackTrace(status.getStackTrace());
+    }
 }

@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.draco.mesh;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.VertexIndex;
 import com.mndk.bteterrarenderer.draco.compression.mesh.MeshUtil;
-import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.io.DracoTestFileUtil;
 import com.mndk.bteterrarenderer.draco.io.MeshIOUtil;
 import org.junit.Assert;
@@ -16,7 +16,7 @@ public class CornerTableTest {
     @Test
     public void normalWithSeams() {
         File file = DracoTestFileUtil.toFile("draco/testdata/cube_att.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertNotNull("Failed to load test model: " + file, mesh);
 
         CornerTable table = MeshUtil.createCornerTableFromPositionAttribute(mesh);
@@ -60,7 +60,7 @@ public class CornerTableTest {
     @Test
     public void testNonManifoldEdges() {
         File file = DracoTestFileUtil.toFile("draco/testdata/non_manifold_wrap.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertNotNull(mesh);
 
         CornerTable ct = MeshUtil.createCornerTableFromPositionAttribute(mesh);
@@ -74,7 +74,7 @@ public class CornerTableTest {
     @Test
     public void testNewFace() {
         File file = DracoTestFileUtil.toFile("draco/testdata/cube_att.obj");
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertNotNull(mesh);
 
         CornerTable ct = MeshUtil.createCornerTableFromPositionAttribute(mesh);

@@ -237,4 +237,9 @@ public class PointerHelper {
         return true;
     }
 
+    public static <T> void fill(Pointer<T> pointer, long count, T value) {
+        for(long i = 0; i < count; i++) {
+            pointer.set(i, value);
+        }
+    }
 }

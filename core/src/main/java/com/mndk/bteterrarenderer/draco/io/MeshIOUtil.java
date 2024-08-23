@@ -72,7 +72,7 @@ public class MeshIOUtil {
                 try(InputStream stream = Files.newInputStream(file.toPath())) {
                     decoderBuffer.init(stream);
                 } catch (IOException e) {
-                    return StatusOr.ioError(e.getMessage());
+                    return StatusOr.ioError(e.getMessage(), e);
                 }
                 DracoDecoder decoder = new DracoDecoder();
                 return decoder.decodeMeshFromBuffer(decoderBuffer);

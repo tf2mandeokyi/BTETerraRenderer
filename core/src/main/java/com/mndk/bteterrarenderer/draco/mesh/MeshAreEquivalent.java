@@ -1,15 +1,17 @@
 package com.mndk.bteterrarenderer.draco.mesh;
 
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.*;
-import com.mndk.bteterrarenderer.draco.core.*;
+import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
+import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.VectorD;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -36,8 +38,8 @@ public class MeshAreEquivalent {
             int c1 = meshInfo.cornerIndexOfSmallestVertex.get(o2);
 
             for(int i = 0; i < 3; ++i) {
-                VectorD.F3 vf0 = getPosition(meshInfo.mesh, o1, (c0 + i) % 3);
-                VectorD.F3 vf1 = getPosition(meshInfo.mesh, o2, (c1 + i) % 3);
+                VectorD.D3<Float> vf0 = getPosition(meshInfo.mesh, o1, (c0 + i) % 3);
+                VectorD.D3<Float> vf1 = getPosition(meshInfo.mesh, o2, (c1 + i) % 3);
                 if(vf0.compareTo(vf1) < 0) return -1;
                 if(vf0.compareTo(vf1) > 0) return 1;
             }
@@ -48,8 +50,6 @@ public class MeshAreEquivalent {
 
     private final List<MeshInfo> meshInfos = new ArrayList<>();
     private int numFaces;
-    @Setter
-    private PrintStream printStream = System.out;
 
     public <T> Status equals(Mesh mesh0, Mesh mesh1) {
         StatusChain chain = new StatusChain();
@@ -143,17 +143,17 @@ public class MeshAreEquivalent {
         return Status.ok();
     }
 
-    private static VectorD.F3 getPosition(Mesh mesh, FaceIndex f, int c) {
+    private static VectorD.D3<Float> getPosition(Mesh mesh, FaceIndex f, int c) {
         PointAttribute posAtt = mesh.getNamedAttribute(GeometryAttribute.Type.POSITION);
         PointIndex verIndex = mesh.getFace(f).get(c);
         AttributeValueIndex posIndex = posAtt.getMappedIndex(verIndex);
         float[] pos = new float[3];
         posAtt.getValue(posIndex, Pointer.wrap(pos));
-        return new VectorD.F3(pos[0], pos[1], pos[2]);
+        return VectorD.float3(pos[0], pos[1], pos[2]);
     }
 
     private static int computeCornerIndexOfSmallestPointXYZ(Mesh mesh, FaceIndex f) {
-        VectorD.F3[] pos = new VectorD.F3[3];
+        VectorD.D3<Float>[] pos = BTRUtil.uncheckedCast(new VectorD.D3[3]);
         for(int i = 0; i < 3; ++i) {
             pos[i] = getPosition(mesh, f, i);
         }

@@ -25,10 +25,10 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
         // Going to compute the predicted normal from the surrounding triangles
         // according to the connectivity of the given corner table.
         // Position of central vertex does not change in loop.
-        VectorD.L3 posCent = this.getPositionForCorner(cornerId);
+        VectorD.D3<Long> posCent = this.getPositionForCorner(cornerId);
         // Computing normals for triangles and adding them up.
 
-        VectorD.L3 normal = new VectorD.L3();
+        VectorD.D3<Long> normal = VectorD.long3();
         CornerIndex cNext, cPrev;
         for(CornerIndex corner : VertexCornersIterator.iterable(cornerTable, cornerId)) {
             // Getting corners.
@@ -39,18 +39,17 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
                 cNext = cornerTable.next(corner);
                 cPrev = cornerTable.previous(corner);
             }
-            VectorD.L3 posNext = this.getPositionForCorner(cNext);
-            VectorD.L3 posPrev = this.getPositionForCorner(cPrev);
+            VectorD.D3<Long> posNext = this.getPositionForCorner(cNext);
+            VectorD.D3<Long> posPrev = this.getPositionForCorner(cPrev);
 
             // Computing delta vectors to next and prev.
-            VectorD.L3 deltaNext = posNext.subtract(posCent);
-            VectorD.L3 deltaPrev = posPrev.subtract(posCent);
+            VectorD.D3<Long> deltaNext = posNext.subtract(posCent);
+            VectorD.D3<Long> deltaPrev = posPrev.subtract(posCent);
 
             // Computing cross product.
-            VectorD.L3 cross = VectorD.crossProduct(deltaNext, deltaPrev);
+            VectorD.D3<Long> cross = VectorD.crossProduct(deltaNext, deltaPrev);
 
-            // Prevent signed integer overflows by doing math as unsigned.
-            normal.add(cross);
+            normal = normal.add(cross);
         }
 
         // Convert to int, make sure entries are not too large.
@@ -69,9 +68,9 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
             }
         }
 
-        if(normal.absSum() > upperBound) {
-            throw new IllegalStateException("Normal vector is too large");
-        }
+        // if(normal.absSum() > upperBound) {
+        //     throw new IllegalStateException("Normal vector is too large");
+        // }
         prediction.set(0, this.getDataType().from(normal.get(0)));
         prediction.set(1, this.getDataType().from(normal.get(1)));
         prediction.set(2, this.getDataType().from(normal.get(2)));

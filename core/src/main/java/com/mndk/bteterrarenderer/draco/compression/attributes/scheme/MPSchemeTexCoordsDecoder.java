@@ -129,17 +129,17 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
         return Status.ok();
     }
 
-    protected VectorD.F3 getPositionForEntryId(int entryId) {
+    protected VectorD.D3<Float> getPositionForEntryId(int entryId) {
         PointIndex pointId = entryToPointIdMap.get(entryId);
-        VectorD.F3 pos = new VectorD.F3();
+        VectorD.D3<Float> pos = VectorD.float3();
         posAttribute.convertValue(posAttribute.getMappedIndex(pointId), pos.getPointer());
         return pos;
     }
 
-    protected VectorD.F2 getTexCoordForEntryId(int entryId, Pointer<DataT> data) {
+    protected VectorD.D2<Float> getTexCoordForEntryId(int entryId, Pointer<DataT> data) {
         int dataOffset = entryId * numComponents;
         DataNumberType<DataT> dataType = this.getDataType();
-        return new VectorD.F2(dataType.toFloat(data.get(dataOffset)), dataType.toFloat(data.get(dataOffset + 1)));
+        return VectorD.float2(dataType.toFloat(data.get(dataOffset)), dataType.toFloat(data.get(dataOffset + 1)));
     }
 
     protected Status computePredictedValue(CornerIndex cornerId, Pointer<DataT> data, int dataId) {
@@ -155,8 +155,8 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
         int prevDataId = this.getMeshData().getVertexToDataMap().get(prevVertId);
         if (prevDataId < dataId && nextDataId < dataId) {
             // Both other corners have available UV coordinates for prediction.
-            VectorD.F2 nUV = getTexCoordForEntryId(nextDataId, data);
-            VectorD.F2 pUV = getTexCoordForEntryId(prevDataId, data);
+            VectorD.D2<Float> nUV = getTexCoordForEntryId(nextDataId, data);
+            VectorD.D2<Float> pUV = getTexCoordForEntryId(prevDataId, data);
             if (pUV.equals(nUV)) {
                 // We cannot do a reliable prediction on degenerated UV triangles.
                 for (int i = 0; i <= 1; i++) {
@@ -170,13 +170,13 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
                 return Status.ok();
             }
             // Get positions at all corners.
-            VectorD.F3 tipPos = getPositionForEntryId(dataId);
-            VectorD.F3 nextPos = getPositionForEntryId(nextDataId);
-            VectorD.F3 prevPos = getPositionForEntryId(prevDataId);
+            VectorD.D3<Float> tipPos = getPositionForEntryId(dataId);
+            VectorD.D3<Float> nextPos = getPositionForEntryId(nextDataId);
+            VectorD.D3<Float> prevPos = getPositionForEntryId(prevDataId);
             // Use the positions of the above triangle to predict the texture coordinate
             // on the tip corner C.
-            VectorD.F3 pn = prevPos.subtract(nextPos);
-            VectorD.F3 cn = tipPos.subtract(nextPos);
+            VectorD.D3<Float> pn = prevPos.subtract(nextPos);
+            VectorD.D3<Float> cn = tipPos.subtract(nextPos);
             float pnNorm2Squared = pn.squaredNorm();
             float s, t;
             if (version < DracoVersions.getBitstreamVersion(1, 2) || pnNorm2Squared > 0) {
@@ -188,12 +188,12 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
             }
 
             // Now we need to transform the point (s, t) to the texture coordinate space UV.
-            VectorD.F2 pnUV = pUV.subtract(nUV);
+            VectorD.D2<Float> pnUV = pUV.subtract(nUV);
             float pnus = pnUV.get(0) * s + nUV.get(0);
             float pnut = pnUV.get(0) * t;
             float pnvs = pnUV.get(1) * s + nUV.get(1);
             float pnvt = pnUV.get(1) * t;
-            VectorD.F2 predictedUV;
+            VectorD.D2<Float> predictedUV;
             if (orientations.isEmpty()) {
                 return Status.ioError("No orientations");
             }
@@ -201,9 +201,9 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
             // When decoding the data, we already know which orientation to use.
             boolean orientation = orientations.popBack();
             if (orientation) {
-                predictedUV = new VectorD.F2(pnus - pnvt, pnvs + pnut);
+                predictedUV = VectorD.float2(pnus - pnvt, pnvs + pnut);
             } else {
-                predictedUV = new VectorD.F2(pnus + pnvt, pnvs - pnut);
+                predictedUV = VectorD.float2(pnus + pnvt, pnvs - pnut);
             }
             if(dataType.isIntegral()) {
                 // Round the predicted value for integer types.

@@ -7,19 +7,19 @@ public class PointIndex extends IndexTypeImpl<PointIndex> {
     // kInvalidPointIndex
     public static final PointIndex INVALID = new PointIndex(-1);
 
-    private static final IndexTypeManager<PointIndex> ARRAY_MANAGER = PointIndex::new;
+    private static final IndexTypeManager<PointIndex> ARRAY_MANAGER = PointIndex::of;
     public static DataType<PointIndex> type() { return ARRAY_MANAGER; }
 
     public static PointIndex of(int value) {
         return value == -1 ? INVALID : new PointIndex(value);
     }
     public static Iterable<PointIndex> range(int start, int until) {
-        PointIndex startIdx = new PointIndex(start);
-        PointIndex untilIdx = new PointIndex(until);
+        PointIndex startIdx = of(start);
+        PointIndex untilIdx = of(until);
         return () -> startIdx.until(untilIdx);
     }
 
     private PointIndex(int value) { super(value); }
-    @Override protected PointIndex newInstance(int value) { return new PointIndex(value); }
+    @Override protected PointIndex newInstance(int value) { return of(value); }
     @Override public boolean isInvalid() { return this.getValue() == INVALID.getValue(); }
 }

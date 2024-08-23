@@ -7,10 +7,7 @@ import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
 import com.mndk.bteterrarenderer.draco.compression.config.SequentialAttributeEncoderType;
 import com.mndk.bteterrarenderer.draco.compression.pointcloud.PointCloudEncoder;
-import com.mndk.bteterrarenderer.draco.core.DracoDataType;
-import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
-import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 public class SequentialQuantizationAttributeEncoder extends SequentialIntegerAttributeEncoder {

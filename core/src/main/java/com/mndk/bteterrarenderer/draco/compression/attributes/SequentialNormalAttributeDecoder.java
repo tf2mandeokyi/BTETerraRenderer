@@ -55,7 +55,7 @@ public class SequentialNormalAttributeDecoder extends SequentialIntegerAttribute
         if(this.getDecoder().getBitstreamVersion() >= DracoVersions.getBitstreamVersion(2, 0)) {
             if(!octahedralTransform.decodeParameters(this.getPortableAttribute(), inBuffer).isError(chain)) return chain.get();
         }
-        return octahedralTransform.transferToAttribute(this.getPortableAttribute());
+        return octahedralTransform.transferToAttribute(this.getPortableAttributeInternal());
     }
 
     @Override

@@ -6,18 +6,9 @@ import com.mndk.bteterrarenderer.draco.compression.attributes.OctahedronToolBox;
 import com.mndk.bteterrarenderer.draco.compression.config.PredictionSchemeTransformType;
 import com.mndk.bteterrarenderer.draco.core.BitUtils;
 import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.draco.core.VectorD;
 import lombok.Getter;
 
 public class PSchemeNormalOctahedronTransformBase<DataT> {
-
-    protected class Point2 extends VectorD<DataT, Point2> {
-        public Point2() { super(2); }
-        public <T> Point2(VectorD<T, ?> another) { super(another); }
-        public Point2(DataT x, DataT y) { super(2); this.init(x, y); }
-        @Override public DataNumberType<DataT> getElementType() { return getDataType(); }
-        @Override protected Point2 create() { return new Point2(); }
-    }
 
     @Getter
     private final DataNumberType<DataT> dataType;

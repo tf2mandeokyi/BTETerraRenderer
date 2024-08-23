@@ -48,27 +48,28 @@ public class PSchemeWrapTransformBase<DataT> {
 
     public Pointer<DataT> clampPredictedValue(Pointer<DataT> predictedVal) {
         for (int i = 0; i < numComponents; ++i) {
-            if (dataType.gt(predictedVal.get(i), maxValue)) {
+            DataT predVal = predictedVal.get(i);
+            if (dataType.gt(predVal, maxValue)) {
                 clampedValue.set(i, maxValue);
-            } else if (dataType.lt(predictedVal.get(i), minValue)) {
+            } else if (dataType.lt(predVal, minValue)) {
                 clampedValue.set(i, minValue);
             } else {
-                clampedValue.set(i, predictedVal.get(i));
+                clampedValue.set(i, predVal);
             }
         }
         return clampedValue.getPointer();
     }
 
     protected Status initCorrectionBounds() {
-        long dif = dataType.toLong(dataType.sub(maxValue, minValue));
+        long dif = dataType.toLong(maxValue) - dataType.toLong(minValue);
         if (dif < 0 || dif >= dataType.toLong(dataType.max())) {
             return Status.invalidParameter("Invalid difference between min and max values");
         }
-        maxDif = dataType.add(dataType.from(1), dataType.from(dif));
-        maxCorrection = dataType.div(maxDif, dataType.from(2));
+        maxDif = dataType.add(1, dataType.from(dif));
+        maxCorrection = dataType.div(maxDif, 2);
         minCorrection = dataType.negate(maxCorrection);
         if (dataType.equals(dataType.and(maxDif, 1), 0)) {
-            maxCorrection = dataType.sub(maxCorrection, dataType.from(1));
+            maxCorrection = dataType.sub(maxCorrection, 1);
         }
         return Status.ok();
     }

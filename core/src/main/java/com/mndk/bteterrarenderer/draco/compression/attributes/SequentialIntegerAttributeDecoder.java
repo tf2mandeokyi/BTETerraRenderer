@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.AttributeValueIndex;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
@@ -18,7 +19,6 @@ import com.mndk.bteterrarenderer.draco.compression.config.PredictionSchemeTransf
 import com.mndk.bteterrarenderer.draco.compression.entropy.SymbolDecoding;
 import com.mndk.bteterrarenderer.draco.compression.pointcloud.PointCloudDecoder;
 import com.mndk.bteterrarenderer.draco.core.*;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 
 public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecoder {
 
@@ -52,8 +52,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
         if(predictionSchemeMethod != PredictionSchemeMethod.NONE) {
             Pointer<Byte> typeRef = Pointer.newByte();
             if(inBuffer.decode(typeRef).isError(chain)) return chain.get();
-            PredictionSchemeTransformType predictionTransformType =
-                    PredictionSchemeTransformType.valueOf(typeRef.get());
+            PredictionSchemeTransformType predictionTransformType = PredictionSchemeTransformType.valueOf(typeRef.get());
 
             // Check that decoded prediction scheme transform type is valid.
             if (predictionTransformType == null) {
@@ -107,7 +106,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
 
             long typeLength = DracoDataType.INT32.getDataTypeLength();
             if(numBytes == typeLength) {
-                if(this.getPortableAttribute().getBuffer().size() < typeLength * numValues) {
+                if(this.getPortableAttributeInternal().getBuffer().size() < typeLength * numValues) {
                     return Status.ioError("Portable attribute data is too small");
                 }
                 if(inBuffer.decode(portableAttributeData, numValues).isError(chain)) {
@@ -115,7 +114,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
                 }
             }
             else {
-                if(this.getPortableAttribute().getBuffer().size() < (long) numBytes * numValues) {
+                if(this.getPortableAttributeInternal().getBuffer().size() < (long) numBytes * numValues) {
                     return Status.ioError("Portable attribute data is too small");
                 }
                 if(inBuffer.getRemainingSize() < (long) numBytes * numValues) {
@@ -184,13 +183,14 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
     }
 
     protected Pointer<Integer> getPortableAttributeData() {
-        PointAttribute portableAttribute = this.getPortableAttribute();
+        PointAttribute portableAttribute = this.getPortableAttributeInternal();
         if(portableAttribute.size() == 0) return null;
         return portableAttribute.getAddress(AttributeValueIndex.of(0)).toInt();
     }
 
     private <U> void storeTypedValues(DataNumberType<U> type, UInt numValues) {
         int numComponents = this.getAttribute().getNumComponents().intValue();
+        int entrySize = (int) type.byteSize() * numComponents;
         Pointer<U> attVal = type.newArray(numComponents);
         Pointer<Integer> portableAttributeData = this.getPortableAttributeData();
         int valId = 0;
@@ -201,7 +201,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
                 attVal.set(c, value);
             }
             this.getAttribute().getBuffer().write(outBytePos, attVal, numComponents);
-            outBytePos += numComponents;
+            outBytePos += entrySize;
         }
     }
 }

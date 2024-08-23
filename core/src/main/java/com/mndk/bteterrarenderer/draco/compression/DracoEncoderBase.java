@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.draco.compression;
 
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.compression.config.EncoderOptionsBase;
+import com.mndk.bteterrarenderer.draco.compression.config.MeshEncoderMethod;
 import com.mndk.bteterrarenderer.draco.compression.config.PredictionSchemeMethod;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.Getter;
@@ -35,12 +36,12 @@ public abstract class DracoEncoderBase<Op extends EncoderOptionsBase<?>> {
         options.setSpeed(encodingSpeed, decodingSpeed);
     }
 
-    protected void setEncodingMethod(int encodingMethod) {
-        options.setGlobalInt("encoding_method", encodingMethod);
+    protected void setEncodingMethod(MeshEncoderMethod encodingMethod) {
+        options.setGlobalInt("encoding_method", encodingMethod.getValue());
     }
 
-    protected void setEncodingSubmethod(int encodingSubmethod) {
-        options.setGlobalInt("encoding_submethod", encodingSubmethod);
+    protected void setEncodingSubmethod(MeshEncoderMethod encodingSubmethod) {
+        options.setGlobalInt("encoding_submethod", encodingSubmethod.getValue());
     }
 
     protected Status checkPredictionScheme(GeometryAttribute.Type attType, PredictionSchemeMethod predictionScheme) {

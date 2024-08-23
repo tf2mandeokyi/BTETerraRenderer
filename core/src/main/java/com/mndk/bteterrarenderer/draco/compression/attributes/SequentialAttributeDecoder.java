@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
@@ -57,6 +56,10 @@ public class SequentialAttributeDecoder {
         return Status.ok();
     }
 
+    protected PointAttribute getPortableAttributeInternal() {
+        return portableAttribute;
+    }
+
     public PointAttribute getPortableAttribute() {
         // If needed, copy point to attribute value index mapping from the final
         // attribute to the portable attribute.
@@ -96,7 +99,7 @@ public class SequentialAttributeDecoder {
 
         int numValues = (int) pointIds.size();
         int entrySize = (int) attribute.getByteStride();
-        Pointer<UByte> valueData = DataType.uint8().newArray(entrySize);
+        Pointer<UByte> valueData = Pointer.newUByteArray(entrySize);
         int outBytePos = 0;
         for(int i = 0; i < numValues; i++) {
             if(inBuffer.decode(valueData, entrySize).isError(chain)) return chain.get();

@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
+import com.mndk.bteterrarenderer.draco.core.VectorD;
 
 public class PSchemeNormalOctahedronCanonicalizedEncodingTransform<DataT>
         extends PSchemeNormalOctahedronCanonicalizedTransformBase<DataT>
@@ -53,17 +54,17 @@ public class PSchemeNormalOctahedronCanonicalizedEncodingTransform<DataT>
             throw new IllegalStateException("Original value is less than 0");
         }
 
-        Point2 orig = new Point2(origVals.get(0), origVals.get(1));
-        Point2 pred = new Point2(predVals.get(0), predVals.get(1));
-        Point2 corr = computeCorrection(orig, pred);
+        VectorD.D2<DataT> orig = new VectorD.D2<>(dataType, origVals.get(0), origVals.get(1));
+        VectorD.D2<DataT> pred = new VectorD.D2<>(dataType, predVals.get(0), predVals.get(1));
+        VectorD.D2<DataT> corr = computeCorrection(orig, pred);
 
         outCorrVals.set(0, corr.get(0));
         outCorrVals.set(1, corr.get(1));
     }
 
-    private Point2 computeCorrection(Point2 orig, Point2 pred) {
+    private VectorD.D2<DataT> computeCorrection(VectorD.D2<DataT> orig, VectorD.D2<DataT> pred) {
         DataNumberType<DataT> dataType = this.getDataType();
-        Point2 t = new Point2(this.getCenterValue(), this.getCenterValue());
+        VectorD.D2<DataT> t = new VectorD.D2<>(dataType, this.getCenterValue(), this.getCenterValue());
         orig = orig.subtract(t);
         pred = pred.subtract(t);
         if(!this.isInDiamond(pred.get(0), pred.get(1))) {
@@ -75,7 +76,7 @@ public class PSchemeNormalOctahedronCanonicalizedEncodingTransform<DataT>
             orig = this.rotatePoint(orig, rotationCount);
             pred = this.rotatePoint(pred, rotationCount);
         }
-        Point2 corr = orig.subtract(pred);
+        VectorD.D2<DataT> corr = orig.subtract(pred);
         corr.set(0, this.makePositive(corr.get(0)));
         corr.set(1, this.makePositive(corr.get(1)));
         return corr;

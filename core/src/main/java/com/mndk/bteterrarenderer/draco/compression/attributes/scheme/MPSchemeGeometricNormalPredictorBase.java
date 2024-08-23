@@ -36,18 +36,18 @@ public abstract class MPSchemeGeometricNormalPredictorBase<DataT> {
 
     public abstract Status setNormalPredictionMode(NormalPredictionMode mode);
 
-    protected VectorD.L3 getPositionForDataId(int dataId) {
+    protected VectorD.D3<Long> getPositionForDataId(int dataId) {
         if(!this.isInitialized()) {
             throw new IllegalStateException("Not initialized");
         }
         PointIndex pointId = entryToPointIdMap.get(dataId);
         AttributeValueIndex posValId = positionAttribute.getMappedIndex(pointId);
-        VectorD.L3 pos = new VectorD.L3();
+        VectorD.D3<Long> pos = VectorD.long3();
         positionAttribute.convertValue(posValId, pos.getPointer());
         return pos;
     }
 
-    protected VectorD.L3 getPositionForCorner(CornerIndex ci) {
+    protected VectorD.D3<Long> getPositionForCorner(CornerIndex ci) {
         if(!this.isInitialized()) {
             throw new IllegalStateException("Not initialized");
         }
@@ -56,12 +56,12 @@ public abstract class MPSchemeGeometricNormalPredictorBase<DataT> {
         return getPositionForDataId(dataId);
     }
 
-    protected VectorD.I2 getOctahedralCoordForDataId(int dataId, Pointer<DataT> data) {
+    protected VectorD.D2<Integer> getOctahedralCoordForDataId(int dataId, Pointer<DataT> data) {
         if(!this.isInitialized()) {
             throw new IllegalStateException("Not initialized");
         }
         int dataOffset = dataId * 2;
-        return new VectorD.I2(dataType.toInt(data.get(dataOffset)), dataType.toInt(data.get(dataOffset + 1)));
+        return VectorD.int2(dataType.toInt(data.get(dataOffset)), dataType.toInt(data.get(dataOffset + 1)));
     }
 
     protected abstract void computePredictedValue(CornerIndex cornerId, Pointer<DataT> prediction);

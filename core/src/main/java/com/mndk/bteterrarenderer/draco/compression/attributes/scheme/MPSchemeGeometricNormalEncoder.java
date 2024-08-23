@@ -44,11 +44,11 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
 
         int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
 
-        VectorD.I3 predNormal3D = new VectorD.I3();
-        VectorD.I2 posPredNormalOct = new VectorD.I2();
-        VectorD.I2 negPredNormalOct = new VectorD.I2();
-        VectorD.I2 posCorrection = new VectorD.I2();
-        VectorD.I2 negCorrection = new VectorD.I2();
+        VectorD.D3<Integer> predNormal3D = VectorD.int3();
+        VectorD.D2<Integer> posPredNormalOct = VectorD.int2();
+        VectorD.D2<Integer> negPredNormalOct = VectorD.int2();
+        VectorD.D2<Integer> posCorrection = VectorD.int2();
+        VectorD.D2<Integer> negCorrection = VectorD.int2();
         for(int dataId = 0; dataId < cornerMapSize; dataId++) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(dataId);
             this.predictor.computePredictedValue(cornerId, predNormal3D.getPointer().asRawTo(dataType));

@@ -49,12 +49,14 @@ public class ValenceCache<T extends ICornerTable> {
 
     public void cacheValencesInaccurate() {
         if (!vertexValenceCache8Bit.isEmpty()) return;
+        vertexValenceCache8Bit.resize(table.getNumVertices());
         for(VertexIndex v : VertexIndex.range(0, table.getNumVertices())) {
             vertexValenceCache8Bit.set(v, (byte) Math.min(Byte.MAX_VALUE, table.getValence(v)));
         }
     }
     public void cacheValences() {
         if (!vertexValenceCache32Bit.isEmpty()) return;
+        vertexValenceCache32Bit.resize(table.getNumVertices());
         for(VertexIndex v : VertexIndex.range(0, table.getNumVertices())) {
             vertexValenceCache32Bit.set(v, table.getValence(v));
         }

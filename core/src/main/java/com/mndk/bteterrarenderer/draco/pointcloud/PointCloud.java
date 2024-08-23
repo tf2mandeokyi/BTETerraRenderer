@@ -312,7 +312,7 @@ public class PointCloud {
         }
         for(int i = 0; i < pcAtt.size(); ++i) {
             AttributeValueIndex ai = AttributeValueIndex.of(i);
-            VectorD.F3 point = new VectorD.F3();
+            VectorD.D3<Float> point = VectorD.float3();
             pcAtt.getValue(ai, point.getPointer());
             boundingBox.update(point);
         }

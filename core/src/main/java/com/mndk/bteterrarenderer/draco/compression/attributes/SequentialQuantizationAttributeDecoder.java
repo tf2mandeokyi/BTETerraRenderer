@@ -44,7 +44,7 @@ public class SequentialQuantizationAttributeDecoder extends SequentialIntegerAtt
         if(this.getDecoder().getBitstreamVersion() >= DracoVersions.getBitstreamVersion(2, 0)) {
             if(this.decodeQuantizedDataInfo().isError(chain)) return chain.get();
         }
-        return this.quantizationTransform.transferToAttribute(this.getPortableAttribute());
+        return this.quantizationTransform.transferToAttribute(this.getPortableAttributeInternal());
     }
 
     @Override

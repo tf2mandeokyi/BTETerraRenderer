@@ -50,11 +50,11 @@ public class DracoExpertEncoder extends DracoEncoderBase<EncoderOptions> {
         this.getOptions().setGlobalBool("use_built_in_attribute_compression", enabled);
     }
 
-    public void setEncodingMethod(int encodingMethod) {
+    public void setEncodingMethod(MeshEncoderMethod encodingMethod) {
         super.setEncodingMethod(encodingMethod);
     }
 
-    public void setEncodingSubmethod(int encodingSubmethod) {
+    public void setEncodingSubmethod(MeshEncoderMethod encodingSubmethod) {
         super.setEncodingSubmethod(encodingSubmethod);
     }
 

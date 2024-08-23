@@ -90,7 +90,7 @@ public class ObjDecoder {
             }
             return decodeInternal();
         } catch(IOException e) {
-            return Status.ioError("Failed to read file: " + file.getName());
+            return Status.ioError("Failed to read file: " + file.getName(), e);
         }
     }
 

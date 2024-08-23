@@ -9,8 +9,6 @@ import com.mndk.bteterrarenderer.draco.compression.config.DracoVersions;
 import com.mndk.bteterrarenderer.draco.compression.config.SymbolCodingMethod;
 import com.mndk.bteterrarenderer.draco.core.*;
 import com.mndk.bteterrarenderer.datatype.vector.CppVector;
-import com.mndk.bteterrarenderer.printer.ByteTablePrinter;
-import com.mndk.bteterrarenderer.printer.Printer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -113,7 +111,6 @@ public class SymbolCodingTest {
         int inLength = 1200;
         Pointer<UInt> inVector = Pointer.newUIntArray(inLength);
         StatusAssert.assertOk(SymbolEncoding.encode(inVector, inLength, 1, null, eb));
-        ByteTablePrinter.print(Printer.stdout(), eb.getData(), eb.size());
 
         Pointer<UInt> out = Pointer.newUIntArray(inLength);
         DecoderBuffer db = new DecoderBuffer();

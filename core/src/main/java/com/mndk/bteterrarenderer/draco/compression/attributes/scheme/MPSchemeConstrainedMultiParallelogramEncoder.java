@@ -6,6 +6,7 @@ import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
+import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointIndex;
@@ -15,7 +16,6 @@ import com.mndk.bteterrarenderer.draco.compression.entropy.ShannonEntropyTracker
 import com.mndk.bteterrarenderer.draco.core.BitUtils;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Status;
-import com.mndk.bteterrarenderer.datatype.vector.CppVector;
 import com.mndk.bteterrarenderer.draco.mesh.ICornerTable;
 
 import java.util.ArrayList;
@@ -53,15 +53,16 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
                                           Pointer<PointIndex> entryToPointIdMap) {
         this.getTransform().init(inData, size, numComponents);
         ICornerTable table = this.getMeshData().getCornerTable();
+        DataNumberType<DataT> dataType = this.getDataType();
         CppVector<Integer> vertexToDataMap = this.getMeshData().getVertexToDataMap();
 
         // Predicted values for all simple parallelograms encountered at any given vertex.
         List<CppVector<DataT>> predVals = new ArrayList<>();
         for(int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
-            predVals.add(new CppVector<>(this.getDataType(), numComponents));
+            predVals.add(new CppVector<>(dataType, numComponents));
         }
         // Used to store predicted value for various multi-parallelogram predictions.
-        CppVector<DataT> multiPredVals = new CppVector<>(this.getDataType(), numComponents);
+        CppVector<DataT> multiPredVals = new CppVector<>(dataType, numComponents);
         entropySymbols.resize(numComponents);
 
         // Struct for holding data about prediction configuration for different sets
@@ -70,7 +71,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
             Error error = new Error();
             UByte configuration = UByte.ZERO;
             int numUsedParallelograms = 0;
-            final CppVector<DataT> predictedValue = new CppVector<>(getDataType(), numComponents);
+            final CppVector<DataT> predictedValue = new CppVector<>(dataType, numComponents);
             final CppVector<Integer> residuals = new CppVector<>(DataType.int32(), numComponents);
         }
 
@@ -141,15 +142,12 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
             // Compute prediction error for different cases of used parallelograms.
             for(int numUsedParallelograms = 1; numUsedParallelograms <= numParallelograms; ++numUsedParallelograms) {
-                for(int j = 0; j < numParallelograms; ++j) {
-                    excludedParallelograms.set(j, true);
-                }
-                for(int j = 0; j < numUsedParallelograms; ++j) {
-                    excludedParallelograms.set(j, false);
-                }
+                int finalNumUsedParallelograms = numUsedParallelograms;
+                PointerHelper.fill(excludedParallelograms, numParallelograms, true);
+                PointerHelper.fill(excludedParallelograms, finalNumUsedParallelograms, false);
                 do {
                     for(int j = 0; j < numComponents; ++j) {
-                        multiPredVals.set(j, this.getDataType().from(0));
+                        multiPredVals.set(j, dataType.from(0));
                     }
                     UByte configuration = UByte.ZERO;
                     for(int j = 0; j < numParallelograms; ++j) {
@@ -157,18 +155,19 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
                             continue;
                         }
                         for(int c = 0; c < numComponents; ++c) {
-                            multiPredVals.set(c, this.getDataType().add(multiPredVals.get(c), predVals.get(j).get(c)));
+                            DataT predVal = predVals.get(j).get(c);
+                            multiPredVals.set(c, val -> dataType.add(val, predVal));
                         }
                         configuration = configuration.or(UByte.of(1 << j));
                     }
 
                     for(int j = 0; j < numComponents; j++) {
-                        multiPredVals.set(j, this.getDataType().div(multiPredVals.get(j), numUsedParallelograms));
+                        multiPredVals.set(j, val -> dataType.div(val, finalNumUsedParallelograms));
                     }
                     error = computeError(multiPredVals.getPointer(), inData.add(dstOffset),
                             currentResiduals.getPointer(), numComponents);
                     long newOverheadBits = computeOverheadBits(
-                            totalUsedParallelograms[numParallelograms - 1] + numUsedParallelograms,
+                            totalUsedParallelograms[numParallelograms - 1] + finalNumUsedParallelograms,
                             totalParallelograms[numParallelograms - 1]);
 
                     // Add overhead bits to the total error.
@@ -176,7 +175,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
                     if(error.compareTo(bestPrediction.error) < 0) {
                         bestPrediction.error = error;
                         bestPrediction.configuration = configuration;
-                        bestPrediction.numUsedParallelograms = numUsedParallelograms;
+                        bestPrediction.numUsedParallelograms = finalNumUsedParallelograms;
                         bestPrediction.predictedValue.assign(multiPredVals.getPointer(), multiPredVals.size());
                         bestPrediction.residuals.assign(currentResiduals.getPointer(), currentResiduals.size());
                     }
@@ -188,25 +187,21 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
             // Update the entropy stream by adding selected residuals as symbols to the stream.
             for(int i = 0; i < numComponents; ++i) {
-                UInt symbol = BitUtils.convertSignedIntToSymbol(DataType.int32(), bestPrediction.residuals.get(i),
-                        DataType.uint32());
-                entropySymbols.set(i, symbol);
+                entropySymbols.set(i, BitUtils.convertSignedIntToSymbol(DataType.int32(), bestPrediction.residuals.get(i),
+                        DataType.uint32()));
             }
             entropyTracker.push(entropySymbols.getPointer(), numComponents);
 
             for(int i = 0; i < numParallelograms; i++) {
-                if((bestPrediction.configuration.and(1 << i)).equals(0)) {
-                    isCreaseEdge.get(numParallelograms - 1).pushBack(true);
-                } else {
-                    isCreaseEdge.get(numParallelograms - 1).pushBack(false);
-                }
+                isCreaseEdge.get(numParallelograms - 1).pushBack(
+                        bestPrediction.configuration.and(1 << i).equals(0));
             }
             this.getTransform().computeCorrection(inData.add(dstOffset), bestPrediction.predictedValue.getPointer(),
                     outCorr.add(dstOffset));
         }
         // First element is always fixed because it cannot be predicted.
         for(int i = 0; i < numComponents; ++i) {
-            predVals.get(0).set(i, this.getDataType().from(0));
+            predVals.get(0).set(i, dataType.from(0));
         }
         this.getTransform().computeCorrection(inData, predVals.get(0).getPointer(), outCorr);
         return Status.ok();
@@ -243,7 +238,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
     }
 
     private long computeOverheadBits(long totalUsedParallelograms, long totalParallelogram) {
-        double entropy = ShannonEntropyTracker.computeBinaryShannonEntropy(
+        double entropy = ShannonEntropyTracker.computeBinary(
                 UInt.of(totalParallelogram), UInt.of(totalUsedParallelograms));
         return (long) Math.ceil(totalParallelogram * entropy);
     }

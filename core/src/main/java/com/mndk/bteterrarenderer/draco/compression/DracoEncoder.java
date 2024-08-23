@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.compression.config.EncoderOptions;
 import com.mndk.bteterrarenderer.draco.compression.config.EncoderOptionsBase;
+import com.mndk.bteterrarenderer.draco.compression.config.MeshEncoderMethod;
 import com.mndk.bteterrarenderer.draco.compression.config.PredictionSchemeMethod;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.Options;
@@ -60,7 +61,7 @@ public class DracoEncoder extends DracoEncoderBase<EncoderOptionsBase<GeometryAt
         return status;
     }
 
-    public void setEncodingMethod(int encodingMethod) {
+    public void setEncodingMethod(MeshEncoderMethod encodingMethod) {
         super.setEncodingMethod(encodingMethod);
     }
 

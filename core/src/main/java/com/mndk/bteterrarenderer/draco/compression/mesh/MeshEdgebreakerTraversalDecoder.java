@@ -48,7 +48,7 @@ public class MeshEdgebreakerTraversalDecoder {
         if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> faceConfigurationRef = Pointer.newUInt();
             Status status = startFaceBuffer.decodeLeastSignificantBits32(1, faceConfigurationRef);
-            if(status.isError()) throw status.getRuntimeException();
+            if(status.isError()) throw status.getException();
             return faceConfigurationRef.get().intValue() != 0;
         } else {
             return startFaceDecoder.decodeNextBit();

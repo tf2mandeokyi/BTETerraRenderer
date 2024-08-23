@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.draco.compression.attributes.scheme;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.attributes.CornerIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
@@ -42,16 +43,16 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
         return positionAttribute != null;
     }
 
-    public VectorD.L3 getPositionForEntryId(int entryId) {
+    public VectorD.D3<Long> getPositionForEntryId(int entryId) {
         PointIndex pointId = entryToPointIdMap.get(entryId);
-        VectorD.L3 pos = new VectorD.L3();
+        VectorD.D3<Long> pos = VectorD.long3();
         positionAttribute.convertValue(positionAttribute.getMappedIndex(pointId), pos.getPointer());
         return pos;
     }
 
-    public VectorD.L2 getTexCoordForEntryId(int entryId, Pointer<DataT> data) {
+    public VectorD.D2<Long> getTexCoordForEntryId(int entryId, Pointer<DataT> data) {
         int dataOffset = entryId * NUM_COMPONENTS;
-        return new VectorD.L2(dataType.toLong(data.get(dataOffset)), dataType.toLong(data.get(dataOffset + 1)));
+        return VectorD.long2(dataType.toLong(data.get(dataOffset)), dataType.toLong(data.get(dataOffset + 1)));
     }
 
     public Status computePredictedValue(CornerIndex cornerId, Pointer<DataT> data, int dataId, boolean isEncoder) {
@@ -67,8 +68,8 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
 
         if(prevDataId < dataId && nextDataId < dataId) {
             // Both other corners have available UV coordinates for prediction.
-            VectorD.L2 nUV = getTexCoordForEntryId(nextDataId, data);
-            VectorD.L2 pUV = getTexCoordForEntryId(prevDataId, data);
+            VectorD.D2<Long> nUV = getTexCoordForEntryId(nextDataId, data);
+            VectorD.D2<Long> pUV = getTexCoordForEntryId(prevDataId, data);
             if(pUV.equals(nUV)) {
                 // We cannot do a reliable prediction on degenerated UV triangles.
                 predictedValue.set(0, dataType.from(pUV.get(0)));
@@ -77,18 +78,18 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
             }
 
             // Get positions at all corners.
-            VectorD.L3 tipPos = getPositionForEntryId(dataId);
-            VectorD.L3 nextPos = getPositionForEntryId(nextDataId);
-            VectorD.L3 prevPos = getPositionForEntryId(prevDataId);
+            VectorD.D3<Long> tipPos = getPositionForEntryId(dataId);
+            VectorD.D3<Long> nextPos = getPositionForEntryId(nextDataId);
+            VectorD.D3<Long> prevPos = getPositionForEntryId(prevDataId);
             // We use the positions of the above triangle to predict the texture
             // coordinate on the tip corner C.
-            VectorD.L3 pn = prevPos.subtract(nextPos);
+            VectorD.D3<Long> pn = prevPos.subtract(nextPos);
             long pnNorm2Squared = pn.squaredNorm();
             if(pnNorm2Squared != 0) {
                 // Compute the projection of C onto PN by computing dot product of CN with
                 // PN and normalizing it by length of PN.
                 long cnDotPn = pn.dot(tipPos.subtract(nextPos));
-                VectorD.L2 pnUV = pUV.subtract(nUV);
+                VectorD.D2<Long> pnUV = pUV.subtract(nUV);
                 long nUVAbsMaxElement = Math.max(Math.abs(nUV.get(0)), Math.abs(nUV.get(1)));
                 if(nUVAbsMaxElement > Long.MAX_VALUE / pnNorm2Squared) {
                     return Status.ioError("Overflow");
@@ -97,29 +98,29 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
                 if(Math.abs(cnDotPn) > Long.MAX_VALUE / pnUVAbsMaxElement) {
                     return Status.ioError("Overflow");
                 }
-                VectorD.L2 xUV = nUV.multiply(pnNorm2Squared).add(pnUV.multiply(cnDotPn));
+                VectorD.D2<Long> xUV = nUV.multiply(pnNorm2Squared).add(pnUV.multiply(cnDotPn));
                 long pnAbsMaxElement = Math.max(Math.max(Math.abs(pn.get(0)), Math.abs(pn.get(1))), Math.abs(pn.get(2)));
                 if(Math.abs(cnDotPn) > Long.MAX_VALUE / pnAbsMaxElement) {
                     return Status.ioError("Overflow");
                 }
 
                 // Compute squared length of vector CX in position coordinate system:
-                VectorD.L3 xPos = nextPos.add(pn.multiply(cnDotPn).divide(pnNorm2Squared));
-                long cxNorm2Squared = tipPos.subtract(xPos).squaredNorm();
+                VectorD.D3<Long> xPos = nextPos.add(pn.multiply(cnDotPn).divide(pnNorm2Squared));
+                ULong cxNorm2Squared = ULong.of(tipPos.subtract(xPos).squaredNorm());
 
                 // Compute vector CX_UV in the uv space by rotating vector PN_UV by 90
                 // degrees and scaling it with factor CX.Norm2() / PN.Norm2():
-                VectorD.L2 cxUV = new VectorD.L2(pnUV.get(1), -pnUV.get(0));
-                long normSquared = DracoMathUtils.intSqrt(cxNorm2Squared * pnNorm2Squared);
-                cxUV = cxUV.multiply(normSquared);
+                VectorD.D2<Long> cxUV = VectorD.long2(pnUV.get(1), -pnUV.get(0));
+                ULong normSquared = DracoMathUtils.intSqrt(cxNorm2Squared.mul(pnNorm2Squared));
+                cxUV = cxUV.multiply(normSquared.longValue());
 
                 // Predicted uv coordinate is then computed by either adding or
                 // subtracting CX_UV to/from X_UV.
-                VectorD.L2 predictedUV;
+                VectorD.D2<Long> predictedUV;
                 if(isEncoder) {
-                    VectorD.L2 predictedUV0 = xUV.add(cxUV).divide(pnNorm2Squared);
-                    VectorD.L2 predictedUV1 = xUV.subtract(cxUV).divide(pnNorm2Squared);
-                    VectorD.L2 cUV = getTexCoordForEntryId(dataId, data);
+                    VectorD.D2<Long> predictedUV0 = xUV.add(cxUV).divide(pnNorm2Squared);
+                    VectorD.D2<Long> predictedUV1 = xUV.subtract(cxUV).divide(pnNorm2Squared);
+                    VectorD.D2<Long> cUV = getTexCoordForEntryId(dataId, data);
                     if(cUV.subtract(predictedUV0).squaredNorm() < cUV.subtract(predictedUV1).squaredNorm()) {
                         predictedUV = predictedUV0;
                         orientations.pushBack(true);
@@ -132,12 +133,12 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
                         return Status.ioError("Orientation is empty");
                     }
                     boolean orientation = orientations.popBack();
-                    VectorD.UL2 xUVu = new VectorD.UL2(xUV);
-                    VectorD.UL2 cxUVu = new VectorD.UL2(cxUV);
+                    VectorD.D2<ULong> xUVu = VectorD.uLong2(xUV);
+                    VectorD.D2<ULong> cxUVu = VectorD.uLong2(cxUV);
                     if(orientation) {
-                        predictedUV = new VectorD.L2(xUVu.add(cxUVu)).divide(pnNorm2Squared);
+                        predictedUV = VectorD.long2(xUVu.add(cxUVu)).divide(pnNorm2Squared);
                     } else {
-                        predictedUV = new VectorD.L2(xUVu.subtract(cxUVu)).divide(pnNorm2Squared);
+                        predictedUV = VectorD.long2(xUVu.subtract(cxUVu)).divide(pnNorm2Squared);
                     }
                 }
                 predictedValue.set(0, dataType.from(predictedUV.get(0)));

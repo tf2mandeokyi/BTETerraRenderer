@@ -2,16 +2,10 @@ package com.mndk.bteterrarenderer.draco.core;
 
 import org.junit.Assert;
 
-import java.util.function.Consumer;
-
 public class StatusAssert {
 
     public static void fail(Status status) {
-        throw status.getRuntimeException();
-    }
-
-    public static Consumer<Status> consumer() {
-        return StatusAssert::assertOk;
+        throw status.getException();
     }
 
     public static void assertOk(Status status) {

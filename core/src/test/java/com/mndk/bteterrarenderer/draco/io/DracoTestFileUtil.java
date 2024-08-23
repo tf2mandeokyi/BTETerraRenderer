@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.core.EncoderBuffer;
-import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.printer.ByteTablePrinter;
 import com.mndk.bteterrarenderer.printer.TableColumnPrinter;
@@ -12,6 +12,7 @@ import com.mndk.bteterrarenderer.printer.TablePrinter;
 import org.junit.Assert;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 
@@ -20,7 +21,11 @@ public class DracoTestFileUtil {
     public static File toFile(String fileName) {
         URL url = DracoTestFileUtil.class.getClassLoader().getResource(fileName);
         if(url == null) Assert.fail("File not found: " + fileName);
-        return new File(url.getFile());
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void compareGoldenFile(File goldenFile, EncoderBuffer actualBuffer) {
@@ -61,10 +66,10 @@ public class DracoTestFileUtil {
     }
 
     public static void testDecoding(File file) {
-        Mesh mesh = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh mesh = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertTrue(mesh.getNumFaces() > 0);
 
-        Mesh pointCloud = MeshIOUtil.decode(file).getValueOr(StatusAssert.consumer());
+        Mesh pointCloud = MeshIOUtil.decode(file).getValueOr(Status::throwException);
         Assert.assertTrue(pointCloud.getNumPoints() > 0);
     }
 }
