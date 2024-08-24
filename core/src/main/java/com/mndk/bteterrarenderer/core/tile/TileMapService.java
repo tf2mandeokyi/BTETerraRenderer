@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+// TODO: Make copyright information appear on the UI
 @JsonSerialize(using = TileMapService.Serializer.class)
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public interface TileMapService extends AutoCloseable {

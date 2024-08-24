@@ -16,8 +16,10 @@ import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileKeyManager;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
+import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
+import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
@@ -29,7 +31,9 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
+import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
@@ -40,6 +44,7 @@ import io.netty.buffer.ByteBufInputStream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -57,10 +62,6 @@ import java.util.concurrent.Executors;
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
-    private static final ImmediateBlock<TileGlobalKey, Pair<Matrix4, InputStream>, ParsedData> STREAM_PARSER = ImmediateBlock.of((key, pair) -> {
-        TileData tileData = TileResourceManager.parse(pair.getRight());
-        return new ParsedData(pair.getLeft(), tileData);
-    });
     private static final Ogc3dTileParsingBlock TILE_PARSER = new Ogc3dTileParsingBlock(
             Executors.newCachedThreadPool(), 3, 100, false);
 
@@ -70,24 +71,31 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Setter
     private transient boolean yDistortion = false;
     private final URL rootTilesetUrl;
+    private final SpheroidCoordinatesConverter coordConverter;
+    private final boolean rotateModelAlongEarthXAxis;
 
     private transient final TileDataStorage tileDataStorage;
     private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, ParsedData> storageFetcher;
+    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4, InputStream>, ParsedData> streamParser;
 
-    private Ogc3dTileMapService(CommonYamlObject commonYamlObject) {
+    @SneakyThrows(MalformedURLException.class)
+    private Ogc3dTileMapService(CommonYamlObject commonYamlObject, SpheroidCoordinatesConverter coordConverter,
+                                boolean rotateModelAlongEarthXAxis) {
         super(commonYamlObject);
+        this.rootTilesetUrl = new URL(commonYamlObject.getTileUrl());
+        this.coordConverter = coordConverter;
+        this.rotateModelAlongEarthXAxis = rotateModelAlongEarthXAxis;
+
         this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(1000 * 60 * 10 /* 10 minutes */, 10000, false));
         this.storageFetcher = ImmediateBlock.of((key, input) -> {
             ProcessingState state = tileDataStorage.getResourceProcessingState(input);
             if(state != ProcessingState.PROCESSED) return null;
             return tileDataStorage.updateAndGetOutput(input);
         });
-
-        try {
-            this.rootTilesetUrl = new URL(commonYamlObject.getTileUrl());
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.streamParser = ImmediateBlock.of((key, pair) -> {
+            TileData tileData = TileResourceManager.parse(pair.getRight(), this.coordConverter);
+            return new ParsedData(pair.getLeft(), tileData);
+        });
     }
 
     @Override
@@ -124,7 +132,9 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected CacheableProcessorModel.SequentialBuilder<TileGlobalKey, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
-        return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher).then(TILE_PARSER);
+        return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher)
+                .then(ImmediateBlock.of((key, parsedData) -> Pair.of(parsedData, this)))
+                .then(TILE_PARSER);
     }
 
     @Override
@@ -141,11 +151,11 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double height) {
+    public List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double height) {
         if(radius == 0) return Collections.emptyList();
 
-        Cartesian3 cartesian = new Spheroid3(Math.toRadians(longitude), Math.toRadians(latitude), height)
-                .toCartesianCoordinate();
+        Spheroid3 spheroid = Spheroid3.fromDegrees(longitude, latitude, height);
+        Cartesian3 cartesian = coordConverter.toCartesian(spheroid);
         Sphere playerSphere = new Sphere(cartesian, radius);
         return this.getIdListRecursively(playerSphere);
     }
@@ -157,7 +167,11 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         if(parsedData == null) return null;
 
         TileData tileData = parsedData.getTileData();
-        return tileData instanceof Tileset ? (Tileset) tileData : null;
+        if(!(tileData instanceof Tileset)) {
+            Loggers.get(this).warn("Root tile url is not a tile set");
+            return null;
+        }
+        return (Tileset) tileData;
     }
 
     public List<TileGlobalKey> getIdListRecursively(Sphere playerSphere) {
@@ -220,12 +234,12 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected List<GraphicsModel> getLoadingModel(TileGlobalKey o) {
+    public List<GraphicsModel> getLoadingModel(TileGlobalKey o) {
         return null;
     }
 
     @Override
-    protected List<GraphicsModel> getErrorModel(TileGlobalKey o) {
+    public List<GraphicsModel> getErrorModel(TileGlobalKey o) {
         return null;
     }
 
@@ -240,13 +254,22 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             super(Ogc3dTileMapService.class);
         }
         @Override
-        protected void serializeTMS(Ogc3dTileMapService value, JsonGenerator gen, SerializerProvider serializers) {}
+        protected void serializeTMS(Ogc3dTileMapService value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeNumberField("semi_major", value.coordConverter.getSemiMajorAxis());
+            gen.writeNumberField("semi_minor", value.coordConverter.getSemiMinorAxis());
+            gen.writeBooleanField("rotate_model_x", value.rotateModelAlongEarthXAxis);
+        }
     }
 
     static class Deserializer extends TMSDeserializer<Ogc3dTileMapService> {
         @Override
         protected Ogc3dTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
-            return new Ogc3dTileMapService(commonYamlObject);
+            double semiMajorAxis = JsonParserUtil.getOrDefault(node, "semi_major", Wgs84Constants.SEMI_MAJOR_AXIS);
+            double semiMinorAxis = JsonParserUtil.getOrDefault(node, "semi_minor", Wgs84Constants.SEMI_MINOR_AXIS);
+            SpheroidCoordinatesConverter coordConverter = new SpheroidCoordinatesConverter(semiMajorAxis, semiMinorAxis);
+
+            boolean rotateModelAlongXAxis = JsonParserUtil.getOrDefault(node, "rotate_model_x", false);
+            return new Ogc3dTileMapService(commonYamlObject, coordConverter, rotateModelAlongXAxis);
         }
     }
 
@@ -269,7 +292,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         @Override
         protected SequentialBuilder<TileGlobalKey, Pair<Matrix4, URL>, ParsedData> getSequentialBuilder() {
             return new CacheableProcessorModel.SequentialBuilder<>(this.tileStreamFetcher)
-                    .then(STREAM_PARSER);
+                    .then(Ogc3dTileMapService.this.streamParser);
         }
 
         @Override

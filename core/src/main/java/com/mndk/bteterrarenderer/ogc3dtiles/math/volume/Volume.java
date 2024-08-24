@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 
@@ -24,14 +25,10 @@ public abstract class Volume {
      * @param coordinate In degrees.
      * @return Whether the object contains the geo coordinate "ray"
      */
-    public boolean intersectsGeoCoordinateRay(double[] coordinate, Matrix4 thisTransform) {
-        return this.intersectsRay(
-                new Spheroid3(Math.toRadians(coordinate[0]), Math.toRadians(coordinate[1]), -100000)
-                        .toCartesianCoordinate(),
-                new Spheroid3(Math.toRadians(coordinate[0]), Math.toRadians(coordinate[1]), 0)
-                        .toCartesianCoordinate(),
-                thisTransform
-        );
+    public boolean intersectsGeoCoordinateRay(double[] coordinate, Matrix4 thisTransform, SpheroidCoordinatesConverter converter) {
+        Spheroid3 start = Spheroid3.fromDegrees(coordinate[0], coordinate[1], -100000);
+        Spheroid3 end = Spheroid3.fromDegrees(coordinate[0], coordinate[1], 0);
+        return this.intersectsRay(converter.toCartesian(start), converter.toCartesian(end), thisTransform);
     }
 
     public boolean intersectsRay(Cartesian3 rayStart, Cartesian3 rayEnd, Matrix4 thisTransform) {

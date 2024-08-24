@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitSphere;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix;
@@ -50,9 +51,9 @@ public class Sphere extends Volume {
     }
 
     public Region[] toBoundingRegions() {
-        // For simplicity, this code considers that the Earth is a sphere, instead of a spheroid
+        // For simplicity, we will consider that the Earth is a sphere, instead of a spheroid
 
-        Spheroid3 coordinate = this.center.toSpheroidalCoordinate();
+        Spheroid3 coordinate = SpheroidCoordinatesConverter.WGS84.toSpheroid(this.center);
         double longitude = coordinate.getLongitude();
         double latitude = coordinate.getLatitude();
 

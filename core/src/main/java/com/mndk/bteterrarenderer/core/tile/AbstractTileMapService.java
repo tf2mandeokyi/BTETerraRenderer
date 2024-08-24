@@ -44,6 +44,10 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private static boolean MISSING_TEXTURE_BAKED = false;
     public static final int DEFAULT_MAX_THREAD = 2;
 
+    public static GraphicsModelTextureBakingBlock<?> getModelBaker() {
+        return MODEL_BAKER;
+    }
+
     protected final int nThreads;
     private final Translatable<String> name;
     @Nullable private final Translatable<String> copyrightTextJson;
@@ -100,7 +104,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     }
 
     @Nullable
-    private List<GraphicsModel> getModelsForId(TileId tileId) {
+    public List<GraphicsModel> getModelsForId(TileId tileId) {
         ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
         switch (bakedState) {
             case NOT_PROCESSED:
@@ -175,13 +179,13 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
      * @param height    Player height, in meters
      * @return A list of tile ids
      */
-    protected abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double height);
+    public abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double height);
 
     @Nullable
-    protected abstract List<GraphicsModel> getLoadingModel(TileId tileId) throws OutOfProjectionBoundsException;
+    public abstract List<GraphicsModel> getLoadingModel(TileId tileId) throws OutOfProjectionBoundsException;
 
     @Nullable
-    protected abstract List<GraphicsModel> getErrorModel(TileId tileId) throws OutOfProjectionBoundsException;
+    public abstract List<GraphicsModel> getErrorModel(TileId tileId) throws OutOfProjectionBoundsException;
 
     // ######################## </ABSTRACT METHODS> ########################
 

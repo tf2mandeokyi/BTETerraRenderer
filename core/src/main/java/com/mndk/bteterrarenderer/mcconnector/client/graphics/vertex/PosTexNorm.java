@@ -3,9 +3,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-@ToString
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class PosTexNorm extends GraphicsVertex<PosTexNorm> {
@@ -22,5 +20,11 @@ public class PosTexNorm extends GraphicsVertex<PosTexNorm> {
                 u, v,
                 normResult[0] - posResult[0], normResult[1] - posResult[1], normResult[2] - posResult[2]
         );
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PosTexNorm(pos=[%.2f, %.2f, %.2f], tex=[%.4f, %.4f], norm=[%.2f, %.2f, %.2f])",
+                px, py, pz, u, v, nx, ny, nz);
     }
 }

@@ -1,5 +1,7 @@
-package com.mndk.bteterrarenderer.mcconnector.client;
+package com.mndk.bteterrarenderer.mcconnector;
 
+import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
@@ -12,12 +14,17 @@ import java.io.File;
 /**
  * Do not use this in game environments! This manager is only for tests.
  * */
-public class EmptyClientMinecraftManager extends ClientMinecraftManager {
+public class TestEnvironmentVirtualMinecraftManager extends ClientMinecraftManager {
+
+    private static final TestEnvironmentVirtualMinecraftManager INSTANCE = new TestEnvironmentVirtualMinecraftManager(new File("test"));
+    public static TestEnvironmentVirtualMinecraftManager getInstance() {
+        return INSTANCE;
+    }
 
     private final File gameDirectory;
 
-    public EmptyClientMinecraftManager(File gameDirectory) {
-        super(null, null, null, null);
+    private TestEnvironmentVirtualMinecraftManager(File gameDirectory) {
+        super(null, new DummyGlGraphicsManager(), new DummyI18nManager(), null);
         this.gameDirectory = gameDirectory;
     }
 

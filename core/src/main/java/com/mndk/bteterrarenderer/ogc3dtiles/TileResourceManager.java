@@ -5,6 +5,7 @@ import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.i3dm.Instanced3DModel;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -27,7 +28,7 @@ public class TileResourceManager {
      * @return The data
      * @throws IOException If something goes wrong while fetching the data
      */
-    public TileData parse(InputStream stream) throws IOException {
+    public TileData parse(InputStream stream, SpheroidCoordinatesConverter converter) throws IOException {
 
         byte[] byteArray = IOUtil.readAllBytes(stream);
 
@@ -38,7 +39,7 @@ public class TileResourceManager {
         }
         else if(BTRUtil.arrayStartsWith(byteArray, I3DM_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
-            result = Instanced3DModel.from(buf);
+            result = Instanced3DModel.from(buf, converter);
         }
         else if(BTRUtil.arrayStartsWith(byteArray, GLTF_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);

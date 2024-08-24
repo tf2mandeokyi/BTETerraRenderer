@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BatchTable;
 import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBuf;
@@ -35,7 +36,7 @@ public class Instanced3DModel extends TileData {
         this.gltfModel = gltfModel;
     }
 
-    public static Instanced3DModel from(ByteBuf buf) throws IOException {
+    public static Instanced3DModel from(ByteBuf buf, SpheroidCoordinatesConverter converter) throws IOException {
         String magic = buf.readBytes(4).toString(StandardCharsets.UTF_8);
         if(!"i3dm".equals(magic)) throw new IOException("expected i3dm format, found: " + magic);
 
@@ -49,7 +50,7 @@ public class Instanced3DModel extends TileData {
 
         String featureTableJson = buf.readBytes(featureTableJSONByteLength).toString(StandardCharsets.UTF_8);
         byte[] featureTableBinary = IOUtil.readAllBytes(buf.readBytes(featureTableBinaryByteLength));
-        I3dmFeatureTable featureTable = I3dmFeatureTable.from(featureTableJson, featureTableBinary);
+        I3dmFeatureTable featureTable = I3dmFeatureTable.from(featureTableJson, featureTableBinary, converter);
 
         int batchModelCount = featureTable.getInstances().length;
         String batchTableJson = buf.readBytes(batchTableJSONByteLength).toString(StandardCharsets.UTF_8);

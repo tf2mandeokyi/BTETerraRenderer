@@ -130,7 +130,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    protected List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double height) {
+    public List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double height) {
         if(this.coordTranslator == null) return Collections.emptyList();
 
         try {
@@ -165,13 +165,13 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    protected List<GraphicsModel> getLoadingModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+    public List<GraphicsModel> getLoadingModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
         GraphicsShapes shapes = this.computeTileQuad(tileKey);
         return Collections.singletonList(new GraphicsModel(LOADING.getTextureObject(), shapes));
     }
 
     @Override
-    protected List<GraphicsModel> getErrorModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+    public List<GraphicsModel> getErrorModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
         GraphicsShapes shapes = this.computeTileQuad(tileKey);
         return Collections.singletonList(new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), shapes));
     }

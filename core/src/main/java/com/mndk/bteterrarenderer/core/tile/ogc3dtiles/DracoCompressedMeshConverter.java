@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
-import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
@@ -15,7 +14,6 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingForma
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import de.javagl.jgltf.model.BufferViewModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
 
@@ -33,8 +31,8 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
 
     public DracoCompressedMeshConverter(MeshPrimitiveModel meshPrimitiveModel,
                                         List<BufferViewModel> topLevelBufferViewModels, DracoMeshCompression extension,
-                                        Cartesian3 translation, Matrix4 transform, GeographicProjection projection) {
-        super(translation, transform, projection);
+                                        SingleGltfModelParsingContext context) {
+        super(context);
         this.meshPrimitiveModel = meshPrimitiveModel;
         this.bufferViewModel = topLevelBufferViewModels.get(extension.getBufferView());
         this.attributeMapping = extension.getAttributes();

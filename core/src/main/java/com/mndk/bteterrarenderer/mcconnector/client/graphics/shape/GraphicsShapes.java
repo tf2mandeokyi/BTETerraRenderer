@@ -21,6 +21,10 @@ public class GraphicsShapes {
         list.add(shape);
     }
 
+    public <T extends GraphicsVertex<T>, U extends GraphicsShape<T>> List<U> getShapesForFormat(DrawingFormat<T, U> format) {
+        return BTRUtil.uncheckedCast(shapeMap.get(format));
+    }
+
     public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,
                               PositionTransformer transformer, float alpha) {
         shapeMap.forEach((format, shapes) -> {
