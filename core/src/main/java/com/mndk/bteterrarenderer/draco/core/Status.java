@@ -11,6 +11,10 @@ import static com.mndk.bteterrarenderer.draco.core.Status.Code.*;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Status {
 
+    // WARNING: CHANGING THE VALUE OF THIS VARIABLE TO TRUE WILL HAVE A SIGNIFICANT PERFORMANCE IMPACT
+    //          BY GENERATING STACK TRACES FOR EVERY STATUS OBJECT
+    public static boolean DEBUG = false;
+
     @Getter @RequiredArgsConstructor
     enum Code {
         OK(0),
@@ -48,7 +52,7 @@ public class Status {
 
     private final Code code;
     private final String errorMessage;
-    @Getter
+    @Getter @Nullable
     private final StackTraceElement[] stackTrace;
     @Nullable
     private final Throwable cause;
@@ -60,7 +64,9 @@ public class Status {
         this(code, errorMessage, generateStackTrace(), null);
     }
 
+    @Nullable
     static StackTraceElement[] generateStackTrace() {
+        if(!DEBUG) return null;
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         StackTraceElement[] newStackTrace = new StackTraceElement[stackTrace.length - 4];
         System.arraycopy(stackTrace, 4, newStackTrace, 0, newStackTrace.length);

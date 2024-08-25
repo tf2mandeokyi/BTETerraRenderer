@@ -60,7 +60,14 @@ public class SymbolCodingTest {
             add(Pair.of(UInt.of(9), 5));
             add(Pair.of(UInt.of(0), 6432));
         }};
+
+        int totalReservedSize = 0;
+        for(Pair<UInt, Integer> pair : in) {
+            totalReservedSize += pair.getRight();
+        }
+
         CppVector<UInt> inValues = new CppVector<>(DataType.uint32());
+        inValues.reserve(totalReservedSize);
         for (Pair<UInt, Integer> pair : in) {
             UInt left = pair.getLeft();
             int right = pair.getRight();

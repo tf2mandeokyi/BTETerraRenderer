@@ -52,10 +52,12 @@ public class CppVector<E> implements Iterable<E> {
     //   modifying its size accordingly.
     public void assign(long count, E value) {
         this.clear();
+        this.reserve(count);
         for(long i = 0; i < count; i++) this.pushBack(value);
     }
     public void assign(Pointer<E> value, long count) {
         this.clear();
+        this.reserve(count);
         for(long i = 0; i < count; i++) this.pushBack(value.get(i));
     }
 

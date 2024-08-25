@@ -253,6 +253,7 @@ public class PointCloud {
         IndexTypeVector<PointIndex, PointIndex> indexMap =
                 new IndexTypeVector<>(PointIndex.type(), numPoints);
         CppVector<PointIndex> uniquePoints = new CppVector<>(PointIndex.type());
+        uniquePoints.reserve(numPoints);
 
         // Go through all vertices and find their duplicates.
         for(PointIndex i : PointIndex.range(0, numPoints)) {

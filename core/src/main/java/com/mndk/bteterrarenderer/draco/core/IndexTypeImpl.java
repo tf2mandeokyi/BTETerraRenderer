@@ -55,31 +55,6 @@ public abstract class IndexTypeImpl<I extends IndexTypeImpl<I>> implements Index
         @Override public I next() { return newInstance(current++); }
     }
 
-    private static class OwnedIndexType<I extends IndexTypeImpl<I>> extends AbstractOwnedRawInt<I> {
-        private final IndexTypeManager<I> manager;
-        public OwnedIndexType(IndexTypeManager<I> manager, int value) {
-            super(value);
-            this.manager = manager;
-        }
-        @Override public DataType<I> getType() { return manager; }
-        @Override protected int toRaw(I value) { return value.getValue(); }
-        @Override protected I fromRaw(int raw) { return manager.intToIndex(raw); }
-    }
-
-    private static class BorrowedIndexArray<I extends IndexTypeImpl<I>> extends AbstractBorrowedRawIntArray<I> {
-        private final IndexTypeManager<I> manager;
-        public BorrowedIndexArray(IndexTypeManager<I> manager, int[] array, int offset) {
-            super(array, offset);
-            this.manager = manager;
-        }
-        @Override public DataType<I> getType() { return manager; }
-        @Override protected int toRaw(I value) { return value.getValue(); }
-        @Override protected I fromRaw(int raw) { return manager.intToIndex(raw); }
-        @Override public Pointer<I> add(int offset) {
-            return new BorrowedIndexArray<>(manager, array, this.offset + offset);
-        }
-    }
-
     @FunctionalInterface
     protected interface IndexTypeManager<I extends IndexTypeImpl<I>> extends DataType<I> {
 
@@ -99,9 +74,11 @@ public abstract class IndexTypeImpl<I extends IndexTypeImpl<I>> implements Index
             dst.setRawInt(value.getValue());
         }
 
-        @Override default Pointer<I> newOwned(I value) { return new OwnedIndexType<>(this, value.getValue()); }
+        @Override default Pointer<I> newOwned(I value) {
+            return Pointer.newObject(this, value);
+        }
         @Override default Pointer<I> newArray(int length) {
-            return new BorrowedIndexArray<>(this, new int[length], 0);
+            return Pointer.newObjectArray(this, length);
         }
         @Override default Pointer<I> castPointer(RawPointer pointer) {
             throw new UnsupportedOperationException("Cannot cast pointer from " + pointer.getClass().getSimpleName()

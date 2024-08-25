@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.datatype.pointer;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
+import com.mndk.bteterrarenderer.datatype.number.UByte;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -25,4 +26,7 @@ public abstract class AbstractBorrowedRawByteArray<E> extends BorrowedArray<E> i
     protected abstract E fromRaw(byte raw);
     @Override public final byte getRawByte(long index) { return array[DataType.intLimit(offset + index)]; }
     @Override public final void setRawByte(long index, byte value) { array[DataType.intLimit(offset + index)] = value; }
+
+    @Override public Pointer<Byte> toByte() { return new BorrowedByteArray(array, offset); }
+    @Override public Pointer<UByte> toUByte() { return new BorrowedUByteArray(array, offset); }
 }

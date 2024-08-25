@@ -38,13 +38,17 @@ public interface Pointer<T> {
     static Pointer<UInt> wrapUnsigned(int[] array) { return new BorrowedUIntArray(array, 0); }
     static Pointer<ULong> wrapUnsigned(long[] array) { return new BorrowedULongArray(array, 0); }
 
-    static <T> Pointer<T> wrap(DataType<T> type, Object[] array) { return new BorrowedObjectArray<>(type, array, 0); }
+    static <T> Pointer<T> wrap(DataType<T> type, Object[] array) {
+        return new BorrowedObjectArray<>(type, array, 0);
+    }
     static <T> Pointer<T> wrap(DataType<T> type, Object[] array, int offset) {
         return new BorrowedObjectArray<>(type, array, offset);
     }
-    static <T> Pointer<T> wrapTyped(DataType<T> type, T[] array) { return new BorrowedTypeArray<>(type, array, 0); }
+    static <T> Pointer<T> wrapTyped(DataType<T> type, T[] array) {
+        return new BorrowedObjectArray<>(type, array, 0);
+    }
     static <T> Pointer<T> wrapTyped(DataType<T> type, T[] array, int offset) {
-        return new BorrowedTypeArray<>(type, array, offset);
+        return new BorrowedObjectArray<>(type, array, offset);
     }
     static <T> Pointer<T> wrap(DataType<T> type, Supplier<T> getter, Consumer<T> setter) {
         return new FunctionalPointer<>(type, getter, setter);
@@ -62,7 +66,6 @@ public interface Pointer<T> {
     static Pointer<Float> newFloat() { return new OwnedFloat(0); }
     static Pointer<Double> newDouble() { return new OwnedDouble(0); }
 
-    static <T> Pointer<T> newObject(DataType<T> type, T value) { return new OwnedObject<>(type, value); }
     static Pointer<Boolean> newBool(boolean value) { return new OwnedBoolean(value); }
     static Pointer<Byte> newByte(byte value) { return new OwnedByte(value); }
     static Pointer<UByte> newUByte(byte value) { return new OwnedUByte(value); }
@@ -78,6 +81,9 @@ public interface Pointer<T> {
     static Pointer<ULong> newULong(ULong value) { return new OwnedULong(value); }
     static Pointer<Float> newFloat(float value) { return new OwnedFloat(value); }
     static Pointer<Double> newDouble(double value) { return new OwnedDouble(value); }
+    static <T> Pointer<T> newObject(DataType<T> type, T value) {
+        return new OwnedObject<>(type, value);
+    }
 
     static Pointer<Boolean> newBoolArray(long size) { return new BorrowedBooleanArray(new boolean[DataType.intLimit(size)], 0); }
     static Pointer<Byte> newByteArray(long size) { return new BorrowedByteArray(new byte[DataType.intLimit(size)], 0); }
@@ -90,6 +96,9 @@ public interface Pointer<T> {
     static Pointer<ULong> newULongArray(long size) { return new BorrowedULongArray(new long[DataType.intLimit(size)], 0); }
     static Pointer<Float> newFloatArray(long size) { return new BorrowedFloatArray(new float[DataType.intLimit(size)], 0); }
     static Pointer<Double> newDoubleArray(long size) { return new BorrowedDoubleArray(new double[DataType.intLimit(size)], 0); }
+    static <T> Pointer<T> newObjectArray(DataType<T> type, long size) {
+        return new BorrowedObjectArray<>(type, new Object[DataType.intLimit(size)], 0);
+    }
 
     T get();
     T get(long index);
