@@ -70,7 +70,7 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
             Cartesian3 gameNormal = normal == null ? null : this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
 
             if(texAttribute != null) texAttribute.getMappedValue(pointIndex, Pointer.wrap(texArray));
-            float[] tex = texAttribute == null ? null : texArray;
+            float[] tex = texAttribute == null ? null : new float[] { texArray[0], texArray[1] };
 
             parsedPoints[pointIndex.getValue()] = new ParsedPoint(gamePos, tex, gameNormal);
         }
