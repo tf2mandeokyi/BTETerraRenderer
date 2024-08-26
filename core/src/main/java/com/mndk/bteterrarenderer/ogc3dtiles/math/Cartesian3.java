@@ -5,47 +5,28 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
-import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 @Data
+@RequiredArgsConstructor
 @JsonDeserialize(using = Cartesian3.Deserializer.class)
 public class Cartesian3 {
     public static final Cartesian3 ORIGIN = new Cartesian3(0, 0, 0);
     public static final Cartesian3 UNIT_AXES = new Cartesian3(1, 1, 1);
-    public static final Cartesian3 UNIT_X = new Cartesian3(1, 0, 0);
-    public static final Cartesian3 UNIT_Y = new Cartesian3(0, 1, 0);
-    public static final Cartesian3 UNIT_Z = new Cartesian3(0, 0, 1);
 
     private static final int LATITUDE_APPROX_ITERATION = 5;
 
     // TODO: Consider changing these to float and add a center coordinate
     private final double x, y, z;
 
-    /**
-     * @link <a href="https://gssc.esa.int/navipedia/index.php/Ellipsoidal_and_Cartesian_Coordinates_Conversion">
-     *     Ellipsoidal and Cartesian Coordinates Conversion</a>
-     * @return The Earth's spheroidal coordinate corresponding to the cartesian coordinate
-     */
-    public Spheroid3 toSpheroidalCoordinate() {
-        double longitude = Math.atan2(y, x);
-        double p = Math.sqrt(x*x + y*y);
-
-        double latitude = Math.atan2(z, (1 - Wgs84Constants.ECCENTRICITY2) * p);
-        double height = 0;
-        for (int i = 0; i < LATITUDE_APPROX_ITERATION; i++) {
-            double N = SpheroidalMath.getEarthCurvatureRadius(latitude);
-            height = p / Math.cos(latitude) - N;
-            latitude = Math.atan2(z, (1 - Wgs84Constants.ECCENTRICITY2 * N / (N + height)) * p);
-        }
-
-        return new Spheroid3(longitude, latitude, height);
-    }
+    public Cartesian3(float[] array) { this(array[0], array[1], array[2]); }
+    public Cartesian3(double[] array) { this(array[0], array[1], array[2]); }
 
     /**
      * Returns a transformable 1x3 matrix of itself: {@code [x, y, z]^T}<br>
@@ -162,6 +143,11 @@ public class Cartesian3 {
      */
     public Cartesian3 cross(Cartesian3 other) {
         return new Cartesian3(y*other.z - z*other.y, z*other.x - x*other.z, x*other.y - y*other.x);
+    }
+
+    @Override
+    public String toString() {
+        return "Cartesian3[" + x + ", " + y + ", " + z + "]";
     }
 
     public static Cartesian3 fromArray(double[] array) {

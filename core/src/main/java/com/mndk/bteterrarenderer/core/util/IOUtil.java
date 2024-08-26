@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.util;
 
+import io.netty.buffer.ByteBuf;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -9,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 @UtilityClass
 public class IOUtil {
@@ -25,6 +27,18 @@ public class IOUtil {
 
         buffer.flush();
         return buffer.toByteArray();
+    }
+
+    public byte[] readAllBytes(ByteBuf buf) {
+        byte[] data = new byte[buf.readableBytes()];
+        buf.readBytes(data);
+        return data;
+    }
+
+    public byte[] readAllBytes(ByteBuffer buffer) {
+        byte[] data = new byte[buffer.remaining()];
+        buffer.get(data);
+        return data;
     }
 
     @SneakyThrows

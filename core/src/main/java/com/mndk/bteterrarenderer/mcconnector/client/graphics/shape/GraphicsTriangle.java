@@ -31,4 +31,9 @@ public class GraphicsTriangle<T extends GraphicsVertex<T>> extends GraphicsShape
     public static GraphicsTriangle<PosTexNorm> newPosTexNorm(PosTexNorm v0, PosTexNorm v1, PosTexNorm v2) {
         return new GraphicsTriangle<>(PosTexNorm.class, v0, v1, v2);
     }
+
+    @Override
+    public String toString() {
+        return String.format("GraphicsTriangle[%s, %s, %s]", vertices[0], vertices[1], vertices[2]);
+    }
 }

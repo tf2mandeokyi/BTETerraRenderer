@@ -37,6 +37,11 @@ public class JsonParserUtil {
                 .stream().mapToDouble(Double::doubleValue).toArray();
     }
 
+    public static double getOrDefault(JsonNode node, String property, double defaultValue) {
+        JsonNode propertyNode = node.get(property);
+        return propertyNode == null ? defaultValue : propertyNode.asDouble(defaultValue);
+    }
+
     public static int getOrDefault(JsonNode node, String property, int defaultValue) {
         JsonNode propertyNode = node.get(property);
         return propertyNode == null ? defaultValue : propertyNode.asInt(defaultValue);

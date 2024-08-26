@@ -1,12 +1,11 @@
 package com.mndk.bteterrarenderer.core.network;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.mcconnector.client.EmptyClientMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.TestEnvironmentVirtualMinecraftManager;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +20,7 @@ public class SvgToPngConversionTest {
 
     static {
         try {
-            BTETerraRendererConfig.initialize(new EmptyClientMinecraftManager(new File("test")));
+            BTETerraRendererConfig.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

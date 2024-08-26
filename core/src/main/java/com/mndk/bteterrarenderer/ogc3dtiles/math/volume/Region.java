@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitCube;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class Region extends Volume {
     }
 
     @Override
-    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4 thisTransform) {
+    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4 thisTransform, SpheroidCoordinatesConverter converter) {
         double lonRad = Math.toRadians(coordinateDegrees[0]), latRad = Math.toRadians(coordinateDegrees[1]);
         if(westLon <= eastLon) {
             if(lonRad < westLon || eastLon < lonRad) return false;

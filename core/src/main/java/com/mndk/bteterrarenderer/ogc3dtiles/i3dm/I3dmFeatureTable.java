@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.ogc3dtiles.Ogc3dTiles;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BinaryJsonTableElement;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BinaryVector;
@@ -22,7 +23,9 @@ public class I3dmFeatureTable {
     @Nullable private final Cartesian3 rtcCenter;
     private final Instance[] instances;
 
-    public static I3dmFeatureTable from(String json, byte[] binary) throws JsonProcessingException {
+    public static I3dmFeatureTable from(String json, byte[] binary, SpheroidCoordinatesConverter coordConverter)
+            throws JsonProcessingException
+    {
         RawFeatureTableJson jsonParsed = Ogc3dTiles.jsonMapper().readValue(json, RawFeatureTableJson.class);
 
         Cartesian3 rtcCenter = jsonParsed.globalRtcCenter == null ? null :
@@ -75,10 +78,10 @@ public class I3dmFeatureTable {
             else if(eastNorthUp) {
                 // Hacky implementation, maybe TODO add a test code for this?
                 double epsilon = 1e-7;
-                Spheroid3 spheroid3 = position.toSpheroidalCoordinate();
-                Cartesian3 dphi = spheroid3.add(new Spheroid3(epsilon, 0, 0)).toCartesianCoordinate()
+                Spheroid3 spheroid3 = coordConverter.toSpheroid(position);
+                Cartesian3 dphi = coordConverter.toCartesian(spheroid3.add(Spheroid3.fromRadians(epsilon, 0, 0)))
                         .subtract(position);
-                Cartesian3 dh = spheroid3.add(new Spheroid3(0, 0, epsilon)).toCartesianCoordinate()
+                Cartesian3 dh = coordConverter.toCartesian(spheroid3.add(Spheroid3.fromRadians(0, 0, epsilon)))
                         .subtract(position);
                 normalUp = dh.scale(1 / epsilon).toNormalized();
                 normalRight = dphi.scale(1 / epsilon).toNormalized();

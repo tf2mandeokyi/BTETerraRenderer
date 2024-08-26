@@ -41,4 +41,9 @@ public class GraphicsQuad<T extends GraphicsVertex<T>> extends GraphicsShape<T> 
     public static GraphicsQuad<PosXY> newPosXY(PosXY v0, PosXY v1, PosXY v2, PosXY v3) {
         return new GraphicsQuad<>(PosXY.class, v0, v1, v2, v3);
     }
+
+    @Override
+    public String toString() {
+        return String.format("GraphicsQuad[%s, %s, %s, %s]", vertices[0], vertices[1], vertices[2], vertices[3]);
+    }
 }
