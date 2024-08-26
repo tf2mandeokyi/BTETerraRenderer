@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.datatype.number;
 
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -9,17 +9,17 @@ import java.util.function.Supplier;
 public interface DataType<T> {
 
     static <T> DataType<T> object(Supplier<T> defaultValueMaker) { return new ObjectType<>(defaultValueMaker); }
-    static DataNumberType<Boolean> bool() { return DataTypeStorage.BOOLEAN; }
-    static DataNumberType<Byte> int8() { return DataTypeStorage.BYTE; }
-    static DataNumberType<UByte> uint8() { return DataTypeStorage.UBYTE; }
-    static DataNumberType<Short> int16() { return DataTypeStorage.SHORT; }
-    static DataNumberType<UShort> uint16() { return DataTypeStorage.USHORT; }
-    static DataNumberType<Integer> int32() { return DataTypeStorage.INT; }
-    static DataNumberType<UInt> uint32() { return DataTypeStorage.UINT; }
-    static DataNumberType<Long> int64() { return DataTypeStorage.LONG; }
-    static DataNumberType<ULong> uint64() { return DataTypeStorage.ULONG; }
-    static DataNumberType<Float> float32() { return DataTypeStorage.FLOAT; }
-    static DataNumberType<Double> float64() { return DataTypeStorage.DOUBLE; }
+    static DataNumberType<Boolean> bool() { return DataNumberTypeManager.BOOLEAN; }
+    static DataNumberType<Byte> int8() { return DataNumberTypeManager.BYTE; }
+    static DataNumberType<UByte> uint8() { return DataNumberTypeManager.UBYTE; }
+    static DataNumberType<Short> int16() { return DataNumberTypeManager.SHORT; }
+    static DataNumberType<UShort> uint16() { return DataNumberTypeManager.USHORT; }
+    static DataNumberType<Integer> int32() { return DataNumberTypeManager.INT; }
+    static DataNumberType<UInt> uint32() { return DataNumberTypeManager.UINT; }
+    static DataNumberType<Long> int64() { return DataNumberTypeManager.LONG; }
+    static DataNumberType<ULong> uint64() { return DataNumberTypeManager.ULONG; }
+    static DataNumberType<Float> float32() { return DataNumberTypeManager.FLOAT; }
+    static DataNumberType<Double> float64() { return DataNumberTypeManager.DOUBLE; }
 
     static long toRaw(double value) { return Double.doubleToRawLongBits(value); }
     static double fromRaw(long raw) { return Double.longBitsToDouble(raw); }
@@ -29,12 +29,12 @@ public interface DataType<T> {
     static boolean fromRaw(byte raw) { return raw != 0; }
 
     static int intLimit(long value) {
-        if(Integer.MIN_VALUE <= value && value <= Integer.MAX_VALUE) return (int) value;
+        if((int) value == value) return (int) value;
         throw new IllegalArgumentException("Value is too large: " + value);
     }
 
-    static Endian endian() { return DataTypeStorage.ENDIAN; }
-    static void endian(Endian endian) { DataTypeStorage.ENDIAN = endian; }
+    static Endian endian() { return DataNumberTypeManager.ENDIAN; }
+    static void endian(Endian endian) { DataNumberTypeManager.ENDIAN = endian; }
 
     // General conversions
     T parse(String value);
@@ -55,4 +55,60 @@ public interface DataType<T> {
     Pointer<T> castPointer(RawPointer pointer);
     default Pointer<T> newArray(long length) { return this.newArray(DataType.intLimit(length)); }
     default Pointer<T> newOwned() { return this.newOwned(this.defaultValue()); }
+
+    static <U> DataNumberType<U> biOp(DataNumberType<?> left, DataNumberType<?> right) {
+        return DataNumberTypeManager.biOp(left, right);
+    }
+    static <L, R, V> V add(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.add(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V sub(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.sub(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V mul(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.mul(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V div(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.div(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V mod(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.mod(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> boolean equals(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.equals(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> boolean lt(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.lt(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> boolean le(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.le(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> boolean gt(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.gt(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> boolean ge(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.ge(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V and(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.and(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V or(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.or(type.from(leftType, left), type.from(rightType, right));
+    }
+    static <L, R, V> V xor(DataNumberType<L> leftType, L left, DataNumberType<R> rightType, R right) {
+        DataNumberType<V> type = biOp(leftType, rightType);
+        return type.xor(type.from(leftType, left), type.from(rightType, right));
+    }
 }

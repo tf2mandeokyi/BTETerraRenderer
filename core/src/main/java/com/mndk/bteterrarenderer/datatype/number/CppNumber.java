@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.datatype.number;
 
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 
 import javax.annotation.Nonnull;
 

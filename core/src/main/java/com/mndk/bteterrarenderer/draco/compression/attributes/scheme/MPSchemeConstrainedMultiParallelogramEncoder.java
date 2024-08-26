@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes.scheme;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;

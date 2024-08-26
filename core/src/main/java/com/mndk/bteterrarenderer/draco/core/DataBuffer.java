@@ -61,7 +61,6 @@ public class DataBuffer {
             if(size + offset > this.data.size()) {
                 this.resize(size + offset);
             }
-//            bytes.copyTo(0, this.data, offset, size);
             PointerHelper.rawCopy(data, this.data.getRawPointer().rawAdd(offset), size);
         }
         return Status.ok();

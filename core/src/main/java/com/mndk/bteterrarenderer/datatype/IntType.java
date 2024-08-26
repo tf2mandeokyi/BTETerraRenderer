@@ -1,11 +1,15 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class IntType extends JavaNumberBridgeType<Integer> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "int32"; }
     @Override public boolean equals(Object obj) { return obj instanceof IntType; }
@@ -64,7 +68,7 @@ class IntType extends JavaNumberBridgeType<Integer> {
     @Override public Integer shr(Integer value, int shift) { return value >> shift; }
 
     // Number conversions (incoming)
-    @Override public <U> Integer from(DataCalculator<U> type, U value) { return type.toInt(value); }
+    @Override public <U> Integer from(DataNumberType<U> type, U value) { return type.toInt(value); }
     @Override public Integer from(int value) { return value; }
     @Override public Integer from(long value) { return (int) value; }
     @Override public Integer from(float value) { return (int) value; }

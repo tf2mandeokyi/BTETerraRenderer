@@ -9,6 +9,7 @@ import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
+import de.javagl.jgltf.model.BufferViewModel;
 import de.javagl.jgltf.model.GltfModel;
 import de.javagl.jgltf.model.MeshModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
@@ -20,6 +21,8 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DracoCompressionTest {
 
@@ -35,20 +38,28 @@ public class DracoCompressionTest {
         }
     }
 
-    private Pair<Mesh, DracoMeshCompression> decodeDracoMeshData(GltfModel model) throws IOException {
-        MeshModel meshModel = model.getMeshModels().get(0);
-        MeshPrimitiveModel meshPrimitiveModel = meshModel.getMeshPrimitiveModels().get(0);
+    private Pair<Mesh, DracoMeshCompression> decodeDracoMeshData(MeshPrimitiveModel meshPrimitiveModel,
+                                                                 List<BufferViewModel> bufferViewModels) throws IOException {
         DracoMeshCompression draco = GltfExtensionsUtil.getExtension(meshPrimitiveModel, DracoMeshCompression.class);
         if(draco == null) throw new IOException("DracoMeshCompression is null");
 
-        ByteBuffer byteBuffer = model.getBufferViewModels()
-                .get(draco.getBufferView())
-                .getBufferViewData();
+        ByteBuffer byteBuffer = bufferViewModels.get(draco.getBufferView()).getBufferViewData();
         DecoderBuffer decoderBuffer = new DecoderBuffer();
         decoderBuffer.init(byteBuffer);
 
         DracoDecoder decoder = new DracoDecoder();
         return Pair.of(StatusAssert.assertOk(decoder.decodeMeshFromBuffer(decoderBuffer)), draco);
+    }
+
+    private List<Pair<Mesh, DracoMeshCompression>> decodeDracoMeshData(GltfModel model) throws IOException {
+        List<Pair<Mesh, DracoMeshCompression>> meshes = new ArrayList<>();
+        List<BufferViewModel> bufferViewModels = model.getBufferViewModels();
+        for(MeshModel meshModel : model.getMeshModels()) {
+            for(MeshPrimitiveModel primitiveModel : meshModel.getMeshPrimitiveModels()) {
+                meshes.add(decodeDracoMeshData(primitiveModel, bufferViewModels));
+            }
+        }
+        return meshes;
     }
 
     @Test
@@ -62,51 +73,40 @@ public class DracoCompressionTest {
         };
         for(String file : files) {
             GltfModel model = this.readGltfModel(file, converter);
-            Pair<Mesh, DracoMeshCompression> pair = this.decodeDracoMeshData(model);
-            Mesh mesh = pair.getLeft();
-            // Temporary assertion to suppress variable unused warning
-            Assert.assertTrue(mesh.getNumPoints() >= 0);
+            List<Pair<Mesh, DracoMeshCompression>> pairs = this.decodeDracoMeshData(model);
+            for(Pair<Mesh, DracoMeshCompression> pair : pairs) {
+                Mesh mesh = pair.getLeft();
+                Assert.assertTrue(mesh.getNumPoints() >= 0);
+            }
         }
     }
 
+//    // This code is just for the visualization test! Keep this disabled or it will make the logs dirty.
 //    @Test
-//    public void givenModelTestGlbFile_testDecode() throws IOException, OutOfProjectionBoundsException {
+//    public void givenModelTestGlbFile_testDecode() throws IOException {
 //        SpheroidCoordinatesConverter converter = SpheroidCoordinatesConverter.WGS84;
-//        GltfModel model = this.readGltfModel("glb_models/model_test3.glb", converter);
+//        GltfModel model = this.readGltfModel("glb_models/model_test1.glb", converter);
 //
-//        float[] posArrayTemp = new float[3];
-//        float[] translation = model.getNodeModels().get(0).getTranslation();
-//        double[] avgArray = new double[] {0, 0, 0};
+//        float[] texArrayTemp = new float[2];
 //
-//        Pair<Mesh, DracoMeshCompression> pair = this.decodeDracoMeshData(model);
-//        Mesh mesh = pair.getLeft();
-//        DracoMeshCompression draco = pair.getRight();
-//        PointAttribute att = mesh.getAttribute(draco.getAttributes().get("POSITION"));
-//        for(PointIndex p : PointIndex.range(0, mesh.getNumPoints())) {
-//            att.getMappedValue(p, Pointer.wrap(posArrayTemp));
-//            double pos0 = (double) posArrayTemp[0] + translation[0];
-//            double pos1 = -((double) posArrayTemp[2] + translation[2]);
-//            double pos2 = (double) posArrayTemp[1] + translation[1];
-//            avgArray[0] += pos0;
-//            avgArray[1] += pos1;
-//            avgArray[2] += pos2;
-//
-//            Cartesian3 cartesian3 = new Cartesian3(pos0, pos1, pos2);
-//            Spheroid3 spheroid3 = converter.toSpheroid(cartesian3);
-//            double[] gamePos = Projections.BTE.fromGeo(spheroid3.getLongitudeDegrees(), spheroid3.getLatitudeDegrees());
-//
-//            int gameX = (int) Math.round(gamePos[0]);
-//            int gameY = (int) Math.round(spheroid3.getHeight());
-//            int gameZ = (int) Math.round(gamePos[1]);
-//            System.out.println("setblock " + gameX + " " + gameY + " " + gameZ + " minecraft:stone");
+//        List<Pair<Mesh, DracoMeshCompression>> pairs = this.decodeDracoMeshData(model);
+//        for (int i = 0; i < pairs.size(); i++) {
+//            Pair<Mesh, DracoMeshCompression> pair = pairs.get(i);
+//            System.out.println("####### MESH NUMBER " + i + " #######");
+//            Mesh mesh = pair.getLeft();
+//            DracoMeshCompression draco = pair.getRight();
+//            PointAttribute att = mesh.getAttribute(draco.getAttributes().get("TEXCOORD_0"));
+//            for (FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
+//                System.out.print("\\operatorname{polygon}\\left(");
+//                for (int p = 0; p < 3; p++) {
+//                    att.getMappedValue(mesh.getFace(f).get(p), Pointer.wrap(texArrayTemp));
+//                    float u = texArrayTemp[0];
+//                    float v = texArrayTemp[1];
+//                    System.out.printf("\\left(%.5f,%.5f\\right)", u, v);
+//                    if (p < 2) System.out.print(",");
+//                }
+//                System.out.println("\\right)");
+//            }
 //        }
-//        avgArray[0] /= mesh.getNumPoints();
-//        avgArray[1] /= mesh.getNumPoints();
-//        avgArray[2] /= mesh.getNumPoints();
-//
-//        Cartesian3 average = new Cartesian3(avgArray[0], avgArray[1], avgArray[2]);
-//        Spheroid3 expected = Spheroid3.fromDegrees(-74.00497460764946, 40.71228662124228, 20);
-//        System.out.println("Average: " + average + " -> " + converter.toSpheroid(average));
-//        System.out.println("Expected: " + converter.toCartesian(expected) + " -> " + expected);
 //    }
 }

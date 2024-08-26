@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.draco.io;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

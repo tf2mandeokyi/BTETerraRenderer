@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import lombok.Getter;
@@ -139,8 +139,8 @@ public class OctahedronToolBox {
         if (absSum == 0) {
             vec0 = inType.from(this.centerValue);
         } else {
-            vec0 = inType.from(longType.mul(inType, vec0, intType, this.centerValue) / absSum);
-            vec1 = inType.from(longType.mul(inType, vec1, intType, this.centerValue) / absSum);
+            vec0 = inType.from((inType.toLong(vec0) * (long) this.centerValue) / absSum);
+            vec1 = inType.from((inType.toLong(vec1) * (long) this.centerValue) / absSum);
             if (inType.ge(vec2, 0)) {
                 vec2 = inType.sub(inType.sub(this.centerValue, inType.abs(vec0)), inType.abs(vec1));
             } else {

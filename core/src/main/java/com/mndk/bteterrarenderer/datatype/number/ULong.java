@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.datatype.number;
 
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class ULong extends CppNumber<ULong> {
     private static final float POW_63F = (float) Math.pow(2, 63);
     private static final double POW_63D = Math.pow(2, 63);
 
-    public static ULong of(long value) { return 0 <= value && value < 256 ? CACHE[(int) value] : new ULong(value); }
+    public static ULong of(long value) { return (value & 0xFF) == value ? CACHE[(int) value] : new ULong(value); }
 
     private final long value;
 

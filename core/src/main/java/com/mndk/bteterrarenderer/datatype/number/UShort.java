@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.datatype.number;
 
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class UShort extends CppNumber<UShort> {
     public static final UShort ZERO = of((short) 0);
 
     public static UShort of(int value) { return of((short) value); }
-    public static UShort of(short value) { return 0 <= value && value < 256 ? CACHE[value] : new UShort(value); }
+    public static UShort of(short value) { return (value & 0xFF) == value ? CACHE[value] : new UShort(value); }
 
     private final short value;
 

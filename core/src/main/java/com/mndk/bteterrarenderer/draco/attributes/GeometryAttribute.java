@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.draco.attributes;
 
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
@@ -247,33 +247,33 @@ public class GeometryAttribute {
      * range will be used to represent 0-1 floating point range).
      */
     private <T, OutT> Status convertComponentValue(Pointer<T> inRef, boolean normalized, Pointer<OutT> outValue) {
-        DataNumberType<T> inType = inRef.getType().asNumber();
-        T inValue = inRef.get();
-        DataNumberType<OutT> outType = outValue.getType().asNumber();
+        DataNumberType<T> inT = inRef.getType().asNumber();
+        T inVal = inRef.get();
+        DataNumberType<OutT> outT = outValue.getType().asNumber();
         // Make sure inValue can be represented as an integral type U.
-        if(outType.isIntegral()) {
+        if(outT.isIntegral()) {
             // Make sure inValue fits thin the range of values that U
             // is able to represent. Perform the check only for integral types.
-            if(outType != DataType.bool() && inType.isIntegral()) {
-                OutT kOutMin = inType.isSigned() ? outType.min() : outType.from(0);
-                if(inType.lt(inValue, outType, kOutMin) || inType.gt(inValue, outType, outType.max())) {
+            if(outT != DataType.bool() && inT.isIntegral()) {
+                OutT kOutMin = inT.isSigned() ? outT.min() : outT.from(0);
+                if(DataType.lt(inT, inVal, outT, kOutMin) || DataType.gt(inT, inVal, outT, outT.max())) {
                     return Status.invalidParameter("inValue out of range");
                 }
             }
 
             // Check conversion of floating point inValue to integral value OutT.
-            if(inType.isFloatingPoint()) {
+            if(inT.isFloatingPoint()) {
                 // Make sure the floating point inValue is not NaN and not Infinity as
                 // integral type OutT is unable to represent these values.
                 // Since there's no float128 in java, we'll skip checking the type for it.
-                if(inType.byteSize() == DataType.float64().byteSize()) {
-                    double value = inType.toDouble(inValue);
+                if(inT.byteSize() == DataType.float64().byteSize()) {
+                    double value = inT.toDouble(inVal);
                     if(Double.isNaN(value) || Double.isInfinite(value)) {
                         return Status.invalidParameter("not a valid floating point value");
                     }
                 }
-                else if(inType.byteSize() == DataType.float32().byteSize()) {
-                    float value = inType.toFloat(inValue);
+                else if(inT.byteSize() == DataType.float32().byteSize()) {
+                    float value = inT.toFloat(inVal);
                     if(Float.isNaN(value) || Float.isInfinite(value)) {
                         return Status.invalidParameter("not a valid floating point value");
                     }
@@ -284,37 +284,36 @@ public class GeometryAttribute {
 
                 // Make sure the floating point inValue fits within the range of
                 // values that integral type OutT is able to present.
-                if(inType.lt(inValue, outType, outType.min()) || inType.ge(inValue, outType, outType.max())) {
+                if(DataType.lt(inT, inVal, outT, outT.min()) || DataType.ge(inT, inVal, outT, outT.max())) {
                     return Status.invalidParameter("inValue out of range");
                 }
             }
         }
 
-        if(inType.isIntegral() && outType.isFloatingPoint() && normalized) {
+        if(inT.isIntegral() && outT.isFloatingPoint() && normalized) {
             // When converting integer to floating point, normalize the value if
             // necessary.
-            outValue.set(outType.div(inType, inValue, inType, inType.max()));
+            outValue.set(outT.div(outT.from(inT, inVal), outT.from(inT, inT.max())));
         }
-        else if(inType.isFloatingPoint() && outType.isIntegral() && normalized) {
+        else if(inT.isFloatingPoint() && outT.isIntegral() && normalized) {
             // Converting from floating point to a normalized integer.
-            if(inType.gt(inValue, 1) || inType.lt(inValue, 0)) {
+            if(inT.gt(inVal, 1) || inT.lt(inVal, 0)) {
                 // Normalized float values need to be between 0 and 1.
                 return Status.invalidParameter("input value outside normalized range: " + inRef);
             }
             // From Google's repository: "Consider allowing float to normalized integer conversion
             // for 64-bit integer types. It doesn't work currently because we don't
             // have a floating point type that could store all 64-bit integers."
-            if(outType.byteSize() > 4) {
+            if(outT.byteSize() > 4) {
                 return Status.invalidParameter("output type size bigger than 4");
             }
             // Expand the float to the range of the output integer and round it to the
             // nearest representable value. Use doubles for the math to ensure the
             // integer values are represented properly during the conversion process.
-            DataNumberType<Double> d = DataType.float64();
-            outValue.set(outType.floor(d, d.add(d.mul(inType, inValue, outType, outType.max()), 0.5)));
+            outValue.set(outT.from(Math.floor(inT.toDouble(inVal) * outT.toDouble(outT.max()) + 0.5)));
         }
         else {
-            outValue.set(outType.from(inType, inValue));
+            outValue.set(outT.from(inT, inVal));
         }
         // From Google's repository: "Add handling of normalized attributes when converting
         // between different integer representations. If the attribute is

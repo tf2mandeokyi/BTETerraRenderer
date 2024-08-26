@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.datatype.number;
 
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.DataType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class UInt extends CppNumber<UInt> {
     public static final UInt ZERO = of(0);
 
     public static UInt of(long value) { return of((int) value);}
-    public static UInt of(int value) { return 0 <= value && value < 256 ? CACHE[value] : new UInt(value); }
+    public static UInt of(int value) { return (value & 0xFF) == value ? CACHE[value] : new UInt(value); }
     public static UInt min(UInt a, UInt b) { return a.compareTo(b) <= 0 ? a : b; }
     public static UInt max(UInt a, UInt b) { return a.compareTo(b) >= 0 ? a : b; }
 

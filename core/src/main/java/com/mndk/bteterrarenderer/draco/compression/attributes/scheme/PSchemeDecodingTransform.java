@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes.scheme;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.compression.config.PredictionSchemeTransformType;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
@@ -22,7 +24,7 @@ public interface PSchemeDecodingTransform<DataT, CorrT> {
                     "data must be of the same type.");
         }
         for (int i = 0; i < getNumComponents(); ++i) {
-            outOrigVals.set(i, dataType.add(predVals.get(i), corrType, corrVals.get(i)));
+            outOrigVals.set(i, BTRUtil.<DataT>uncheckedCast(DataType.add(dataType, predVals.get(i), corrType, corrVals.get(i))));
         }
     }
 

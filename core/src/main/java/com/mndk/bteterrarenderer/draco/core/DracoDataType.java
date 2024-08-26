@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.draco.core;
 
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import lombok.Getter;
 

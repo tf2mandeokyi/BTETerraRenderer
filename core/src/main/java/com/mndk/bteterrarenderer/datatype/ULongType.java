@@ -1,12 +1,16 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class ULongType extends PredefinedDataNumberType<ULong> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "uint64"; }
     @Override public boolean equals(Object obj) { return obj instanceof ULongType; }
@@ -38,7 +42,7 @@ class ULongType extends PredefinedDataNumberType<ULong> {
     @Override public DataNumberType<?> getUnsigned() { return this; }
 
     // Number conversions (incoming)
-    @Override public <U> ULong from(DataCalculator<U> type, U value) { return type.toULong(value); }
+    @Override public <U> ULong from(DataNumberType<U> type, U value) { return type.toULong(value); }
     @Override public ULong from(int value) { return ULong.of(value); }
     @Override public ULong from(long value) { return ULong.of(value); }
     @Override public ULong from(float value) { return ULong.of((long) value); }

@@ -1,11 +1,15 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class ShortType extends JavaNumberBridgeType<Short> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "int16"; }
     @Override public boolean equals(Object obj) { return obj instanceof ShortType; }
@@ -64,7 +68,7 @@ class ShortType extends JavaNumberBridgeType<Short> {
     @Override public Short shr(Short value, int shift) { return (short) (value >> shift); }
 
     // Number conversions (incoming)
-    @Override public <U> Short from(DataCalculator<U> type, U value) { return type.toShort(value); }
+    @Override public <U> Short from(DataNumberType<U> type, U value) { return type.toShort(value); }
     @Override public Short from(int value) { return (short) value; }
     @Override public Short from(long value) { return (short) value; }
     @Override public Short from(float value) { return (short) value; }

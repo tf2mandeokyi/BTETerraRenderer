@@ -65,9 +65,12 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
             Cartesian3 position = new Cartesian3(posArray);
             Cartesian3 gamePos = this.transformEarthCoordToGame(position);
 
-            if(normalAttribute != null) normalAttribute.getMappedValue(pointIndex, Pointer.wrap(normArray));
-            Cartesian3 normal = normalAttribute == null ? null : new Cartesian3(normArray);
-            Cartesian3 gameNormal = normal == null ? null : this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
+            Cartesian3 gameNormal = null;
+            if(normalAttribute != null) {
+                normalAttribute.getMappedValue(pointIndex, Pointer.wrap(normArray));
+                Cartesian3 normal = new Cartesian3(normArray);
+                gameNormal = this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
+            }
 
             if(texAttribute != null) texAttribute.getMappedValue(pointIndex, Pointer.wrap(texArray));
             float[] tex = texAttribute == null ? null : new float[] { texArray[0], texArray[1] };
@@ -80,9 +83,9 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
     private static GraphicsShapes parsedPointsToShapes(Mesh mesh, ParsedPoint[] points) {
         GraphicsShapes shapes = new GraphicsShapes();
         for(FaceIndex faceIndex : FaceIndex.range(0, mesh.getNumFaces())) {
-            ParsedPoint point0 = points[mesh.getFace(faceIndex).get(0).getValue()];
-            ParsedPoint point1 = points[mesh.getFace(faceIndex).get(1).getValue()];
-            ParsedPoint point2 = points[mesh.getFace(faceIndex).get(2).getValue()];
+            ParsedPoint point0 = points[mesh.getFace(faceIndex).getValue(0)];
+            ParsedPoint point1 = points[mesh.getFace(faceIndex).getValue(1)];
+            ParsedPoint point2 = points[mesh.getFace(faceIndex).getValue(2)];
 
             ParsedTriangle triangle = new ParsedTriangle(point0, point1, point2);
             shapes.add(DrawingFormat.TRI_PTN_ALPHA, triangle.toGraphics());

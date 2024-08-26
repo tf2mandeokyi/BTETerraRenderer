@@ -1,12 +1,16 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UByte;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class UByteType extends PredefinedDataNumberType<UByte> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "uint8"; }
     @Override public boolean equals(Object obj) { return obj instanceof UByteType; }
@@ -38,7 +42,7 @@ class UByteType extends PredefinedDataNumberType<UByte> {
     @Override public DataNumberType<?> getUnsigned() { return this; }
 
     // Number conversions (incoming)
-    @Override public <U> UByte from(DataCalculator<U> type, U value) { return type.toUByte(value); }
+    @Override public <U> UByte from(DataNumberType<U> type, U value) { return type.toUByte(value); }
     @Override public UByte from(int value) { return UByte.of(value); }
     @Override public UByte from(long value) { return UByte.of((int) value); }
     @Override public UByte from(float value) { return UByte.of((int) value); }

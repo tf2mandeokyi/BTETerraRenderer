@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.draco.compression.attributes.scheme;
 
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.draco.attributes.GeometryAttribute;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
 import com.mndk.bteterrarenderer.draco.compression.config.PredictionSchemeTransformType;

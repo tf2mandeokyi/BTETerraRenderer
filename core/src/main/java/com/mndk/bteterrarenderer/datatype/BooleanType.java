@@ -3,8 +3,14 @@ package com.mndk.bteterrarenderer.datatype;
 import com.mndk.bteterrarenderer.datatype.number.*;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class BooleanType implements DataNumberType<Boolean> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "bool"; }
     @Override public boolean equals(Object obj) { return obj instanceof BooleanType; }
@@ -74,7 +80,7 @@ class BooleanType implements DataNumberType<Boolean> {
     @Override public Boolean shr(Boolean value, int shift) { return value && shift == 0; }
 
     // Number conversions (incoming)
-    @Override public <U> Boolean from(DataCalculator<U> type, U value) { return type.toBoolean(value); }
+    @Override public <U> Boolean from(DataNumberType<U> type, U value) { return type.toBoolean(value); }
     @Override public Boolean from(int value) { return value != 0; }
     @Override public Boolean from(long value) { return value != 0; }
     @Override public Boolean from(float value) { return value != 0; }

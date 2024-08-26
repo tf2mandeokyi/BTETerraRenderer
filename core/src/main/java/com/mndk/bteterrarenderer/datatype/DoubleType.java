@@ -1,11 +1,15 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class DoubleType extends JavaNumberBridgeType<Double> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "float64"; }
     @Override public boolean equals(Object obj) { return obj instanceof DoubleType; }
@@ -64,7 +68,7 @@ class DoubleType extends JavaNumberBridgeType<Double> {
     @Override public Double shr(Double value, int shift) { throw new UnsupportedOperationException(); }
 
     // Number conversions (incoming)
-    @Override public <U> Double from(DataCalculator<U> type, U value) { return type.toDouble(value); }
+    @Override public <U> Double from(DataNumberType<U> type, U value) { return type.toDouble(value); }
     @Override public Double from(int value) { return (double) value; }
     @Override public Double from(long value) { return (double) value; }
     @Override public Double from(float value) { return (double) value; }

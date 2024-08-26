@@ -1,12 +1,16 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.number.UShort;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class UShortType extends PredefinedDataNumberType<UShort> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "uint16"; }
     @Override public boolean equals(Object obj) { return obj instanceof UShortType; }
@@ -38,7 +42,7 @@ class UShortType extends PredefinedDataNumberType<UShort> {
     @Override public DataNumberType<?> getUnsigned() { return this; }
 
     // Number conversions (incoming)
-    @Override public <U> UShort from(DataCalculator<U> type, U value) { return type.toUShort(value); }
+    @Override public <U> UShort from(DataNumberType<U> type, U value) { return type.toUShort(value); }
     @Override public UShort from(int value) { return UShort.of(value); }
     @Override public UShort from(long value) { return UShort.of((int) value); }
     @Override public UShort from(float value) { return UShort.of((int) value); }

@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.draco.io;
 
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.datatype.DataType;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
+import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.PointerHelper;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;

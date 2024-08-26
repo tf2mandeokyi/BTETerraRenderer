@@ -1,11 +1,15 @@
 package com.mndk.bteterrarenderer.datatype;
 
-import com.mndk.bteterrarenderer.datatype.number.DataCalculator;
-import com.mndk.bteterrarenderer.datatype.number.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.datatype.pointer.RawPointer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 class LongType extends JavaNumberBridgeType<Long> {
+    private final byte id;
+
     // Java overrides
     @Override public String toString() { return "int64"; }
     @Override public boolean equals(Object obj) { return obj instanceof LongType; }
@@ -64,7 +68,7 @@ class LongType extends JavaNumberBridgeType<Long> {
     @Override public Long shr(Long value, int shift) { return value >> shift; }
 
     // Number conversions (incoming)
-    @Override public <U> Long from(DataCalculator<U> type, U value) { return type.toLong(value); }
+    @Override public <U> Long from(DataNumberType<U> type, U value) { return type.toLong(value); }
     @Override public Long from(int value) { return (long) value; }
     @Override public Long from(long value) { return value; }
     @Override public Long from(float value) { return (long) value; }
