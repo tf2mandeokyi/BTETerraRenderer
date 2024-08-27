@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMessageImpl;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMsgHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -13,15 +13,11 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(
-        modid = BTETerraRendererConstants.MODID,
-        name = BTETerraRendererConstants.NAME,
-        dependencies = "required-after:terraplusplus@[1.0.569,)"
-)
+@Mod(modid = BTETerraRenderer.MODID, name = BTETerraRenderer.NAME)
 public class BTETerraRendererMod {
 
     public static final SimpleNetworkWrapper NETWORK_WRAPPER =
-            NetworkRegistry.INSTANCE.newSimpleChannel(BTETerraRendererConstants.MODID);
+            NetworkRegistry.INSTANCE.newSimpleChannel(BTETerraRenderer.MODID);
 
     @SidedProxy(clientSide="com.mndk.bteterrarenderer.mod.client.ClientProxy", serverSide="com.mndk.bteterrarenderer.mod.server.ServerProxy")
     public static CommonProxy proxy;

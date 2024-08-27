@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.projection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import org.junit.Assert;
@@ -19,7 +19,7 @@ public class GeographicProjectionTest {
 
     @Test
     public void givenJsonConfig_testJsonSerialize() throws JsonProcessingException {
-        String json = BTETerraRendererConstants.JSON_MAPPER.writeValueAsString(Projections.BTE);
+        String json = BTETerraRenderer.JSON_MAPPER.writeValueAsString(Projections.BTE);
         GeographicProjection projection = GeographicProjection.parse(json);
         validateBTEProjection(projection);
     }

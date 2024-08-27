@@ -57,20 +57,21 @@ public interface PropertyAccessor<T> {
         private final Consumer<T> setter;
         private final Predicate<T> predicate;
 
-        @Override
-        public T get() { return getter.get(); }
-
-        @Override
-        public void setWithoutCheck(T value) { setter.accept(value); }
-
-        @Override
-        public boolean available(T value) { return predicate.test(value); }
+        @Override public T get() { return getter.get(); }
+        @Override public void setWithoutCheck(T value) { setter.accept(value); }
+        @Override public boolean available(T value) { return predicate.test(value); }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    class Localized<T> {
-        public final String key;
-        public final String i18nKey;
+    class Localized<T> implements PropertyAccessor<T> {
+        @Getter private final String key;
+        @Getter private final String i18nKey;
         public final PropertyAccessor<T> delegate;
+
+        @Override public Class<T> getPropertyClass() { return delegate.getPropertyClass(); }
+        @Override public T get() { return delegate.get(); }
+        @Override public void set(T value) { delegate.set(value); }
+        @Override public void setWithoutCheck(T value) { delegate.setWithoutCheck(value); }
+        @Override public boolean available(T value) { return delegate.available(value); }
     }
 }

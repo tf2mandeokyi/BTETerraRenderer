@@ -1,8 +1,9 @@
 package com.mndk.bteterrarenderer.core.input;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
+import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.client.input.IKeyBinding;
@@ -17,10 +18,10 @@ public class KeyBindings {
 
     public static void registerAll() {
         GameInputManager inputManager = McConnector.client().inputManager;
-        MAP_TOGGLE_KEY = inputManager.register(BTETerraRendererConstants.MODID, "toggle", InputKey.KEY_R);
-        MAP_OPTIONS_KEY = inputManager.register(BTETerraRendererConstants.MODID, "options_ui", InputKey.KEY_GRAVE_ACCENT);
-        MOVE_UP_KEY = inputManager.register(BTETerraRendererConstants.MODID, "move_up", InputKey.KEY_Y);
-        MOVE_DOWN_KEY = inputManager.register(BTETerraRendererConstants.MODID, "move_down", InputKey.KEY_I);
+        MAP_TOGGLE_KEY = inputManager.register(BTETerraRenderer.MODID, "toggle", InputKey.KEY_R);
+        MAP_OPTIONS_KEY = inputManager.register(BTETerraRenderer.MODID, "options_ui", InputKey.KEY_GRAVE_ACCENT);
+        MOVE_UP_KEY = inputManager.register(BTETerraRenderer.MODID, "move_up", InputKey.KEY_Y);
+        MOVE_DOWN_KEY = inputManager.register(BTETerraRenderer.MODID, "move_down", InputKey.KEY_I);
     }
 
     public static void checkInputs() {
@@ -31,14 +32,10 @@ public class KeyBindings {
             MapRenderingOptionsSidebar.open();
         }
         while(KeyBindings.MOVE_UP_KEY.wasPressed()) {
-            BTETerraRendererConfig.getTileMapServiceWrapper()
-                    .getItem()
-                    .moveAlongYAxis(0.5);
+            TileMapService.getCurrentWrapped().getItem().moveAlongYAxis(0.5);
         }
         while(KeyBindings.MOVE_DOWN_KEY.wasPressed()) {
-            BTETerraRendererConfig.getTileMapServiceWrapper()
-                    .getItem()
-                    .moveAlongYAxis(-0.5);
+            TileMapService.getCurrentWrapped().getItem().moveAlongYAxis(-0.5);
         }
     }
 }

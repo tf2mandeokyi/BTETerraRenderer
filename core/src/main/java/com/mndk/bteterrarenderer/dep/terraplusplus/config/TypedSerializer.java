@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,7 +29,7 @@ public abstract class TypedSerializer<T> extends JsonSerializer<T> {
         gen.writeStartObject(value);
         gen.writeFieldName(name);
 
-        BTETerraRendererConstants.JSON_MAPPER.rebuild().addMixIn(value.getClass(), MixIn.class).build().writeValue(gen, value);
+        BTETerraRenderer.JSON_MAPPER.rebuild().addMixIn(value.getClass(), MixIn.class).build().writeValue(gen, value);
 
         gen.writeEndObject();
     }

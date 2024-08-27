@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.loader.yml;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,7 +69,7 @@ public abstract class YamlLoader<F, T> {
     }
 
     private T load(String fileName, Reader fileReader) throws IOException {
-        F dataTransferObject = BTETerraRendererConstants.YAML_MAPPER.readValue(fileReader, this.fileClazz);
+        F dataTransferObject = BTETerraRenderer.YAML_MAPPER.readValue(fileReader, this.fileClazz);
         return this.load(fileName, dataTransferObject);
     }
 

@@ -14,7 +14,7 @@ public class TileRenderer {
 
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
 
-        TileMapService tms = BTETerraRendererConfig.getTileMapServiceWrapper().getItem();
+        TileMapService tms = TileMapService.getCurrentWrapped().getItem();
         if(tms == null) return;
         if(Projections.getServerProjection() == null) return;
 

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.StringUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -32,7 +32,7 @@ class MapAlignerBox extends McFXElement {
     private static final int LINE_LENGTH = 1000;
     
     private static final ResourceLocationWrapper<?> ALIGNMENT_MARKER = McConnector.client().newResourceLocation(
-            BTETerraRendererConstants.MODID, "textures/ui/alignment_marker.png"
+            BTETerraRenderer.MODID, "textures/ui/alignment_marker.png"
     );
     
     private final int height;

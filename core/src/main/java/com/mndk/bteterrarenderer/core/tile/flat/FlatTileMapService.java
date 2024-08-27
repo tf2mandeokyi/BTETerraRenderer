@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.util.Loggers;
@@ -117,15 +117,15 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    protected List<PropertyAccessor.Localized<?>> makeProperties() {
-        PropertyAccessor<Integer> zoomProperty = RangedIntPropertyAccessor.of(
+    protected List<PropertyAccessor.Localized<?>> makeStates() {
+        PropertyAccessor<Integer> zoom = RangedIntPropertyAccessor.of(
                 this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
-        PropertyAccessor<Integer> radiusProperty =  RangedIntPropertyAccessor.of(
+        PropertyAccessor<Integer> radius =  RangedIntPropertyAccessor.of(
                 this::getRadius, this::setRadius, 1, 10);
 
         return Arrays.asList(
-                PropertyAccessor.localized("zoom", "gui.bteterrarenderer.settings.zoom", zoomProperty),
-                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.size", radiusProperty)
+                PropertyAccessor.localized("zoom", "gui.bteterrarenderer.settings.zoom", zoom),
+                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.size", radius)
         );
     }
 
@@ -251,7 +251,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
             FlatTileProjection projection;
             if(projectionNode.isTextual()) {
                 String projectionName = projectionNode.asText();
-                projection = FlatTileProjectionYamlLoader.INSTANCE.getResult().get(projectionName);
+                projection = ConfigLoaders.flatProj().getResult().get(projectionName);
                 if(projection == null) {
                     throw JsonMappingException.from(ctxt, "unknown projection name: " + projectionName);
                 }
@@ -278,12 +278,12 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         try {
             ClassLoader loader = AbstractTileMapService.class.getClassLoader();
 
-            String errorImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/internal_error.png";
+            String errorImagePath = "assets/" + BTETerraRenderer.MODID + "/textures/internal_error.png";
             InputStream errorImageStream = loader.getResourceAsStream(errorImagePath);
             SOMETHING_WENT_WRONG = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(errorImageStream)));
             errorImageStream.close();
 
-            String loadingImagePath = "assets/" + BTETerraRendererConstants.MODID + "/textures/loading.png";
+            String loadingImagePath = "assets/" + BTETerraRenderer.MODID + "/textures/loading.png";
             InputStream loadingImageStream = loader.getResourceAsStream(loadingImagePath);
             LOADING = new ImageTexturePair(ImageIO.read(Objects.requireNonNull(loadingImageStream)));
             loadingImageStream.close();

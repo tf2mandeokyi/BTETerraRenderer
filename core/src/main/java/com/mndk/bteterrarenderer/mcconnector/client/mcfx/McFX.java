@@ -117,24 +117,23 @@ public class McFX {
     }
 
     public McFXElement fromProperty(PropertyAccessor.Localized<?> property) {
-        Class<?> propertyClass = property.delegate.getPropertyClass();
+        Class<?> propertyClass = property.getPropertyClass();
 
         if(Number.class.isAssignableFrom(propertyClass)) {
-            PropertyAccessor<Number> numberProperty = BTRUtil.uncheckedCast(property.delegate);
+            PropertyAccessor<Number> numberProperty = BTRUtil.uncheckedCast(property);
             if(numberProperty instanceof PropertyAccessor.Ranged) {
                 PropertyAccessor.Ranged<Number> rangedNumberProperty = BTRUtil.uncheckedCast(numberProperty);
-                return McFX.i18nSlider(property.i18nKey, rangedNumberProperty);
+                return McFX.i18nSlider(property.getI18nKey(), rangedNumberProperty);
             }
 
             PropertyAccessor<Double> propertyWrapper = PropertyAccessor.of(
                     () -> numberProperty.get().doubleValue(),
                     v  -> numberProperty.set(BTRUtil.doubleToNumber(numberProperty.getPropertyClass(), v))
             );
-            return McFX.i18nNumberInput(property.i18nKey, propertyWrapper);
+            return McFX.i18nNumberInput(property.getI18nKey(), propertyWrapper);
         }
         else if(propertyClass == Boolean.class || propertyClass == boolean.class) {
-            PropertyAccessor<Boolean> booleanProperty = BTRUtil.uncheckedCast(property.delegate);
-            return McFX.i18nBoolButton(property.i18nKey, booleanProperty);
+            return McFX.i18nBoolButton(property.getI18nKey(), BTRUtil.uncheckedCast(property));
         }
         throw new RuntimeException("Unsupported property type: " + propertyClass);
     }

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.util;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -19,7 +19,7 @@ public class Loggers {
     }
 
     private Logger makeLogger(Class<?> c) {
-        return LogManager.getLogger(BTETerraRendererConstants.NAME.toLowerCase() + "/" + c.getSimpleName());
+        return LogManager.getLogger(BTETerraRenderer.NAME.toLowerCase() + "/" + c.getSimpleName());
     }
 
     public Logger get(Object o) {
@@ -34,12 +34,12 @@ public class Loggers {
     }
 
     public void sendErrorMessageToChat(String message) {
-        McConnector.client().sendFormattedStringToChat("§c[" + BTETerraRendererConstants.NAME + "] " + message);
+        McConnector.client().sendFormattedStringToChat("§c[" + BTETerraRenderer.NAME + "] " + message);
     }
 
     public void sendErrorMessageToChat(Class<?> clazz, String message, Throwable t) {
-        McConnector.client().sendFormattedStringToChat("§c[" + BTETerraRendererConstants.NAME + "] " + message);
-        McConnector.client().sendFormattedStringToChat("§c[" + BTETerraRendererConstants.NAME + "] Reason: " + t.getMessage());
+        McConnector.client().sendFormattedStringToChat("§c[" + BTETerraRenderer.NAME + "] " + message);
+        McConnector.client().sendFormattedStringToChat("§c[" + BTETerraRenderer.NAME + "] Reason: " + t.getMessage());
         get(clazz).error(message, t);
     }
 

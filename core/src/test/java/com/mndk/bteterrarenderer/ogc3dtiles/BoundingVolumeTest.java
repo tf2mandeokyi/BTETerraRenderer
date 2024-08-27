@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Box;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Region;
@@ -22,7 +22,7 @@ public class BoundingVolumeTest {
                 "    0.6988897891,\n" +
                 "    0,\n" +
                 "    20]}";
-        Volume volume = BTETerraRendererConstants.JSON_MAPPER.readValue(json, Volume.class);
+        Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Region.class));
 
         Region region = (Region) volume;
@@ -32,7 +32,7 @@ public class BoundingVolumeTest {
     @Test
     public void givenSphereJson_testReadability() throws JsonProcessingException {
         String json = "{\"sphere\": [0, 0, 10, 141.4214]}";
-        Volume volume = BTETerraRendererConstants.JSON_MAPPER.readValue(json, Volume.class);
+        Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Sphere.class));
         Assert.assertEquals(((Sphere) volume).getRadius(), 141.4214, 0.00001);
     }
@@ -45,7 +45,7 @@ public class BoundingVolumeTest {
                 "    0,   100, 0,\n" +
                 "    0,   0,   10\n" +
                 "  ]}";
-        Volume volume = BTETerraRendererConstants.JSON_MAPPER.readValue(json, Volume.class);
+        Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Box.class));
         Assert.assertEquals(((Box) volume).getCenter(), new Cartesian3(0, 0, 10));
     }
@@ -54,6 +54,6 @@ public class BoundingVolumeTest {
     public void givenWrongSphereJson_testThrowable() {
         String json = "{\"sphere\": [0, 0, 10]}";
         Assert.assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> BTETerraRendererConstants.JSON_MAPPER.readValue(json, Volume.class));
+                () -> BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class));
     }
 }

@@ -2,9 +2,8 @@ package com.mndk.bteterrarenderer.core.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
-import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
@@ -24,9 +23,9 @@ public class TileMapServiceJsonCopyTest {
         FlatTileProjection webMercator = PROJECTION_MAP.get("webmercator");
         int[] coord1 = webMercator.toTileCoord(LONGITUDE, LATITUDE, 21);
 
-        String json = BTETerraRendererConstants.JSON_MAPPER.writeValueAsString(webMercator);
+        String json = BTETerraRenderer.JSON_MAPPER.writeValueAsString(webMercator);
 
-        FlatTileProjection projectionCopy = BTETerraRendererConstants.JSON_MAPPER.readValue(json, FlatTileProjectionImpl.class);
+        FlatTileProjection projectionCopy = BTETerraRenderer.JSON_MAPPER.readValue(json, FlatTileProjectionImpl.class);
         int[] coord2 = projectionCopy.toTileCoord(LONGITUDE, LATITUDE, 21);
 
         Assert.assertArrayEquals(coord1, coord2);
@@ -34,18 +33,18 @@ public class TileMapServiceJsonCopyTest {
 
     @Test
     public void givenTMSConfig_whenTileCoordProvided_testSameCoord() throws OutOfProjectionBoundsException, IOException {
-        FlatTileMapService tms = (FlatTileMapService) TileMapServiceYamlLoader.INSTANCE.getResult()
+        FlatTileMapService tms = (FlatTileMapService) ConfigLoaders.tms().getResult()
                 .getItem("Global", "osm");
         Assert.assertNotNull(tms);
         int[] coord1 = tms.getCoordTranslator().getProjection().toTileCoord(LONGITUDE, LATITUDE, 21);
         int[] coord2 = tms.getCoordTranslator().geoCoordToTileCoord(LONGITUDE, LATITUDE, 0);
 
-        String json = BTETerraRendererConstants.JSON_MAPPER.writeValueAsString(tms);
+        String json = BTETerraRenderer.JSON_MAPPER.writeValueAsString(tms);
 
-        JsonNode node = BTETerraRendererConstants.JSON_MAPPER.readTree(json);
+        JsonNode node = BTETerraRenderer.JSON_MAPPER.readTree(json);
         Assert.assertEquals("webmercator", node.get("projection").asText());
 
-        FlatTileMapService tmsCopy = BTETerraRendererConstants.JSON_MAPPER.readValue(json, FlatTileMapService.class);
+        FlatTileMapService tmsCopy = BTETerraRenderer.JSON_MAPPER.readValue(json, FlatTileMapService.class);
         int[] coord3 = tmsCopy.getCoordTranslator().getProjection().toTileCoord(LONGITUDE, LATITUDE, 21);
         int[] coord4 = tmsCopy.getCoordTranslator().geoCoordToTileCoord(LONGITUDE, LATITUDE, 0);
         tmsCopy.close();
@@ -55,7 +54,7 @@ public class TileMapServiceJsonCopyTest {
     }
 
     static {
-        BTETerraRendererConfig.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
+        BTETerraRenderer.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
     }
 
 }

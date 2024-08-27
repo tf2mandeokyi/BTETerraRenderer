@@ -1,16 +1,11 @@
 package com.mndk.bteterrarenderer.core.loader.yml;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class FlatTileProjectionYamlLoader extends YamlLoader<FlatTileProjectionYamlFile, Map<String, FlatTileProjectionImpl>> {
-
-    public static final FlatTileProjectionYamlLoader INSTANCE = new FlatTileProjectionYamlLoader(
-            "projections", "assets/" + BTETerraRendererConstants.MODID + "/default_projections.yml"
-    );
 
     public FlatTileProjectionYamlLoader(String folderName, String defaultYamlPath) {
         super(folderName, defaultYamlPath, FlatTileProjectionYamlFile.class);

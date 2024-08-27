@@ -5,10 +5,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
+import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManager;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class BTETerraRendererConstants {
+public class BTETerraRenderer {
 
     public final String MODID = "bteterrarenderer";
     public final String NAME = "BTETerraRenderer";
@@ -23,4 +28,12 @@ public class BTETerraRendererConstants {
             .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
             .configure(JsonReadFeature.ALLOW_TRAILING_COMMA, true)
             .build();
+
+    public void initialize(ClientMinecraftManager clientManager) {
+        McConnector.initialize(clientManager);
+
+        Proj4jProjection.registerProjection();
+        ConfigLoaders.setConfigDirectory(McConnector.common().getConfigDirectory(MODID));
+        TileMapService.refreshCurrent();
+    }
 }

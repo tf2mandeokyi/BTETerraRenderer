@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.event.ClientConnectionEvents;
 import lombok.experimental.UtilityClass;
 import net.minecraftforge.api.distmarker.Dist;
@@ -9,7 +9,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @UtilityClass
-@Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID, value = Dist.CLIENT)
 public class ClientOngoingConnectionEvents {
 
     @SubscribeEvent

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client.command;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.experimental.UtilityClass;
 import net.minecraft.commands.CommandSourceStack;
@@ -9,7 +9,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @UtilityClass
-@Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModCommandsSetup {
 
     public void registerClientCommands(CommandDispatcher<CommandSourceStack> dispatcher) {

@@ -18,8 +18,7 @@ minecraft {
 }
 
 dependencies {
-    compileOnly fg.deobf('com.github.OpenCubicChunks.CubicChunks:cubicchunks:f71aafb9854466ac5ffa0ccd2796921684f1d8b1') { transitive = false }
-    compileOnly fg.deobf('com.github.OpenCubicChunks:CubicWorldGen:27de56d2f792513873584b2f8fd9f3082fb259ec') { transitive = false }
-    compileOnly fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
-    testImplementation fg.deobf('com.github.BuildTheEarth:terraplusplus:f12de26053')
+    // There is a bug in the 1.12.2 forge plugin that cannot import the mixin dependency
+    // So we instead manually add the dependency here
+    compileOnly fg.deobf('org.spongepowered:mixin:0.8.3')
 }

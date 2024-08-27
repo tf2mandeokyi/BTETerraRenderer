@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BinaryJsonTableElement;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BinaryVector;
 import lombok.Data;
@@ -27,7 +27,7 @@ public class FeatureTableTest {
         "}";
         byte[] binary = new byte[] { 69, 0, 0, 0, 9, 0, 0, 0, 10, 0, 0, 0, 11, 0, 0, 0, 12, 13, 14, 15 };
         FeatureTableHeaderTest tableHeaderTest =
-                BTETerraRendererConstants.JSON_MAPPER.readValue(json, FeatureTableHeaderTest.class);
+                BTETerraRenderer.JSON_MAPPER.readValue(json, FeatureTableHeaderTest.class);
 
         Assert.assertEquals(tableHeaderTest.testValueByte.getValue(binary), Byte.valueOf((byte) 1));
         Assert.assertEquals(tableHeaderTest.testValueShort.getValue(binary), Short.valueOf((short) 2));

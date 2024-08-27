@@ -1,14 +1,14 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Ogc3dTiles {
 
     public JsonMapper jsonMapper() {
-        return BTETerraRendererConstants.JSON_MAPPER;
+        return BTETerraRenderer.JSON_MAPPER;
     }
 
 }

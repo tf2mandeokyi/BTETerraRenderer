@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @UtilityClass
-@Mod.EventBusSubscriber(modid = BTETerraRendererConstants.MODID, value = Side.CLIENT)
+@Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID, value = Side.CLIENT)
 public class RenderEvent {
 	@SubscribeEvent
 	public void onRenderEvent(final RenderWorldLastEvent event) {

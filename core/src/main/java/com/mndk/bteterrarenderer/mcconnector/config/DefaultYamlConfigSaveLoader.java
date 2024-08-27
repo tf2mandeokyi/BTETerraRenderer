@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 
@@ -66,7 +66,7 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
     @Override
     protected void saveToFile() {
         try {
-            BTETerraRendererConstants.YAML_MAPPER.writeValue(this.fileGetter.get(), this.map);
+            BTETerraRenderer.YAML_MAPPER.writeValue(this.fileGetter.get(), this.map);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e); // This will never happen
         } catch (IOException e) {
@@ -79,7 +79,7 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
         Map<String, Object> readResult;
         try {
             TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
-            readResult = BTETerraRendererConstants.YAML_MAPPER.readValue(this.fileGetter.get(), typeRef);
+            readResult = BTETerraRenderer.YAML_MAPPER.readValue(this.fileGetter.get(), typeRef);
         } catch (JsonProcessingException e) {
             Loggers.get(this).error("Caught json error while reading config.yml", e);
             return;

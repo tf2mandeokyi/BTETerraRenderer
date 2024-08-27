@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -19,7 +19,7 @@ public class ServerWelcomeMessage {
     }
 
     public ServerWelcomeMessage(GeographicProjection serverProjection) throws IOException {
-        this(BTETerraRendererConstants.JSON_MAPPER.writeValueAsString(serverProjection));
+        this(BTETerraRenderer.JSON_MAPPER.writeValueAsString(serverProjection));
     }
 
     public void fromBytes(ByteBuf buf) {

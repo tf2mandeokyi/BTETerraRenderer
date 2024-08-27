@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Region;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tile;
@@ -25,7 +25,7 @@ public class TileTest {
                 "  \"children\": []\n" +
                 "}";
 
-        Tile tile = BTETerraRendererConstants.JSON_MAPPER.readValue(json, Tile.class);
+        Tile tile = BTETerraRenderer.JSON_MAPPER.readValue(json, Tile.class);
         MatcherAssert.assertThat(tile.getBoundingVolume(), CoreMatchers.instanceOf(Region.class));
         Assert.assertEquals(tile.getContents().size(), 1);
         Assert.assertNull(tile.getTileLocalTransform());
@@ -50,7 +50,7 @@ public class TileTest {
                 "  \"children\": []\n" +
                 "}";
 
-        Tile tile = BTETerraRendererConstants.JSON_MAPPER.readValue(json, Tile.class);
+        Tile tile = BTETerraRenderer.JSON_MAPPER.readValue(json, Tile.class);
         MatcherAssert.assertThat(tile.getBoundingVolume(), CoreMatchers.instanceOf(Region.class));
         Assert.assertEquals(tile.getContents().size(), 2);
         Assert.assertEquals(tile.getTileLocalTransform(), new Matrix4((c, r) -> c*4+r));

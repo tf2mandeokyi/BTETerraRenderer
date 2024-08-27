@@ -138,15 +138,15 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected List<PropertyAccessor.Localized<?>> makeProperties() {
-        PropertyAccessor<Double> radiusProperty = RangedDoublePropertyAccessor.of(
+    protected List<PropertyAccessor.Localized<?>> makeStates() {
+        PropertyAccessor<Double> radius = RangedDoublePropertyAccessor.of(
                 this::getRadius, this::setRadius, 1, 1000);
-        PropertyAccessor<Boolean> yDistortionProperty = PropertyAccessor.of(
+        PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
                 this::isYDistortion, this::setYDistortion);
 
         return Arrays.asList(
-                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radiusProperty),
-                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortionProperty)
+                PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radius),
+                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion)
         );
     }
 

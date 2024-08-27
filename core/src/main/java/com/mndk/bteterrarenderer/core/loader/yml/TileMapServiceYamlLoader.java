@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.core.loader.yml;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.Loggers;
@@ -9,10 +8,6 @@ import lombok.val;
 import java.io.IOException;
 
 public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile, CategoryMap<TileMapService>> {
-
-	public static final TileMapServiceYamlLoader INSTANCE = new TileMapServiceYamlLoader(
-			"maps", "assets/" + BTETerraRendererConstants.MODID + "/default_maps.yml"
-	);
 
 	public TileMapServiceYamlLoader(String folderName, String defaultYamlPath) {
 		super(folderName, defaultYamlPath, TileMapServiceYamlFile.class);

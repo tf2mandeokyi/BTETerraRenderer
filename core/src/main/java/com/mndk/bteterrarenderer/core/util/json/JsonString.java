@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class JsonString {
     private final String value;
 
     public static JsonString from(String json) throws JsonProcessingException {
-        BTETerraRendererConstants.JSON_MAPPER.readTree(json);
+        BTETerraRenderer.JSON_MAPPER.readTree(json);
         return new JsonString(json);
     }
 
@@ -43,7 +43,7 @@ public class JsonString {
     static class Serializer extends JsonSerializer<JsonString> {
         @Override
         public void serialize(JsonString value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            JsonNode node = BTETerraRendererConstants.JSON_MAPPER.readTree(value.value);
+            JsonNode node = BTETerraRenderer.JSON_MAPPER.readTree(value.value);
             gen.writeTree(node);
         }
     }

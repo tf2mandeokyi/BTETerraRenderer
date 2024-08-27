@@ -34,7 +34,7 @@ public class Proj4ProjectionTest {
 
     static {
         try {
-            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRendererConstants");
+            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRenderer");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

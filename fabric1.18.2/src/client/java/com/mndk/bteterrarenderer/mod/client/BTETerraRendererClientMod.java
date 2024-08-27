@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client;
 
-import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManagerImpl;
@@ -13,7 +13,7 @@ import net.fabricmc.api.ClientModInitializer;
 public class BTETerraRendererClientMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        BTETerraRendererConfig.initialize(new ClientMinecraftManagerImpl());
+        BTETerraRenderer.initialize(new ClientMinecraftManagerImpl());
         CommandsRegisterer.register();
         KeyBindings.registerAll();
 

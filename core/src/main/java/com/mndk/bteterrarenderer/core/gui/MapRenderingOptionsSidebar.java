@@ -6,7 +6,7 @@ import com.mndk.bteterrarenderer.core.graphics.ImageResizingBlock;
 import com.mndk.bteterrarenderer.core.gui.mapaligner.MapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
@@ -170,7 +170,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private CategoryMap.Wrapper<TileMapService> getWrappedTMS() {
-        return BTETerraRendererConfig.getTileMapServiceWrapper();
+        return TileMapService.getCurrentWrapped();
     }
 
     private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
@@ -188,14 +188,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
 
         // Set to config
-        BTETerraRendererConfig.setTileMapService(tmsWrapped);
+        TileMapService.setCurrentWrapped(tmsWrapped);
 
         // Set property element list
         this.tmsPropertyElementList.clear()
                 .add(McFX.div()
                         .setI18nKeyContent("gui.bteterrarenderer.settings.map_settings")
                         .setAlign(HorizontalAlign.LEFT))
-                .addProperties(tms.getProperties());
+                .addProperties(tms.getStates());
         this.tmsPropertyElementList.hide = false;
 
         // Set y axis input
@@ -242,7 +242,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         McFXDropdown<CategoryMap.Wrapper<TileMapService>>.ItemListUpdater updater =
                 mapSourceDropdown.itemListBuilder();
 
-        CategoryMap<TileMapService> tmsCategoryMap = TileMapServiceYamlLoader.INSTANCE.getResult();
+        CategoryMap<TileMapService> tmsCategoryMap = ConfigLoaders.tms().getResult();
         tmsCategoryMap.getCategories().forEach(categoryEntry -> {
             CategoryMap.Category<TileMapService> category = categoryEntry.getValue();
             updater.push(categoryEntry.getKey());
@@ -254,7 +254,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private void openMapsFolder() {
         try {
-            File directory = TileMapServiceYamlLoader.INSTANCE.getFilesDirectory();
+            File directory = ConfigLoaders.tms().getFilesDirectory();
             if(Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(directory);
                 return;
@@ -292,7 +292,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
         BTETerraRendererConfig.save();
         INSTANCE.updateMapSourceDropdown();
-        INSTANCE.setTileMapServiceWrapper(BTETerraRendererConfig.getTileMapServiceWrapper());
+        INSTANCE.setTileMapServiceWrapper(TileMapService.getCurrentWrapped());
         McConnector.client().displayGuiScreen(INSTANCE);
     }
 

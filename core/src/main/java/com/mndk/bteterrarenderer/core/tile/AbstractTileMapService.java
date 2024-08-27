@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
+import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
@@ -44,10 +44,6 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private static boolean MISSING_TEXTURE_BAKED = false;
     public static final int DEFAULT_MAX_THREAD = 2;
 
-    public static GraphicsModelTextureBakingBlock<?> getModelBaker() {
-        return MODEL_BAKER;
-    }
-
     protected final int nThreads;
     private final Translatable<String> name;
     @Nullable private final Translatable<String> copyrightTextJson;
@@ -59,7 +55,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
      * This property should be configured on the constructor.
      * One should put localization key as a key, and the property accessor as a value.
      * */
-    private transient final List<PropertyAccessor.Localized<?>> properties = new ArrayList<>();
+    private transient final List<PropertyAccessor.Localized<?>> states = new ArrayList<>();
     private transient ModelMaker modelMaker; // late init
     private final ProcessorCacheStorage<TileId, List<GraphicsModel>> storage;
 
@@ -71,7 +67,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
                 .map(json -> json.map(JsonString::getValue))
                 .orElse(null);
         this.nThreads = commonYamlObject.nThreads;
-        this.properties.addAll(this.makeProperties());
+        this.states.addAll(this.makeStates());
         this.storage = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, 10000, false);
     }
 
@@ -171,7 +167,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
      * This method is called only once on the constructor
      * @return The property list
      */
-    protected abstract List<PropertyAccessor.Localized<?>> makeProperties();
+    protected abstract List<PropertyAccessor.Localized<?>> makeStates();
 
     /**
      * @param longitude Player longitude, in degrees
@@ -276,18 +272,18 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
         private static CommonYamlObject read(JsonNode node) throws IOException {
             CommonYamlObject result = new CommonYamlObject();
-            result.name = BTETerraRendererConstants.JSON_MAPPER.treeToValue(node.get("name"), TRANSLATABLE_STRING_JAVATYPE);
+            result.name = BTETerraRenderer.JSON_MAPPER.treeToValue(node.get("name"), TRANSLATABLE_STRING_JAVATYPE);
             result.tileUrl = node.get("tile_url").asText();
             String iconUrl = JsonParserUtil.getOrDefault(node, "icon_url", null);
             result.iconUrl = iconUrl != null ? new URL(iconUrl) : null;
             result.nThreads = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
-            result.copyrightTextJson = BTETerraRendererConstants.JSON_MAPPER.treeToValue(node.get("copyright"), TRANSLATABLE_JSONSTRING_JAVATYPE);
+            result.copyrightTextJson = BTETerraRenderer.JSON_MAPPER.treeToValue(node.get("copyright"), TRANSLATABLE_JSONSTRING_JAVATYPE);
 
             return result;
         }
 
         static {
-            TypeFactory typeFactory = BTETerraRendererConstants.JSON_MAPPER.getTypeFactory();
+            TypeFactory typeFactory = BTETerraRenderer.JSON_MAPPER.getTypeFactory();
             TRANSLATABLE_STRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<String>>() {});
             TRANSLATABLE_JSONSTRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<JsonString>>() {});
         }

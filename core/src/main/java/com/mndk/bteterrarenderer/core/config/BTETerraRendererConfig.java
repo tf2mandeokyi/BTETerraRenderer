@@ -1,29 +1,16 @@
 package com.mndk.bteterrarenderer.core.config;
 
-import com.mndk.bteterrarenderer.core.BTETerraRendererConstants;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.loader.json.TileMapServicePropertyJsonLoader;
-import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
-import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
-import com.mndk.bteterrarenderer.core.projection.Proj4jProjection;
+import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManager;
-import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
-import java.io.File;
-
 @UtilityClass
 @SuppressWarnings("unused")
 public class BTETerraRendererConfig {
-
-    @ConfigIgnore
-    private AbstractConfigSaveLoader SAVE_LOADER_INSTANCE;
 
     @ConfigName("General Settings")
     @ConfigComment({
@@ -83,6 +70,13 @@ public class BTETerraRendererConfig {
         @ConfigName("Y Diff Limit")
         @ConfigComment("Puts limit on how far the map is from the player to be rendered.")
         public double yDiffLimit = 1000;
+
+        @ConfigName("Projection JSON")
+        @ConfigComment({
+                "The projection JSON string for the map.",
+                "Set this to null to use the default projection."
+        })
+        public String projectionJson = null;
     }
 
     @ConfigName("UI Settings")
@@ -110,57 +104,19 @@ public class BTETerraRendererConfig {
         HOLOGRAM.setDoRender(!HOLOGRAM.isDoRender());
     }
 
-    public File getModConfigDirectory() {
-        return McConnector.client().getConfigDirectory(BTETerraRendererConstants.MODID);
-    }
-
-    public void initialize(ClientMinecraftManager clientManager) {
-        McConnector.initialize(clientManager);
-        
-        // TMS data files
-        Proj4jProjection.registerProjection();
-        FlatTileProjectionYamlLoader.INSTANCE.refresh(getModConfigDirectory()); // This should be called first
-        TileMapServiceYamlLoader.INSTANCE.refresh(getModConfigDirectory());
-        TileMapServicePropertyJsonLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
-
-        // Config file
-        SAVE_LOADER_INSTANCE = McConnector.client()
-                .newConfigSaveLoader(BTETerraRendererConfig.class, BTETerraRendererConstants.MODID);
-        SAVE_LOADER_INSTANCE.initialize();
-        SAVE_LOADER_INSTANCE.load();
-        refreshCurrentTileMapService();
-    }
-
     public void save() {
-        SAVE_LOADER_INSTANCE.save();
-        TileMapServicePropertyJsonLoader.save(TileMapServiceYamlLoader.INSTANCE.getResult());
-        refreshCurrentTileMapService();
+        ConfigLoaders.modConfig().save();
+        ConfigLoaders.tmsStates().save(ConfigLoaders.tms().getResult());
+        TileMapService.refreshCurrent();
     }
 
     public void load(boolean loadMapsOnly) {
-        FlatTileProjectionYamlLoader.INSTANCE.refresh(); // This should be called first
-        TileMapServiceYamlLoader.INSTANCE.refresh();
-        TileMapServicePropertyJsonLoader.load(TileMapServiceYamlLoader.INSTANCE.getResult());
-        refreshCurrentTileMapService();
+        ConfigLoaders.flatProj().refresh(); // This should be called first
+        ConfigLoaders.tms().refresh();
+        ConfigLoaders.tmsStates().load(ConfigLoaders.tms().getResult());
+        TileMapService.refreshCurrent();
         if(loadMapsOnly) return;
 
-        SAVE_LOADER_INSTANCE.load();
-    }
-
-    @ConfigIgnore
-    private CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
-    public CategoryMap.Wrapper<TileMapService> getTileMapServiceWrapper() {
-        return TMS_ON_DISPLAY;
-    }
-
-    public void setTileMapService(CategoryMap.Wrapper<TileMapService> wrapped) {
-        TMS_ON_DISPLAY = wrapped;
-        GENERAL.setMapServiceCategory(wrapped.getParentCategory().getName());
-        GENERAL.setMapServiceId(wrapped.getId());
-    }
-
-    public void refreshCurrentTileMapService() {
-        TMS_ON_DISPLAY = TileMapServiceYamlLoader.INSTANCE.getResult()
-                .getItemWrapper(GENERAL.getMapServiceCategory(), GENERAL.getMapServiceId());
+        ConfigLoaders.modConfig().load();
     }
 }

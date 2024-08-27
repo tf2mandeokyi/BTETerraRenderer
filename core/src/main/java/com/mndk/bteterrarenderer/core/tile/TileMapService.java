@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
@@ -22,11 +23,23 @@ import java.util.List;
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public interface TileMapService extends AutoCloseable {
 
+    static CategoryMap.Wrapper<TileMapService> getCurrentWrapped() {
+        return TileMapServiceStateStorage.getCurrentWrapped();
+    }
+
+    static void setCurrentWrapped(CategoryMap.Wrapper<TileMapService> wrapper) {
+        TileMapServiceStateStorage.setCurrentWrapped(wrapper);
+    }
+
+    static void refreshCurrent() {
+        TileMapServiceStateStorage.refreshCurrentTileMapService();
+    }
+
     Translatable<String> getName();
     Translatable<String> getCopyrightTextJson();
     URL getIconUrl();
 
-    List<PropertyAccessor.Localized<?>> getProperties();
+    List<PropertyAccessor.Localized<?>> getStates();
     void moveAlongYAxis(double amount);
 
     void render(@Nonnull DrawContextWrapper<?> drawContextWrapper,
