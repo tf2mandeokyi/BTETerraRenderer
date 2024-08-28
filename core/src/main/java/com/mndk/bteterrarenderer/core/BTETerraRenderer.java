@@ -34,6 +34,6 @@ public class BTETerraRenderer {
 
         Proj4jProjection.registerProjection();
         ConfigLoaders.setConfigDirectory(McConnector.common().getConfigDirectory(MODID));
-        TileMapService.refreshCurrent();
+        TileMapService.refreshSelectionFromConfig();
     }
 }

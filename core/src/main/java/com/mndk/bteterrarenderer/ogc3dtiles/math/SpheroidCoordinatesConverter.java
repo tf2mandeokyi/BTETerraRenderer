@@ -45,7 +45,6 @@ public class SpheroidCoordinatesConverter {
      * @return The spheroidal coordinate corresponding to the given cartesian coordinate
      */
     public Spheroid3 toSpheroid(Cartesian3 cartesian) {
-        // Invert the rotation if rotateYZ is true
         double x = cartesian.getX();
         double y = cartesian.getY();
         double z = cartesian.getZ();

@@ -1,5 +1,10 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
+import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXBooleanButton;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
@@ -10,12 +15,8 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.Range;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -94,7 +95,7 @@ public class McFX {
         return new McFXBooleanButton(value, McConnector.client().i18nManager.format(i18nKey) + ": ");
     }
 
-    public <T extends Number> McFXSlider<T> i18nSlider(String i18nKey, PropertyAccessor.Ranged<T> value) {
+    public <T extends Number> McFXSlider<T> i18nSlider(String i18nKey, PropertyAccessor<T> value) {
         return new McFXSlider<>(value, McConnector.client().i18nManager.format(i18nKey) + ": ", "");
     }
 
@@ -119,11 +120,17 @@ public class McFX {
     public McFXElement fromProperty(PropertyAccessor.Localized<?> property) {
         Class<?> propertyClass = property.getPropertyClass();
 
-        if(Number.class.isAssignableFrom(propertyClass)) {
+        boolean numberAssignable = propertyClass == Double.class || propertyClass == double.class ||
+                propertyClass == Float.class || propertyClass == float.class ||
+                propertyClass == Long.class || propertyClass == long.class ||
+                propertyClass == Integer.class || propertyClass == int.class ||
+                propertyClass == Short.class || propertyClass == short.class ||
+                propertyClass == Byte.class || propertyClass == byte.class;
+        if(numberAssignable) {
             PropertyAccessor<Number> numberProperty = BTRUtil.uncheckedCast(property);
-            if(numberProperty instanceof PropertyAccessor.Ranged) {
-                PropertyAccessor.Ranged<Number> rangedNumberProperty = BTRUtil.uncheckedCast(numberProperty);
-                return McFX.i18nSlider(property.getI18nKey(), rangedNumberProperty);
+            Range<Number> range = numberProperty.getRange();
+            if(range != null) {
+                return McFX.i18nSlider(property.getI18nKey(), numberProperty);
             }
 
             PropertyAccessor<Double> propertyWrapper = PropertyAccessor.of(

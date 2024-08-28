@@ -23,16 +23,16 @@ import java.util.List;
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public interface TileMapService extends AutoCloseable {
 
-    static CategoryMap.Wrapper<TileMapService> getCurrentWrapped() {
-        return TileMapServiceStateStorage.getCurrentWrapped();
+    static CategoryMap.Wrapper<TileMapService> getSelected() {
+        return TileMapServiceSelection.get();
     }
 
-    static void setCurrentWrapped(CategoryMap.Wrapper<TileMapService> wrapper) {
-        TileMapServiceStateStorage.setCurrentWrapped(wrapper);
+    static void selectForDisplay(CategoryMap.Wrapper<TileMapService> wrapper) {
+        TileMapServiceSelection.set(wrapper);
     }
 
-    static void refreshCurrent() {
-        TileMapServiceStateStorage.refreshCurrentTileMapService();
+    static void refreshSelectionFromConfig() {
+        TileMapServiceSelection.refresh();
     }
 
     Translatable<String> getName();

@@ -14,9 +14,9 @@ public class TileRenderer {
 
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
 
-        TileMapService tms = TileMapService.getCurrentWrapped().getItem();
+        TileMapService tms = TileMapService.getSelected().getItem();
         if(tms == null) return;
-        if(Projections.getServerProjection() == null) return;
+        if(Projections.getHologramProjection() == null) return;
 
         double yDiff = hologramConfig.getFlatMapYAxis() - py;
         if(Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;

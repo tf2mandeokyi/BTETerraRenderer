@@ -17,7 +17,6 @@ import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.accessor.RangedIntPropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
@@ -118,9 +117,9 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
     @Override
     protected List<PropertyAccessor.Localized<?>> makeStates() {
-        PropertyAccessor<Integer> zoom = RangedIntPropertyAccessor.of(
+        PropertyAccessor<Integer> zoom = PropertyAccessor.ranged(
                 this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
-        PropertyAccessor<Integer> radius =  RangedIntPropertyAccessor.of(
+        PropertyAccessor<Integer> radius =  PropertyAccessor.ranged(
                 this::getRadius, this::setRadius, 1, 10);
 
         return Arrays.asList(
@@ -198,7 +197,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         for (int i = 0; i < 4; i++) {
             int[] mat = this.coordTranslator.getCornerMatrix(i);
             double[] geoCoord = this.coordTranslator.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
-            double[] gameCoord = Projections.getServerProjection().fromGeo(geoCoord[0], geoCoord[1]);
+            double[] gameCoord = Projections.getHologramProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
             quad.setVertex(i, new PosTex(
                     gameCoord[0], 0, gameCoord[1], // position

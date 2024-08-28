@@ -6,24 +6,24 @@ import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class TileMapServiceStateStorage {
+class TileMapServiceSelection {
 
-    CategoryMap.Wrapper<TileMapService> TMS_ON_DISPLAY;
+    private CategoryMap.Wrapper<TileMapService> ON_DISPLAY;
 
-    CategoryMap.Wrapper<TileMapService> getCurrentWrapped() {
-        return TMS_ON_DISPLAY;
+    CategoryMap.Wrapper<TileMapService> get() {
+        return ON_DISPLAY;
     }
 
-    void setCurrentWrapped(CategoryMap.Wrapper<TileMapService> wrapped) {
-        TMS_ON_DISPLAY = wrapped;
+    void set(CategoryMap.Wrapper<TileMapService> wrapped) {
+        ON_DISPLAY = wrapped;
         BTETerraRendererConfig.GENERAL.setMapServiceCategory(wrapped.getParentCategory().getName());
         BTETerraRendererConfig.GENERAL.setMapServiceId(wrapped.getId());
     }
 
-    void refreshCurrentTileMapService() {
+    void refresh() {
         String category = BTETerraRendererConfig.GENERAL.getMapServiceCategory();
         String id = BTETerraRendererConfig.GENERAL.getMapServiceId();
-        TMS_ON_DISPLAY = ConfigLoaders.tms().getResult().getItemWrapper(category, id);
+        ON_DISPLAY = ConfigLoaders.tms().getResult().getItemWrapper(category, id);
     }
 
 }

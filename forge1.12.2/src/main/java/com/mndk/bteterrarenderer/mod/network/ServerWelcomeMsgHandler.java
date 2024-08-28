@@ -13,7 +13,7 @@ public class ServerWelcomeMsgHandler implements IMessageHandler<ServerWelcomeMes
         GeographicProjection proj = message.getProjection();
         Loggers.get(this).info("Received GeographicProjection from the server side: " +
                 message.getProjectionJson());
-        Projections.setServerProjection(proj);
+        Projections.setHologramProjection(proj);
         return null;
     }
 }

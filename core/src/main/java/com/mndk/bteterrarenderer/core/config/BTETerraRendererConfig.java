@@ -107,14 +107,14 @@ public class BTETerraRendererConfig {
     public void save() {
         ConfigLoaders.modConfig().save();
         ConfigLoaders.tmsStates().save(ConfigLoaders.tms().getResult());
-        TileMapService.refreshCurrent();
+        TileMapService.refreshSelectionFromConfig();
     }
 
     public void load(boolean loadMapsOnly) {
         ConfigLoaders.flatProj().refresh(); // This should be called first
         ConfigLoaders.tms().refresh();
         ConfigLoaders.tmsStates().load(ConfigLoaders.tms().getResult());
-        TileMapService.refreshCurrent();
+        TileMapService.refreshSelectionFromConfig();
         if(loadMapsOnly) return;
 
         ConfigLoaders.modConfig().load();

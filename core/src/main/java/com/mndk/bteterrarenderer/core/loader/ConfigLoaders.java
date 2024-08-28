@@ -40,11 +40,16 @@ public class ConfigLoaders {
         return TMS_STATES;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setConfigDirectory(File configDirectory) {
+        if(!configDirectory.exists()) {
+            configDirectory.mkdirs();
+        }
+
         FLAT_PROJ.refresh(configDirectory); // This should be called first after the TMS_YML.refresh
         TMS_YML.refresh(configDirectory);
 
-        TMS_STATES = new TileMapServiceStatesLoader(configDirectory);
+        TMS_STATES = new TileMapServiceStatesLoader(new File(configDirectory, "states.json"));
         TMS_STATES.load(TMS_YML.getResult());
 
         MOD_CONFIG = McConnector.common().newConfigSaveLoader(BTETerraRendererConfig.class, BTETerraRenderer.MODID);

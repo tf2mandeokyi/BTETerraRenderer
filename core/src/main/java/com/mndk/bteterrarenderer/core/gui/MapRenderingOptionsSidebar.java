@@ -14,7 +14,6 @@ import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
@@ -93,7 +92,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         );
         McFXSlider<Double> opacitySlider = McFX.i18nSlider(
                 "gui.bteterrarenderer.settings.opacity",
-                RangedDoublePropertyAccessor.of(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1)
+                PropertyAccessor.ranged(hologramSettings::getOpacity, hologramSettings::setOpacity, 0, 1)
         );
         McFXButton reloadMapsButton = McFX.i18nButton(
                 "gui.bteterrarenderer.settings.map_reload",
@@ -170,7 +169,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     private CategoryMap.Wrapper<TileMapService> getWrappedTMS() {
-        return TileMapService.getCurrentWrapped();
+        return TileMapService.getSelected();
     }
 
     private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
@@ -188,7 +187,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
 
         // Set to config
-        TileMapService.setCurrentWrapped(tmsWrapped);
+        TileMapService.selectForDisplay(tmsWrapped);
 
         // Set property element list
         this.tmsPropertyElementList.clear()
@@ -292,7 +291,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
         BTETerraRendererConfig.save();
         INSTANCE.updateMapSourceDropdown();
-        INSTANCE.setTileMapServiceWrapper(TileMapService.getCurrentWrapped());
+        INSTANCE.setTileMapServiceWrapper(TileMapService.getSelected());
         McConnector.client().displayGuiScreen(INSTANCE);
     }
 

@@ -1,22 +1,24 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider;
 
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.SliderWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.SliderWidgetCopy;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
+import org.apache.commons.lang3.Range;
 
 public class McFXSlider<T extends Number> extends McFXElement {
 
     private SliderWidgetCopy slider;
 
-    private final PropertyAccessor.Ranged<T> value;
+    private final PropertyAccessor<T> value;
 
     private final String prefix, suffix;
     private final boolean isInteger;
 
-    public McFXSlider(PropertyAccessor.Ranged<T> value,
+    public McFXSlider(PropertyAccessor<T> value,
                       String prefix, String suffix) {
+        if(value.getRange() == null) throw new IllegalArgumentException("PropertyAccessor must have a range");
         this.value = value;
         this.prefix = prefix; this.suffix = suffix;
 
@@ -33,11 +35,16 @@ public class McFXSlider<T extends Number> extends McFXElement {
     @Override
     protected void init() {
         assert value != null;
+        Range<T> range = value.getRange();
+        if(range == null) throw new IllegalArgumentException("PropertyAccessor must have a range");
+
+        T min = range.getMinimum();
+        T max = range.getMaximum();
         this.slider = new SliderWidgetCopy(
                 0, 0,
                 this.getWidth(), 20,
                 prefix, suffix,
-                value.min().doubleValue(), value.max().doubleValue(), value.get().doubleValue(),
+                min.doubleValue(), max.doubleValue(), value.get().doubleValue(),
                 !this.isInteger, true, this.isInteger,
                 slider -> value.set(BTRUtil.doubleToNumber(value.getPropertyClass(), slider.getValue()))
         );
@@ -63,9 +70,9 @@ public class McFXSlider<T extends Number> extends McFXElement {
         if(this.slider.drawString) {
             boolean testResult;
             if(this.isInteger) {
-                testResult = value.available(BTRUtil.doubleToNumber(value.getPropertyClass(), this.slider.getValue()));
+                testResult = value.isAvailable(BTRUtil.doubleToNumber(value.getPropertyClass(), this.slider.getValue()));
             } else {
-                testResult = this.value.available(BTRUtil.integerToNumber(value.getPropertyClass(), this.slider.getValueInt()));
+                testResult = this.value.isAvailable(BTRUtil.integerToNumber(value.getPropertyClass(), this.slider.getValueInt()));
             }
             this.slider.packedForegroundColor = testResult ? NULL_COLOR : ERROR_TEXT_COLOR;
         }

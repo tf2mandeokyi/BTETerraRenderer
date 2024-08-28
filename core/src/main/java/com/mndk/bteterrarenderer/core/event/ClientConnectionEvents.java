@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ClientConnectionEvents {
     public void onJoin() {
-        Projections.setDefaultBTEProjection();
+        Projections.updateHologramProjection();
         BTETerraRendererConfig.load(false);
     }
     public void onLeave() {

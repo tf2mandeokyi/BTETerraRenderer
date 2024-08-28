@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,8 @@ public class TileMapServiceStatesLoader {
         try {
             TileMapServicePropertyJsonFile raw = BTETerraRenderer.JSON_MAPPER.readValue(this.file, TileMapServicePropertyJsonFile.class);
             this.applyRawFileData(tmsCategoryMap, raw);
+        } catch(FileNotFoundException e) {
+            Loggers.get(this).warn("TMS property json file not found, skipping");
         } catch (IOException e) {
             Loggers.get(this).error("Cannot read TMS property json file", e);
         }

@@ -18,7 +18,6 @@ import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.accessor.RangedDoublePropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
@@ -33,8 +32,8 @@ import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
@@ -111,7 +110,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected void preRender(double px, double py, double pz) {
-        GeographicProjection projection = Projections.getServerProjection();
+        GeographicProjection projection = Projections.getHologramProjection();
         if(projection == null) return;
 
         try {
@@ -139,7 +138,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected List<PropertyAccessor.Localized<?>> makeStates() {
-        PropertyAccessor<Double> radius = RangedDoublePropertyAccessor.of(
+        PropertyAccessor<Double> radius = PropertyAccessor.ranged(
                 this::getRadius, this::setRadius, 1, 1000);
         PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
                 this::isYDistortion, this::setYDistortion);

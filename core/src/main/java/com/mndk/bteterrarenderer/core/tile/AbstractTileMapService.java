@@ -24,7 +24,10 @@ import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,6 +37,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Getter
 @RequiredArgsConstructor
@@ -68,7 +72,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
                 .orElse(null);
         this.nThreads = commonYamlObject.nThreads;
         this.states.addAll(this.makeStates());
-        this.storage = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, 10000, false);
+        this.storage = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, -1, false);
     }
 
     @Override
@@ -86,16 +90,17 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         // Get tileId list
         List<TileId> renderTileIdList;
         try {
-            double[] geoCoord = Projections.getServerProjection().toGeo(px, pz);
+            double[] geoCoord = Projections.getHologramProjection().toGeo(px, pz);
             renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], py);
         } catch(OutOfProjectionBoundsException e) { return; }
 
         // Make position transformer & Render tileId list
         PositionTransformer transformer = this.getPositionTransformer(px, py, pz);
+        Consumer<GraphicsModel> renderModel = model -> model.drawAndRender(drawContextWrapper, transformer, opacity);
         for(TileId tileId : renderTileIdList) {
             List<GraphicsModel> models = this.getModelsForId(tileId);
             if (models == null) continue;
-            models.forEach(model -> model.drawAndRender(drawContextWrapper, transformer, opacity));
+            models.forEach(renderModel);
         }
     }
 

@@ -32,10 +32,10 @@ public class KeyBindings {
             MapRenderingOptionsSidebar.open();
         }
         while(KeyBindings.MOVE_UP_KEY.wasPressed()) {
-            TileMapService.getCurrentWrapped().getItem().moveAlongYAxis(0.5);
+            TileMapService.getSelected().getItem().moveAlongYAxis(0.5);
         }
         while(KeyBindings.MOVE_DOWN_KEY.wasPressed()) {
-            TileMapService.getCurrentWrapped().getItem().moveAlongYAxis(-0.5);
+            TileMapService.getSelected().getItem().moveAlongYAxis(-0.5);
         }
     }
 }

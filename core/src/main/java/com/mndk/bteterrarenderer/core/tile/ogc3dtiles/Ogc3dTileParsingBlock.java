@@ -32,6 +32,6 @@ public class Ogc3dTileParsingBlock
         if(gltfModel == null) return Collections.emptyList();
 
         Ogc3dTileMapService tms = pair.getRight();
-        return GltfModelConverter.convertModel(gltfModel, transform, Projections.getServerProjection(), tms);
+        return GltfModelConverter.convertModel(gltfModel, transform, Projections.getHologramProjection(), tms);
     }
 }
