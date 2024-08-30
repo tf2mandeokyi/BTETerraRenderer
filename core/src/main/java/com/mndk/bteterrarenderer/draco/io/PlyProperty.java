@@ -1,46 +1,19 @@
-//// A single PLY property of a given PLY element. For "vertex" element this can
-//// contain data such as "x", "y", or "z" coordinate of the vertex, while for
-//// "face" element this usually contains corner indices.
-//class PlyProperty {
-// public:
-//  friend class PlyReader;
-//
-//  PlyProperty(const std::string &name, DataType data_type, DataType list_type);
-//  void ReserveData(int num_entries) {
-//    data_.reserve(DataTypeLength(data_type_) * num_entries);
-//  }
-//
-//  int64_t GetListEntryOffset(int entry_id) const {
-//    return list_data_[entry_id * 2];
-//  }
-//  int64_t GetListEntryNumValues(int entry_id) const {
-//    return list_data_[entry_id * 2 + 1];
-//  }
-//  const void *GetDataEntryAddress(int entry_id) const {
-//    return data_.data() + entry_id * data_type_num_bytes_;
-//  }
-//  void push_back_value(const void *data) {
-//    data_.insert(data_.end(), static_cast<const uint8_t *>(data),
-//                 static_cast<const uint8_t *>(data) + data_type_num_bytes_);
-//  }
-//
-//  const std::string &name() const { return name_; }
-//  bool is_list() const { return list_data_type_ != DT_INVALID; }
-//  DataType data_type() const { return data_type_; }
-//  int data_type_num_bytes() const { return data_type_num_bytes_; }
-//  DataType list_data_type() const { return list_data_type_; }
-//  int list_data_type_num_bytes() const { return list_data_type_num_bytes_; }
-//
-// private:
-//  std::string name_;
-//  std::vector<uint8_t> data_;
-//  // List data contain pairs of <offset, number_of_values>
-//  std::vector<int64_t> list_data_;
-//  DataType data_type_;
-//  int data_type_num_bytes_;
-//  DataType list_data_type_;
-//  int list_data_type_num_bytes_;
-//};
+/*
+ * Copyright (C) 2024 The Draco Authors (for providing the original C++ code)
+ * Copyright (C) 2024 m4ndeokyi (for translating the code into Java)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.mndk.bteterrarenderer.draco.io;
 
