@@ -1,24 +1,27 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
+import com.mndk.bteterrarenderer.ogc3dtiles.geoid.GeoidHeightFunction;
 import lombok.Getter;
 
 @Getter
 public class SpheroidCoordinatesConverter {
 
-    public static final SpheroidCoordinatesConverter WGS84 =
-        new SpheroidCoordinatesConverter(Wgs84Constants.SEMI_MAJOR_AXIS, Wgs84Constants.SEMI_MINOR_AXIS);
+    public static final SpheroidCoordinatesConverter WGS84 = new SpheroidCoordinatesConverter(
+            Wgs84Constants.SEMI_MAJOR_AXIS, Wgs84Constants.SEMI_MINOR_AXIS, GeoidHeightFunction.WGS84_ELLIPSOID);
 
     private static final int LATITUDE_APPROX_ITERATION = 5;
 
     private final double semiMajorAxis;
     private final double semiMinorAxis;
     private final double eccentricitySquared;
+    private final GeoidHeightFunction geoidHeightFunction;
 
-    public SpheroidCoordinatesConverter(double semiMajorAxis, double semiMinorAxis) {
+    public SpheroidCoordinatesConverter(double semiMajorAxis, double semiMinorAxis, GeoidHeightFunction geoidHeightFunction) {
         this.semiMajorAxis = semiMajorAxis;
         this.semiMinorAxis = semiMinorAxis;
         this.eccentricitySquared = getEccentricitySquared(semiMajorAxis, semiMinorAxis);
+        this.geoidHeightFunction = geoidHeightFunction;
     }
 
     /**
@@ -32,10 +35,13 @@ public class SpheroidCoordinatesConverter {
     }
 
     public Cartesian3 toCartesian(Spheroid3 spheroid) {
-        double R = this.getCurvatureRadius(spheroid.getLatitude());
-        double x = (R + spheroid.getHeight()) * Math.cos(spheroid.getLatitude()) * Math.cos(spheroid.getLongitude());
-        double y = (R + spheroid.getHeight()) * Math.cos(spheroid.getLatitude()) * Math.sin(spheroid.getLongitude());
-        double z = ((1 - this.eccentricitySquared) * R + spheroid.getHeight()) * Math.sin(spheroid.getLatitude());
+        double latitude = spheroid.getLatitude();
+        double longitude = spheroid.getLongitude();
+        double height = spheroid.getHeight() + this.geoidHeightFunction.getHeight(spheroid);
+        double R = this.getCurvatureRadius(latitude);
+        double x = (R + height) * Math.cos(latitude) * Math.cos(longitude);
+        double y = (R + height) * Math.cos(latitude) * Math.sin(longitude);
+        double z = ((1 - this.eccentricitySquared) * R + height) * Math.sin(latitude);
         return new Cartesian3(x, y, z);
     }
 
@@ -59,7 +65,9 @@ public class SpheroidCoordinatesConverter {
             latitude = Math.atan2(z, (1 - this.eccentricitySquared * N / (N + height)) * p);
         }
 
-        return Spheroid3.fromRadians(longitude, latitude, height);
+        Spheroid3 tempCoordForGeoid = Spheroid3.fromRadians(longitude, latitude, 0);
+        double geoidHeight = this.geoidHeightFunction.getHeight(tempCoordForGeoid);
+        return Spheroid3.fromRadians(longitude, latitude, height - geoidHeight);
     }
 
     public static double getEccentricitySquared(double semiMajorAxis, double semiMinorAxis) {

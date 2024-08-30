@@ -31,6 +31,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTran
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
+import com.mndk.bteterrarenderer.ogc3dtiles.geoid.GeoidHeightFunction;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
@@ -72,6 +73,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private final URL rootTilesetUrl;
     private final SpheroidCoordinatesConverter coordConverter;
     private final boolean rotateModelAlongEarthXAxis;
+    private final String geoidType;
 
     private transient final TileDataStorage tileDataStorage;
     private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, ParsedData> storageFetcher;
@@ -79,11 +81,12 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @SneakyThrows(MalformedURLException.class)
     private Ogc3dTileMapService(CommonYamlObject commonYamlObject, SpheroidCoordinatesConverter coordConverter,
-                                boolean rotateModelAlongEarthXAxis) {
+                                boolean rotateModelAlongEarthXAxis, String geoidType) {
         super(commonYamlObject);
         this.rootTilesetUrl = new URL(commonYamlObject.getTileUrl());
         this.coordConverter = coordConverter;
         this.rotateModelAlongEarthXAxis = rotateModelAlongEarthXAxis;
+        this.geoidType = geoidType;
 
         this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(1000 * 60 * 10 /* 10 minutes */, 10000, false));
         this.storageFetcher = ImmediateBlock.of((key, input) -> {
@@ -257,6 +260,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             gen.writeNumberField("semi_major", value.coordConverter.getSemiMajorAxis());
             gen.writeNumberField("semi_minor", value.coordConverter.getSemiMinorAxis());
             gen.writeBooleanField("rotate_model_x", value.rotateModelAlongEarthXAxis);
+            gen.writeStringField("geoid", value.geoidType);
         }
     }
 
@@ -265,10 +269,17 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         protected Ogc3dTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
             double semiMajorAxis = JsonParserUtil.getOrDefault(node, "semi_major", Wgs84Constants.SEMI_MAJOR_AXIS);
             double semiMinorAxis = JsonParserUtil.getOrDefault(node, "semi_minor", Wgs84Constants.SEMI_MINOR_AXIS);
-            SpheroidCoordinatesConverter coordConverter = new SpheroidCoordinatesConverter(semiMajorAxis, semiMinorAxis);
+            String geoidType = JsonParserUtil.getOrDefault(node, "geoid", "wgs84");
+            GeoidHeightFunction function;
+            switch(geoidType) {
+                case "wgs84": function = GeoidHeightFunction.WGS84_ELLIPSOID; break;
+                case "egm96": function = GeoidHeightFunction.EGM96_WW15MGH; break;
+                default: throw new IOException("Unknown geoid type: " + geoidType);
+            }
+            SpheroidCoordinatesConverter coordConverter = new SpheroidCoordinatesConverter(semiMajorAxis, semiMinorAxis, function);
 
             boolean rotateModelAlongXAxis = JsonParserUtil.getOrDefault(node, "rotate_model_x", false);
-            return new Ogc3dTileMapService(commonYamlObject, coordConverter, rotateModelAlongXAxis);
+            return new Ogc3dTileMapService(commonYamlObject, coordConverter, rotateModelAlongXAxis, geoidType);
         }
     }
 
