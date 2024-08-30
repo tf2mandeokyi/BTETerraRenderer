@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2024 The Draco Authors (for providing the original C++ code)
+ * Copyright (C) 2024 m4ndeokyi (for translating the code into Java)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mndk.bteterrarenderer.draco.mesh;
 
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
@@ -10,7 +27,6 @@ import com.mndk.bteterrarenderer.draco.core.IndexTypeVector;
 import com.mndk.bteterrarenderer.draco.core.Status;
 import com.mndk.bteterrarenderer.draco.core.StatusChain;
 import com.mndk.bteterrarenderer.draco.core.VectorD;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,18 +34,24 @@ import java.util.List;
 
 public class MeshAreEquivalent {
 
-    @RequiredArgsConstructor
     private static class MeshInfo {
         private final Mesh mesh;
         private final CppVector<FaceIndex> orderedIndexOfFace =
                 new CppVector<>(FaceIndex.type());
         private final IndexTypeVector<FaceIndex, Integer> cornerIndexOfSmallestVertex =
                 new IndexTypeVector<>(DataType.int32());
+
+        public MeshInfo(Mesh mesh) {
+            this.mesh = mesh;
+        }
     }
 
-    @RequiredArgsConstructor
     private static class FaceIndexLess implements Comparator<FaceIndex> {
         private final MeshInfo meshInfo;
+
+        public FaceIndexLess(MeshInfo meshInfo) {
+            this.meshInfo = meshInfo;
+        }
 
         @Override
         public int compare(FaceIndex o1, FaceIndex o2) {
