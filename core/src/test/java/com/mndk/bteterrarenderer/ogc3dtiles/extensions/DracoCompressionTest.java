@@ -81,13 +81,17 @@ public class DracoCompressionTest {
         }
     }
 
-//    // This code is just for the visualization test! Keep this disabled or it will make the logs dirty.
+//    // This code is just for the visualization test! Keep this disabled, or it will make the logs dirty.
 //    @Test
 //    public void givenModelTestGlbFile_testDecode() throws IOException {
 //        SpheroidCoordinatesConverter converter = SpheroidCoordinatesConverter.WGS84;
 //        GltfModel model = this.readGltfModel("glb_models/model_test1.glb", converter);
 //
-//        float[] texArrayTemp = new float[2];
+//        Float[] center = Arrays.stream(new String[] { "3258869.7866948475", "-1158451.3178201506", "-4877243.302543961" })
+//                .map(Float::parseFloat).toArray(Float[]::new);
+//        float[] posArrayTemp = new float[3];
+//        float[] min = new float[] {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
+//        float[] max = new float[] {Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE};
 //
 //        List<Pair<Mesh, DracoMeshCompression>> pairs = this.decodeDracoMeshData(model);
 //        for (int i = 0; i < pairs.size(); i++) {
@@ -95,18 +99,45 @@ public class DracoCompressionTest {
 //            System.out.println("####### MESH NUMBER " + i + " #######");
 //            Mesh mesh = pair.getLeft();
 //            DracoMeshCompression draco = pair.getRight();
-//            PointAttribute att = mesh.getAttribute(draco.getAttributes().get("TEXCOORD_0"));
+//            PointAttribute att = mesh.getAttribute(draco.getAttributes().get("POSITION"));
 //            for (FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
-//                System.out.print("\\operatorname{polygon}\\left(");
 //                for (int p = 0; p < 3; p++) {
-//                    att.getMappedValue(mesh.getFace(f).get(p), Pointer.wrap(texArrayTemp));
-//                    float u = texArrayTemp[0];
-//                    float v = texArrayTemp[1];
-//                    System.out.printf("\\left(%.5f,%.5f\\right)", u, v);
-//                    if (p < 2) System.out.print(",");
+//                    att.getMappedValue(mesh.getFace(f).get(p), Pointer.wrap(posArrayTemp));
+//                    min[0] = Math.min(min[0], posArrayTemp[0]);
+//                    min[1] = Math.min(min[1], posArrayTemp[1]);
+//                    min[2] = Math.min(min[2], posArrayTemp[2]);
+//                    max[0] = Math.max(max[0], posArrayTemp[0]);
+//                    max[1] = Math.max(max[1], posArrayTemp[1]);
+//                    max[2] = Math.max(max[2], posArrayTemp[2]);
+//                    float x = center[0] + posArrayTemp[0];
+//                    float y = center[1] + posArrayTemp[1];
+//                    float z = center[2] + posArrayTemp[2];
+//                    System.out.printf("%.2f, %.2f, %.2f\n", x, y, z);
 //                }
-//                System.out.println("\\right)");
+//            }
+//        }
+//        System.out.println("min: " + min[0] + ", " + min[1] + ", " + min[2]);
+//        System.out.println("max: " + max[0] + ", " + max[1] + ", " + max[2]);
+//    }
+//
+//    @Test
+//    public void sdafjklhfjkldsahjfldsa() throws IOException {
+//        SpheroidCoordinatesConverter coordConverter = new SpheroidCoordinatesConverter(
+//                Wgs84Constants.SEMI_MAJOR_AXIS, Wgs84Constants.SEMI_MINOR_AXIS, GeoidHeightFunction.EGM96_WW15MGH);
+//        GltfModel model = this.readGltfModel("glb_models/model_test3.glb", coordConverter);
+//
+//        List<PreBakedModel> models = GltfModelConverter.convertModel(model, Matrix4f.IDENTITY, Projections.BTE,
+//                coordConverter, true);
+//        for(PreBakedModel m : models) {
+//            List<GraphicsTriangle<PosTexNorm>> triangles = m.getShapes().getShapesForFormat(DrawingFormat.TRI_PTN_ALPHA);
+//            for(GraphicsTriangle<PosTexNorm> triangle : triangles) {
+//                // Only print the positions
+//                for(int i = 0; i < 3; i++) {
+//                    PosTexNorm vertex = triangle.getVertex(i);
+//                    System.out.printf("%.2f, %.2f, %.2f\n", vertex.px, vertex.py, vertex.pz);
+//                }
 //            }
 //        }
 //    }
+
 }

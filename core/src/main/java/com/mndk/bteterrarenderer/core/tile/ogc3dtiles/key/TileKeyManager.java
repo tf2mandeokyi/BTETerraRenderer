@@ -1,9 +1,8 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key;
 
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tile;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileRefinement;
@@ -19,53 +18,63 @@ import java.util.Stack;
 public class TileKeyManager {
 
     public List<LocalTileNode> getIntersectionsFromTileset(Tileset tileset, Sphere playerSphere,
-                                                           Matrix4 parentTilesetTransform) {
+                                                           Matrix4f parentTilesetTransform,
+                                                           boolean selectSurroundings) {
         @RequiredArgsConstructor
         class Node {
             final int[] indexes;
             final Tile tile;
-            final Matrix4 previousTransform;
+            final Matrix4f previousTransform;
         }
 
-        List<LocalTileNode> result = new ArrayList<>();
-        Stack<Node> nodes = new Stack<>();
-        nodes.push(new Node(new int[0], tileset.getRootTile(), parentTilesetTransform));
+        List<LocalTileNode> resultList = new ArrayList<>();
+        Stack<Node> nodeStack = new Stack<>();
+        nodeStack.push(new Node(new int[0], tileset.getRootTile(), parentTilesetTransform));
         do {
-            Node currentNode = nodes.pop();
+            Node currentNode = nodeStack.pop();
             int[] currentIndexes = currentNode.indexes;
             Tile currentTile = currentNode.tile;
+            Matrix4f previousTransform = currentNode.previousTransform;
 
-            Matrix4 localTransform = currentTile.getTileLocalTransform();
-            Matrix4 currentTransform = localTransform == null ? parentTilesetTransform :
-                    parentTilesetTransform.multiply(currentTile.getTileLocalTransform()).toMatrix4();
+            Matrix4f localTransform = currentTile.getTileLocalTransform();
+            Matrix4f currentTransform = localTransform == null
+                    ? previousTransform
+                    : previousTransform.multiply(localTransform).toMatrix4();
 
-            if(!currentTile.getBoundingVolume().intersectsSphere(playerSphere, currentTransform))
+            if(!selectSurroundings && !currentTile.getBoundingVolume().intersectsSphere(playerSphere, currentTransform))
                 continue;
 
             List<Tile> children = currentTile.getChildren();
-            List<TileContentLink> contentLinks = currentTile.getContents();
+            List<TileContentLink> currentTileContents = currentTile.getContents();
             TileRefinement refinement = currentTile.getRefinement();
 
-            if(refinement != TileRefinement.REPLACE || children.isEmpty()) {
-                for(int i = 0; i < contentLinks.size(); i++) {
-                    TileContentLink contentLink = contentLinks.get(i);
-                    Volume volume = contentLink.getBoundingVolume();
-                    if(volume != null && !volume.intersectsSphere(playerSphere, currentTransform)) continue;
-                    result.add(new LocalTileNode(
-                            new TileLocalKey(currentIndexes, i),
-                            contentLink,
-                            currentTransform
-                    ));
+            boolean atLeastOneChildIntersects = false;
+            for(Tile child : children) {
+                if(child.getBoundingVolume().intersectsSphere(playerSphere, currentTransform)) {
+                    atLeastOneChildIntersects = true;
+                    break;
                 }
             }
 
-            for(int i = 0; i < children.size(); i++) {
-                Tile child = children.get(i);
-                nodes.add(new Node(ArrayUtil.expandOne(currentIndexes, i), child, currentTransform));
-            }
-        } while(!nodes.isEmpty());
+            boolean includeCurrentTileContent = !atLeastOneChildIntersects || refinement == TileRefinement.ADD;
 
-        return result;
+            if(includeCurrentTileContent) {
+                for(int i = 0; i < currentTileContents.size(); i++) {
+                    TileLocalKey contentKey = new TileLocalKey(currentIndexes, i);
+                    TileContentLink content = currentTileContents.get(i);
+                    LocalTileNode currentTileContentNode = new LocalTileNode(contentKey, content, currentTransform);
+                    resultList.add(currentTileContentNode);
+                }
+            }
+            if(atLeastOneChildIntersects) {
+                for(int i = 0; i < children.size(); i++) {
+                    Tile child = children.get(i);
+                    nodeStack.add(new Node(ArrayUtil.expandOne(currentIndexes, i), child, currentTransform));
+                }
+            }
+        } while(!nodeStack.isEmpty());
+
+        return resultList;
     }
 
 }

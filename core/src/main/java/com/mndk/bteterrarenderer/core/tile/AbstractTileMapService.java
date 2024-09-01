@@ -21,23 +21,22 @@ import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Getter
 @RequiredArgsConstructor
@@ -55,11 +54,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     @Getter(value = AccessLevel.PRIVATE)
     private final String dummyTileUrl;
 
-    /**
-     * This property should be configured on the constructor.
-     * One should put localization key as a key, and the property accessor as a value.
-     * */
-    private transient final List<PropertyAccessor.Localized<?>> states = new ArrayList<>();
+    private transient final List<PropertyAccessor.Localized<?>> stateAccessors = new ArrayList<>();
     private transient ModelMaker modelMaker; // late init
     private final ProcessorCacheStorage<TileId, List<GraphicsModel>> storage;
 
@@ -71,41 +66,40 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
                 .map(json -> json.map(JsonString::getValue))
                 .orElse(null);
         this.nThreads = commonYamlObject.nThreads;
-        this.states.addAll(this.makeStates());
+        this.stateAccessors.addAll(this.makeStateAccessors());
         this.storage = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, -1, false);
     }
 
     @Override
-    public final void render(@Nonnull DrawContextWrapper<?> drawContextWrapper,
-                             double px, double py, double pz, float opacity) {
+    public final List<GraphicsModel> getModels(McCoord playerPos) {
         // Bake textures
         if(!MISSING_TEXTURE_BAKED) {
             MISSING_TEXTURE.bake();
             MODEL_BAKER.setDefaultTexture(MISSING_TEXTURE.getTextureObject());
             MISSING_TEXTURE_BAKED = true;
         }
-        this.preRender(px, py, pz);
+        this.preRender(playerPos);
         MODEL_BAKER.process(2);
 
         // Get tileId list
         List<TileId> renderTileIdList;
         try {
-            double[] geoCoord = Projections.getHologramProjection().toGeo(px, pz);
-            renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], py);
-        } catch(OutOfProjectionBoundsException e) { return; }
+            double[] geoCoord = Projections.getHologramProjection().toGeo(playerPos.getX(), playerPos.getZ());
+            renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], playerPos.getY());
+        } catch(OutOfProjectionBoundsException e) { return Collections.emptyList(); }
 
-        // Make position transformer & Render tileId list
-        PositionTransformer transformer = this.getPositionTransformer(px, py, pz);
-        Consumer<GraphicsModel> renderModel = model -> model.drawAndRender(drawContextWrapper, transformer, opacity);
+        // Get models based on tileId list
+        List<GraphicsModel> result = new ArrayList<>();
         for(TileId tileId : renderTileIdList) {
             List<GraphicsModel> models = this.getModelsForId(tileId);
             if (models == null) continue;
-            models.forEach(renderModel);
+            result.addAll(models);
         }
+        return result;
     }
 
     @Nullable
-    public List<GraphicsModel> getModelsForId(TileId tileId) {
+    private List<GraphicsModel> getModelsForId(TileId tileId) {
         ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
         switch (bakedState) {
             case NOT_PROCESSED:
@@ -129,8 +123,9 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         return null;
     }
 
-    protected PositionTransformer getPositionTransformer(double px, double py, double pz) {
-        return (x, y, z) -> new double[] { x - px, y - py, z - pz };
+    @Override
+    public McCoordTransformer getPositionTransformer(McCoord playerPos) {
+        return pos -> pos.subtract(playerPos);
     }
 
     private CacheableProcessorModel<TileId, TileId, List<GraphicsModel>> getModelMaker() {
@@ -144,18 +139,14 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     }
 
     // Default method overrides
-    @Override
-    public final String toString() {
+    @Override public final String toString() {
         String name = this.name.get();
         int hash = this.hashCode();
         return String.format("%s(name=%s,hash=%08x)", this.getClass().getSimpleName(), name, hash);
     }
-    @Override
-    public final boolean equals(Object obj) { return super.equals(obj); }
-    @Override
-    public final int hashCode() { return super.hashCode(); }
-    @Override
-    public void close() throws IOException {
+    @Override public final boolean equals(Object obj) { return super.equals(obj); }
+    @Override public final int hashCode() { return super.hashCode(); }
+    @Override public void close() throws IOException {
         if(this.modelMaker != null) this.modelMaker.close();
         this.storage.close();
     }
@@ -163,24 +154,24 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     // ######################## <ABSTRACT METHODS> ########################
 
     /**
-     * This method is executed in the render thread and before rendering tiles.
+     * This method is executed in the getModels thread and before rendering tiles.
      */
-    protected abstract void preRender(double px, double py, double pz);
+    protected abstract void preRender(McCoord playerPos);
 
     protected abstract CacheableProcessorModel.SequentialBuilder<TileId, TileId, List<PreBakedModel>> getModelSequentialBuilder();
     /**
      * This method is called only once on the constructor
      * @return The property list
      */
-    protected abstract List<PropertyAccessor.Localized<?>> makeStates();
+    protected abstract List<PropertyAccessor.Localized<?>> makeStateAccessors();
 
     /**
      * @param longitude Player longitude, in degrees
      * @param latitude  Player latitude, in degrees
-     * @param height    Player height, in meters
+     * @param seaLevelHeight    Player height, in meters
      * @return A list of tile ids
      */
-    public abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double height);
+    public abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight);
 
     @Nullable
     public abstract List<GraphicsModel> getLoadingModel(TileId tileId) throws OutOfProjectionBoundsException;

@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitCube;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitSphere;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrixf;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.MatrixMajor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,17 +15,17 @@ import lombok.ToString;
 @Data
 public class Box extends Volume {
     // Read these from array in order
-    public final Cartesian3 center;
-    public final Matrix3 halfLength;
+    public final Cartesian3f center;
+    public final Matrix3f halfLength;
     @ToString.Exclude
-    public transient final Matrix4 boxMatrix;
+    public transient final Matrix4f boxMatrix;
 
-    public Box(Cartesian3 center, Matrix3 halfLength) {
+    public Box(Cartesian3f center, Matrix3f halfLength) {
         this.center = center;
         this.halfLength = halfLength;
 
-        Matrix centerMatrix = center.toTransformableMatrix();
-        this.boxMatrix = new Matrix4((c, r) -> {
+        Matrixf centerMatrix = center.toTransformableMatrix();
+        this.boxMatrix = new Matrix4f((c, r) -> {
             if(c == 3) return centerMatrix.get(0, r);
             else if(r != 3) return halfLength.get(c, r);
             else return 0;
@@ -33,27 +33,27 @@ public class Box extends Volume {
     }
 
     @Override
-    public boolean intersectsSphere(Sphere sphere, Matrix4 thisTransform) {
-        Matrix actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
-        Matrix inverseSphereMatrix = sphere.getSphereMatrix().inverse();
+    public boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform) {
+        Matrixf actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
+        Matrixf inverseSphereMatrix = sphere.getSphereMatrix().inverse();
 
         // "Unit-alize" the sphere
-        Matrix4 transformedBoxMatrix = inverseSphereMatrix.multiply(actualBoxMatrix).toMatrix4();
+        Matrix4f transformedBoxMatrix = inverseSphereMatrix.multiply(actualBoxMatrix).toMatrix4();
         return UnitSphere.checkParallelepipedIntersection(transformedBoxMatrix);
     }
 
     @Override
-    public boolean intersectsRay(Cartesian3 rayStart, Cartesian3 rayEnd, Matrix4 thisTransform) {
-        Matrix actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
-        Matrix4 inverse = actualBoxMatrix.inverse().toMatrix4();
+    public boolean intersectsRay(Cartesian3f rayStart, Cartesian3f rayEnd, Matrix4f thisTransform) {
+        Matrixf actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
+        Matrix4f inverse = actualBoxMatrix.inverse().toMatrix4();
 
         // "Unit-alize" the box
-        Cartesian3 unitRayStart = rayStart.transform(inverse);
-        Cartesian3 unitRayEnd = rayEnd.transform(inverse);
+        Cartesian3f unitRayStart = rayStart.transform(inverse);
+        Cartesian3f unitRayEnd = rayEnd.transform(inverse);
         return UnitCube.checkRayIntersection(unitRayStart, unitRayEnd);
     }
 
     public static Box fromArray(double[] array) {
-        return new Box(Cartesian3.fromArray(array, 0), Matrix3.fromArray(array, 3, MatrixMajor.COLUMN));
+        return new Box(Cartesian3f.fromArray(array), Matrix3f.fromArray(array, 3, MatrixMajor.COLUMN));
     }
 }

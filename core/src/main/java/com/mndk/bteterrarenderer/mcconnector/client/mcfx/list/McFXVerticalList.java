@@ -85,7 +85,7 @@ public class McFXVerticalList extends McFXElement {
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addProperties(List<PropertyAccessor.Localized<?>> properties) {
         List<McFXElement> elements = properties.stream()
-                .map(McFX::fromProperty)
+                .map(McFX::fromPropertyAccessor)
                 .collect(Collectors.toList());
         this.addAll(elements);
         return this;

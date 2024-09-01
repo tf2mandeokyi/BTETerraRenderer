@@ -11,9 +11,10 @@ import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -23,27 +24,19 @@ import java.util.List;
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public interface TileMapService extends AutoCloseable {
 
-    static CategoryMap.Wrapper<TileMapService> getSelected() {
-        return TileMapServiceSelection.get();
-    }
-
-    static void selectForDisplay(CategoryMap.Wrapper<TileMapService> wrapper) {
-        TileMapServiceSelection.set(wrapper);
-    }
-
-    static void refreshSelectionFromConfig() {
-        TileMapServiceSelection.refresh();
-    }
+    static CategoryMap.Wrapper<TileMapService> getSelected() { return TileMapServiceSelection.get(); }
+    static void selectForDisplay(CategoryMap.Wrapper<TileMapService> wrapper) { TileMapServiceSelection.set(wrapper); }
+    static void refreshSelectionFromConfig() { TileMapServiceSelection.refresh(); }
 
     Translatable<String> getName();
     Translatable<String> getCopyrightTextJson();
     URL getIconUrl();
 
-    List<PropertyAccessor.Localized<?>> getStates();
+    List<PropertyAccessor.Localized<?>> getStateAccessors();
     void moveAlongYAxis(double amount);
 
-    void render(@Nonnull DrawContextWrapper<?> drawContextWrapper,
-                double px, double py, double pz, float opacity);
+    List<GraphicsModel> getModels(McCoord playerPos);
+    McCoordTransformer getPositionTransformer(McCoord playerPos);
     void cleanUp();
 
     class Serializer extends JsonSerializer<TileMapService> {

@@ -117,7 +117,7 @@ public class McFX {
         return new McFXDropdown<>(selectedValue, nameGetter, iconTextureObjectGetter);
     }
 
-    public McFXElement fromProperty(PropertyAccessor.Localized<?> property) {
+    public McFXElement fromPropertyAccessor(PropertyAccessor.Localized<?> property) {
         Class<?> propertyClass = property.getPropertyClass();
 
         boolean numberAssignable = propertyClass == Double.class || propertyClass == double.class ||

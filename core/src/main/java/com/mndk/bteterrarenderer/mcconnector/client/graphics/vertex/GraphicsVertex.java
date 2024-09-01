@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
 
 public abstract class GraphicsVertex<T extends GraphicsVertex<T>> {
-    public abstract T transformPosition(PositionTransformer transformer);
+    public abstract T transformMcCoord(McCoordTransformer transformer);
 }

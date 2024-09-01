@@ -12,8 +12,9 @@ import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import de.javagl.jgltf.model.BufferViewModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
 
@@ -31,7 +32,7 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
 
     public DracoCompressedMeshConverter(MeshPrimitiveModel meshPrimitiveModel,
                                         List<BufferViewModel> topLevelBufferViewModels, DracoMeshCompression extension,
-                                        SingleGltfModelParsingContext context) {
+                                        Context context) {
         super(context);
         this.meshPrimitiveModel = meshPrimitiveModel;
         this.bufferViewModel = topLevelBufferViewModels.get(extension.getBufferView());
@@ -62,13 +63,13 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
         for(PointIndex pointIndex : PointIndex.range(0, numPoints)) {
             positionAttribute.getMappedValue(pointIndex, Pointer.wrap(posArray));
-            Cartesian3 position = new Cartesian3(posArray);
-            Cartesian3 gamePos = this.transformEarthCoordToGame(position);
+            Cartesian3f position = Cartesian3f.fromArray(posArray);
+            McCoord gamePos = this.transformEarthCoordToGame(position);
 
-            Cartesian3 gameNormal = null;
+            McCoord gameNormal = null;
             if(normalAttribute != null) {
                 normalAttribute.getMappedValue(pointIndex, Pointer.wrap(normArray));
-                Cartesian3 normal = new Cartesian3(normArray);
+                Cartesian3f normal = Cartesian3f.fromArray(normArray);
                 gameNormal = this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
             }
 

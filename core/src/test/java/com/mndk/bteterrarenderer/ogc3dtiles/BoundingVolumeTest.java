@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.core.BTETerraRenderer;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Box;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Region;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
@@ -47,7 +47,7 @@ public class BoundingVolumeTest {
                 "  ]}";
         Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Box.class));
-        Assert.assertEquals(((Box) volume).getCenter(), new Cartesian3(0, 0, 10));
+        Assert.assertEquals(((Box) volume).getCenter(), new Cartesian3f(0, 0, 10));
     }
 
     @Test

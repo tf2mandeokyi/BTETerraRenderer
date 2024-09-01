@@ -10,7 +10,7 @@ public class SphereIntersectionTest {
     @Test
     public void givenSphere_testBoundingBox() {
         double a = Wgs84Constants.SEMI_MAJOR_AXIS / 2;
-        Sphere sphere = new Sphere(new Cartesian3(a, a, a*Math.sqrt(2)), a);
+        Sphere sphere = new Sphere(new Cartesian3f(a, a, a*Math.sqrt(2)), a);
         Region region = sphere.toBoundingRegions()[0];
 
         Assert.assertEquals(0, Math.toDegrees(region.getWestLon()), 0.00001);

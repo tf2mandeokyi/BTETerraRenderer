@@ -5,11 +5,12 @@ import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttributes;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.util.QuantizationUtil;
 import de.javagl.jgltf.model.*;
 
@@ -21,7 +22,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
 
     private final MeshPrimitiveModel meshPrimitiveModel;
 
-    public DefaultModelConverter(MeshPrimitiveModel meshPrimitiveModel, SingleGltfModelParsingContext context) {
+    public DefaultModelConverter(MeshPrimitiveModel meshPrimitiveModel, Context context) {
         super(context);
         this.meshPrimitiveModel = meshPrimitiveModel;
     }
@@ -42,20 +43,20 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         }
 
         Web3dQuantizedAttributes positionExtension = GltfExtensionsUtil.getExtension(positionAccessor, Web3dQuantizedAttributes.class);
-        Matrix4 positionTransform = positionExtension != null ? positionExtension.getDecodeMatrix() : null;
+        Matrix4f positionTransform = positionExtension != null ? positionExtension.getDecodeMatrix() : null;
 
         Web3dQuantizedAttributes normalExtension = normalAccessor == null ? null
                 : GltfExtensionsUtil.getExtension(normalAccessor, Web3dQuantizedAttributes.class);
-        Matrix4 normalTransform = normalExtension != null ? normalExtension.getDecodeMatrix() : null;
+        Matrix4f normalTransform = normalExtension != null ? normalExtension.getDecodeMatrix() : null;
 
         int numPoints = positionAccessor.getCount();
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
         for(int i = 0; i < numPoints; i++) {
-            Cartesian3 position = readPosition(positionAccessor, i, positionTransform);
-            Cartesian3 gamePos = this.transformEarthCoordToGame(position);
+            Cartesian3f position = readPosition(positionAccessor, i, positionTransform);
+            McCoord gamePos = this.transformEarthCoordToGame(position);
 
-            Cartesian3 normal = normalAccessor == null ? null : readNormal(normalAccessor, i, normalTransform);
-            Cartesian3 gameNormal = normal == null ? null : this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
+            Cartesian3f normal = normalAccessor == null ? null : readNormal(normalAccessor, i, normalTransform);
+            McCoord gameNormal = normal == null ? null : this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
 
             float[] tex = readTextureCoord(textureCoordAccessor, i);
 
@@ -64,8 +65,8 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         return parsedPoints;
     }
 
-    private static Cartesian3 readPosition(AccessorModel positionAccessor, int index, @Nullable Matrix4 transform) {
-        Cartesian3 cartesian = readCartesian3(positionAccessor, index);
+    private static Cartesian3f readPosition(AccessorModel positionAccessor, int index, @Nullable Matrix4f transform) {
+        Cartesian3f cartesian = readCartesian3(positionAccessor, index);
         if(transform != null) cartesian = cartesian.transform(transform);
         return cartesian;
     }
@@ -77,8 +78,8 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         return readFloatArray(data, index, 2);
     }
 
-    private static Cartesian3 readNormal(AccessorModel normalAccessor, int index, @Nullable Matrix4 transform) {
-        Cartesian3 cartesian = readCartesian3(normalAccessor, index);
+    private static Cartesian3f readNormal(AccessorModel normalAccessor, int index, @Nullable Matrix4f transform) {
+        Cartesian3f cartesian = readCartesian3(normalAccessor, index);
         if(transform != null) cartesian = cartesian.transform(transform);
         return cartesian;
     }
@@ -111,10 +112,10 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         return shapes;
     }
 
-    private static Cartesian3 readCartesian3(AccessorModel accessor, int index) {
+    private static Cartesian3f readCartesian3(AccessorModel accessor, int index) {
         AccessorData data = accessor.getAccessorData();
         float[] position = readFloatArray(data, index, 3);
-        return new Cartesian3(position[0], position[1], position[2]);
+        return new Cartesian3f(position[0], position[1], position[2]);
     }
 
     private static int readInteger(@Nonnull AccessorModel accessor, int defaultValue) {

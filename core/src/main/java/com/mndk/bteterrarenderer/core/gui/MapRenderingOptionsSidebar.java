@@ -52,7 +52,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static MapRenderingOptionsSidebar INSTANCE;
     private final McFXDropdown<CategoryMap.Wrapper<TileMapService>> mapSourceDropdown;
     private final McFXElement mapCopyright;
-    private final McFXVerticalList tmsPropertyElementList;
+    private final McFXVerticalList tmsStateElementList;
     private final McFXWrapper yAxisInputWrapper;
 
     private MapRenderingOptionsSidebar() {
@@ -79,7 +79,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
         this.mapCopyright = McFX.div().setAlign(HorizontalAlign.LEFT);
-        this.tmsPropertyElementList = McFX.vList(ELEMENT_DISTANCE, ELEMENT_DISTANCE);
+        this.tmsStateElementList = McFX.vList(ELEMENT_DISTANCE, ELEMENT_DISTANCE);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                                 .add(this.mapSourceDropdown)
                                 .add(this.mapCopyright)),
 
-                this.tmsPropertyElementList,
+                this.tmsStateElementList,
 
                 McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
                         .add(openMapsFolderButton)
@@ -181,7 +181,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 .orElse(null);
         if(tms == null) {
             this.yAxisInputWrapper.hide = true;
-            this.tmsPropertyElementList.hide = true;
+            this.tmsStateElementList.hide = true;
             this.mapCopyright.hide = true;
             return;
         }
@@ -190,12 +190,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         TileMapService.selectForDisplay(tmsWrapped);
 
         // Set property element list
-        this.tmsPropertyElementList.clear()
+        this.tmsStateElementList.clear()
                 .add(McFX.div()
                         .setI18nKeyContent("gui.bteterrarenderer.settings.map_settings")
                         .setAlign(HorizontalAlign.LEFT))
-                .addProperties(tms.getStates());
-        this.tmsPropertyElementList.hide = false;
+                .addProperties(tms.getStateAccessors());
+        this.tmsStateElementList.hide = false;
 
         // Set y axis input
         this.yAxisInputWrapper.hide = false;
@@ -284,7 +284,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         URL iconUrl = tms.getIconUrl();
         if(iconUrl == null) return null;
-        return ICON_MAKER.updateOrInsert(iconUrl, () -> iconUrl);
+        return ICON_MAKER.updateOrInsert(iconUrl, iconUrl);
     }
 
     public static void open() {

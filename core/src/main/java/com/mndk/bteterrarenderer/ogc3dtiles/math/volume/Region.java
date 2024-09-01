@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitCube;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +15,7 @@ public class Region extends Volume {
     private final double minHeight, maxHeight;
 
     @Override
-    public boolean intersectsSphere(Sphere sphere, Matrix4 thisTransform) {
+    public boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform) {
 		Region[] sphereRegions = sphere.toBoundingRegions();
 		for(Region sphereRegion : sphereRegions) {
 			if(this.intersectsRegion(sphereRegion)) return true;
@@ -24,7 +24,7 @@ public class Region extends Volume {
     }
 
     @Override
-    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4 thisTransform, SpheroidCoordinatesConverter converter) {
+    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4f thisTransform, SpheroidCoordinatesConverter converter) {
         double lonRad = Math.toRadians(coordinateDegrees[0]), latRad = Math.toRadians(coordinateDegrees[1]);
         if(westLon <= eastLon) {
             if(lonRad < westLon || eastLon < lonRad) return false;

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Box;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,9 +15,9 @@ public class BoxIntersectionTest {
                 -0.72, -0.34, 2
         });
         Assert.assertTrue(box.intersectsRay(
-                new Cartesian3(8.51, 8.69, 4),
-                new Cartesian3(3.72, 4.79, 3.42),
-                Matrix4.IDENTITY
+                new Cartesian3f(8.51, 8.69, 4),
+                new Cartesian3f(3.72, 4.79, 3.42),
+                Matrix4f.IDENTITY
         ));
     }
 

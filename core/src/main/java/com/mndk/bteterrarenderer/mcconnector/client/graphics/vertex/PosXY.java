@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -10,9 +11,10 @@ public class PosXY extends GraphicsVertex<PosXY> {
     public final float x, y;
 
     @Override
-    public PosXY transformPosition(PositionTransformer transformer) {
-        double[] result = transformer.transform(x, y, 0);
-        return new PosXY((float) result[0], (float) result[1]);
+    public PosXY transformMcCoord(McCoordTransformer transformer) {
+        // This method is meaningless for this class, but we'll implement it anyway
+        McCoord result = transformer.transform(new McCoord(x, y, 0));
+        return new PosXY((float) result.getX(), result.getY());
     }
 
     @Override

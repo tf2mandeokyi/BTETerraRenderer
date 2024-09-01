@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.core.tile.flat;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -25,12 +24,14 @@ import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -56,8 +57,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     private static boolean STATIC_IMAGES_BAKED = false;
 
     private transient int relativeZoom = 0;
-    @Setter
-    private transient int radius = 3;
+    @Setter private transient int radius = 3;
 
     private final String urlTemplate;
     private final FlatTileCoordTranslator coordTranslator;
@@ -69,7 +69,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     // This is to avoid quirky concurrent thingy
     private transient final SingleQueueBlock<FlatTileKey, BufferedImage, PreBakedModel> imageToPreModel;
 
-    @JsonCreator
+    @Builder
     private FlatTileMapService(CommonYamlObject commonYamlObject,
                                FlatTileCoordTranslator coordTranslator,
                                FlatTileURLConverter urlConverter) {
@@ -86,13 +86,14 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    protected PositionTransformer getPositionTransformer(double px, double py, double pz) {
-        double yAlign = BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON;
-        return (x, y, z) -> new double[] { x - px, y - py + yAlign, z - pz };
+    public McCoordTransformer getPositionTransformer(McCoord playerPos) {
+        float yAlign = (float) (BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON);
+        McCoord offset = new McCoord(0, yAlign, 0).subtract(playerPos);
+        return pos -> pos.add(offset);
     }
 
     @Override
-    protected void preRender(double px, double py, double pz) {
+    protected void preRender(McCoord playerPos) {
         this.imageToPreModel.process(2);
         if(!STATIC_IMAGES_BAKED) {
             SOMETHING_WENT_WRONG.bake();
@@ -116,7 +117,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    protected List<PropertyAccessor.Localized<?>> makeStates() {
+    protected List<PropertyAccessor.Localized<?>> makeStateAccessors() {
         PropertyAccessor<Integer> zoom = PropertyAccessor.ranged(
                 this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
         PropertyAccessor<Integer> radius =  PropertyAccessor.ranged(
@@ -129,7 +130,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    public List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double height) {
+    public List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight) {
         if(this.coordTranslator == null) return Collections.emptyList();
 
         try {
@@ -200,7 +201,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
             double[] gameCoord = Projections.getHologramProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
             quad.setVertex(i, new PosTex(
-                    gameCoord[0], 0, gameCoord[1], // position
+                    new McCoord(gameCoord[0], 0, gameCoord[1]), // position
                     mat[2], mat[3] // texture coordinate
             ));
         }
@@ -265,11 +266,14 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
             FlatTileCoordTranslator coordTranslator = new FlatTileCoordTranslator(projection)
                     .setDefaultZoom(defaultZoom)
                     .setInvertZoom(invertZoom)
-                    .setFlipVertically(flipVertically)
-                    .setInvertLatitude(invertLatitude);
+                    .setInvertLatitude(invertLatitude)
+                    .setFlipVertically(flipVertically);
 
-            FlatTileURLConverter urlConverter = new FlatTileURLConverter(defaultZoom, invertZoom);
-            return new FlatTileMapService(commonYamlObject, coordTranslator, urlConverter);
+            return FlatTileMapService.builder()
+                    .commonYamlObject(commonYamlObject)
+                    .coordTranslator(coordTranslator)
+                    .urlConverter(new FlatTileURLConverter(defaultZoom, invertZoom))
+                    .build();
         }
     }
 

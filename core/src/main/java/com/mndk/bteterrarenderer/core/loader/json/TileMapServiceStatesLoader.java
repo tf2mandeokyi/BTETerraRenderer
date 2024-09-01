@@ -44,7 +44,7 @@ public class TileMapServiceStatesLoader {
     }
 
     private void applyRawStates(@Nonnull TileMapService tms, Map<String, Object> rawValues) {
-        List<PropertyAccessor.Localized<?>> states = tms.getStates();
+        List<PropertyAccessor.Localized<?>> states = tms.getStateAccessors();
         for(PropertyAccessor.Localized<?> state : states) {
             String key = state.getKey();
             if(!rawValues.containsKey(key)) continue;
@@ -80,7 +80,7 @@ public class TileMapServiceStatesLoader {
     }
 
     private void saveRawStates(@Nonnull TileMapService tms, Map<String, Object> rawValues) {
-        List<PropertyAccessor.Localized<?>> states = tms.getStates();
+        List<PropertyAccessor.Localized<?>> states = tms.getStateAccessors();
         for(PropertyAccessor.Localized<?> state : states) {
             String key = state.getKey();
             rawValues.put(key, state.get());

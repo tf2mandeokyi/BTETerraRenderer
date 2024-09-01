@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Box;
 import lombok.experimental.UtilityClass;
 
@@ -12,10 +12,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class UnitSphere {
 
-    private final Cartesian3 SPHERE_CENTER = Cartesian3.ORIGIN;
+    private final Cartesian3f SPHERE_CENTER = Cartesian3f.ORIGIN;
     private final double RADIUS = 1;
 
-    public boolean containsCartesian(Cartesian3 cartesian) {
+    public boolean containsCartesian(Cartesian3f cartesian) {
         return cartesian.distance2() <= RADIUS*RADIUS;
     }
 
@@ -23,7 +23,7 @@ public class UnitSphere {
      * Check if the ray intersects the unit sphere
      * @return {@code true} if intersects, {@code false} otherwise
      */
-    public boolean checkRayIntersection(Cartesian3 rayStart, Cartesian3 rayEnd) {
+    public boolean checkRayIntersection(Cartesian3f rayStart, Cartesian3f rayEnd) {
         return checkRayIntersection(rayStart, rayEnd, Double.POSITIVE_INFINITY);
     }
 
@@ -32,9 +32,9 @@ public class UnitSphere {
      * @param maxInterval The maximum interval. 0 means the {@code rayStart}, 1 means the {@code rayEnd}
      * @return {@code true} if intersects, {@code false} otherwise
      */
-    private boolean checkRayIntersection(Cartesian3 rayStart, Cartesian3 rayEnd, double maxInterval) {
+    private boolean checkRayIntersection(Cartesian3f rayStart, Cartesian3f rayEnd, double maxInterval) {
         // Quadratic equation
-        Cartesian3 velocity = rayEnd.subtract(rayStart);
+        Cartesian3f velocity = rayEnd.subtract(rayStart);
         double a = velocity.dot(velocity); // D*D
         double b = velocity.dot(rayStart.scale(2)); // 2O*D
         double c = rayStart.dot(rayStart) - RADIUS*RADIUS; // O*O - 1
@@ -48,12 +48,12 @@ public class UnitSphere {
         return intervalIntersection != null;
     }
 
-    public boolean checkEllipsoidIntersection(Matrix4 sphereMatrix) {
+    public boolean checkEllipsoidIntersection(Matrix4f sphereMatrix) {
         // Check if the center of the unit sphere is inside the ellipsoid
-        Cartesian3 transformedCenter = SPHERE_CENTER.transform(sphereMatrix.inverse().toMatrix4());
+        Cartesian3f transformedCenter = SPHERE_CENTER.transform(sphereMatrix.inverse().toMatrix4());
         if(containsCartesian(transformedCenter)) return true;
 
-        Cartesian3 projected = transformedCenter.toNormalized().transform(sphereMatrix);
+        Cartesian3f projected = transformedCenter.toNormalized().transform(sphereMatrix);
         return containsCartesian(projected.subtract(SPHERE_CENTER));
     }
 
@@ -62,13 +62,13 @@ public class UnitSphere {
      * @param boxMatrix The box matrix
      * @return Whether both objects intersect each other
      */
-    public boolean checkParallelepipedIntersection(Matrix4 boxMatrix) {
-        Cartesian3 boxCenter = new Cartesian3(boxMatrix.get(3, 0), boxMatrix.get(3, 1), boxMatrix.get(3, 2));
-        Matrix4 inverseBoxMatrix = boxMatrix.inverse().toMatrix4();
+    public boolean checkParallelepipedIntersection(Matrix4f boxMatrix) {
+        Cartesian3f boxCenter = new Cartesian3f(boxMatrix.get(3, 0), boxMatrix.get(3, 1), boxMatrix.get(3, 2));
+        Matrix4f inverseBoxMatrix = boxMatrix.inverse().toMatrix4();
 
         // 1. First check if the unit sphere center is in the box
         //    This is checked by transforming the parallelepiped into a unit cube
-        Cartesian3 transformedSphereCenter = SPHERE_CENTER.transform(inverseBoxMatrix);
+        Cartesian3f transformedSphereCenter = SPHERE_CENTER.transform(inverseBoxMatrix);
         if(UnitCube.containsCartesian(transformedSphereCenter)) return true;
 
         // 2. Check all parallelepiped vertices if they're in the unit sphere
@@ -77,7 +77,7 @@ public class UnitSphere {
         for(int[] unitVertexFeature : UnitCube.VERTEX_FEATURES) {
             if(UnitCube.isUnitFeatureHiddenToCartesian(unitVertexFeature, transformedSphereCenter)) continue;
 
-            Cartesian3 vertex = UnitCube.unitCoordinateToCartesian(unitVertexFeature, boxMatrix);
+            Cartesian3f vertex = UnitCube.unitCoordinateToCartesian(unitVertexFeature, boxMatrix);
             if(containsCartesian(vertex)) return true;
         }
 
@@ -94,8 +94,8 @@ public class UnitSphere {
                 unitRayEnd[i] = -1;
             }
 
-            Cartesian3 rayStart = UnitCube.unitCoordinateToCartesian(unitRayStart, boxMatrix);
-            Cartesian3 rayEnd = UnitCube.unitCoordinateToCartesian(unitRayEnd, boxMatrix);
+            Cartesian3f rayStart = UnitCube.unitCoordinateToCartesian(unitRayStart, boxMatrix);
+            Cartesian3f rayEnd = UnitCube.unitCoordinateToCartesian(unitRayEnd, boxMatrix);
             if(checkRayIntersection(rayStart, rayEnd, 1)) return true;
         }
 
@@ -104,7 +104,7 @@ public class UnitSphere {
         for(int[] unitSideFeature : UnitCube.SIDE_FEATURES) {
             if(UnitCube.isUnitFeatureHiddenToCartesian(unitSideFeature, transformedSphereCenter)) continue;
 
-            Cartesian3 planeCenter = UnitCube.unitCoordinateToCartesian(unitSideFeature, boxMatrix);
+            Cartesian3f planeCenter = UnitCube.unitCoordinateToCartesian(unitSideFeature, boxMatrix);
             int[] unitU0 = { 0, 0, 0 }, unitU1 = { 0, 0, 0 }, unitU2 = { 0, 0, 0 };
             for(int i = 0; i < 3; i++) {
                 if(unitSideFeature[i] == 0) continue;
@@ -113,19 +113,19 @@ public class UnitSphere {
                 unitU2[i] = 1;
             }
 
-            Cartesian3 u0 = UnitCube.unitCoordinateToCartesian(unitU0, boxMatrix).subtract(boxCenter);
-            Cartesian3 u1 = UnitCube.unitCoordinateToCartesian(unitU1, boxMatrix).subtract(boxCenter);
-            Cartesian3 u2 = UnitCube.unitCoordinateToCartesian(unitU2, boxMatrix).subtract(boxCenter);
-            Cartesian3 normal = u0.cross(u1).toNormalized();
+            Cartesian3f u0 = UnitCube.unitCoordinateToCartesian(unitU0, boxMatrix).subtract(boxCenter);
+            Cartesian3f u1 = UnitCube.unitCoordinateToCartesian(unitU1, boxMatrix).subtract(boxCenter);
+            Cartesian3f u2 = UnitCube.unitCoordinateToCartesian(unitU2, boxMatrix).subtract(boxCenter);
+            Cartesian3f normal = u0.cross(u1).toNormalized();
 
             // Skip if the distance between the plane and the sphere are greater than 1
-            double distance = SPHERE_CENTER.subtract(planeCenter).dot(normal);
+            float distance = SPHERE_CENTER.subtract(planeCenter).dot(normal);
             if(Math.abs(distance) > 1) continue;
 
             // Check if the projected coordinate is in the plane
-            Cartesian3 projected = SPHERE_CENTER.subtract(normal.scale(distance));
-            Matrix4 planeMatrix = new Box(planeCenter, Matrix3.fromCoordinates(u0, u1, u2)).boxMatrix;
-            Cartesian3 t = projected.transform(planeMatrix.inverse().toMatrix4());
+            Cartesian3f projected = SPHERE_CENTER.subtract(normal.scale(distance));
+            Matrix4f planeMatrix = new Box(planeCenter, Matrix3f.fromCoordinates(u0, u1, u2)).boxMatrix;
+            Cartesian3f t = projected.transform(planeMatrix.inverse().toMatrix4());
             if(UnitCube.containsCartesian(t)) return true;
         }
 

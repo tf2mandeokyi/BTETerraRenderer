@@ -5,46 +5,45 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrixf;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Data
 @RequiredArgsConstructor
-@JsonDeserialize(using = Cartesian3.Deserializer.class)
-public class Cartesian3 {
-    public static final Cartesian3 ORIGIN = new Cartesian3(0, 0, 0);
-    public static final Cartesian3 UNIT_AXES = new Cartesian3(1, 1, 1);
+@JsonDeserialize(using = Cartesian3f.Deserializer.class)
+public class Cartesian3f {
+    public static final Cartesian3f ORIGIN = new Cartesian3f(0, 0, 0);
+    public static final Cartesian3f UNIT = new Cartesian3f(1, 1, 1);
 
     private static final int LATITUDE_APPROX_ITERATION = 5;
 
-    // TODO: Consider changing these to float and add a center coordinate
-    private final double x, y, z;
+    private final float x, y, z;
 
-    public Cartesian3(float[] array) { this(array[0], array[1], array[2]); }
-    public Cartesian3(double[] array) { this(array[0], array[1], array[2]); }
+    public Cartesian3f(double x, double y, double z) {
+        this((float) x, (float) y, (float) z);
+    }
 
     /**
      * Returns a transformable 1x3 matrix of itself: {@code [x, y, z]^T}<br>
      * @return The matrix
      */
-    public Matrix toMatrix() {
-        double[] temp = { x, y, z };
-        return new Matrix(1, 3, (c, r) -> temp[r]);
+    public Matrixf toMatrix() {
+        float[] temp = { x, y, z };
+        return new Matrixf(1, 3, (c, r) -> temp[r]);
     }
 
     /**
      * Returns a transformable 1x4 matrix of itself: {@code [x, y, z, 1]^T}<br>
-     * Used for {@link Cartesian3#transform(Matrix4)}
+     * Used for {@link Cartesian3f#transform(Matrix4f)}
      * @return The matrix
      */
-    public Matrix toTransformableMatrix() {
-        double[] temp = { x, y, z, 1 };
-        return new Matrix(1, 4, (c, r) -> temp[r]);
+    public Matrixf toTransformableMatrix() {
+        float[] temp = { x, y, z, 1 };
+        return new Matrixf(1, 4, (c, r) -> temp[r]);
     }
 
     /**
@@ -53,9 +52,9 @@ public class Cartesian3 {
      * @param transformMatrix The transform matrix
      * @return The result
      */
-    public Cartesian3 transform(Matrix4 transformMatrix) {
-        Matrix multiplied = transformMatrix.multiply(this.toTransformableMatrix());
-        return new Cartesian3(multiplied.get(0, 0), multiplied.get(0, 1), multiplied.get(0, 2));
+    public Cartesian3f transform(Matrix4f transformMatrix) {
+        Matrixf multiplied = transformMatrix.multiply(this.toTransformableMatrix());
+        return new Cartesian3f(multiplied.get(0, 0), multiplied.get(0, 1), multiplied.get(0, 2));
     }
 
     /**
@@ -63,8 +62,8 @@ public class Cartesian3 {
      * @param other The other coordinate
      * @return The result
      */
-    public Cartesian3 add(Cartesian3 other) {
-        return new Cartesian3(x+other.x, y+other.y, z+other.z);
+    public Cartesian3f add(Cartesian3f other) {
+        return new Cartesian3f(x+other.x, y+other.y, z+other.z);
     }
 
     /**
@@ -72,8 +71,8 @@ public class Cartesian3 {
      * @param other The other coordinate
      * @return The result
      */
-    public Cartesian3 subtract(Cartesian3 other) {
-        return new Cartesian3(x-other.x, y-other.y, z-other.z);
+    public Cartesian3f subtract(Cartesian3f other) {
+        return new Cartesian3f(x-other.x, y-other.y, z-other.z);
     }
 
     /**
@@ -81,8 +80,8 @@ public class Cartesian3 {
      * @param magnitude The scaling factor
      * @return The result
      */
-    public Cartesian3 scale(double magnitude) {
-        return new Cartesian3(x*magnitude, y*magnitude, z*magnitude);
+    public Cartesian3f scale(float magnitude) {
+        return new Cartesian3f(x*magnitude, y*magnitude, z*magnitude);
     }
 
     /**
@@ -90,15 +89,15 @@ public class Cartesian3 {
      * @param other The scaling factor
      * @return The result
      */
-    public Cartesian3 scale(Cartesian3 other) {
-        return new Cartesian3(x*other.x, y*other.y, z*other.z);
+    public Cartesian3f scale(Cartesian3f other) {
+        return new Cartesian3f(x*other.x, y*other.y, z*other.z);
     }
 
     /**
      * Returns a normalized version of itself. The length of it is 1
      * @return The result
      */
-    public Cartesian3 toNormalized() {
+    public Cartesian3f toNormalized() {
         return this.scale(1 / this.distance());
     }
 
@@ -106,23 +105,23 @@ public class Cartesian3 {
 	 * Returns the xy distance from the origin
 	 * @return The distance
 	 */
-	public double xyDistance() {
-		return Math.sqrt(x*x + y*y);
+	public float xyDistance() {
+		return (float) Math.sqrt(x*x + y*y);
 	}
 
     /**
      * Returns the distance from the origin
      * @return The distance
      */
-    public double distance() {
-        return Math.sqrt(x*x + y*y + z*z);
+    public float distance() {
+        return (float) Math.sqrt(x*x + y*y + z*z);
     }
 
     /**
      * Returns the distance from the origin squared
      * @return The distance
      */
-    public double distance2() {
+    public float distance2() {
         return x*x + y*y + z*z;
     }
 
@@ -131,7 +130,7 @@ public class Cartesian3 {
      * @param other The other coordinate
      * @return The result
      */
-    public double dot(Cartesian3 other) {
+    public float dot(Cartesian3f other) {
         return x*other.x + y*other.y + z*other.z;
     }
 
@@ -141,8 +140,8 @@ public class Cartesian3 {
      * @param other The other coordinate
      * @return The result
      */
-    public Cartesian3 cross(Cartesian3 other) {
-        return new Cartesian3(y*other.z - z*other.y, z*other.x - x*other.z, x*other.y - y*other.x);
+    public Cartesian3f cross(Cartesian3f other) {
+        return new Cartesian3f(y*other.z - z*other.y, z*other.x - x*other.z, x*other.y - y*other.x);
     }
 
     @Override
@@ -150,41 +149,37 @@ public class Cartesian3 {
         return "Cartesian3[" + x + ", " + y + ", " + z + "]";
     }
 
-    public static Cartesian3 fromArray(double[] array) {
-        return new Cartesian3(array[0], array[1], array[2]);
+    public static Cartesian3f fromArray(double[] array) {
+        return new Cartesian3f((float) array[0], (float) array[1], (float) array[2]);
     }
 
-    public static Cartesian3 fromArray(float[] array) {
-        return new Cartesian3(array[0], array[1], array[2]);
+    public static Cartesian3f fromArray(float[] array) {
+        return new Cartesian3f(array[0], array[1], array[2]);
     }
 
-    public static Cartesian3 fromArray(Float[] array) {
-        return new Cartesian3(array[0], array[1], array[2]);
-    }
-
-    public static Cartesian3 fromArray(double[] array, int start) {
-        return fromArray(Arrays.copyOfRange(array, start, start+3));
+    public static Cartesian3f fromArray(Float[] array) {
+        return new Cartesian3f(array[0], array[1], array[2]);
     }
 
     private static int signNotZero(float value) {
         return value >= 0.0 ? 1 : -1;
     }
 
-    public static Cartesian3 fromOctEncoding(float x, float y) {
+    public static Cartesian3f fromOctEncoding(float x, float y) {
         float x3 = x, y3 = y, z3 = 1 - (Math.abs(x) + Math.abs(y));
         if(z3 < 0) {
             float oldX3 = x3;
             x3 = (1.0f - Math.abs(y3)) * signNotZero(oldX3);
             y3 = (1.0f - Math.abs(oldX3)) * signNotZero(y3);
         }
-        return new Cartesian3(x3, y3, z3).toNormalized();
+        return new Cartesian3f(x3, y3, z3).toNormalized();
     }
 
-    static class Deserializer extends JsonDeserializer<Cartesian3> {
+    static class Deserializer extends JsonDeserializer<Cartesian3f> {
         @Override
-        public Cartesian3 deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Cartesian3f deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             double[] array = JsonParserUtil.readDoubleArray(p);
-            return Cartesian3.fromArray(array);
+            return Cartesian3f.fromArray(array);
         }
     }
 }

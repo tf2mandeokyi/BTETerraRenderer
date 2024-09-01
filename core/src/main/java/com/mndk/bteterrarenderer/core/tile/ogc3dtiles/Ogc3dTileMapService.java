@@ -27,25 +27,24 @@ import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.geoid.GeoidHeightFunction;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
@@ -65,20 +64,21 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private static final Ogc3dTileParsingBlock TILE_PARSER = new Ogc3dTileParsingBlock(
             Executors.newCachedThreadPool(), 3, 100, false);
 
-    @Setter
-    private transient double radius = 40;
+    @Setter private transient double radius = 40;
+    @Setter private transient boolean yDistortion = false;
+    @Setter private transient boolean renderSurroundings = false;
     private transient double magnitude = 1;
-    @Setter
-    private transient boolean yDistortion = false;
+
     private final URL rootTilesetUrl;
     private final SpheroidCoordinatesConverter coordConverter;
     private final boolean rotateModelAlongEarthXAxis;
     private final String geoidType;
 
     private transient final TileDataStorage tileDataStorage;
-    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, ParsedData> storageFetcher;
-    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4, InputStream>, ParsedData> streamParser;
+    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4f, TileData>> storageFetcher;
+    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4f, InputStream>, Pair<Matrix4f, TileData>> streamParser;
 
+    @Builder
     @SneakyThrows(MalformedURLException.class)
     private Ogc3dTileMapService(CommonYamlObject commonYamlObject, SpheroidCoordinatesConverter coordConverter,
                                 boolean rotateModelAlongEarthXAxis, String geoidType) {
@@ -96,23 +96,28 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         });
         this.streamParser = ImmediateBlock.of((key, pair) -> {
             TileData tileData = TileResourceManager.parse(pair.getRight(), this.coordConverter);
-            return new ParsedData(pair.getLeft(), tileData);
+            return Pair.of(pair.getLeft(), tileData);
         });
     }
 
     @Override
-    protected PositionTransformer getPositionTransformer(double px, double py, double pz) {
-        double yAlign = BTETerraRendererConfig.HOLOGRAM.getYAlign();
+    public McCoordTransformer getPositionTransformer(McCoord playerPos) {
+        float yAlign = (float) BTETerraRendererConfig.HOLOGRAM.getYAlign();
         if(!this.yDistortion) {
-            return (x, y, z) -> new double[] { x - px, yAlign + y - py, z - pz };
+            McCoord offset = new McCoord(0, yAlign, 0).subtract(playerPos);
+            return pos -> pos.add(offset);
         }
         else {
-            return (x, y, z) -> new double[] { x - px, yAlign + y * this.magnitude - py, z - pz };
+            return pos -> new McCoord(
+                    pos.getX() - playerPos.getX(),
+                    (float) (pos.getY() * this.magnitude + yAlign - playerPos.getY()),
+                    pos.getZ() - playerPos.getZ()
+            );
         }
     }
 
     @Override
-    protected void preRender(double px, double py, double pz) {
+    protected void preRender(McCoord playerPos) {
         GeographicProjection projection = Projections.getHologramProjection();
         if(projection == null) return;
 
@@ -121,7 +126,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             // But that significantly drops the fps value (100 -> 4), so I'll put the player position instead.
             // After all the difference wouldn't be noticeable within around 400m from the player.
             // When the distortion calculation becomes fast enough, I'll go back to the original plan.
-            double[] geoCoord = projection.toGeo(px, pz);
+            double[] geoCoord = projection.toGeo(playerPos.getX(), playerPos.getZ());
             double[] tissot = projection.tissot(geoCoord[0], geoCoord[1]);
             this.magnitude = Math.sqrt(Math.abs(tissot[0]));
         } catch(OutOfProjectionBoundsException ignored) {}
@@ -135,40 +140,43 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Override
     protected CacheableProcessorModel.SequentialBuilder<TileGlobalKey, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
         return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher)
-                .then(ImmediateBlock.of((key, parsedData) -> Pair.of(parsedData, this)))
+                .then(ImmediateBlock.of((key, pair) -> Triple.of(pair.getLeft(), pair.getRight(), this)))
                 .then(TILE_PARSER);
     }
 
     @Override
-    protected List<PropertyAccessor.Localized<?>> makeStates() {
+    protected List<PropertyAccessor.Localized<?>> makeStateAccessors() {
         PropertyAccessor<Double> radius = PropertyAccessor.ranged(
                 this::getRadius, this::setRadius, 1, 1000);
         PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
                 this::isYDistortion, this::setYDistortion);
+        PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(
+                this::isRenderSurroundings, this::setRenderSurroundings);
 
         return Arrays.asList(
                 PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radius),
-                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion)
+                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion),
+                PropertyAccessor.localized("render_surroundings", "gui.bteterrarenderer.settings.render_surroundings", renderSurroundings)
         );
     }
 
     @Override
-    public List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double height) {
+    public List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight) {
         if(radius == 0) return Collections.emptyList();
 
-        Spheroid3 spheroid = Spheroid3.fromDegrees(longitude, latitude, height);
-        Cartesian3 cartesian = coordConverter.toCartesian(spheroid);
-        Sphere playerSphere = new Sphere(cartesian, radius);
+        Spheroid3 spheroid = Spheroid3.fromDegrees(longitude, latitude, seaLevelHeight);
+        Cartesian3f cartesian = coordConverter.toCartesian(spheroid);
+        Sphere playerSphere = new Sphere(cartesian, (float) radius);
         return this.getIdListRecursively(playerSphere);
     }
 
     @Nullable
     private Tileset getRootTileset() {
         TileGlobalKey key = TileGlobalKey.ROOT_KEY;
-        ParsedData parsedData = tileDataStorage.updateOrInsert(key, () -> Pair.of(Matrix4.IDENTITY, this.rootTilesetUrl));
-        if(parsedData == null) return null;
+        Pair<Matrix4f, TileData> pair = tileDataStorage.updateOrInsert(key, Pair.of(Matrix4f.IDENTITY, this.rootTilesetUrl));
+        if(pair == null) return null;
 
-        TileData tileData = parsedData.getTileData();
+        TileData tileData = pair.getRight();
         if(!(tileData instanceof Tileset)) {
             Loggers.get(this).warn("Root tile url is not a tile set");
             return null;
@@ -184,44 +192,48 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             final Tileset tileset;
             final URL parentUrl;
             final TileLocalKey[] parentKeys;
-            final Matrix4 parentTransform;
+            final Matrix4f parentTransform;
         }
 
         Stack<Node> nodes = new Stack<>();
         Tileset rootTileset = this.getRootTileset();
         if(rootTileset == null) return Collections.emptyList();
-        nodes.add(new Node(rootTileset, this.rootTilesetUrl, new TileLocalKey[0], Matrix4.IDENTITY));
+        nodes.add(new Node(rootTileset, this.rootTilesetUrl, new TileLocalKey[0], Matrix4f.IDENTITY));
 
         do {
             Node node = nodes.pop();
             Tileset currentTileset = node.tileset;
             URL parentUrl = node.parentUrl;
             TileLocalKey[] parentKeys = node.parentKeys;
-            Matrix4 parentTransform = node.parentTransform;
+            Matrix4f parentTransform = node.parentTransform;
 
             // Get intersections from the current tileset
-            List<LocalTileNode> intersections =
-                    TileKeyManager.getIntersectionsFromTileset(currentTileset, playerSphere, parentTransform);
+            List<LocalTileNode> intersections = TileKeyManager.getIntersectionsFromTileset(
+                    currentTileset, playerSphere, parentTransform, this.renderSurroundings);
 
             for (LocalTileNode localTileNode : intersections) {
                 TileLocalKey localKey = localTileNode.getKey();
                 TileContentLink contentLink = localTileNode.getContentLink();
-                Matrix4 currentTransform = localTileNode.getTransform();
+                Matrix4f currentTransform = localTileNode.getTransform();
 
                 // Skip if the url is malformed
                 URL currentUrl;
                 try {
                     currentUrl = contentLink.getTrueUrl(parentUrl);
-                } catch(MalformedURLException e) { continue; }
+                } catch(MalformedURLException e) {
+                    Loggers.get(this).warn("Malformed URL: " + contentLink + " (parent: " + parentUrl + ")");
+                    continue;
+                }
 
                 TileLocalKey[] currentKeys = ArrayUtil.expandOne(parentKeys, localKey, TileLocalKey[]::new);
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
 
                 // Get data from cache
-                ParsedData parsedData = tileDataStorage.updateOrInsert(currentKey, () -> Pair.of(currentTransform, currentUrl));
+                Pair<Matrix4f, TileData> parsedData = tileDataStorage.updateOrInsert(currentKey,
+                        Pair.of(currentTransform, currentUrl));
                 if(parsedData == null) continue;
 
-				TileData tileData = parsedData.getTileData();
+				TileData tileData = parsedData.getRight();
                 if(tileData.getGltfModelInstance() != null) {
                     result.add(currentKey);
                 }
@@ -279,17 +291,22 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             SpheroidCoordinatesConverter coordConverter = new SpheroidCoordinatesConverter(semiMajorAxis, semiMinorAxis, function);
 
             boolean rotateModelAlongXAxis = JsonParserUtil.getOrDefault(node, "rotate_model_x", false);
-            return new Ogc3dTileMapService(commonYamlObject, coordConverter, rotateModelAlongXAxis, geoidType);
+            return Ogc3dTileMapService.builder()
+                    .commonYamlObject(commonYamlObject)
+                    .coordConverter(coordConverter)
+                    .rotateModelAlongEarthXAxis(rotateModelAlongXAxis)
+                    .geoidType(geoidType)
+                    .build();
         }
     }
 
-    private class TileDataStorage extends CacheableProcessorModel<TileGlobalKey, Pair<Matrix4, URL>, ParsedData>
+    private class TileDataStorage extends CacheableProcessorModel<TileGlobalKey, Pair<Matrix4f, URL>, Pair<Matrix4f, TileData>>
             implements Closeable {
 
         private final ExecutorService executorService;
-        private final MultiThreadedBlock<TileGlobalKey, Pair<Matrix4, URL>, Pair<Matrix4, InputStream>> tileStreamFetcher;
+        private final MultiThreadedBlock<TileGlobalKey, Pair<Matrix4f, URL>, Pair<Matrix4f, InputStream>> tileStreamFetcher;
 
-        protected TileDataStorage(ProcessorCacheStorage<TileGlobalKey, ParsedData> storage) {
+        protected TileDataStorage(ProcessorCacheStorage<TileGlobalKey, Pair<Matrix4f, TileData>> storage) {
             super(storage);
 
             this.executorService = Executors.newFixedThreadPool(Ogc3dTileMapService.this.nThreads);
@@ -300,13 +317,13 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         }
 
         @Override
-        protected SequentialBuilder<TileGlobalKey, Pair<Matrix4, URL>, ParsedData> getSequentialBuilder() {
+        protected SequentialBuilder<TileGlobalKey, Pair<Matrix4f, URL>, Pair<Matrix4f, TileData>> getSequentialBuilder() {
             return new CacheableProcessorModel.SequentialBuilder<>(this.tileStreamFetcher)
                     .then(Ogc3dTileMapService.this.streamParser);
         }
 
         @Override
-        protected void deleteResource(ParsedData parsedData) {}
+        protected void deleteResource(Pair<Matrix4f, TileData> parsedData) {}
 
         @Override
         public void close() {

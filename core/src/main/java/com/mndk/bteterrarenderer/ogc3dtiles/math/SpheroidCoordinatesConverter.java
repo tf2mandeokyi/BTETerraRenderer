@@ -34,7 +34,7 @@ public class SpheroidCoordinatesConverter {
         return semiMajorAxis / Math.sqrt(1 - (eccentricitySquared * Math.pow(Math.sin(latitude), 2)));
     }
 
-    public Cartesian3 toCartesian(Spheroid3 spheroid) {
+    public Cartesian3f toCartesian(Spheroid3 spheroid) {
         double latitude = spheroid.getLatitude();
         double longitude = spheroid.getLongitude();
         double height = spheroid.getHeight() + this.geoidHeightFunction.getHeight(spheroid);
@@ -42,7 +42,7 @@ public class SpheroidCoordinatesConverter {
         double x = (R + height) * Math.cos(latitude) * Math.cos(longitude);
         double y = (R + height) * Math.cos(latitude) * Math.sin(longitude);
         double z = ((1 - this.eccentricitySquared) * R + height) * Math.sin(latitude);
-        return new Cartesian3(x, y, z);
+        return new Cartesian3f((float) x, (float) y, (float) z);
     }
 
     /**
@@ -50,7 +50,7 @@ public class SpheroidCoordinatesConverter {
      *     Ellipsoidal and Cartesian Coordinates Conversion</a>
      * @return The spheroidal coordinate corresponding to the given cartesian coordinate
      */
-    public Spheroid3 toSpheroid(Cartesian3 cartesian) {
+    public Spheroid3 toSpheroid(Cartesian3f cartesian) {
         double x = cartesian.getX();
         double y = cartesian.getY();
         double z = cartesian.getZ();

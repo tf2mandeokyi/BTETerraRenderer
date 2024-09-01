@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.PositionTransformer;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class GraphicsShapes {
     }
 
     public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,
-                              PositionTransformer transformer, float alpha) {
+                              McCoordTransformer transformer, float alpha) {
         shapeMap.forEach((format, shapes) -> {
             BufferBuilderWrapper<?> builder = drawContextWrapper.tessellatorBufferBuilder();
 

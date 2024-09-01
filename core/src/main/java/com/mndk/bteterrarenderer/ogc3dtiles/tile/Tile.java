@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.tile;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class Tile {
     @Nullable
     private final TileRefinement refinement;
     @Nullable
-    private final Matrix4 tileLocalTransform;
+    private final Matrix4f tileLocalTransform;
     private final List<TileContentLink> contents;
     private final List<Tile> children;
 
@@ -36,7 +36,7 @@ public class Tile {
             @Nullable @JsonProperty(value = "viewerRequestVolume") Volume viewerRequestVolume,
             @JsonProperty(value = "geometricError", required = true) double geometricError,
             @Nullable @JsonProperty(value = "refine") TileRefinement refinement,
-            @Nullable @JsonProperty(value = "transform") Matrix4 tileLocalTransform,
+            @Nullable @JsonProperty(value = "transform") Matrix4f tileLocalTransform,
             @Nullable @JsonProperty(value = "contents") List<TileContentLink> contents,
             @Nullable @JsonProperty(value = "content") TileContentLink content,
             @Nullable @JsonProperty(value = "children") List<Tile> children

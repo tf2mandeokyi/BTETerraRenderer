@@ -5,17 +5,17 @@ import lombok.EqualsAndHashCode;
 import java.util.Arrays;
 
 @EqualsAndHashCode
-public class Matrix {
+public class Matrixf {
     public static final ColumnRowFunction IDENTITY_FUNCTION = (c, r) -> r == c ? 1 : 0;
 
     protected final int rows, columns;
-    protected final double[][] elements;
+    protected final float[][] elements;
 
-    public Matrix(int columns, int rows, ColumnRowFunction columnRowFunction) {
+    public Matrixf(int columns, int rows, ColumnRowFunction columnRowFunction) {
         this.columns = columns;
         this.rows = rows;
 
-        this.elements = new double[rows][columns];
+        this.elements = new float[rows][columns];
         for(int r = 0; r < rows; r++) {
             for(int c = 0; c < columns; c++) {
                 elements[r][c] = columnRowFunction.apply(c, r);
@@ -23,7 +23,7 @@ public class Matrix {
         }
     }
 
-    public double get(int c, int r) {
+    public float get(int c, int r) {
         return elements[r][c];
     }
 
@@ -34,13 +34,13 @@ public class Matrix {
      * @param other The other matrix
      * @return The result. {@code null} if {@code A.columns != B.rows}
      */
-    public Matrix multiply(Matrix other) {
+    public Matrixf multiply(Matrixf other) {
         if(columns != other.rows) return null;
 
-        double[][] result = new double[rows][other.columns];
+        float[][] result = new float[rows][other.columns];
         for(int r = 0; r < rows; r++) {
             for(int c = 0; c < other.columns; c++) {
-                double sum = 0;
+                float sum = 0;
                 for(int i = 0; i < columns; i++) {
                     sum += get(i, r) * other.get(c, i);
                 }
@@ -48,7 +48,7 @@ public class Matrix {
             }
         }
 
-        return new Matrix(other.columns, rows, (c, r) -> result[r][c]);
+        return new Matrixf(other.columns, rows, (c, r) -> result[r][c]);
     }
 
     /**
@@ -56,11 +56,11 @@ public class Matrix {
      * Calling this method is computationally expensive, so try not to call it too much
      * @return The inverse matrix. {@code null} if it's not invertible
      */
-    public Matrix inverse() {
+    public Matrixf inverse() {
         if(rows != columns) return null;
         int size = rows;
 
-        double[][] augumented = new double[size][2 * size];
+        float[][] augumented = new float[size][2 * size];
         for(int r = 0; r < size; r++) {
             for(int c = 0; c < size; c++) {
                 // A side
@@ -83,14 +83,14 @@ public class Matrix {
             // Swap rows if the pivot is not in the i-th row
             if(pivot != i) {
                 for(int c = i; c < 2 * size; c++) {
-                    double temp = augumented[pivot][c];
+                    float temp = augumented[pivot][c];
                     augumented[pivot][c] = augumented[i][c];
                     augumented[i][c] = temp;
                 }
             }
 
             // Divide the i-th row
-            double divisor = augumented[i][i];
+            float divisor = augumented[i][i];
             for(int c = i; c < 2 * size; c++) {
                 augumented[i][c] /= divisor;
             }
@@ -98,7 +98,7 @@ public class Matrix {
             // Multiply + subtract rows from the i-th row
             for(int r = 0; r < size; r++) {
                 if(r == i) continue;
-                double mult = augumented[r][i];
+                float mult = augumented[r][i];
                 if(mult == 0) continue;
                 for(int c = i; c < 2 * size; c++) {
                     augumented[r][c] -= mult * augumented[i][c];
@@ -106,12 +106,12 @@ public class Matrix {
             }
         }
 
-        return new Matrix(size, size, (c, r) -> augumented[r][size+c]);
+        return new Matrixf(size, size, (c, r) -> augumented[r][size+c]);
     }
 
-    public Matrix4 toMatrix4() {
+    public Matrix4f toMatrix4() {
         if(columns != 4 || rows != 4) throw new RuntimeException("this matrix cannot be Matrix4");
-        return new Matrix4((c, r) -> elements[r][c]);
+        return new Matrix4f((c, r) -> elements[r][c]);
     }
 
     @Override

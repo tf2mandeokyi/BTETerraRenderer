@@ -17,7 +17,7 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
             GlGraphicsManager::setPositionTexColorShader,
             BufferBuilderWrapper::beginPtcQuads,
             (context, vertex, alpha) -> context.tessellatorBufferBuilder()
-                    .position(context, vertex.x, vertex.y, vertex.z)
+                    .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
                     .color(1, 1, 1, alpha)
                     .next()
@@ -29,7 +29,7 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
             GlGraphicsManager::setPositionTexColorShader,
             BufferBuilderWrapper::beginPtcTriangles,
             (context, vertex, alpha) -> context.tessellatorBufferBuilder()
-                    .position(context, vertex.x, vertex.y, vertex.z)
+                    .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
                     .color(1, 1, 1, alpha)
                     .next()
@@ -39,17 +39,17 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
             GlGraphicsManager::setPositionTexColorNormalShader,
             BufferBuilderWrapper::beginPtcnTriangles,
             (context, vertex, alpha) -> context.tessellatorBufferBuilder()
-                    .position(context, vertex.px, vertex.py, vertex.pz)
+                    .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
                     .color(1, 1, 1, alpha)
-                    .normal(context, vertex.nx, vertex.ny, vertex.nz)
+                    .normal(context, vertex.normal.getX(), vertex.normal.getY(), vertex.normal.getZ())
                     .next()
     );
 
     default void nextShape(DrawContextWrapper<?> drawContextWrapper,
-                           U shape, PositionTransformer vertexTransformer, float alpha) {
+                           U shape, McCoordTransformer mcCoordTransformer, float alpha) {
         for (int i = 0; i < shape.getVerticesCount(); i++) {
-            T vertex = shape.getVertex(i).transformPosition(vertexTransformer);
+            T vertex = shape.getVertex(i).transformMcCoord(mcCoordTransformer);
             this.nextVertex(drawContextWrapper, vertex, alpha);
         }
     }

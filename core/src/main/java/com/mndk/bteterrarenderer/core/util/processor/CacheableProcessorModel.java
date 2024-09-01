@@ -69,6 +69,22 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
         return null;
     }
 
+    /**
+     * Returns the output resource if it exists. Else, it inserts the input and returns {@code null}.
+     */
+    @Nullable
+    public synchronized Output updateOrInsert(Key key, Input input) {
+        ProcessingState state = this.storage.getKeyState(key);
+        switch(state) {
+            case PROCESSED:
+                return this.updateAndGetOutput(key);
+            case NOT_PROCESSED:
+                this.insertInput(key, input);
+                break;
+        }
+        return null;
+    }
+
     public synchronized void onProcessingDone(Key key, Output output, @Nullable Exception error) {
         this.storage.storeValue(this, key, output, error,
                 resource -> this.deleteResource(BTRUtil.uncheckedCast(resource)));

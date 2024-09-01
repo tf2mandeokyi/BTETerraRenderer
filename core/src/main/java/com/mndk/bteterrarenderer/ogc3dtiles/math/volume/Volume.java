@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 
 import java.io.IOException;
 
@@ -19,19 +19,19 @@ public abstract class Volume {
 
     // Not sure if this will be used
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public abstract boolean intersectsSphere(Sphere sphere, Matrix4 thisTransform);
+    public abstract boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform);
 
     /**
      * @param coordinate In degrees.
      * @return Whether the object contains the geo coordinate "ray"
      */
-    public boolean intersectsGeoCoordinateRay(double[] coordinate, Matrix4 thisTransform, SpheroidCoordinatesConverter converter) {
+    public boolean intersectsGeoCoordinateRay(double[] coordinate, Matrix4f thisTransform, SpheroidCoordinatesConverter converter) {
         Spheroid3 start = Spheroid3.fromDegrees(coordinate[0], coordinate[1], -100000);
         Spheroid3 end = Spheroid3.fromDegrees(coordinate[0], coordinate[1], 0);
         return this.intersectsRay(converter.toCartesian(start), converter.toCartesian(end), thisTransform);
     }
 
-    public boolean intersectsRay(Cartesian3 rayStart, Cartesian3 rayEnd, Matrix4 thisTransform) {
+    public boolean intersectsRay(Cartesian3f rayStart, Cartesian3f rayEnd, Matrix4f thisTransform) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

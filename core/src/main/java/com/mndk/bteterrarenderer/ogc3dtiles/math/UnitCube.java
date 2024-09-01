@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;
@@ -64,7 +64,7 @@ public class UnitCube {
      * @param cartesian The coordinate
      * @return The result
      */
-    public boolean isUnitFeatureHiddenToCartesian(int[] unitCubeFeature, Cartesian3 cartesian) {
+    public boolean isUnitFeatureHiddenToCartesian(int[] unitCubeFeature, Cartesian3f cartesian) {
         double[] temp = { cartesian.getX(), cartesian.getY(), cartesian.getZ() };
         for(int i = 0; i < 3; i++) {
             int unitAxis = unitCubeFeature[i];
@@ -76,12 +76,12 @@ public class UnitCube {
         return true;
     }
 
-    public Cartesian3 unitCoordinateToCartesian(int[] unitCubeFeature, Matrix4 boxMatrix) {
-        Cartesian3 unitCoordinate = new Cartesian3(unitCubeFeature[0], unitCubeFeature[1], unitCubeFeature[2]);
+    public Cartesian3f unitCoordinateToCartesian(int[] unitCubeFeature, Matrix4f boxMatrix) {
+        Cartesian3f unitCoordinate = new Cartesian3f(unitCubeFeature[0], unitCubeFeature[1], unitCubeFeature[2]);
         return unitCoordinate.transform(boxMatrix);
     }
 
-    public boolean containsCartesian(Cartesian3 cartesian) {
+    public boolean containsCartesian(Cartesian3f cartesian) {
         double x = cartesian.getX();
         double y = cartesian.getY();
         double z = cartesian.getZ();
@@ -94,7 +94,7 @@ public class UnitCube {
      * Check if the ray intersects the unit cube, which
      * @return {@code true} if intersects, false otherwise
      */
-    public boolean checkRayIntersection(Cartesian3 rayStart, Cartesian3 rayEnd) {
+    public boolean checkRayIntersection(Cartesian3f rayStart, Cartesian3f rayEnd) {
         double[] xRange = get1dRayIntersection(rayStart.getX(), rayEnd.getX() - rayStart.getX());
         double[] yRange = get1dRayIntersection(rayStart.getY(), rayEnd.getY() - rayStart.getY());
         double[] zRange = get1dRayIntersection(rayStart.getZ(), rayEnd.getZ() - rayStart.getZ());
