@@ -209,3 +209,34 @@ categories:
          max_thread: 2
          copyright:
             en_us: [ "",{ "text": "© ","color": "white" },{ "text": "Singapore Land Authority OneMap","underlined": true,"color": "aqua","clickEvent": { "action": "open_url","value": "https://www.onemap.gov.sg/" } },{ "text": " contributors","color": "white" } ]
+
+   HongKong:
+      geomap_hk:
+         type: "flat"
+         name:
+            en_us: "HongKong GeoInfo Map"
+            zh_tw: "香港地理資訊地圖"
+            zh_hk: "香港地理資訊地圖"
+         copyright:
+            en_us: ["",{"text":"© ","color":"white"},{"text":"Map from Lands Department","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://api.portal.hkmapservice.gov.hk/disclaimer"}}]
+            zh_tw: ["",{"text":"地圖由地政總署提供","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://api.portal.hkmapservice.gov.hk/disclaimer"}}] 
+            zh_hk: ["",{"text":"地圖由地政總署提供","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://api.portal.hkmapservice.gov.hk/disclaimer"}}]
+         tile_url: https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png
+         icon_url: https://www.map.gov.hk/gm/res/images/core/gm_logo_195.png
+         projection: webmercator
+         default_zoom: 20
+   
+      ortho_HK:
+         type: "flat"
+         name:
+            en_us: "HongKong Orthophoto"
+            zh_tw: "香港正射影像" 
+            zh_hk: "香港正射影像" 
+         copyright:
+            en_us: ["",{"text":"© ","color":"white"},{"text":"Aerial Photograph from Lands Department","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://api.portal.hkmapservice.gov.hk/disclaimer"}}]
+            zh_tw: ["",{"text":"航空照片由地政總署提供","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://api.portal.hkmapservice.gov.hk/disclaimer"}}]
+            zh_hk: ["",{"text":"航空照片由地政總署提供","underlined":true,"color":"aqua","clickEvent":{"action":"open_url","value":"https://api.portal.hkmapservice.gov.hk/disclaimer/"}}]
+         tile_url: https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/WGS84/{z}/{x}/{y}.png
+         icon_url: https://www.map.gov.hk/gm/res/images/core/gm_logo_195.png
+         projection: webmercator
+         default_zoom: 19
