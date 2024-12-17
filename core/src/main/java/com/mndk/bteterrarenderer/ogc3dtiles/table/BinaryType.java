@@ -26,12 +26,12 @@ public enum BinaryType {
     }
 
     public Object readBinary(ByteBuffer buffer, BinaryComponentType type) {
-        if(!this.isVector()) {
+        if (!this.isVector()) {
             return type.readBinary(buffer);
         }
 
         Object[] resultArray = new Object[this.componentCount];
-        for(int i = 0; i < this.componentCount; i++) {
+        for (int i = 0; i < this.componentCount; i++) {
             resultArray[i] = type.readBinary(buffer);
         }
 
@@ -43,9 +43,9 @@ public enum BinaryType {
     }
 
     public static BinaryType valueOf(Class<?> clazz) {
-        for(BinaryType type : values()) {
-            if(type == null) continue;
-            if(clazz == type.vectorClass) return type;
+        for (BinaryType type : values()) {
+            if (type == null) continue;
+            if (clazz == type.vectorClass) return type;
         }
         return SCALAR;
     }

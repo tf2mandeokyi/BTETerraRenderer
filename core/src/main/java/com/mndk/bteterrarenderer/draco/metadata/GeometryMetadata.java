@@ -40,7 +40,7 @@ public class GeometryMetadata extends Metadata {
 
     public GeometryMetadata(GeometryMetadata geometryMetadata) {
         super();
-        for(AttributeMetadata attMetadata : geometryMetadata.attributeMetadatas) {
+        for (AttributeMetadata attMetadata : geometryMetadata.attributeMetadatas) {
             this.attributeMetadatas.add(new AttributeMetadata(attMetadata));
         }
     }
@@ -50,27 +50,27 @@ public class GeometryMetadata extends Metadata {
     }
 
     public AttributeMetadata getAttributeMetadataByStringEntry(String entryName, String entryValue) {
-        for(AttributeMetadata attMetadata : attributeMetadatas) {
+        for (AttributeMetadata attMetadata : attributeMetadatas) {
             StringBuilder value = new StringBuilder();
-            if(attMetadata.getEntryString(entryName, value).isError()) {
+            if (attMetadata.getEntryString(entryName, value).isError()) {
                 continue;
             }
-            if(value.toString().equals(entryValue)) return attMetadata;
+            if (value.toString().equals(entryValue)) return attMetadata;
         }
         // No attribute has the requested entry.
         return null;
     }
 
     public boolean addAttributeMetadata(AttributeMetadata attMetadata) {
-        if(attMetadata == null) return false;
+        if (attMetadata == null) return false;
         attributeMetadatas.add(attMetadata);
         return true;
     }
 
     public void deleteAttributeMetadataByUniqueId(UInt attUniqueId) {
-        if(attUniqueId.lt(0)) return;
-        for(int i = 0; i < attributeMetadatas.size(); i++) {
-            if(attributeMetadatas.get(i).getAttUniqueId().equals(attUniqueId)) {
+        if (attUniqueId.lt(0)) return;
+        for (int i = 0; i < attributeMetadatas.size(); i++) {
+            if (attributeMetadatas.get(i).getAttUniqueId().equals(attUniqueId)) {
                 attributeMetadatas.remove(i);
                 return;
             }
@@ -78,8 +78,8 @@ public class GeometryMetadata extends Metadata {
     }
 
     public AttributeMetadata getAttributeMetadataByUniqueId(UInt attUniqueId) {
-        if(attUniqueId.lt(0)) return null;
-        for(AttributeMetadata attMetadata : attributeMetadatas) {
+        if (attUniqueId.lt(0)) return null;
+        for (AttributeMetadata attMetadata : attributeMetadatas) {
             if (attMetadata.getAttUniqueId().equals(attUniqueId)) {
                 return attMetadata;
             }

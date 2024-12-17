@@ -47,15 +47,15 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
         StatusChain chain = new StatusChain();
 
         // Check that the DecoderBuffer version is set.
-        if(buffer.getBitstreamVersion() == 0) {
+        if (buffer.getBitstreamVersion() == 0) {
             return Status.dracoError("Buffer version not set");
         }
         // Decode the number of alphabet symbols.
         Pointer<UInt> numSymbolsRef = Pointer.newUInt();
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(numSymbolsRef).isError(chain)) return chain.get();
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (buffer.decode(numSymbolsRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(numSymbolsRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numSymbolsRef).isError(chain)) return chain.get();
         }
         this.numSymbols = numSymbolsRef.get();
 
@@ -67,14 +67,14 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
             return Status.ioError("Decoded number of symbols is unreasonably high");
         }
         probabilityTable.resize(numSymbols.intValue());
-        if(numSymbols.equals(0)) return Status.ok();
+        if (numSymbols.equals(0)) return Status.ok();
 
         // Decode the table.
         for (UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {
             Pointer<UByte> probDataRef = Pointer.newUByte();
             // Decode the first byte and extract the number of extra bytes we need to
             // get, or the offset to the next symbol with non-zero probability.
-            if(buffer.decode(probDataRef).isError(chain)) return chain.get();
+            if (buffer.decode(probDataRef).isError(chain)) return chain.get();
             UByte probData = probDataRef.get();
 
             // Token is stored in the first two bits of the first byte. Values 0-2 are
@@ -82,9 +82,9 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
             // symbol used to denote run-length coding of zero probability entries.
             // See rans_symbol_encoder.h for more details.
             int token = probData.and(3).intValue();
-            if(token == 3) {
+            if (token == 3) {
                 UInt offset = probData.shr(2).uIntValue();
-                if(offset.add(i).ge(numSymbols)) {
+                if (offset.add(i).ge(numSymbols)) {
                     return Status.ioError("Offset out of bounds");
                 }
                 // Set zero probability for all symbols in the specified range.
@@ -96,7 +96,7 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
                 UInt prob = probData.shr(2).uIntValue();
                 for (int b = 0; b < token; ++b) {
                     Pointer<UByte> ebRef = Pointer.newUByte();
-                    if(buffer.decode(ebRef).isError(chain)) return chain.get();
+                    if (buffer.decode(ebRef).isError(chain)) return chain.get();
                     UByte eb = ebRef.get();
                     // Shift 8 bits for each extra byte and subtract 2 for the two first
                     // bits.
@@ -114,14 +114,14 @@ public class RAnsSymbolDecoder implements SymbolDecoder {
 
         // Decode the number of bytes encoded by the encoder.
         Pointer<ULong> bytesEncodedRef = Pointer.newULong();
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(bytesEncodedRef).isError(chain)) return chain.get();
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (buffer.decode(bytesEncodedRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(bytesEncodedRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(bytesEncodedRef).isError(chain)) return chain.get();
         }
         ULong bytesEncoded = bytesEncodedRef.get();
 
-        if(bytesEncoded.gt(buffer.getRemainingSize())) {
+        if (bytesEncoded.gt(buffer.getRemainingSize())) {
             return Status.ioError("Bytes encoded exceeds buffer size");
         }
         RawPointer dataHead = buffer.getDataHead();

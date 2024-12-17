@@ -50,7 +50,7 @@ public class BitUtils {
 
     public <T> int mostSignificantBit(DataNumberType<T> type, T n) {
         int msb = -1;
-        while(!type.equals(n, 0)) {
+        while (!type.equals(n, 0)) {
             msb++;
             n = type.shr(n, 1);
         }
@@ -70,8 +70,8 @@ public class BitUtils {
     }
 
     public <T, U> U convertSignedIntToSymbol(DataNumberType<T> signedType, T val, DataNumberType<U> symbolType) {
-        if(!signedType.isIntegral()) throw new IllegalArgumentException("T is not integral.");
-        if(signedType.ge(val, 0)) {
+        if (!signedType.isIntegral()) throw new IllegalArgumentException("T is not integral.");
+        if (signedType.ge(val, 0)) {
             return symbolType.shl(symbolType.from(signedType, val), 1);
         }
         val = signedType.negate(signedType.add(val, 1));
@@ -82,11 +82,11 @@ public class BitUtils {
     }
 
     public <U, T> T convertSymbolToSignedInt(DataNumberType<U> symbolType, U val, DataNumberType<T> signedType) {
-        if(!symbolType.isIntegral()) throw new IllegalArgumentException("T is not integral.");
+        if (!symbolType.isIntegral()) throw new IllegalArgumentException("T is not integral.");
         boolean isPositive = !DataType.bool().from(symbolType, symbolType.and(val, 1));
         val = symbolType.shr(val, 1);
         T ret = signedType.from(symbolType, val);
-        if(isPositive) return ret;
+        if (isPositive) return ret;
         ret = signedType.sub(signedType.negate(ret), 1);
         return ret;
     }
@@ -100,10 +100,10 @@ public class BitUtils {
             return Status.dracoError("Varint decoding depth exceeded");
         }
         Pointer<UByte> inRef = Pointer.newUByte();
-        if(buffer.decode(inRef).isError(chain)) return chain.get();
+        if (buffer.decode(inRef).isError(chain)) return chain.get();
         UByte in = inRef.get();
-        if(!in.and(1 << 7).equals(0)) {
-            if(decodeVarintUnsigned(depth + 1, outVal, buffer).isError(chain)) return chain.get();
+        if (!in.and(1 << 7).equals(0)) {
+            if (decodeVarintUnsigned(depth + 1, outVal, buffer).isError(chain)) return chain.get();
             T val = outVal.get();
             val = outType.shl(val, 7);
             val = outType.or(val, outType.and(outType.from(in), (1 << 7) - 1));
@@ -141,9 +141,9 @@ public class BitUtils {
             // 7 bit - next byte?
             UByte out = UByte.ZERO;
             out = out.or(inType.toUByte(inType.and(val, (1 << 7) - 1)));
-            if(inType.ge(val, 1 << 7)) {
+            if (inType.ge(val, 1 << 7)) {
                 out = out.or(1 << 7);
-                if(outBuffer.encode(out).isError(chain)) return chain.get();
+                if (outBuffer.encode(out).isError(chain)) return chain.get();
                 return encodeVarint(inType, inType.shr(val, 7), outBuffer);
             }
             return outBuffer.encode(out);

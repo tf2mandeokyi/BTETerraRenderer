@@ -34,7 +34,7 @@ public class PointAttributeTest {
         PointAttribute pa = new PointAttribute();
         pa.init(GeometryAttribute.Type.POSITION, (byte) 1, DracoDataType.INT32, false, 10);
 
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             pa.setAttributeValue(AttributeValueIndex.of(i), Pointer.newInt(i));
         }
 
@@ -48,7 +48,7 @@ public class PointAttributeTest {
 
         // The hash function does not actually compute the hash from atribute values,
         // so ensure the data got copied correctly as well.
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Pointer<Integer> out = Pointer.newInt(0);
             StatusAssert.assertOk(otherPa.getValue(AttributeValueIndex.of(i), out));
             Assert.assertEquals(out.get().intValue(), i);
@@ -60,14 +60,14 @@ public class PointAttributeTest {
         PointAttribute pa = new PointAttribute();
         pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.FLOAT32, false, 5);
         float[] points = new float[3];
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             points[0] = i * 3;
             points[1] = (i * 3) + 1;
             points[2] = (i * 3) + 2;
             pa.setAttributeValue(AttributeValueIndex.of(i), Pointer.wrap(points));
         }
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             StatusAssert.assertOk(pa.getValue(AttributeValueIndex.of(i), Pointer.wrap(points)));
             Assert.assertEquals(points[0], i * 3, 0);
             Assert.assertEquals(points[1], (i * 3) + 1, 0);
@@ -80,20 +80,20 @@ public class PointAttributeTest {
         PointAttribute pa = new PointAttribute();
         pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.FLOAT32, false, 5);
         float[] points = new float[3];
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             points[0] = i * 3;
             points[1] = (i * 3) + 1;
             points[2] = (i * 3) + 2;
             pa.setAttributeValue(AttributeValueIndex.of(i), Pointer.wrap(points));
         }
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             Pointer<Float> attValue = pa.getValue(AttributeValueIndex.of(i), DataType.float32(), 3);
             Assert.assertEquals(attValue.get(0), i * 3, 0);
             Assert.assertEquals(attValue.get(1), (i * 3) + 1, 0);
             Assert.assertEquals(attValue.get(2), (i * 3) + 2, 0);
         }
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             pa.getValue(AttributeValueIndex.of(i), Pointer.wrap(points));
             Assert.assertEquals(points[0], i * 3, 0);
             Assert.assertEquals(points[1], (i * 3) + 1, 0);
@@ -106,7 +106,7 @@ public class PointAttributeTest {
         PointAttribute pa = new PointAttribute();
         pa.init(GeometryAttribute.Type.POSITION, (byte) 3, DracoDataType.FLOAT32, false, 5);
         float[] points = new float[3];
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             points[0] = i * 3;
             points[1] = (i * 3) + 1;
             points[2] = (i * 3) + 2;

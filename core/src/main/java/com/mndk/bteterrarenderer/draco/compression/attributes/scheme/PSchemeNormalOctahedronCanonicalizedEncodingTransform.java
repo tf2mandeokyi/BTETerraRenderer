@@ -46,28 +46,28 @@ public class PSchemeNormalOctahedronCanonicalizedEncodingTransform<DataT>
     @Override
     public void computeCorrection(Pointer<DataT> origVals, Pointer<DataT> predVals, Pointer<DataT> outCorrVals) {
         DataNumberType<DataT> dataType = this.getDataType();
-        if(dataType.gt(predVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(predVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Predicted value is greater than 2 * center value");
         }
-        if(dataType.gt(predVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(predVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Predicted value is greater than 2 * center value");
         }
-        if(dataType.gt(origVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(origVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Original value is greater than 2 * center value");
         }
-        if(dataType.gt(origVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(origVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Original value is greater than 2 * center value");
         }
-        if(dataType.gt(0, predVals.get(0))) {
+        if (dataType.gt(0, predVals.get(0))) {
             throw new IllegalStateException("Predicted value is less than 0");
         }
-        if(dataType.gt(0, predVals.get(1))) {
+        if (dataType.gt(0, predVals.get(1))) {
             throw new IllegalStateException("Predicted value is less than 0");
         }
-        if(dataType.gt(0, origVals.get(0))) {
+        if (dataType.gt(0, origVals.get(0))) {
             throw new IllegalStateException("Original value is less than 0");
         }
-        if(dataType.gt(0, origVals.get(1))) {
+        if (dataType.gt(0, origVals.get(1))) {
             throw new IllegalStateException("Original value is less than 0");
         }
 
@@ -84,11 +84,11 @@ public class PSchemeNormalOctahedronCanonicalizedEncodingTransform<DataT>
         VectorD.D2<DataT> t = new VectorD.D2<>(dataType, this.getCenterValue(), this.getCenterValue());
         orig = orig.subtract(t);
         pred = pred.subtract(t);
-        if(!this.isInDiamond(pred.get(0), pred.get(1))) {
+        if (!this.isInDiamond(pred.get(0), pred.get(1))) {
             this.invertDiamond(pred.getPointer(0), pred.getPointer(1));
             this.invertDiamond(orig.getPointer(0), orig.getPointer(1));
         }
-        if(!this.isInBottomLeft(pred)) {
+        if (!this.isInBottomLeft(pred)) {
             int rotationCount = this.getRotationCount(pred);
             orig = this.rotatePoint(orig, rotationCount);
             pred = this.rotatePoint(pred, rotationCount);

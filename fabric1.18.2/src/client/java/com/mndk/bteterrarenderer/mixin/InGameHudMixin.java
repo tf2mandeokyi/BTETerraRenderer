@@ -11,19 +11,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V"),
-            locals = LocalCapture.CAPTURE_FAILSOFT)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V"))
     public void chatHudPreRender(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl screenImpl)) return;
-        if(!(screenImpl.delegate instanceof MapRenderingOptionsSidebar sidebar)) return;
-        if(sidebar.side.get() != SidebarSide.LEFT) return;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl screenImpl)) return;
+        if (!(screenImpl.delegate instanceof MapRenderingOptionsSidebar sidebar)) return;
+        if (sidebar.side.get() != SidebarSide.LEFT) return;
 
         int translateX = sidebar.sidebarWidth.get().intValue();
         matrices.translate(translateX, 0, 0);

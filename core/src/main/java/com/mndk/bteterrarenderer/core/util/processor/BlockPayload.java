@@ -24,17 +24,17 @@ public class BlockPayload<Key, T> {
     }
 
     public synchronized void proceed(@Nullable Object payload, @Nullable Exception error) {
-        if(parent.isClosed()) return;
+        if (parent.isClosed()) return;
 
-        if(error != null) {
+        if (error != null) {
             this.parent.onProcessingDone(this.key, null, error);
             return;
         }
-        if(payload == null) return;
+        if (payload == null) return;
 
         this.payload = payload;
         blockIndex++;
-        if(blockIndex >= this.parent.blocks.size()) {
+        if (blockIndex >= this.parent.blocks.size()) {
             this.parent.onProcessingDone(this.key, BTRUtil.uncheckedCast(this.payload), null);
             return;
         }

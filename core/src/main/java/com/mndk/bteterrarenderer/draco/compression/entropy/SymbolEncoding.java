@@ -39,9 +39,9 @@ public class SymbolEncoding {
 
     public Status encode(Pointer<UInt> symbols, int numValues, int numComponents,
                          Options options, EncoderBuffer targetBuffer) {
-        if(numValues < 0) return Status.invalidParameter("Invalid number of values");
-        if(numValues == 0) return Status.ok();
-        if(numComponents <= 0) numComponents = 1;
+        if (numValues < 0) return Status.invalidParameter("Invalid number of values");
+        if (numValues == 0) return Status.ok();
+        if (numComponents <= 0) numComponents = 1;
         CppVector<UInt> bitLengths = new CppVector<>(DataType.uint32());
         Pointer<UInt> maxValueRef = Pointer.newUInt();
         computeBitLengths(symbols, numValues, numComponents, bitLengths, maxValueRef);
@@ -59,14 +59,14 @@ public class SymbolEncoding {
         int maxValueBitLength = BitUtils.mostSignificantBit(DataType.uint32(), UInt.max(UInt.of(1), maxValue)) + 1;
 
         SymbolCodingMethod method;
-        if(options != null && options.isOptionSet("symbol_encoding_method")) {
+        if (options != null && options.isOptionSet("symbol_encoding_method")) {
             int methodValue = options.getInt("symbol_encoding_method");
             method = SymbolCodingMethod.valueOf(methodValue);
-            if(method == null) {
+            if (method == null) {
                 return Status.invalidParameter("Invalid symbol encoding method: " + methodValue);
             }
         } else {
-            if(taggedSchemeTotalBits < rawSchemeTotalBits || maxValueBitLength > MAX_RAW_ENCODING_BIT_LENGTH) {
+            if (taggedSchemeTotalBits < rawSchemeTotalBits || maxValueBitLength > MAX_RAW_ENCODING_BIT_LENGTH) {
                 method = SymbolCodingMethod.SYMBOL_CODING_TAGGED;
             } else {
                 method = SymbolCodingMethod.SYMBOL_CODING_RAW;
@@ -75,10 +75,10 @@ public class SymbolEncoding {
 
         // Use the tagged scheme.
         targetBuffer.encode(method.getValue());
-        if(method == SymbolCodingMethod.SYMBOL_CODING_TAGGED) {
+        if (method == SymbolCodingMethod.SYMBOL_CODING_TAGGED) {
             return encodeTagged(RAnsSymbolEncoder::new, symbols, numValues, numComponents, bitLengths, targetBuffer);
         }
-        if(method == SymbolCodingMethod.SYMBOL_CODING_RAW) {
+        if (method == SymbolCodingMethod.SYMBOL_CODING_RAW) {
             return encodeRaw(RAnsSymbolEncoder::new, symbols, numValues, maxValue, numUniqueSymbols, options, targetBuffer);
         }
         // Unknown method selected.
@@ -113,15 +113,15 @@ public class SymbolEncoding {
 
         // Create encoder for encoding the bit tags.
         SymbolEncoder tagEncoder = encoderMaker.apply(5);
-        if(tagEncoder.create(frequencies.getPointer(), MAX_TAG_SYMBOL_BIT_LENGTH, targetBuffer).isError(chain)) return chain.get();
+        if (tagEncoder.create(frequencies.getPointer(), MAX_TAG_SYMBOL_BIT_LENGTH, targetBuffer).isError(chain)) return chain.get();
 
         // Start encoding bit tags.
         tagEncoder.startEncoding(targetBuffer);
 
         // Also start encoding the values.
-        if(valueBuffer.startBitEncoding(valueBits.longValue(), false).isError(chain)) return chain.get();
+        if (valueBuffer.startBitEncoding(valueBits.longValue(), false).isError(chain)) return chain.get();
 
-        if(tagEncoder.needsReverseEncoding()) {
+        if (tagEncoder.needsReverseEncoding()) {
             // Encoder needs the values to be encoded in the reverse order.
             for (int i = numValues - numComponents; i >= 0; i -= numComponents) {
                 int bitLength = bitLengths.get(i / numComponents).intValue();
@@ -132,7 +132,7 @@ public class SymbolEncoding {
                 int valueBitLength = bitLengths.get(j / numComponents).intValue();
                 for (int c = 0; c < numComponents; ++c) {
                     Status status = valueBuffer.encodeLeastSignificantBits32(valueBitLength, symbols.get(j + c));
-                    if(status.isError(chain)) return chain.get();
+                    if (status.isError(chain)) return chain.get();
                 }
             }
         } else {
@@ -142,7 +142,7 @@ public class SymbolEncoding {
                 tagEncoder.encodeSymbol(UInt.of(bitLength));
                 // Now encode all values using the stored bit_length.
                 for (int j = 0; j < numComponents; ++j) {
-                    if(valueBuffer.encodeLeastSignificantBits32(bitLength, symbols.get(i + j)).isError(chain))
+                    if (valueBuffer.encodeLeastSignificantBits32(bitLength, symbols.get(i + j)).isError(chain))
                         return chain.get();
                 }
             }
@@ -167,10 +167,10 @@ public class SymbolEncoding {
         }
 
         SymbolEncoder encoder = encoderMaker.get();
-        if(encoder.create(frequencies.getPointer(), (int) frequencies.size(), targetBuffer).isError(chain)) return chain.get();
+        if (encoder.create(frequencies.getPointer(), (int) frequencies.size(), targetBuffer).isError(chain)) return chain.get();
         encoder.startEncoding(targetBuffer);
         // Encode all values.
-        if(encoder.needsReverseEncoding()) {
+        if (encoder.needsReverseEncoding()) {
             for (int i = numValues - 1; i >= 0; --i) {
                 encoder.encodeSymbol(symbols.get(i));
             }
@@ -187,28 +187,28 @@ public class SymbolEncoding {
                              Pointer<UInt> symbols, int numValues, UInt maxEntryValue, int numUniqueSymbols,
                              Options options, EncoderBuffer targetBuffer) {
         int symbolBits = 0;
-        if(numUniqueSymbols > 0) {
+        if (numUniqueSymbols > 0) {
             symbolBits = BitUtils.mostSignificantBit(DataType.uint32(), UInt.of(numUniqueSymbols));
         }
         int uniqueSymbolsBitLength = symbolBits + 1;
         // Currently, we don't support encoding of more than 2^18 unique symbols.
-        if(uniqueSymbolsBitLength > MAX_RAW_ENCODING_BIT_LENGTH) {
+        if (uniqueSymbolsBitLength > MAX_RAW_ENCODING_BIT_LENGTH) {
             return Status.invalidParameter("Too long unique symbols bit length: " + uniqueSymbolsBitLength);
         }
-        if(uniqueSymbolsBitLength <= 0) uniqueSymbolsBitLength = 1;
+        if (uniqueSymbolsBitLength <= 0) uniqueSymbolsBitLength = 1;
         int compressionLevel = DEFAULT_SYMBOL_CODING_COMPRESSION_LEVEL;
-        if(options != null && options.isOptionSet("symbol_encoding_compression_level")) {
+        if (options != null && options.isOptionSet("symbol_encoding_compression_level")) {
             compressionLevel = options.getInt("symbol_encoding_compression_level");
         }
 
         // Adjust the bit_length based on compression level.
-        if(compressionLevel < 4) {
+        if (compressionLevel < 4) {
             uniqueSymbolsBitLength -= 2;
-        } else if(compressionLevel < 6) {
+        } else if (compressionLevel < 6) {
             uniqueSymbolsBitLength -= 1;
-        } else if(compressionLevel > 9) {
+        } else if (compressionLevel > 9) {
             uniqueSymbolsBitLength += 2;
-        } else if(compressionLevel > 7) {
+        } else if (compressionLevel > 7) {
             uniqueSymbolsBitLength += 1;
         }
         // Clamp the bit_length to a valid range.

@@ -53,8 +53,8 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     public Status init(PointCloudEncoder encoder, PointCloud pc) {
         StatusChain chain = new StatusChain();
 
-        if(super.init(encoder, pc).isError(chain)) return chain.get();
-        if(this.createSequentialEncoders().isError(chain)) return chain.get();
+        if (super.init(encoder, pc).isError(chain)) return chain.get();
+        if (this.createSequentialEncoders().isError(chain)) return chain.get();
 
         // Initialize all value encoders.
         for (int i = 0; i < this.getNumAttributes(); ++i) {
@@ -68,10 +68,10 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     public Status encodeAttributesEncoderData(EncoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(super.encodeAttributesEncoderData(outBuffer).isError(chain)) return chain.get();
+        if (super.encodeAttributesEncoderData(outBuffer).isError(chain)) return chain.get();
 
         // Encode a unique id of every sequential encoder.
-        for(SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
+        for (SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
             outBuffer.encode(sequentialEncoder.getUniqueId());
         }
         return Status.ok();
@@ -94,28 +94,28 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     @Override
     public int getNumParentAttributes(int pointAttributeId) {
         int locId = getLocalIdForPointAttribute(pointAttributeId);
-        if(locId < 0) return 0;
+        if (locId < 0) return 0;
         return sequentialEncoders.get(locId).getNumParentAttributes();
     }
 
     @Override
     public int getParentAttributeId(int pointAttributeId, int parentIndex) {
         int locId = getLocalIdForPointAttribute(pointAttributeId);
-        if(locId < 0) return -1;
+        if (locId < 0) return -1;
         return sequentialEncoders.get(locId).getParentAttributeId(parentIndex);
     }
 
     @Override
     public Status markParentAttribute(int pointAttributeId) {
         int locId = getLocalIdForPointAttribute(pointAttributeId);
-        if(locId < 0) return Status.ok();
+        if (locId < 0) return Status.ok();
         // Mark the attribute encoder as parent (even when if it is not created yet).
         if (sequentialEncoderMarkedAsParent.size() <= locId) {
             sequentialEncoderMarkedAsParent.resize(locId + 1, false);
         }
         sequentialEncoderMarkedAsParent.set(locId, true);
 
-        if(sequentialEncoders.size() > locId) {
+        if (sequentialEncoders.size() > locId) {
             // Sequential encoders are generated.
             sequentialEncoders.get(locId).markParentAttribute();
         }
@@ -125,7 +125,7 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     @Override
     public PointAttribute getPortableAttribute(int pointAttributeId) {
         int locId = getLocalIdForPointAttribute(pointAttributeId);
-        if(locId < 0) return null;
+        if (locId < 0) return null;
         return sequentialEncoders.get(locId).getPortableAttribute();
     }
 
@@ -133,8 +133,8 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     protected Status transformAttributesToPortableFormat() {
         StatusChain chain = new StatusChain();
 
-        for(SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
-            if(sequentialEncoder.transformAttributeToPortableFormat(pointIds).isError(chain)) return chain.get();
+        for (SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
+            if (sequentialEncoder.transformAttributeToPortableFormat(pointIds).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -143,8 +143,8 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     protected Status encodePortableAttributes(EncoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
 
-        for(SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
-            if(sequentialEncoder.encodePortableAttribute(pointIds, outBuffer).isError(chain)) return chain.get();
+        for (SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
+            if (sequentialEncoder.encodePortableAttribute(pointIds, outBuffer).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -153,8 +153,8 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
     protected Status encodeDataNeededByPortableTransforms(EncoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
 
-        for(SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
-            if(sequentialEncoder.encodeDataNeededByPortableTransform(outBuffer).isError(chain)) return chain.get();
+        for (SequentialAttributeEncoder sequentialEncoder : sequentialEncoders) {
+            if (sequentialEncoder.encodeDataNeededByPortableTransform(outBuffer).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -187,8 +187,8 @@ public class SequentialAttributeEncodersController extends AttributesEncoder {
             case INT32:
                 return new SequentialIntegerAttributeEncoder();
             case FLOAT32:
-                if(encoder.getOptions().getAttributeInt(attId, "quantization_bits", -1) > 0) {
-                    if(att.getAttributeType() == GeometryAttribute.Type.NORMAL) {
+                if (encoder.getOptions().getAttributeInt(attId, "quantization_bits", -1) > 0) {
+                    if (att.getAttributeType() == GeometryAttribute.Type.NORMAL) {
                         return new SequentialNormalAttributeEncoder();
                     } else {
                         return new SequentialQuantizationAttributeEncoder();

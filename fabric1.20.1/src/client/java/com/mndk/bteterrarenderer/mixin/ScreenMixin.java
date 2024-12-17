@@ -14,9 +14,9 @@ public abstract class ScreenMixin {
     @Inject(method = "close", at = @At("HEAD"), cancellable = true)
     public void onClose(CallbackInfo ci) {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-        if(currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
+        if (currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
             boolean escapable = screenImpl.delegate.handleScreenEscape();
-            if(!escapable) ci.cancel();
+            if (!escapable) ci.cancel();
         }
     }
 

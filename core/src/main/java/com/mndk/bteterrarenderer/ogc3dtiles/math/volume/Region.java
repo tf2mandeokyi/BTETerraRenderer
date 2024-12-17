@@ -17,8 +17,8 @@ public class Region extends Volume {
     @Override
     public boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform) {
 		Region[] sphereRegions = sphere.toBoundingRegions();
-		for(Region sphereRegion : sphereRegions) {
-			if(this.intersectsRegion(sphereRegion)) return true;
+		for (Region sphereRegion : sphereRegions) {
+			if (this.intersectsRegion(sphereRegion)) return true;
 		}
 		return false;
     }
@@ -26,22 +26,22 @@ public class Region extends Volume {
     @Override
     public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4f thisTransform, SpheroidCoordinatesConverter converter) {
         double lonRad = Math.toRadians(coordinateDegrees[0]), latRad = Math.toRadians(coordinateDegrees[1]);
-        if(westLon <= eastLon) {
-            if(lonRad < westLon || eastLon < lonRad) return false;
+        if (westLon <= eastLon) {
+            if (lonRad < westLon || eastLon < lonRad) return false;
         } else {
-            if(eastLon < lonRad && westLon < lonRad) return false;
+            if (eastLon < lonRad && westLon < lonRad) return false;
         }
 
         return southLat <= latRad && latRad <= northLat;
     }
 
 	public boolean intersectsRegion(Region other) {
-        if(!UnitCube.rangeIntersects(this.minHeight, this.maxHeight, other.minHeight, other.maxHeight))
+        if (!UnitCube.rangeIntersects(this.minHeight, this.maxHeight, other.minHeight, other.maxHeight))
             return false;
-		if(!UnitCube.rangeIntersects(this.southLat, this.northLat, other.southLat, other.northLat))
+		if (!UnitCube.rangeIntersects(this.southLat, this.northLat, other.southLat, other.northLat))
 			return false;
 
-        if(this.westLon < this.eastLon) {
+        if (this.westLon < this.eastLon) {
             if (other.westLon < other.eastLon) return
                     UnitCube.rangeIntersects(this.westLon, this.eastLon, other.westLon, other.eastLon);
             else return

@@ -26,7 +26,7 @@ public class TileMapServiceStatesLoader {
         try {
             TileMapServicePropertyJsonFile raw = BTETerraRenderer.JSON_MAPPER.readValue(this.file, TileMapServicePropertyJsonFile.class);
             this.applyRawFileData(tmsCategoryMap, raw);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Loggers.get(this).warn("TMS property json file not found, skipping");
         } catch (IOException e) {
             Loggers.get(this).error("Cannot read TMS property json file", e);
@@ -34,10 +34,10 @@ public class TileMapServiceStatesLoader {
     }
 
     private void applyRawFileData(@Nonnull CategoryMap<TileMapService> tmsCategoryMap, TileMapServicePropertyJsonFile raw) {
-        for(CategoryMap.Wrapper<Map<String, Object>> wrappedMap : raw.getCategories().getItemWrappers()) {
+        for (CategoryMap.Wrapper<Map<String, Object>> wrappedMap : raw.getCategories().getItemWrappers()) {
             String categoryName = wrappedMap.getParentCategory().getName(), id = wrappedMap.getId();
             TileMapService tms = tmsCategoryMap.getItem(categoryName, id);
-            if(tms == null) continue;
+            if (tms == null) continue;
             Map<String, Object> propertyValues = wrappedMap.getItem();
             this.applyRawStates(tms, propertyValues);
         }
@@ -45,32 +45,32 @@ public class TileMapServiceStatesLoader {
 
     private void applyRawStates(@Nonnull TileMapService tms, Map<String, Object> rawValues) {
         List<PropertyAccessor.Localized<?>> states = tms.getStateAccessors();
-        for(PropertyAccessor.Localized<?> state : states) {
+        for (PropertyAccessor.Localized<?> state : states) {
             String key = state.getKey();
-            if(!rawValues.containsKey(key)) continue;
+            if (!rawValues.containsKey(key)) continue;
             try {
                 state.set(BTRUtil.uncheckedCast(rawValues.get(key)));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Loggers.get(this).error("Could not set property for TMS", e);
             }
         }
     }
 
     public void save(@Nullable CategoryMap<TileMapService> tmsCategoryMap) {
-        if(tmsCategoryMap == null) return;
+        if (tmsCategoryMap == null) return;
 
         try {
             CategoryMap<Map<String, Object>> map = this.prepareRawFileData(tmsCategoryMap);
             TileMapServicePropertyJsonFile content = new TileMapServicePropertyJsonFile(map);
             BTETerraRenderer.JSON_MAPPER.writeValue(this.file, content);
-        } catch(IOException e) {
+        } catch (IOException e) {
             Loggers.get(this).error("Cannot write TMS property json file", e);
         }
     }
 
     private CategoryMap<Map<String, Object>> prepareRawFileData(@Nonnull CategoryMap<TileMapService> tmsCategoryMap) {
         CategoryMap<Map<String, Object>> map = new CategoryMap<>();
-        for(CategoryMap.Wrapper<TileMapService> tmsWrapped : tmsCategoryMap.getItemWrappers()) {
+        for (CategoryMap.Wrapper<TileMapService> tmsWrapped : tmsCategoryMap.getItemWrappers()) {
             Map<String, Object> propertyValues = new HashMap<>();
             TileMapService tms = tmsWrapped.getItem();
             this.saveRawStates(tms, propertyValues);
@@ -81,7 +81,7 @@ public class TileMapServiceStatesLoader {
 
     private void saveRawStates(@Nonnull TileMapService tms, Map<String, Object> rawValues) {
         List<PropertyAccessor.Localized<?>> states = tms.getStateAccessors();
-        for(PropertyAccessor.Localized<?> state : states) {
+        for (PropertyAccessor.Localized<?> state : states) {
             String key = state.getKey();
             rawValues.put(key, state.get());
         }

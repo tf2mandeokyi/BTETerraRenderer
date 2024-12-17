@@ -96,11 +96,11 @@ public class DecoderBuffer {
     public Status startBitDecoding(boolean decodeSize, Pointer<ULong> outSize) {
         StatusChain chain = new StatusChain();
 
-        if(decodeSize) {
-            if(bitstreamVersion < DracoVersions.getBitstreamVersion(2, 2)) {
-                if(this.decode(outSize).isError(chain)) return chain.get();
+        if (decodeSize) {
+            if (bitstreamVersion < DracoVersions.getBitstreamVersion(2, 2)) {
+                if (this.decode(outSize).isError(chain)) return chain.get();
             } else {
-                if(this.decodeVarint(outSize).isError(chain)) return chain.get();
+                if (this.decodeVarint(outSize).isError(chain)) return chain.get();
             }
         }
         bitDecoderActive = true;
@@ -124,7 +124,7 @@ public class DecoderBuffer {
      * {@link DecoderBuffer#startBitDecoding} and {@link DecoderBuffer#endBitDecoding}.
      */
     public Status decodeLeastSignificantBits32(UInt nBits, Pointer<UInt> outValue) {
-        if(!bitDecoderActive) return Status.ioError("Bit decoding not started");
+        if (!bitDecoderActive) return Status.ioError("Bit decoding not started");
         return bitDecoder.getBits(nBits.intValue(), outValue);
     }
 
@@ -133,7 +133,7 @@ public class DecoderBuffer {
      * {@link DecoderBuffer#startBitDecoding} and {@link DecoderBuffer#endBitDecoding}.
      */
     public Status decodeLeastSignificantBits32(int nBits, Pointer<UInt> outValue) {
-        if(!bitDecoderActive) return Status.ioError("Bit decoding not started");
+        if (!bitDecoderActive) return Status.ioError("Bit decoding not started");
         return bitDecoder.getBits(nBits, outValue);
     }
 
@@ -148,7 +148,7 @@ public class DecoderBuffer {
      */
     public <T> Status decode(Pointer<T> outVal) {
         Status status = peek(outVal);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
         pos += outVal.getType().byteSize();
         return Status.ok();
     }
@@ -159,13 +159,13 @@ public class DecoderBuffer {
     }
     public <T> Status decode(Pointer<T> outData, long size) {
         Status status = peek(outData, size);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
         pos += outData.getType().byteSize() * size;
         return Status.ok();
     }
     public Status decode(RawPointer outVal, long size) {
         Status status = peek(outVal, size);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
         pos += size;
         return Status.ok();
     }
@@ -173,14 +173,14 @@ public class DecoderBuffer {
     /** Decodes an arbitrary data, but does not advance the reading position. */
     public <T> Status peek(Pointer<T> outVal) {
         DataType<T> outType = outVal.getType();
-        if(dataSize < pos + outType.byteSize()) {
+        if (dataSize < pos + outType.byteSize()) {
             return Status.ioError("Buffer overflow");
         }
         PointerHelper.copySingle(this.data.rawAdd(pos), outVal);
         return Status.ok();
     }
     public Status peek(RawPointer outVal, long size) {
-        if(dataSize < pos + size) {
+        if (dataSize < pos + size) {
             return Status.ioError("Buffer overflow");
         }
         PointerHelper.rawCopy(this.data.rawAdd(pos), outVal, size);
@@ -194,7 +194,7 @@ public class DecoderBuffer {
     public <T> Status peek(Pointer<T> outVal, long size) {
         DataType<T> outType = outVal.getType();
         long byteSize = outType.byteSize();
-        if(dataSize < pos + byteSize * size) {
+        if (dataSize < pos + byteSize * size) {
             return Status.ioError("Buffer overflow");
         }
         PointerHelper.copyMultiple(this.data.rawAdd(pos), outVal, size);
@@ -250,14 +250,14 @@ public class DecoderBuffer {
         }
 
         public UInt ensureBits(int k) {
-            if(k > 24) {
+            if (k > 24) {
                 throw new IllegalArgumentException("k must be less than or equal to 24");
             }
-            if(k > availBits()) {
+            if (k > availBits()) {
                 throw new IllegalArgumentException("Not enough bits available");
             }
             int buf = 0;
-            for(int i = 0; i < k; i++) {
+            for (int i = 0; i < k; i++) {
                 buf |= peekBit(i) << i;
             }
             return UInt.of(buf);
@@ -269,11 +269,11 @@ public class DecoderBuffer {
 
         /** Returns {@code nBits} bits in {@code x} or {@code null} if fails. */
         public Status getBits(int nBits, Pointer<UInt> x) {
-            if(nBits > 32) {
+            if (nBits > 32) {
                 return Status.ioError("nBits must be less than or equal to 32, instead got " + nBits);
             }
             UInt value = UInt.ZERO;
-            for(int bit = 0; bit < nBits; bit++) {
+            for (int bit = 0; bit < nBits; bit++) {
                 value = value.or(getBit() << bit);
             }
             x.set(value);
@@ -284,7 +284,7 @@ public class DecoderBuffer {
             long off = bitOffset;
             long byteOffset = off >> 3;
             int bitShift = (int) (off & 0x7);
-            if(byteOffset < byteSize) {
+            if (byteOffset < byteSize) {
                 int bit = bitBuffer.getRawUByte(byteOffset).shr(bitShift).and(1).intValue();
                 bitOffset = off + 1;
                 return bit;
@@ -296,7 +296,7 @@ public class DecoderBuffer {
             long off = bitOffset + offset;
             long byteOffset = off >> 3;
             int bitShift = (int) (off & 0x7);
-            if(byteOffset < byteSize) {
+            if (byteOffset < byteSize) {
                 return bitBuffer.getRawUByte(byteOffset).shr(bitShift).and(1).intValue();
             }
             return 0;

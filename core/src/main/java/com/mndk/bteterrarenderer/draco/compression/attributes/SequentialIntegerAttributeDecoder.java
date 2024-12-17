@@ -49,7 +49,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
     @Override
     public Status transformAttributeToOriginalFormat(CppVector<PointIndex> pointIds) {
         PointCloudDecoder decoder = this.getDecoder();
-        if(decoder != null && this.getDecoder().getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+        if (decoder != null && this.getDecoder().getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
             return Status.ok();  // Don't revert the transform here for older files.
         }
         return this.storeValues(UInt.of(pointIds.size()));
@@ -61,14 +61,14 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
 
         // Decode prediction scheme.
         Pointer<Byte> methodRef = Pointer.newByte();
-        if(inBuffer.decode(methodRef).isError(chain)) return chain.get();
+        if (inBuffer.decode(methodRef).isError(chain)) return chain.get();
         PredictionSchemeMethod predictionSchemeMethod = PredictionSchemeMethod.valueOf(methodRef.get());
 
         // Check that decoded prediction scheme method type is valid.
         if (predictionSchemeMethod == null) return Status.ioError("Invalid prediction scheme method type");
-        if(predictionSchemeMethod != PredictionSchemeMethod.NONE) {
+        if (predictionSchemeMethod != PredictionSchemeMethod.NONE) {
             Pointer<Byte> typeRef = Pointer.newByte();
-            if(inBuffer.decode(typeRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(typeRef).isError(chain)) return chain.get();
             PredictionSchemeTransformType predictionTransformType = PredictionSchemeTransformType.valueOf(typeRef.get());
 
             // Check that decoded prediction scheme transform type is valid.
@@ -97,62 +97,62 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
         StatusChain chain = new StatusChain();
 
         int numComponents = this.getNumValueComponents();
-        if(numComponents <= 0) return Status.ioError("Invalid number of components: " + numComponents);
+        if (numComponents <= 0) return Status.ioError("Invalid number of components: " + numComponents);
 
         long numEntries = pointIds.size();
         long numValues = numEntries * numComponents;
         this.preparePortableAttribute((int) numEntries, numComponents);
         Pointer<Integer> portableAttributeData = this.getPortableAttributeData();
-        if(portableAttributeData == null) return Status.ioError("Portable attribute data is null");
+        if (portableAttributeData == null) return Status.ioError("Portable attribute data is null");
 
         Pointer<UByte> compressedRef = Pointer.newUByte();
-        if(inBuffer.decode(compressedRef).isError(chain)) return chain.get();
+        if (inBuffer.decode(compressedRef).isError(chain)) return chain.get();
         UByte compressed = compressedRef.get();
 
-        if(compressed.gt(0)) {
+        if (compressed.gt(0)) {
             // Decode compressed values.
-            if(SymbolDecoding.decode(UInt.of(numValues), numComponents, inBuffer,
+            if (SymbolDecoding.decode(UInt.of(numValues), numComponents, inBuffer,
                     portableAttributeData.asRawToUInt()).isError(chain)) return chain.get();
         }
         else {
             // Decode the integer data directly.
             // Get the number of bytes for a given entry.
             Pointer<UByte> numBytesRef = Pointer.newUByte();
-            if(inBuffer.decode(numBytesRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(numBytesRef).isError(chain)) return chain.get();
             int numBytes = numBytesRef.get().intValue();
 
             long typeLength = DracoDataType.INT32.getDataTypeLength();
-            if(numBytes == typeLength) {
-                if(this.getPortableAttributeInternal().getBuffer().size() < typeLength * numValues) {
+            if (numBytes == typeLength) {
+                if (this.getPortableAttributeInternal().getBuffer().size() < typeLength * numValues) {
                     return Status.ioError("Portable attribute data is too small");
                 }
-                if(inBuffer.decode(portableAttributeData, numValues).isError(chain)) {
+                if (inBuffer.decode(portableAttributeData, numValues).isError(chain)) {
                     return chain.get();
                 }
             }
             else {
-                if(this.getPortableAttributeInternal().getBuffer().size() < (long) numBytes * numValues) {
+                if (this.getPortableAttributeInternal().getBuffer().size() < (long) numBytes * numValues) {
                     return Status.ioError("Portable attribute data is too small");
                 }
-                if(inBuffer.getRemainingSize() < (long) numBytes * numValues) {
+                if (inBuffer.getRemainingSize() < (long) numBytes * numValues) {
                     return Status.ioError("Not enough data in the buffer");
                 }
-                for(int i = 0; i < numValues; i++) {
-                    if(inBuffer.decode(portableAttributeData.add(i), numBytes).isError(chain)) return chain.get();
+                for (int i = 0; i < numValues; i++) {
+                    if (inBuffer.decode(portableAttributeData.add(i), numBytes).isError(chain)) return chain.get();
                 }
             }
         }
 
-        if(numValues > 0 && (this.predictionScheme == null || !this.predictionScheme.areCorrectionsPositive())) {
+        if (numValues > 0 && (this.predictionScheme == null || !this.predictionScheme.areCorrectionsPositive())) {
             // Convert the values back to the original signed format.
             BitUtils.convertSymbolsToSignedInts(portableAttributeData.asRawToUInt(), (int) numValues, portableAttributeData);
         }
 
         // If the data was encoded with a prediction scheme, we must revert it.
-        if(this.predictionScheme != null) {
-            if(this.predictionScheme.decodePredictionData(inBuffer).isError(chain)) return chain.get();
-            if(numValues > 0) {
-                if(this.predictionScheme.computeOriginalValues(portableAttributeData, portableAttributeData,
+        if (this.predictionScheme != null) {
+            if (this.predictionScheme.decodePredictionData(inBuffer).isError(chain)) return chain.get();
+            if (numValues > 0) {
+                if (this.predictionScheme.computeOriginalValues(portableAttributeData, portableAttributeData,
                         (int) numValues, numComponents, pointIds.getPointer()).isError(chain)) return chain.get();
             }
         }
@@ -161,7 +161,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
 
     protected PSchemeTypedDecoderInterface<Integer, Integer> createIntPredictionScheme(
             PredictionSchemeMethod method, PredictionSchemeTransformType transformType) {
-        if(transformType != PredictionSchemeTransformType.WRAP) {
+        if (transformType != PredictionSchemeTransformType.WRAP) {
             return null;  // For now we support only wrap transform.
         }
         return PSchemeDecoderFactory.createPredictionSchemeForDecoder(
@@ -200,7 +200,7 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
 
     protected Pointer<Integer> getPortableAttributeData() {
         PointAttribute portableAttribute = this.getPortableAttributeInternal();
-        if(portableAttribute.size() == 0) return null;
+        if (portableAttribute.size() == 0) return null;
         return portableAttribute.getAddress(AttributeValueIndex.of(0)).toInt();
     }
 
@@ -211,8 +211,8 @@ public class SequentialIntegerAttributeDecoder extends SequentialAttributeDecode
         Pointer<Integer> portableAttributeData = this.getPortableAttributeData();
         int valId = 0;
         int outBytePos = 0;
-        for(int i = 0; i < numValues.intValue(); i++) {
-            for(int c = 0; c < numComponents; c++) {
+        for (int i = 0; i < numValues.intValue(); i++) {
+            for (int c = 0; c < numComponents; c++) {
                 U value = type.from(portableAttributeData.get(valId++));
                 attVal.set(c, value);
             }

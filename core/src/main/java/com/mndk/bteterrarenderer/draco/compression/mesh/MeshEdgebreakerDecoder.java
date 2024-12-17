@@ -54,16 +54,16 @@ public class MeshEdgebreakerDecoder extends MeshDecoder {
     protected Status initializeDecoder() {
         StatusChain chain = new StatusChain();
         Pointer<UByte> traversalDecoderTypeRef = Pointer.newUByte();
-        if(this.getBuffer().decode(traversalDecoderTypeRef).isError(chain)) return chain.get();
+        if (this.getBuffer().decode(traversalDecoderTypeRef).isError(chain)) return chain.get();
         MeshEdgebreakerConnectivityEncodingMethod traversalDecoderType =
                 MeshEdgebreakerConnectivityEncodingMethod.valueOf(traversalDecoderTypeRef.get());
-        if(traversalDecoderType == null) {
+        if (traversalDecoderType == null) {
             return Status.ioError("Invalid traversal decoder type: " + traversalDecoderTypeRef.get());
         }
 
         impl = null;
         MeshEdgebreakerTraversalDecoder traversalDecoder = null;
-        switch(traversalDecoderType) {
+        switch (traversalDecoderType) {
             case STANDARD: traversalDecoder = new MeshEdgebreakerTraversalDecoder(); break;
             case PREDICTIVE: traversalDecoder = new MeshEdgebreakerTraversalPredictiveDecoder(); break;
             case VALENCE: traversalDecoder = new MeshEdgebreakerTraversalValenceDecoder(); break;

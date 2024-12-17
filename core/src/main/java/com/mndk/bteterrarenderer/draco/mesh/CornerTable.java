@@ -137,34 +137,34 @@ public class CornerTable implements ICornerTable {
     public int getNumFaces() { return (int) cornerToVertexMap.size() / 3; }
 
     public CornerIndex opposite(CornerIndex corner) {
-        if(corner.isInvalid()) return corner;
+        if (corner.isInvalid()) return corner;
         return this.oppositeCorners.get(corner);
     }
     public CornerIndex next(CornerIndex corner) {
-        if(corner.isInvalid()) return corner;
+        if (corner.isInvalid()) return corner;
         corner = corner.add(1);
         return this.localIndex(corner) != 0 ? corner : corner.subtract(3);
     }
     public CornerIndex previous(CornerIndex corner) {
-        if(corner.isInvalid()) return corner;
+        if (corner.isInvalid()) return corner;
         return this.localIndex(corner) != 0 ? corner.subtract(1) : corner.add(2);
     }
     public VertexIndex getVertex(CornerIndex corner) {
-        if(corner.isInvalid()) return VertexIndex.INVALID;
+        if (corner.isInvalid()) return VertexIndex.INVALID;
         return this.getConfidentVertex(corner);
     }
     public VertexIndex getConfidentVertex(CornerIndex corner) {
-        if(corner.getValue() < 0 || this.getNumCorners() <= corner.getValue()) {
+        if (corner.getValue() < 0 || this.getNumCorners() <= corner.getValue()) {
             return VertexIndex.INVALID;
         }
         return this.cornerToVertexMap.get(corner);
     }
     public FaceIndex getFace(CornerIndex corner) {
-        if(corner.isInvalid()) return FaceIndex.INVALID;
+        if (corner.isInvalid()) return FaceIndex.INVALID;
         return FaceIndex.of(corner.getValue() / 3);
     }
     public CornerIndex getFirstCorner(FaceIndex face) {
-        if(face.isInvalid()) return CornerIndex.INVALID;
+        if (face.isInvalid()) return CornerIndex.INVALID;
         return CornerIndex.of(face.getValue() * 3);
     }
     public CornerIndex[] getAllCorners(FaceIndex face) {
@@ -178,7 +178,7 @@ public class CornerTable implements ICornerTable {
     public FaceType getFaceData(FaceIndex face) {
         CornerIndex firstCorner = this.getFirstCorner(face);
         FaceType faceData = new FaceType();
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             faceData.set(i, this.cornerToVertexMap.get(firstCorner.add(i)));
         }
         return faceData;
@@ -187,7 +187,7 @@ public class CornerTable implements ICornerTable {
     public void setFaceData(FaceIndex face, FaceType data) {
         this.checkValenceCacheEmpty();
         CornerIndex firstCorner = this.getFirstCorner(face);
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             this.cornerToVertexMap.set(firstCorner.add(i), data.get(i));
         }
     }
@@ -203,7 +203,7 @@ public class CornerTable implements ICornerTable {
 
     /** Returns the parent vertex of the given corner table vertex. */
     public VertexIndex getVertexParent(VertexIndex vertex) {
-        if(vertex.getValue() < this.numOriginalVertices) return vertex;
+        if (vertex.getValue() < this.numOriginalVertices) return vertex;
         VertexIndex index = vertex.subtract(this.numOriginalVertices);
         return this.nonManifoldVertexParents.get(index);
     }
@@ -214,27 +214,27 @@ public class CornerTable implements ICornerTable {
     }
 
     public int getValence(VertexIndex v) {
-        if(v.isInvalid()) return -1;
+        if (v.isInvalid()) return -1;
         return this.getConfidentValence(v);
     }
 
     public int getConfidentValence(VertexIndex v) {
-        if(v.getValue() < 0 || v.getValue() >= this.getNumVertices()) {
+        if (v.getValue() < 0 || v.getValue() >= this.getNumVertices()) {
             return -1;
         }
         VertexRingIterator<CornerTable> vi = new VertexRingIterator<>(this, v);
         int valence = 0;
-        for(; vi.hasNext(); vi.next()) ++valence;
+        for (; vi.hasNext(); vi.next()) ++valence;
         return valence;
     }
 
     public int getValence(CornerIndex corner) {
-        if(corner.isInvalid()) return -1;
+        if (corner.isInvalid()) return -1;
         return this.getConfidentValence(corner);
     }
 
     public int getConfidentValence(CornerIndex c) {
-        if(c.getValue() >= this.getNumCorners()) {
+        if (c.getValue() >= this.getNumCorners()) {
             throw new IllegalStateException("Invalid corner index");
         }
         return this.getConfidentValence(this.getConfidentVertex(c));
@@ -253,11 +253,11 @@ public class CornerTable implements ICornerTable {
     }
 
     public CornerIndex getLeftCorner(CornerIndex cornerId) {
-        if(cornerId.isInvalid()) return CornerIndex.INVALID;
+        if (cornerId.isInvalid()) return CornerIndex.INVALID;
         return this.opposite(this.previous(cornerId));
     }
     public CornerIndex getRightCorner(CornerIndex cornerId) {
-        if(cornerId.isInvalid()) return CornerIndex.INVALID;
+        if (cornerId.isInvalid()) return CornerIndex.INVALID;
         return this.opposite(this.next(cornerId));
     }
 
@@ -266,7 +266,7 @@ public class CornerTable implements ICornerTable {
     }
 
     public boolean isDegenerated(FaceIndex face) {
-        if(face.isInvalid()) return true;
+        if (face.isInvalid()) return true;
         CornerIndex firstFaceCorner = this.getFirstCorner(face);
         VertexIndex v0 = this.getVertex(firstFaceCorner);
         VertexIndex v1 = this.getVertex(this.next(firstFaceCorner));
@@ -281,8 +281,8 @@ public class CornerTable implements ICornerTable {
 
     public void setOppositeCorners(CornerIndex corner0, CornerIndex corner1) {
         this.checkValenceCacheEmpty();
-        if(corner0.isValid()) this.oppositeCorners.set(corner0, corner1);
-        if(corner1.isValid()) this.oppositeCorners.set(corner1, corner0);
+        if (corner0.isValid()) this.oppositeCorners.set(corner0, corner1);
+        if (corner1.isValid()) this.oppositeCorners.set(corner1, corner0);
     }
 
     public void mapCornerToVertex(CornerIndex cornerId, VertexIndex vertId) {
@@ -298,7 +298,7 @@ public class CornerTable implements ICornerTable {
 
     public FaceIndex addNewFace(VertexIndex[] vertices) {
         FaceIndex newFaceIndex = FaceIndex.of(this.getNumFaces());
-        for(int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             cornerToVertexMap.pushBack(vertices[i]);
             this.setLeftMostCorner(vertices[i], CornerIndex.of((int) (cornerToVertexMap.size() - 1)));
         }
@@ -308,20 +308,20 @@ public class CornerTable implements ICornerTable {
 
     public void setLeftMostCorner(VertexIndex vert, CornerIndex corner) {
         this.checkValenceCacheEmpty();
-        if(vert.isValid()) vertexCorners.set(vert, corner);
+        if (vert.isValid()) vertexCorners.set(vert, corner);
     }
 
     public void updateVertexToCornerMap(VertexIndex vert) {
         this.checkValenceCacheEmpty();
         CornerIndex firstC = vertexCorners.get(vert);
-        if(firstC.isInvalid()) return;
+        if (firstC.isInvalid()) return;
         CornerIndex actC = this.swingLeft(firstC);
         CornerIndex c = firstC;
-        while(actC.isValid() && !actC.equals(firstC)) {
+        while (actC.isValid() && !actC.equals(firstC)) {
             c = actC;
             actC = this.swingLeft(actC);
         }
-        if(!actC.equals(firstC)) {
+        if (!actC.equals(firstC)) {
             vertexCorners.set(vert, c);
         }
     }
@@ -342,18 +342,18 @@ public class CornerTable implements ICornerTable {
 
     public void makeFaceInvalid(FaceIndex face) {
         this.checkValenceCacheEmpty();
-        if(face.isInvalid()) return;
+        if (face.isInvalid()) return;
         CornerIndex firstCorner = this.getFirstCorner(face);
-        for(int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             this.cornerToVertexMap.set(firstCorner.add(i), VertexIndex.INVALID);
         }
     }
 
     public void updateFaceToVertexMap(VertexIndex vertex) {
-        if(!this.getValenceCache().isCacheEmpty()) {
+        if (!this.getValenceCache().isCacheEmpty()) {
             throw new IllegalStateException("Valence cache is not empty");
         }
-        for(CornerIndex corner : VertexCornersIterator.iterable(this, vertex)) {
+        for (CornerIndex corner : VertexCornersIterator.iterable(this, vertex)) {
             cornerToVertexMap.set(corner, vertex);
         }
     }
@@ -371,7 +371,7 @@ public class CornerTable implements ICornerTable {
 
     private Status computeOppositeCorners(AtomicReference<Integer> numVertices) {
         this.checkValenceCacheEmpty();
-        if(numVertices == null) {
+        if (numVertices == null) {
             return Status.dracoError("numVertices is null");
         }
         oppositeCorners.resize(this.getNumCorners(), CornerIndex.INVALID);
@@ -414,16 +414,16 @@ public class CornerTable implements ICornerTable {
         // Now go over the all half-edges (using their opposite corners) and either
         // insert them to the vertex_edge array or connect them with existing
         // half-edges.
-        for(CornerIndex c = CornerIndex.of(0); c.getValue() < this.getNumCorners(); c = c.increment()) {
+        for (CornerIndex c = CornerIndex.of(0); c.getValue() < this.getNumCorners(); c = c.increment()) {
             VertexIndex tipV = this.getVertex(c);
             VertexIndex sourceV = this.getVertex(this.next(c));
             VertexIndex sinkV = this.getVertex(this.previous(c));
 
             FaceIndex faceIndex = this.getFace(c);
-            if(c.equals(this.getFirstCorner(faceIndex))) {
+            if (c.equals(this.getFirstCorner(faceIndex))) {
                 // Check whether the face is degenerated, if so ignore it.
                 VertexIndex v0 = this.getVertex(c);
-                if(v0.equals(sourceV) || v0.equals(sinkV) || sourceV.equals(sinkV)) {
+                if (v0.equals(sourceV) || v0.equals(sinkV) || sourceV.equals(sinkV)) {
                     ++numDegeneratedFaces;
                     c = c.add(2);  // Ignore the next two corners of the same face.
                     continue;
@@ -435,11 +435,11 @@ public class CornerTable implements ICornerTable {
             int numCornersOnVert = numCornersOnVertices.get(sinkV);
             // Where to look for the first half-edge on the sink vertex.
             offset = vertexOffset.get(sinkV);
-            for(int i = 0; i < numCornersOnVert; ++i, ++offset) {
+            for (int i = 0; i < numCornersOnVert; ++i, ++offset) {
                 VertexIndex otherV = vertexEdges.get(offset).sinkVert;
-                if(otherV.isInvalid()) break; // No matching half-edge found on the sink vertex.
+                if (otherV.isInvalid()) break; // No matching half-edge found on the sink vertex.
 
-                if(otherV.equals(sourceV)) {
+                if (otherV.equals(sourceV)) {
                     if (tipV.equals(this.getVertex(vertexEdges.get(offset).edgeCorner))) {
                         continue;  // Don't connect mirrored faces.
                     }
@@ -448,22 +448,22 @@ public class CornerTable implements ICornerTable {
                     oppositeC = vertexEdges.get(offset).edgeCorner;
                     // Remove the half-edge from the sink vertex. We remap all subsequent
                     // half-edges one slot down.
-                    for(int j = i + 1; j < numCornersOnVert; ++j, ++offset) {
+                    for (int j = i + 1; j < numCornersOnVert; ++j, ++offset) {
                         vertexEdges.set(offset, vertexEdges.get(offset + 1));
-                        if(vertexEdges.get(offset).sinkVert.isInvalid()) break; // Unused half-edge reached.
+                        if (vertexEdges.get(offset).sinkVert.isInvalid()) break; // Unused half-edge reached.
                     }
                     // Mark the last entry as unused.
                     vertexEdges.get(offset).sinkVert = VertexIndex.INVALID;
                     break;
                 }
             }
-            if(oppositeC.isInvalid()) {
+            if (oppositeC.isInvalid()) {
                 // No opposite corner have been found. Insert the new edge
                 int numCornersOnSourceVert = numCornersOnVertices.get(sourceV);
                 offset = vertexOffset.get(sourceV);
-                for(int i = 0; i < numCornersOnSourceVert; ++i, ++offset) {
+                for (int i = 0; i < numCornersOnSourceVert; ++i, ++offset) {
                     // Find the first unused half-edge slot on the source vertex.
-                    if(vertexEdges.get(offset).sinkVert.isInvalid()) {
+                    if (vertexEdges.get(offset).sinkVert.isInvalid()) {
                         vertexEdges.get(offset).sinkVert = sinkV;
                         vertexEdges.get(offset).edgeCorner = c;
                         break;
@@ -500,8 +500,8 @@ public class CornerTable implements ICornerTable {
         boolean meshConnectivityUpdated;
         do {
             meshConnectivityUpdated = false;
-            for(CornerIndex c : CornerIndex.range(0, this.getNumCorners())) {
-                if(visitedCorners.get(c)) continue;
+            for (CornerIndex c : CornerIndex.range(0, this.getNumCorners())) {
+                if (visitedCorners.get(c)) continue;
                 sinkVertices.clear();
 
                 // First swing all the way to find the left-most corner connected to the
@@ -509,7 +509,7 @@ public class CornerTable implements ICornerTable {
                 CornerIndex firstC = c;
                 CornerIndex currentC = c;
                 CornerIndex nextC;
-                while(!(nextC = this.swingLeft(currentC)).equals(firstC) && nextC.isValid() && !visitedCorners.get(nextC)) {
+                while (!(nextC = this.swingLeft(currentC)).equals(firstC) && nextC.isValid() && !visitedCorners.get(nextC)) {
                     currentC = nextC;
                 }
 
@@ -532,21 +532,21 @@ public class CornerTable implements ICornerTable {
                     // Go over all processed edges (sink vertices). If the current sink
                     // vertex has been already encountered before it may indicate a
                     // non-manifold edge that needs to be broken.
-                    for(Pair<VertexIndex, CornerIndex> attachedSinkVertex : sinkVertices) {
-                        if(attachedSinkVertex.getLeft().equals(sinkV)) {
+                    for (Pair<VertexIndex, CornerIndex> attachedSinkVertex : sinkVertices) {
+                        if (attachedSinkVertex.getLeft().equals(sinkV)) {
                             // Sink vertex has been already processed.
                             CornerIndex otherEdgeCorner = attachedSinkVertex.getRight();
                             CornerIndex oppEdgeCorner = this.opposite(edgeCorner);
 
-                            if(oppEdgeCorner.equals(otherEdgeCorner)) {
+                            if (oppEdgeCorner.equals(otherEdgeCorner)) {
                                 // We are closing the loop so no need to change the connectivity.
                                 continue;
                             }
 
                             // Break the connectivity on the non-manifold edge.
                             CornerIndex oppOtherEdgeCorner = this.opposite(otherEdgeCorner);
-                            if(oppEdgeCorner.isValid()) this.setOppositeCorner(oppEdgeCorner, CornerIndex.INVALID);
-                            if(oppOtherEdgeCorner.isValid()) this.setOppositeCorner(oppOtherEdgeCorner, CornerIndex.INVALID);
+                            if (oppEdgeCorner.isValid()) this.setOppositeCorner(oppEdgeCorner, CornerIndex.INVALID);
+                            if (oppOtherEdgeCorner.isValid()) this.setOppositeCorner(oppOtherEdgeCorner, CornerIndex.INVALID);
 
                             this.setOppositeCorner(edgeCorner, CornerIndex.INVALID);
                             this.setOppositeCorner(otherEdgeCorner, CornerIndex.INVALID);
@@ -555,7 +555,7 @@ public class CornerTable implements ICornerTable {
                             break;
                         }
                     }
-                    if(vertexConnectivityUpdated) {
+                    if (vertexConnectivityUpdated) {
                         // Because of the updated connectivity, not all corners connected to
                         // this vertex have been processed and we need to go over them again.
                         // This can be optimized as we don't really need to
@@ -570,9 +570,9 @@ public class CornerTable implements ICornerTable {
                     sinkVertices.add(newSinkVert);
 
                     currentC = this.swingRight(currentC);
-                } while(!currentC.equals(firstC) && currentC.isValid());
+                } while (!currentC.equals(firstC) && currentC.isValid());
             }
-        } while(meshConnectivityUpdated);
+        } while (meshConnectivityUpdated);
 
         return Status.ok();
     }
@@ -588,14 +588,14 @@ public class CornerTable implements ICornerTable {
         IndexTypeVector<CornerIndex, Boolean> visitedCorners =
                 new IndexTypeVector<>(DataType.bool(), this.getNumCorners(), false);
 
-        for(FaceIndex f : FaceIndex.range(0, this.getNumFaces())) {
+        for (FaceIndex f : FaceIndex.range(0, this.getNumFaces())) {
             CornerIndex firstFaceCorner = this.getFirstCorner(f);
             // Check whether the face is degenerated. If so ignore it.
-            if(this.isDegenerated(f)) continue;
+            if (this.isDegenerated(f)) continue;
 
-            for(int k = 0; k < 3; ++k) {
+            for (int k = 0; k < 3; ++k) {
                 CornerIndex c = firstFaceCorner.add(k);
-                if(visitedCorners.get(c)) continue;
+                if (visitedCorners.get(c)) continue;
                 VertexIndex v = this.cornerToVertexMap.get(c);
                 // Note that one vertex maps to many corners, but we just keep track
                 // of the vertex which has a boundary on the left if the vertex lies on
@@ -603,7 +603,7 @@ public class CornerTable implements ICornerTable {
                 // by iterating over the SwingRight() operator.
                 // In case of a vertex inside the mesh, the choice is arbitrary.
                 boolean isNonManifoldVertex = false;
-                if(visitedVertices.get(v)) {
+                if (visitedVertices.get(v)) {
                     // A visited vertex of an unvisited corner found. Must be a non-manifold
                     // vertex.
                     // Create a new vertex for it.
@@ -618,26 +618,26 @@ public class CornerTable implements ICornerTable {
 
                 // First swing all the way to the left and mark all corners on the way.
                 CornerIndex actC = c;
-                while(actC.isValid()) {
+                while (actC.isValid()) {
                     visitedCorners.set(actC, true);
                     // Vertex will eventually point to the left most corner.
                     vertexCorners.set(v, actC);
-                    if(isNonManifoldVertex) {
+                    if (isNonManifoldVertex) {
                         // Update vertex index in the corresponding face.
                         cornerToVertexMap.set(actC, v);
                     }
                     actC = this.swingLeft(actC);
-                    if(actC.equals(c)) {
+                    if (actC.equals(c)) {
                         break;  // Full circle reached.
                     }
                 }
-                if(actC.isInvalid()) {
+                if (actC.isInvalid()) {
                     // If we have reached an open boundary we need to swing right from the
                     // initial corner to mark all corners in the opposite direction.
                     actC = this.swingRight(c);
-                    while(actC.isValid()) {
+                    while (actC.isValid()) {
                         visitedCorners.set(actC, true);
-                        if(isNonManifoldVertex) {
+                        if (isNonManifoldVertex) {
                             // Update vertex index in the corresponding face.
                             cornerToVertexMap.set(actC, v);
                         }
@@ -649,14 +649,14 @@ public class CornerTable implements ICornerTable {
 
         // Count the number of isolated (unprocessed) vertices.
         this.numIsolatedVertices = 0;
-        for(boolean visited : visitedVertices) {
-            if(!visited) ++this.numIsolatedVertices;
+        for (boolean visited : visitedVertices) {
+            if (!visited) ++this.numIsolatedVertices;
         }
         return Status.ok();
     }
 
     private void checkValenceCacheEmpty() {
-        if(!this.getValenceCache().isCacheEmpty()) {
+        if (!this.getValenceCache().isCacheEmpty()) {
             throw new IllegalStateException("Valence cache is not empty");
         }
     }

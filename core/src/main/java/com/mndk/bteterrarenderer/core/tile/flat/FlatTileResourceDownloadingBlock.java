@@ -12,8 +12,9 @@ public class FlatTileResourceDownloadingBlock extends MappedQueueBlock<FlatTileK
      * @param nThreads Number of threads
      * @param maxRetryCount Max retry count. set this to -1 for no retry restrictions
      */
-    protected FlatTileResourceDownloadingBlock(int nThreads, int maxRetryCount, boolean closeableByModel) {
-        super(nThreads, maxRetryCount, closeableByModel);
+    protected FlatTileResourceDownloadingBlock(int nThreads, int maxRetryCount, boolean closeableByModel,
+                                               int initialRelativeZoom) {
+        super(nThreads, maxRetryCount, closeableByModel, initialRelativeZoom);
     }
 
     @Override

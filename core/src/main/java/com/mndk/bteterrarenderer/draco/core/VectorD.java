@@ -71,7 +71,7 @@ public abstract class VectorD<S, V extends VectorD<S, V>> implements Comparable<
     private <T> VectorD(DataNumberType<S> type, VectorD<T, ? extends VectorD<T, ?>> srcVector) {
         this(type);
         DataNumberType<T> srcType = srcVector.getElementType();
-        for(int i = 0; i < this.getDimension(); ++i) {
+        for (int i = 0; i < this.getDimension(); ++i) {
             if (i < srcVector.getDimension()) {
                 v.set(i, type.from(srcType, srcVector.v.get(i)));
             } else {
@@ -207,7 +207,7 @@ public abstract class VectorD<S, V extends VectorD<S, V>> implements Comparable<
 
     public V getNormalized() {
         V ret = this.create(); int dimension = this.getDimension();
-        for(int i = 0; i < dimension; ++i) ret.set(i, v.get(i));
+        for (int i = 0; i < dimension; ++i) ret.set(i, v.get(i));
         ret.normalize();
         return ret;
     }
@@ -217,7 +217,7 @@ public abstract class VectorD<S, V extends VectorD<S, V>> implements Comparable<
         S max = v.get(0); int dimension = this.getDimension();
         for (int i = 1; i < dimension; ++i) {
             S next = v.get(i);
-            if(type.gt(next, max)) max = next;
+            if (type.gt(next, max)) max = next;
         }
         return max;
     }
@@ -242,7 +242,7 @@ public abstract class VectorD<S, V extends VectorD<S, V>> implements Comparable<
     }
 
     public static <S, V extends VectorD<S, V>> S squaredDistance(V v1, V v2) {
-        if(v1.getDimension() != v2.getDimension()) throw new IllegalArgumentException("Vectors must have the same dimension.");
+        if (v1.getDimension() != v2.getDimension()) throw new IllegalArgumentException("Vectors must have the same dimension.");
         DataNumberType<S> type = v1.getElementType();
         S difference;
         S squaredDistance = type.from(0);
@@ -258,11 +258,11 @@ public abstract class VectorD<S, V extends VectorD<S, V>> implements Comparable<
     }
 
     public static <S> D3<S> crossProduct(D3<S> u, D3<S> v) {
-        if(u.getDimension() != 3 || v.getDimension() != 3) {
+        if (u.getDimension() != 3 || v.getDimension() != 3) {
             throw new IllegalArgumentException("Cross product is only defined for 3D vectors.");
         }
         DataNumberType<S> type = u.getElementType();
-        if(type.isUnsigned()) {
+        if (type.isUnsigned()) {
             throw new IllegalArgumentException("Cross product is only defined for signed data types.");
         }
         D3<S> r = u.create();

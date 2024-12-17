@@ -22,7 +22,7 @@ public class GraphicsModelTextureBakingBlock<Key> extends SingleQueueBlock<Key, 
 	@Override
 	protected List<GraphicsModel> processInternal(Key key, @Nonnull List<PreBakedModel> preBakedModels) {
         List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
-		for(PreBakedModel preBakedModel : preBakedModels) {
+		for (PreBakedModel preBakedModel : preBakedModels) {
 			BufferedImage image = preBakedModel.getImage();
 			NativeTextureWrapper textureObject = image == null
 					? defaultTexture

@@ -112,7 +112,7 @@ public class DracoExpertEncoder extends DracoEncoderBase<EncoderOptions> {
         encoder.setMesh(m);
 
         Status status = encoder.encode(this.getOptions(), outBuffer);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
 
         this.setNumEncodedPoints(encoder.getNumEncodedPoints());
         this.setNumEncodedFaces(encoder.getNumEncodedFaces());

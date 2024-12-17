@@ -11,7 +11,7 @@ import java.util.function.*;
 public interface PropertyAccessor<T> {
 
     default void set(T value) {
-        if(this.isAvailable(value)) {
+        if (this.isAvailable(value)) {
             this.setWithoutCheck(value);
         }
     }
@@ -81,7 +81,7 @@ public interface PropertyAccessor<T> {
         @Override public T get() { return getter.get(); }
         @Override public void setWithoutCheck(T value) { setter.accept(value); }
         @Override public boolean isAvailable(T value) {
-            if(range != null && !range.contains(value)) return false;
+            if (range != null && !range.contains(value)) return false;
             return predicate.test(value);
         }
     }

@@ -41,14 +41,14 @@ public abstract class TraverserBase {
     }
 
     public boolean isFaceVisited(FaceIndex faceId) {
-        if(faceId.isInvalid()) {
+        if (faceId.isInvalid()) {
             return true; // Invalid faces are always considered as visited.
         }
         return isFaceVisited.get(faceId.getValue());
     }
 
     public boolean isFaceVisited(CornerIndex cornerId) {
-        if(cornerId.isInvalid()) {
+        if (cornerId.isInvalid()) {
             return true; // Invalid faces are always considered as visited.
         }
         return isFaceVisited.get(cornerId.getValue() / 3);

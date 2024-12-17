@@ -20,7 +20,7 @@ public class RenderEvents {
     public void onRenderEvent(final RenderLevelLastEvent event) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if(player == null) return;
+        if (player == null) return;
 
         // While the player is the "rendering center" in 1.12.2,
         // After 1.18.2 it is the camera being that center.

@@ -30,49 +30,49 @@ public class TileKeyManager {
         List<LocalTileNode> resultList = new ArrayList<>();
         Stack<Node> nodeStack = new Stack<>();
         nodeStack.push(new Node(new int[0], tileset.getRootTile(), parentTilesetTransform));
-        do {
+
+        while (!nodeStack.isEmpty()) {
             Node currentNode = nodeStack.pop();
             int[] currentIndexes = currentNode.indexes;
             Tile currentTile = currentNode.tile;
-            Matrix4f previousTransform = currentNode.previousTransform;
 
             Matrix4f localTransform = currentTile.getTileLocalTransform();
-            Matrix4f currentTransform = localTransform == null
-                    ? previousTransform
-                    : previousTransform.multiply(localTransform).toMatrix4();
+            Matrix4f currentTransform = currentNode.previousTransform;
+            if (localTransform != null) currentTransform = currentTransform.multiply(localTransform);
 
-            if(!selectSurroundings && !currentTile.getBoundingVolume().intersectsSphere(playerSphere, currentTransform))
+            // TODO: Change this to use frustum culling
+            if (!selectSurroundings && !currentTile.getBoundingVolume().intersectsSphere(playerSphere, currentTransform))
                 continue;
 
             List<Tile> children = currentTile.getChildren();
             List<TileContentLink> currentTileContents = currentTile.getContents();
-            TileRefinement refinement = currentTile.getRefinement();
 
             boolean atLeastOneChildIntersects = false;
-            for(Tile child : children) {
-                if(child.getBoundingVolume().intersectsSphere(playerSphere, currentTransform)) {
+            for (Tile child : children) {
+                if (child.getBoundingVolume().intersectsSphere(playerSphere, currentTransform)) {
                     atLeastOneChildIntersects = true;
                     break;
                 }
             }
 
-            boolean includeCurrentTileContent = !atLeastOneChildIntersects || refinement == TileRefinement.ADD;
+            boolean includeCurrentTileContent = !atLeastOneChildIntersects
+                    || currentTile.getRefinement() == TileRefinement.ADD;
 
-            if(includeCurrentTileContent) {
-                for(int i = 0; i < currentTileContents.size(); i++) {
+            if (includeCurrentTileContent) {
+                for (int i = 0; i < currentTileContents.size(); i++) {
                     TileLocalKey contentKey = new TileLocalKey(currentIndexes, i);
                     TileContentLink content = currentTileContents.get(i);
                     LocalTileNode currentTileContentNode = new LocalTileNode(contentKey, content, currentTransform);
                     resultList.add(currentTileContentNode);
                 }
             }
-            if(atLeastOneChildIntersects) {
-                for(int i = 0; i < children.size(); i++) {
+            if (atLeastOneChildIntersects) {
+                for (int i = 0; i < children.size(); i++) {
                     Tile child = children.get(i);
                     nodeStack.add(new Node(ArrayUtil.expandOne(currentIndexes, i), child, currentTransform));
                 }
             }
-        } while(!nodeStack.isEmpty());
+        }
 
         return resultList;
     }

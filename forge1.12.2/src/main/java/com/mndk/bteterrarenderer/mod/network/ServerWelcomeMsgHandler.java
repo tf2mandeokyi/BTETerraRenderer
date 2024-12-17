@@ -11,7 +11,7 @@ public class ServerWelcomeMsgHandler implements IMessageHandler<ServerWelcomeMes
     @Override
     public IMessage onMessage(ServerWelcomeMessageImpl message, MessageContext ctx) {
         GeographicProjection proj = message.getProjection();
-        Loggers.get(this).info("Received GeographicProjection from the server side: " +
+        Loggers.get(this).info("Received GeographicProjection from the server side: {}",
                 message.getProjectionJson());
         Projections.setHologramProjection(proj);
         return null;

@@ -41,7 +41,7 @@ public class PlyElement {
     }
 
     public PlyProperty getPropertyByName(String name) {
-        if(!propertyIndex.containsKey(name)) return null;
+        if (!propertyIndex.containsKey(name)) return null;
         return properties.get(propertyIndex.get(name));
     }
 

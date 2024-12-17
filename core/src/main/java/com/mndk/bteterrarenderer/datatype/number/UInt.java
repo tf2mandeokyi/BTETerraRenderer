@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class UInt extends CppNumber<UInt> {
 
     private static final UInt[] CACHE = new UInt[256];
-    static { for(int i = 0; i < 256; ++i) CACHE[i] = new UInt(i); }
+    static { for (int i = 0; i < 256; ++i) CACHE[i] = new UInt(i); }
 
     public static final UInt MIN = of(0);
     public static final UInt MAX = of(-1);

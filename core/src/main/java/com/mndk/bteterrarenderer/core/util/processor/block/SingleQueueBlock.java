@@ -20,13 +20,13 @@ public abstract class SingleQueueBlock<Key, Input, Output> extends ProcessingBlo
     }
 
     public void process(int processAtATime) {
-        for(int i = 0; i < processAtATime && !queue.isEmpty(); i++) {
+        for (int i = 0; i < processAtATime && !queue.isEmpty(); i++) {
             BlockPayload<Key, Input> payload = queue.poll();
             if (payload == null) continue;
 
             try {
                 this.process(payload);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 this.onProcessingFail(payload, e);
             }
         }

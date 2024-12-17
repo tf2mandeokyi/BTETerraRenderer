@@ -28,23 +28,23 @@ public class NativeGuiScreenWrapperImpl extends NativeGuiScreenWrapper<GuiScreen
         getThisWrapped().drawScreen(mouseX, mouseY, partialTicks);
     }
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        try { getThisWrapped().handleMouseInput(); } catch(IOException ignored) {}
+        try { getThisWrapped().handleMouseInput(); } catch (IOException ignored) {}
         return false;
     }
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        try { getThisWrapped().handleMouseInput(); } catch(IOException ignored) {}
+        try { getThisWrapped().handleMouseInput(); } catch (IOException ignored) {}
         return false;
     }
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
-        try { getThisWrapped().handleMouseInput(); } catch(IOException ignored) {}
+        try { getThisWrapped().handleMouseInput(); } catch (IOException ignored) {}
         return false;
     }
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
-        try { getThisWrapped().handleMouseInput(); } catch(IOException ignored) {}
+        try { getThisWrapped().handleMouseInput(); } catch (IOException ignored) {}
         return false;
     }
     public boolean charTyped(char typedChar, int keyCode) {
-        try { getThisWrapped().handleKeyboardInput(); } catch(IOException ignored) {}
+        try { getThisWrapped().handleKeyboardInput(); } catch (IOException ignored) {}
         return false;
     }
     public boolean keyPressed(InputKey key, int scanCode, int modifiers) {

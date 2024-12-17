@@ -153,8 +153,6 @@ subprojects { p ->
         shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
         if(mcVersion > 12) { // for T++
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
-        } else {
-            compileAndTestOnly 'lzma:lzma:0.0.1'
         }
         if(mcVersion >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http' , version: '4.1.9.Final')
@@ -168,6 +166,7 @@ subprojects { p ->
         compileAndTestOnly 'commons-codec:commons-codec:1.16.0' // Minecraft; for T++
         compileAndTestOnly 'com.google.guava:guava:31.1-jre' // Minecraft; for T++
         compileAndTestOnly 'io.netty:netty-all:4.1.9.Final' // Minecraft; for T++
+        compileAndTestOnly 'lzma:lzma:0.0.1' // Minecraft
 
         compileOnly 'org.projectlombok:lombok:1.18.32'
         testCompileOnly 'org.projectlombok:lombok:1.18.32'

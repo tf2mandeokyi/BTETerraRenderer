@@ -32,17 +32,17 @@ public class PSchemeDecoderFactory {
             PredictionSchemeMethod method, int attId, PointCloudDecoder decoder,
             PSchemeDecodingTransform<DataT, CorrT> transform)
     {
-        if(method == PredictionSchemeMethod.NONE) {
+        if (method == PredictionSchemeMethod.NONE) {
             return null;
         }
         PointAttribute att = decoder.getPointCloud().getAttribute(attId);
-        if(decoder.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH) {
+        if (decoder.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH) {
             // Cast the decoder to mesh decoder.
             MeshDecoder meshDecoder = (MeshDecoder) decoder;
             PSchemeDecoder<DataT, CorrT> ret = PSchemeFactory.createMeshPredictionScheme(
                     new MPSchemeDecoderFactory<>(), meshDecoder, method, attId, transform,
                     UShort.of(decoder.getBitstreamVersion()));
-            if(ret != null) return ret;
+            if (ret != null) return ret;
             // Otherwise try to create another prediction scheme.
         }
         return new PSchemeDeltaDecoder<>(att, transform);

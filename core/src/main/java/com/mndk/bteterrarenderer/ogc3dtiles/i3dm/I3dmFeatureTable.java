@@ -38,17 +38,17 @@ public class I3dmFeatureTable {
 
         int instanceLength = jsonParsed.globalInstancesLength.getValue(binary);
         Instance[] instances = new Instance[instanceLength];
-        for(int i = 0; i < instanceLength; i++) {
+        for (int i = 0; i < instanceLength; i++) {
 
             // Position vectors
             // "If both POSITION and POSITION_QUANTIZED are defined for an instance,
             //  the higher precision POSITION will be used."
             Cartesian3f position;
-            if(jsonParsed.instancePosition != null) {
+            if (jsonParsed.instancePosition != null) {
                 position = Cartesian3f.fromArray(jsonParsed.instancePosition.getValue(binary, i).getElements());
             }
-            else if(jsonParsed.instanceQuantizedPosition != null) {
-                if(quantizedVolumeOffset == null || quantizedVolumeScale == null) {
+            else if (jsonParsed.instanceQuantizedPosition != null) {
+                if (quantizedVolumeOffset == null || quantizedVolumeScale == null) {
                     throw new RuntimeException("Malformed i3dm: quantized position exists, but global offset and/or scale doesn't");
                 }
 
@@ -62,11 +62,11 @@ public class I3dmFeatureTable {
             // "If NORMAL_UP, NORMAL_RIGHT, NORMAL_UP_OCT32P, and NORMAL_RIGHT_OCT32P are defined for an instance,
             //  the higher precision NORMAL_UP and NORMAL_RIGHT will be used."
             Cartesian3f normalUp = null, normalRight = null;
-            if(jsonParsed.instanceNormalUp != null && jsonParsed.instanceNormalRight != null) {
+            if (jsonParsed.instanceNormalUp != null && jsonParsed.instanceNormalRight != null) {
                 normalUp = Cartesian3f.fromArray(jsonParsed.instanceNormalUp.getValue(binary, i).getElements());
                 normalRight = Cartesian3f.fromArray(jsonParsed.instanceNormalRight.getValue(binary, i).getElements());
             }
-            else if(jsonParsed.instanceNormalUpOct32p != null && jsonParsed.instanceNormalRightOct32p != null) {
+            else if (jsonParsed.instanceNormalUpOct32p != null && jsonParsed.instanceNormalRightOct32p != null) {
                 float[] sNormUp = QuantizationUtil.sNormalizeShorts(
                         jsonParsed.instanceNormalUpOct32p.getValue(binary, i).getElements(), true);
                 float[] sNormRight = QuantizationUtil.sNormalizeShorts(
@@ -75,7 +75,7 @@ public class I3dmFeatureTable {
                 normalUp = Cartesian3f.fromOctEncoding(sNormUp[0], sNormUp[1]);
                 normalRight = Cartesian3f.fromOctEncoding(sNormRight[0], sNormRight[1]);
             }
-            else if(eastNorthUp) {
+            else if (eastNorthUp) {
                 // Hacky implementation, maybe TODO add a test code for this?
                 float epsilon = 1e-7f;
                 Spheroid3 spheroid3 = coordConverter.toSpheroid(position);
@@ -88,10 +88,10 @@ public class I3dmFeatureTable {
             }
 
             Cartesian3f scaled = Cartesian3f.UNIT;
-            if(jsonParsed.instanceScale != null) {
+            if (jsonParsed.instanceScale != null) {
                 scaled = scaled.scale(jsonParsed.instanceScale.getValue(binary, i));
             }
-            if(jsonParsed.instanceScaleNonUniform != null) {
+            if (jsonParsed.instanceScaleNonUniform != null) {
                 Cartesian3f scale = Cartesian3f.fromArray(jsonParsed.instanceScaleNonUniform.getValue(binary, i).getElements());
                 scaled = scaled.scale(scale);
             }

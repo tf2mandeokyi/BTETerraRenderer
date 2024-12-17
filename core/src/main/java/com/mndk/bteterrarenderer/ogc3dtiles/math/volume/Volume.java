@@ -47,7 +47,7 @@ public abstract class Volume {
             Volume result;
             p.nextToken();
             double[] array = JsonParserUtil.readDoubleArray(p);
-            switch(fieldName) {
+            switch (fieldName) {
                 case "region": result = Region.fromArray(array); break;
                 case "box": result = Box.fromArray(array); break;
                 case "sphere": result = Sphere.fromArray(array); break;

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 public interface Pointer<T> {
 
     static <T> Pointer<T> nullPointer() { return new NullPointer<>(); }
@@ -116,7 +117,7 @@ public interface Pointer<T> {
     default void set(Function<T, T> value) { this.set(value.apply(this.get())); }
     default void set(long offset, Function<T, T> value) { this.add(offset).set(value.apply(this.get())); }
     default void swap(long a, long b) {
-        if(a == b) return;
+        if (a == b) return;
         T temp = this.get(a);
         this.set(a, this.get(b));
         this.set(b, temp);

@@ -13,7 +13,7 @@ public class PointerAssert {
     }
 
     public static void rawDataEquals(RawPointer expected, RawPointer actual, long size) {
-        for(long i = 0; i < size; ++i) {
+        for (long i = 0; i < size; ++i) {
             Assert.assertEquals("Byte at index " + i, expected.getRawByte(i), actual.getRawByte(i));
         }
     }

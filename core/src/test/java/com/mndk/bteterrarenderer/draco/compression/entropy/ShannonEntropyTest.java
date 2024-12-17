@@ -41,8 +41,8 @@ public class ShannonEntropyTest {
         Assert.assertEquals(0, entropyTracker.getNumberOfDataBits());
 
         int maxSymbol = 0;
-        for(int i = 0; i < symbols.length; ++i) {
-            if(symbols[i] > maxSymbol) {
+        for (int i = 0; i < symbols.length; ++i) {
+            if (symbols[i] > maxSymbol) {
                 maxSymbol = symbols[i];
             }
             ShannonEntropyTracker.EntropyData entropyData = entropyTracker.push(symbolsPointer.add(i), 1);

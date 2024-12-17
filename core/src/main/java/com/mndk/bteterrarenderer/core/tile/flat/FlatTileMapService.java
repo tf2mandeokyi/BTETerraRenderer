@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.core.tile.flat;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,7 +11,6 @@ import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
@@ -24,11 +22,11 @@ import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Builder;
@@ -79,23 +77,21 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         this.urlConverter = urlConverter;
 
         this.tileKeyToUrl = ImmediateBlock.of((key, input) -> this.getUrlFromTileCoordinate(input));
-        this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3, true);
+        this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3, true, 0);
         this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
         this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, this.computeTileQuad(key)));
-        this.imageFetcher.setQueueKey(0);
     }
 
     @Override
-    public McCoordTransformer getPositionTransformer(McCoord playerPos) {
+    public McCoordTransformer getPositionTransformer() {
         float yAlign = (float) (BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON);
-        McCoord offset = new McCoord(0, yAlign, 0).subtract(playerPos);
-        return pos -> pos.add(offset);
+        return pos -> pos.add(new McCoord(0, yAlign, 0));
     }
 
     @Override
     protected void preRender(McCoord playerPos) {
         this.imageToPreModel.process(2);
-        if(!STATIC_IMAGES_BAKED) {
+        if (!STATIC_IMAGES_BAKED) {
             SOMETHING_WENT_WRONG.bake();
             LOADING.bake();
             STATIC_IMAGES_BAKED = true;
@@ -131,18 +127,18 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
     @Override
     public List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight) {
-        if(this.coordTranslator == null) return Collections.emptyList();
+        if (this.coordTranslator == null) return Collections.emptyList();
 
         try {
             List<FlatTileKey> result = new ArrayList<>();
             int[] tileCoord = this.coordTranslator.geoCoordToTileCoord(longitude, latitude, relativeZoom);
 
             // Diamond pattern
-            for(int i = 0; i < 2 * this.radius + 1; ++i) {
-                if(i == 0) {
+            for (int i = 0; i < 2 * this.radius + 1; ++i) {
+                if (i == 0) {
                     this.addTile(result, tileCoord, 0, 0);
                 }
-                for(int j = 0; j < i; ++j) {
+                for (int j = 0; j < i; ++j) {
                     this.addTile(result, tileCoord, -j, j - i);
                     this.addTile(result, tileCoord, j - i, +j);
                     this.addTile(result, tileCoord, j, i - j);
@@ -152,15 +148,15 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
             return result;
 
-        } catch(OutOfProjectionBoundsException ignored) {
-        } catch(Exception e) {
+        } catch (OutOfProjectionBoundsException ignored) {
+        } catch (Exception e) {
             Loggers.get(this).warn("Caught exception while rendering tile images", e);
         }
         return Collections.emptyList();
     }
 
     private void addTile(List<FlatTileKey> list, int[] tileCoord, int dx, int dy) {
-        if(Math.abs(dx) > radius || Math.abs(dy) > radius) return;
+        if (Math.abs(dx) > radius || Math.abs(dy) > radius) return;
         list.add(new FlatTileKey(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom));
     }
 
@@ -177,7 +173,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     public void setRelativeZoom(int newZoom) {
-        if(this.relativeZoom == newZoom) return;
+        if (this.relativeZoom == newZoom) return;
         this.relativeZoom = newZoom;
         this.imageFetcher.setQueueKey(newZoom);
     }
@@ -198,7 +194,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         for (int i = 0; i < 4; i++) {
             int[] mat = this.coordTranslator.getCornerMatrix(i);
             double[] geoCoord = this.coordTranslator.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
-            double[] gameCoord = Projections.getHologramProjection().fromGeo(geoCoord[0], geoCoord[1]);
+            double[] gameCoord = this.getHologramProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
             quad.setVertex(i, new PosTex(
                     new McCoord(gameCoord[0], 0, gameCoord[1]), // position
@@ -229,10 +225,9 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
             gen.writeBooleanField("flip_vert", translator.isFlipVertically());
 
             FlatTileProjection projection = translator.getProjection();
-            if(projection.getName() != null) {
+            if (projection.getName() != null) {
                 gen.writeStringField("projection", projection.getName());
-            }
-            else {
+            } else {
                 gen.writeObjectField("projection", projection);
             }
         }
@@ -247,20 +242,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
             boolean flipVertically = JsonParserUtil.getOrDefault(node, "flip_vert", false);
 
             // Get projection
-            JsonNode projectionNode = node.get("projection");
-            FlatTileProjection projection;
-            if(projectionNode.isTextual()) {
-                String projectionName = projectionNode.asText();
-                projection = ConfigLoaders.flatProj().getResult().get(projectionName);
-                if(projection == null) {
-                    throw JsonMappingException.from(ctxt, "unknown projection name: " + projectionName);
-                }
-            }
-            else if(projectionNode.isObject()) {
-                // Do not set projection name for this anonymous value.
-                projection = ctxt.readTreeAsValue(node, FlatTileProjectionImpl.class);
-            }
-            else throw JsonMappingException.from(ctxt, "projection should be an object or a name");
+            FlatTileProjection projection = ConfigLoaders.flatProj().get(node.get("projection"));
 
             // Modify projection
             FlatTileCoordTranslator coordTranslator = new FlatTileCoordTranslator(projection)

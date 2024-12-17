@@ -9,6 +9,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVert
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 
 public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsShape<T>>
         extends ShaderSetter, VertexBeginner, VertexConsumer<T> {
@@ -16,19 +17,7 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
     DrawingFormat<PosTex, GraphicsQuad<PosTex>> QUAD_PT_ALPHA = DrawingFormat.of(
             GlGraphicsManager::setPositionTexColorShader,
             BufferBuilderWrapper::beginPtcQuads,
-            (context, vertex, alpha) -> context.tessellatorBufferBuilder()
-                    .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
-                    .texture(vertex.u, vertex.v)
-                    .color(1, 1, 1, alpha)
-                    .next()
-    );
-
-    // TODO: Remove this warning suppression
-    @SuppressWarnings("unused")
-    DrawingFormat<PosTex, GraphicsTriangle<PosTex>> TRI_PT_ALPHA = DrawingFormat.of(
-            GlGraphicsManager::setPositionTexColorShader,
-            BufferBuilderWrapper::beginPtcTriangles,
-            (context, vertex, alpha) -> context.tessellatorBufferBuilder()
+            (context, builder, vertex, alpha) -> builder
                     .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
                     .color(1, 1, 1, alpha)
@@ -38,7 +27,7 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
     DrawingFormat<PosTexNorm, GraphicsTriangle<PosTexNorm>> TRI_PTN_ALPHA = DrawingFormat.of(
             GlGraphicsManager::setPositionTexColorNormalShader,
             BufferBuilderWrapper::beginPtcnTriangles,
-            (context, vertex, alpha) -> context.tessellatorBufferBuilder()
+            (context, builder, vertex, alpha) -> builder
                     .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
                     .color(1, 1, 1, alpha)
@@ -48,9 +37,10 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
 
     default void nextShape(DrawContextWrapper<?> drawContextWrapper,
                            U shape, McCoordTransformer mcCoordTransformer, float alpha) {
+        BufferBuilderWrapper<?> builder = drawContextWrapper.tessellatorBufferBuilder();
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             T vertex = shape.getVertex(i).transformMcCoord(mcCoordTransformer);
-            this.nextVertex(drawContextWrapper, vertex, alpha);
+            this.nextVertex(drawContextWrapper, builder, vertex, alpha);
         }
     }
 
@@ -65,8 +55,9 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
             public void begin(BufferBuilderWrapper<?> builder) {
                 beginner.begin(builder);
             }
-            public void nextVertex(DrawContextWrapper<?> drawContextWrapper, T vertex, float alpha) {
-                vertexConsumer.nextVertex(drawContextWrapper, vertex, alpha);
+            public void nextVertex(DrawContextWrapper<?> drawContextWrapper, BufferBuilderWrapper<?> builder,
+                                   T vertex, float alpha) {
+                vertexConsumer.nextVertex(drawContextWrapper, builder, vertex, alpha);
             }
         };
     }

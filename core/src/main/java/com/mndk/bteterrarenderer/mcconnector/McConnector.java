@@ -11,7 +11,7 @@ public class McConnector {
     private static final Logger LOGGER = Loggers.get(McConnector.class);
 
     public static void initialize(CommonMinecraftManager minecraft) {
-        if(MINECRAFT != null) LOGGER.warn("Minecraft reinitialization");
+        if (MINECRAFT != null) LOGGER.warn("Minecraft reinitialization");
         LOGGER.info("initialization: " + minecraft.getClass());
         MINECRAFT = minecraft;
     }
@@ -20,7 +20,7 @@ public class McConnector {
     public static ClientMinecraftManager client() {
         try {
             return (ClientMinecraftManager) MINECRAFT;
-        } catch(ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new UnsupportedOperationException("Minecraft is not client", e);
         }
     }

@@ -37,8 +37,8 @@ public enum EdgeFaceName {
 
     @Nullable
     public static EdgeFaceName valueOf(int value) {
-        for(EdgeFaceName face : values()) {
-            if(face.value == value) return face;
+        for (EdgeFaceName face : values()) {
+            if (face.value == value) return face;
         }
         return null;
     }

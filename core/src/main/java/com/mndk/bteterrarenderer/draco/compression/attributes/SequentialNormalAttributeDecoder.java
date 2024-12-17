@@ -42,11 +42,11 @@ public class SequentialNormalAttributeDecoder extends SequentialIntegerAttribute
     @Override
     public Status init(PointCloudDecoder decoder, int attributeId) {
         StatusChain chain = new StatusChain();
-        if(super.init(decoder, attributeId).isError(chain)) return chain.get();
-        if(!this.getAttribute().getNumComponents().equals(3)) {
+        if (super.init(decoder, attributeId).isError(chain)) return chain.get();
+        if (!this.getAttribute().getNumComponents().equals(3)) {
             return Status.dracoError("This encoder works only for 3-component normal vectors.");
         }
-        if(!this.getAttribute().getDataType().equals(DracoDataType.FLOAT32)) {
+        if (!this.getAttribute().getDataType().equals(DracoDataType.FLOAT32)) {
             return Status.dracoError("The data type must be DT_FLOAT32.");
         }
         return Status.ok();
@@ -60,8 +60,8 @@ public class SequentialNormalAttributeDecoder extends SequentialIntegerAttribute
     @Override
     protected Status decodeIntegerValues(CppVector<PointIndex> pointIds, DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
-        if(this.getDecoder().getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(octahedralTransform.decodeParameters(this.getAttribute(), inBuffer).isError(chain)) return chain.get();
+        if (this.getDecoder().getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (octahedralTransform.decodeParameters(this.getAttribute(), inBuffer).isError(chain)) return chain.get();
         }
         return super.decodeIntegerValues(pointIds, inBuffer);
     }
@@ -69,8 +69,8 @@ public class SequentialNormalAttributeDecoder extends SequentialIntegerAttribute
     @Override
     public Status decodeDataNeededByPortableTransform(CppVector<PointIndex> pointIds, DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
-        if(this.getDecoder().getBitstreamVersion() >= DracoVersions.getBitstreamVersion(2, 0)) {
-            if(!octahedralTransform.decodeParameters(this.getPortableAttribute(), inBuffer).isError(chain)) return chain.get();
+        if (this.getDecoder().getBitstreamVersion() >= DracoVersions.getBitstreamVersion(2, 0)) {
+            if (!octahedralTransform.decodeParameters(this.getPortableAttribute(), inBuffer).isError(chain)) return chain.get();
         }
         return octahedralTransform.transferToAttribute(this.getPortableAttributeInternal());
     }
@@ -82,7 +82,7 @@ public class SequentialNormalAttributeDecoder extends SequentialIntegerAttribute
 
     public PSchemeTypedDecoderInterface<Integer, Integer> createIntPredictionScheme(
             PredictionSchemeMethod method, PredictionSchemeTransformType transformType) {
-        switch(transformType) {
+        switch (transformType) {
             case NORMAL_OCTAHEDRON:
                 return PSchemeDecoderFactory.createPredictionSchemeForDecoder(
                         method, this.getAttributeId(), this.getDecoder(),

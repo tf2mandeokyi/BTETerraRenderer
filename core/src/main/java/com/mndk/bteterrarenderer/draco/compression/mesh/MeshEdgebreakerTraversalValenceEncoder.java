@@ -52,26 +52,26 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
     @Override
     public Status init(MeshEdgebreakerEncoderImplInterface encoder) {
         StatusChain chain = new StatusChain();
-        if(super.init(encoder).isError(chain)) return chain.get();
+        if (super.init(encoder).isError(chain)) return chain.get();
         minValence = 2;
         maxValence = 7;
         cornerTable = encoder.getCornerTable();
 
         // Initialize valences of all vertices.
         vertexValences.resize(cornerTable.getNumVertices());
-        for(VertexIndex i : VertexIndex.range(0, (int) vertexValences.size())) {
+        for (VertexIndex i : VertexIndex.range(0, (int) vertexValences.size())) {
             vertexValences.set(i, cornerTable.getValence(i));
         }
 
         // Replicate the corner to vertex map from the corner table.
         cornerToVertexMap.resize(cornerTable.getNumCorners());
-        for(CornerIndex i : CornerIndex.range(0, cornerTable.getNumCorners())) {
+        for (CornerIndex i : CornerIndex.range(0, cornerTable.getNumCorners())) {
             cornerToVertexMap.set(i, cornerTable.getVertex(i));
         }
         int numUniqueValences = maxValence - minValence + 1;
 
         contextSymbols.clear();
-        for(int i = 0; i < numUniqueValences; ++i) {
+        for (int i = 0; i < numUniqueValences; ++i) {
             contextSymbols.add(new CppVector<>(DataType.uint32()));
         }
         return Status.ok();
@@ -93,19 +93,19 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
 
         // Get valence on the tip corner of the active edge.
         int activeValence = vertexValences.get(cornerToVertexMap.get(next));
-        switch(symbol) {
+        switch (symbol) {
             case C: // Compute prediction.
             case S:
                 // Update valences.
                 vertexValences.set(cornerToVertexMap.get(next), val -> val - 1);
                 vertexValences.set(cornerToVertexMap.get(prev), val -> val - 1);
-                if(symbol == EdgebreakerTopology.S) {
+                if (symbol == EdgebreakerTopology.S) {
                     // Count the number of faces on the left side of the split vertex and
                     // update the valence on the "left vertex".
                     int numLeftFaces = 0;
                     CornerIndex actC = cornerTable.opposite(prev);
-                    while(actC.isValid()) {
-                        if(this.getEncoderImpl().isFaceEncoded(cornerTable.getFace(actC).getValue())) {
+                    while (actC.isValid()) {
+                        if (this.getEncoderImpl().isFaceEncoded(cornerTable.getFace(actC).getValue())) {
                             break; // Stop when we reach the first visited face.
                         }
                         numLeftFaces++;
@@ -119,8 +119,8 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
                     int numRightFaces = 0;
 
                     actC = cornerTable.opposite(next);
-                    while(actC.isValid()) {
-                        if(this.getEncoderImpl().isFaceEncoded(cornerTable.getFace(actC).getValue())) {
+                    while (actC.isValid()) {
+                        if (this.getEncoderImpl().isFaceEncoded(cornerTable.getFace(actC).getValue())) {
                             break; // Stop when we reach the first visited face.
                         }
                         numRightFaces++;
@@ -151,7 +151,7 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
                 break;
         }
 
-        if(prevSymbol != EdgebreakerTopology.INVALID) {
+        if (prevSymbol != EdgebreakerTopology.INVALID) {
             int clampedValence = Math.min(Math.max(activeValence, minValence), maxValence);
             int context = clampedValence - minValence;
             contextSymbols.get(context).pushBack(UInt.of(prevSymbol.getBitPattern()));
@@ -167,7 +167,7 @@ public class MeshEdgebreakerTraversalValenceEncoder extends MeshEdgebreakerTrave
         super.encodeAttributeSeams();
 
         // Store the contexts.
-        for(CppVector<UInt> context : contextSymbols) {
+        for (CppVector<UInt> context : contextSymbols) {
             this.getOutputBuffer().encodeVarint(DataType.uint32(), UInt.of(context.size()));
             if (!context.isEmpty()) {
                 SymbolEncoding.encode(context.getPointer(), (int) context.size(),

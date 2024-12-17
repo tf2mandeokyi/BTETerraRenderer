@@ -28,7 +28,7 @@ public class GeoidReaderTest {
     @Test
     public void givenGzippedDataFile_testChecksum() throws IOException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        try(InputStream stream = Egm96Ww15mghData.class.getResourceAsStream("WW15MGH.dat.gz");
+        try (InputStream stream = Egm96Ww15mghData.class.getResourceAsStream("WW15MGH.dat.gz");
             DigestInputStream dis = new DigestInputStream(stream, md)) {
 
             Assert.assertNotNull(dis);
@@ -39,7 +39,7 @@ public class GeoidReaderTest {
 
         String expected = "411e657962d9efd923b286c75261e0b2";
         byte[] actual = md.digest();
-        for(int i = 0; i < actual.length; i++) {
+        for (int i = 0; i < actual.length; i++) {
             byte expectedByte = (byte) Integer.parseInt(expected.substring(i * 2, i * 2 + 2), 16);
             Assert.assertEquals(expectedByte, actual[i]);
         }

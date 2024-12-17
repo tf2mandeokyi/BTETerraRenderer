@@ -38,8 +38,8 @@ public enum MeshEncoderMethod {
 
     @Nullable
     public static MeshEncoderMethod valueOf(int value) {
-        for(MeshEncoderMethod method : values()) {
-            if(method.value == value) return method;
+        for (MeshEncoderMethod method : values()) {
+            if (method.value == value) return method;
         }
         return null;
     }

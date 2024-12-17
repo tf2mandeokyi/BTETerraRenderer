@@ -19,7 +19,7 @@ public abstract class ProcessingBlock<Key, Input, Output> {
     }
 
     protected final void onProcessingFail(BlockPayload<Key, Input> payload, Exception error) {
-        Loggers.get(this).error("Caught exception while processing a resource (Key=" + payload + ")", error);
+        Loggers.get(this).error("Caught exception while processing a resource (Key={})", payload, error);
         payload.proceed(null, error);
     }
 

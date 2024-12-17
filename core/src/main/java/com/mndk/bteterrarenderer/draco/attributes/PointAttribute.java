@@ -81,14 +81,14 @@ public class PointAttribute extends GeometryAttribute {
     public final Status copyFrom(PointAttribute srcAtt) {
         StatusChain chain = new StatusChain();
 
-        if(this.getBuffer() == null) {
+        if (this.getBuffer() == null) {
             this.resetBuffer(new DataBuffer(), 0, 0);
         }
-        if(super.copyFrom(srcAtt).isError(chain)) return chain.get();
+        if (super.copyFrom(srcAtt).isError(chain)) return chain.get();
         identityMapping = srcAtt.identityMapping;
         numUniqueEntries = srcAtt.numUniqueEntries;
         indicesMap = srcAtt.indicesMap;
-        if(srcAtt.attributeTransformData != null) {
+        if (srcAtt.attributeTransformData != null) {
             attributeTransformData = new AttributeTransformData(srcAtt.attributeTransformData);
         }
         else {
@@ -104,11 +104,11 @@ public class PointAttribute extends GeometryAttribute {
     public final Status reset(long numAttributeValues) {
         StatusChain chain = new StatusChain();
 
-        if(buffer == null) {
+        if (buffer == null) {
             buffer = new DataBuffer();
         }
         long entrySize = this.getDataType().getDataTypeLength() * this.getNumComponents().intValue();
-        if(buffer.update(null, numAttributeValues * entrySize).isError(chain)) return chain.get();
+        if (buffer.update(null, numAttributeValues * entrySize).isError(chain)) return chain.get();
         // Assign the new buffer to the parent attribute.
         this.resetBuffer(buffer, entrySize, 0);
         numUniqueEntries = (int) numAttributeValues;
@@ -119,7 +119,7 @@ public class PointAttribute extends GeometryAttribute {
         return numUniqueEntries;
     }
     public final AttributeValueIndex getMappedIndex(PointIndex pointIndex) {
-        if(identityMapping) {
+        if (identityMapping) {
             return AttributeValueIndex.of(pointIndex.getValue());
         }
         return indicesMap.get(pointIndex);
@@ -153,7 +153,7 @@ public class PointAttribute extends GeometryAttribute {
     public int deduplicateValues(GeometryAttribute inAtt, AttributeValueIndex inAttOffset) {
         DataNumberType<?> dataType = inAtt.getDataType().getActualType();
         int numComponents = inAtt.getNumComponents().intValue();
-        if(numComponents < 1 || numComponents > 4) return -1;
+        if (numComponents < 1 || numComponents > 4) return -1;
 
         int uniqueVals = this.deduplicateFormattedValues(dataType, numComponents, inAtt, inAttOffset);
         return uniqueVals == 0 ? -1 : uniqueVals;
@@ -165,7 +165,7 @@ public class PointAttribute extends GeometryAttribute {
         class HashableValue {
             final Pointer<T> value;
             @Override public boolean equals(Object obj) {
-                if(!(obj instanceof HashableValue)) return false;
+                if (!(obj instanceof HashableValue)) return false;
                 HashableValue other = (HashableValue) obj;
                 return PointerHelper.contentEquals(value, other.value, numComponents);
             }
@@ -178,7 +178,7 @@ public class PointAttribute extends GeometryAttribute {
         IndexTypeVector<AttributeValueIndex, AttributeValueIndex> valueMap =
                 new IndexTypeVector<>(AttributeValueIndex.type(), numUniqueEntries);
 
-        for(AttributeValueIndex i : AttributeValueIndex.range(0, numUniqueEntries)) {
+        for (AttributeValueIndex i : AttributeValueIndex.range(0, numUniqueEntries)) {
             AttributeValueIndex attPos = i.add(inAttOffset);
             Pointer<T> attValue = inAtt.getValue(attPos, dataType, numComponents);
             HashableValue hashableValue = new HashableValue(attValue);
@@ -186,7 +186,7 @@ public class PointAttribute extends GeometryAttribute {
             boolean inserted = valueToIndexMap.putIfAbsent(hashableValue, uniqueVals) == null;
 
             // Try to update the hash map with a new entry pointing to the latest unique vertex index.
-            if(!inserted) {
+            if (!inserted) {
                 // Duplicated value found. Update index mapping.
                 valueMap.set(i, /*previousValue*/ /*uniqueVals*/ valueToIndexMap.get(hashableValue));
             } else {
@@ -195,20 +195,20 @@ public class PointAttribute extends GeometryAttribute {
                 uniqueVals = uniqueVals.add(1);
             }
         }
-        if(uniqueVals.equals(numUniqueEntries)) {
+        if (uniqueVals.equals(numUniqueEntries)) {
             return uniqueVals.getValue();  // Nothing has changed.
         }
-        if(this.isMappingIdentity()) {
+        if (this.isMappingIdentity()) {
             // Change identity mapping to the explicit one.
             // The number of points is equal to the number of old unique values.
             this.setExplicitMapping(numUniqueEntries);
             // Update the explicit map.
-            for(PointIndex i : PointIndex.range(0, numUniqueEntries)) {
+            for (PointIndex i : PointIndex.range(0, numUniqueEntries)) {
                 this.setPointMapEntry(i, valueMap.get(AttributeValueIndex.of(i.getValue())));
             }
         } else {
             // Update point to value map using the mapping between old and new values.
-            for(PointIndex i : PointIndex.range(0, (int) indicesMap.size())) {
+            for (PointIndex i : PointIndex.range(0, (int) indicesMap.size())) {
                 this.setPointMapEntry(i, valueMap.get(indicesMap.get(i)));
             }
         }
@@ -238,7 +238,7 @@ public class PointAttribute extends GeometryAttribute {
 
     /** Set an explicit map entry for a specific point index */
     public final void setPointMapEntry(PointIndex pointIndex, AttributeValueIndex entryIndex) {
-        if(identityMapping) throw new RuntimeException("Not explicit mapping");
+        if (identityMapping) throw new RuntimeException("Not explicit mapping");
         indicesMap.set(pointIndex, entryIndex);
     }
 

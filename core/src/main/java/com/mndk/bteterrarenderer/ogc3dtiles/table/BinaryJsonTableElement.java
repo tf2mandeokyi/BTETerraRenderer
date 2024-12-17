@@ -38,23 +38,23 @@ public abstract class BinaryJsonTableElement<T> {
             Class<?> valueClass = valueType == null ? null : valueType.getRawClass();
 
             JsonToken token = p.currentToken();
-            if(token == JsonToken.START_OBJECT) {
+            if (token == JsonToken.START_OBJECT) {
                 BinaryValue<?> result = new BinaryValue<>();
                 JsonNode node = ctxt.readTree(p);
 
                 result.byteOffset = node.get("byteOffset").asInt();
 
-                if(node.has("type")) {
+                if (node.has("type")) {
                     result.type = BinaryType.valueOf(node.get("type").asText());
                 } else {
                     result.type = BinaryType.valueOf(valueClass);
                 }
 
-                if(node.has("componentType")) {
+                if (node.has("componentType")) {
                     result.componentType = BinaryComponentType.valueOf(node.get("componentType").asText());
                 } else {
                     JavaType componentType = valueType;
-                    if(result.type.isVector()) {
+                    if (result.type.isVector()) {
                         componentType = componentType.containedType(0);
                     }
                     result.componentType = BinaryComponentType.valueOf(componentType.getRawClass(), false);
@@ -63,9 +63,9 @@ public abstract class BinaryJsonTableElement<T> {
             }
 
             Object content;
-            if(token == JsonToken.START_ARRAY) {
+            if (token == JsonToken.START_ARRAY) {
                 BinaryType type = BinaryType.valueOf(valueClass);
-                if(!type.isVector()) {
+                if (!type.isVector()) {
                     content = valueType == null ?
                             p.readValueAs(new TypeReference<List<Object>>() {}) :
                             ctxt.readValue(p, valueType);
@@ -84,7 +84,7 @@ public abstract class BinaryJsonTableElement<T> {
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
             JavaType wrapperType = property != null ? property.getType() : ctxt.getContextualType();
-            if(wrapperType == null) return new Deserializer();
+            if (wrapperType == null) return new Deserializer();
 
             JavaType valueType = wrapperType.containedType(0);
             Deserializer deserializer = new Deserializer();
@@ -138,7 +138,7 @@ public abstract class BinaryJsonTableElement<T> {
         @Override
         public Object[] makeColumn(int batchModelCount, byte[] binary) {
             Object[] result = new Object[batchModelCount];
-            for(int i = 0; i < batchModelCount; i++) {
+            for (int i = 0; i < batchModelCount; i++) {
                 result[i] = this.getValue(binary, i);
             }
             return result;

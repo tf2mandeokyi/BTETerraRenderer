@@ -26,26 +26,28 @@ public class Box extends Volume {
 
         Matrixf centerMatrix = center.toTransformableMatrix();
         this.boxMatrix = new Matrix4f((c, r) -> {
-            if(c == 3) return centerMatrix.get(0, r);
-            else if(r != 3) return halfLength.get(c, r);
+            if (c == 3) return centerMatrix.get(0, r);
+            else if (r != 3) return halfLength.get(c, r);
             else return 0;
         });
     }
 
     @Override
     public boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform) {
-        Matrixf actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
-        Matrixf inverseSphereMatrix = sphere.getSphereMatrix().inverse();
+        Matrix4f actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
+        Matrix4f inverseSphereMatrix = sphere.getSphereMatrix().inverse();
+        if (inverseSphereMatrix == null) return false;
 
         // "Unit-alize" the sphere
-        Matrix4f transformedBoxMatrix = inverseSphereMatrix.multiply(actualBoxMatrix).toMatrix4();
+        Matrix4f transformedBoxMatrix = inverseSphereMatrix.multiply(actualBoxMatrix);
         return UnitSphere.checkParallelepipedIntersection(transformedBoxMatrix);
     }
 
     @Override
     public boolean intersectsRay(Cartesian3f rayStart, Cartesian3f rayEnd, Matrix4f thisTransform) {
-        Matrixf actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
-        Matrix4f inverse = actualBoxMatrix.inverse().toMatrix4();
+        Matrix4f actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
+        Matrix4f inverse = actualBoxMatrix.inverse();
+        if (inverse == null) return false;
 
         // "Unit-alize" the box
         Cartesian3f unitRayStart = rayStart.transform(inverse);

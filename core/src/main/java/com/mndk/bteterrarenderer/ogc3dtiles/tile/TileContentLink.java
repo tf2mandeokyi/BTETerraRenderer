@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.tile;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 import com.mndk.bteterrarenderer.ogc3dtiles.util.URLUtil;
@@ -12,13 +13,12 @@ import java.net.URL;
 
 @Getter
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TileContentLink {
 
     private final String uri;
-    @Nullable
-    private final Volume boundingVolume;
-    @Nullable
-    private final Integer group;
+    @Nullable private final Volume boundingVolume;
+    @Nullable private final Integer group;
 
     public TileContentLink(
             @JsonProperty(value = "uri", required = true) String uri,

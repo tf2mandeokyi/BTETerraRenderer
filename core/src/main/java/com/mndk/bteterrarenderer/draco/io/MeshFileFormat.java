@@ -29,8 +29,8 @@ public enum MeshFileFormat {
 
     @Nullable
     public static MeshFileFormat fromExtension(String extension) {
-        for(MeshFileFormat format : values()) {
-            if(format.extension.equals(extension)) return format;
+        for (MeshFileFormat format : values()) {
+            if (format.extension.equals(extension)) return format;
         }
         return null;
     }

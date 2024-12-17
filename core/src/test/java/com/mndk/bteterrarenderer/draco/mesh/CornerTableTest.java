@@ -40,7 +40,7 @@ public class CornerTableTest {
         table.getValenceCache().cacheValences();
         table.getValenceCache().cacheValencesInaccurate();
 
-        for(VertexIndex index : VertexIndex.range(0, table.getNumVertices())) {
+        for (VertexIndex index : VertexIndex.range(0, table.getNumVertices())) {
             int valence = table.getValence(index);
             int valence2 = table.getValenceCache().valenceFromCache(index);
             int valence3 = table.getValenceCache().valenceFromCacheInaccurate(index);
@@ -55,7 +55,7 @@ public class CornerTableTest {
             Assert.assertTrue(valence3 >= 3);
         }
 
-        for(CornerIndex index : CornerIndex.range(0, table.getNumCorners())) {
+        for (CornerIndex index : CornerIndex.range(0, table.getNumCorners())) {
             int valence = table.getValence(index);
             int valence2 = table.getValenceCache().valenceFromCache(index);
             int valence3 = table.getValenceCache().valenceFromCacheInaccurate(index);

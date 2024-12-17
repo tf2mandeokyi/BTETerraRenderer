@@ -22,7 +22,7 @@ abstract class CastedPointer<E> implements RawPointer, Pointer<E> {
 
     @Override public final boolean equals(Object obj) {
         // Compare pointer, offset, and the data type
-        if(!(obj instanceof CastedPointer)) return false;
+        if (!(obj instanceof CastedPointer)) return false;
         CastedPointer<?> other = (CastedPointer<?>) obj;
         return pointer.equals(other.pointer) && offset == other.offset && this.getType().equals(other.getType());
     }

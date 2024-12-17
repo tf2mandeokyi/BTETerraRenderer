@@ -28,26 +28,28 @@ public class Sphere extends Volume {
 
         Matrixf centerMatrix = center.toTransformableMatrix();
         this.sphereMatrix = new Matrix4f((c, r) -> {
-            if(c == 3) return centerMatrix.get(0, r);
-            else if(r != 3) return c == r ? radius : 0;
+            if (c == 3) return centerMatrix.get(0, r);
+            else if (r != 3) return c == r ? radius : 0;
             else return 0;
         });
     }
 
     @Override
     public boolean intersectsSphere(Sphere other, Matrix4f thisTransform) {
-        Matrixf actualSphereMatrix = thisTransform.multiply(this.sphereMatrix);
-        Matrixf inverseOtherMatrix = other.sphereMatrix.inverse();
+        Matrix4f actualSphereMatrix = thisTransform.multiply(this.sphereMatrix);
+        Matrix4f inverseOtherMatrix = other.sphereMatrix.inverse();
+        if (inverseOtherMatrix == null) return false;
 
         // "Unit-alize" the other sphere
-        Matrix4f transformedSphereMatrix = inverseOtherMatrix.multiply(actualSphereMatrix).toMatrix4();
+        Matrix4f transformedSphereMatrix = inverseOtherMatrix.multiply(actualSphereMatrix);
         return UnitSphere.checkEllipsoidIntersection(transformedSphereMatrix);
     }
 
     @Override
     public boolean intersectsRay(Cartesian3f rayStart, Cartesian3f rayEnd, Matrix4f thisTransform) {
-        Matrixf actualSphereMatrix = thisTransform.multiply(this.sphereMatrix);
-        Matrix4f inverse = actualSphereMatrix.inverse().toMatrix4();
+        Matrix4f actualSphereMatrix = thisTransform.multiply(this.sphereMatrix);
+        Matrix4f inverse = actualSphereMatrix.inverse();
+        if (inverse == null) return false;
 
         Cartesian3f unitRayStart = rayStart.transform(inverse);
         Cartesian3f unitRayEnd = rayEnd.transform(inverse);
@@ -62,11 +64,11 @@ public class Sphere extends Volume {
         double latitude = coordinate.getLatitude();
 
         double distance = this.center.distance();
-        if(distance == 0) return new Region[0];
-        if(distance > this.radius) {
+        if (distance == 0) return new Region[0];
+        if (distance > this.radius) {
 
             double latitudeDiff = Math.asin(this.radius / distance);
-            if(this.center.xyDistance() > this.radius) {
+            if (this.center.xyDistance() > this.radius) {
                 double longitudeDiff = Math.asin(this.radius / this.center.xyDistance());
                 return new Region[] {
                         new Region(

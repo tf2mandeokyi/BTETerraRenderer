@@ -11,9 +11,9 @@ import java.util.Map;
 public class GltfExtensionsUtil {
     private <T> T getExtension(ModelElement modelElement, String extensionName, Class<T> clazz) {
         Map<String, Object> extensions = modelElement.getExtensions();
-        if(extensions == null || !extensions.containsKey(extensionName)) return null;
+        if (extensions == null || !extensions.containsKey(extensionName)) return null;
         Object result = extensions.get(extensionName);
-        if(result == null) return null;
+        if (result == null) return null;
         return Ogc3dTiles.jsonMapper().convertValue(result, clazz);
     }
 
@@ -25,7 +25,7 @@ public class GltfExtensionsUtil {
     @Nullable
     public <T> T getExtension(ModelElement modelElement, Class<T> clazz) {
         GltfExtension annotation = clazz.getAnnotation(GltfExtension.class);
-        if(annotation == null) throw new RuntimeException("gltf extension not annotated for class " + clazz);
+        if (annotation == null) throw new RuntimeException("gltf extension not annotated for class " + clazz);
         return getExtension(modelElement, annotation.value(), clazz);
     }
 }

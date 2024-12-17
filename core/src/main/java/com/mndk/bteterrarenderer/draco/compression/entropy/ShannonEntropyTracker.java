@@ -54,19 +54,19 @@ public class ShannonEntropyTracker {
     public EntropyData updateSymbols(Pointer<UInt> symbols, int numSymbols, boolean pushChanges) {
         EntropyData retData = entropyData.copy();
         retData.numValues += numSymbols;
-        for(int i = 0; i < numSymbols; ++i) {
+        for (int i = 0; i < numSymbols; ++i) {
             UInt symbol = symbols.get(i);
-            if(frequencies.size() <= symbol.intValue()) {
+            if (frequencies.size() <= symbol.intValue()) {
                 frequencies.resize(symbol.intValue() + 1, 0);
             }
 
             double oldSymbolEntropyNorm = 0;
             int frequency = frequencies.get(symbol);
-            if(frequency > 1) {
+            if (frequency > 1) {
                 oldSymbolEntropyNorm = frequency * Ans.log2(frequency);
-            } else if(frequency == 0) {
+            } else if (frequency == 0) {
                 retData.numUniqueSymbols++;
-                if(symbol.gt(retData.maxSymbol)) {
+                if (symbol.gt(retData.maxSymbol)) {
                     retData.maxSymbol = symbol.intValue();
                 }
             }
@@ -75,10 +75,10 @@ public class ShannonEntropyTracker {
             retData.entropyNorm += newSymbolEntropyNorm - oldSymbolEntropyNorm;
             frequencies.set(symbol, frequency);
         }
-        if(pushChanges) {
+        if (pushChanges) {
             entropyData = retData.copy();
         } else {
-            for(int i = 0; i < numSymbols; ++i) {
+            for (int i = 0; i < numSymbols; ++i) {
                 UInt symbol = symbols.get(i);
                 frequencies.set(symbol, val -> val - 1);
             }
@@ -95,7 +95,7 @@ public class ShannonEntropyTracker {
     }
 
     public static long getNumberOfDataBits(EntropyData entropyData) {
-        if(entropyData.numValues < 2) {
+        if (entropyData.numValues < 2) {
             return 0;
         }
         return (long) Math.ceil(
@@ -113,20 +113,20 @@ public class ShannonEntropyTracker {
                                Pointer<Integer> outNumUniqueSymbols) {
         int numUniqueSymbols = 0;
         CppVector<Integer> symbolFrequencies = new CppVector<>(DataType.int32(), maxValue + 1, 0);
-        for(int i = 0; i < numSymbols; ++i) {
+        for (int i = 0; i < numSymbols; ++i) {
             UInt symbol = symbols.get(i);
             int oldValue = symbolFrequencies.get(symbol);
             symbolFrequencies.set(symbol, oldValue + 1);
         }
         double totalBits = 0;
-        for(int i = 0; i < maxValue + 1; i++) {
+        for (int i = 0; i < maxValue + 1; i++) {
             int symbolFrequency = symbolFrequencies.get(i);
-            if(symbolFrequency > 0) {
+            if (symbolFrequency > 0) {
                 ++numUniqueSymbols;
                 totalBits += symbolFrequency * Ans.log2((double) symbolFrequency / numSymbols);
             }
         }
-        if(outNumUniqueSymbols != null) {
+        if (outNumUniqueSymbols != null) {
             outNumUniqueSymbols.set(numUniqueSymbols);
         }
         return (long) -totalBits;
@@ -134,10 +134,10 @@ public class ShannonEntropyTracker {
 
     // draco::ComputeBinaryShannonEntropy
     public static double computeBinary(UInt numValues, UInt numTrueValues) {
-        if(numValues.equals(0)) return 0;
+        if (numValues.equals(0)) return 0;
 
         // We can exit early if the data set has 0 entropy.
-        if(numTrueValues.equals(0) || numValues.equals(numTrueValues)) return 0;
+        if (numTrueValues.equals(0) || numValues.equals(numTrueValues)) return 0;
         double trueFreq = numTrueValues.doubleValue() / numValues.doubleValue();
         double falseFreq = 1.0 - trueFreq;
         return -(trueFreq * Ans.log2(trueFreq) + falseFreq * Ans.log2(falseFreq));

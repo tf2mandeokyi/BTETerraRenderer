@@ -83,8 +83,8 @@ public class GeometryAttribute {
         }
 
         public static Type valueOf(int value) {
-            for(Type type : values()) {
-                if(type.index == value) return type;
+            for (Type type : values()) {
+                if (type.index == value) return type;
             }
             return INVALID;
         }
@@ -144,11 +144,11 @@ public class GeometryAttribute {
         this.byteOffset = srcAtt.byteOffset;
         this.attributeType = srcAtt.attributeType;
         this.uniqueId = srcAtt.uniqueId;
-        if(srcAtt.buffer == null) {
+        if (srcAtt.buffer == null) {
             this.buffer = null;
         }
         else {
-            if(this.buffer == null) {
+            if (this.buffer == null) {
                 return Status.invalidParameter("buffer is null");
             }
             // Copy buffer data
@@ -167,7 +167,7 @@ public class GeometryAttribute {
         long bytePos = this.getBytePos(attIndex);
         DataType<T> outType = out.getType();
         long byteSize = outType.byteSize();
-        if(bytePos + byteSize * attComponents > buffer.size()) {
+        if (bytePos + byteSize * attComponents > buffer.size()) {
             return Status.ioError("buffer capacity exceeded");
         }
         buffer.read(bytePos, out, attComponents);
@@ -208,19 +208,19 @@ public class GeometryAttribute {
      * @param outVal  needs to be able to store outNumComponents values.
      */
     public final <T> Status convertValue(AttributeValueIndex attId, Pointer<T> outVal) {
-        if(outVal == null) throw new IllegalArgumentException("out value is null");
+        if (outVal == null) throw new IllegalArgumentException("out value is null");
         return this.convertTypedValue(attId, this.numComponents, this.dataType.getActualType(), outVal);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == this) return true;
-        if(!(obj instanceof GeometryAttribute)) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof GeometryAttribute)) return false;
 
         GeometryAttribute other = (GeometryAttribute) obj;
-        if(!this.numComponents.equals(other.numComponents)) return false;
-        if(this.dataType != other.dataType) return false;
-        if(this.byteStride != other.byteStride) return false;
+        if (!this.numComponents.equals(other.numComponents)) return false;
+        if (this.dataType != other.dataType) return false;
+        if (this.byteStride != other.byteStride) return false;
         return this.byteOffset == other.byteOffset;
     }
 
@@ -246,12 +246,12 @@ public class GeometryAttribute {
         DataNumberType<OutT> outType = outValue.getType().asNumber();
         Pointer<T> srcAddress = this.getAddress(attId).toType(inType);
         // Convert all components available in both the original and output formats.
-        for(int i = 0, until = UByte.min(this.numComponents, outNumComponents).intValue(); i < until; i++) {
+        for (int i = 0, until = UByte.min(this.numComponents, outNumComponents).intValue(); i < until; i++) {
             Status status = this.convertComponentValue(srcAddress.add(i), this.normalized, outValue.add(i));
-            if(status.isError()) return status;
+            if (status.isError()) return status;
         }
         // Fill empty data for unused output components if needed.
-        for(int i = this.numComponents.intValue(), until = outNumComponents.intValue(); i < until; i++) {
+        for (int i = this.numComponents.intValue(), until = outNumComponents.intValue(); i < until; i++) {
             outValue.set(i, outType.from(0));
         }
         return Status.ok();
@@ -268,30 +268,30 @@ public class GeometryAttribute {
         T inVal = inRef.get();
         DataNumberType<OutT> outT = outValue.getType().asNumber();
         // Make sure inValue can be represented as an integral type U.
-        if(outT.isIntegral()) {
+        if (outT.isIntegral()) {
             // Make sure inValue fits thin the range of values that U
             // is able to represent. Perform the check only for integral types.
-            if(outT != DataType.bool() && inT.isIntegral()) {
+            if (outT != DataType.bool() && inT.isIntegral()) {
                 OutT kOutMin = inT.isSigned() ? outT.min() : outT.from(0);
-                if(DataType.lt(inT, inVal, outT, kOutMin) || DataType.gt(inT, inVal, outT, outT.max())) {
+                if (DataType.lt(inT, inVal, outT, kOutMin) || DataType.gt(inT, inVal, outT, outT.max())) {
                     return Status.invalidParameter("inValue out of range");
                 }
             }
 
             // Check conversion of floating point inValue to integral value OutT.
-            if(inT.isFloatingPoint()) {
+            if (inT.isFloatingPoint()) {
                 // Make sure the floating point inValue is not NaN and not Infinity as
                 // integral type OutT is unable to represent these values.
                 // Since there's no float128 in java, we'll skip checking the type for it.
-                if(inT.byteSize() == DataType.float64().byteSize()) {
+                if (inT.byteSize() == DataType.float64().byteSize()) {
                     double value = inT.toDouble(inVal);
-                    if(Double.isNaN(value) || Double.isInfinite(value)) {
+                    if (Double.isNaN(value) || Double.isInfinite(value)) {
                         return Status.invalidParameter("not a valid floating point value");
                     }
                 }
-                else if(inT.byteSize() == DataType.float32().byteSize()) {
+                else if (inT.byteSize() == DataType.float32().byteSize()) {
                     float value = inT.toFloat(inVal);
-                    if(Float.isNaN(value) || Float.isInfinite(value)) {
+                    if (Float.isNaN(value) || Float.isInfinite(value)) {
                         return Status.invalidParameter("not a valid floating point value");
                     }
                 }
@@ -301,27 +301,27 @@ public class GeometryAttribute {
 
                 // Make sure the floating point inValue fits within the range of
                 // values that integral type OutT is able to present.
-                if(DataType.lt(inT, inVal, outT, outT.min()) || DataType.ge(inT, inVal, outT, outT.max())) {
+                if (DataType.lt(inT, inVal, outT, outT.min()) || DataType.ge(inT, inVal, outT, outT.max())) {
                     return Status.invalidParameter("inValue out of range");
                 }
             }
         }
 
-        if(inT.isIntegral() && outT.isFloatingPoint() && normalized) {
+        if (inT.isIntegral() && outT.isFloatingPoint() && normalized) {
             // When converting integer to floating point, normalize the value if
             // necessary.
             outValue.set(outT.div(outT.from(inT, inVal), outT.from(inT, inT.max())));
         }
-        else if(inT.isFloatingPoint() && outT.isIntegral() && normalized) {
+        else if (inT.isFloatingPoint() && outT.isIntegral() && normalized) {
             // Converting from floating point to a normalized integer.
-            if(inT.gt(inVal, 1) || inT.lt(inVal, 0)) {
+            if (inT.gt(inVal, 1) || inT.lt(inVal, 0)) {
                 // Normalized float values need to be between 0 and 1.
                 return Status.invalidParameter("input value outside normalized range: " + inRef);
             }
             // From Google's repository: "Consider allowing float to normalized integer conversion
             // for 64-bit integer types. It doesn't work currently because we don't
             // have a floating point type that could store all 64-bit integers."
-            if(outT.byteSize() > 4) {
+            if (outT.byteSize() > 4) {
                 return Status.invalidParameter("output type size bigger than 4");
             }
             // Expand the float to the range of the output integer and round it to the

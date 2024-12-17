@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class UShort extends CppNumber<UShort> {
 
     private static final UShort[] CACHE = new UShort[256];
-    static { for(short i = 0; i < 256; ++i) CACHE[i] = new UShort(i); }
+    static { for (short i = 0; i < 256; ++i) CACHE[i] = new UShort(i); }
 
     public static final UShort MIN = of((short) 0);
     public static final UShort MAX = of((short) -1);

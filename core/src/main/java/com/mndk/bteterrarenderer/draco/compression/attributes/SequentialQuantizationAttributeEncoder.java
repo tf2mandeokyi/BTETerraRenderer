@@ -44,18 +44,18 @@ public class SequentialQuantizationAttributeEncoder extends SequentialIntegerAtt
     @Override
     public Status init(PointCloudEncoder encoder, int attributeId) {
         StatusChain chain = new StatusChain();
-        if(super.init(encoder, attributeId).isError(chain)) return chain.get();
+        if (super.init(encoder, attributeId).isError(chain)) return chain.get();
 
         PointAttribute attribute = encoder.getPointCloud().getAttribute(attributeId);
-        if(attribute.getDataType() != DracoDataType.FLOAT32) {
+        if (attribute.getDataType() != DracoDataType.FLOAT32) {
             return Status.dracoError("This encoder currently works only for floating point attributes.");
         }
 
         int quantizationBits = encoder.getOptions().getAttributeInt(attributeId, "quantization_bits", -1);
-        if(quantizationBits < 1) {
+        if (quantizationBits < 1) {
             return Status.dracoError("Quantization bits must be greater than 0.");
         }
-        if(encoder.getOptions().isAttributeOptionSet(attributeId, "quantization_origin") &&
+        if (encoder.getOptions().isAttributeOptionSet(attributeId, "quantization_origin") &&
            encoder.getOptions().isAttributeOptionSet(attributeId, "quantization_range")) {
             // Quantization settings are explicitly specified in the provided options.
             int numComponents = attribute.getNumComponents().intValue();
@@ -64,11 +64,11 @@ public class SequentialQuantizationAttributeEncoder extends SequentialIntegerAtt
                     numComponents, quantizationOrigin.getPointer());
 
             float range = encoder.getOptions().getAttributeFloat(attributeId, "quantization_range", 1f);
-            if(attributeQuantizationTransform.setParameters(quantizationBits, quantizationOrigin.getPointer(),
+            if (attributeQuantizationTransform.setParameters(quantizationBits, quantizationOrigin.getPointer(),
                     numComponents, range).isError(chain)) return chain.get();
         } else {
             // Compute quantization settings from the attribute values.
-            if(attributeQuantizationTransform.computeParameters(attribute, quantizationBits).isError(chain)) return chain.get();
+            if (attributeQuantizationTransform.computeParameters(attribute, quantizationBits).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -84,7 +84,7 @@ public class SequentialQuantizationAttributeEncoder extends SequentialIntegerAtt
 
         PointAttribute portableAttribute = attributeQuantizationTransform.initTransformedAttribute(
                 this.getAttribute(), (int) pointIds.size());
-        if(attributeQuantizationTransform.transformAttribute(
+        if (attributeQuantizationTransform.transformAttribute(
                 this.getAttribute(), pointIds, portableAttribute).isError(chain)) return chain.get();
 
         this.setPortableAttribute(portableAttribute);

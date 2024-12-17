@@ -50,8 +50,8 @@ public abstract class MeshDecoder extends PointCloudDecoder implements MeshEncod
     protected Status decodeGeometryData() {
         StatusChain chain = new StatusChain();
 
-        if(mesh == null) return Status.dracoError("Mesh is not initialized.");
-        if(decodeConnectivity().isError(chain)) return chain.get();
+        if (mesh == null) return Status.dracoError("Mesh is not initialized.");
+        if (decodeConnectivity().isError(chain)) return chain.get();
         return super.decodeGeometryData();
     }
 

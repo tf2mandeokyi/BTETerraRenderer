@@ -35,7 +35,7 @@ public class QuantizationUtil {
      */
     public float[] normalizeShorts(Short[] quantized, boolean unsigned) {
         float[] result = new float[quantized.length];
-        for(int i = 0; i < quantized.length; i++) result[i] = normalizeShort(quantized[i], unsigned);
+        for (int i = 0; i < quantized.length; i++) result[i] = normalizeShort(quantized[i], unsigned);
         return result;
     }
 
@@ -45,7 +45,7 @@ public class QuantizationUtil {
      */
     public float[] sNormalizeShorts(Short[] quantized, boolean unsigned) {
         float[] result = new float[quantized.length];
-        for(int i = 0; i < quantized.length; i++) result[i] = sNormalizeShort(quantized[i], unsigned);
+        for (int i = 0; i < quantized.length; i++) result[i] = sNormalizeShort(quantized[i], unsigned);
         return result;
     }
 

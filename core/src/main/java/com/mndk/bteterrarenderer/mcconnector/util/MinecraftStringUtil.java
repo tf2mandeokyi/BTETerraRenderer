@@ -26,13 +26,13 @@ public class MinecraftStringUtil {
     public int offsetByCodepoints(String text, int originalPosition, int amount) {
         int i = text.length();
         if (amount >= 0) {
-            for(int j = 0; originalPosition < i && j < amount; ++j) {
+            for (int j = 0; originalPosition < i && j < amount; ++j) {
                 if (Character.isHighSurrogate(text.charAt(originalPosition++)) && originalPosition < i && Character.isLowSurrogate(text.charAt(originalPosition))) {
                     ++originalPosition;
                 }
             }
         } else {
-            for(int k = amount; originalPosition > 0 && k < 0; ++k) {
+            for (int k = amount; originalPosition > 0 && k < 0; ++k) {
                 --originalPosition;
                 if (Character.isLowSurrogate(text.charAt(originalPosition)) && originalPosition > 0 && Character.isHighSurrogate(text.charAt(originalPosition - 1))) {
                     --originalPosition;

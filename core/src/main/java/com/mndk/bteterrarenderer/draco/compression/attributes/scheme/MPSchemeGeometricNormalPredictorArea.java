@@ -35,7 +35,7 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
 
     @Override
     protected void computePredictedValue(CornerIndex cornerId, Pointer<DataT> prediction) {
-        if(!this.isInitialized()) {
+        if (!this.isInitialized()) {
             throw new IllegalStateException("Geometric normal predictor is not initialized");
         }
         ICornerTable cornerTable = this.getMeshData().getCornerTable();
@@ -47,9 +47,9 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
 
         VectorD.D3<Long> normal = VectorD.long3();
         CornerIndex cNext, cPrev;
-        for(CornerIndex corner : VertexCornersIterator.iterable(cornerTable, cornerId)) {
+        for (CornerIndex corner : VertexCornersIterator.iterable(cornerTable, cornerId)) {
             // Getting corners.
-            if(this.getNormalPredictionMode() == NormalPredictionMode.ONE_TRIANGLE) {
+            if (this.getNormalPredictionMode() == NormalPredictionMode.ONE_TRIANGLE) {
                 cNext = cornerTable.next(cornerId);
                 cPrev = cornerTable.previous(cornerId);
             } else {
@@ -71,21 +71,21 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
 
         // Convert to int, make sure entries are not too large.
         long upperBound = 1 << 29;
-        if(this.getNormalPredictionMode() == NormalPredictionMode.ONE_TRIANGLE) {
+        if (this.getNormalPredictionMode() == NormalPredictionMode.ONE_TRIANGLE) {
             int absSum = normal.absSum().intValue();
-            if(absSum > upperBound) {
+            if (absSum > upperBound) {
                 long quotient = absSum / upperBound;
                 normal = normal.divide(quotient);
             }
         } else {
             long absSum = normal.absSum();
-            if(absSum > upperBound) {
+            if (absSum > upperBound) {
                 long quotient = absSum / upperBound;
                 normal = normal.divide(quotient);
             }
         }
 
-        // if(normal.absSum() > upperBound) {
+        // if (normal.absSum() > upperBound) {
         //     throw new IllegalStateException("Normal vector is too large");
         // }
         prediction.set(0, this.getDataType().from(normal.get(0)));
@@ -95,7 +95,7 @@ public class MPSchemeGeometricNormalPredictorArea<DataT> extends MPSchemeGeometr
 
     @Override
     public Status setNormalPredictionMode(NormalPredictionMode mode) {
-        if(mode != NormalPredictionMode.ONE_TRIANGLE && mode != NormalPredictionMode.TRIANGLE_AREA) {
+        if (mode != NormalPredictionMode.ONE_TRIANGLE && mode != NormalPredictionMode.TRIANGLE_AREA) {
             return Status.invalidParameter("Invalid normal prediction mode");
         }
         this.normalPredictionMode = mode;

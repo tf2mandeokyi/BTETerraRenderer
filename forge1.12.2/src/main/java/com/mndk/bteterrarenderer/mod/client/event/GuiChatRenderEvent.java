@@ -20,13 +20,13 @@ public class GuiChatRenderEvent {
     @SubscribeEvent
     public void onRenderChat(RenderGameOverlayEvent.Chat event) {
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl)) return;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl)) return;
 
         AbstractGuiScreenImpl screenImpl = (AbstractGuiScreenImpl) currentScreen;
-        if(!(screenImpl.delegate instanceof MapRenderingOptionsSidebar)) return;
+        if (!(screenImpl.delegate instanceof MapRenderingOptionsSidebar)) return;
 
         GuiSidebar sidebar = (GuiSidebar) screenImpl.delegate;
-        if(sidebar.side.get() != SidebarSide.LEFT) return;
+        if (sidebar.side.get() != SidebarSide.LEFT) return;
 
         event.setPosX(sidebar.sidebarWidth.get().intValue());
     }

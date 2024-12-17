@@ -31,8 +31,8 @@ public enum NormalPredictionMode {
 
     @Nullable
     public static NormalPredictionMode valueOf(int value) {
-        for(NormalPredictionMode mode : values()) {
-            if(mode.value == value) return mode;
+        for (NormalPredictionMode mode : values()) {
+            if (mode.value == value) return mode;
         }
         return null;
     }

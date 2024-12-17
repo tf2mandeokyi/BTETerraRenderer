@@ -70,7 +70,7 @@ public class TriangleSoupMeshBuilder {
         mesh.setFace(faceId, new Mesh.Face(
                 PointIndex.of(startIndex), PointIndex.of(startIndex + 1), PointIndex.of(startIndex + 2)
         ));
-        if(attributeElementTypes.get(attId) < 0) {
+        if (attributeElementTypes.get(attId) < 0) {
             attributeElementTypes.set(attId, (byte) MeshAttributeElementType.FACE.getValue());
         }
     }
@@ -88,12 +88,12 @@ public class TriangleSoupMeshBuilder {
     }
 
     public Mesh finalizeMesh() {
-        if(mesh.deduplicateAttributeValues().isError()) {
+        if (mesh.deduplicateAttributeValues().isError()) {
             return null;
         }
         mesh.deduplicatePointIds();
-        for(int i = 0; i < attributeElementTypes.size(); ++i) {
-            if(attributeElementTypes.get(i) >= 0) {
+        for (int i = 0; i < attributeElementTypes.size(); ++i) {
+            if (attributeElementTypes.get(i) >= 0) {
                 mesh.setAttributeElementType(i, MeshAttributeElementType.valueOf(attributeElementTypes.get(i)));
             }
         }

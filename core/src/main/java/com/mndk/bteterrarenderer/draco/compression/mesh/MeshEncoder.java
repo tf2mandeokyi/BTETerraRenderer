@@ -50,8 +50,8 @@ public abstract class MeshEncoder extends PointCloudEncoder implements MeshEncod
     protected Status encodeGeometryData() {
         StatusChain chain = new StatusChain();
 
-        if(this.encodeConnectivity().isError(chain)) return chain.get();
-        if(this.getOptions().getGlobalBool("store_number_of_encoded_faces", false)) {
+        if (this.encodeConnectivity().isError(chain)) return chain.get();
+        if (this.getOptions().getGlobalBool("store_number_of_encoded_faces", false)) {
             this.computeNumberOfEncodedFaces();
         }
         return Status.ok();

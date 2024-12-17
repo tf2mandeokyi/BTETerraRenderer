@@ -42,7 +42,7 @@ public class ConfigLoaders {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setConfigDirectory(File configDirectory) {
-        if(!configDirectory.exists()) {
+        if (!configDirectory.exists()) {
             configDirectory.mkdirs();
         }
 

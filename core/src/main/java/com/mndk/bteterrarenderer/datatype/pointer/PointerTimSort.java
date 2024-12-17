@@ -81,18 +81,18 @@ class PointerTimSort<T> {
 
     private static <T> void binarySort(Pointer<T> a, long low, long high, long start, Comparator<? super T> c) {
         assert low <= start && start <= high;
-        if(start == low) start++;
+        if (start == low) start++;
 
-        for(; start < high; start++) {
+        for (; start < high; start++) {
             T pivot = a.get(start);
 
             long left = low;
             long right = start;
             assert left <= right;
 
-            while(left < right) {
+            while (left < right) {
                 long mid = (left + right) >>> 1;
-                if(c.compare(pivot, a.get(mid)) < 0) {
+                if (c.compare(pivot, a.get(mid)) < 0) {
                     right = mid;
                 } else {
                     left = mid + 1;
@@ -101,7 +101,7 @@ class PointerTimSort<T> {
             assert left == right;
 
             long n = start - left;
-            if(n >>> 32 == 0) switch ((int) n) {
+            if (n >>> 32 == 0) switch ((int) n) {
                 case 2: a.set(left + 2, a.get(left + 1));
                 case 1: a.set(left + 1, a.get(left));
                     break;
@@ -116,26 +116,26 @@ class PointerTimSort<T> {
     private static <T> long countRunAndMakeAscending(Pointer<T> a, long low, long high, Comparator<? super T> c) {
         assert low < high;
         long runHigh = low + 1;
-        if(runHigh == high) return 1;
+        if (runHigh == high) return 1;
 
-        if(c.compare(a.get(runHigh++), a.get(low)) < 0) {
-            while(runHigh < high && c.compare(a.get(runHigh), a.get(runHigh - 1)) < 0) runHigh++;
+        if (c.compare(a.get(runHigh++), a.get(low)) < 0) {
+            while (runHigh < high && c.compare(a.get(runHigh), a.get(runHigh - 1)) < 0) runHigh++;
             reverseRange(a, low, runHigh);
         } else {
-            while(runHigh < high && c.compare(a.get(runHigh), a.get(runHigh - 1)) >= 0) runHigh++;
+            while (runHigh < high && c.compare(a.get(runHigh), a.get(runHigh - 1)) >= 0) runHigh++;
         }
         return runHigh - low;
     }
 
     private static <T> void reverseRange(Pointer<T> a, long low, long high) {
         high--;
-        while(low < high) a.swap(low++, high--);
+        while (low < high) a.swap(low++, high--);
     }
 
     private static long minRunLength(long n) {
         assert n >= 0;
         long r = 0;
-        while(n >= MIN_MERGE) {
+        while (n >= MIN_MERGE) {
             r |= (n & 1);
             n >>= 1;
         }
@@ -149,7 +149,7 @@ class PointerTimSort<T> {
     }
 
     private void mergeCollapse() {
-        while(stackSize > 1) {
+        while (stackSize > 1) {
             int n = stackSize - 2;
             if (n > 0 && runLen[n - 1] <= runLen[n] + runLen[n + 1]) {
                 if (runLen[n - 1] < runLen[n + 1]) n--;
@@ -165,7 +165,7 @@ class PointerTimSort<T> {
     private void mergeForceCollapse() {
         while (stackSize > 1) {
             int n = stackSize - 2;
-            if(n > 0 && runLen[n - 1] < runLen[n + 1]) n--;
+            if (n > 0 && runLen[n - 1] < runLen[n + 1]) n--;
             mergeAt(n);
         }
     }
@@ -183,7 +183,7 @@ class PointerTimSort<T> {
         assert base1 + len1 == base2;
 
         runLen[i] = len1 + len2;
-        if(i == stackSize - 3) {
+        if (i == stackSize - 3) {
             runBase[i + 1] = runBase[i + 2];
             runLen[i + 1] = runLen[i + 2];
         }
@@ -224,9 +224,9 @@ class PointerTimSort<T> {
             while (ofs < maxOfs && c.compare(key, a.get(base + hint - ofs)) <= 0) {
                 lastOfs = ofs;
                 ofs = (ofs << 1) + 1;
-                if(ofs <= 0) ofs = maxOfs;
+                if (ofs <= 0) ofs = maxOfs;
             }
-            if(ofs > maxOfs) ofs = maxOfs;
+            if (ofs > maxOfs) ofs = maxOfs;
 
             long tmp = lastOfs;
             lastOfs = hint - ofs;
@@ -304,11 +304,11 @@ class PointerTimSort<T> {
         PointerHelper.copyMultiple(a.add(base1), tmp, len1);
 
         a.set(dest++, a.get(cursor2++));
-        if(--len2 == 0) {
+        if (--len2 == 0) {
             PointerHelper.copyMultiple(tmp.add(cursor1), a.add(dest), len1);
             return;
         }
-        if(len1 == 1) {
+        if (len1 == 1) {
             PointerHelper.copyMultiple(a.add(cursor2), a.add(dest), len2);
             a.set(dest + len2, tmp.get(cursor1));
             return;
@@ -321,16 +321,16 @@ class PointerTimSort<T> {
 
             do {
                 assert len1 > 1 && len2 > 0;
-                if(c.compare(a.get(cursor2), tmp.get(cursor1)) < 0) {
+                if (c.compare(a.get(cursor2), tmp.get(cursor1)) < 0) {
                     a.set(dest++, a.get(cursor2++));
                     count2++;
                     count1 = 0;
-                    if(--len2 == 0) break outer;
+                    if (--len2 == 0) break outer;
                 } else {
                     a.set(dest++, tmp.get(cursor1++));
                     count1++;
                     count2 = 0;
-                    if(--len1 == 1) break outer;
+                    if (--len1 == 1) break outer;
                 }
             } while ((count1 | count2) < minGallop);
 
@@ -414,12 +414,12 @@ class PointerTimSort<T> {
                     a.set(dest--, a.get(cursor1--));
                     count1++;
                     count2 = 0;
-                    if(--len1 == 0) break outer;
+                    if (--len1 == 0) break outer;
                 } else {
                     a.set(dest--, tmp.get(cursor2--));
                     count2++;
                     count1 = 0;
-                    if(--len2 == 1) break outer;
+                    if (--len2 == 1) break outer;
                 }
             } while ((count1 | count2) < minGallop);
 
@@ -431,10 +431,10 @@ class PointerTimSort<T> {
                     cursor1 -= count1;
                     len1 -= count1;
                     PointerHelper.copyMultiple(a.add(cursor1 + 1), a.add(dest + 1), count1);
-                    if(len1 == 0) break outer;
+                    if (len1 == 0) break outer;
                 }
                 a.set(dest--, tmp.get(cursor2--));
-                if(--len2 == 1) break outer;
+                if (--len2 == 1) break outer;
 
                 count2 = len2 - gallopLeft(a.get(cursor1), tmp, tmpBase, len2, len2 - 1, c);
                 if (count2 != 0) {
@@ -445,7 +445,7 @@ class PointerTimSort<T> {
                     if (len2 <= 1) break outer;
                 }
                 a.set(dest--, a.get(cursor1--));
-                if(--len1 == 0) break outer;
+                if (--len1 == 0) break outer;
                 minGallop--;
             } while (count1 >= MIN_GALLOP | count2 >= MIN_GALLOP);
 

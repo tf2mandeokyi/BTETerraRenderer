@@ -55,17 +55,17 @@ public class EncoderBuffer {
      * Returns {@code false} on error.
      */
     public Status startBitEncoding(long requiredBits, boolean encodeSize) {
-        if(bitEncoderActive()) {
+        if (bitEncoderActive()) {
             return Status.ioError("Bit encoding mode active");
         }
-        if(requiredBits <= 0) {
+        if (requiredBits <= 0) {
             return Status.invalidParameter("Invalid size");
         }
         encodeBitSequenceSize = encodeSize;
         long requiredBytes = (requiredBits + 7) / 8;
         bitEncoderReservedBytes = requiredBytes;
         long bufferStartSize = buffer.size();
-        if(encodeSize) {
+        if (encodeSize) {
             bufferStartSize += DataType.uint64().byteSize();
         }
         buffer.resize(bufferStartSize + requiredBytes);
@@ -75,7 +75,7 @@ public class EncoderBuffer {
     }
 
     public void endBitEncoding() {
-        if(!bitEncoderActive()) {
+        if (!bitEncoderActive()) {
             return;
         }
         // Get the number of encoded bits and bytes (rounded up).
@@ -84,7 +84,7 @@ public class EncoderBuffer {
         // Flush all cached bits that are not in the bit encoder's main buffer.
         bitEncoder.flush(0);
         // Encode size if needed.
-        if(encodeBitSequenceSize) {
+        if (encodeBitSequenceSize) {
             RawPointer outMem = buffer.getRawPointer().rawAdd(size());
             outMem = outMem.rawAdd(-bitEncoderReservedBytes - DataType.uint64().byteSize());
 
@@ -108,7 +108,7 @@ public class EncoderBuffer {
     }
 
     public Status encodeLeastSignificantBits32(int nbits, UInt value) {
-        if(!bitEncoderActive()) return Status.ioError("Bit encoding mode not active");
+        if (!bitEncoderActive()) return Status.ioError("Bit encoding mode not active");
         bitEncoder.putBits(value, nbits);
         return Status.ok();
     }
@@ -121,12 +121,12 @@ public class EncoderBuffer {
     }
 
     public <T> Status encode(DataType<T> inType, T data) {
-        if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
+        if (bitEncoderActive()) return Status.ioError("Bit encoding mode active");
         this.buffer.insert(this.buffer.size(), inType.newOwned(data).asRawToUByte(), inType.byteSize());
         return Status.ok();
     }
     public Status encode(RawPointer inValue, long size) {
-        if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
+        if (bitEncoderActive()) return Status.ioError("Bit encoding mode active");
         this.buffer.insert(this.buffer.size(), inValue.toUByte(), size);
         return Status.ok();
     }
@@ -134,7 +134,7 @@ public class EncoderBuffer {
         return encode(val.getType(), val);
     }
     public <T> Status encode(Pointer<T> data, long size) {
-        if(bitEncoderActive()) return Status.ioError("Bit encoding mode active");
+        if (bitEncoderActive()) return Status.ioError("Bit encoding mode active");
         this.buffer.insert(this.buffer.size(), data.asRawToUByte(), data.getType().byteSize() * size);
         return Status.ok();
     }

@@ -44,7 +44,7 @@ public class MPSchemeParallelogram {
         DataNumberType<DataT> dataType = outPrediction.getType().asNumber();
 
         CornerIndex oci = table.opposite(ci);
-        if(oci.isInvalid()) return Status.ioError("Invalid corner index");
+        if (oci.isInvalid()) return Status.ioError("Invalid corner index");
         AtomicInteger vertOppRef = new AtomicInteger();
         AtomicInteger vertNextRef = new AtomicInteger();
         AtomicInteger vertPrevRef = new AtomicInteger();
@@ -52,11 +52,11 @@ public class MPSchemeParallelogram {
         int vertOpp = vertOppRef.get();
         int vertNext = vertNextRef.get();
         int vertPrev = vertPrevRef.get();
-        if(vertOpp < dataEntryId && vertNext < dataEntryId && vertPrev < dataEntryId) {
+        if (vertOpp < dataEntryId && vertNext < dataEntryId && vertPrev < dataEntryId) {
             int vOppOff = vertOpp * numComponents;
             int vNextOff = vertNext * numComponents;
             int vPrevOff = vertPrev * numComponents;
-            for(int c = 0; c < numComponents; c++) {
+            for (int c = 0; c < numComponents; c++) {
                 long inDataNextOff = dataType.toLong(inData.get(vNextOff + c));
                 long inDataPrevOff = dataType.toLong(inData.get(vPrevOff + c));
                 long inDataOppOff = dataType.toLong(inData.get(vOppOff + c));

@@ -67,8 +67,8 @@ public class MeshEdgebreakerEncoder extends MeshEncoder {
         int selectedEdgebreakerMethodInt = this.getOptions().getGlobalInt("edgebreaker_method", -1);
         MeshEdgebreakerConnectivityEncodingMethod selectedEdgebreakerMethod =
                 MeshEdgebreakerConnectivityEncodingMethod.valueOf(selectedEdgebreakerMethodInt);
-        if(selectedEdgebreakerMethod == null) {
-            if(isStandardEdgebreakerAvailable &&
+        if (selectedEdgebreakerMethod == null) {
+            if (isStandardEdgebreakerAvailable &&
                     (this.getOptions().getSpeed() >= 5 || !isPredictiveEdgebreakerAvailable || isTinyMesh)) {
                 selectedEdgebreakerMethod = MeshEdgebreakerConnectivityEncodingMethod.STANDARD;
             } else {
@@ -76,17 +76,17 @@ public class MeshEdgebreakerEncoder extends MeshEncoder {
             }
         }
 
-        if(selectedEdgebreakerMethod == MeshEdgebreakerConnectivityEncodingMethod.STANDARD) {
-            if(isStandardEdgebreakerAvailable) {
+        if (selectedEdgebreakerMethod == MeshEdgebreakerConnectivityEncodingMethod.STANDARD) {
+            if (isStandardEdgebreakerAvailable) {
                 this.getBuffer().encode(UByte.of(MeshEdgebreakerConnectivityEncodingMethod.STANDARD.getValue()));
                 impl = new MeshEdgebreakerEncoderImpl(new MeshEdgebreakerTraversalEncoder());
             }
-        } else if(selectedEdgebreakerMethod == MeshEdgebreakerConnectivityEncodingMethod.VALENCE) {
+        } else if (selectedEdgebreakerMethod == MeshEdgebreakerConnectivityEncodingMethod.VALENCE) {
             this.getBuffer().encode(UByte.of(MeshEdgebreakerConnectivityEncodingMethod.VALENCE.getValue()));
             impl = new MeshEdgebreakerEncoderImpl(new MeshEdgebreakerTraversalValenceEncoder());
         }
 
-        if(impl == null) return Status.dracoError("Failed to initialize encoder");
+        if (impl == null) return Status.dracoError("Failed to initialize encoder");
         return impl.init(this);
     }
 
@@ -107,28 +107,28 @@ public class MeshEdgebreakerEncoder extends MeshEncoder {
 
     @Override
     protected void computeNumberOfEncodedPoints() {
-        if(impl == null) return;
+        if (impl == null) return;
 
         CornerTable cornerTable = impl.getCornerTable();
-        if(cornerTable == null) return;
+        if (cornerTable == null) return;
 
         int numPoints = cornerTable.getNumVertices() - cornerTable.getNumIsolatedVertices();
 
-        if(this.getMesh().getNumAttributes() > 1) {
+        if (this.getMesh().getNumAttributes() > 1) {
             // Gather all corner tables for all non-position attributes.
             CppVector<MeshAttributeCornerTable> attributeCornerTables = new CppVector<>(MeshAttributeCornerTable::new);
-            for(int i = 0; i < this.getMesh().getNumAttributes(); ++i) {
-                if(this.getMesh().getAttribute(i).getAttributeType() == GeometryAttribute.Type.POSITION) {
+            for (int i = 0; i < this.getMesh().getNumAttributes(); ++i) {
+                if (this.getMesh().getAttribute(i).getAttributeType() == GeometryAttribute.Type.POSITION) {
                     continue;
                 }
                 MeshAttributeCornerTable attCornerTable = this.getAttributeCornerTable(i);
-                if(attCornerTable != null) {
+                if (attCornerTable != null) {
                     attributeCornerTables.pushBack(attCornerTable);
                 }
             }
 
-            for(VertexIndex vi : VertexIndex.range(0, cornerTable.getNumVertices())) {
-                if(cornerTable.isVertexIsolated(vi)) continue;
+            for (VertexIndex vi : VertexIndex.range(0, cornerTable.getNumVertices())) {
+                if (cornerTable.isVertexIsolated(vi)) continue;
 
                 // Go around all corners of the vertex and keep track of the observed attribute seams.
                 CornerIndex firstCornerIndex = cornerTable.getLeftMostCorner(vi);
@@ -138,31 +138,31 @@ public class MeshEdgebreakerEncoder extends MeshEncoder {
                 CornerIndex lastCornerIndex = firstCornerIndex;
                 CornerIndex cornerIndex = cornerTable.swingRight(firstCornerIndex);
                 int numAttributeSeams = 0;
-                while(cornerIndex.isValid()) {
+                while (cornerIndex.isValid()) {
                     PointIndex pointIndex = this.getMesh().cornerToPointId(cornerIndex);
                     boolean seamFound = false;
-                    if(!pointIndex.equals(lastPointIndex)) {
+                    if (!pointIndex.equals(lastPointIndex)) {
                         seamFound = true;
                         lastPointIndex = pointIndex;
                     } else {
-                        for(int i = 0; i < attributeCornerTables.size(); ++i) {
+                        for (int i = 0; i < attributeCornerTables.size(); ++i) {
                             VertexIndex vertex = attributeCornerTables.get(i).getVertex(cornerIndex);
                             VertexIndex lastVertex = attributeCornerTables.get(i).getVertex(lastCornerIndex);
-                            if(!vertex.equals(lastVertex)) {
+                            if (!vertex.equals(lastVertex)) {
                                 seamFound = true;
                                 break;
                             }
                         }
                     }
-                    if(seamFound) {
+                    if (seamFound) {
                         numAttributeSeams++;
                     }
-                    if(cornerIndex.equals(firstCornerIndex)) break;
+                    if (cornerIndex.equals(firstCornerIndex)) break;
                     lastCornerIndex = cornerIndex;
                     cornerIndex = cornerTable.swingRight(cornerIndex);
                 }
 
-                if(!cornerTable.isOnBoundary(vi) && numAttributeSeams > 0) {
+                if (!cornerTable.isOnBoundary(vi) && numAttributeSeams > 0) {
                     numPoints += numAttributeSeams - 1;
                 } else {
                     numPoints += numAttributeSeams;
@@ -174,10 +174,10 @@ public class MeshEdgebreakerEncoder extends MeshEncoder {
 
     @Override
     protected void computeNumberOfEncodedFaces() {
-        if(impl == null) return;
+        if (impl == null) return;
 
         CornerTable cornerTable = impl.getCornerTable();
-        if(cornerTable == null) return;
+        if (cornerTable == null) return;
 
         this.setNumEncodedFaces(cornerTable.getNumFaces() - cornerTable.getNumDegeneratedFaces());
     }

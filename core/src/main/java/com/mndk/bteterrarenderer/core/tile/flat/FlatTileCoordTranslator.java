@@ -58,7 +58,7 @@ public class FlatTileCoordTranslator {
             throws OutOfProjectionBoundsException {
         int absoluteZoom = this.relativeZoomToAbsolute(relativeZoom);
         double[] coord = this.projection.toGeoCoord(tileX, tileY, absoluteZoom);
-        if(this.invertLatitude) coord[1] = -coord[1];
+        if (this.invertLatitude) coord[1] = -coord[1];
         return coord;
     }
 

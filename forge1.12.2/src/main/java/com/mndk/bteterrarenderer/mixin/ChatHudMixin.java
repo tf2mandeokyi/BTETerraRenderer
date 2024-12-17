@@ -19,7 +19,7 @@ public class ChatHudMixin {
     @Inject(method = "getChatOpen", at = @At(value = "RETURN"), cancellable = true)
     public void isChatFocused(CallbackInfoReturnable<Boolean> cir) {
         GuiScreen currentScreen = mc.currentScreen;
-        if(currentScreen instanceof AbstractGuiScreenImpl) {
+        if (currentScreen instanceof AbstractGuiScreenImpl) {
             AbstractGuiScreenImpl screenImpl = (AbstractGuiScreenImpl) currentScreen;
             cir.setReturnValue(screenImpl.delegate.isChatFocused());
         }

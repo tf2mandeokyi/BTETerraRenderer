@@ -51,7 +51,7 @@ public abstract class MultiThreadedBlock<Key, Input, Output> extends ProcessingB
 
         @Override
         public void run() {
-            if(maxRetryCount != -1 && retry >= maxRetryCount) {
+            if (maxRetryCount != -1 && retry >= maxRetryCount) {
                 MultiThreadedBlock.this.onProcessingFail(payload, error);
                 return;
             }
@@ -60,9 +60,9 @@ public abstract class MultiThreadedBlock<Key, Input, Output> extends ProcessingB
             try {
                 MultiThreadedBlock.this.process(payload);
                 return;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Loggers.get(this).error("Caught exception while processing a resource (" +
-                        "Key=" + payload.getKey() + ", Retry #" + (retry + 1) + ")", e);
+                        "Key={}, Retry #{})", payload.getKey(), retry + 1, e);
                 newError = e;
             }
 

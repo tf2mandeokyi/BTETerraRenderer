@@ -37,11 +37,11 @@ public enum BinaryComponentType {
     }
 
     public static BinaryComponentType valueOf(Class<?> clazz, boolean unsigned) {
-        for(BinaryComponentType type : values()) {
-            if(!type.clazz.contains(clazz)) continue;
-            if(type.unsignedState == -1) return type;
-            if(unsigned && type.isUnsigned()) return type;
-            if(!unsigned && !type.isUnsigned()) return type;
+        for (BinaryComponentType type : values()) {
+            if (!type.clazz.contains(clazz)) continue;
+            if (type.unsignedState == -1) return type;
+            if (unsigned && type.isUnsigned()) return type;
+            if (!unsigned && !type.isUnsigned()) return type;
         }
         return null;
     }

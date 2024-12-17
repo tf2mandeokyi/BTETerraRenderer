@@ -2,26 +2,27 @@ package com.mndk.bteterrarenderer.core.util.processor;
 
 import lombok.Setter;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public abstract class MappedQueueProcessor<QueueKey, Input> {
 
     private final int maxRetryCount;
-    private final Map<Input, Integer> failedCountMap = new HashMap<>();
-    private final Map<QueueKey, Queue<Input>> queueMaps = new HashMap<>();
+    private final Map<Input, Integer> failedCountMap = new ConcurrentHashMap<>();
+    private final Map<QueueKey, Queue<Input>> queueMaps = new ConcurrentHashMap<>();
 
     @Setter
-    private QueueKey currentQueueKey = null;
+    private QueueKey currentQueueKey;
 
-    protected MappedQueueProcessor(int maxRetryCount) {
+    protected MappedQueueProcessor(int maxRetryCount, QueueKey initialQueueKey) {
         this.maxRetryCount = maxRetryCount;
+        this.currentQueueKey = initialQueueKey;
     }
 
     private synchronized Queue<Input> getQueue(QueueKey queueKey) {
-        return queueMaps.computeIfAbsent(queueKey, key -> new ArrayDeque<>());
+        return queueMaps.computeIfAbsent(queueKey, key -> new ConcurrentLinkedDeque<>());
     }
 
     public synchronized boolean isCurrentQueueEmpty() {
@@ -38,23 +39,23 @@ public abstract class MappedQueueProcessor<QueueKey, Input> {
         Queue<Input> queue;
 
         synchronized(this) {
-            if(this.currentQueueKey == null) return;
+            if (this.currentQueueKey == null) return;
             queue = this.getQueue(this.currentQueueKey);
             input = queue.poll();
-            if(input == null) return;
+            if (input == null) return;
         }
 
         // Should not be synchronized with anything
         Exception exception = processInput(input);
 
         synchronized(this) {
-            if(exception == null) {
+            if (exception == null) {
                 failedCountMap.remove(input);
             } else {
                 // Skip the input if the failed count is more than enough
-                if(maxRetryCount != -1) {
+                if (maxRetryCount != -1) {
                     int previousRetryCount = failedCountMap.computeIfAbsent(input, key -> 0);
-                    if(previousRetryCount >= maxRetryCount) {
+                    if (previousRetryCount >= maxRetryCount) {
                         onInputProcessingFail(input, exception);
                         return;
                     }

@@ -21,8 +21,8 @@ public class RenderEvents {
     public void onRender(WorldRenderContext renderContext) {
         World world = renderContext.world();
         MinecraftClient client = renderContext.gameRenderer().getClient();
-        if(world == null) return;
-        if(client.player == null) return;
+        if (world == null) return;
+        if (client.player == null) return;
 
         // While the player is the "rendering center" in 1.12.2,
         // After 1.18.2 it is the camera being that center.

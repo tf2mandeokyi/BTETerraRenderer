@@ -42,9 +42,9 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
 
         Pointer<DataT> maxQuantizedValue = this.getDataType().newOwned();
         Pointer<DataT> centerValue = this.getDataType().newOwned();
-        if(buffer.decode(maxQuantizedValue).isError(chain)) return chain.get();
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
-            if(buffer.decode(centerValue).isError(chain)) return chain.get();
+        if (buffer.decode(maxQuantizedValue).isError(chain)) return chain.get();
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+            if (buffer.decode(centerValue).isError(chain)) return chain.get();
         }
         return this.setMaxQuantizedValue(maxQuantizedValue.get());
     }
@@ -52,29 +52,29 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
     @Override
     public void computeOriginalValue(Pointer<DataT> predVals, Pointer<DataT> corrVals, Pointer<DataT> outOrigVals) {
         DataNumberType<DataT> dataType = this.getDataType();
-        if(dataType.gt(predVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(predVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Predicted value is greater than 2 * center value");
         }
-        if(dataType.gt(predVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(predVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Predicted value is greater than 2 * center value");
         }
-        if(dataType.gt(corrVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(corrVals.get(0), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Correction value is greater than 2 * center value");
         }
-        if(dataType.gt(corrVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
+        if (dataType.gt(corrVals.get(1), dataType.mul(this.getCenterValue(), 2))) {
             throw new IllegalStateException("Correction value is greater than 2 * center value");
         }
 
-        if(dataType.gt(0, predVals.get(0))) {
+        if (dataType.gt(0, predVals.get(0))) {
             throw new IllegalStateException("Predicted value is less than 0");
         }
-        if(dataType.gt(0, predVals.get(1))) {
+        if (dataType.gt(0, predVals.get(1))) {
             throw new IllegalStateException("Predicted value is less than 0");
         }
-        if(dataType.gt(0, corrVals.get(0))) {
+        if (dataType.gt(0, corrVals.get(0))) {
             throw new IllegalStateException("Correction value is less than 0");
         }
-        if(dataType.gt(0, corrVals.get(1))) {
+        if (dataType.gt(0, corrVals.get(1))) {
             throw new IllegalStateException("Correction value is less than 0");
         }
 
@@ -95,7 +95,7 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
                 new VectorD.D2<>(unsignedType, pred).subtract(new VectorD.D2<>(unsignedType, t)));
 
         boolean predIsInDiamond = this.isInDiamond(pred.get(0), pred.get(1));
-        if(!predIsInDiamond) {
+        if (!predIsInDiamond) {
             this.invertDiamond(pred.getPointer(0), pred.getPointer(1));
         }
 
@@ -105,7 +105,7 @@ public class PSchemeNormalOctahedronDecodingTransform<DataT>
 
         orig.set(0, this.modMax(orig.get(0)));
         orig.set(1, this.modMax(orig.get(1)));
-        if(!predIsInDiamond) {
+        if (!predIsInDiamond) {
             this.invertDiamond(orig.getPointer(0), orig.getPointer(1));
         }
 

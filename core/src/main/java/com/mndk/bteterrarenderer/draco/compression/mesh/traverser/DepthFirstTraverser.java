@@ -35,7 +35,7 @@ public class DepthFirstTraverser extends TraverserBase {
 
     @Override
     public Status traverseFromCorner(CornerIndex cornerId) {
-        if(this.isFaceVisited(cornerId)) {
+        if (this.isFaceVisited(cornerId)) {
             return Status.ok(); // Already traversed.
         }
 
@@ -50,37 +50,37 @@ public class DepthFirstTraverser extends TraverserBase {
         } else if (prevVert.isInvalid()) {
             return Status.ioError("Invalid previous vertex: " + prevVert);
         }
-        if(!this.isVertexVisited(nextVert)) {
+        if (!this.isVertexVisited(nextVert)) {
             this.markVertexVisited(nextVert);
             this.getTraversalObserver().onNewVertexVisited(nextVert, this.getCornerTable().next(cornerId));
         }
-        if(!this.isVertexVisited(prevVert)) {
+        if (!this.isVertexVisited(prevVert)) {
             this.markVertexVisited(prevVert);
             this.getTraversalObserver().onNewVertexVisited(prevVert, this.getCornerTable().previous(cornerId));
         }
 
         // Start the actual traversal.
-        while(!cornerTraversalStack.isEmpty()) {
+        while (!cornerTraversalStack.isEmpty()) {
             // Currently processed corner.
             cornerId = cornerTraversalStack.popBack();
             FaceIndex faceId = FaceIndex.of(cornerId.getValue() / 3);
             // Make sure the face hasn't been visited yet.
-            if(cornerId.isInvalid() || this.isFaceVisited(faceId)) {
+            if (cornerId.isInvalid() || this.isFaceVisited(faceId)) {
                 // This face has been already traversed.
                 continue;
             }
-            while(true) {
+            while (true) {
                 this.markFaceVisited(faceId);
                 this.getTraversalObserver().onNewFaceVisited(faceId);
                 VertexIndex vertId = this.getCornerTable().getVertex(cornerId);
-                if(vertId.isInvalid()) {
+                if (vertId.isInvalid()) {
                     return Status.ioError("Invalid vertex index: " + vertId);
                 }
-                if(!this.isVertexVisited(vertId)) {
+                if (!this.isVertexVisited(vertId)) {
                     boolean onBoundary = this.getCornerTable().isOnBoundary(vertId);
                     this.markVertexVisited(vertId);
                     this.getTraversalObserver().onNewVertexVisited(vertId, cornerId);
-                    if(!onBoundary) {
+                    if (!onBoundary) {
                         cornerId = this.getCornerTable().getRightCorner(cornerId);
                         faceId = FaceIndex.of(cornerId.getValue() / 3);
                         continue;
@@ -94,9 +94,9 @@ public class DepthFirstTraverser extends TraverserBase {
                         FaceIndex.INVALID : FaceIndex.of(rightCornerId.getValue() / 3);
                 FaceIndex leftFaceId = leftCornerId.isInvalid() ?
                         FaceIndex.INVALID : FaceIndex.of(leftCornerId.getValue() / 3);
-                if(this.isFaceVisited(rightFaceId)) {
+                if (this.isFaceVisited(rightFaceId)) {
                     // Right face has been already visited.
-                    if(this.isFaceVisited(leftFaceId)) {
+                    if (this.isFaceVisited(leftFaceId)) {
                         // Both neighboring faces are visited. End reached.
                         break; // Break from the while (true) loop.
                     } else {

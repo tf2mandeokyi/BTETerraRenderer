@@ -14,34 +14,33 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ChatHud.class)
 public class ChatHudMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(method = "render", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILSOFT)
+    @Inject(method = "render", at = @At(value = "HEAD"))
     public void preRender(MatrixStack matrices, int currentTick, int mouseX, int mouseY, CallbackInfo ci) {
         matrices.push();
 
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl screenImpl)) return;
-        if(!(screenImpl.delegate instanceof MapRenderingOptionsSidebar sidebar)) return;
-        if(sidebar.side.get() != SidebarSide.LEFT) return;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl screenImpl)) return;
+        if (!(screenImpl.delegate instanceof MapRenderingOptionsSidebar sidebar)) return;
+        if (sidebar.side.get() != SidebarSide.LEFT) return;
 
         int translateX = sidebar.sidebarWidth.get().intValue();
         matrices.translate(translateX, 0, 0);
     }
 
-    @Inject(method = "render", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILSOFT)
+    @Inject(method = "render", at = @At(value = "RETURN"))
     public void postRender(MatrixStack matrices, int currentTick, int mouseX, int mouseY, CallbackInfo ci) {
         matrices.pop();
     }
 
     @Inject(method = "isChatFocused", at = @At(value = "RETURN"), cancellable = true)
     public void isChatFocused(CallbackInfoReturnable<Boolean> cir) {
-        if(client.currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
+        if (client.currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
             cir.setReturnValue(screenImpl.delegate.isChatFocused());
         }
     }

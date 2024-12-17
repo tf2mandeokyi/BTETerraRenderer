@@ -40,8 +40,8 @@ public enum MeshTraversalMethod {
 
     @Nullable
     public static MeshTraversalMethod valueOf(int value) {
-        for(MeshTraversalMethod method : values()) {
-            if(method.value == value) return method;
+        for (MeshTraversalMethod method : values()) {
+            if (method.value == value) return method;
         }
         return null;
     }

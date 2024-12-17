@@ -29,14 +29,14 @@ public class TextManagerImpl implements TextManager {
     public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
         Style style = styleWrapper.get();
         TextFormatting formatting = TextFormatting.fromColorIndex(textColor.getColorIndex());
-        if(formatting != null) style = style.createDeepCopy().setColor(formatting);
+        if (formatting != null) style = style.createDeepCopy().setColor(formatting);
         return new StyleWrapper(style);
     }
 
     public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if(currentScreen == null) return false;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl)) return false;
+        if (currentScreen == null) return false;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl)) return false;
 
         return ((AbstractGuiScreenImpl) currentScreen).handleStyleClick(styleWrapper.get());
     }

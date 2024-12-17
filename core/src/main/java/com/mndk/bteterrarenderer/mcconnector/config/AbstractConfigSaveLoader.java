@@ -29,31 +29,31 @@ public abstract class AbstractConfigSaveLoader {
      * Do not use this method in the constructor.
      */
     public void initialize() {
-        if(this.initialized) return;
+        if (this.initialized) return;
 
         try {
             this.connections = this.getConnections(configClass);
             this.postInitialization();
             this.initialized = true;
-        } catch(IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     public final void save() {
-        if(!this.initialized) this.initialize();
+        if (!this.initialized) this.initialize();
 
-        for(ConfigPropertyConnection connection : this.connections) {
+        for (ConfigPropertyConnection connection : this.connections) {
             connection.save();
         }
         this.saveToFile();
     }
 
     public final void load() {
-        if(!this.initialized) this.initialize();
+        if (!this.initialized) this.initialize();
 
         this.loadFromFile();
-        for(ConfigPropertyConnection connection : this.connections) {
+        for (ConfigPropertyConnection connection : this.connections) {
             connection.load();
         }
     }

@@ -13,7 +13,7 @@ public class JsonParserUtil {
 
     public static <T> List<T> readJsonList(JsonParser p, JsonParserReadFunction<T> f)
             throws IOException {
-        if(p.currentToken() == JsonToken.FIELD_NAME) {
+        if (p.currentToken() == JsonToken.FIELD_NAME) {
             p.nextToken();
         }
         if (p.currentToken() == JsonToken.START_ARRAY) {
@@ -23,7 +23,7 @@ public class JsonParserUtil {
         JsonToken token = p.currentToken();
         List<T> list = new ArrayList<>();
         do {
-            if(!token.isNumeric()) {
+            if (!token.isNumeric()) {
                 throw JsonMappingException.from(p, "expected number element, found: " + token);
             }
             T value = f.read(p);

@@ -24,6 +24,10 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     private final Map<String, Integer> columnIndexMap = new HashMap<>();
     private final List<Object[]> columns = new ArrayList<>();
 
+    public static BatchTable empty() {
+        return new BatchTable(0);
+    }
+
     public static BatchTable from(int batchModelCount, String json, byte[] binary) throws JsonProcessingException {
         RawBatchTableJson rawBatchTableJson = Ogc3dTiles.jsonMapper().readValue(json, RawBatchTableJson.class);
         BatchTable batchTable = new BatchTable(batchModelCount);
@@ -53,9 +57,9 @@ public class BatchTable implements Iterable<BatchTable.Row> {
     public String toString() {
         StringBuilder s = new StringBuilder("BatchTable[");
         Iterator<Row> iterator = this.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             s.append(iterator.next());
-            if(iterator.hasNext()) {
+            if (iterator.hasNext()) {
                 s.append(", ");
             }
         }
@@ -71,14 +75,14 @@ public class BatchTable implements Iterable<BatchTable.Row> {
          */
         public Object getByName(String columnName) {
             Integer columnIndex = columnIndexMap.get(columnName);
-            if(columnIndex == null) return null;
+            if (columnIndex == null) return null;
             return columns.get(columnIndex)[rowIndex];
         }
 
         public String toString() {
             StringBuilder s = new StringBuilder("BatchTableElement[");
             s.append("index=").append(rowIndex);
-            if(!columnIndexMap.isEmpty()) s.append(", ");
+            if (!columnIndexMap.isEmpty()) s.append(", ");
             s.append(columnIndexMap.keySet().stream()
                     .map(c -> c + "=" + this.getByName(c)).collect(Collectors.joining(", ")));
             return s + "]";
@@ -110,7 +114,7 @@ public class BatchTable implements Iterable<BatchTable.Row> {
                 }
 
                 RawBatchTableJson result = new RawBatchTableJson();
-                while(p.nextToken() != JsonToken.END_OBJECT) {
+                while (p.nextToken() != JsonToken.END_OBJECT) {
                     if (p.currentToken() != JsonToken.FIELD_NAME) {
                         throw JsonMappingException.from(p, "expected field, found: " + p.currentToken());
                     }

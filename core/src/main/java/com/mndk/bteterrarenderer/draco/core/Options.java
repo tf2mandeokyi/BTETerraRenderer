@@ -54,8 +54,8 @@ public class Options {
 
     public <T> void setVector(String name, int numDims, Pointer<T> vec) {
         StringBuilder out = new StringBuilder();
-        for(int i = 0; i < numDims; i++) {
-            if(i > 0) out.append(" ");
+        for (int i = 0; i < numDims; i++) {
+            if (i > 0) out.append(" ");
             out.append(vec.get(i).toString());
         }
         options.put(name, out.toString());
@@ -109,11 +109,11 @@ public class Options {
 
     public <T> boolean getVector(String name, int numDims, Pointer<T> outVal) {
         String value = options.get(name);
-        if(value == null) return false;
+        if (value == null) return false;
         String[] parts = value.split(" ");
         DataType<T> dataType = outVal.getType();
-        for(int i = 0; i < numDims; i++) {
-            if(i >= parts.length) return true;
+        for (int i = 0; i < numDims; i++) {
+            if (i >= parts.length) return true;
             outVal.set(i, dataType.parse(parts[i]));
         }
         return true;
@@ -128,8 +128,8 @@ public class Options {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         boolean first = true;
-        for(Map.Entry<String, String> entry : options.entrySet()) {
-            if(first) first = false;
+        for (Map.Entry<String, String> entry : options.entrySet()) {
+            if (first) first = false;
             else sb.append(", ");
             sb.append(entry.getKey()).append(": ").append(entry.getValue());
         }

@@ -39,8 +39,8 @@ public enum MeshAttributeElementType {
 
     @Nullable
     public static MeshAttributeElementType valueOf(int value) {
-        for(MeshAttributeElementType type : values()) {
-            if(type.value == value) return type;
+        for (MeshAttributeElementType type : values()) {
+            if (type.value == value) return type;
         }
         return null;
     }

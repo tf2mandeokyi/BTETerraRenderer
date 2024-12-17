@@ -7,6 +7,7 @@ import com.mndk.bteterrarenderer.datatype.number.UInt;
 import com.mndk.bteterrarenderer.datatype.number.ULong;
 import com.mndk.bteterrarenderer.datatype.number.UShort;
 
+@SuppressWarnings("unused")
 public interface RawPointer {
 
     static RawPointer newArray(long byteSize) { return Pointer.newByteArray(byteSize).asRaw(); }
@@ -26,7 +27,7 @@ public interface RawPointer {
     default int getRawInt24() { return getRawInt24(0); }
     default int getRawInt24(long int24Index) {
         int result = 0;
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             result |= (getRawByte(3 * int24Index + 2) & 0xFF);
             result |= (getRawByte(3 * int24Index + 1) & 0xFF) << 8;
             result |= (getRawByte(3 * int24Index)/**/ & 0xFF) << 16;
@@ -60,7 +61,7 @@ public interface RawPointer {
 
     default void setRawInt24(int value) { setRawInt24(0, value); }
     default void setRawInt24(long index, int value) {
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             setRawByte(3 * index + 2, (byte) value);
             setRawByte(3 * index + 1, (byte) (value >> 8));
             setRawByte(3 * index,/**/ (byte) (value >> 16));

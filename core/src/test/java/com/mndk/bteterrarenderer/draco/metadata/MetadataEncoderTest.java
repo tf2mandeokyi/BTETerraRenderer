@@ -62,7 +62,7 @@ public class MetadataEncoderTest {
 
         private void checkGeometryMetadatasAreEqual(GeometryMetadata metadata0, GeometryMetadata metadata1) {
             Assert.assertEquals(metadata0.getAttributeMetadatas().size(), metadata1.getAttributeMetadatas().size());
-            for(int i = 0; i < metadata0.getAttributeMetadatas().size(); ++i) {
+            for (int i = 0; i < metadata0.getAttributeMetadatas().size(); ++i) {
                 this.checkMetadatasAreEqual(metadata0.getAttributeMetadatas().get(i), metadata1.getAttributeMetadatas().get(i));
             }
             this.checkMetadatasAreEqual(metadata0, metadata1);
@@ -70,13 +70,13 @@ public class MetadataEncoderTest {
 
         private void checkMetadatasAreEqual(Metadata metadata0, Metadata metadata1) {
             Assert.assertEquals(metadata0.getNumEntries(), metadata1.getNumEntries());
-            for(String entryName : metadata0.getEntries().keySet()) {
+            for (String entryName : metadata0.getEntries().keySet()) {
                 CppVector<UByte> data0 = metadata0.getEntries().get(entryName).getBuffer();
                 CppVector<UByte> data1 = metadata1.getEntries().get(entryName).getBuffer();
                 this.checkBlobOfDataAreEqual(data0, data1);
             }
             Assert.assertEquals(metadata0.getSubMetadatas().size(), metadata1.getSubMetadatas().size());
-            for(String subMetadataName : metadata0.getSubMetadatas().keySet()) {
+            for (String subMetadataName : metadata0.getSubMetadatas().keySet()) {
                 this.checkMetadatasAreEqual(metadata0.getSubMetadatas().get(subMetadataName), metadata1.getSubMetadatas().get(subMetadataName));
             }
         }

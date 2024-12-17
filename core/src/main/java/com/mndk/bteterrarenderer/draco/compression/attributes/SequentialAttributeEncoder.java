@@ -110,9 +110,9 @@ public class SequentialAttributeEncoder {
     }
 
     protected Status initPredictionScheme(PSchemeInterface ps) {
-        for(int i = 0; i < ps.getNumParentAttributes(); i++) {
+        for (int i = 0; i < ps.getNumParentAttributes(); i++) {
             int attId = encoder.getPointCloud().getNamedAttributeId(ps.getParentAttributeType(i));
-            if(attId == -1) {
+            if (attId == -1) {
                 return Status.dracoError("Requested attribute does not exist.");
             }
             parentAttributes.pushBack(attId);
@@ -124,10 +124,10 @@ public class SequentialAttributeEncoder {
     protected Status setPredictionSchemeParentAttributes(PSchemeInterface ps) {
         StatusChain chain = new StatusChain();
 
-        for(int i = 0; i < ps.getNumParentAttributes(); i++) {
+        for (int i = 0; i < ps.getNumParentAttributes(); i++) {
             int attId = encoder.getPointCloud().getNamedAttributeId(ps.getParentAttributeType(i));
-            if(attId == -1) return Status.dracoError("Requested attribute does not exist.");
-            if(ps.setParentAttribute(encoder.getPortableAttribute(attId)).isError(chain)) return chain.get();
+            if (attId == -1) return Status.dracoError("Requested attribute does not exist.");
+            if (ps.setParentAttribute(encoder.getPortableAttribute(attId)).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -135,7 +135,7 @@ public class SequentialAttributeEncoder {
     protected Status encodeValues(CppVector<PointIndex> pointIds, EncoderBuffer outBuffer) {
         int entrySize = (int) attribute.getByteStride();
         Pointer<UByte> valueData = Pointer.newUByteArray(entrySize);
-        for(int i = 0; i < pointIds.size(); i++) {
+        for (int i = 0; i < pointIds.size(); i++) {
             AttributeValueIndex entryId = attribute.getMappedIndex(pointIds.get(i));
             attribute.getValue(entryId, valueData, entrySize);
             outBuffer.encode(valueData, entrySize);

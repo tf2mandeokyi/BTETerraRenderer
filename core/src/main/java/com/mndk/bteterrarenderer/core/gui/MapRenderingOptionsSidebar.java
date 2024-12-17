@@ -176,10 +176,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
 
         // Check null
-        TileMapService tms = Optional.ofNullable(tmsWrapped)
-                .map(CategoryMap.Wrapper::getItem)
-                .orElse(null);
-        if(tms == null) {
+        TileMapService tms = tmsWrapped != null ? tmsWrapped.getItem() : null;
+        if (tms == null) {
             this.yAxisInputWrapper.hide = true;
             this.tmsStateElementList.hide = true;
             this.mapCopyright.hide = true;
@@ -199,7 +197,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         // Set y axis input
         this.yAxisInputWrapper.hide = false;
-        if(tms instanceof FlatTileMapService) {
+        if (tms instanceof FlatTileMapService) {
             this.yAxisInputWrapper.setElement(McFX.i18nNumberInput(
                     "gui.bteterrarenderer.settings.map_y_level",
                     PropertyAccessor.of(renderSettings::getFlatMapYAxis, renderSettings::setFlatMapYAxis))
@@ -221,12 +219,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
         TileMapService tms = tmsWrapped.getItem();
-        if(tms == null) {
+        if (tms == null) {
             return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
         }
 
         String name = tms.getName().get();
-        if("default".equalsIgnoreCase(tmsWrapped.getSource())) {
+        if ("default".equalsIgnoreCase(tmsWrapped.getSource())) {
             return name;
         }
         return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + name;
@@ -254,16 +252,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private void openMapsFolder() {
         try {
             File directory = ConfigLoaders.tms().getFilesDirectory();
-            if(Desktop.isDesktopSupported()) {
+            if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(directory);
                 return;
             }
 
             Process p;
-            if(System.getProperty("os.name").startsWith("Windows")) {
+            if (System.getProperty("os.name").startsWith("Windows")) {
                 p = new ProcessBuilder("explorer.exe", "/select," + directory.getAbsolutePath()).start();
             }
-            else if(System.getProperty("os.name").startsWith("Mac")) {
+            else if (System.getProperty("os.name").startsWith("Mac")) {
                 p = new ProcessBuilder("usr/bin/open", directory.getAbsolutePath()).start();
             }
             else {
@@ -273,22 +271,22 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
             }
             p.waitFor(3, TimeUnit.SECONDS);
             p.destroy();
-        } catch(Exception e) {
+        } catch (Exception e) {
             Loggers.sendErrorMessageToChat(this, "Error opening the map folder!", e);
         }
     }
 
     private static NativeTextureWrapper getIconTextureObject(CategoryMap.Wrapper<TileMapService> wrapper) {
         TileMapService tms = wrapper.getItem();
-        if(tms == null) return null;
+        if (tms == null) return null;
 
         URL iconUrl = tms.getIconUrl();
-        if(iconUrl == null) return null;
+        if (iconUrl == null) return null;
         return ICON_MAKER.updateOrInsert(iconUrl, iconUrl);
     }
 
     public static void open() {
-        if(INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
+        if (INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
         BTETerraRendererConfig.save();
         INSTANCE.updateMapSourceDropdown();
         INSTANCE.setTileMapServiceWrapper(TileMapService.getSelected());

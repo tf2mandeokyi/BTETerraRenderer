@@ -35,7 +35,7 @@ public class Batched3DModel extends TileData {
 
     public static Batched3DModel from(ByteBuf buf) throws IOException {
         String magic = buf.readBytes(4).toString(StandardCharsets.UTF_8);
-        if(!"b3dm".equals(magic)) throw new IOException("expected b3dm format, found: " + magic);
+        if (!"b3dm".equals(magic)) throw new IOException("expected b3dm format, found: " + magic);
 
         int version = buf.readIntLE();
         /* int byteLength = */ buf.readIntLE();
@@ -51,7 +51,9 @@ public class Batched3DModel extends TileData {
         int batchModelCount = featureTable.getBatchLength();
         String batchTableJson = buf.readBytes(batchTableJSONByteLength).toString(StandardCharsets.UTF_8);
         byte[] batchTableBinary = IOUtil.readAllBytes(buf.readBytes(batchTableBinaryByteLength));
-        BatchTable batchTable = BatchTable.from(batchModelCount, batchTableJson, batchTableBinary);
+        BatchTable batchTable = batchTableBinaryByteLength == 0 ?
+                BatchTable.empty() :
+                BatchTable.from(batchModelCount, batchTableJson, batchTableBinary);
 
         TileGltfModel gltfModel = TileGltfModel.from(buf);
         return new Batched3DModel(version, featureTable, batchTable, gltfModel);

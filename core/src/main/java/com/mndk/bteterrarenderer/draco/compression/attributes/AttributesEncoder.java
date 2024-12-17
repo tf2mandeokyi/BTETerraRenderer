@@ -52,7 +52,7 @@ public abstract class AttributesEncoder {
 
     public Status encodeAttributesEncoderData(EncoderBuffer outBuffer) {
         outBuffer.encodeVarint(UInt.of(this.getNumAttributes()));
-        for(int i = 0; i < this.getNumAttributes(); i++) {
+        for (int i = 0; i < this.getNumAttributes(); i++) {
             int attId = this.getAttributeId(i);
             PointAttribute pa = this.pointCloud.getAttribute(attId);
             GeometryAttribute.Type type = pa.getAttributeType();
@@ -70,8 +70,8 @@ public abstract class AttributesEncoder {
     public Status encodeAttributes(EncoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(this.transformAttributesToPortableFormat().isError(chain)) return chain.get();
-        if(this.encodePortableAttributes(outBuffer).isError(chain)) return chain.get();
+        if (this.transformAttributesToPortableFormat().isError(chain)) return chain.get();
+        if (this.encodePortableAttributes(outBuffer).isError(chain)) return chain.get();
         // Encode data needed by portable transforms after the attribute is encoded.
         return this.encodeDataNeededByPortableTransforms(outBuffer);
     }
@@ -94,7 +94,7 @@ public abstract class AttributesEncoder {
 
     public void addAttributeId(int id) {
         pointAttributeIds.pushBack(id);
-        if(id >= pointAttributeToLocalIdMap.size()) {
+        if (id >= pointAttributeToLocalIdMap.size()) {
             pointAttributeToLocalIdMap.resize(id + 1, -1);
         }
         pointAttributeToLocalIdMap.set(id, (int) (pointAttributeIds.size() - 1));
@@ -103,7 +103,7 @@ public abstract class AttributesEncoder {
     public void setAttributeIds(CppVector<Integer> pointAttributeIds) {
         this.pointAttributeIds.clear();
         this.pointAttributeToLocalIdMap.clear();
-        for(int attId : pointAttributeIds) {
+        for (int attId : pointAttributeIds) {
             addAttributeId(attId);
         }
     }
@@ -128,7 +128,7 @@ public abstract class AttributesEncoder {
 
     public int getLocalIdForPointAttribute(int pointAttributeId) {
         int idMapSize = (int) pointAttributeToLocalIdMap.size();
-        if(pointAttributeId >= idMapSize) {
+        if (pointAttributeId >= idMapSize) {
             return -1;
         }
         return pointAttributeToLocalIdMap.get(pointAttributeId);

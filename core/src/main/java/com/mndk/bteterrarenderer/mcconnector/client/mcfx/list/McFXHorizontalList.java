@@ -32,19 +32,19 @@ public class McFXHorizontalList extends McFXElement {
      * @param widthFunction Set this to {@code null} to let horizontal list calculate the width
      */
     public McFXHorizontalList add(McFXElement newElement, WidthFunction widthFunction) {
-        if(newElement == null) return this;
+        if (newElement == null) return this;
 
         int index = this.entryList.size();
         this.entryList.add(new Entry(newElement, widthFunction));
 
         this.updateHorizontalDimensions();
-        for(int i = 0; i < entryList.size(); i++) {
+        for (int i = 0; i < entryList.size(); i++) {
             Entry entry = entryList.get(i);
             McFXElement element = entry.element;
-            if(element == null) continue;
+            if (element == null) continue;
 
-            if(i == index) element.init(entry.width);
-            else if(entry.widthChanged) {
+            if (i == index) element.init(entry.width);
+            else if (entry.widthChanged) {
                 element.onWidthChange(entry.width);
                 entry.widthChanged = false;
             }
@@ -66,9 +66,9 @@ public class McFXHorizontalList extends McFXElement {
     @Override
     protected void init() {
         this.updateHorizontalDimensions();
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null) continue;
+            if (element == null) continue;
             element.init(entry.width);
         }
     }
@@ -76,9 +76,9 @@ public class McFXHorizontalList extends McFXElement {
     @Override
     public void onWidthChange() {
         this.updateHorizontalDimensions();
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
             element.onWidthChange(entry.width);
             entry.widthChanged = false;
         }
@@ -92,16 +92,16 @@ public class McFXHorizontalList extends McFXElement {
         // Calculate widths (double)
         double widthLeftForNulls = totalWidth - 2 * this.sidePadding;
         int nullFunctionCount = 0;
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             Entry entry = entryList.get(i);
             McFXElement element = entry.element;
-            if(element == null || element.hide) {
+            if (element == null || element.hide) {
                 widths[i] = 0.0;
                 continue;
             }
 
             WidthFunction widthFunction = entry.widthFunction;
-            if(widthFunction == null) {
+            if (widthFunction == null) {
                 widths[i] = null;
                 nullFunctionCount++;
                 continue;
@@ -115,9 +115,9 @@ public class McFXHorizontalList extends McFXElement {
         // Calculate xPos (double)
         double[] xPosList = new double[size+1];
         xPosList[0] = 0;
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             double width;
-            if(widths[i] == null) {
+            if (widths[i] == null) {
                 width = nullFunctionCount != 0 ? Math.max(widthLeftForNulls / nullFunctionCount, 0) : 0;
             }
             else {
@@ -126,13 +126,13 @@ public class McFXHorizontalList extends McFXElement {
             xPosList[i+1] = xPosList[i] + width;
         }
 
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             // Recalculate width (double -> int) and xPos (double -> int)
             Entry entry = entryList.get(i);
             entry.xPos = (int) xPosList[i];
 
             int newWidth = (int) xPosList[i+1] - (int) xPosList[i];
-            if(entry.width != newWidth) {
+            if (entry.width != newWidth) {
                 entry.widthChanged = true;
                 entry.width = newWidth;
             }
@@ -142,25 +142,25 @@ public class McFXHorizontalList extends McFXElement {
     private void calculateHeights() {
         this.elementsMaxPhysicalHeight = 0;
         this.elementsMaxVisualHeight = 0;
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
 
             // Calculate max height
             int physicalHeight = element.getPhysicalHeight();
             int visualHeight = element.getVisualHeight();
-            if(physicalHeight > this.elementsMaxPhysicalHeight) this.elementsMaxPhysicalHeight = physicalHeight;
-            if(visualHeight > this.elementsMaxVisualHeight) this.elementsMaxVisualHeight = visualHeight;
+            if (physicalHeight > this.elementsMaxPhysicalHeight) this.elementsMaxPhysicalHeight = physicalHeight;
+            if (visualHeight > this.elementsMaxVisualHeight) this.elementsMaxVisualHeight = visualHeight;
         }
     }
 
     @Override
     public void tick() {
         this.updateHorizontalDimensions();
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
             element.tick();
-            if(entry.widthChanged) {
+            if (entry.widthChanged) {
                 element.onWidthChange(entry.width);
                 entry.widthChanged = false;
             }
@@ -171,14 +171,14 @@ public class McFXHorizontalList extends McFXElement {
     public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
         // Check for all elements
         boolean hovered = false;
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             boolean elementHovered = element.mouseHovered(
                     mouseX - this.sidePadding - entry.xPos, mouseY, partialTicks,
                     mouseHidden || hovered);
-            if(elementHovered) hovered = true;
+            if (elementHovered) hovered = true;
         }
         return hovered;
     }
@@ -190,9 +190,9 @@ public class McFXHorizontalList extends McFXElement {
         drawContextWrapper.pushMatrix();
         drawContextWrapper.translate(this.sidePadding, 0, 0);
         // Draw from the last so that the first element could appear in the front
-        for(Entry entry : Lists.reverse(entryList)) {
+        for (Entry entry : Lists.reverse(entryList)) {
             McFXElement element = entry.element;
-            if(element == null || element.hide || entry.width == 0) continue;
+            if (element == null || element.hide || entry.width == 0) continue;
 
             int xPos = entry.xPos;
             drawContextWrapper.translate(xPos - prevXPos, 0, 0);
@@ -207,15 +207,15 @@ public class McFXHorizontalList extends McFXElement {
     @Override
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         // Check for all elements
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
             int xPos = entry.xPos;
             boolean elementPressed = element.mousePressed(
                     mouseX - this.sidePadding - xPos, mouseY, mouseButton);
-            if(elementPressed) {
-                if(this.makeSound) McConnector.client().playClickSound();
+            if (elementPressed) {
+                if (this.makeSound) McConnector.client().playClickSound();
                 return true;
             }
         }
@@ -224,9 +224,9 @@ public class McFXHorizontalList extends McFXElement {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             int xPos = entry.xPos;
             element.mouseReleased(
@@ -238,13 +238,13 @@ public class McFXHorizontalList extends McFXElement {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
         // Check for all elements
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             boolean elementScrolled = element.mouseScrolled(
                     mouseX - this.sidePadding - entry.xPos, mouseY, scrollAmount);
-            if(elementScrolled) return true;
+            if (elementScrolled) return true;
         }
         return false;
     }
@@ -252,7 +252,7 @@ public class McFXHorizontalList extends McFXElement {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
         // Check for every element
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
@@ -260,14 +260,14 @@ public class McFXHorizontalList extends McFXElement {
             boolean elementDragged = element.mouseDragged(
                     mouseX - this.sidePadding - xPos, mouseY, mouseButton,
                     pMouseX - this.sidePadding - xPos, pMouseY);
-            if(elementDragged) return true;
+            if (elementDragged) return true;
         }
         return false;
     }
 
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.charTyped(typedChar, keyCode)) return true;
@@ -277,7 +277,7 @@ public class McFXHorizontalList extends McFXElement {
 
     @Override
     public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.keyPressed(key, scanCode, modifiers)) return true;
@@ -287,7 +287,7 @@ public class McFXHorizontalList extends McFXElement {
 
     @Override
     public boolean handleScreenEscape() {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (!element.handleScreenEscape()) return false;
@@ -298,9 +298,9 @@ public class McFXHorizontalList extends McFXElement {
     @Override
     public int getCount() {
         int count = 0;
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
             count += element.getCount();
         }
         return count;

@@ -53,51 +53,51 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
 
         // Decode and create attributes
         Pointer<UInt> numAttributesRef = Pointer.newUInt();
-        if(pointCloudDecoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(inBuffer.decode(numAttributesRef).isError(chain)) return chain.get();
+        if (pointCloudDecoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (inBuffer.decode(numAttributesRef).isError(chain)) return chain.get();
         } else {
-            if(inBuffer.decodeVarint(numAttributesRef).isError(chain)) return chain.get();
+            if (inBuffer.decodeVarint(numAttributesRef).isError(chain)) return chain.get();
         }
         UInt numAttributes = numAttributesRef.get();
 
         // Check that decoded number of attributes is valid
-        if(numAttributes.equals(0)) {
+        if (numAttributes.equals(0)) {
             return Status.dracoError("Number of attributes is zero");
         }
-        if(numAttributes.gt(5 * inBuffer.getRemainingSize())) {
+        if (numAttributes.gt(5 * inBuffer.getRemainingSize())) {
             return Status.dracoError("Decoded number of attributes is unreasonably high");
         }
 
         // Decode attribute descriptor data
         pointAttributeIds.resize(numAttributes.intValue());
         PointCloud pc = this.pointCloud;
-        for(UInt i = UInt.ZERO; i.lt(numAttributes); i = i.add(1)) {
+        for (UInt i = UInt.ZERO; i.lt(numAttributes); i = i.add(1)) {
             // Decode attribute descriptor data
             Pointer<UByte> attTypeRef = Pointer.newUByte();
-            if(inBuffer.decode(attTypeRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(attTypeRef).isError(chain)) return chain.get();
             GeometryAttribute.Type attType = GeometryAttribute.Type.valueOf(attTypeRef.get());
 
             Pointer<UByte> dataTypeRef = Pointer.newUByte();
-            if(inBuffer.decode(dataTypeRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(dataTypeRef).isError(chain)) return chain.get();
             DracoDataType dataType = DracoDataType.valueOf(dataTypeRef.get());
 
             Pointer<UByte> numComponentsRef = Pointer.newUByte();
-            if(inBuffer.decode(numComponentsRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(numComponentsRef).isError(chain)) return chain.get();
             UByte numComponents = numComponentsRef.get();
 
             Pointer<UByte> normalizedRef = Pointer.newUByte();
-            if(inBuffer.decode(normalizedRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(normalizedRef).isError(chain)) return chain.get();
             UByte normalized = normalizedRef.get();
 
-            if(attType == GeometryAttribute.Type.INVALID) {
+            if (attType == GeometryAttribute.Type.INVALID) {
                 return Status.dracoError("Invalid attribute type: " + attTypeRef.get());
             }
-            if(dataType == DracoDataType.INVALID) {
+            if (dataType == DracoDataType.INVALID) {
                 return Status.dracoError("Invalid data type: " + dataTypeRef.get());
             }
 
             // Check decoded attribute descriptor data
-            if(numComponents.equals(0)) {
+            if (numComponents.equals(0)) {
                 return Status.dracoError("Number of components is zero");
             }
 
@@ -105,13 +105,13 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
             GeometryAttribute ga = new GeometryAttribute();
             ga.init(attType, null, numComponents, dataType, normalized.gt(UByte.ZERO));
             Pointer<UInt> uniqueIdRef = Pointer.newUInt();
-            if(pointCloudDecoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 3)) {
+            if (pointCloudDecoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 3)) {
                 Pointer<UShort> customIdRef = Pointer.newUShort();
-                if(inBuffer.decode(customIdRef).isError(chain)) return chain.get();
+                if (inBuffer.decode(customIdRef).isError(chain)) return chain.get();
                 uniqueIdRef.set(customIdRef.get().uIntValue());
             }
             else {
-                if(inBuffer.decodeVarint(uniqueIdRef).isError(chain)) return chain.get();
+                if (inBuffer.decodeVarint(uniqueIdRef).isError(chain)) return chain.get();
             }
             UInt uniqueId = uniqueIdRef.get();
             ga.setUniqueId(uniqueId);
@@ -120,7 +120,7 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
             pointAttributeIds.set(i.intValue(), attId);
 
             // Update the inverse map
-            if(attId >= pointAttributeToLocalIdMap.size()) {
+            if (attId >= pointAttributeToLocalIdMap.size()) {
                 pointAttributeToLocalIdMap.resize(attId + 1, -1);
             }
             pointAttributeToLocalIdMap.set(attId, i.intValue());
@@ -131,9 +131,9 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
     @Override
     public Status decodeAttributes(DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
-        if(this.decodePortableAttributes(inBuffer).isError(chain)) return chain.get();
-        if(this.decodeDataNeededByPortableTransforms(inBuffer).isError(chain)) return chain.get();
-        if(this.transformAttributesToOriginalFormat().isError(chain)) return chain.get();
+        if (this.decodePortableAttributes(inBuffer).isError(chain)) return chain.get();
+        if (this.decodeDataNeededByPortableTransforms(inBuffer).isError(chain)) return chain.get();
+        if (this.transformAttributesToOriginalFormat().isError(chain)) return chain.get();
         return Status.ok();
     }
 
@@ -154,7 +154,7 @@ public abstract class AttributesDecoder implements AttributesDecoderInterface {
 
     protected int getLocalIdForPointAttribute(int pointAttributeId) {
         int idMapSize = (int) this.pointAttributeToLocalIdMap.size();
-        if(pointAttributeId >= idMapSize) {
+        if (pointAttributeId >= idMapSize) {
             return -1;
         }
         return this.pointAttributeToLocalIdMap.get(pointAttributeId);

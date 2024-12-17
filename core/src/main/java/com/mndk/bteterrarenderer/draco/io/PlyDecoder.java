@@ -51,9 +51,9 @@ public class PlyDecoder {
     }
 
     public Status decodeFromFile(File file, PointCloud outPointCloud) {
-        try(InputStream inputStream = Files.newInputStream(file.toPath())) {
+        try (InputStream inputStream = Files.newInputStream(file.toPath())) {
             this.buffer.init(inputStream);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return Status.ioError("Unable to read input file", e);
         }
         return decodeFromBuffer(this.buffer, outPointCloud);
@@ -74,28 +74,28 @@ public class PlyDecoder {
         StatusChain chain = new StatusChain();
 
         PlyReader plyReader = new PlyReader();
-        if(plyReader.read(buffer).isError(chain)) return chain.get();
-        if(outMesh != null) {
-            if(decodeFaceData(plyReader.getElementByName("face")).isError(chain)) return chain.get();
+        if (plyReader.read(buffer).isError(chain)) return chain.get();
+        if (outMesh != null) {
+            if (decodeFaceData(plyReader.getElementByName("face")).isError(chain)) return chain.get();
         }
-        if(decodeVertexData(plyReader.getElementByName("vertex")).isError(chain)) return chain.get();
+        if (decodeVertexData(plyReader.getElementByName("vertex")).isError(chain)) return chain.get();
 
-        if(outMesh != null && outMesh.getNumFaces() != 0) {
-            if(outPointCloud.deduplicateAttributeValues().isError(chain)) return chain.get();
+        if (outMesh != null && outMesh.getNumFaces() != 0) {
+            if (outPointCloud.deduplicateAttributeValues().isError(chain)) return chain.get();
             outPointCloud.deduplicatePointIds();
         }
         return Status.ok();
     }
 
     private Status decodeFaceData(PlyElement faceElement) {
-        if(faceElement == null) {
+        if (faceElement == null) {
             return Status.ok();
         }
         PlyProperty vertexIndices = faceElement.getPropertyByName("vertex_indices");
-        if(vertexIndices == null) {
+        if (vertexIndices == null) {
             vertexIndices = faceElement.getPropertyByName("vertex_index");
         }
-        if(vertexIndices == null || !vertexIndices.isList()) {
+        if (vertexIndices == null || !vertexIndices.isList()) {
             return Status.ioError("No faces defined");
         }
 
@@ -104,16 +104,16 @@ public class PlyDecoder {
 
         PlyPropertyReader<Integer> vertexIndexReader = new PlyPropertyReader<>(DataType.int32(), vertexIndices);
         FaceIndex faceIndex = FaceIndex.of(0);
-        for(int i = 0; i < numPolygons; i++) {
+        for (int i = 0; i < numPolygons; i++) {
             Mesh.Face face = new Mesh.Face();
             long listOffset = vertexIndices.getListEntryOffset(i);
             long listSize = vertexIndices.getListEntryNumValues(i);
-            if(listSize < 3) continue;
+            if (listSize < 3) continue;
 
             long numTriangles = listSize - 2;
             face.set(0, PointIndex.of(vertexIndexReader.readValue((int) listOffset)));
-            for(long ti = 0; ti < numTriangles; ti++) {
-                for(int c = 1; c < 3; c++) {
+            for (long ti = 0; ti < numTriangles; ti++) {
+                for (int c = 1; c < 3; c++) {
                     face.set(c, PointIndex.of(vertexIndexReader.readValue((int) (listOffset + ti + c))));
                 }
                 outMesh.setFace(faceIndex, face);
@@ -125,16 +125,16 @@ public class PlyDecoder {
     }
 
     private Status decodeVertexData(PlyElement vertexElement) {
-        if(vertexElement == null) {
+        if (vertexElement == null) {
             return Status.invalidParameter("vertex_element is null");
         }
 
         PlyProperty xProp = vertexElement.getPropertyByName("x");
-        if(xProp == null) return Status.invalidParameter("x property is missing");
+        if (xProp == null) return Status.invalidParameter("x property is missing");
         PlyProperty yProp = vertexElement.getPropertyByName("y");
-        if(yProp == null) return Status.invalidParameter("y property is missing");
+        if (yProp == null) return Status.invalidParameter("y property is missing");
         PlyProperty zProp = vertexElement.getPropertyByName("z");
-        if(zProp == null) return Status.invalidParameter("z property is missing");
+        if (zProp == null) return Status.invalidParameter("z property is missing");
 
         int numVertices = vertexElement.getNumEntries();
         outPointCloud.setNumPoints(numVertices);
@@ -192,33 +192,33 @@ public class PlyDecoder {
         PlyProperty gProp = vertexElement.getPropertyByName("green");
         PlyProperty bProp = vertexElement.getPropertyByName("blue");
         PlyProperty aProp = vertexElement.getPropertyByName("alpha");
-        if(rProp != null) numColors++;
-        if(gProp != null) numColors++;
-        if(bProp != null) numColors++;
-        if(aProp != null) numColors++;
+        if (rProp != null) numColors++;
+        if (gProp != null) numColors++;
+        if (bProp != null) numColors++;
+        if (aProp != null) numColors++;
 
-        if(numColors > 0) {
+        if (numColors > 0) {
             List<PlyPropertyReader<UByte>> colorReaders = new ArrayList<>();
-            if(rProp != null) {
-                if(rProp.getDataType() != DracoDataType.UINT8) {
+            if (rProp != null) {
+                if (rProp.getDataType() != DracoDataType.UINT8) {
                     return Status.invalidParameter("Type of 'red' property must be uint8");
                 }
                 colorReaders.add(new PlyPropertyReader<>(DataType.uint8(), rProp));
             }
-            if(gProp != null) {
-                if(gProp.getDataType() != DracoDataType.UINT8) {
+            if (gProp != null) {
+                if (gProp.getDataType() != DracoDataType.UINT8) {
                     return Status.invalidParameter("Type of 'green' property must be uint8");
                 }
                 colorReaders.add(new PlyPropertyReader<>(DataType.uint8(), gProp));
             }
-            if(bProp != null) {
-                if(bProp.getDataType() != DracoDataType.UINT8) {
+            if (bProp != null) {
+                if (bProp.getDataType() != DracoDataType.UINT8) {
                     return Status.invalidParameter("Type of 'blue' property must be uint8");
                 }
                 colorReaders.add(new PlyPropertyReader<>(DataType.uint8(), bProp));
             }
-            if(aProp != null) {
-                if(aProp.getDataType() != DracoDataType.UINT8) {
+            if (aProp != null) {
+                if (aProp.getDataType() != DracoDataType.UINT8) {
                     return Status.invalidParameter("Type of 'alpha' property must be uint8");
                 }
                 colorReaders.add(new PlyPropertyReader<>(DataType.uint8(), aProp));
@@ -227,9 +227,9 @@ public class PlyDecoder {
             GeometryAttribute va = new GeometryAttribute();
             va.init(GeometryAttribute.Type.COLOR, null, UByte.of(numColors), DracoDataType.UINT8, true, 4 * numColors, 0);
             int attId = outPointCloud.addAttribute(va, true, numVertices);
-            for(int i = 0; i < numVertices; i++) {
+            for (int i = 0; i < numVertices; i++) {
                 Pointer<UByte> val = Pointer.newUByteArray(4);
-                for(int j = 0; j < numColors; j++) {
+                for (int j = 0; j < numColors; j++) {
                     val.set(j, colorReaders.get(j).readValue(i));
                 }
                 outPointCloud.getAttribute(attId).setAttributeValue(AttributeValueIndex.of(i), val);
@@ -242,12 +242,12 @@ public class PlyDecoder {
     private <T> void readPropertiesToAttribute(DataNumberType<T> type, List<PlyProperty> properties,
                                                PointAttribute attribute, int numVertices) {
         List<PlyPropertyReader<T>> readers = new ArrayList<>(properties.size());
-        for(PlyProperty property : properties) {
+        for (PlyProperty property : properties) {
             readers.add(new PlyPropertyReader<>(type, property));
         }
         CppVector<T> memory = new CppVector<>(type, properties.size());
-        for(int i = 0; i < numVertices; i++) {
-            for(int prop = 0; prop < properties.size(); prop++) {
+        for (int i = 0; i < numVertices; i++) {
+            for (int prop = 0; prop < properties.size(); prop++) {
                 memory.set(prop, readers.get(prop).readValue(i));
             }
             attribute.setAttributeValue(AttributeValueIndex.of(i), memory.getPointer());

@@ -22,16 +22,16 @@ public class CheckBoxWidgetCopy extends AbstractWidgetCopy {
 
     @Override
     public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
-        if(!this.visible) return;
+        if (!this.visible) return;
 
         drawContextWrapper.drawCheckBox(x, y, BOX_WIDTH, height, this.isFocused(), checked);
 
         int color = NORMAL_TEXT_COLOR;
-        if(packedForegroundColor != 0)  color = packedForegroundColor;
-        else if(!this.enabled)          color = DISABLED_TEXT_COLOR;
-        else if(this.hovered)            color = HOVERED_COLOR;
+        if (packedForegroundColor != 0)  color = packedForegroundColor;
+        else if (!this.enabled)          color = DISABLED_TEXT_COLOR;
+        else if (this.hovered)            color = HOVERED_COLOR;
 
-        if(this.width != -1) {
+        if (this.width != -1) {
             text = getDefaultFont().trimToWidth(text, width - BOX_WIDTH - BOX_MARGIN_RIGHT);
         }
         int textLeft = this.x + BOX_WIDTH + BOX_MARGIN_RIGHT;

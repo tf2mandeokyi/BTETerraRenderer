@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
+import com.mndk.bteterrarenderer.core.util.IOUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.http.Http;
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
@@ -36,8 +37,7 @@ public class HttpResourceManager {
 
     public BufferedImage downloadAsImage(String url) throws ExecutionException, InterruptedException, IOException {
         ByteBuf buf = download(url);
-        byte[] bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
+        byte[] bytes = IOUtil.readAllBytes(buf);
         Exception exception;
 
         // Try bitmap type image
@@ -46,9 +46,9 @@ public class HttpResourceManager {
             BufferedImage image = ImageIO.read(stream);
             stream.close();
 
-            if(image == null) throw NPE;
+            if (image == null) throw NPE;
             return image;
-        } catch(IOException | NullPointerException ignored) {}
+        } catch (IOException | NullPointerException ignored) {}
 
         // Try svg type image
         try {
@@ -63,7 +63,7 @@ public class HttpResourceManager {
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(pngBytes));
             svgStream.close();
 
-            if(image == null) throw NPE;
+            if (image == null) throw NPE;
             return image;
         } catch (TranscoderException | NullPointerException | SAXException | TransformerException e) {
             exception = e;
@@ -76,10 +76,10 @@ public class HttpResourceManager {
         // "The attribute "offset" of the element <stop> is required" error handler
         Document svgDocument = DOCUMENT_BUILDER.parse(brokenSvgStream);
         NodeList stopTags = svgDocument.getElementsByTagName("stop");
-        for(int i = 0; i < stopTags.getLength(); i++) {
+        for (int i = 0; i < stopTags.getLength(); i++) {
             NamedNodeMap stopNodeAttributes = stopTags.item(i).getAttributes();
             Node offsetNode = stopNodeAttributes.getNamedItem("offset");
-            if(offsetNode != null) continue;
+            if (offsetNode != null) continue;
 
             Attr newOffsetNode = svgDocument.createAttribute("offset");
             newOffsetNode.setValue("0");

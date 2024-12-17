@@ -9,7 +9,7 @@ public interface RawBytePointer extends RawPointer {
 
     @Override default short getRawShort(long shortIndex) {
         int result = 0;
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             result |= (getRawByte(2 * shortIndex + 1) & MASK);
             result |= (getRawByte(2 * shortIndex)/**/ & MASK) << 8;
         } else {
@@ -20,7 +20,7 @@ public interface RawBytePointer extends RawPointer {
     }
     @Override default int getRawInt(long intIndex) {
         int result = 0;
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             result |= (getRawByte(4 * intIndex + 3) & MASK);
             result |= (getRawByte(4 * intIndex + 2) & MASK) << 8;
             result |= (getRawByte(4 * intIndex + 1) & MASK) << 16;
@@ -35,7 +35,7 @@ public interface RawBytePointer extends RawPointer {
     }
     @Override default long getRawLong(long longIndex) {
         long result = 0;
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             result |= /*  */ (getRawByte(8 * longIndex + 7) & MASK);
             result |= (long) (getRawByte(8 * longIndex + 6) & MASK) << 8;
             result |= (long) (getRawByte(8 * longIndex + 5) & MASK) << 16;
@@ -58,7 +58,7 @@ public interface RawBytePointer extends RawPointer {
     }
 
     @Override default void setRawShort(long shortIndex, short value) {
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             setRawByte(2 * shortIndex + 1, (byte) value);
             setRawByte(2 * shortIndex,/**/ (byte) (value >>> 8));
         } else {
@@ -67,7 +67,7 @@ public interface RawBytePointer extends RawPointer {
         }
     }
     @Override default void setRawInt(long intIndex, int value) {
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             setRawByte(4 * intIndex + 3, (byte) value);
             setRawByte(4 * intIndex + 2, (byte) (value >>> 8));
             setRawByte(4 * intIndex + 1, (byte) (value >>> 16));
@@ -80,7 +80,7 @@ public interface RawBytePointer extends RawPointer {
         }
     }
     @Override default void setRawLong(long longIndex, long value) {
-        if(DataType.endian() == Endian.BIG) {
+        if (DataType.endian() == Endian.BIG) {
             setRawByte(8 * longIndex + 7, (byte) value);
             setRawByte(8 * longIndex + 6, (byte) (value >>> 8));
             setRawByte(8 * longIndex + 5, (byte) (value >>> 16));

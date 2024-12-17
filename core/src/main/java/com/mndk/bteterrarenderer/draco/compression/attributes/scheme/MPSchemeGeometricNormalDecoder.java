@@ -53,12 +53,12 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
         DataNumberType<DataT> dataType = this.getDataType().asNumber();
         this.setQuantizationBits(this.getTransform().getQuantizationBits());
         predictor.setEntryToPointIdMap(entryToPointIdMap);
-        if(!this.isInitialized()) {
+        if (!this.isInitialized()) {
             return Status.dracoError("Not initialized");
         }
 
         // Expecting in_data in octahedral coordinates, i.e., portable attribute.
-        if(numComponents != 2) {
+        if (numComponents != 2) {
             return Status.invalidParameter("Expecting 2 components");
         }
 
@@ -67,16 +67,16 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
         VectorD.D3<Integer> predNormal3D = VectorD.int3();
         Pointer<Integer> predNormalOct = Pointer.newIntArray(2);
 
-        for(int dataId = 0; dataId < cornerMapSize; ++dataId) {
+        for (int dataId = 0; dataId < cornerMapSize; ++dataId) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(dataId);
             predictor.computePredictedValue(cornerId, predNormal3D.getPointer().asRawTo(dataType));
 
             // Compute predicted octahedral coordinates.
             octahedronToolBox.canonicalizeIntegerVector(predNormal3D.getPointer());
-            if(predNormal3D.absSum() != octahedronToolBox.getCenterValue()) {
+            if (predNormal3D.absSum() != octahedronToolBox.getCenterValue()) {
                 return Status.dracoError("Invalid sum");
             }
-            if(flipNormalBitDecoder.decodeNextBit()) {
+            if (flipNormalBitDecoder.decodeNextBit()) {
                 predNormal3D = predNormal3D.negate();
             }
             octahedronToolBox.integerVectorToQuantizedOctahedralCoords(
@@ -95,16 +95,16 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
         StatusChain chain = new StatusChain();
 
         // Get data needed for transform
-        if(this.getTransform().decodeTransformData(buffer).isError(chain)) return chain.get();
+        if (this.getTransform().decodeTransformData(buffer).isError(chain)) return chain.get();
 
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UByte> predictionModeRef = Pointer.newUByte();
-            if(buffer.decode(predictionModeRef).isError(chain)) return chain.get();
+            if (buffer.decode(predictionModeRef).isError(chain)) return chain.get();
             NormalPredictionMode predictionMode = NormalPredictionMode.valueOf(predictionModeRef.get().intValue());
-            if(predictionMode == null) {
+            if (predictionMode == null) {
                 return Status.ioError("Invalid prediction mode");
             }
-            if(predictor.setNormalPredictionMode(predictionMode).isError(chain)) return chain.get();
+            if (predictor.setNormalPredictionMode(predictionMode).isError(chain)) return chain.get();
         }
 
         // Init normal flips.
@@ -128,7 +128,7 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
 
     @Override
     public GeometryAttribute.Type getParentAttributeType(int i) {
-        if(i != 0) {
+        if (i != 0) {
             throw new IllegalArgumentException("Invalid parent attribute index");
         }
         return GeometryAttribute.Type.POSITION;
@@ -136,10 +136,10 @@ public class MPSchemeGeometricNormalDecoder<DataT, CorrT> extends MPSchemeDecode
 
     @Override
     public Status setParentAttribute(PointAttribute att) {
-        if(att.getAttributeType() != GeometryAttribute.Type.POSITION) {
+        if (att.getAttributeType() != GeometryAttribute.Type.POSITION) {
             return Status.invalidParameter("Invalid attribute type");
         }
-        if(!att.getNumComponents().equals(3)) {
+        if (!att.getNumComponents().equals(3)) {
             return Status.invalidParameter("Currently works only for 3 component positions");
         }
         predictor.setPositionAttribute(att);

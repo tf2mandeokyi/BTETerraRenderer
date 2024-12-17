@@ -58,9 +58,9 @@ public class McFXVerticalList extends McFXElement {
     }
 
     public McFXVerticalList add(McFXElement element) {
-        if(element == null) return this;
+        if (element == null) return this;
         this.entryList.add(new Entry(element));
-        if(this.getWidth() != -1) element.init(this.getWidth() - 2 * this.sidePadding);
+        if (this.getWidth() != -1) element.init(this.getWidth() - 2 * this.sidePadding);
         return this;
     }
 
@@ -69,7 +69,7 @@ public class McFXVerticalList extends McFXElement {
      */
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(McFXElement... elements) {
-        for(McFXElement element : elements) this.add(element);
+        for (McFXElement element : elements) this.add(element);
         return this;
     }
 
@@ -78,7 +78,7 @@ public class McFXVerticalList extends McFXElement {
      */
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(List<McFXElement> elements) {
-        for(McFXElement element : elements) this.add(element);
+        for (McFXElement element : elements) this.add(element);
         return this;
     }
 
@@ -103,18 +103,18 @@ public class McFXVerticalList extends McFXElement {
 
     @Override
     public void init() {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null) continue;
+            if (element == null) continue;
             element.init(this.getWidth() - 2 * this.sidePadding);
         }
     }
 
     @Override
     public void onWidthChange() {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
             element.onWidthChange(this.getWidth() - 2 * this.sidePadding);
         }
         this.calculateHeights();
@@ -124,14 +124,14 @@ public class McFXVerticalList extends McFXElement {
         this.elementsTotalPhysicalHeight = 0;
         this.elementsTotalVisualHeight = 0;
 
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             int physicalHeight = element.getPhysicalHeight();
             int visualHeight = element.getVisualHeight();
 
-            if(visualHeight > 0) {
+            if (visualHeight > 0) {
                 int newTotalVisualHeight = this.elementsTotalPhysicalHeight + visualHeight;
                 if (newTotalVisualHeight > this.elementsTotalVisualHeight) {
                     this.elementsTotalVisualHeight = newTotalVisualHeight;
@@ -146,9 +146,9 @@ public class McFXVerticalList extends McFXElement {
 
     @Override
     public void tick() {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
             element.tick();
         }
     }
@@ -158,21 +158,21 @@ public class McFXVerticalList extends McFXElement {
         this.calculateHeights();
 
         // Vertical slider
-        if(this.maxHeight != null) {
+        if (this.maxHeight != null) {
             boolean result = this.verticalSliderHoverState = this.isMouseOnScrollBar(mouseX, mouseY);
             if (result) return true;
         }
 
         // Check for all elements
         boolean hovered = false;
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             boolean elementHovered = element.mouseHovered(
                     mouseX - this.sidePadding, mouseY - entry.yPos + verticalSliderValue, partialTicks,
                     mouseHidden || hovered);
-            if(elementHovered) hovered = true;
+            if (elementHovered) hovered = true;
         }
         return hovered;
     }
@@ -181,7 +181,7 @@ public class McFXVerticalList extends McFXElement {
     public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
         int prevYPos = 0;
 
-        if(this.maxHeight != null) {
+        if (this.maxHeight != null) {
             //noinspection DataFlowIssue
             drawContextWrapper.glPushRelativeScissor(0, 0, this.getWidth(), this.maxHeight.get());
             this.validateSliderValue();
@@ -189,9 +189,9 @@ public class McFXVerticalList extends McFXElement {
         drawContextWrapper.pushMatrix();
         drawContextWrapper.translate(this.sidePadding, -this.verticalSliderValue, 0);
         // Draw from the last so that the first element could appear in the front
-        for(Entry entry : Lists.reverse(entryList)) {
+        for (Entry entry : Lists.reverse(entryList)) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             int yPos = entry.yPos;
             drawContextWrapper.translate(0, yPos - prevYPos, 0);
@@ -200,7 +200,7 @@ public class McFXVerticalList extends McFXElement {
             element.drawComponent(drawContextWrapper);
             drawContextWrapper.translate(0, 0, element.getCount());
         }
-        if(this.maxHeight != null) {
+        if (this.maxHeight != null) {
             drawContextWrapper.glPopRelativeScissor();
         }
         drawContextWrapper.popMatrix();
@@ -208,13 +208,13 @@ public class McFXVerticalList extends McFXElement {
     }
 
     private void drawVerticalSlider(DrawContextWrapper<?> drawContextWrapper) {
-        if(this.maxHeight == null) return;
+        if (this.maxHeight == null) return;
 
         int[] dimension = this.getVerticalSliderDimension();
-        if(dimension == null) return;
+        if (dimension == null) return;
 
         int color = this.verticalSliderHoverState ? VERTICAL_SLIDER_COLOR_HOVERED : VERTICAL_SLIDER_COLOR;
-        if(this.verticalSliderChangingState) color = VERTICAL_SLIDER_COLOR_CLICKED;
+        if (this.verticalSliderChangingState) color = VERTICAL_SLIDER_COLOR_CLICKED;
         drawContextWrapper.fillRect(dimension[0], dimension[1] + VERTICAL_SLIDER_PADDING,
                 dimension[2] - VERTICAL_SLIDER_PADDING, dimension[3] - VERTICAL_SLIDER_PADDING, color);
     }
@@ -225,53 +225,53 @@ public class McFXVerticalList extends McFXElement {
         this.mouseClickY = mouseY;
 
         // Check for all elements
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
             int yPos = entry.yPos;
             boolean elementPressed = element.mousePressed(
                     mouseX - this.sidePadding, mouseY - yPos + this.verticalSliderValue, mouseButton);
-            if(elementPressed) {
-                if(this.makeSound) McConnector.client().playClickSound();
+            if (elementPressed) {
+                if (this.makeSound) McConnector.client().playClickSound();
                 return true;
             }
         }
 
         // Check vertical slider press
-        if(this.maxHeight == null) return false;
+        if (this.maxHeight == null) return false;
         this.verticalSliderChangingState = this.isMouseOnScrollBar(mouseX, mouseY);
         return this.verticalSliderChangingState;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             int yPos = entry.yPos;
             element.mouseReleased(
                     mouseX - this.sidePadding, mouseY - yPos + this.verticalSliderValue, mouseButton);
         }
 
-        if(this.maxHeight != null) this.verticalSliderChangingState = false;
+        if (this.maxHeight != null) this.verticalSliderChangingState = false;
         return true;
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
         // Check for all elements
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
 
             boolean elementScrolled = element.mouseScrolled(
                     mouseX - this.sidePadding, mouseY - entry.yPos + verticalSliderValue, scrollAmount);
-            if(elementScrolled) return true;
+            if (elementScrolled) return true;
         }
 
-        if(this.maxHeight != null) {
+        if (this.maxHeight != null) {
             int maxHeight = this.maxHeight.get();
             if (0 <= mouseX && mouseX <= this.getWidth() && 0 <= mouseY && mouseY <= maxHeight) {
                 this.verticalSliderValue -= (int) (Math.signum(scrollAmount) * 30);
@@ -285,7 +285,7 @@ public class McFXVerticalList extends McFXElement {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
         // Check vertical slider dragging
-        if(this.maxHeight != null && this.verticalSliderChangingState) {
+        if (this.maxHeight != null && this.verticalSliderChangingState) {
             double totalHeight = this.elementsTotalVisualHeight;
             double maxHeight = this.maxHeight.get();
 
@@ -299,7 +299,7 @@ public class McFXVerticalList extends McFXElement {
         }
 
         // Check for every element
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
 
@@ -307,13 +307,13 @@ public class McFXVerticalList extends McFXElement {
             boolean elementDragged = element.mouseDragged(
                     mouseX - this.sidePadding, mouseY - yPos + verticalSliderValue, mouseButton,
                     pMouseX - this.sidePadding, pMouseY - yPos + verticalSliderValue);
-            if(elementDragged) return true;
+            if (elementDragged) return true;
         }
         return false;
     }
 
     private void validateSliderValue() {
-        if(this.maxHeight != null && verticalSliderValue != 0) {
+        if (this.maxHeight != null && verticalSliderValue != 0) {
             int totalHeight = this.elementsTotalVisualHeight;
             if (this.verticalSliderValue > totalHeight - this.maxHeight.get()) {
                 this.verticalSliderValue = totalHeight - this.maxHeight.get();
@@ -324,7 +324,7 @@ public class McFXVerticalList extends McFXElement {
 
     private boolean isMouseOnScrollBar(double mouseX, double mouseY) {
         int[] dimension = this.getVerticalSliderDimension();
-        if(dimension == null) return false;
+        if (dimension == null) return false;
         return mouseX >= dimension[0] && mouseX <= dimension[2] && mouseY >= dimension[1] && mouseY <= dimension[3];
     }
 
@@ -334,7 +334,7 @@ public class McFXVerticalList extends McFXElement {
     @Nullable
     private int[] getVerticalSliderDimension() {
         double elementsHeight = this.elementsTotalVisualHeight;
-        if(this.maxHeight == null || elementsHeight <= this.maxHeight.get()) return null;
+        if (this.maxHeight == null || elementsHeight <= this.maxHeight.get()) return null;
 
         int maxHeight = this.maxHeight.get();
         double multiplier = maxHeight / elementsHeight;
@@ -349,7 +349,7 @@ public class McFXVerticalList extends McFXElement {
 
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.charTyped(typedChar, keyCode)) return true;
@@ -359,7 +359,7 @@ public class McFXVerticalList extends McFXElement {
 
     @Override
     public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (element.keyPressed(key, scanCode, modifiers)) return true;
@@ -369,7 +369,7 @@ public class McFXVerticalList extends McFXElement {
 
     @Override
     public boolean handleScreenEscape() {
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;
             if (!element.handleScreenEscape()) return false;
@@ -380,9 +380,9 @@ public class McFXVerticalList extends McFXElement {
     @Override
     public int getCount() {
         int count = 0;
-        for(Entry entry : entryList) {
+        for (Entry entry : entryList) {
             McFXElement element = entry.element;
-            if(element == null || element.hide) continue;
+            if (element == null || element.hide) continue;
             count += element.getCount();
         }
         return count;

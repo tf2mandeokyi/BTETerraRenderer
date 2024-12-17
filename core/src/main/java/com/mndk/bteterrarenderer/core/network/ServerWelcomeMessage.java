@@ -24,13 +24,13 @@ public class ServerWelcomeMessage {
 
     public void fromBytes(ByteBuf buf) {
         int strLength = buf.readInt();
-        if(strLength != -1) {
+        if (strLength != -1) {
             projectionJson = buf.readCharSequence(strLength, StandardCharsets.UTF_8).toString();
         }
     }
 
     public void toBytes(ByteBuf buf) {
-        if(projectionJson != null) {
+        if (projectionJson != null) {
             buf.writeInt(projectionJson.getBytes(StandardCharsets.UTF_8).length);
             buf.writeCharSequence(projectionJson, StandardCharsets.UTF_8);
         } else {

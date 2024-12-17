@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class GraphicsShapes {
 
             format.setShader(McConnector.client().glGraphicsManager);
             format.begin(builder);
-            for(GraphicsShape<?> shape : shapes) {
+            for (GraphicsShape<?> shape : shapes) {
                 format.nextShape(drawContextWrapper, BTRUtil.uncheckedCast(shape), transformer, alpha);
             }
             builder.drawAndRender();

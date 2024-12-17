@@ -17,7 +17,6 @@
 
 package com.mndk.bteterrarenderer.draco.compression.attributes;
 
-import com.mndk.bteterrarenderer.datatype.DataType;
 import com.mndk.bteterrarenderer.datatype.DataNumberType;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
 import com.mndk.bteterrarenderer.draco.core.Status;
@@ -72,7 +71,7 @@ public class OctahedronToolBox {
     public void integerVectorToQuantizedOctahedralCoords(Pointer<Integer> intVec,
                                                          Pointer<Integer> outS, Pointer<Integer> outT) {
         int vec0 = intVec.get(0), vec1 = intVec.get(1), vec2 = intVec.get(2);
-        if(Math.abs(vec0) + Math.abs(vec1) + Math.abs(vec2) != this.centerValue) {
+        if (Math.abs(vec0) + Math.abs(vec1) + Math.abs(vec2) != this.centerValue) {
             throw new IllegalArgumentException("The absolute sum of the integer vector must equal the center value");
         }
         int s, t;
@@ -143,15 +142,13 @@ public class OctahedronToolBox {
 
     public <T> void canonicalizeIntegerVector(Pointer<T> vec) {
         DataNumberType<T> inType = vec.getType().asNumber();
-        if(!inType.isIntegral()) throw new IllegalArgumentException("T must be an integral type");
-        if(!inType.isSigned()) throw new IllegalArgumentException("T must be a signed type");
+        if (!inType.isIntegral()) throw new IllegalArgumentException("T must be an integral type");
+        if (!inType.isSigned()) throw new IllegalArgumentException("T must be a signed type");
 
         T vec0 = vec.get(0);
         T vec1 = vec.get(1);
         T vec2 = vec.get(2);
         long absSum = inType.toLong(inType.abs(vec0)) + inType.toLong(inType.abs(vec1)) + inType.toLong(inType.abs(vec2));
-        DataNumberType<Long> longType = DataType.int64();
-        DataNumberType<Integer> intType = DataType.int32();
 
         if (absSum == 0) {
             vec0 = inType.from(this.centerValue);
@@ -175,7 +172,7 @@ public class OctahedronToolBox {
     }
 
     public boolean isInDiamond(int s, int t) {
-        if(s > this.centerValue || t > this.centerValue || s < -this.centerValue || t < -this.centerValue) {
+        if (s > this.centerValue || t > this.centerValue || s < -this.centerValue || t < -this.centerValue) {
             return false;
         }
         int st = Math.abs(s) + Math.abs(t);
@@ -185,10 +182,10 @@ public class OctahedronToolBox {
     public void invertDiamond(Pointer<Integer> s, Pointer<Integer> t) {
         int sout = s.get();
         int tout = t.get();
-        if(sout > this.centerValue) throw new IllegalArgumentException("s must be <= the center value");
-        if(tout > this.centerValue) throw new IllegalArgumentException("t must be <= the center value");
-        if(sout < -this.centerValue) throw new IllegalArgumentException("s must be >= the negative center value");
-        if(tout < -this.centerValue) throw new IllegalArgumentException("t must be >= the negative center value");
+        if (sout > this.centerValue) throw new IllegalArgumentException("s must be <= the center value");
+        if (tout > this.centerValue) throw new IllegalArgumentException("t must be <= the center value");
+        if (sout < -this.centerValue) throw new IllegalArgumentException("s must be >= the negative center value");
+        if (tout < -this.centerValue) throw new IllegalArgumentException("t must be >= the negative center value");
         int signS, signT;
         if (sout >= 0 && tout >= 0) {
             signS = 1;
@@ -230,10 +227,10 @@ public class OctahedronToolBox {
 
     public void invertDirection(Pointer<Integer> s, Pointer<Integer> t) {
         // Expect center already at origin.
-        if(s.get() > this.centerValue) throw new IllegalArgumentException("s must be less than or equal to the center value");
-        if(t.get() > this.centerValue) throw new IllegalArgumentException("t must be less than or equal to the center value");
-        if(s.get() < -this.centerValue) throw new IllegalArgumentException("s must be greater than or equal to the negative center value");
-        if(t.get() < -this.centerValue) throw new IllegalArgumentException("t must be greater than or equal to the negative center value");
+        if (s.get() > this.centerValue) throw new IllegalArgumentException("s must be less than or equal to the center value");
+        if (t.get() > this.centerValue) throw new IllegalArgumentException("t must be less than or equal to the center value");
+        if (s.get() < -this.centerValue) throw new IllegalArgumentException("s must be greater than or equal to the negative center value");
+        if (t.get() < -this.centerValue) throw new IllegalArgumentException("t must be greater than or equal to the negative center value");
         s.set(-s.get());
         t.set(-t.get());
         this.invertDiamond(s, t);

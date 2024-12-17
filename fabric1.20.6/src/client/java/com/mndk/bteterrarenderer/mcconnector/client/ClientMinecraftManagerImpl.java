@@ -81,7 +81,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
 
     public void sendTextComponentToChat(TextWrapper textComponent) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if(player == null) return;
+        if (player == null) return;
         player.sendMessage(textComponent.get(), false);
     }
 

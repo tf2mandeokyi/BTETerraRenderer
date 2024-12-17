@@ -28,12 +28,12 @@ public class DracoCompressionTest {
 
     @Nonnull
     private GltfModel readGltfModel(String testFileName, SpheroidCoordinatesConverter converter) throws IOException {
-        try(InputStream stream = getClass().getClassLoader().getResourceAsStream(testFileName)) {
+        try (InputStream stream = getClass().getClassLoader().getResourceAsStream(testFileName)) {
             if (stream == null) throw new IOException(testFileName + " not found");
 
             TileData data = TileResourceManager.parse(stream, converter);
             GltfModel model = data.getGltfModelInstance();
-            if(model == null) throw new IOException("model is null");
+            if (model == null) throw new IOException("model is null");
             return model;
         }
     }
@@ -41,7 +41,7 @@ public class DracoCompressionTest {
     private Pair<Mesh, DracoMeshCompression> decodeDracoMeshData(MeshPrimitiveModel meshPrimitiveModel,
                                                                  List<BufferViewModel> bufferViewModels) throws IOException {
         DracoMeshCompression draco = GltfExtensionsUtil.getExtension(meshPrimitiveModel, DracoMeshCompression.class);
-        if(draco == null) throw new IOException("DracoMeshCompression is null");
+        if (draco == null) throw new IOException("DracoMeshCompression is null");
 
         ByteBuffer byteBuffer = bufferViewModels.get(draco.getBufferView()).getBufferViewData();
         DecoderBuffer decoderBuffer = new DecoderBuffer();
@@ -54,8 +54,8 @@ public class DracoCompressionTest {
     private List<Pair<Mesh, DracoMeshCompression>> decodeDracoMeshData(GltfModel model) throws IOException {
         List<Pair<Mesh, DracoMeshCompression>> meshes = new ArrayList<>();
         List<BufferViewModel> bufferViewModels = model.getBufferViewModels();
-        for(MeshModel meshModel : model.getMeshModels()) {
-            for(MeshPrimitiveModel primitiveModel : meshModel.getMeshPrimitiveModels()) {
+        for (MeshModel meshModel : model.getMeshModels()) {
+            for (MeshPrimitiveModel primitiveModel : meshModel.getMeshPrimitiveModels()) {
                 meshes.add(decodeDracoMeshData(primitiveModel, bufferViewModels));
             }
         }
@@ -71,10 +71,10 @@ public class DracoCompressionTest {
                 "glb_models/model_test3.glb",
                 "glb_models/model_test4.glb"
         };
-        for(String file : files) {
+        for (String file : files) {
             GltfModel model = this.readGltfModel(file, converter);
             List<Pair<Mesh, DracoMeshCompression>> pairs = this.decodeDracoMeshData(model);
-            for(Pair<Mesh, DracoMeshCompression> pair : pairs) {
+            for (Pair<Mesh, DracoMeshCompression> pair : pairs) {
                 Mesh mesh = pair.getLeft();
                 Assert.assertTrue(mesh.getNumPoints() >= 0);
             }
@@ -128,11 +128,11 @@ public class DracoCompressionTest {
 //
 //        List<PreBakedModel> models = GltfModelConverter.convertModel(model, Matrix4f.IDENTITY, Projections.BTE,
 //                coordConverter, true);
-//        for(PreBakedModel m : models) {
+//        for (PreBakedModel m : models) {
 //            List<GraphicsTriangle<PosTexNorm>> triangles = m.getShapes().getShapesForFormat(DrawingFormat.TRI_PTN_ALPHA);
-//            for(GraphicsTriangle<PosTexNorm> triangle : triangles) {
+//            for (GraphicsTriangle<PosTexNorm> triangle : triangles) {
 //                // Only print the positions
-//                for(int i = 0; i < 3; i++) {
+//                for (int i = 0; i < 3; i++) {
 //                    PosTexNorm vertex = triangle.getVertex(i);
 //                    System.out.printf("%.2f, %.2f, %.2f\n", vertex.px, vertex.py, vertex.pz);
 //                }

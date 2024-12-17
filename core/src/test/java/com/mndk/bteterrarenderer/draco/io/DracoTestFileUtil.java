@@ -37,7 +37,7 @@ public class DracoTestFileUtil {
 
     public static File toFile(String fileName) {
         URL url = DracoTestFileUtil.class.getClassLoader().getResource(fileName);
-        if(url == null) Assert.fail("File not found: " + fileName);
+        if (url == null) Assert.fail("File not found: " + fileName);
         try {
             return new File(url.toURI());
         } catch (URISyntaxException e) {
@@ -47,7 +47,7 @@ public class DracoTestFileUtil {
 
     public static void compareGoldenFile(File goldenFile, EncoderBuffer actualBuffer) {
         DecoderBuffer goldenBuffer = new DecoderBuffer();
-        try(InputStream inputStream = Files.newInputStream(goldenFile.toPath())) {
+        try (InputStream inputStream = Files.newInputStream(goldenFile.toPath())) {
             goldenBuffer.init(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -58,7 +58,7 @@ public class DracoTestFileUtil {
         long actualSize = actualBuffer.size();
         long goldenSize = goldenBuffer.getRemainingSize();
         long byteDifference = PointerHelper.searchRawDifference(pointer, goldenPointer, Math.min(goldenSize, actualSize));
-        if(byteDifference != -1) {
+        if (byteDifference != -1) {
             TablePrinter tablePrinter = new TablePrinter(" | ");
             TableColumnPrinter actual = tablePrinter.newColumn();
             TableColumnPrinter golden = tablePrinter.newColumn();

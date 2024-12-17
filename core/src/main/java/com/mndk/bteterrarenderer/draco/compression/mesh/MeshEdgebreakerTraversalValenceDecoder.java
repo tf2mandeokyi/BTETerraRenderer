@@ -60,29 +60,29 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
     public Status start(DecoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
-            if(super.decodeTraversalSymbols().isError(chain)) return chain.get();
+        if (this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+            if (super.decodeTraversalSymbols().isError(chain)) return chain.get();
         }
-        if(super.decodeStartFaces().isError(chain)) return chain.get();
-        if(super.decodeAttributeSeams().isError(chain)) return chain.get();
+        if (super.decodeStartFaces().isError(chain)) return chain.get();
+        if (super.decodeAttributeSeams().isError(chain)) return chain.get();
         outBuffer.reset(this.getBuffer());
 
-        if(this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> numSplitSymbols = Pointer.newUInt();
-            if(this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-                if(outBuffer.decode(numSplitSymbols).isError(chain)) return chain.get();
+            if (this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+                if (outBuffer.decode(numSplitSymbols).isError(chain)) return chain.get();
             } else {
-                if(outBuffer.decodeVarint(numSplitSymbols).isError(chain)) return chain.get();
+                if (outBuffer.decodeVarint(numSplitSymbols).isError(chain)) return chain.get();
             }
             UInt numSplitSymbolsValue = numSplitSymbols.get();
-            if(numSplitSymbolsValue.ge(numVertices)) {
+            if (numSplitSymbolsValue.ge(numVertices)) {
                 return Status.dracoError("Invalid number of split symbols");
             }
 
             Pointer<Byte> modeRef = Pointer.newByte();
-            if(outBuffer.decode(modeRef).isError(chain)) return chain.get();
+            if (outBuffer.decode(modeRef).isError(chain)) return chain.get();
             byte mode = modeRef.get();
-            if(mode == Edgebreaker.EDGEBREAKER_VALENCE_MODE_2_7) {
+            if (mode == Edgebreaker.EDGEBREAKER_VALENCE_MODE_2_7) {
                 minValence = 2;
                 maxValence = 7;
             } else {
@@ -93,7 +93,7 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
             maxValence = 7;
         }
 
-        if(numVertices < 0) {
+        if (numVertices < 0) {
             return Status.dracoError("Invalid number of vertices");
         }
         // Set the valences of all initial vertices to 0.
@@ -104,14 +104,14 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
         // Decode all symbols for all contexts.
         contextSymbols.clear();
         contextCounters.resize(numUniqueValences);
-        for(int i = 0; i < numUniqueValences; ++i) {
+        for (int i = 0; i < numUniqueValences; ++i) {
             Pointer<UInt> numSymbols = Pointer.newUInt();
-            if(outBuffer.decodeVarint(numSymbols).isError(chain)) return chain.get();
+            if (outBuffer.decodeVarint(numSymbols).isError(chain)) return chain.get();
             UInt numSymbolsValue = numSymbols.get();
-            if(numSymbolsValue.gt(cornerTable.getNumFaces())) {
+            if (numSymbolsValue.gt(cornerTable.getNumFaces())) {
                 return Status.dracoError("Invalid number of symbols");
             }
-            if(numSymbolsValue.gt(0)) {
+            if (numSymbolsValue.gt(0)) {
                 CppVector<UInt> contextSymbol = new CppVector<>(DataType.uint32());
                 contextSymbol.resize(numSymbolsValue.intValue());
                 SymbolDecoding.decode(numSymbolsValue, 1, outBuffer, contextSymbol.getPointer());
@@ -125,13 +125,13 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
     @Override
     public EdgebreakerTopology decodeSymbol() {
         // First check if we have a valid context.
-        if(activeContext != -1) {
+        if (activeContext != -1) {
             contextCounters.set(activeContext, val -> val - 1);
             int contextCounter = contextCounters.get(activeContext);
-            if(contextCounter < 0) return EdgebreakerTopology.INVALID;
+            if (contextCounter < 0) return EdgebreakerTopology.INVALID;
 
             int symbolId = contextSymbols.get(activeContext).get(contextCounter).intValue();
-            if(symbolId > 4) return EdgebreakerTopology.INVALID;
+            if (symbolId > 4) return EdgebreakerTopology.INVALID;
 
             lastSymbol = EdgebreakerTopology.fromSymbol(symbolId);
         } else if (this.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
@@ -150,7 +150,7 @@ public class MeshEdgebreakerTraversalValenceDecoder extends MeshEdgebreakerTrave
         CornerIndex next = cornerTable.next(corner);
         CornerIndex prev = cornerTable.previous(corner);
         // Update valences.
-        switch(lastSymbol) {
+        switch (lastSymbol) {
             case C:
             case S:
                 vertexValences.set(cornerTable.getVertex(next), val -> val + 1);

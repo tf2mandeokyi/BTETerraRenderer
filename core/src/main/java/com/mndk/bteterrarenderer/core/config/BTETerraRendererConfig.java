@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
+import javax.annotation.Nullable;
+
 @UtilityClass
 @SuppressWarnings("unused")
 public class BTETerraRendererConfig {
@@ -71,6 +73,7 @@ public class BTETerraRendererConfig {
         @ConfigComment("Puts limit on how far the map is from the player to be rendered.")
         public double yDiffLimit = 1000;
 
+        @Nullable
         @ConfigName("Projection JSON")
         @ConfigComment({
                 "The projection JSON string for the map.",
@@ -115,7 +118,7 @@ public class BTETerraRendererConfig {
         ConfigLoaders.tms().refresh();
         ConfigLoaders.tmsStates().load(ConfigLoaders.tms().getResult());
         TileMapService.refreshSelectionFromConfig();
-        if(loadMapsOnly) return;
+        if (loadMapsOnly) return;
 
         ConfigLoaders.modConfig().load();
     }

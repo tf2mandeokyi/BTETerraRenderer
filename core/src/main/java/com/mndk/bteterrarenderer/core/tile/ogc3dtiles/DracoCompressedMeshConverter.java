@@ -61,19 +61,19 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
 
         int numPoints = mesh.getNumPoints();
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
-        for(PointIndex pointIndex : PointIndex.range(0, numPoints)) {
+        for (PointIndex pointIndex : PointIndex.range(0, numPoints)) {
             positionAttribute.getMappedValue(pointIndex, Pointer.wrap(posArray));
             Cartesian3f position = Cartesian3f.fromArray(posArray);
             McCoord gamePos = this.transformEarthCoordToGame(position);
 
             McCoord gameNormal = null;
-            if(normalAttribute != null) {
+            if (normalAttribute != null) {
                 normalAttribute.getMappedValue(pointIndex, Pointer.wrap(normArray));
                 Cartesian3f normal = Cartesian3f.fromArray(normArray);
                 gameNormal = this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
             }
 
-            if(texAttribute != null) texAttribute.getMappedValue(pointIndex, Pointer.wrap(texArray));
+            if (texAttribute != null) texAttribute.getMappedValue(pointIndex, Pointer.wrap(texArray));
             float[] tex = texAttribute == null ? null : new float[] { texArray[0], texArray[1] };
 
             parsedPoints[pointIndex.getValue()] = new ParsedPoint(gamePos, tex, gameNormal);
@@ -83,7 +83,7 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
 
     private static GraphicsShapes parsedPointsToShapes(Mesh mesh, ParsedPoint[] points) {
         GraphicsShapes shapes = new GraphicsShapes();
-        for(FaceIndex faceIndex : FaceIndex.range(0, mesh.getNumFaces())) {
+        for (FaceIndex faceIndex : FaceIndex.range(0, mesh.getNumFaces())) {
             ParsedPoint point0 = points[mesh.getFace(faceIndex).getValue(0)];
             ParsedPoint point1 = points[mesh.getFace(faceIndex).getValue(1)];
             ParsedPoint point2 = points[mesh.getFace(faceIndex).getValue(2)];
@@ -100,7 +100,7 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
         decoderBuffer.init(byteBuffer);
 
         EncodedGeometryType geometryType = DracoDecoder.getEncodedGeometryType(decoderBuffer).getValue();
-        if(geometryType != EncodedGeometryType.TRIANGULAR_MESH) {
+        if (geometryType != EncodedGeometryType.TRIANGULAR_MESH) {
             throw new IllegalStateException("Unsupported geometry type: " + geometryType);
         }
 

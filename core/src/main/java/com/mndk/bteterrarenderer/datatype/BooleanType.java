@@ -50,11 +50,11 @@ class BooleanType implements DataNumberType<Boolean> {
     @Override public Boolean sub(Boolean left, Boolean right) { return left ^ right; }
     @Override public Boolean mul(Boolean left, Boolean right) { return left && right; }
     @Override public Boolean div(Boolean left, Boolean right) {
-        if(!right) throw new ArithmeticException("Division by zero");
+        if (!right) throw new ArithmeticException("Division by zero");
         return left;
     }
     @Override public Boolean mod(Boolean left, Boolean right) {
-        if(!right) throw new ArithmeticException("Division by zero");
+        if (!right) throw new ArithmeticException("Division by zero");
         return false;
     }
     @Override public Boolean negate(Boolean value) { return value; }

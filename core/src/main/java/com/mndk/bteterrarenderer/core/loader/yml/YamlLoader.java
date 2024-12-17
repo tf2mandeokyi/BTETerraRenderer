@@ -5,7 +5,10 @@ import com.mndk.bteterrarenderer.core.util.Loggers;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
@@ -31,15 +34,15 @@ public abstract class YamlLoader<F, T> {
         // Load default data
         try {
             this.result = loadDefault();
-        } catch(IOException e) {
-            Loggers.get(this).error("Error while parsing default file: " + defaultYamlPath, e);
+        } catch (IOException e) {
+            Loggers.get(this).error("Error while parsing default file: {}", defaultYamlPath, e);
             return;
         }
 
         // Check folder
-        if(filesDirectory == null) return;
-        if(!filesDirectory.exists() && !filesDirectory.mkdirs()) {
-            Loggers.get(this).error("Folder" + folderName + " creation failed");
+        if (filesDirectory == null) return;
+        if (!filesDirectory.exists() && !filesDirectory.mkdirs()) {
+            Loggers.get(this).error("Folder {} creation failed", folderName);
             return;
         }
 
@@ -51,7 +54,7 @@ public abstract class YamlLoader<F, T> {
             try (InputStreamReader fileReader = new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
                 addToResult(this.result, load(name, fileReader));
             } catch (Exception e) {
-                Loggers.get(this).error("Error while parsing file: " + file, e);
+                Loggers.get(this).error("Error while parsing file: {}", file, e);
             }
         }
     }

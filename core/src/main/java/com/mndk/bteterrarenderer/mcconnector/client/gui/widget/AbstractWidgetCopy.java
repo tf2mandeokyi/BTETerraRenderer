@@ -28,8 +28,8 @@ public abstract class AbstractWidgetCopy implements GuiComponentCopy {
     }
 
     protected ButtonWidgetCopy.HoverState getButtonHoverState(boolean mouseOver) {
-        if(!this.enabled) return HoverState.DISABLED;
-        else if(mouseOver) return HoverState.MOUSE_OVER;
+        if (!this.enabled) return HoverState.DISABLED;
+        else if (mouseOver) return HoverState.MOUSE_OVER;
         return HoverState.DEFAULT;
     }
 
@@ -39,16 +39,16 @@ public abstract class AbstractWidgetCopy implements GuiComponentCopy {
     }
 
     public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
-        if(!this.visible) return;
+        if (!this.visible) return;
 
         ButtonWidgetCopy.HoverState hoverState = this.getButtonHoverState(this.hovered);
         drawContextWrapper.drawButton(x, y, width, height, hoverState);
         this.drawBackground(drawContextWrapper);
 
         int color = NORMAL_TEXT_COLOR;
-        if(packedForegroundColor != NULL_COLOR)  color = packedForegroundColor;
-        else if(!this.enabled)           color = DISABLED_TEXT_COLOR;
-        else if(this.hovered)            color = HOVERED_COLOR;
+        if (packedForegroundColor != NULL_COLOR)  color = packedForegroundColor;
+        else if (!this.enabled)           color = DISABLED_TEXT_COLOR;
+        else if (this.hovered)            color = HOVERED_COLOR;
 
         String buttonText = this.text;
         int stringWidth = getDefaultFont().getWidth(buttonText);

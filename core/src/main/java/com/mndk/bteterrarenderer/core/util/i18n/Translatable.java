@@ -39,7 +39,7 @@ public class Translatable<T> {
         @Override
         public void serialize(Translatable<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeStartObject();
-            for(Map.Entry<String, ?> entry : value.translations.entrySet()) {
+            for (Map.Entry<String, ?> entry : value.translations.entrySet()) {
                 gen.writeObjectField(entry.getKey(), entry.getValue());
             }
             gen.writeEndObject();
@@ -58,22 +58,22 @@ public class Translatable<T> {
 
             // Try map object
             try {
-                if(!node.isObject()) throw JsonMappingException.from(p, "");
+                if (!node.isObject()) throw JsonMappingException.from(p, "");
 
                 Map<String, Object> translations = new HashMap<>();
-                for(Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+                for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
                     String fieldName = it.next();
                     Object fieldValue = ctxt.readTreeAsValue(node.get(fieldName), valueType);
                     translations.put(fieldName, fieldValue);
                 }
-                if(!translations.containsKey(DEFAULT_KEY)) {
+                if (!translations.containsKey(DEFAULT_KEY)) {
                     // If the value for default key doesn't exist, it will pick the first entry
                     // as the default key.
                     String alternativeKey = new ArrayList<>(translations.keySet()).get(0);
                     translations.put(DEFAULT_KEY, translations.get(alternativeKey));
                 }
                 return new Translatable<>(translations);
-            } catch(IOException ignored) {}
+            } catch (IOException ignored) {}
 
             // If the serialization fails, try default object
             Object defaultValue = ctxt.readTreeAsValue(node, valueType);
@@ -84,7 +84,7 @@ public class Translatable<T> {
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
             JavaType wrapperType = property != null ? property.getType() : ctxt.getContextualType();
-            if(wrapperType == null) return new Deserializer();
+            if (wrapperType == null) return new Deserializer();
 
             JavaType valueType = wrapperType.containedType(0);
             Deserializer deserializer = new Deserializer();

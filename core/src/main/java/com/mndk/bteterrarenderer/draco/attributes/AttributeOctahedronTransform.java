@@ -42,7 +42,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     @Override
     public Status initFromAttribute(PointAttribute attribute) {
         AttributeTransformData transformData = attribute.getAttributeTransformData();
-        if(transformData == null || transformData.getTransformType() != AttributeTransformType.OCTAHEDRON) {
+        if (transformData == null || transformData.getTransformType() != AttributeTransformType.OCTAHEDRON) {
             return Status.invalidParameter("Wrong transform type");
         }
         quantizationBits = transformData.getParameterValue(DataType.int32(), 0);
@@ -64,22 +64,22 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     public Status inverseTransformAttribute(PointAttribute attribute, PointAttribute targetAttribute) {
         StatusChain chain = new StatusChain();
 
-        if(targetAttribute.getDataType() != DracoDataType.FLOAT32) {
+        if (targetAttribute.getDataType() != DracoDataType.FLOAT32) {
             return Status.invalidParameter("Target attribute must have FLOAT32 data type");
         }
 
         int numPoints = targetAttribute.size();
         int numComponents = targetAttribute.getNumComponents().intValue();
-        if(numComponents != 3) {
+        if (numComponents != 3) {
             return Status.invalidParameter("Attribute must have 3 components");
         }
         Pointer<Float> attVal = Pointer.newFloatArray(3);
         Pointer<Integer> sourceAttributeData = attribute.getAddress(AttributeValueIndex.of(0)).toInt();
         Pointer<Float> targetAddress = targetAttribute.getAddress(AttributeValueIndex.of(0)).toFloat();
         OctahedronToolBox octahedronToolBox = new OctahedronToolBox();
-        if(octahedronToolBox.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
+        if (octahedronToolBox.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
 
-        for(int i = 0; i < numPoints; i++) {
+        for (int i = 0; i < numPoints; i++) {
             int s = sourceAttributeData.get(i * 2L);
             int t = sourceAttributeData.get(i * 2L + 1);
             octahedronToolBox.quantizedOctahedralCoordsToUnitVector(s, t, attVal);
@@ -94,7 +94,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
 
     @Override
     public Status encodeParameters(EncoderBuffer encoderBuffer) {
-        if(!isInitialized()) {
+        if (!isInitialized()) {
             return Status.invalidParameter("Octahedron transform not initialized");
         }
         encoderBuffer.encode(UByte.of(quantizationBits));
@@ -105,7 +105,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
     public Status decodeParameters(PointAttribute attribute, DecoderBuffer decoderBuffer) {
         Pointer<UByte> quantizationBitsRef = Pointer.newUByte();
         Status status = decoderBuffer.decode(quantizationBitsRef);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
         quantizationBits = quantizationBitsRef.get().intValue();
         return Status.ok();
     }
@@ -128,7 +128,7 @@ public class AttributeOctahedronTransform extends AttributeTransform {
                                                 int numPoints, PointAttribute targetAttribute) {
         StatusChain chain = new StatusChain();
 
-        if(!isInitialized()) {
+        if (!isInitialized()) {
             return Status.invalidParameter("Octahedron transform not initialized");
         }
 
@@ -136,13 +136,13 @@ public class AttributeOctahedronTransform extends AttributeTransform {
         Pointer<Float> attVal = Pointer.newFloatArray(3);
         int dstIndex = 0;
         OctahedronToolBox converter = new OctahedronToolBox();
-        if(converter.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
+        if (converter.setQuantizationBits(quantizationBits).isError(chain)) return chain.get();
 
         Stream<PointIndex> pointStream = pointIds.isEmpty() ?
                 IntStream.range(0, numPoints).mapToObj(PointIndex::of) :
                 pointIds.stream();
         Stream<AttributeValueIndex> attributeStream = pointStream.map(attribute::getMappedIndex);
-        for(AttributeValueIndex attValId : (Iterable<AttributeValueIndex>) attributeStream::iterator) {
+        for (AttributeValueIndex attValId : (Iterable<AttributeValueIndex>) attributeStream::iterator) {
             attribute.getValue(attValId, attVal);
             Pointer<Integer> s = Pointer.newInt();
             Pointer<Integer> t = Pointer.newInt();

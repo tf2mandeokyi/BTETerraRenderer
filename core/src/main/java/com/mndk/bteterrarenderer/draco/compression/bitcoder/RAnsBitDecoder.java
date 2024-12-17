@@ -42,22 +42,22 @@ public class RAnsBitDecoder {
 
         this.clear();
         Pointer<UByte> probZeroRef = Pointer.newUByte();
-        if(sourceBuffer.decode(probZeroRef).isError(chain)) return chain.get();
+        if (sourceBuffer.decode(probZeroRef).isError(chain)) return chain.get();
         this.probZero = probZeroRef.get();
 
         Pointer<UInt> sizeInBytesRef = Pointer.newUInt();
-        if(sourceBuffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
-            if(sourceBuffer.decode(sizeInBytesRef).isError(chain)) return chain.get();
+        if (sourceBuffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+            if (sourceBuffer.decode(sizeInBytesRef).isError(chain)) return chain.get();
         } else {
-            if(sourceBuffer.decodeVarint(sizeInBytesRef).isError(chain)) return chain.get();
+            if (sourceBuffer.decodeVarint(sizeInBytesRef).isError(chain)) return chain.get();
         }
         int sizeInBytes = sizeInBytesRef.get().intValue();
 
-        if(sizeInBytes > sourceBuffer.getRemainingSize()) {
+        if (sizeInBytes > sourceBuffer.getRemainingSize()) {
             return Status.ioError("Decoded number of symbols is unreasonably high");
         }
 
-        if(ansDecoder.ansReadInit(sourceBuffer.getDataHead(), sizeInBytes).isError(chain)) return chain.get();
+        if (ansDecoder.ansReadInit(sourceBuffer.getDataHead(), sizeInBytes).isError(chain)) return chain.get();
         sourceBuffer.advance(sizeInBytes);
         return Status.ok();
     }
@@ -68,12 +68,12 @@ public class RAnsBitDecoder {
     }
 
     public void decodeLeastSignificantBits32(int nBits, AtomicReference<UInt> value) {
-        if(nBits <= 0 || nBits > 32) {
+        if (nBits <= 0 || nBits > 32) {
             throw new IllegalArgumentException("number of bits(got " + nBits + ") must be > 0 and <= 32");
         }
 
         UInt result = UInt.ZERO;
-        while(nBits > 0) {
+        while (nBits > 0) {
             result = result.shl(1).add(ansDecoder.rabsRead(probZero) ? 1 : 0);
             nBits--;
         }

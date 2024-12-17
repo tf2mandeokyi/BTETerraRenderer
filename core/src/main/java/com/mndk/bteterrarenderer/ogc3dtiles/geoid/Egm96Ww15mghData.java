@@ -28,14 +28,14 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
     private final float[][] data = new float[HEIGHT][WIDTH];
 
     Egm96Ww15mghData() {
-        try(InputStream stream = Egm96Ww15mghData.class.getResourceAsStream("WW15MGH.dat.gz")) {
+        try (InputStream stream = Egm96Ww15mghData.class.getResourceAsStream("WW15MGH.dat.gz")) {
             if (stream == null) throw new IOException("File not found");
 
             GZIPInputStream gzipStream = new GZIPInputStream(stream);
             byte[] data = IOUtil.readAllBytes(gzipStream);
             ByteBuf buffer = Unpooled.wrappedBuffer(data);
-            for(int y = 0; y < HEIGHT; y++) {
-                for(int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                for (int x = 0; x < WIDTH; x++) {
                     this.data[y][x] = buffer.readFloat();
                 }
             }
@@ -48,7 +48,7 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
     public double getHeight(Spheroid3 spheroid3) {
         double longitudeInDegrees = spheroid3.getLongitudeDegrees();
         double latitudeInDegrees = spheroid3.getLatitudeDegrees();
-        if(latitudeInDegrees > 90 || latitudeInDegrees < -90) {
+        if (latitudeInDegrees > 90 || latitudeInDegrees < -90) {
             throw new IllegalArgumentException("Latitude must be between -90 and 90 degrees, but was instead " + latitudeInDegrees);
         }
         double wrappedLongitude = ((longitudeInDegrees % 360) + 360) % 360;
@@ -58,7 +58,7 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
         double x = wrappedLongitude * 4 - xIndex;
         double y = (90 - latitudeInDegrees) * 4 - yIndex;
         float[] p = new float[4];
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int wrappedYIndex = wrapYIndex(yIndex + i - 1);
             p[i] = cubicInterpolate(
                     data[wrappedYIndex][wrapXIndex(xIndex - 1)],
@@ -73,8 +73,8 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
 
     private int wrapXIndex(int xIndex) { return (xIndex + WIDTH) % WIDTH; }
     private int wrapYIndex(int yIndex) {
-        if(yIndex == -1) return 1;
-        if(yIndex == 721) return 719;
+        if (yIndex == -1) return 1;
+        if (yIndex == 721) return 719;
         return yIndex;
     }
 

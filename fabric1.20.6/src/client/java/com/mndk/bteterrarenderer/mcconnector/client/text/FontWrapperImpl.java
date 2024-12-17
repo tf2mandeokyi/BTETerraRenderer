@@ -24,7 +24,7 @@ public class FontWrapperImpl extends FontWrapper<TextRenderer> {
         return getThisWrapped().getWidth(string);
     }
     public int getWidth(TextWrapper textWrapper) {
-        return switch(textWrapper.get()) {
+        return switch (textWrapper.get()) {
             case StringVisitable visitable -> getThisWrapped().getWidth(visitable);
             case OrderedText text -> getThisWrapped().getWidth(text);
             default -> 0;
@@ -45,7 +45,7 @@ public class FontWrapperImpl extends FontWrapper<TextRenderer> {
     @Nullable
     public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft) {
         TextHandler handler = getThisWrapped().getTextHandler();
-        Style style = switch(textWrapper.get()) {
+        Style style = switch (textWrapper.get()) {
             case StringVisitable visitable -> handler.getStyleAt(visitable, mouseXFromLeft);
             case OrderedText text -> handler.getStyleAt(text, mouseXFromLeft);
             default -> null;

@@ -27,7 +27,7 @@ public class NativeGuiScreenWrappedScreen extends AbstractGuiScreenCopy {
     @Override
     public void setScreenSize(int width, int height) {
         super.setScreenSize(width, height);
-        if(initialized) nativeScreen.setScreenSize(width, height);
+        if (initialized) nativeScreen.setScreenSize(width, height);
     }
     
     @Override
@@ -76,7 +76,7 @@ public class NativeGuiScreenWrappedScreen extends AbstractGuiScreenCopy {
     
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
-        if(this.ignoreFirstKeyInput && !this.charTyped) {
+        if (this.ignoreFirstKeyInput && !this.charTyped) {
             this.charTyped = true;
             return false;
         }
@@ -85,9 +85,9 @@ public class NativeGuiScreenWrappedScreen extends AbstractGuiScreenCopy {
     
     @Override
     public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
-        if(this.ignoreFirstKeyInput && !this.keyPressed) {
+        if (this.ignoreFirstKeyInput && !this.keyPressed) {
             this.keyPressed = true;
-            if(!nativeScreen.alsoListensForKeyPress()) {
+            if (!nativeScreen.alsoListensForKeyPress()) {
                 this.charTyped = true;
             }
             return false;

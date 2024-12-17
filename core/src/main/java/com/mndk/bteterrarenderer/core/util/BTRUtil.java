@@ -21,7 +21,7 @@ public class BTRUtil {
     public boolean validateDouble(String s) {
         try {
             Double.parseDouble(s);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return false;
         }
         return true;
@@ -36,31 +36,31 @@ public class BTRUtil {
     }
 
     public boolean arrayStartsWith(byte[] array, @Nonnull byte[] start) {
-        if(array == null) return false;
-        if(array.length < start.length) return false;
-        for(int i = 0; i < start.length; i++) {
-            if(array[i] != start[i]) return false;
+        if (array == null) return false;
+        if (array.length < start.length) return false;
+        for (int i = 0; i < start.length; i++) {
+            if (array[i] != start[i]) return false;
         }
         return true;
     }
 
     public <T extends Number> T doubleToNumber(Class<T> clazz, double value) {
-        if(clazz == double.class || clazz == Double.class) return BTRUtil.uncheckedCast(value);
-        else if(clazz == float.class || clazz == Float.class) return BTRUtil.uncheckedCast((float) value);
-        else if(clazz == long.class || clazz == Long.class) return BTRUtil.uncheckedCast((long) value);
-        else if(clazz == int.class || clazz == Integer.class) return BTRUtil.uncheckedCast((int) value);
-        else if(clazz == short.class || clazz == Short.class) return BTRUtil.uncheckedCast((short) value);
-        else if(clazz == byte.class || clazz == Byte.class) return BTRUtil.uncheckedCast((byte) value);
+        if (clazz == double.class || clazz == Double.class) return BTRUtil.uncheckedCast(value);
+        else if (clazz == float.class || clazz == Float.class) return BTRUtil.uncheckedCast((float) value);
+        else if (clazz == long.class || clazz == Long.class) return BTRUtil.uncheckedCast((long) value);
+        else if (clazz == int.class || clazz == Integer.class) return BTRUtil.uncheckedCast((int) value);
+        else if (clazz == short.class || clazz == Short.class) return BTRUtil.uncheckedCast((short) value);
+        else if (clazz == byte.class || clazz == Byte.class) return BTRUtil.uncheckedCast((byte) value);
         else throw new RuntimeException("Not a number class: " + clazz);
     }
 
     public <T extends Number> T integerToNumber(Class<T> clazz, int value) {
-        if(clazz == double.class || clazz == Double.class) return BTRUtil.uncheckedCast((double) value);
-        else if(clazz == float.class || clazz == Float.class) return BTRUtil.uncheckedCast((float) value);
-        else if(clazz == long.class || clazz == Long.class) return BTRUtil.uncheckedCast((long) value);
-        else if(clazz == int.class || clazz == Integer.class) return BTRUtil.uncheckedCast(value);
-        else if(clazz == short.class || clazz == Short.class) return BTRUtil.uncheckedCast((short) value);
-        else if(clazz == byte.class || clazz == Byte.class) return BTRUtil.uncheckedCast((byte) value);
+        if (clazz == double.class || clazz == Double.class) return BTRUtil.uncheckedCast((double) value);
+        else if (clazz == float.class || clazz == Float.class) return BTRUtil.uncheckedCast((float) value);
+        else if (clazz == long.class || clazz == Long.class) return BTRUtil.uncheckedCast((long) value);
+        else if (clazz == int.class || clazz == Integer.class) return BTRUtil.uncheckedCast(value);
+        else if (clazz == short.class || clazz == Short.class) return BTRUtil.uncheckedCast((short) value);
+        else if (clazz == byte.class || clazz == Byte.class) return BTRUtil.uncheckedCast((byte) value);
         else throw new RuntimeException("Not a number class: " + clazz);
     }
 

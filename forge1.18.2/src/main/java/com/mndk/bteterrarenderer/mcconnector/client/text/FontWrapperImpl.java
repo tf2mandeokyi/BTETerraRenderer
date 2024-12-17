@@ -24,10 +24,10 @@ public class FontWrapperImpl extends FontWrapper<Font> {
     }
     public int getWidth(TextWrapper textWrapper) {
         Object textComponent = textWrapper.get();
-        if(textComponent instanceof FormattedText text) {
+        if (textComponent instanceof FormattedText text) {
             return getThisWrapped().width(text);
         }
-        else if(textComponent instanceof FormattedCharSequence sequence) {
+        else if (textComponent instanceof FormattedCharSequence sequence) {
             return getThisWrapped().width(sequence);
         }
         return 0;
@@ -48,10 +48,10 @@ public class FontWrapperImpl extends FontWrapper<Font> {
     public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft) {
         Object lineComponent = textWrapper.get();
         Style style = null;
-        if(lineComponent instanceof FormattedText text) {
+        if (lineComponent instanceof FormattedText text) {
             style = getThisWrapped().getSplitter().componentStyleAtWidth(text, mouseXFromLeft);
         }
-        else if(lineComponent instanceof FormattedCharSequence sequence) {
+        else if (lineComponent instanceof FormattedCharSequence sequence) {
             style = getThisWrapped().getSplitter().componentStyleAtWidth(sequence, mouseXFromLeft);
         }
         return style != null ? new StyleWrapper(style) : null;

@@ -12,7 +12,7 @@ import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public interface TileMapService extends AutoCloseable {
     void moveAlongYAxis(double amount);
 
     List<GraphicsModel> getModels(McCoord playerPos);
-    McCoordTransformer getPositionTransformer(McCoord playerPos);
+    McCoordTransformer getPositionTransformer();
     void cleanUp();
 
     class Serializer extends JsonSerializer<TileMapService> {
@@ -44,7 +44,7 @@ public interface TileMapService extends AutoCloseable {
         public void serialize(TileMapService value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             Class<? extends TileMapService> clazz = BTRUtil.uncheckedCast(value.getClass());
             String type = TileMapServiceParseRegistries.TYPE_MAP.inverse().get(clazz);
-            if(type == null) {
+            if (type == null) {
                 throw JsonMappingException.from(gen, "unknown map class: " + clazz);
             }
 
@@ -59,7 +59,7 @@ public interface TileMapService extends AutoCloseable {
 
             String type = JsonParserUtil.getOrDefault(node, "type", "flat");
             Class<? extends TileMapService> clazz = TileMapServiceParseRegistries.TYPE_MAP.get(type);
-            if(clazz == null) {
+            if (clazz == null) {
                 throw JsonMappingException.from(p, "unknown map type: " + type);
             }
 

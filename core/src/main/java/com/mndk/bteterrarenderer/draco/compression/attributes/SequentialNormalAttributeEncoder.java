@@ -56,15 +56,15 @@ public class SequentialNormalAttributeEncoder extends SequentialIntegerAttribute
     public Status init(PointCloudEncoder encoder, int attributeId) {
         StatusChain chain = new StatusChain();
 
-        if(super.init(encoder, attributeId).isError(chain)) return chain.get();
+        if (super.init(encoder, attributeId).isError(chain)) return chain.get();
         // Currently this encoder works only for 3-component normal vectors.
-        if(!this.getAttribute().getNumComponents().equals(3)) {
+        if (!this.getAttribute().getNumComponents().equals(3)) {
             return Status.dracoError("Currently this encoder works only for 3-component normal vectors.");
         }
 
         // Initialize AttributeOctahedronTransform.
         int quantizationBits = encoder.getOptions().getAttributeInt(attributeId, "quantization_bits", -1);
-        if(quantizationBits < 1) {
+        if (quantizationBits < 1) {
             return Status.invalidParameter("Quantization bits must be greater than 0");
         }
         attributeOctahedronTransform.setParameters(quantizationBits);
@@ -77,7 +77,7 @@ public class SequentialNormalAttributeEncoder extends SequentialIntegerAttribute
 
         PointAttribute portableAtt = attributeOctahedronTransform.initTransformedAttribute(
                 this.getAttribute(), (int) pointIds.size());
-        if(attributeOctahedronTransform.transformAttribute(
+        if (attributeOctahedronTransform.transformAttribute(
                 this.getAttribute(), pointIds, portableAtt).isError(chain)) return chain.get();
         this.setPortableAttribute(portableAtt);
         return Status.ok();
@@ -96,11 +96,11 @@ public class SequentialNormalAttributeEncoder extends SequentialIntegerAttribute
                 this.getAttributeId(), "prediction_scheme", defaultPredictionMethod.getValue());
         PredictionSchemeMethod predictionMethod = PredictionSchemeMethod.valueOf(predictionMethodInt);
 
-        if(predictionMethod == PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL) {
+        if (predictionMethod == PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL) {
             return PSchemeEncoderFactory.createPredictionSchemeForEncoder(
                     PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL, this.getAttributeId(), this.getEncoder(), transform);
         }
-        if(predictionMethod == PredictionSchemeMethod.DIFFERENCE) {
+        if (predictionMethod == PredictionSchemeMethod.DIFFERENCE) {
             return PSchemeEncoderFactory.createPredictionSchemeForEncoder(
                     PredictionSchemeMethod.DIFFERENCE, this.getAttributeId(), this.getEncoder(), transform);
         }

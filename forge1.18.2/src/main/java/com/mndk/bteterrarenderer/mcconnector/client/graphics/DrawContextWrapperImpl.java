@@ -51,7 +51,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
         WindowDimension window = McConnector.client().getWindowSize();
-        if(window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
+        if (window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
             return new int[] { 0, 0, 0, 0 };
         }
         float scaleFactorX = window.getScaleFactorX();
@@ -130,7 +130,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
 
     public void drawHoverEvent(StyleWrapper styleWrapper, int x, int y) {
         Screen currentScreen = Minecraft.getInstance().screen;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
 
         Style style = styleWrapper.get();
         guiScreen.renderComponentHoverEffect(getThisWrapped(), style, x, y);
@@ -144,10 +144,10 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
     public int drawTextWithShadow(FontWrapper<?> fontWrapper, TextWrapper textWrapper, float x, float y, int color) {
         Font font = fontWrapper.get();
         Object textComponent = textWrapper.get();
-        if(textComponent instanceof Component component) {
+        if (textComponent instanceof Component component) {
             return font.drawShadow(getThisWrapped(), component, x, y, color);
         }
-        else if(textComponent instanceof FormattedCharSequence sequence) {
+        else if (textComponent instanceof FormattedCharSequence sequence) {
             return font.drawShadow(getThisWrapped(), sequence, x, y, color);
         }
         return 0;

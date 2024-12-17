@@ -56,19 +56,19 @@ public class MeshEdgebreakerTraversalDecoder {
     public Status start(DecoderBuffer outBufferRef) {
         StatusChain chain = new StatusChain();
 
-        if(this.decodeTraversalSymbols().isError(chain)) return chain.get();
-        if(this.decodeStartFaces().isError(chain)) return chain.get();
-        if(this.decodeAttributeSeams().isError(chain)) return chain.get();
+        if (this.decodeTraversalSymbols().isError(chain)) return chain.get();
+        if (this.decodeStartFaces().isError(chain)) return chain.get();
+        if (this.decodeAttributeSeams().isError(chain)) return chain.get();
 
         outBufferRef.reset(this.buffer);
         return Status.ok();
     }
 
     public boolean decodeStartFaceConfiguration() {
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> faceConfigurationRef = Pointer.newUInt();
             Status status = startFaceBuffer.decodeLeastSignificantBits32(1, faceConfigurationRef);
-            if(status.isError()) throw status.getException();
+            if (status.isError()) throw status.getException();
             return faceConfigurationRef.get().intValue() != 0;
         } else {
             return startFaceDecoder.decodeNextBit();
@@ -79,7 +79,7 @@ public class MeshEdgebreakerTraversalDecoder {
         Pointer<UInt> symbolRef = Pointer.newUInt();
         symbolBuffer.decodeLeastSignificantBits32(1, symbolRef);
         UInt symbol = symbolRef.get();
-        if(EdgebreakerTopology.fromBitPattern(symbol) == EdgebreakerTopology.C) {
+        if (EdgebreakerTopology.fromBitPattern(symbol) == EdgebreakerTopology.C) {
             return EdgebreakerTopology.C;
         }
         // Else decode two additional bits.
@@ -98,10 +98,10 @@ public class MeshEdgebreakerTraversalDecoder {
     }
 
     public void done() {
-        if(symbolBuffer.isBitDecoderActive()) {
+        if (symbolBuffer.isBitDecoderActive()) {
             symbolBuffer.endBitDecoding();
         }
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             startFaceBuffer.endBitDecoding();
         } else {
             startFaceDecoder.endDecoding();
@@ -113,10 +113,10 @@ public class MeshEdgebreakerTraversalDecoder {
 
         Pointer<ULong> traversalSizeRef = Pointer.newULong();
         this.symbolBuffer.reset(this.buffer);
-        if(symbolBuffer.startBitDecoding(true, traversalSizeRef).isError(chain)) return chain.get();
+        if (symbolBuffer.startBitDecoding(true, traversalSizeRef).isError(chain)) return chain.get();
         ULong traversalSize = traversalSizeRef.get();
         this.buffer.reset(this.symbolBuffer);
-        if(traversalSize.gt(this.buffer.getRemainingSize())) {
+        if (traversalSize.gt(this.buffer.getRemainingSize())) {
             return Status.ioError("Traversal size is larger than remaining buffer size.");
         }
         this.buffer.advance(traversalSize.longValue());
@@ -126,13 +126,13 @@ public class MeshEdgebreakerTraversalDecoder {
     public Status decodeStartFaces() {
         StatusChain chain = new StatusChain();
 
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             this.startFaceBuffer.reset(this.buffer);
             Pointer<ULong> traversalSizeRef = Pointer.newULong();
-            if(startFaceBuffer.startBitDecoding(true, traversalSizeRef).isError(chain)) return chain.get();
+            if (startFaceBuffer.startBitDecoding(true, traversalSizeRef).isError(chain)) return chain.get();
             ULong traversalSize = traversalSizeRef.get();
             this.buffer.reset(this.startFaceBuffer);
-            if(traversalSize.gt(this.buffer.getRemainingSize())) {
+            if (traversalSize.gt(this.buffer.getRemainingSize())) {
                 return Status.ioError("Traversal size is larger than remaining buffer size.");
             }
             this.buffer.advance(traversalSize.longValue());
@@ -144,11 +144,11 @@ public class MeshEdgebreakerTraversalDecoder {
     public Status decodeAttributeSeams() {
         StatusChain chain = new StatusChain();
 
-        if(numAttributeData > 0) {
+        if (numAttributeData > 0) {
             attributeConnectivityDecoders = new RAnsBitDecoder[numAttributeData];
-            for(int i = 0; i < numAttributeData; ++i) {
+            for (int i = 0; i < numAttributeData; ++i) {
                 RAnsBitDecoder decoder = new RAnsBitDecoder();
-                if(decoder.startDecoding(buffer).isError(chain)) return chain.get();
+                if (decoder.startDecoding(buffer).isError(chain)) return chain.get();
                 attributeConnectivityDecoders[i] = decoder;
             }
         }

@@ -78,7 +78,7 @@ public class Metadata {
         }
 
         public <T> Status getValue(DataType<T> type, Consumer<T> outVal) {
-            if(this.buffer.size() != type.byteSize()) {
+            if (this.buffer.size() != type.byteSize()) {
                 return Status.invalidParameter("Data size does not match the expected size");
             }
             outVal.accept(type.read(this.buffer.getRawPointer()));
@@ -87,7 +87,7 @@ public class Metadata {
 
         public <T> Status getValue(Pointer<T> outVal) {
             DataType<T> type = outVal.getType();
-            if(this.buffer.size() % type.byteSize() != 0) {
+            if (this.buffer.size() % type.byteSize() != 0) {
                 return Status.invalidParameter("Data size is not a multiple of the expected size");
             }
             long numEntries = this.buffer.size() / type.byteSize();
@@ -96,7 +96,7 @@ public class Metadata {
         }
 
         public Status getValue(StringBuilder outVal) {
-            if(this.buffer.isEmpty()) {
+            if (this.buffer.isEmpty()) {
                 return Status.invalidParameter("Data size is zero");
             }
             outVal.setLength(0);
@@ -132,7 +132,7 @@ public class Metadata {
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
     public Status getEntryInt(String name, Consumer<Integer> value) {
         EntryValue entry = this.entries.get(name);
-        if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
+        if (entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(DataType.int32(), value);
     }
 
@@ -143,7 +143,7 @@ public class Metadata {
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
     public Status getEntryIntArray(String name, int[] value) {
         EntryValue entry = this.entries.get(name);
-        if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
+        if (entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(Pointer.wrap(value));
     }
 
@@ -154,7 +154,7 @@ public class Metadata {
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
     public Status getEntryDouble(String name, Consumer<Double> value) {
         EntryValue entry = this.entries.get(name);
-        if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
+        if (entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(DataType.float64(), value);
     }
 
@@ -165,7 +165,7 @@ public class Metadata {
     /** Returns {@code false} if Metadata does not contain an entry with a key of {@code name}. */
     public Status getEntryDoubleArray(String name, double[] value) {
         EntryValue entry = this.entries.get(name);
-        if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
+        if (entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(Pointer.wrap(value));
     }
 
@@ -175,7 +175,7 @@ public class Metadata {
 
     public Status getEntryString(String name, StringBuilder outVal) {
         EntryValue entry = this.entries.get(name);
-        if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
+        if (entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(outVal);
     }
 
@@ -185,12 +185,12 @@ public class Metadata {
 
     public Status getEntryBinary(String name, RawPointer outBuf) {
         EntryValue entry = this.entries.get(name);
-        if(entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
+        if (entry == null) return Status.dracoError("Metadata does not contain an entry with name " + name);
         return entry.getValue(outBuf);
     }
 
     public Status addSubMetadata(String name, Metadata metadata) {
-        if(subMetadatas.containsKey(name)) {
+        if (subMetadatas.containsKey(name)) {
             return Status.invalidParameter("Metadata already contains sub-metadata with name " + name);
         }
         this.subMetadatas.put(name, metadata);

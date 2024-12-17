@@ -16,7 +16,7 @@ public abstract class ImmediateBlock<Key, Input, Output> extends ProcessingBlock
     public void insert(BlockPayload<Key, Input> payload) {
         try {
             this.process(payload);
-        } catch(Exception e) {
+        } catch (Exception e) {
             this.onProcessingFail(payload, e);
         }
     }

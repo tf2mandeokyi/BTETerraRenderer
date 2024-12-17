@@ -51,7 +51,7 @@ public class MPSchemeMultiParallelogramDecoder<DataT, CorrT> extends MPSchemeDec
         CppVector<Integer> vertexToDataMap = this.getMeshData().getVertexToDataMap();
 
         int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
-        for(int p = 1; p < cornerMapSize; ++p) {
+        for (int p = 1; p < cornerMapSize; ++p) {
             CornerIndex startCornerId = this.getMeshData().getDataToCornerMap().get(p);
             int numParallelograms = 0;
             for (int i = 0; i < numComponents; ++i) {
@@ -62,7 +62,7 @@ public class MPSchemeMultiParallelogramDecoder<DataT, CorrT> extends MPSchemeDec
                 Status status = MPSchemeParallelogram.computeParallelogramPrediction(
                         p, cornerId, table, vertexToDataMap, outData, numComponents,
                         parallelogramPredVals.getPointer());
-                if(status.isOk()) {
+                if (status.isOk()) {
                     for (int c = 0; c < numComponents; ++c) {
                         predVals.set(c, dataType.add(predVals.get(c), parallelogramPredVals.get(c)));
                     }

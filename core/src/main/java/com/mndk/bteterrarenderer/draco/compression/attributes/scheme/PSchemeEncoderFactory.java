@@ -37,37 +37,37 @@ public class PSchemeEncoderFactory {
     }
 
     public PredictionSchemeMethod selectPredictionMethod(int attId, EncoderOptions options, PointCloudEncoder encoder) {
-        if(options.getSpeed() >= 10) {
+        if (options.getSpeed() >= 10) {
             return PredictionSchemeMethod.DIFFERENCE;
         }
-        if(encoder.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH) {
+        if (encoder.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH) {
             int attQuant = options.getAttributeInt(attId, "quantization_bits", -1);
             PointCloud pointCloud = encoder.getPointCloud();
             PointAttribute att = pointCloud.getAttribute(attId);
-            if(attQuant != -1
+            if (attQuant != -1
                     && att.getAttributeType() == GeometryAttribute.Type.TEX_COORD
                     && att.getNumComponents().equals(2)) {
                 PointAttribute posAtt = pointCloud.getNamedAttribute(GeometryAttribute.Type.POSITION);
                 boolean isPosAttValid = false;
-                if(posAtt != null) {
-                    if(posAtt.getDataType().isDataTypeIntegral()) {
+                if (posAtt != null) {
+                    if (posAtt.getDataType().isDataTypeIntegral()) {
                         isPosAttValid = true;
                     } else {
                         int posAttId = pointCloud.getNamedAttributeId(GeometryAttribute.Type.POSITION);
                         int posQuant = options.getAttributeInt(posAttId, "quantization_bits", -1);
-                        if(posQuant > 0 && posQuant <= 21 && 2 * posQuant + attQuant < 64) {
+                        if (posQuant > 0 && posQuant <= 21 && 2 * posQuant + attQuant < 64) {
                             isPosAttValid = true;
                         }
                     }
                 }
-                if(isPosAttValid && options.getSpeed() < 4) {
+                if (isPosAttValid && options.getSpeed() < 4) {
                     return PredictionSchemeMethod.MESH_TEX_COORDS_PORTABLE;
                 }
             }
-            if(att.getAttributeType() == GeometryAttribute.Type.NORMAL) {
-                if(options.getSpeed() < 4) {
+            if (att.getAttributeType() == GeometryAttribute.Type.NORMAL) {
+                if (options.getSpeed() < 4) {
                     PointAttribute posAtt = pointCloud.getNamedAttribute(GeometryAttribute.Type.POSITION);
-                    if(posAtt != null && (posAtt.getDataType().isDataTypeIntegral() ||
+                    if (posAtt != null && (posAtt.getDataType().isDataTypeIntegral() ||
                             options.getAttributeInt(pointCloud.getNamedAttributeId(GeometryAttribute.Type.POSITION),
                                     "quantization_bits", -1) > 0)) {
                         return PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL;
@@ -75,10 +75,10 @@ public class PSchemeEncoderFactory {
                 }
                 return PredictionSchemeMethod.DIFFERENCE; // default
             }
-            if(options.getSpeed() >= 8) {
+            if (options.getSpeed() >= 8) {
                 return PredictionSchemeMethod.DIFFERENCE;
             }
-            if(options.getSpeed() >= 2 || pointCloud.getNumPoints() < 40) {
+            if (options.getSpeed() >= 2 || pointCloud.getNumPoints() < 40) {
                 return PredictionSchemeMethod.MESH_PARALLELOGRAM;
             }
             return PredictionSchemeMethod.MESH_CONSTRAINED_MULTI_PARALLELOGRAM;
@@ -90,19 +90,19 @@ public class PSchemeEncoderFactory {
     createPredictionSchemeForEncoder(PredictionSchemeMethod method, int attId, PointCloudEncoder encoder,
                                      PSchemeEncodingTransform<DataT, CorrT> transform) {
         PointAttribute att = encoder.getPointCloud().getAttribute(attId);
-        if(method == PredictionSchemeMethod.UNDEFINED) {
+        if (method == PredictionSchemeMethod.UNDEFINED) {
             method = selectPredictionMethod(attId, encoder);
         }
-        if(method == PredictionSchemeMethod.NONE) {
+        if (method == PredictionSchemeMethod.NONE) {
             return null;
         }
-        if(encoder.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH) {
+        if (encoder.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH) {
             MeshEncoder meshEncoder = (MeshEncoder) encoder;
             UShort bitStreamVersion = UShort.of(DracoVersions.MESH_BIT_STREAM_VERSION);
             PSchemeEncoder<DataT, CorrT> ret = PSchemeFactory.createMeshPredictionScheme(
                     new MPSchemeEncoderFactory<>(), meshEncoder, method, attId, transform,
                     bitStreamVersion);
-            if(ret != null) return ret;
+            if (ret != null) return ret;
             // Otherwise try to create another prediction scheme.
         }
         // Create delta encoder.

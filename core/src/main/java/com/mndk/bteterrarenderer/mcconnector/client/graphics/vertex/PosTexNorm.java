@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;

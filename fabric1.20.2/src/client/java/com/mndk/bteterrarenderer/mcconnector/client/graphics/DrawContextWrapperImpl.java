@@ -56,7 +56,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
         WindowDimension window = McConnector.client().getWindowSize();
-        if(window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
+        if (window.getScaledWidth() == 0 || window.getScaledHeight() == 0) { // Division by zero handling
             return new int[] { 0, 0, 0, 0 };
         }
         float scaleFactorX = window.getScaleFactorX();
@@ -129,10 +129,10 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
     public int drawTextWithShadow(FontWrapper<?> fontWrapper, TextWrapper textWrapper, float x, float y, int color) {
         TextRenderer textRenderer = fontWrapper.get();
         Object textComponent = textWrapper.get();
-        if(textComponent instanceof Text text) {
+        if (textComponent instanceof Text text) {
             return getThisWrapped().drawTextWithShadow(textRenderer, text, (int) x, (int) y, color);
         }
-        else if(textComponent instanceof OrderedText text) {
+        else if (textComponent instanceof OrderedText text) {
             return getThisWrapped().drawTextWithShadow(textRenderer, text, (int) x, (int) y, color);
         }
         return 0;

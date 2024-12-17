@@ -61,8 +61,8 @@ public enum DracoDataType {
     }
 
     public static DracoDataType valueOf(UByte value) {
-        for(DracoDataType type : values()) {
-            if(type.id.equals(value)) return type;
+        for (DracoDataType type : values()) {
+            if (type.id.equals(value)) return type;
         }
         return INVALID;
     }

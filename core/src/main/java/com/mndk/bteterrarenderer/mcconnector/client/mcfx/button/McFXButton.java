@@ -47,7 +47,7 @@ public class McFXButton extends McFXElement {
 
     @Override
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        if(this.button.mousePressed(mouseX, mouseY, mouseButton)) {
+        if (this.button.mousePressed(mouseX, mouseY, mouseButton)) {
             this.event.onMouseClicked(this, mouseButton);
             return true;
         }

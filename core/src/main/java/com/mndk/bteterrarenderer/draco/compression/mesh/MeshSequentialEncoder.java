@@ -47,49 +47,49 @@ public class MeshSequentialEncoder extends MeshEncoder {
         // Serialize indices.
         int numFaces = this.getMesh().getNumFaces();
         EncoderBuffer buffer = this.getBuffer();
-        if(buffer.encodeVarint(UInt.of(numFaces)).isError(chain)) return chain.get();
-        if(buffer.encodeVarint(UInt.of(this.getMesh().getNumPoints())).isError(chain)) return chain.get();
+        if (buffer.encodeVarint(UInt.of(numFaces)).isError(chain)) return chain.get();
+        if (buffer.encodeVarint(UInt.of(this.getMesh().getNumPoints())).isError(chain)) return chain.get();
 
         // We encode all attributes in the original (possibly duplicated) format.
         if (this.getOptions().getGlobalBool("compress_connectivity", false)) {
             // 0 = Encode compressed indices.
-            if(buffer.encode(UByte.of(0)).isError(chain)) return chain.get();
+            if (buffer.encode(UByte.of(0)).isError(chain)) return chain.get();
             if (this.compressAndEncodeIndices().isError(chain)) return chain.get();
         } else {
             // 1 = Encode indices directly.
-            if(buffer.encode(UByte.of(1)).isError(chain)) return chain.get();
+            if (buffer.encode(UByte.of(1)).isError(chain)) return chain.get();
             // Store vertex indices using a smallest data type that fits their range.
             if (this.getMesh().getNumPoints() < 256) {
                 // Serialize indices as uint8_t.
-                for(FaceIndex i : FaceIndex.range(0, numFaces)) {
+                for (FaceIndex i : FaceIndex.range(0, numFaces)) {
                     Mesh.Face face = this.getMesh().getFace(i);
-                    if(buffer.encode(UByte.of(face.getValue(0))).isError(chain)) return chain.get();
-                    if(buffer.encode(UByte.of(face.getValue(1))).isError(chain)) return chain.get();
-                    if(buffer.encode(UByte.of(face.getValue(2))).isError(chain)) return chain.get();
+                    if (buffer.encode(UByte.of(face.getValue(0))).isError(chain)) return chain.get();
+                    if (buffer.encode(UByte.of(face.getValue(1))).isError(chain)) return chain.get();
+                    if (buffer.encode(UByte.of(face.getValue(2))).isError(chain)) return chain.get();
                 }
             } else if (this.getMesh().getNumPoints() < (1 << 16)) {
                 // Serialize indices as uint16_t.
-                for(FaceIndex i : FaceIndex.range(0, numFaces)) {
+                for (FaceIndex i : FaceIndex.range(0, numFaces)) {
                     Mesh.Face face = this.getMesh().getFace(i);
-                    if(buffer.encode(UShort.of(face.getValue(0))).isError(chain)) return chain.get();
-                    if(buffer.encode(UShort.of(face.getValue(1))).isError(chain)) return chain.get();
-                    if(buffer.encode(UShort.of(face.getValue(2))).isError(chain)) return chain.get();
+                    if (buffer.encode(UShort.of(face.getValue(0))).isError(chain)) return chain.get();
+                    if (buffer.encode(UShort.of(face.getValue(1))).isError(chain)) return chain.get();
+                    if (buffer.encode(UShort.of(face.getValue(2))).isError(chain)) return chain.get();
                 }
             } else if (this.getMesh().getNumPoints() < (1 << 21)) {
                 // Serialize indices as varint.
-                for(FaceIndex i : FaceIndex.range(0, numFaces)) {
+                for (FaceIndex i : FaceIndex.range(0, numFaces)) {
                     Mesh.Face face = this.getMesh().getFace(i);
-                    if(buffer.encodeVarint(UInt.of(face.getValue(0))).isError(chain)) return chain.get();
-                    if(buffer.encodeVarint(UInt.of(face.getValue(1))).isError(chain)) return chain.get();
-                    if(buffer.encodeVarint(UInt.of(face.getValue(2))).isError(chain)) return chain.get();
+                    if (buffer.encodeVarint(UInt.of(face.getValue(0))).isError(chain)) return chain.get();
+                    if (buffer.encodeVarint(UInt.of(face.getValue(1))).isError(chain)) return chain.get();
+                    if (buffer.encodeVarint(UInt.of(face.getValue(2))).isError(chain)) return chain.get();
                 }
             } else {
                 // Serialize faces as uint32_t (default).
-                for(FaceIndex i : FaceIndex.range(0, numFaces)) {
+                for (FaceIndex i : FaceIndex.range(0, numFaces)) {
                     Mesh.Face face = this.getMesh().getFace(i);
-                    if(buffer.encode(UInt.of(face.getValue(0))).isError(chain)) return chain.get();
-                    if(buffer.encode(UInt.of(face.getValue(1))).isError(chain)) return chain.get();
-                    if(buffer.encode(UInt.of(face.getValue(2))).isError(chain)) return chain.get();
+                    if (buffer.encode(UInt.of(face.getValue(0))).isError(chain)) return chain.get();
+                    if (buffer.encode(UInt.of(face.getValue(1))).isError(chain)) return chain.get();
+                    if (buffer.encode(UInt.of(face.getValue(2))).isError(chain)) return chain.get();
                 }
             }
         }
@@ -126,9 +126,9 @@ public class MeshSequentialEncoder extends MeshEncoder {
         CppVector<UInt> indicesBuffer = new CppVector<>(DataType.uint32());
         int lastIndexValue = 0;
         int numFaces = this.getMesh().getNumFaces();
-        for(FaceIndex i : FaceIndex.range(0, numFaces)) {
+        for (FaceIndex i : FaceIndex.range(0, numFaces)) {
             Mesh.Face face = this.getMesh().getFace(i);
-            for(int j = 0; j < 3; ++j) {
+            for (int j = 0; j < 3; ++j) {
                 int indexValue = face.getValue(j);
                 int indexDiff = indexValue - lastIndexValue;
                 int encodedVal = (Math.abs(indexDiff) << 1) | (indexDiff < 0 ? 1 : 0);

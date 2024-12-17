@@ -67,7 +67,7 @@ public class BufferBitCodingTest {
         DecoderBuffer.BitDecoder decoder = new DecoderBuffer.BitDecoder();
         decoder.reset(pointer, bytesToEncode);
         long bitsToDecode = encoder.bits();
-        for(int i = 0; i < bytesToEncode; i++) {
+        for (int i = 0; i < bytesToEncode; i++) {
             byte datum = data[i];
             int numBits = (int) Math.min(bitsToDecode, 8);
             Pointer<UInt> x = Pointer.newUInt();

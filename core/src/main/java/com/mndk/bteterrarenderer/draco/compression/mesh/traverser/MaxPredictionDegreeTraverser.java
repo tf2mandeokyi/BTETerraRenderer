@@ -33,7 +33,7 @@ public class MaxPredictionDegreeTraverser extends TraverserBase {
     private static final int MAX_PRIORITY = 3;
 
     private final List<CppVector<CornerIndex>> traversalStacks = new ArrayList<>(); {
-        for(int i = 0; i < MAX_PRIORITY; ++i) {
+        for (int i = 0; i < MAX_PRIORITY; ++i) {
             traversalStacks.add(new CppVector<>(CornerIndex.type()));
         }
     }
@@ -51,7 +51,7 @@ public class MaxPredictionDegreeTraverser extends TraverserBase {
 
     @Override
     public Status traverseFromCorner(CornerIndex cornerId) {
-        if(predictionDegree.isEmpty()) {
+        if (predictionDegree.isEmpty()) {
             return Status.ok();
         }
 
@@ -61,16 +61,16 @@ public class MaxPredictionDegreeTraverser extends TraverserBase {
         VertexIndex nextVert = this.getCornerTable().getVertex(this.getCornerTable().next(cornerId));
         VertexIndex prevVert = this.getCornerTable().getVertex(this.getCornerTable().previous(cornerId));
 
-        if(!this.isVertexVisited(nextVert)) {
+        if (!this.isVertexVisited(nextVert)) {
             this.markVertexVisited(nextVert);
             this.getTraversalObserver().onNewVertexVisited(nextVert, this.getCornerTable().next(cornerId));
         }
-        if(!this.isVertexVisited(prevVert)) {
+        if (!this.isVertexVisited(prevVert)) {
             this.markVertexVisited(prevVert);
             this.getTraversalObserver().onNewVertexVisited(prevVert, this.getCornerTable().previous(cornerId));
         }
         final VertexIndex tipVertex = this.getCornerTable().getVertex(cornerId);
-        if(!this.isVertexVisited(tipVertex)) {
+        if (!this.isVertexVisited(tipVertex)) {
             this.markVertexVisited(tipVertex);
             this.getTraversalObserver().onNewVertexVisited(tipVertex, cornerId);
         }
@@ -128,8 +128,8 @@ public class MaxPredictionDegreeTraverser extends TraverserBase {
     }
 
     private CornerIndex popNextCornerToTraverse() {
-        for(int i = bestPriority; i < MAX_PRIORITY; ++i) {
-            if(!traversalStacks.get(i).isEmpty()) {
+        for (int i = bestPriority; i < MAX_PRIORITY; ++i) {
+            if (!traversalStacks.get(i).isEmpty()) {
                 CornerIndex ret = traversalStacks.get(i).back();
                 traversalStacks.get(i).popBack();
                 bestPriority = i;
@@ -141,7 +141,7 @@ public class MaxPredictionDegreeTraverser extends TraverserBase {
 
     private void addCornerToTraversalStack(CornerIndex ci, int priority) {
         traversalStacks.get(priority).pushBack(ci);
-        if(priority < bestPriority) {
+        if (priority < bestPriority) {
             bestPriority = priority;
         }
     }
@@ -149,7 +149,7 @@ public class MaxPredictionDegreeTraverser extends TraverserBase {
     private int computePriority(CornerIndex cornerId) {
         VertexIndex vTip = this.getCornerTable().getVertex(cornerId);
         int priority = 0;
-        if(!this.isVertexVisited(vTip)) {
+        if (!this.isVertexVisited(vTip)) {
             predictionDegree.set(vTip, val -> val + 1);
             int degree = predictionDegree.get(vTip);
             priority = degree > 1 ? 1 : 2;

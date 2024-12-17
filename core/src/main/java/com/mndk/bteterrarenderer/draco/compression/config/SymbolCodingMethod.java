@@ -43,8 +43,8 @@ public enum SymbolCodingMethod {
 
     @Nullable
     public static SymbolCodingMethod valueOf(UByte value) {
-        for(SymbolCodingMethod method : values()) {
-            if(method.value.equals(value)) return method;
+        for (SymbolCodingMethod method : values()) {
+            if (method.value.equals(value)) return method;
         }
         return null;
     }

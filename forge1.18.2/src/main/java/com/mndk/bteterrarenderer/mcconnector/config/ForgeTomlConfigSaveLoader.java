@@ -12,11 +12,11 @@ import java.lang.reflect.Field;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
+public class ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
 
     private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
-    public MC18ForgeTomlConfigSaveLoader(Class<?> configClass) {
+    public ForgeTomlConfigSaveLoader(Class<?> configClass) {
         super(configClass);
     }
 
@@ -38,16 +38,16 @@ public class MC18ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
         ConfigRangeDouble rangeDouble = field.getAnnotation(ConfigRangeDouble.class);
 
         // Set comment
-        if(comment != null) builder.comment(comment);
+        if (comment != null) builder.comment(comment);
 
         ForgeConfigSpec.ConfigValue<?> configValue;
-        if(Enum.class.isAssignableFrom(clazz)) {
+        if (Enum.class.isAssignableFrom(clazz)) {
             configValue = builder.defineEnum(name, BTRUtil.uncheckedCast(defaultValue));
         }
-        else if(rangeInt != null) {
+        else if (rangeInt != null) {
             configValue = builder.defineInRange(name, (int) defaultValue, rangeInt.min(), rangeInt.max());
         }
-        else if(rangeDouble != null) {
+        else if (rangeDouble != null) {
             configValue = builder.defineInRange(name, (double) defaultValue, rangeDouble.min(), rangeDouble.max());
         }
         else {

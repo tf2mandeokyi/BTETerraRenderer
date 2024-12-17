@@ -51,10 +51,10 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
     public Status init(PointCloudEncoder encoder, int attributeId) {
         StatusChain chain = new StatusChain();
 
-        if(super.init(encoder, attributeId).isError(chain)) return chain.get();
+        if (super.init(encoder, attributeId).isError(chain)) return chain.get();
 
-        if(this.getUniqueId().equals(SequentialAttributeEncoderType.INTEGER.getValue())) {
-            switch(this.getAttribute().getDataType()) {
+        if (this.getUniqueId().equals(SequentialAttributeEncoderType.INTEGER.getValue())) {
+            switch (this.getAttribute().getDataType()) {
                 case INT8:  case UINT8:
                 case INT16: case UINT16:
                 case INT32: case UINT32:
@@ -68,7 +68,7 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
         PredictionSchemeMethod predictionSchemeMethod =
                 PSchemeEncoderFactory.getPredictionMethodFromOptions(attributeId, encoder.getOptions());
         this.predictionScheme = this.createIntPredictionScheme(predictionSchemeMethod);
-        if(predictionScheme != null && this.initPredictionScheme(predictionScheme).isError()) {
+        if (predictionScheme != null && this.initPredictionScheme(predictionScheme).isError()) {
             predictionScheme = null;
         }
         return Status.ok();
@@ -78,28 +78,28 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
     public Status transformAttributeToPortableFormat(CppVector<PointIndex> pointIds) {
         StatusChain chain = new StatusChain();
 
-        if(this.getEncoder() != null) {
-            if(this.prepareValues(pointIds, this.getEncoder().getPointCloud().getNumPoints()).isError(chain))
+        if (this.getEncoder() != null) {
+            if (this.prepareValues(pointIds, this.getEncoder().getPointCloud().getNumPoints()).isError(chain))
                 return chain.get();
         } else {
-            if(this.prepareValues(pointIds, 0).isError(chain))
+            if (this.prepareValues(pointIds, 0).isError(chain))
                 return chain.get();
         }
 
         // Update point to attribute mapping with the portable attribute if the
         // attribute is a parent attribute.
-        if(this.isParentEncoder()) {
+        if (this.isParentEncoder()) {
             PointAttribute origAtt = this.getAttribute();
             PointAttribute portableAtt = this.getPortableAttributeInternal();
             IndexTypeVector<AttributeValueIndex, AttributeValueIndex> valueToValueMap =
                     new IndexTypeVector<>(AttributeValueIndex.type(), origAtt.size());
-            for(int i = 0; i < pointIds.size(); ++i) {
+            for (int i = 0; i < pointIds.size(); ++i) {
                 valueToValueMap.set(origAtt.getMappedIndex(pointIds.get(i)), AttributeValueIndex.of(i));
             }
-            if(portableAtt.isMappingIdentity()) {
+            if (portableAtt.isMappingIdentity()) {
                 portableAtt.setExplicitMapping(this.getEncoder().getPointCloud().getNumPoints());
             }
-            for(PointIndex i : PointIndex.range(0, this.getEncoder().getPointCloud().getNumPoints())) {
+            for (PointIndex i : PointIndex.range(0, this.getEncoder().getPointCloud().getNumPoints())) {
                 portableAtt.setPointMapEntry(i, valueToValueMap.get(origAtt.getMappedIndex(i)));
             }
         }
@@ -111,15 +111,15 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
         StatusChain chain = new StatusChain();
 
         PointAttribute attrib = this.getAttribute();
-        if(attrib.size() == 0) return Status.ok();
+        if (attrib.size() == 0) return Status.ok();
 
         PredictionSchemeMethod predictionSchemeMethod = PredictionSchemeMethod.NONE;
-        if(predictionScheme != null) {
-            if(this.setPredictionSchemeParentAttributes(predictionScheme).isError(chain)) return chain.get();
+        if (predictionScheme != null) {
+            if (this.setPredictionSchemeParentAttributes(predictionScheme).isError(chain)) return chain.get();
             predictionSchemeMethod = predictionScheme.getPredictionMethod();
         }
         outBuffer.encode(UByte.of(predictionSchemeMethod.getValue()));
-        if(predictionScheme != null) {
+        if (predictionScheme != null) {
             outBuffer.encode(UByte.of(predictionScheme.getTransformType().getValue()));
         }
 
@@ -131,27 +131,27 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
         CppVector<Integer> encodedData = new CppVector<>(DataType.int32(), numValues);
 
         // All integer values are initialized.
-        if(predictionScheme != null) {
-            if(predictionScheme.computeCorrectionValues(portableAttributeData, encodedData.getPointer(),
+        if (predictionScheme != null) {
+            if (predictionScheme.computeCorrectionValues(portableAttributeData, encodedData.getPointer(),
                     numValues, numComponents, pointIds.getPointer()).isError(chain)) {
                 return chain.get();
             }
         }
 
-        if(predictionScheme == null || !predictionScheme.areCorrectionsPositive()) {
+        if (predictionScheme == null || !predictionScheme.areCorrectionsPositive()) {
             Pointer<Integer> input = predictionScheme != null ? encodedData.getPointer() : portableAttributeData;
             BitUtils.convertSignedIntsToSymbols(input, numValues, encodedData.getPointer().asRawToUInt());
         }
 
-        if(this.getEncoder() == null || this.getEncoder().getOptions().getGlobalBool(
+        if (this.getEncoder() == null || this.getEncoder().getOptions().getGlobalBool(
                 "use_built_in_attribute_compression", true)) {
             outBuffer.encode(UByte.of(1));
             Options symbolEncodingOptions = new Options();
-            if(this.getEncoder() != null) {
+            if (this.getEncoder() != null) {
                 SymbolEncoding.setSymbolEncodingCompressionLevel(symbolEncodingOptions,
                         10 - this.getEncoder().getOptions().getSpeed());
             }
-            if(SymbolEncoding.encode(
+            if (SymbolEncoding.encode(
                     encodedData.getPointer().asRawToUInt(), (int) pointIds.size() * numComponents, numComponents,
                     symbolEncodingOptions, outBuffer).isError(chain)) {
                 return chain.get();
@@ -161,12 +161,12 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
             // No compression.
             // To compute the maximum bit-length, first OR all values.
             int maskedValue = 0;
-            for(int i = 0; i < numValues; ++i) {
+            for (int i = 0; i < numValues; ++i) {
                 maskedValue |= encodedData.get(i);
             }
             // Compute the msb of the ORed value.
             int valueMsbPos = 0;
-            if(maskedValue != 0) {
+            if (maskedValue != 0) {
                 valueMsbPos = BitUtils.mostSignificantBit(DataType.uint32(), UInt.of(maskedValue));
             }
             int numBytes = 1 + valueMsbPos / 8;
@@ -174,27 +174,27 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
             outBuffer.encode(UByte.of(0));
             outBuffer.encode(UByte.of(numBytes));
 
-            if(numBytes == DracoDataType.INT32.getDataTypeLength()) {
+            if (numBytes == DracoDataType.INT32.getDataTypeLength()) {
                 outBuffer.encode(encodedData.getPointer(), numValues);
             } else {
-                if(this.encodeCustomNumberValues(numBytes, encodedData, outBuffer).isError(chain)) return chain.get();
+                if (this.encodeCustomNumberValues(numBytes, encodedData, outBuffer).isError(chain)) return chain.get();
             }
         }
-        if(predictionScheme != null) {
-            if(predictionScheme.encodePredictionData(outBuffer).isError(chain)) return chain.get();
+        if (predictionScheme != null) {
+            if (predictionScheme.encodePredictionData(outBuffer).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
 
     private <T> Status encodeCustomNumberValues(int numBytes, CppVector<Integer> encodedData, EncoderBuffer outBuffer) {
         DataNumberType<T> storeType;
-        switch(numBytes) {
+        switch (numBytes) {
             case 1: storeType = BTRUtil.uncheckedCast(DataType.uint8()); break;
             case 2: storeType = BTRUtil.uncheckedCast(DataType.uint16()); break;
             case 4: storeType = BTRUtil.uncheckedCast(DataType.uint32()); break;
             default: return Status.dracoError("Invalid number of bytes: " + numBytes);
         }
-        for(int i = 0; i < encodedData.size(); ++i) {
+        for (int i = 0; i < encodedData.size(); ++i) {
             outBuffer.encode(storeType, storeType.from(encodedData.get(i)));
         }
         return Status.ok();
@@ -215,10 +215,10 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
         this.preparePortableAttribute(numEntries, numComponents, numPoints);
         int dstIndex = 0;
         Pointer<Integer> portableAttributeData = this.getPortableAttributeData();
-        for(PointIndex pi : pointIds) {
+        for (PointIndex pi : pointIds) {
             AttributeValueIndex attId = attrib.getMappedIndex(pi);
             Status status = attrib.convertValue(attId, portableAttributeData.add(dstIndex));
-            if(status.isError()) return status;
+            if (status.isError()) return status;
             dstIndex += numComponents;
         }
         return Status.ok();
@@ -231,7 +231,7 @@ public class SequentialIntegerAttributeEncoder extends SequentialAttributeEncode
         PointAttribute portableAtt = new PointAttribute(va);
         portableAtt.reset(numEntries);
         this.setPortableAttribute(portableAtt);
-        if(numPoints != 0) {
+        if (numPoints != 0) {
             portableAtt.setExplicitMapping(numPoints);
         }
     }

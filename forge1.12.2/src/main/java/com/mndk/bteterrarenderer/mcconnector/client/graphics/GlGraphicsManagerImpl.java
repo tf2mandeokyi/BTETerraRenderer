@@ -40,6 +40,9 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         GlStateManager.bindTexture(textureObject.get());
     }
 
+    public NativeTextureWrapper getMissingTextureObject() {
+        return new NativeTextureWrapper(TextureUtil.MISSING_TEXTURE.getGlTextureId());
+    }
     public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
         int glId = GL11.glGenTextures();
         int width = image.getWidth(), height = image.getHeight();
@@ -50,7 +53,7 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         TextureUtil.uploadTexture(glId, imageData, width, height);
         return new NativeTextureWrapper(glId);
     }
-    public void deleteTextureObject(NativeTextureWrapper textureObject) {
+    public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         GlStateManager.deleteTexture(textureObject.get());
     }
 

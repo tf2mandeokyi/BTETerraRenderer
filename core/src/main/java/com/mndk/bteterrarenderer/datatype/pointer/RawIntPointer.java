@@ -17,7 +17,7 @@ public interface RawIntPointer extends RawPointer {
     }
     @Override default long getRawLong(long longIndex) {
         long result = 0; boolean isBigEndian = DataType.endian() == Endian.BIG;
-        if(isBigEndian) {
+        if (isBigEndian) {
             result |= (getRawInt(2 * longIndex + 1) & MASK);
             result |= (getRawInt(2 * longIndex)/**/ & MASK) << 32;
         } else {
@@ -41,7 +41,7 @@ public interface RawIntPointer extends RawPointer {
     }
     @Override default void setRawLong(long longIndex, long value) {
         boolean isBigEndian = DataType.endian() == Endian.BIG;
-        if(isBigEndian) {
+        if (isBigEndian) {
             setRawInt(2 * longIndex + 1, (int) value);
             setRawInt(2 * longIndex,/**/ (int) (value >>> 32));
         } else {

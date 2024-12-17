@@ -51,11 +51,11 @@ public abstract class IndexTypeImpl<I extends IndexTypeImpl<I>> implements Index
 
     @Override
     public final boolean equals(Object obj) {
-        if(obj == this) return true;
-        if(obj instanceof Integer) {
+        if (obj == this) return true;
+        if (obj instanceof Integer) {
             return value == (Integer) obj;
         }
-        if(obj instanceof IndexTypeImpl<?>) {
+        if (obj instanceof IndexTypeImpl<?>) {
             return value == ((IndexTypeImpl<?>) obj).value;
         }
         return false;

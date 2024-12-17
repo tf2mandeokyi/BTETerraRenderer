@@ -112,7 +112,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         this.mesh = encoder.getMesh();
         this.attributeEncoderToDataIdMap.clear();
 
-        if(encoder.getOptions().isGlobalOptionSet("split_mesh_on_seams")) {
+        if (encoder.getOptions().isGlobalOptionSet("split_mesh_on_seams")) {
             this.useSingleConnectivity = encoder.getOptions().getGlobalBool("split_mesh_on_seams", false);
         } else {
             this.useSingleConnectivity = encoder.getOptions().getSpeed() >= 6;
@@ -122,9 +122,9 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
 
     @Override
     public MeshAttributeCornerTable getAttributeCornerTable(int attId) {
-        for(int i = 0; i < attributeData.size(); i++) {
-            if(attributeData.get(i).attributeIndex != attId) continue;
-            if(!attributeData.get(i).isConnectivityUsed) return null;
+        for (int i = 0; i < attributeData.size(); i++) {
+            if (attributeData.get(i).attributeIndex != attId) continue;
+            if (!attributeData.get(i).isConnectivityUsed) return null;
             return attributeData.get(i).connectivityData;
         }
         return null;
@@ -132,8 +132,8 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
 
     @Override
     public MeshAttributeIndicesEncodingData getAttributeEncodingData(int attId) {
-        for(int i = 0; i < attributeData.size(); i++) {
-            if(attributeData.get(i).attributeIndex != attId) continue;
+        for (int i = 0; i < attributeData.size(); i++) {
+            if (attributeData.get(i).attributeIndex != attId) continue;
             return attributeData.get(i).encodingData;
         }
         return posEncodingData;
@@ -141,21 +141,21 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
 
     @Override
     public Status generateAttributesEncoder(int attId) {
-        if(useSingleConnectivity && this.getEncoder().getNumAttributesEncoders() > 0) {
+        if (useSingleConnectivity && this.getEncoder().getNumAttributesEncoders() > 0) {
             this.getEncoder().getAttributesEncoder(0).addAttributeId(attId);
             return Status.ok();
         }
         MeshAttributeElementType elementType = this.getEncoder().getMesh().getAttributeElementType(attId);
         PointAttribute att = this.getEncoder().getPointCloud().getAttribute(attId);
         int attDataId = -1;
-        for(int i = 0; i < attributeData.size(); i++) {
-            if(attributeData.get(i).attributeIndex != attId) continue;
+        for (int i = 0; i < attributeData.size(); i++) {
+            if (attributeData.get(i).attributeIndex != attId) continue;
             attDataId = i;
             break;
         }
         MeshTraversalMethod traversalMethod = MeshTraversalMethod.DEPTH_FIRST;
         PointsSequencer sequencer;
-        if(useSingleConnectivity
+        if (useSingleConnectivity
                 || att.getAttributeType() == GeometryAttribute.Type.POSITION
                 || elementType == MeshAttributeElementType.VERTEX
                 || (elementType == MeshAttributeElementType.CORNER
@@ -163,7 +163,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 )) {
             // Per-vertex attribute reached, use the basic corner table to traverse the mesh.
             MeshAttributeIndicesEncodingData encodingData;
-            if(useSingleConnectivity || att.getAttributeType() == GeometryAttribute.Type.POSITION) {
+            if (useSingleConnectivity || att.getAttributeType() == GeometryAttribute.Type.POSITION) {
                 encodingData = posEncodingData;
             } else {
                 encodingData = attributeData.get(attDataId).encodingData;
@@ -175,19 +175,19 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 attributeData.get(attDataId).isConnectivityUsed = false;
             }
 
-            if(this.getEncoder().getOptions().getSpeed() == 0 &&
+            if (this.getEncoder().getOptions().getSpeed() == 0 &&
                     att.getAttributeType() == GeometryAttribute.Type.POSITION) {
                 traversalMethod = MeshTraversalMethod.PREDICTION_DEGREE;
-                if(useSingleConnectivity && mesh.getNumAttributes() > 1) {
+                if (useSingleConnectivity && mesh.getNumAttributes() > 1) {
                     // Make sure we don't use the prediction degree traversal when we encode
                     // multiple attributes using the same connectivity.
                     traversalMethod = MeshTraversalMethod.DEPTH_FIRST;
                 }
             }
             // Defining sequencer via a traversal scheme.
-            if(traversalMethod == MeshTraversalMethod.PREDICTION_DEGREE) {
+            if (traversalMethod == MeshTraversalMethod.PREDICTION_DEGREE) {
                 sequencer = createVertexTraversalSequencer(new MaxPredictionDegreeTraverser(), encodingData);
-            } else /* if(traversalMethod == MeshTraversalMethod.DEPTH_FIRST) */ {
+            } else /* if (traversalMethod == MeshTraversalMethod.DEPTH_FIRST) */ {
                 sequencer = createVertexTraversalSequencer(new DepthFirstTraverser(), encodingData);
             }
         }
@@ -210,7 +210,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             sequencer = traversalSequencer;
         }
 
-        if(attDataId == -1) {
+        if (attDataId == -1) {
             posTraversalMethod = traversalMethod;
         } else {
             attributeData.get(attDataId).traversalMethod = traversalMethod;
@@ -231,7 +231,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         // Also encode the type of the encoder that we used.
         MeshAttributeElementType elementType = MeshAttributeElementType.VERTEX;
         MeshTraversalMethod traversalMethod;
-        if(attDataId >= 0) {
+        if (attDataId >= 0) {
             int attId = attributeData.get(attDataId).attributeIndex;
             elementType = mesh.getAttributeElementType(attId);
             traversalMethod = attributeData.get(attDataId).traversalMethod;
@@ -239,7 +239,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             traversalMethod = posTraversalMethod;
         }
 
-        if(elementType == MeshAttributeElementType.VERTEX || (elementType == MeshAttributeElementType.CORNER
+        if (elementType == MeshAttributeElementType.VERTEX || (elementType == MeshAttributeElementType.CORNER
                     && attributeData.get(attDataId).connectivityData.isNoInteriorSeams())) {
             // Per-vertex encoder.
             encoder.getBuffer().encode(DataType.uint8(), UByte.of(MeshAttributeElementType.VERTEX.getValue()));
@@ -257,7 +257,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         StatusChain chain = new StatusChain();
 
         // To encode the mesh, we need face connectivity data stored in a corner table.
-        if(useSingleConnectivity) {
+        if (useSingleConnectivity) {
             cornerTable = MeshUtil.createCornerTableFromAllAttributes(mesh);
         } else {
             cornerTable = MeshUtil.createCornerTableFromPositionAttribute(mesh);
@@ -296,8 +296,8 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         processedConnectivityCorners.reserve(cornerTable.getNumFaces());
         posEncodingData.setNumValues(0);
 
-        if(this.findHoles().isError(chain)) return chain.get();
-        if(this.initAttributeData().isError(chain)) return chain.get();
+        if (this.findHoles().isError(chain)) return chain.get();
+        if (this.initAttributeData().isError(chain)) return chain.get();
 
         int numAttributeData = (int) attributeData.size();
         encoder.getBuffer().encode(UByte.of(numAttributeData));
@@ -309,13 +309,13 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
 
         CppVector<CornerIndex> initFaceConnectivityCorners = new CppVector<>(CornerIndex.type());
         // Traverse the surface starting from each unvisited corner.
-        for(int cId = 0; cId < numCorners; cId++) {
+        for (int cId = 0; cId < numCorners; cId++) {
             CornerIndex cornerIndex = CornerIndex.of(cId);
             FaceIndex faceId = cornerTable.getFace(cornerIndex);
-            if(visitedFaces.get(faceId.getValue())) {
+            if (visitedFaces.get(faceId.getValue())) {
                 continue;  // Face has been already processed.
             }
-            if(cornerTable.isDegenerated(faceId)) {
+            if (cornerTable.isDegenerated(faceId)) {
                 continue;  // Ignore degenerated faces.
             }
 
@@ -324,7 +324,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             CornerIndex startCorner = startCornerRef.get();
             traversalEncoder.encodeStartFaceConfiguration(interiorConfig);
 
-            if(interiorConfig) {
+            if (interiorConfig) {
                 // Select the correct vertex on the face as the root.
                 cornerIndex = startCorner;
                 VertexIndex vertId = cornerTable.getVertex(cornerIndex);
@@ -344,29 +344,29 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 initFaceConnectivityCorners.pushBack(cornerTable.next(cornerIndex));
                 CornerIndex oppId = cornerTable.opposite(cornerTable.next(cornerIndex));
                 FaceIndex oppFaceId = cornerTable.getFace(oppId);
-                if(oppFaceId.isValid() && !visitedFaces.get(oppFaceId.getValue())) {
-                    if(this.encodeConnectivityFromCorner(oppId).isError(chain)) return chain.get();
+                if (oppFaceId.isValid() && !visitedFaces.get(oppFaceId.getValue())) {
+                    if (this.encodeConnectivityFromCorner(oppId).isError(chain)) return chain.get();
                 }
             } else {
                 // Boundary configuration.
                 this.encodeHole(cornerTable.next(startCorner), true);
                 // Start processing the face opposite to the boundary edge.
-                if(this.encodeConnectivityFromCorner(startCorner).isError(chain)) return chain.get();
+                if (this.encodeConnectivityFromCorner(startCorner).isError(chain)) return chain.get();
             }
         }
         // Reverse the order of connectivity corners to match the order in which
         // they are going to be decoded.
         processedConnectivityCorners.reverse();
         // Append the init face connectivity corners.
-        for(CornerIndex ci : initFaceConnectivityCorners) {
+        for (CornerIndex ci : initFaceConnectivityCorners) {
             processedConnectivityCorners.pushBack(ci);
         }
         // Encode connectivity for all non-position attributes.
-        if(!attributeData.isEmpty()) {
+        if (!attributeData.isEmpty()) {
             // Use the same order of corner that will be used by the decoder.
             visitedFaces.assign(mesh.getNumFaces(), false);
-            for(CornerIndex ci : processedConnectivityCorners) {
-                if(this.encodeAttributeConnectivitiesOnFace(ci).isError(chain)) return chain.get();
+            for (CornerIndex ci : processedConnectivityCorners) {
+                if (this.encodeAttributeConnectivitiesOnFace(ci).isError(chain)) return chain.get();
             }
         }
         traversalEncoder.done();
@@ -379,7 +379,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         encoder.getBuffer().encodeVarint(numSplitSymbols);
 
         // Append the traversal buffer.
-        if(this.encodeSplitData().isError(chain)) return chain.get();
+        if (this.encodeSplitData().isError(chain)) return chain.get();
         EncoderBuffer buffer = traversalEncoder.getBuffer();
         encoder.getBuffer().encode(buffer.getData(), buffer.size());
 
@@ -392,19 +392,19 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     }
 
     private Status initAttributeData() {
-        if(useSingleConnectivity) {
+        if (useSingleConnectivity) {
             return Status.ok();  // All attributes use the same connectivity.
         }
 
         int numAttributes = mesh.getNumAttributes();
         // Ignore the position attribute. It's decoded separately.
         attributeData.resize(numAttributes - 1);
-        if(numAttributes == 1) {
+        if (numAttributes == 1) {
             return Status.ok();
         }
         int dataIndex = 0;
-        for(int i = 0; i < numAttributes; i++) {
-            if(mesh.getAttribute(i).getAttributeType() == GeometryAttribute.Type.POSITION) {
+        for (int i = 0; i < numAttributes; i++) {
+            if (mesh.getAttribute(i).getAttributeType() == GeometryAttribute.Type.POSITION) {
                 continue;
             }
             PointAttribute att = mesh.getAttribute(i);
@@ -434,14 +434,14 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
 
     private boolean findInitFaceConfiguration(FaceIndex faceId, Pointer<CornerIndex> outCorner) {
         CornerIndex cornerIndex = CornerIndex.of(3 * faceId.getValue());
-        for(int i = 0; i < 3; i++) {
-            if(cornerTable.opposite(cornerIndex).isInvalid()) {
+        for (int i = 0; i < 3; i++) {
+            if (cornerTable.opposite(cornerIndex).isInvalid()) {
                 outCorner.set(cornerIndex);
                 return false;
             }
-            if(vertexHoleId.get(cornerTable.getVertex(cornerIndex).getValue()) != -1) {
+            if (vertexHoleId.get(cornerTable.getVertex(cornerIndex).getValue()) != -1) {
                 CornerIndex rightCorner = cornerIndex;
-                while(rightCorner.isValid()) {
+                while (rightCorner.isValid()) {
                     cornerIndex = rightCorner;
                     rightCorner = cornerTable.swingRight(rightCorner);
                 }
@@ -458,16 +458,16 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         cornerTraversalStack.clear();
         cornerTraversalStack.pushBack(cornerId);
         int numFaces = mesh.getNumFaces();
-        while(!cornerTraversalStack.isEmpty()) {
+        while (!cornerTraversalStack.isEmpty()) {
             // Currently processed corner.
             cornerId = cornerTraversalStack.popBack();
             // Make sure the face hasn't been visited yet.
-            if(cornerId.isInvalid() || visitedFaces.get(cornerTable.getFace(cornerId).getValue())) {
+            if (cornerId.isInvalid() || visitedFaces.get(cornerTable.getFace(cornerId).getValue())) {
                 // This face has been already traversed.
                 continue;
             }
             int numVisitedFaces = 0;
-            while(numVisitedFaces < numFaces) {
+            while (numVisitedFaces < numFaces) {
                 ++numVisitedFaces;
                 ++lastEncodedSymbolId;
 
@@ -477,10 +477,10 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 traversalEncoder.newCornerReached(cornerId);
                 VertexIndex vertId = cornerTable.getVertex(cornerId);
                 boolean onBoundary = vertexHoleId.get(vertId.getValue()) != -1;
-                if(!isVertexVisited(vertId)) {
+                if (!isVertexVisited(vertId)) {
                     // A new unvisited vertex has been reached.
                     visitedVertexIds.set(vertId.getValue(), true);
-                    if(!onBoundary) {
+                    if (!onBoundary) {
                         traversalEncoder.encodeSymbol(EdgebreakerTopology.C);
                         cornerId = getRightCorner(cornerId);
                         continue;
@@ -491,16 +491,16 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 CornerIndex leftCornerId = getLeftCorner(cornerId);
                 FaceIndex rightFaceId = cornerTable.getFace(rightCornerId);
                 FaceIndex leftFaceId = cornerTable.getFace(leftCornerId);
-                if(this.isRightFaceVisited(cornerId)) {
+                if (this.isRightFaceVisited(cornerId)) {
                     // Check whether there is a topology split event.
-                    if(rightFaceId.isValid()) {
+                    if (rightFaceId.isValid()) {
                         checkAndStoreTopologySplitEvent(lastEncodedSymbolId,
                                 EdgeFaceName.RIGHT, rightFaceId.getValue());
                     }
-                    if(this.isLeftFaceVisited(cornerId)) {
+                    if (this.isLeftFaceVisited(cornerId)) {
                         // Both neighboring faces are visited. End reached.
                         // Check whether there is a topology split event on the left face.
-                        if(leftFaceId.isValid()) {
+                        if (leftFaceId.isValid()) {
                             checkAndStoreTopologySplitEvent(lastEncodedSymbolId,
                                     EdgeFaceName.LEFT, leftFaceId.getValue());
                         }
@@ -512,9 +512,9 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                     }
                 } else {
                     // Right face was not visited.
-                    if(this.isLeftFaceVisited(cornerId)) {
+                    if (this.isLeftFaceVisited(cornerId)) {
                         // Check whether there is a topology split event on the left face.
-                        if(leftFaceId.isValid()) {
+                        if (leftFaceId.isValid()) {
                             checkAndStoreTopologySplitEvent(lastEncodedSymbolId,
                                     EdgeFaceName.LEFT, leftFaceId.getValue());
                         }
@@ -543,14 +543,14 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     private int encodeHole(CornerIndex startCornerId, boolean encodeFirstVertex) {
         CornerIndex cornerId = startCornerId;
         cornerId = cornerTable.previous(cornerId);
-        while(cornerTable.opposite(cornerId).isValid()) {
+        while (cornerTable.opposite(cornerId).isValid()) {
             cornerId = cornerTable.opposite(cornerId);
             cornerId = cornerTable.next(cornerId);
         }
         VertexIndex startVertexId = cornerTable.getVertex(startCornerId);
 
         int numEncodedHoleVerts = 0;
-        if(encodeFirstVertex) {
+        if (encodeFirstVertex) {
             visitedVertexIds.set(startVertexId.getValue(), true);
             ++numEncodedHoleVerts;
         }
@@ -561,7 +561,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         // VertexIndex startVertId = cornerTable.getVertex(cornerTable.next(cornerId));
         // Get the end vertex of the edge.
         VertexIndex actVertexId = cornerTable.getVertex(cornerTable.previous(cornerId));
-        while(!actVertexId.equals(startVertexId)) {
+        while (!actVertexId.equals(startVertexId)) {
             // Encode the end vertex of the boundary edge.
             // startVertId = actVertexId;
             // Mark the vertex as visited.
@@ -569,7 +569,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
             ++numEncodedHoleVerts;
             cornerId = cornerTable.next(cornerId);
             // Look for the next attached open boundary edge.
-            while(cornerTable.opposite(cornerId).isValid()) {
+            while (cornerTable.opposite(cornerId).isValid()) {
                 cornerId = cornerTable.opposite(cornerId);
                 cornerId = cornerTable.next(cornerId);
             }
@@ -581,17 +581,17 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     private Status encodeSplitData() {
         int numEvents = (int) topologySplitEventData.size();
         encoder.getBuffer().encodeVarint(UInt.of(numEvents));
-        if(numEvents > 0) {
+        if (numEvents > 0) {
             // Encode split symbols using delta and varint coding.
             int lastSourceSymbolId = 0;
-            for(int i = 0; i < numEvents; i++) {
+            for (int i = 0; i < numEvents; i++) {
                 TopologySplitEventData eventData = topologySplitEventData.get(i);
                 encoder.getBuffer().encodeVarint(eventData.getSourceSymbolId().sub(lastSourceSymbolId));
                 encoder.getBuffer().encodeVarint(eventData.getSourceSymbolId().sub(eventData.getSplitSymbolId()));
                 lastSourceSymbolId = eventData.getSourceSymbolId().intValue();
             }
             encoder.getBuffer().startBitEncoding(numEvents, false);
-            for(int i = 0; i < numEvents; i++) {
+            for (int i = 0; i < numEvents; i++) {
                 TopologySplitEventData eventData = topologySplitEventData.get(i);
                 encoder.getBuffer().encodeLeastSignificantBits32(1, UInt.of(eventData.getSourceEdge().getValue()));
             }
@@ -612,7 +612,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     private boolean isRightFaceVisited(CornerIndex cornerId) {
         CornerIndex nextCornerId = cornerTable.next(cornerId);
         CornerIndex oppCornerId = cornerTable.opposite(nextCornerId);
-        if(oppCornerId.isValid()) {
+        if (oppCornerId.isValid()) {
             return visitedFaces.get(cornerTable.getFace(oppCornerId).getValue());
         }
         return true;
@@ -620,7 +620,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     private boolean isLeftFaceVisited(CornerIndex cornerId) {
         CornerIndex prevCornerId = cornerTable.previous(cornerId);
         CornerIndex oppCornerId = cornerTable.opposite(prevCornerId);
-        if(oppCornerId.isValid()) {
+        if (oppCornerId.isValid()) {
             return visitedFaces.get(cornerTable.getFace(oppCornerId).getValue());
         }
         return true;
@@ -632,14 +632,14 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
     private Status findHoles() {
         int numCorners = cornerTable.getNumCorners();
         // Go over all corners and detect non-visited open boundaries
-        for(CornerIndex i : CornerIndex.range(0, numCorners)) {
-            if(cornerTable.isDegenerated(cornerTable.getFace(i))) {
+        for (CornerIndex i : CornerIndex.range(0, numCorners)) {
+            if (cornerTable.isDegenerated(cornerTable.getFace(i))) {
                 continue;  // Don't process corners assigned to degenerated faces.
             }
-            if(cornerTable.opposite(i).isInvalid()) {
+            if (cornerTable.opposite(i).isInvalid()) {
                 // Check whether we have already traversed the boundary.
                 VertexIndex boundaryVertId = cornerTable.getVertex(cornerTable.next(i));
-                if(vertexHoleId.get(boundaryVertId.getValue()) != -1) {
+                if (vertexHoleId.get(boundaryVertId.getValue()) != -1) {
                     // No need to traverse it again.
                     continue;
                 }
@@ -648,12 +648,12 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
                 visitedHoles.pushBack(false);
 
                 CornerIndex cornerId = i;
-                while(vertexHoleId.get(boundaryVertId.getValue()) == -1) {
+                while (vertexHoleId.get(boundaryVertId.getValue()) == -1) {
                     // Mark the first vertex on the open boundary.
                     vertexHoleId.set(boundaryVertId.getValue(), boundaryId);
                     cornerId = cornerTable.next(cornerId);
                     // Look for the next attached open boundary edge.
-                    while(cornerTable.opposite(cornerId).isValid()) {
+                    while (cornerTable.opposite(cornerId).isValid()) {
                         cornerId = cornerTable.opposite(cornerId);
                         cornerId = cornerTable.next(cornerId);
                     }
@@ -671,7 +671,7 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
 
     private void checkAndStoreTopologySplitEvent(int srcSymbolId, EdgeFaceName srcEdge, int neighborFaceId) {
         int symbolId = this.getSplitSymbolIdOnFace(neighborFaceId);
-        if(symbolId == -1) return; // Not a split symbol, no topology split event could happen.
+        if (symbolId == -1) return; // Not a split symbol, no topology split event could happen.
 
         TopologySplitEventData eventData = new TopologySplitEventData();
         eventData.setSplitSymbolId(UInt.of(symbolId));
@@ -686,18 +686,18 @@ public class MeshEdgebreakerEncoderImpl implements MeshEdgebreakerEncoderImplInt
         };
         FaceIndex srcFaceId = cornerTable.getFace(corner);
         visitedFaces.set(srcFaceId.getValue(), true);
-        for(int c = 0; c < 3; ++c) {
+        for (int c = 0; c < 3; ++c) {
             CornerIndex oppCorner = cornerTable.opposite(corners[c]);
-            if(oppCorner.isInvalid()) {
+            if (oppCorner.isInvalid()) {
                 continue; // Don't encode attribute seams on boundary edges.
             }
             FaceIndex oppFaceId = cornerTable.getFace(oppCorner);
             // Don't encode edges when the opposite face has been already processed.
-            if(visitedFaces.get(oppFaceId.getValue())) {
+            if (visitedFaces.get(oppFaceId.getValue())) {
                 continue;
             }
 
-            for(int i = 0; i < attributeData.size(); ++i) {
+            for (int i = 0; i < attributeData.size(); ++i) {
                 boolean encodeSeam = attributeData.get(i).connectivityData.isCornerOppositeToSeamEdge(corners[c]);
                 traversalEncoder.encodeAttributeSeam(i, encodeSeam);
             }

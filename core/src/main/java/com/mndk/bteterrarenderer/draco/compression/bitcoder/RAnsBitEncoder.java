@@ -42,14 +42,14 @@ public class RAnsBitEncoder {
     }
 
     public void encodeBit(boolean bit) {
-        if(bit) {
+        if (bit) {
             bitCounts.set(1, val -> val.add(1));
             localBits = localBits.or(1 << numLocalBits);
         } else {
             bitCounts.set(0, val -> val.add(1));
         }
         numLocalBits++;
-        if(numLocalBits == 32) {
+        if (numLocalBits == 32) {
             bits.pushBack(localBits);
             numLocalBits = 0;
             localBits = UInt.ZERO;
@@ -57,7 +57,7 @@ public class RAnsBitEncoder {
     }
 
     public void encodeLeastSignificantBits32(int nBits, UInt value) {
-        if(nBits > 32 || nBits <= 0) {
+        if (nBits > 32 || nBits <= 0) {
             throw new IllegalArgumentException("nBits must be > 0 and <= 32");
         }
 
@@ -68,12 +68,12 @@ public class RAnsBitEncoder {
 
         int remaining = 32 - numLocalBits;
 
-        if(nBits <= remaining) {
+        if (nBits <= remaining) {
             Pointer<UInt> localBitsRef = Pointer.newUInt();
             BitUtils.copyBits32(localBitsRef, numLocalBits, reversed, 0, nBits);
             localBits = localBitsRef.get();
             numLocalBits += nBits;
-            if(numLocalBits == 32) {
+            if (numLocalBits == 32) {
                 bits.pushBack(localBits);
                 localBits = UInt.ZERO;
                 numLocalBits = 0;
@@ -91,12 +91,12 @@ public class RAnsBitEncoder {
 
     public void endEncoding(EncoderBuffer targetBuffer) {
         ULong total = bitCounts.get(1).add(bitCounts.get(0));
-        if(total.equals(0)) total = ULong.of(1);
+        if (total.equals(0)) total = ULong.of(1);
 
         UInt zeroProbRaw = UInt.of((int) (bitCounts.get(0).doubleValue() / total.doubleValue() * 256.0 + 0.5));
 
         UByte zeroProb = UByte.of(255);
-        if(zeroProbRaw.intValue() < 255) {
+        if (zeroProbRaw.intValue() < 255) {
             zeroProb = zeroProbRaw.uByteValue();
         }
 
@@ -107,13 +107,13 @@ public class RAnsBitEncoder {
         Ans.Coder ansCoder = new Ans.Coder();
         ansCoder.ansWriteInit(buffer.getRawPointer());
 
-        for(int i = numLocalBits - 1; i >= 0; --i) {
+        for (int i = numLocalBits - 1; i >= 0; --i) {
             UByte bit = localBits.shr(i).and(1).uByteValue();
             ansCoder.rabsWrite(bit.intValue(), zeroProb);
         }
-        for(long i = bits.size() - 1; i >= 0; --i) {
+        for (long i = bits.size() - 1; i >= 0; --i) {
             UInt bits = this.bits.get(i);
-            for(int j = 31; j >= 0; --j) {
+            for (int j = 31; j >= 0; --j) {
                 UByte bit = bits.shr(j).and(1).uByteValue();
                 ansCoder.rabsWrite(bit.intValue(), zeroProb);
             }

@@ -57,7 +57,7 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
                                         Pointer<PointIndex> entryToPointIdMap) {
         StatusChain chain = new StatusChain();
 
-        if(numComponents != 2) {
+        if (numComponents != 2) {
             return Status.invalidParameter("Two output components are required");
         }
         this.numComponents = numComponents;
@@ -65,9 +65,9 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
         this.predictedValue = this.getDataType().newArray(numComponents);
         this.getTransform().init(numComponents);
 
-        for(int p = 0; p < this.getMeshData().getDataToCornerMap().size(); ++p) {
+        for (int p = 0; p < this.getMeshData().getDataToCornerMap().size(); ++p) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
-            if(this.computePredictedValue(cornerId, outData, p).isError(chain)) return chain.get();
+            if (this.computePredictedValue(cornerId, outData, p).isError(chain)) return chain.get();
             int dstOffset = p * numComponents;
             this.getTransform().computeOriginalValue(
                     predictedValue, inCorr.add(dstOffset), outData.add(dstOffset));
@@ -81,16 +81,16 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
 
         // Decode the delta coded orientations.
         Pointer<UInt> numOrientationsRef = Pointer.newUInt();
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
-            if(buffer.decode(numOrientationsRef).isError(chain)) return chain.get();
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+            if (buffer.decode(numOrientationsRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(numOrientationsRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numOrientationsRef).isError(chain)) return chain.get();
         }
         int numOrientations = numOrientationsRef.get().intValue();
-        if(numOrientations == 0) {
+        if (numOrientations == 0) {
             return Status.ioError("Number of orientations is 0");
         }
-        if(numOrientations > this.getMeshData().getCornerTable().getNumCorners()) {
+        if (numOrientations > this.getMeshData().getCornerTable().getNumCorners()) {
             // We can't have more orientations than the maximum number of decoded
             // values.
             return Status.ioError("Number of orientations is greater than the number of corners");
@@ -98,10 +98,10 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
         orientations.resize(numOrientations);
         boolean lastOrientation = true;
         RAnsBitDecoder decoder = new RAnsBitDecoder();
-        if(decoder.startDecoding(buffer).isError(chain)) return chain.get();
-        for(int i = 0; i < numOrientations; ++i) {
+        if (decoder.startDecoding(buffer).isError(chain)) return chain.get();
+        for (int i = 0; i < numOrientations; ++i) {
             boolean orientation = decoder.decodeNextBit();
-            if(orientation) {
+            if (orientation) {
                 lastOrientation = !lastOrientation;
             }
             orientations.set(i, lastOrientation);
@@ -127,19 +127,19 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
 
     @Override
     public GeometryAttribute.Type getParentAttributeType(int i) {
-        if(i != 0) throw new IllegalArgumentException();
+        if (i != 0) throw new IllegalArgumentException();
         return GeometryAttribute.Type.POSITION;
     }
 
     @Override
     public Status setParentAttribute(PointAttribute att) {
-        if(att == null) {
+        if (att == null) {
             return Status.invalidParameter("Attribute is null");
         }
-        if(att.getAttributeType() != GeometryAttribute.Type.POSITION) {
+        if (att.getAttributeType() != GeometryAttribute.Type.POSITION) {
             return Status.invalidParameter("Invalid attribute type");
         }
-        if(!att.getNumComponents().equals(3)) {
+        if (!att.getNumComponents().equals(3)) {
             return Status.invalidParameter("Currently works only for 3 component positions");
         }
         posAttribute = att;
@@ -222,7 +222,7 @@ public class MPSchemeTexCoordsDecoder<DataT, CorrT> extends MPSchemeDecoder<Data
             } else {
                 predictedUV = VectorD.float2(pnus + pnvt, pnvs - pnut);
             }
-            if(dataType.isIntegral()) {
+            if (dataType.isIntegral()) {
                 // Round the predicted value for integer types.
                 double u = Math.floor(predictedUV.get(0) + 0.5);
                 if (Double.isNaN(u) || u > Integer.MAX_VALUE || u < Integer.MIN_VALUE) {

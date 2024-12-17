@@ -29,10 +29,10 @@ import java.util.List;
 public class GltfModelConverter {
 
     private static final Matrix4f ROTATE_X_AXIS = new Matrix4f((c, r) -> {
-        if(c == 1 && r == 1) return 0;
-        if(c == 2 && r == 2) return 0;
-        if(c == 1 && r == 2) return 1;
-        if(c == 2 && r == 1) return -1;
+        if (c == 1 && r == 1) return 0;
+        if (c == 2 && r == 2) return 0;
+        if (c == 1 && r == 2) return 1;
+        if (c == 2 && r == 1) return -1;
         return c == r ? 1 : 0;
     });
 
@@ -66,16 +66,16 @@ public class GltfModelConverter {
 
             CesiumRTC cesiumRTC = GltfExtensionsUtil.getExtension(this.topLevelModel, CesiumRTC.class);
             Cartesian3f translation = cesiumRTC != null ? cesiumRTC.getCenter() : Cartesian3f.ORIGIN;
-            transform = transform.multiply(Matrix4f.fromTranslation(translation)).toMatrix4();
+            transform = transform.multiply(Matrix4f.fromTranslation(translation));
 
-            for(SceneModel scene : this.topLevelModel.getSceneModels()) {
+            for (SceneModel scene : this.topLevelModel.getSceneModels()) {
                 this.convertSceneModel(scene, transform);
             }
             return models;
         }
 
         private void convertSceneModel(SceneModel sceneModel, Matrix4f transform) {
-            for(NodeModel node : sceneModel.getNodeModels()) {
+            for (NodeModel node : sceneModel.getNodeModels()) {
                 this.convertNodeModel(node, transform);
             }
         }
@@ -97,21 +97,21 @@ public class GltfModelConverter {
 
             transform = transform.multiply(nodeTranslation)
                     .multiply(nodeRotation)
-                    .multiply(nodeScale).toMatrix4();
-            if(rotateModelAlongEarthXAxis) {
-                transform = ROTATE_X_AXIS.multiply(transform).toMatrix4();
+                    .multiply(nodeScale);
+            if (rotateModelAlongEarthXAxis) {
+                transform = ROTATE_X_AXIS.multiply(transform);
             }
 
-            for(MeshModel mesh : nodeModel.getMeshModels()) {
+            for (MeshModel mesh : nodeModel.getMeshModels()) {
                 this.convertMeshModel(mesh, transform);
             }
-            for(NodeModel child : nodeModel.getChildren()) {
+            for (NodeModel child : nodeModel.getChildren()) {
                 this.convertNodeModel(child, transform);
             }
         }
 
         private void convertMeshModel(MeshModel meshModel, Matrix4f transform) {
-            for(MeshPrimitiveModel meshPrimitiveModel : meshModel.getMeshPrimitiveModels()) {
+            for (MeshPrimitiveModel meshPrimitiveModel : meshModel.getMeshPrimitiveModels()) {
                 this.convertMeshPrimitiveModel(meshPrimitiveModel, transform);
             }
         }
@@ -134,7 +134,7 @@ public class GltfModelConverter {
                                                                               DracoMeshCompression draco) {
             AbstractMeshPrimitiveModelConverter.Context context = new AbstractMeshPrimitiveModelConverter.Context(
                     transform, projection, coordConverter);
-            if(draco != null) {
+            if (draco != null) {
                 List<BufferViewModel> bufferViewModels = this.topLevelModel.getBufferViewModels();
                 return new DracoCompressedMeshConverter(meshPrimitiveModel, bufferViewModels, draco, context);
             } else {

@@ -66,12 +66,12 @@ public class UnitCube {
      */
     public boolean isUnitFeatureHiddenToCartesian(int[] unitCubeFeature, Cartesian3f cartesian) {
         double[] temp = { cartesian.getX(), cartesian.getY(), cartesian.getZ() };
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             int unitAxis = unitCubeFeature[i];
             double coord = temp[i];
-            if(unitAxis == 0) continue;
+            if (unitAxis == 0) continue;
 
-            if(unitAxis * coord >= 0 && Math.abs(coord) >= Math.abs(unitAxis)) return false;
+            if (unitAxis * coord >= 0 && Math.abs(coord) >= Math.abs(unitAxis)) return false;
         }
         return true;
     }
@@ -106,27 +106,27 @@ public class UnitCube {
 
     @Nullable
     private double[] get1dRayIntersection(double start, double velocity) {
-        if(velocity == 0) {
-            if(start >= -1 && start <= 1) return new double[] { 0, Double.POSITIVE_INFINITY };
+        if (velocity == 0) {
+            if (start >= -1 && start <= 1) return new double[] { 0, Double.POSITIVE_INFINITY };
             return null;
         }
 
         double left = (-1-start) / velocity, right = (1-start) / velocity;
         double[] result = null;
-        if(velocity > 0) {
-            if(right >= 0) result = new double[] { Math.max(0, left), right };
+        if (velocity > 0) {
+            if (right >= 0) result = new double[] { Math.max(0, left), right };
         } else {
-            if(left >= 0) result = new double[] { Math.max(0, right), left };
+            if (left >= 0) result = new double[] { Math.max(0, right), left };
         }
         return result;
     }
 
     @Nullable
     public double[] getRangeIntersection(double[] a, double[] b) {
-        if(a == null || b == null) return null;
+        if (a == null || b == null) return null;
         double min = Math.max(a[0], b[0]);
         double max = Math.min(a[1], b[1]);
-        if(min > max) return null;
+        if (min > max) return null;
         return new double[] { min, max };
     }
 

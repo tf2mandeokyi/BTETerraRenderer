@@ -125,7 +125,7 @@ public class MathUtils {
      * @param arr - array to work on
      */
     public static void toRadians(double[] arr) {
-        for(int i=0; i<arr.length; i++) arr[i] = Math.toRadians(arr[i]);
+        for (int i=0; i<arr.length; i++) arr[i] = Math.toRadians(arr[i]);
     }
 
     /**
@@ -134,7 +134,7 @@ public class MathUtils {
      * @param arr - array to work on
      */
     public static void toDegrees(double[] arr) {
-        for(int i=0; i<arr.length; i++) arr[i] = Math.toDegrees(arr[i]);
+        for (int i=0; i<arr.length; i++) arr[i] = Math.toDegrees(arr[i]);
     }
 
     /**
@@ -150,7 +150,7 @@ public class MathUtils {
             res = val;
         } else if (shift > 0) {
             res = val << shift;
-            if(res >> shift != val) {
+            if (res >> shift != val) {
                 throw new RuntimeException(String.format("numeric overflow: val: %d, shift: %d", val, shift));
             }
         } else {

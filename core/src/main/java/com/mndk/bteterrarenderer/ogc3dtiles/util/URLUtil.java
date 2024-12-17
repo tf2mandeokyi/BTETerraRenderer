@@ -19,17 +19,17 @@ public class URLUtil {
         Map<String, String> queryMap = splitQuery(url);
 
         String[] querySplit = uri.split("\\?");
-        if(querySplit.length == 0) return url;
+        if (querySplit.length == 0) return url;
         String querylessUri = querySplit[0];
         URL result = new URL(url, querylessUri);
 
-        if(querySplit.length != 1) {
+        if (querySplit.length != 1) {
             String uriQuery = querySplit[1];
             queryMap.putAll(splitQuery(uriQuery));
         }
 
         String resultString = result.toString();
-        if(!queryMap.isEmpty()) {
+        if (!queryMap.isEmpty()) {
             resultString += "?" + combineQuery(queryMap);
         }
         return new URL(resultString);
@@ -68,7 +68,7 @@ public class URLUtil {
     private static String urlDecode(String s) {
         try {
             return URLDecoder.decode(s, "UTF-8");
-        } catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("error while decoding url", e);
         }
     }
@@ -76,7 +76,7 @@ public class URLUtil {
     private static String urlEncode(String s) {
         try {
             return URLEncoder.encode(s, "UTF-8");
-        } catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("error while encoding url", e);
         }
     }

@@ -15,7 +15,7 @@ public class Matrix3f extends Matrixf {
     }
 
     public static Matrix3f fromArray(double[] array, MatrixMajor matrixMajor) {
-        if(matrixMajor == MatrixMajor.ROW) {
+        if (matrixMajor == MatrixMajor.ROW) {
             return new Matrix3f((c, r) -> (float) array[r*3+c]);
         } else {
             return new Matrix3f((c, r) -> (float) array[c*3+r]);

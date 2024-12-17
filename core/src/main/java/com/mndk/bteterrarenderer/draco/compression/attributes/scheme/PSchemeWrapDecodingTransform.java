@@ -41,13 +41,13 @@ public class PSchemeWrapDecodingTransform<DataT, CorrT>
     @Override
     public void computeOriginalValue(Pointer<DataT> predVals, Pointer<CorrT> corrVals, Pointer<DataT> outOrigVals) {
         DataNumberType<DataT> dataType = this.getDataType();
-        if(!dataType.equals(corrType)) {
+        if (!dataType.equals(corrType)) {
             throw new IllegalArgumentException("Predictions and corrections must have the same type.");
         }
 
         // The only valid implementation right now is for int32_t.
         // ...bruh
-        if(!dataType.equals(DataType.int32())) {
+        if (!dataType.equals(DataType.int32())) {
             throw new IllegalArgumentException("Only int32_t is supported for predicted values.");
         }
 
@@ -75,9 +75,9 @@ public class PSchemeWrapDecodingTransform<DataT, CorrT>
         DataNumberType<DataT> dataType = this.getDataType();
         Pointer<DataT> minValue = dataType.newOwned();
         Pointer<DataT> maxValue = dataType.newOwned();
-        if(buffer.decode(minValue).isError(chain)) return chain.get();
-        if(buffer.decode(maxValue).isError(chain)) return chain.get();
-        if(dataType.gt(minValue.get(), maxValue.get())) {
+        if (buffer.decode(minValue).isError(chain)) return chain.get();
+        if (buffer.decode(maxValue).isError(chain)) return chain.get();
+        if (dataType.gt(minValue.get(), maxValue.get())) {
             return Status.ioError("Min value is greater than max value");
         }
         this.setMinValue(minValue.get());

@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class ULong extends CppNumber<ULong> {
 
     private static final ULong[] CACHE = new ULong[256];
-    static { for(int i = 0; i < 256; ++i) CACHE[i] = new ULong(i); }
+    static { for (int i = 0; i < 256; ++i) CACHE[i] = new ULong(i); }
 
     public static final ULong MIN = of(0);
     public static final ULong MAX = of(-1);

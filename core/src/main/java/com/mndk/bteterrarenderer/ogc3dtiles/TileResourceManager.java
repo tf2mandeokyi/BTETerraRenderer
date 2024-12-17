@@ -33,15 +33,15 @@ public class TileResourceManager {
         byte[] byteArray = IOUtil.readAllBytes(stream);
 
         TileData result;
-        if(BTRUtil.arrayStartsWith(byteArray, B3DM_START)) {
+        if (BTRUtil.arrayStartsWith(byteArray, B3DM_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
             result = Batched3DModel.from(buf);
         }
-        else if(BTRUtil.arrayStartsWith(byteArray, I3DM_START)) {
+        else if (BTRUtil.arrayStartsWith(byteArray, I3DM_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
             result = Instanced3DModel.from(buf, converter);
         }
-        else if(BTRUtil.arrayStartsWith(byteArray, GLTF_START)) {
+        else if (BTRUtil.arrayStartsWith(byteArray, GLTF_START)) {
             ByteBuf buf = Unpooled.wrappedBuffer(byteArray);
             result = TileGltfModel.from(buf);
         }

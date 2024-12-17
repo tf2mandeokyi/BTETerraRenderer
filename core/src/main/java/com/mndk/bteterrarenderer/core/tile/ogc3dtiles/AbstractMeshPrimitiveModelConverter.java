@@ -37,13 +37,13 @@ public abstract class AbstractMeshPrimitiveModelConverter {
 
     public static BufferedImage readMaterialModel(MaterialModel materialModel) {
         BufferedImage image = null;
-        if(materialModel instanceof MaterialModelV1) {
+        if (materialModel instanceof MaterialModelV1) {
             throw new UnsupportedOperationException("material model v1 not supported");
-        } else if(materialModel instanceof MaterialModelV2) {
+        } else if (materialModel instanceof MaterialModelV2) {
             MaterialModelV2 materialModelV2 = (MaterialModelV2) materialModel;
 
             TextureModel textureModel = materialModelV2.getBaseColorTexture();
-            if(textureModel != null) image = readImageModel(textureModel.getImageModel());
+            if (textureModel != null) image = readImageModel(textureModel.getImageModel());
             // TODO: read mag/minFilter, wrapS/T from texture
             // TODO: read emissive, normal, occlusion, and roughness texture from material
         }
@@ -59,7 +59,7 @@ public abstract class AbstractMeshPrimitiveModelConverter {
             // TODO: Add compressedImage3DTiles extension
 
             return ImageIO.read(stream);
-        } catch(IOException e) {
+        } catch (IOException e) {
             Loggers.get().error("Could not read image model", e);
             return null;
         }

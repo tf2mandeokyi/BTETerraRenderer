@@ -17,9 +17,9 @@ public class MinecraftClientMixin {
 
     @Inject(method = "setScreen", at = @At(value = "HEAD"), cancellable = true)
     public void preSetScreen(Screen screen, CallbackInfo ci) {
-        if(screen == null && currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
+        if (screen == null && currentScreen instanceof AbstractGuiScreenImpl screenImpl) {
             boolean escapable = screenImpl.delegate.handleScreenEscape();
-            if(!escapable) ci.cancel();
+            if (!escapable) ci.cancel();
         }
     }
 

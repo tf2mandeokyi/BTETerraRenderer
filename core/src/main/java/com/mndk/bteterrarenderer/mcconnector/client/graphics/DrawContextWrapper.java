@@ -126,7 +126,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
     // Font implementations
     public void drawWidthSplitText(FontWrapper<?> font, String str, int x, int y, int wrapWidth, int textColor) {
         List<String> splitLines = font.splitByWidth(str, wrapWidth);
-        for(String line : splitLines) {
+        for (String line : splitLines) {
             this.drawTextWithShadow(font, line, x, y, textColor);
             y += font.getHeight();
         }
@@ -145,13 +145,13 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
 
         float left, top;
         int width = font.getWidth(text), height = font.getHeight() * lines.length;
-        switch(hAlign) {
+        switch (hAlign) {
             case LEFT:   left = x; break;
             case CENTER: left = x - (float) width / 2; break;
             case RIGHT:  left = x - width; break;
             default:     throw new RuntimeException("Unknown align value");
         }
-        switch(vAlign) {
+        switch (vAlign) {
             case TOP:    top = y; break;
             case MIDDLE: top = y - (float) height / 2; break;
             case BOTTOM: top = y - height; break;
@@ -189,29 +189,29 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
     }
 
     public void glPopRelativeScissor() {
-        if(!SCISSOR_DIM_STACK.isEmpty()) SCISSOR_DIM_STACK.pop();
+        if (!SCISSOR_DIM_STACK.isEmpty()) SCISSOR_DIM_STACK.pop();
         this.glUpdateScissorBox();
     }
 
     private void glUpdateScissorBox() {
         McConnector.client().glGraphicsManager.glDisableScissorTest();
-        if(SCISSOR_DIM_STACK.isEmpty()) return;
+        if (SCISSOR_DIM_STACK.isEmpty()) return;
 
         // Calculate intersections
         int totalMinX = 0, totalMaxX = McConnector.client().getWindowSize().getPixelWidth();
         int totalMinY = 0, totalMaxY = McConnector.client().getWindowSize().getPixelHeight();
-        for(int[] dimension : SCISSOR_DIM_STACK) {
+        for (int[] dimension : SCISSOR_DIM_STACK) {
             int minX = dimension[0], maxX = dimension[0] + dimension[2];
             int minY = dimension[1], maxY = dimension[1] + dimension[3];
-            if(totalMinX < minX) totalMinX = minX;
-            if(totalMinY < minY) totalMinY = minY;
-            if(totalMaxX > maxX) totalMaxX = maxX;
-            if(totalMaxY > maxY) totalMaxY = maxY;
+            if (totalMinX < minX) totalMinX = minX;
+            if (totalMinY < minY) totalMinY = minY;
+            if (totalMaxX > maxX) totalMaxX = maxX;
+            if (totalMaxY > maxY) totalMaxY = maxY;
         }
 
         // Range validation
-        if(totalMinX > totalMaxX) totalMaxX = totalMinX;
-        if(totalMinY > totalMaxY) totalMaxY = totalMinY;
+        if (totalMinX > totalMaxX) totalMaxX = totalMinX;
+        if (totalMinY > totalMaxY) totalMaxY = totalMinY;
 
         // Do scissor
         int scissorX = totalMinX, scissorWidth = totalMaxX - totalMinX;

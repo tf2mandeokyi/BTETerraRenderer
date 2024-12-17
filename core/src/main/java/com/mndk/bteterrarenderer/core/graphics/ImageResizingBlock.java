@@ -20,7 +20,7 @@ public class ImageResizingBlock<Key> extends ImmediateBlock<Key, BufferedImage, 
 
     @Override
     protected BufferedImage processInternal(Key key, @Nonnull BufferedImage image) {
-        if(this.paletteWidth <= 0 || this.paletteHeight <= 0) return image;
+        if (this.paletteWidth <= 0 || this.paletteHeight <= 0) return image;
 
         BufferedImage palette = new BufferedImage(this.paletteWidth, this.paletteHeight, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = palette.createGraphics();
@@ -30,7 +30,7 @@ public class ImageResizingBlock<Key> extends ImmediateBlock<Key, BufferedImage, 
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
         double imageRatio = (double) imageHeight / imageWidth;
-        if(this.paletteRatio > imageRatio) {
+        if (this.paletteRatio > imageRatio) {
             int centerY = this.paletteHeight / 2, height = (int) (this.paletteWidth * imageRatio);
             g2d.drawImage(image, 0, centerY - height / 2, this.paletteWidth, height, null);
         } else {

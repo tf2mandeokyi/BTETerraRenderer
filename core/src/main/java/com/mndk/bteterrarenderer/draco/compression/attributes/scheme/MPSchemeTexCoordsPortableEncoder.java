@@ -49,9 +49,9 @@ public class MPSchemeTexCoordsPortableEncoder<DataT, CorrT> extends MPSchemeEnco
         this.getTransform().init(inData, size, numComponents);
         // We start processing from the end because this prediction uses data from
         // previous entries that could be overwritten when an entry is processed.
-        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p >= 0; p--) {
+        for (int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p >= 0; p--) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
-            if(predictor.computePredictedValue(cornerId, inData, p, true).isError(chain)) return chain.get();
+            if (predictor.computePredictedValue(cornerId, inData, p, true).isError(chain)) return chain.get();
 
             int dstOffset = p * numComponents;
             this.getTransform().computeCorrection(inData.add(dstOffset), predictor.getPredictedValue(), outCorr.add(dstOffset));
@@ -66,7 +66,7 @@ public class MPSchemeTexCoordsPortableEncoder<DataT, CorrT> extends MPSchemeEnco
         boolean lastOrientation = true;
         RAnsBitEncoder encoder = new RAnsBitEncoder();
         encoder.startEncoding();
-        for(int i = 0; i < numOrientations; i++) {
+        for (int i = 0; i < numOrientations; i++) {
             boolean orientation = predictor.getOrientation(i);
             encoder.encodeBit(orientation == lastOrientation);
             lastOrientation = orientation;
@@ -97,10 +97,10 @@ public class MPSchemeTexCoordsPortableEncoder<DataT, CorrT> extends MPSchemeEnco
 
     @Override
     public Status setParentAttribute(PointAttribute att) {
-        if(att.getAttributeType() != GeometryAttribute.Type.POSITION) {
+        if (att.getAttributeType() != GeometryAttribute.Type.POSITION) {
             return Status.invalidParameter("Invalid attribute type");
         }
-        if(!att.getNumComponents().equals(3)) {
+        if (!att.getNumComponents().equals(3)) {
             return Status.invalidParameter("Currently works only for 3 component positions");
         }
         predictor.setPositionAttribute(att);

@@ -126,14 +126,14 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
     @Override
     public MeshAttributeCornerTable getAttributeCornerTable(int attId) {
-        for(int i = 0; i < attributeData.size(); ++i) {
+        for (int i = 0; i < attributeData.size(); ++i) {
             final int decoderId = attributeData.get(i).decoderId;
-            if(decoderId < 0 || decoderId >= decoder.getNumAttributesDecoders()) continue;
+            if (decoderId < 0 || decoderId >= decoder.getNumAttributesDecoders()) continue;
 
             final AttributesDecoderInterface dec = decoder.getAttributesDecoder(decoderId);
-            for(int j = 0; j < dec.getNumAttributes(); ++j) {
-                if(dec.getAttributeId(j) != attId) continue;
-                if(!attributeData.get(i).isConnectivityUsed) return null;
+            for (int j = 0; j < dec.getNumAttributes(); ++j) {
+                if (dec.getAttributeId(j) != attId) continue;
+                if (!attributeData.get(i).isConnectivityUsed) return null;
                 return attributeData.get(i).connectivityData;
             }
         }
@@ -142,13 +142,13 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
     @Override
     public MeshAttributeIndicesEncodingData getAttributeEncodingData(int attId) {
-        for(int i = 0; i < attributeData.size(); ++i) {
+        for (int i = 0; i < attributeData.size(); ++i) {
             final int decoderId = attributeData.get(i).decoderId;
-            if(decoderId < 0 || decoderId >= decoder.getNumAttributesDecoders()) continue;
+            if (decoderId < 0 || decoderId >= decoder.getNumAttributesDecoders()) continue;
 
             final AttributesDecoderInterface dec = decoder.getAttributesDecoder(decoderId);
-            for(int j = 0; j < dec.getNumAttributes(); ++j) {
-                if(dec.getAttributeId(j) != attId) continue;
+            for (int j = 0; j < dec.getNumAttributes(); ++j) {
+                if (dec.getAttributeId(j) != attId) continue;
                 return attributeData.get(i).encodingData;
             }
         }
@@ -160,34 +160,34 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         StatusChain chain = new StatusChain();
 
         Pointer<Byte> attDataIdRef = Pointer.newByte();
-        if(decoder.getBuffer().decode(attDataIdRef).isError(chain)) return chain.get();
+        if (decoder.getBuffer().decode(attDataIdRef).isError(chain)) return chain.get();
         int attDataId = attDataIdRef.get();
 
         Pointer<UByte> decoderTypeRef = Pointer.newUByte();
-        if(decoder.getBuffer().decode(decoderTypeRef).isError(chain)) return chain.get();
+        if (decoder.getBuffer().decode(decoderTypeRef).isError(chain)) return chain.get();
         MeshAttributeElementType decoderType = MeshAttributeElementType.valueOf(decoderTypeRef.get());
 
-        if(attDataId >= 0) {
-            if(attDataId >= attributeData.size()) {
+        if (attDataId >= 0) {
+            if (attDataId >= attributeData.size()) {
                 return Status.ioError("Unexpected attribute data");
             }
-            if(attributeData.get(attDataId).decoderId >= 0) {
+            if (attributeData.get(attDataId).decoderId >= 0) {
                 return Status.ioError("Attribute data is already mapped to a different attributes decoder");
             }
             attributeData.get(attDataId).decoderId = attDecoderId;
         } else {
-            if(posDataDecoderId >= 0) {
+            if (posDataDecoderId >= 0) {
                 return Status.ioError("Some other decoder is already using the data");
             }
             posDataDecoderId = attDecoderId;
         }
 
         MeshTraversalMethod traversalMethod = MeshTraversalMethod.DEPTH_FIRST;
-        if(decoder.getBitstreamVersion() > DracoVersions.getBitstreamVersion(1, 2)) {
+        if (decoder.getBitstreamVersion() > DracoVersions.getBitstreamVersion(1, 2)) {
             Pointer<UByte> traversalMethodEncodedRef = Pointer.newUByte();
-            if(decoder.getBuffer().decode(traversalMethodEncodedRef).isError(chain)) return chain.get();
+            if (decoder.getBuffer().decode(traversalMethodEncodedRef).isError(chain)) return chain.get();
             MeshTraversalMethod traversalMethodEncoded = MeshTraversalMethod.valueOf(traversalMethodEncodedRef.get());
-            if(traversalMethodEncoded == null) {
+            if (traversalMethodEncoded == null) {
                 return Status.ioError("Decoded traversal method is invalid: " + traversalMethodEncodedRef.get());
             }
             traversalMethod = traversalMethodEncoded;
@@ -196,22 +196,22 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         Mesh mesh = decoder.getMesh();
         PointsSequencer sequencer;
 
-        if(decoderType == MeshAttributeElementType.VERTEX) {
+        if (decoderType == MeshAttributeElementType.VERTEX) {
             // Per-vertex attribute decoder.
 
             MeshAttributeIndicesEncodingData encodingData;
-            if(attDataId < 0) {
+            if (attDataId < 0) {
                 encodingData = this.posEncodingData;
             } else {
                 encodingData = attributeData.get(attDataId).encodingData;
                 attributeData.get(attDataId).isConnectivityUsed = false;
             }
             // Defining sequencer via a traversal scheme.
-            if(traversalMethod == MeshTraversalMethod.PREDICTION_DEGREE) {
+            if (traversalMethod == MeshTraversalMethod.PREDICTION_DEGREE) {
                 sequencer = this.createVertexTraversalSequencer(MeshAttributeIndicesEncodingObserver::new,
                         MaxPredictionDegreeTraverser::new, encodingData);
             }
-            else if(traversalMethod == MeshTraversalMethod.DEPTH_FIRST) {
+            else if (traversalMethod == MeshTraversalMethod.DEPTH_FIRST) {
                 sequencer = this.createVertexTraversalSequencer(MeshAttributeIndicesEncodingObserver::new,
                         DepthFirstTraverser::new, encodingData);
             }
@@ -219,10 +219,10 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                 return Status.ioError("Unsupported method: " + traversalMethod);
             }
         } else {
-            if(traversalMethod != MeshTraversalMethod.DEPTH_FIRST) {
+            if (traversalMethod != MeshTraversalMethod.DEPTH_FIRST) {
                 return Status.ioError("Unsupported method");
             }
-            if(attDataId < 0) {
+            if (attDataId < 0) {
                 return Status.ioError("Attribute data must be specified");
             }
 
@@ -254,37 +254,37 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
         this.numNewVertices = 0;
         this.newToParentVertexMap.clear();
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> numNewVertsRef = Pointer.newUInt();
-            if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-                if(buffer.decode(numNewVertsRef).isError(chain)) return chain.get();
+            if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+                if (buffer.decode(numNewVertsRef).isError(chain)) return chain.get();
             } else {
-                if(buffer.decodeVarint(numNewVertsRef).isError(chain)) return chain.get();
+                if (buffer.decodeVarint(numNewVertsRef).isError(chain)) return chain.get();
             }
             this.numNewVertices = numNewVertsRef.get().intValue();
         }
 
         Pointer<UInt> numEncodedVerticesRef = Pointer.newUInt();
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(numEncodedVerticesRef).isError(chain)) return chain.get();
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (buffer.decode(numEncodedVerticesRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(numEncodedVerticesRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numEncodedVerticesRef).isError(chain)) return chain.get();
         }
         this.numEncodedVertices = numEncodedVerticesRef.get().intValue();
 
         Pointer<UInt> numFacesRef = Pointer.newUInt();
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(numFacesRef).isError(chain)) return chain.get();
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (buffer.decode(numFacesRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(numFacesRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numFacesRef).isError(chain)) return chain.get();
         }
         int numFaces = numFacesRef.get().intValue();
 
-        if(numFaces > Integer.MAX_VALUE / 3) {
+        if (numFaces > Integer.MAX_VALUE / 3) {
             return Status.ioError("Draco cannot handle this many faces: " + numFaces);
         }
 
-        if(this.numEncodedVertices > numFaces * 3) {
+        if (this.numEncodedVertices > numFaces * 3) {
             return Status.ioError("There cannot be more vertices than 3 * num_faces, instead got: "
                     + this.numEncodedVertices);
         }
@@ -292,41 +292,41 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         int minNumFaceEdges = 3 * numFaces / 2;
         long numEncodedVertices64 = this.numEncodedVertices;
         long maxNumVertexEdges = numEncodedVertices64 * (numEncodedVertices64 - 1) / 2;
-        if(maxNumVertexEdges < minNumFaceEdges) {
+        if (maxNumVertexEdges < minNumFaceEdges) {
             return Status.ioError("It is impossible to construct a manifold mesh with these properties");
         }
 
         Pointer<UByte> numAttributeDataRef = Pointer.newUByte();
-        if(buffer.decode(numAttributeDataRef).isError(chain)) return chain.get();
+        if (buffer.decode(numAttributeDataRef).isError(chain)) return chain.get();
         int numAttributeData = numAttributeDataRef.get().intValue();
 
         Pointer<UInt> numEncodedSymbolsRef = Pointer.newUInt();
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(numEncodedSymbolsRef).isError(chain)) return chain.get();
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (buffer.decode(numEncodedSymbolsRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(numEncodedSymbolsRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numEncodedSymbolsRef).isError(chain)) return chain.get();
         }
         int numEncodedSymbols = numEncodedSymbolsRef.get().intValue();
 
-        if(numFaces < numEncodedSymbols) {
+        if (numFaces < numEncodedSymbols) {
             return Status.ioError("Number of faces needs to be the same or greater than the number of symbols, " +
                     "instead got: " + numFaces + " < " + numEncodedSymbols);
         }
         int maxEncodedFaces = numEncodedSymbols + (numEncodedSymbols / 3);
-        if(numFaces > maxEncodedFaces) {
+        if (numFaces > maxEncodedFaces) {
             return Status.ioError("Faces can only be 1 1/3 times bigger than number of encoded symbols, " +
                     "instead got: " + numFaces + " > " + maxEncodedFaces);
         }
 
         Pointer<UInt> numEncodedSplitSymbolsRef = Pointer.newUInt();
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(buffer.decode(numEncodedSplitSymbolsRef).isError(chain)) return chain.get();
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (buffer.decode(numEncodedSplitSymbolsRef).isError(chain)) return chain.get();
         } else {
-            if(buffer.decodeVarint(numEncodedSplitSymbolsRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numEncodedSplitSymbolsRef).isError(chain)) return chain.get();
         }
         int numEncodedSplitSymbols = numEncodedSplitSymbolsRef.get().intValue();
 
-        if(numEncodedSplitSymbols > numEncodedSymbols) {
+        if (numEncodedSplitSymbols > numEncodedSymbols) {
             return Status.ioError("Split symbols are a sub-set of all symbols");
         }
 
@@ -350,23 +350,23 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         // Add one attribute data for each attribute decoder.
         this.attributeData.resize(numAttributeData);
 
-        if(this.cornerTable.reset(
+        if (this.cornerTable.reset(
                 numFaces, this.numEncodedVertices + numEncodedSplitSymbols).isError(chain)) return chain.get();
 
         // Start with all vertices marked as holes (boundaries).
         isVertexHole.assign(this.numEncodedVertices + numEncodedSplitSymbols, true);
 
         int topologySplitDecodedBytes = -1;
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             Pointer<UInt> encodedConnectivitySizeRef = Pointer.newUInt();
-            if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-                if(buffer.decode(encodedConnectivitySizeRef).isError(chain)) return chain.get();
+            if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+                if (buffer.decode(encodedConnectivitySizeRef).isError(chain)) return chain.get();
             } else {
-                if(buffer.decodeVarint(encodedConnectivitySizeRef).isError(chain)) return chain.get();
+                if (buffer.decodeVarint(encodedConnectivitySizeRef).isError(chain)) return chain.get();
             }
             int encodedConnectivitySize = encodedConnectivitySizeRef.get().intValue();
 
-            if(encodedConnectivitySize == 0 || encodedConnectivitySize > buffer.getRemainingSize()) {
+            if (encodedConnectivitySize == 0 || encodedConnectivitySize > buffer.getRemainingSize()) {
                 return Status.ioError("Invalid encoded connectivity size: " + encodedConnectivitySize);
             }
             DecoderBuffer eventBuffer = new DecoderBuffer();
@@ -375,10 +375,10 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     buffer.getRemainingSize() - encodedConnectivitySize,
                     buffer.getBitstreamVersion());
             StatusOr<Integer> topologySplitDecodedBytesOrError = this.decodeHoleAndTopologySplitEvents(eventBuffer);
-            if(topologySplitDecodedBytesOrError.isError(chain)) return chain.get();
+            if (topologySplitDecodedBytesOrError.isError(chain)) return chain.get();
             topologySplitDecodedBytes = topologySplitDecodedBytesOrError.getValue();
         } else {
-            if(this.decodeHoleAndTopologySplitEvents(buffer).isError(chain)) return chain.get();
+            if (this.decodeHoleAndTopologySplitEvents(buffer).isError(chain)) return chain.get();
         }
 
         this.traversalDecoder.init(this);
@@ -386,10 +386,10 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         this.traversalDecoder.setNumAttributeData(numAttributeData);
 
         DecoderBuffer traversalEndBuffer = new DecoderBuffer();
-        if(this.traversalDecoder.start(traversalEndBuffer).isError(chain)) return chain.get();
+        if (this.traversalDecoder.start(traversalEndBuffer).isError(chain)) return chain.get();
 
         StatusOr<Integer> numConnectivityVertsOrError = this.decodeConnectivity(numEncodedSymbols);
-        if(numConnectivityVertsOrError.isError(chain)) return chain.get();
+        if (numConnectivityVertsOrError.isError(chain)) return chain.get();
         int numConnectivityVerts = numConnectivityVertsOrError.getValue();
 
         // Set the main buffer to the end of the traversal.
@@ -398,39 +398,39 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                 traversalEndBuffer.getRemainingSize(),
                 decoder.getBuffer().getBitstreamVersion());
 
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             // Skip topology split data that was already decoded earlier.
             decoder.getBuffer().advance(topologySplitDecodedBytes);
         }
 
-        if(!attributeData.isEmpty()) {
-            if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 1)) {
-                for(int ci = 0; ci < cornerTable.getNumCorners(); ci += 3) {
+        if (!attributeData.isEmpty()) {
+            if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 1)) {
+                for (int ci = 0; ci < cornerTable.getNumCorners(); ci += 3) {
                     CornerIndex corner = CornerIndex.of(ci);
-                    if(this.decodeAttributeConnectivitiesOnFaceLegacy(corner).isError(chain)) return chain.get();
+                    if (this.decodeAttributeConnectivitiesOnFaceLegacy(corner).isError(chain)) return chain.get();
                 }
             } else {
-                for(int ci = 0; ci < cornerTable.getNumCorners(); ci += 3) {
+                for (int ci = 0; ci < cornerTable.getNumCorners(); ci += 3) {
                     CornerIndex corner = CornerIndex.of(ci);
-                    if(this.decodeAttributeConnectivitiesOnFace(corner).isError(chain)) return chain.get();
+                    if (this.decodeAttributeConnectivitiesOnFace(corner).isError(chain)) return chain.get();
                 }
             }
         }
         traversalDecoder.done();
 
         // Decode attribute connectivity.
-        for(AttributeData data : attributeData) {
+        for (AttributeData data : attributeData) {
             data.connectivityData.initEmpty(cornerTable);
-            for(int c : data.attributeSeamCorners) {
+            for (int c : data.attributeSeamCorners) {
                 data.connectivityData.addSeamEdge(CornerIndex.of(c));
             }
-            if(data.connectivityData.recomputeVertices(null, null).isError(chain)) return chain.get();
+            if (data.connectivityData.recomputeVertices(null, null).isError(chain)) return chain.get();
         }
 
         posEncodingData.init(cornerTable.getNumVertices());
-        for(AttributeData data : attributeData) {
+        for (AttributeData data : attributeData) {
             int attConnectivityVerts = data.connectivityData.getNumVertices();
-            if(attConnectivityVerts < cornerTable.getNumVertices()) {
+            if (attConnectivityVerts < cornerTable.getNumVertices()) {
                 attConnectivityVerts = cornerTable.getNumVertices();
             }
             data.encodingData.init(attConnectivityVerts);
@@ -453,13 +453,13 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
         int maxNumVertices = (int) isVertexHole.size();
         int numFaces = 0;
-        for(int symbolId = 0; symbolId < numSymbols; ++symbolId) {
+        for (int symbolId = 0; symbolId < numSymbols; ++symbolId) {
             FaceIndex face = FaceIndex.of(numFaces++);
             boolean checkTopologySplit = false;
             EdgebreakerTopology symbol = traversalDecoder.decodeSymbol();
-            switch(symbol) {
+            switch (symbol) {
                 case C: {
-                    if(activeCornerStack.isEmpty()) {
+                    if (activeCornerStack.isEmpty()) {
                         return StatusOr.ioError("Active corner stack is empty");
                     }
 
@@ -467,10 +467,10 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     VertexIndex vertexX = cornerTable.getVertex(cornerTable.next(cornerA));
                     CornerIndex cornerB = cornerTable.next(cornerTable.getLeftMostCorner(vertexX));
 
-                    if(cornerA.equals(cornerB)) {
+                    if (cornerA.equals(cornerB)) {
                         return StatusOr.ioError("All matched corners must be different");
                     }
-                    if(cornerTable.opposite(cornerA).isValid() || cornerTable.opposite(cornerB).isValid()) {
+                    if (cornerTable.opposite(cornerA).isValid() || cornerTable.opposite(cornerB).isValid()) {
                         return StatusOr.ioError("One of the corners is already opposite to an existing face");
                     }
 
@@ -480,7 +480,7 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
                     VertexIndex vertexAPrev = cornerTable.getVertex(cornerTable.previous(cornerA));
                     VertexIndex vertexBNext = cornerTable.getVertex(cornerTable.next(cornerB));
-                    if(vertexX.equals(vertexAPrev) || vertexX.equals(vertexBNext)) {
+                    if (vertexX.equals(vertexAPrev) || vertexX.equals(vertexBNext)) {
                         return StatusOr.ioError("Encoding is invalid, because face vertices are degenerate");
                     }
                     cornerTable.mapCornerToVertex(corner, vertexX);
@@ -492,18 +492,18 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     break;
                 }
                 case R: case L: {
-                    if(activeCornerStack.isEmpty()) {
+                    if (activeCornerStack.isEmpty()) {
                         return StatusOr.ioError("Active corner stack is empty");
                     }
 
                     CornerIndex cornerA = activeCornerStack.popBack();
-                    if(cornerTable.opposite(cornerA).isValid()) {
+                    if (cornerTable.opposite(cornerA).isValid()) {
                         return StatusOr.ioError("Active corner is already opposite to an existing face");
                     }
 
                     CornerIndex corner = CornerIndex.of(3 * face.getValue());
                     CornerIndex oppCorner, cornerL, cornerR;
-                    if(symbol == EdgebreakerTopology.R) {
+                    if (symbol == EdgebreakerTopology.R) {
                         oppCorner = corner.add(2);
                         cornerL = corner.add(1);
                         cornerR = corner;
@@ -515,7 +515,7 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     this.setOppositeCorners(oppCorner, cornerA);
                     VertexIndex newVertIndex = cornerTable.addNewVertex();
 
-                    if(cornerTable.getNumVertices() > maxNumVertices) {
+                    if (cornerTable.getNumVertices() > maxNumVertices) {
                         return StatusOr.ioError("Unexpected number of decoded vertices");
                     }
 
@@ -532,24 +532,24 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     break;
                 }
                 case S: {
-                    if(activeCornerStack.isEmpty()) {
+                    if (activeCornerStack.isEmpty()) {
                         return StatusOr.ioError("Active corner stack is empty");
                     }
                     CornerIndex cornerB = activeCornerStack.popBack();
 
                     CornerIndex searchResult = topologySplitActiveCorners.get(symbolId);
-                    if(searchResult != null) {
+                    if (searchResult != null) {
                         activeCornerStack.pushBack(searchResult);
                     }
-                    if(activeCornerStack.isEmpty()) {
+                    if (activeCornerStack.isEmpty()) {
                         return StatusOr.ioError("Active corner stack is empty");
                     }
                     CornerIndex cornerA = activeCornerStack.popBack();
 
-                    if(cornerA.equals(cornerB)) {
+                    if (cornerA.equals(cornerB)) {
                         return StatusOr.ioError("All matched corners must be different");
                     }
-                    if(cornerTable.opposite(cornerA).isValid() || cornerTable.opposite(cornerB).isValid()) {
+                    if (cornerTable.opposite(cornerA).isValid() || cornerTable.opposite(cornerB).isValid()) {
                         return StatusOr.ioError("One of the corners is already opposite to an existing face");
                     }
 
@@ -568,16 +568,16 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     cornerTable.setLeftMostCorner(vertexP, cornerTable.getLeftMostCorner(vertexN));
 
                     CornerIndex firstCorner = cornerN;
-                    while(cornerN.isValid()) {
+                    while (cornerN.isValid()) {
                         cornerTable.mapCornerToVertex(cornerN, vertexP);
                         cornerN = cornerTable.swingLeft(cornerN);
-                        if(cornerN.equals(firstCorner)) {
+                        if (cornerN.equals(firstCorner)) {
                             return StatusOr.ioError("Reached the start again which should not happen for split symbols");
                         }
                     }
 
                     cornerTable.makeVertexIsolated(vertexN);
-                    if(removeInvalidVertices) {
+                    if (removeInvalidVertices) {
                         invalidVertices.pushBack(vertexN);
                     }
                     activeCornerStack.pushBack(corner);
@@ -590,7 +590,7 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     cornerTable.mapCornerToVertex(corner.add(1), cornerTable.addNewVertex());
                     cornerTable.mapCornerToVertex(corner.add(2), cornerTable.addNewVertex());
 
-                    if(cornerTable.getNumVertices() > maxNumVertices) {
+                    if (cornerTable.getNumVertices() > maxNumVertices) {
                         return StatusOr.ioError("Unexpected number of decoded vertices: " + cornerTable.getNumVertices());
                     }
 
@@ -608,20 +608,20 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
             traversalDecoder.newActiveCornerReached(activeCornerStack.back());
 
-            if(checkTopologySplit) {
+            if (checkTopologySplit) {
                 int encoderSymbolId = numSymbols - symbolId - 1;
                 AtomicReference<EdgeFaceName> splitEdgeRef = new AtomicReference<>();
                 AtomicInteger encoderSplitSymbolIdRef = new AtomicInteger();
-                while(this.isTopologySplit(encoderSymbolId, splitEdgeRef, encoderSplitSymbolIdRef)) {
+                while (this.isTopologySplit(encoderSymbolId, splitEdgeRef, encoderSplitSymbolIdRef)) {
                     EdgeFaceName splitEdge = splitEdgeRef.get();
                     int encoderSplitSymbolId = encoderSplitSymbolIdRef.get();
 
-                    if(encoderSplitSymbolId < 0) {
+                    if (encoderSplitSymbolId < 0) {
                         return StatusOr.ioError("Wrong split symbol id: " + encoderSplitSymbolId);
                     }
                     CornerIndex actTopCorner = activeCornerStack.back();
                     CornerIndex newActiveCorner;
-                    if(splitEdge == EdgeFaceName.RIGHT) {
+                    if (splitEdge == EdgeFaceName.RIGHT) {
                         newActiveCorner = cornerTable.next(actTopCorner);
                     } else {
                         newActiveCorner = cornerTable.previous(actTopCorner);
@@ -631,14 +631,14 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                 }
             }
         }
-        if(cornerTable.getNumVertices() > maxNumVertices) {
+        if (cornerTable.getNumVertices() > maxNumVertices) {
             return StatusOr.ioError("Unexpected number of decoded vertices: " + cornerTable.getNumVertices());
         }
-        while(!activeCornerStack.isEmpty()) {
+        while (!activeCornerStack.isEmpty()) {
             CornerIndex corner = activeCornerStack.popBack();
             boolean interiorFace = traversalDecoder.decodeStartFaceConfiguration();
-            if(interiorFace) {
-                if(numFaces >= cornerTable.getNumFaces()) {
+            if (interiorFace) {
+                if (numFaces >= cornerTable.getNumFaces()) {
                     return StatusOr.ioError("More faces than expected added to the mesh: " + numFaces);
                 }
 
@@ -648,7 +648,7 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                 VertexIndex vertX = cornerTable.getVertex(cornerTable.next(cornerB));
                 CornerIndex cornerC = cornerTable.next(cornerTable.getLeftMostCorner(vertX));
 
-                if(corner.equals(cornerB) || corner.equals(cornerC) || cornerB.equals(cornerC)) {
+                if (corner.equals(cornerB) || corner.equals(cornerC) || cornerB.equals(cornerC)) {
                     return StatusOr.ioError("All matched corners must be different");
                 }
                 if (cornerTable.opposite(corner ).isValid() ||
@@ -669,7 +669,7 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                 cornerTable.mapCornerToVertex(newCorner.add(1), vertP);
                 cornerTable.mapCornerToVertex(newCorner.add(2), vertN);
 
-                for(int ci = 0; ci < 3; ++ci) {
+                for (int ci = 0; ci < 3; ++ci) {
                     isVertexHole.set(cornerTable.getVertex(newCorner.add(ci)).getValue(), false);
                 }
 
@@ -681,24 +681,24 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
             }
         }
 
-        if(numFaces != cornerTable.getNumFaces()) {
+        if (numFaces != cornerTable.getNumFaces()) {
             return StatusOr.ioError("Unexpected number of decoded faces: " + numFaces);
         }
 
         int numVertices = cornerTable.getNumVertices();
         // If any vertex was marked as isolated, we want to remove it from the corner
         // table to ensure that all vertices in range [0, num_vertices) are valid.
-        for(VertexIndex invalidVert : invalidVertices) {
+        for (VertexIndex invalidVert : invalidVertices) {
             VertexIndex srcVert = VertexIndex.of(numVertices - 1);
-            while(cornerTable.getLeftMostCorner(srcVert).isInvalid()) {
+            while (cornerTable.getLeftMostCorner(srcVert).isInvalid()) {
                 srcVert = VertexIndex.of(--numVertices - 1);
             }
-            if(srcVert.getValue() < invalidVert.getValue()) {
+            if (srcVert.getValue() < invalidVert.getValue()) {
                 continue; // No need to swap anything
             }
 
-            for(CornerIndex cid : VertexCornersIterator.iterable(cornerTable, srcVert)) {
-                if(!cornerTable.getVertex(cid).equals(srcVert)) {
+            for (CornerIndex cid : VertexCornersIterator.iterable(cornerTable, srcVert)) {
+                if (!cornerTable.getVertex(cid).equals(srcVert)) {
                     return StatusOr.ioError("Vertex mapped to " + cid + " was not " + srcVert + "." +
                             " This indicates corrupted data");
                 }
@@ -745,14 +745,14 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
     private boolean isTopologySplit(int encoderSymbolId,
                                     AtomicReference<EdgeFaceName> outFaceEdge,
                                     AtomicInteger outEncoderSplitSymbolId) {
-        if(topologySplitData.isEmpty()) {
+        if (topologySplitData.isEmpty()) {
             return false;
         }
-        if(topologySplitData.back().getSourceSymbolId().gt(encoderSymbolId)) {
+        if (topologySplitData.back().getSourceSymbolId().gt(encoderSymbolId)) {
             outEncoderSplitSymbolId.set(-1);
             return true;
         }
-        if(!topologySplitData.back().getSourceSymbolId().equals(encoderSymbolId)) {
+        if (!topologySplitData.back().getSourceSymbolId().equals(encoderSymbolId)) {
             return false;
         }
         TopologySplitEventData data = topologySplitData.popBack();
@@ -765,45 +765,45 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         StatusChain chain = new StatusChain();
 
         Pointer<UInt> numTopologySplitsRef = Pointer.newUInt();
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(decoderBuffer.decode(numTopologySplitsRef).isError(chain)) return StatusOr.error(chain);
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (decoderBuffer.decode(numTopologySplitsRef).isError(chain)) return StatusOr.error(chain);
         } else {
-            if(decoderBuffer.decodeVarint(numTopologySplitsRef).isError(chain)) return StatusOr.error(chain);
+            if (decoderBuffer.decodeVarint(numTopologySplitsRef).isError(chain)) return StatusOr.error(chain);
         }
         int numTopologySplits = numTopologySplitsRef.get().intValue();
-        if(numTopologySplits > 0) {
-            if(numTopologySplits > cornerTable.getNumFaces()) {
+        if (numTopologySplits > 0) {
+            if (numTopologySplits > cornerTable.getNumFaces()) {
                 return StatusOr.ioError("Number of topology splits is greater than number of faces");
             }
-            if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 2)) {
-                for(int i = 0; i < numTopologySplits; i++) {
+            if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 2)) {
+                for (int i = 0; i < numTopologySplits; i++) {
                     TopologySplitEventData eventData = new TopologySplitEventData();
 
                     Pointer<UInt> splitSymbolIdRef = Pointer.newUInt();
-                    if(decoderBuffer.decode(splitSymbolIdRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoderBuffer.decode(splitSymbolIdRef).isError(chain)) return StatusOr.error(chain);
                     eventData.setSplitSymbolId(splitSymbolIdRef.get());
 
                     Pointer<UInt> sourceSymbolIdRef = Pointer.newUInt();
-                    if(decoderBuffer.decode(sourceSymbolIdRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoderBuffer.decode(sourceSymbolIdRef).isError(chain)) return StatusOr.error(chain);
                     eventData.setSourceSymbolId(sourceSymbolIdRef.get());
 
                     Pointer<UByte> edgeDataRef = Pointer.newUByte();
-                    if(decoderBuffer.decode(edgeDataRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoderBuffer.decode(edgeDataRef).isError(chain)) return StatusOr.error(chain);
                     eventData.setSourceEdge(EdgeFaceName.valueOf(edgeDataRef.get()));
 
                     topologySplitData.pushBack(eventData);
                 }
             } else {
                 int lastSourceSymbolId = 0;
-                for(int i = 0; i < numTopologySplits; i++) {
+                for (int i = 0; i < numTopologySplits; i++) {
                     TopologySplitEventData eventData = new TopologySplitEventData();
 
                     Pointer<UInt> deltaRef = Pointer.newUInt();
-                    if(decoderBuffer.decodeVarint(deltaRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoderBuffer.decodeVarint(deltaRef).isError(chain)) return StatusOr.error(chain);
                     eventData.setSourceSymbolId(deltaRef.get().add(lastSourceSymbolId));
 
-                    if(decoderBuffer.decodeVarint(deltaRef).isError(chain)) return StatusOr.error(chain);
-                    if(deltaRef.get().gt(eventData.getSourceSymbolId())) {
+                    if (decoderBuffer.decodeVarint(deltaRef).isError(chain)) return StatusOr.error(chain);
+                    if (deltaRef.get().gt(eventData.getSourceSymbolId())) {
                         return StatusOr.ioError("Delta is greater than source symbol id");
                     }
                     eventData.setSplitSymbolId(eventData.getSourceSymbolId().sub(deltaRef.get()));
@@ -811,12 +811,12 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                     topologySplitData.pushBack(eventData);
                 }
                 decoderBuffer.startBitDecoding(false, Pointer.newULong());
-                for(int i = 0; i < numTopologySplits; i++) {
+                for (int i = 0; i < numTopologySplits; i++) {
                     Pointer<UInt> edgeDataRef = Pointer.newUInt();
-                    if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
-                        if(decoderBuffer.decodeLeastSignificantBits32(2, edgeDataRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+                        if (decoderBuffer.decodeLeastSignificantBits32(2, edgeDataRef).isError(chain)) return StatusOr.error(chain);
                     } else {
-                        if(decoderBuffer.decodeLeastSignificantBits32(1, edgeDataRef).isError(chain)) return StatusOr.error(chain);
+                        if (decoderBuffer.decodeLeastSignificantBits32(1, edgeDataRef).isError(chain)) return StatusOr.error(chain);
                     }
                     TopologySplitEventData eventData = topologySplitData.get(i);
                     eventData.setSourceEdge(EdgeFaceName.valueOf(edgeDataRef.get().intValue() & 1));
@@ -825,25 +825,25 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
             }
         }
         Pointer<UInt> numHoleEventsRef = Pointer.newUInt(0);
-        if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(decoderBuffer.decode(numHoleEventsRef).isError(chain)) return StatusOr.error(chain);
-        } else if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 1)) {
-            if(decoderBuffer.decodeVarint(numHoleEventsRef).isError(chain)) return StatusOr.error(chain);
+        if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (decoderBuffer.decode(numHoleEventsRef).isError(chain)) return StatusOr.error(chain);
+        } else if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 1)) {
+            if (decoderBuffer.decodeVarint(numHoleEventsRef).isError(chain)) return StatusOr.error(chain);
         }
         int numHoleEvents = numHoleEventsRef.get().intValue();
-        if(numHoleEvents > 0) {
-            if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 2)) {
-                for(int i = 0; i < numHoleEvents; i++) {
+        if (numHoleEvents > 0) {
+            if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(1, 2)) {
+                for (int i = 0; i < numHoleEvents; i++) {
                     Pointer<Integer> eventDataRef = Pointer.newInt();
-                    if(decoderBuffer.decode(eventDataRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoderBuffer.decode(eventDataRef).isError(chain)) return StatusOr.error(chain);
                     holeEventData.pushBack(eventDataRef.get());
                 }
             } else {
                 int lastSymbolId = 0;
-                for(int i = 0; i < numHoleEvents; i++) {
+                for (int i = 0; i < numHoleEvents; i++) {
                     int eventData;
                     Pointer<UInt> deltaRef = Pointer.newUInt();
-                    if(decoderBuffer.decodeVarint(deltaRef).isError(chain)) return StatusOr.error(chain);
+                    if (decoderBuffer.decodeVarint(deltaRef).isError(chain)) return StatusOr.error(chain);
                     UInt delta = deltaRef.get();
                     eventData = delta.intValue() + lastSymbolId;
                     lastSymbolId = eventData;
@@ -856,17 +856,17 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
     private Status decodeAttributeConnectivitiesOnFaceLegacy(CornerIndex corner) {
         CornerIndex[] corners = new CornerIndex[] { corner, cornerTable.next(corner), cornerTable.previous(corner) };
-        for(CornerIndex cornerIndex : corners) {
+        for (CornerIndex cornerIndex : corners) {
             CornerIndex oppCorner = cornerTable.opposite(cornerIndex);
-            if(oppCorner.isInvalid()) {
-                for(AttributeData data : attributeData) {
+            if (oppCorner.isInvalid()) {
+                for (AttributeData data : attributeData) {
                     data.attributeSeamCorners.pushBack(cornerIndex.getValue());
                 }
                 continue;
             }
-            for(int i = 0; i < attributeData.size(); i++) {
+            for (int i = 0; i < attributeData.size(); i++) {
                 boolean isSeam = traversalDecoder.decodeAttributeSeam(i);
-                if(isSeam) {
+                if (isSeam) {
                     attributeData.get(i).attributeSeamCorners.pushBack(cornerIndex.getValue());
                 }
             }
@@ -878,21 +878,21 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
         CornerIndex[] corners = new CornerIndex[] { corner, cornerTable.next(corner), cornerTable.previous(corner) };
 
         FaceIndex srcFaceId = cornerTable.getFace(corner);
-        for(CornerIndex cornerIndex : corners) {
+        for (CornerIndex cornerIndex : corners) {
             CornerIndex oppCorner = cornerTable.opposite(cornerIndex);
-            if(oppCorner.isInvalid()) {
-                for(AttributeData data : attributeData) {
+            if (oppCorner.isInvalid()) {
+                for (AttributeData data : attributeData) {
                     data.attributeSeamCorners.pushBack(cornerIndex.getValue());
                 }
                 continue;
             }
             FaceIndex oppFaceId = cornerTable.getFace(oppCorner);
-            if(oppFaceId.getValue() < srcFaceId.getValue()) {
+            if (oppFaceId.getValue() < srcFaceId.getValue()) {
                 continue;
             }
-            for(int i = 0; i < attributeData.size(); i++) {
+            for (int i = 0; i < attributeData.size(); i++) {
                 boolean isSeam = traversalDecoder.decodeAttributeSeam(i);
-                if(isSeam) {
+                if (isSeam) {
                     attributeData.get(i).attributeSeamCorners.pushBack(cornerIndex.getValue());
                 }
             }
@@ -903,11 +903,11 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
     private Status assignPointsToCorners(int numConnectivityVerts) {
         decoder.getMesh().setNumFaces(cornerTable.getNumFaces());
 
-        if(attributeData.isEmpty()) {
-            for(FaceIndex f : FaceIndex.range(0, decoder.getMesh().getNumFaces())) {
+        if (attributeData.isEmpty()) {
+            for (FaceIndex f : FaceIndex.range(0, decoder.getMesh().getNumFaces())) {
                 Mesh.Face face = new Mesh.Face();
                 CornerIndex startCorner = CornerIndex.of(3 * f.getValue());
-                for(int c = 0; c < 3; ++c) {
+                for (int c = 0; c < 3; ++c) {
                     int vertId = cornerTable.getVertex(startCorner.add(c)).getValue();
                     face.set(c, PointIndex.of(vertId));
                 }
@@ -919,32 +919,32 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
 
         CppVector<Integer> pointToCornerMap = new CppVector<>(DataType.int32());
         CppVector<Integer> cornerToPointMap = new CppVector<>(DataType.int32(), cornerTable.getNumCorners());
-        for(VertexIndex v : VertexIndex.range(0, cornerTable.getNumVertices())) {
+        for (VertexIndex v : VertexIndex.range(0, cornerTable.getNumVertices())) {
             CornerIndex c = cornerTable.getLeftMostCorner(v);
-            if(c.isInvalid()) {
+            if (c.isInvalid()) {
                 continue; // Isolated vertex
             }
             CornerIndex deduplicationFirstCorner = c;
-            if(!isVertexHole.get(v.getValue())) {
-                for(AttributeData data : attributeData) {
-                    if(!data.connectivityData.isCornerOnSeam(c)) {
+            if (!isVertexHole.get(v.getValue())) {
+                for (AttributeData data : attributeData) {
+                    if (!data.connectivityData.isCornerOnSeam(c)) {
                         continue; // No seam for this attribute, ignore it
                     }
                     VertexIndex vertId = data.connectivityData.getVertex(c);
                     CornerIndex actC = cornerTable.swingRight(c);
                     boolean seamFound = false;
-                    while(!actC.equals(c)) {
-                        if(actC.isInvalid()) {
+                    while (!actC.equals(c)) {
+                        if (actC.isInvalid()) {
                             return Status.ioError("Invalid corner index");
                         }
-                        if(!data.connectivityData.getVertex(actC).equals(vertId)) {
+                        if (!data.connectivityData.getVertex(actC).equals(vertId)) {
                             deduplicationFirstCorner = actC;
                             seamFound = true;
                             break;
                         }
                         actC = cornerTable.swingRight(actC);
                     }
-                    if(seamFound) {
+                    if (seamFound) {
                         break;
                     }
                 }
@@ -955,17 +955,17 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
             pointToCornerMap.pushBack(c.getValue());
             CornerIndex prevC = c;
             c = cornerTable.swingRight(c);
-            while(c.isValid() && !c.equals(deduplicationFirstCorner)) {
+            while (c.isValid() && !c.equals(deduplicationFirstCorner)) {
                 boolean attributeSeam = false;
-                for(AttributeData data : attributeData) {
+                for (AttributeData data : attributeData) {
                     VertexIndex vertex = data.connectivityData.getVertex(c);
                     VertexIndex prevVertex = data.connectivityData.getVertex(prevC);
-                    if(!vertex.equals(prevVertex)) {
+                    if (!vertex.equals(prevVertex)) {
                         attributeSeam = true;
                         break;
                     }
                 }
-                if(attributeSeam) {
+                if (attributeSeam) {
                     cornerToPointMap.set(c.getValue(), (int) pointToCornerMap.size());
                     pointToCornerMap.pushBack(c.getValue());
                 } else {
@@ -975,9 +975,9 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
                 c = cornerTable.swingRight(c);
             }
         }
-        for(FaceIndex f : FaceIndex.range(0, decoder.getMesh().getNumFaces())) {
+        for (FaceIndex f : FaceIndex.range(0, decoder.getMesh().getNumFaces())) {
             Mesh.Face face = new Mesh.Face();
-            for(int c = 0; c < 3; ++c) {
+            for (int c = 0; c < 3; ++c) {
                 face.set(c, PointIndex.of(cornerToPointMap.get(3L * f.getValue() + c)));
             }
             decoder.getMesh().setFace(f, face);
@@ -987,7 +987,7 @@ public class MeshEdgebreakerDecoderImpl implements MeshEdgebreakerDecoderImplInt
     }
 
     private boolean isFaceVisited(CornerIndex cornerId) {
-        if(cornerId.isInvalid()) {
+        if (cornerId.isInvalid()) {
             return true;
         }
         return visitedFaces.get(cornerTable.getFace(cornerId).getValue());

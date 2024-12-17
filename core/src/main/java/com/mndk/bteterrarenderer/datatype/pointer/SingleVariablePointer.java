@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.datatype.pointer;
 public abstract class SingleVariablePointer<T> implements Pointer<T> {
 
     protected final void checkIndex(long index) {
-        if(index == 0) return;
+        if (index == 0) return;
         throw new IndexOutOfBoundsException("index = " + index);
     }
 
@@ -20,7 +20,7 @@ public abstract class SingleVariablePointer<T> implements Pointer<T> {
     @Override public final boolean equals(Object obj) { return this == obj; }
 
     @Override public final void swap(long a, long b) {
-        if(a == 0 && b == 0) return;
+        if (a == 0 && b == 0) return;
         throw new UnsupportedOperationException("Cannot swap a single variable");
     }
 }

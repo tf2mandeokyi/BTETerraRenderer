@@ -53,23 +53,23 @@ public class CppVector<E> implements Iterable<E> {
     public void assign(long count, E value) {
         this.clear();
         this.reserve(count);
-        for(long i = 0; i < count; i++) this.pushBack(value);
+        for (long i = 0; i < count; i++) this.pushBack(value);
     }
     public void assign(Pointer<E> value, long count) {
         this.clear();
         this.reserve(count);
-        for(long i = 0; i < count; i++) this.pushBack(value.get(i));
+        for (long i = 0; i < count; i++) this.pushBack(value.get(i));
     }
 
     public long size() { return this.size; }
     public boolean isEmpty() { return this.size == 0; }
 
     private void checkNotEmpty() {
-        if(this.size != 0) return;
+        if (this.size != 0) return;
         throw new IndexOutOfBoundsException("Vector is empty");
     }
     private void checkIndex(long index) {
-        if(index >= 0 && index < size) return;
+        if (index >= 0 && index < size) return;
         throw new IndexOutOfBoundsException("Index " + index + " is out of bounds (size = " + size + ")");
     }
 
@@ -78,8 +78,8 @@ public class CppVector<E> implements Iterable<E> {
     public E get(UInt index) { return this.get(index.intValue()); }
     public E get(long index) { checkIndex(index); return array.get(index); }
     public boolean contains(E element) {
-        for(long i = 0; i < this.size; i++) {
-            if(Objects.equals(array.get(i), element)) return true;
+        for (long i = 0; i < this.size; i++) {
+            if (Objects.equals(array.get(i), element)) return true;
         }
         return false;
     }
@@ -125,7 +125,7 @@ public class CppVector<E> implements Iterable<E> {
     }
 
     public void swap(CppVector<E> other) {
-        if(other instanceof CppVector) {
+        if (other instanceof CppVector) {
             Pointer<E> tempArray = this.array;
             long tempSize = this.size;
             long tempCapacity = this.capacity;
@@ -155,9 +155,9 @@ public class CppVector<E> implements Iterable<E> {
     // - This function has no effect on the vector size and cannot alter its elements.
     public void reserve(long minCapacity) {
         long oldCapacity = capacity;
-        if(oldCapacity < minCapacity) {
+        if (oldCapacity < minCapacity) {
             long newCapacity = oldCapacity + oldCapacity >> 1;
-            if(newCapacity < minCapacity) newCapacity = minCapacity;
+            if (newCapacity < minCapacity) newCapacity = minCapacity;
             Pointer<E> newArray = type.newArray(newCapacity);
             PointerHelper.copyMultiple(array, newArray, size);
             array = newArray;
@@ -179,15 +179,15 @@ public class CppVector<E> implements Iterable<E> {
     public void resize(long size, E value) { this.resize(size, i -> value); }
     public void resize(long size, Supplier<E> value) { this.resize(size, i -> value.get()); }
     public void resize(long size, Function<Long, E> value) {
-        if(size > this.size) {
+        if (size > this.size) {
             this.reserve(size);
-            for(long i = this.size; i < size; i++) {
+            for (long i = this.size; i < size; i++) {
                 array.set(i, value.apply(i));
             }
         }
-        else if(size < this.size) {
+        else if (size < this.size) {
             // Set the rest of the array to default values
-            for(long i = size; i < this.size; i++) {
+            for (long i = size; i < this.size; i++) {
                 array.reset(i);
             }
         }
@@ -200,7 +200,7 @@ public class CppVector<E> implements Iterable<E> {
         if (o == null || getClass() != o.getClass()) return false;
         CppVector<?> that = (CppVector<?>) o;
         // Check size, array type, array content
-        if(!array.getClass().equals(that.array.getClass())) return false;
+        if (!array.getClass().equals(that.array.getClass())) return false;
         Pointer<E> thatArray = BTRUtil.uncheckedCast(that.array);
         return size == that.size && PointerHelper.contentEquals(array, thatArray, size);
     }
@@ -214,7 +214,7 @@ public class CppVector<E> implements Iterable<E> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[size = ").append(this.size);
-        if(this.size > 0) {
+        if (this.size > 0) {
             sb.append("; ");
             for (long i = 0; i < this.size; i++) {
                 if (i != 0) sb.append(", ");

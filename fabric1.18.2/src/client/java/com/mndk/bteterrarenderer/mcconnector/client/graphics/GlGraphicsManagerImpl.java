@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
@@ -55,6 +56,9 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         RenderSystem.setShaderTexture(0, textureObject.get());
     }
 
+    public NativeTextureWrapper getMissingTextureObject() {
+        return new NativeTextureWrapper(MissingSprite.getMissingSpriteId());
+    }
     @SneakyThrows
     public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
@@ -63,7 +67,7 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
                 .registerDynamicTexture("bteterrarenderer-texture", texture);
         return new NativeTextureWrapper(id);
     }
-    public void deleteTextureObject(NativeTextureWrapper textureObject) {
+    public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject.get());
     }
 

@@ -60,7 +60,7 @@ public class SymbolCodingTest {
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
         StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(numValues), 1, db, out));
-        for(int i = 0; i < numValues; ++i) {
+        for (int i = 0; i < numValues; ++i) {
             Assert.assertEquals(UInt.of(in[i]), out.get(i));
         }
     }
@@ -79,7 +79,7 @@ public class SymbolCodingTest {
         }};
 
         int totalReservedSize = 0;
-        for(Pair<UInt, Integer> pair : in) {
+        for (Pair<UInt, Integer> pair : in) {
             totalReservedSize += pair.getRight();
         }
 
@@ -88,11 +88,11 @@ public class SymbolCodingTest {
         for (Pair<UInt, Integer> pair : in) {
             UInt left = pair.getLeft();
             int right = pair.getRight();
-            for(int j = 0; j < right; ++j) {
+            for (int j = 0; j < right; ++j) {
                 inValues.pushBack(left);
             }
         }
-        for(int method = 0; method < SymbolCodingMethod.NUM_SYMBOL_CODING_METHODS; ++method) {
+        for (int method = 0; method < SymbolCodingMethod.NUM_SYMBOL_CODING_METHODS; ++method) {
             // Test the encoding using all available symbol coding methods.
             Options options = new Options();
             SymbolCodingMethod symbolCodingMethod = SymbolCodingMethod.valueOf(UByte.of(method));
@@ -109,7 +109,7 @@ public class SymbolCodingTest {
             db.setBitstreamVersion(BITSTREAM_VERSION);
             StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(inValues.size()), 1, db, outValues));
 
-            for(int i = 0; i < inValues.size(); ++i) {
+            for (int i = 0; i < inValues.size(); ++i) {
                 Assert.assertEquals("Assertion fail on method=" + symbolCodingMethod + ", i=" + i,
                         inValues.get(i), outValues.get(i));
             }
@@ -141,7 +141,7 @@ public class SymbolCodingTest {
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
         StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(inLength), 1, db, out));
-        for(int i = 0; i < inLength; ++i) {
+        for (int i = 0; i < inLength; ++i) {
             Assert.assertEquals(inVector.get(i), out.get(i));
         }
     }
@@ -153,11 +153,11 @@ public class SymbolCodingTest {
         EncoderBuffer eb = new EncoderBuffer();
         CppVector<UInt> in = new CppVector<>(DataType.uint32());
         final int bitLengths = 18;
-        for(int i = 0; i < bitLengths; ++i) {
+        for (int i = 0; i < bitLengths; ++i) {
             in.pushBack(UInt.of(1 << i));
         }
         Pointer<UInt> out = Pointer.wrapUnsigned(new int[(int) in.size()]);
-        for(int i = 0; i < bitLengths; ++i) {
+        for (int i = 0; i < bitLengths; ++i) {
             eb.clear();
             Status status = SymbolEncoding.encode(in.getPointer(), i + 1, 1, null, eb);
             StatusAssert.assertOk(status);
@@ -187,7 +187,7 @@ public class SymbolCodingTest {
         db.init(eb.getData(), eb.size());
         db.setBitstreamVersion(BITSTREAM_VERSION);
         StatusAssert.assertOk(SymbolDecoding.decode(UInt.of(in.size()), 1, db, out));
-        for(int i = 0; i < in.size(); ++i) {
+        for (int i = 0; i < in.size(); ++i) {
             Assert.assertEquals(in.get(i), out.get(i));
         }
     }

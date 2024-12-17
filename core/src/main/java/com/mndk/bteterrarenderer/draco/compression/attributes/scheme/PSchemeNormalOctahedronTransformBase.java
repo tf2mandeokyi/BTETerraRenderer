@@ -61,7 +61,7 @@ public class PSchemeNormalOctahedronTransformBase<DataT> {
     }
 
     protected Status setMaxQuantizedValue(DataT maxQuantizedValue) {
-        if(dataType.equals(dataType.mod(maxQuantizedValue, 2), 0)) {
+        if (dataType.equals(dataType.mod(maxQuantizedValue, 2), 0)) {
             return Status.dracoError("Max quantized value must be of the form 2^b-1");
         }
         int q = BitUtils.mostSignificantBit(dataType, maxQuantizedValue) + 1;

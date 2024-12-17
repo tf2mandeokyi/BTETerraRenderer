@@ -55,11 +55,11 @@ public class SequentialAttributeDecoder {
     public Status decodePortableAttribute(CppVector<PointIndex> pointIds, DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(attribute.getNumComponents().le(0)) {
+        if (attribute.getNumComponents().le(0)) {
             return Status.dracoError("Attribute has no components");
         }
-        if(attribute.reset(pointIds.size()).isError(chain)) return chain.get();
-        if(this.decodeValues(pointIds, inBuffer).isError(chain)) return chain.get();
+        if (attribute.reset(pointIds.size()).isError(chain)) return chain.get();
+        if (this.decodeValues(pointIds, inBuffer).isError(chain)) return chain.get();
         return Status.ok();
     }
 
@@ -80,9 +80,9 @@ public class SequentialAttributeDecoder {
     public PointAttribute getPortableAttribute() {
         // If needed, copy point to attribute value index mapping from the final
         // attribute to the portable attribute.
-        if(!attribute.isMappingIdentity() && portableAttribute != null && portableAttribute.isMappingIdentity()) {
+        if (!attribute.isMappingIdentity() && portableAttribute != null && portableAttribute.isMappingIdentity()) {
             portableAttribute.setExplicitMapping(attribute.indicesMapSize());
-            for(PointIndex i : PointIndex.range(0, (int) attribute.indicesMapSize())) {
+            for (PointIndex i : PointIndex.range(0, (int) attribute.indicesMapSize())) {
                 portableAttribute.setPointMapEntry(i, attribute.getMappedIndex(i));
             }
         }
@@ -92,13 +92,13 @@ public class SequentialAttributeDecoder {
     protected Status initPredictionScheme(PSchemeInterface ps) {
         StatusChain chain = new StatusChain();
 
-        for(int i = 0; i < ps.getNumParentAttributes(); i++) {
+        for (int i = 0; i < ps.getNumParentAttributes(); i++) {
             int attId = decoder.getPointCloud().getNamedAttributeId(ps.getParentAttributeType(i));
-            if(attId == -1) {
+            if (attId == -1) {
                 return Status.dracoError("Requested attribute does not exist");
             }
-            if(decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-                if(ps.setParentAttribute(decoder.getPointCloud().getAttribute(attId)).isError(chain)) return chain.get();
+            if (decoder.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+                if (ps.setParentAttribute(decoder.getPointCloud().getAttribute(attId)).isError(chain)) return chain.get();
             }
             else {
                 PointAttribute pa = decoder.getPortableAttribute(attId);
@@ -118,8 +118,8 @@ public class SequentialAttributeDecoder {
         int entrySize = (int) attribute.getByteStride();
         Pointer<UByte> valueData = Pointer.newUByteArray(entrySize);
         int outBytePos = 0;
-        for(int i = 0; i < numValues; i++) {
-            if(inBuffer.decode(valueData, entrySize).isError(chain)) return chain.get();
+        for (int i = 0; i < numValues; i++) {
+            if (inBuffer.decode(valueData, entrySize).isError(chain)) return chain.get();
             attribute.getBuffer().write(outBytePos, valueData, entrySize);
             outBytePos += entrySize;
         }

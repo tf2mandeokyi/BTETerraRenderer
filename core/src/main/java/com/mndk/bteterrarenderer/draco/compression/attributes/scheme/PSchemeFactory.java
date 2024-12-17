@@ -36,7 +36,7 @@ public class PSchemeFactory {
             int attId, T transform, UShort bitstreamVersion)
     {
         PointAttribute att = source.getPointCloud().getAttribute(attId);
-        if(source.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH && (
+        if (source.getGeometryType() == EncodedGeometryType.TRIANGULAR_MESH && (
                 method == PredictionSchemeMethod.MESH_PARALLELOGRAM ||
                 method == PredictionSchemeMethod.MESH_MULTI_PARALLELOGRAM ||
                 method == PredictionSchemeMethod.MESH_CONSTRAINED_MULTI_PARALLELOGRAM ||
@@ -45,13 +45,13 @@ public class PSchemeFactory {
                 method == PredictionSchemeMethod.MESH_TEX_COORDS_DEPRECATED)) {
             CornerTable ct = source.getCornerTable();
             MeshAttributeIndicesEncodingData encodingData = source.getAttributeEncodingData(attId);
-            if(ct == null || encodingData == null) {
+            if (ct == null || encodingData == null) {
                 // No connectivity data found.
                 return null;
             }
             // Connectivity data exists.
             MeshAttributeCornerTable attCt = source.getAttributeCornerTable(attId);
-            if(attCt != null) {
+            if (attCt != null) {
                 MPSchemeData<MeshAttributeCornerTable> md = new MPSchemeData<>();
                 md.set(source.getMesh(), attCt,
                         encodingData.getEncodedAttributeValueIndexToCornerMap(),

@@ -35,7 +35,7 @@ public class PlyReaderTest {
     public void testReader() {
         File file = DracoTestFileUtil.toFile("draco/testdata/test_pos_color.ply");
         DecoderBuffer buf = new DecoderBuffer();
-        try(InputStream stream = Files.newInputStream(file.toPath())) {
+        try (InputStream stream = Files.newInputStream(file.toPath())) {
             buf.init(stream);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -52,7 +52,7 @@ public class PlyReaderTest {
         PlyPropertyReader<UByte> readerUInt8 = new PlyPropertyReader<>(DataType.uint8(), prop);
         PlyPropertyReader<UInt> readerUInt32 = new PlyPropertyReader<>(DataType.uint32(), prop);
         PlyPropertyReader<Float> readerFloat = new PlyPropertyReader<>(DataType.float32(), prop);
-        for(int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
+        for (int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
             Assert.assertEquals(readerUInt8.readValue(i).intValue(), readerUInt32.readValue(i).intValue());
             Assert.assertEquals(readerUInt8.readValue(i).floatValue(), readerFloat.readValue(i), 1e-4f);
         }
@@ -63,7 +63,7 @@ public class PlyReaderTest {
         File file = DracoTestFileUtil.toFile("draco/testdata/test_pos_color.ply");
         DecoderBuffer buf = new DecoderBuffer();
         PlyReader reader = new PlyReader();
-        try(InputStream stream = Files.newInputStream(file.toPath())) {
+        try (InputStream stream = Files.newInputStream(file.toPath())) {
             buf.init(stream);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -73,7 +73,7 @@ public class PlyReaderTest {
         File fileAscii = DracoTestFileUtil.toFile("draco/testdata/test_pos_color_ascii.ply");
         DecoderBuffer bufAscii = new DecoderBuffer();
         PlyReader readerAscii = new PlyReader();
-        try(InputStream stream = Files.newInputStream(fileAscii.toPath())) {
+        try (InputStream stream = Files.newInputStream(fileAscii.toPath())) {
             bufAscii.init(stream);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -87,7 +87,7 @@ public class PlyReaderTest {
         PlyProperty propAscii = readerAscii.getElement(0).getPropertyByName("x");
         PlyPropertyReader<Float> readerFloat = new PlyPropertyReader<>(DataType.float32(), prop);
         PlyPropertyReader<Float> readerFloatAscii = new PlyPropertyReader<>(DataType.float32(), propAscii);
-        for(int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
+        for (int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
             Assert.assertEquals(readerFloat.readValue(i), readerFloatAscii.readValue(i), 1e-4f);
         }
     }
@@ -97,7 +97,7 @@ public class PlyReaderTest {
         File file = DracoTestFileUtil.toFile("draco/testdata/test_extra_whitespace.ply");
         DecoderBuffer buf = new DecoderBuffer();
         PlyReader reader = new PlyReader();
-        try(InputStream stream = Files.newInputStream(file.toPath())) {
+        try (InputStream stream = Files.newInputStream(file.toPath())) {
             buf.init(stream);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -114,7 +114,7 @@ public class PlyReaderTest {
         PlyPropertyReader<UByte> readerUInt8 = new PlyPropertyReader<>(DataType.uint8(), prop);
         PlyPropertyReader<UInt> readerUInt32 = new PlyPropertyReader<>(DataType.uint32(), prop);
         PlyPropertyReader<Float> readerFloat = new PlyPropertyReader<>(DataType.float32(), prop);
-        for(int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
+        for (int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
             Assert.assertEquals(readerUInt8.readValue(i).intValue(), readerUInt32.readValue(i).intValue());
             Assert.assertEquals(readerUInt8.readValue(i).floatValue(), readerFloat.readValue(i), 1e-4f);
         }
@@ -125,7 +125,7 @@ public class PlyReaderTest {
         File file = DracoTestFileUtil.toFile("draco/testdata/test_more_datatypes.ply");
         DecoderBuffer buf = new DecoderBuffer();
         PlyReader reader = new PlyReader();
-        try(InputStream stream = Files.newInputStream(file.toPath())) {
+        try (InputStream stream = Files.newInputStream(file.toPath())) {
             buf.init(stream);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -142,7 +142,7 @@ public class PlyReaderTest {
         PlyPropertyReader<UByte> readerUInt8 = new PlyPropertyReader<>(DataType.uint8(), prop);
         PlyPropertyReader<UInt> readerUInt32 = new PlyPropertyReader<>(DataType.uint32(), prop);
         PlyPropertyReader<Float> readerFloat = new PlyPropertyReader<>(DataType.float32(), prop);
-        for(int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
+        for (int i = 0; i < reader.getElement(0).getNumEntries(); i++) {
             Assert.assertEquals(readerUInt8.readValue(i).intValue(), readerUInt32.readValue(i).intValue());
             Assert.assertEquals(readerUInt8.readValue(i).floatValue(), readerFloat.readValue(i), 1e-4f);
         }

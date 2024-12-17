@@ -42,8 +42,8 @@ public enum MeshEdgebreakerConnectivityEncodingMethod {
 
     @Nullable
     public static MeshEdgebreakerConnectivityEncodingMethod valueOf(int value) {
-        for(MeshEdgebreakerConnectivityEncodingMethod method : values()) {
-            if(method.value == value) return method;
+        for (MeshEdgebreakerConnectivityEncodingMethod method : values()) {
+            if (method.value == value) return method;
         }
         return null;
     }

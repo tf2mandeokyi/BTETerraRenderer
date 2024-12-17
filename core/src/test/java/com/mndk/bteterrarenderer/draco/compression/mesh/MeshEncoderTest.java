@@ -106,8 +106,8 @@ public class MeshEncoderTest {
                 "draco/testdata/test_nm.obj",
                 "draco/testdata/cube_att.obj"
         };
-        for(String fileName : fileNames) {
-            for(TestParams param : params) {
+        for (String fileName : fileNames) {
+            for (TestParams param : params) {
                 this.testGolden(param, fileName);
             }
         }

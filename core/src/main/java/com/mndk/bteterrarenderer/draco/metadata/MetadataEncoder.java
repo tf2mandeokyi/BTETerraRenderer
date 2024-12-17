@@ -37,8 +37,8 @@ public class MetadataEncoder {
         // Encode number of entries.
         outBuffer.encodeVarint(UInt.of(metadata.getNumEntries()));
         // Encode all entries.
-        for(Map.Entry<String, Metadata.EntryValue> entry : entries.entrySet()) {
-            if(encodeString(outBuffer, entry.getKey()).isError(chain)) return chain.get();
+        for (Map.Entry<String, Metadata.EntryValue> entry : entries.entrySet()) {
+            if (encodeString(outBuffer, entry.getKey()).isError(chain)) return chain.get();
             CppVector<UByte> entryValue = entry.getValue().getBuffer();
             outBuffer.encodeVarint(UInt.of(entryValue.size()));
             outBuffer.encode(entryValue.getRawPointer(), entryValue.size());
@@ -48,9 +48,9 @@ public class MetadataEncoder {
         // Encode number of sub-metadata
         outBuffer.encodeVarint(UInt.of(subMetadatas.size()));
         // Encode each sub-metadata
-        for(Map.Entry<String, Metadata> subMetadataEntry : subMetadatas.entrySet()) {
-            if(encodeString(outBuffer, subMetadataEntry.getKey()).isError(chain)) return chain.get();
-            if(encodeMetadata(outBuffer, subMetadataEntry.getValue()).isError(chain)) return chain.get();
+        for (Map.Entry<String, Metadata> subMetadataEntry : subMetadatas.entrySet()) {
+            if (encodeString(outBuffer, subMetadataEntry.getKey()).isError(chain)) return chain.get();
+            if (encodeMetadata(outBuffer, subMetadataEntry.getValue()).isError(chain)) return chain.get();
         }
 
         return Status.ok();
@@ -59,29 +59,29 @@ public class MetadataEncoder {
     public Status encodeAttributeMetadata(EncoderBuffer outBuffer, AttributeMetadata metadata) {
         StatusChain chain = new StatusChain();
 
-        if(metadata == null) {
+        if (metadata == null) {
             return Status.invalidParameter("metadata is null");
         }
         // Encode attribute id.
-        if(outBuffer.encodeVarint(metadata.getAttUniqueId()).isError(chain)) return chain.get();
-        if(encodeMetadata(outBuffer, metadata).isError(chain)) return chain.get();
+        if (outBuffer.encodeVarint(metadata.getAttUniqueId()).isError(chain)) return chain.get();
+        if (encodeMetadata(outBuffer, metadata).isError(chain)) return chain.get();
         return Status.ok();
     }
 
     public Status encodeGeometryMetadata(EncoderBuffer outBuffer, GeometryMetadata metadata) {
         StatusChain chain = new StatusChain();
 
-        if(metadata == null) {
+        if (metadata == null) {
             return Status.invalidParameter("metadata is null");
         }
         // Encode number of attribute metadata.
         outBuffer.encodeVarint(UInt.of(metadata.getAttributeMetadatas().size()));
         // Encode each attribute metadata
-        for(AttributeMetadata attMetadata : metadata.getAttributeMetadatas()) {
-            if(encodeAttributeMetadata(outBuffer, attMetadata).isError(chain)) return chain.get();
+        for (AttributeMetadata attMetadata : metadata.getAttributeMetadatas()) {
+            if (encodeAttributeMetadata(outBuffer, attMetadata).isError(chain)) return chain.get();
         }
         // Encode normal metadata part.
-        if(encodeMetadata(outBuffer, metadata).isError(chain)) return chain.get();
+        if (encodeMetadata(outBuffer, metadata).isError(chain)) return chain.get();
         return Status.ok();
     }
 
@@ -89,10 +89,10 @@ public class MetadataEncoder {
         // We only support string of maximum length 255 which is using one byte to
         // encode the length.
         byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
-        if(bytes.length > 255) {
+        if (bytes.length > 255) {
             return Status.invalidParameter("string is longer than 255 bytes");
         }
-        if(bytes.length == 0) {
+        if (bytes.length == 0) {
             outBuffer.encode(UByte.ZERO);
         } else {
             outBuffer.encode(UByte.of(str.length()));

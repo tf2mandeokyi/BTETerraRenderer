@@ -54,13 +54,13 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 
 	public boolean charTyped(char typedChar, int keyCode) {
 		boolean result = delegate.charTyped(typedChar, keyCode);
-		if(result) this.updateTextColor();
+		if (result) this.updateTextColor();
 		return result;
 	}
 
 	public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
 		boolean result = delegate.keyPressed(key, scanCode, modifiers);
-		if(result) this.updateTextColor();
+		if (result) this.updateTextColor();
 		return result;
 	}
 
@@ -68,7 +68,7 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 		String currentStr = delegate.getText();
 		this.numberValidated = BTRUtil.validateDouble(currentStr);
 		delegate.setTextColor(numberValidated ? NORMAL_TEXT_COLOR : ERROR_TEXT_COLOR);
-		if(numberValidated) {
+		if (numberValidated) {
 			value.set(Double.parseDouble(delegate.getText()));
 		}
 	}
@@ -82,8 +82,8 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 		int fontHeight = getDefaultFont().getHeight();
 
 		int color = this.delegate.isHovered() ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
-		if(this.delegate.isFocused()) color = FOCUSED_BORDER_COLOR;
-		if(!numberValidated) color = ERROR_TEXT_COLOR;
+		if (this.delegate.isFocused()) color = FOCUSED_BORDER_COLOR;
+		if (!numberValidated) color = ERROR_TEXT_COLOR;
 
 		drawContextWrapper.drawTextWithShadow(getDefaultFont(),
 				text,

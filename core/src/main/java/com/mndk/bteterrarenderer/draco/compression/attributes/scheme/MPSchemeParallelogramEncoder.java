@@ -45,12 +45,12 @@ public class MPSchemeParallelogramEncoder<DataT, CorrT> extends MPSchemeEncoder<
         // previous entries that could be overwritten when an entry is processed.
         ICornerTable table = this.getMeshData().getCornerTable();
         CppVector<Integer> vertexToDataMap = this.getMeshData().getVertexToDataMap();
-        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
+        for (int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
             int dstOffset = p * numComponents;
             Status status = MPSchemeParallelogram.computeParallelogramPrediction(
                     p, cornerId, table, vertexToDataMap, inData, numComponents, predVals);
-            if(status.isError()) {
+            if (status.isError()) {
                 int srcOffset = (p - 1) * numComponents;
                 this.getTransform().computeCorrection(inData.add(dstOffset), inData.add(srcOffset), outCorr.add(dstOffset));
             }
@@ -59,7 +59,7 @@ public class MPSchemeParallelogramEncoder<DataT, CorrT> extends MPSchemeEncoder<
             }
         }
         // First element is always fixed because it cannot be predicted.
-        for(int i = 0; i < numComponents; i++) {
+        for (int i = 0; i < numComponents; i++) {
             predVals.set(i, this.getDataType().from(0));
         }
         this.getTransform().computeCorrection(inData, predVals, outCorr);

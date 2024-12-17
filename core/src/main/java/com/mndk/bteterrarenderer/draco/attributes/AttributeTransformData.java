@@ -51,7 +51,7 @@ public class AttributeTransformData {
 
     /** Sets a parameter value at a given byte offset. */
     public <T> void setParameterValue(DataType<T> dataType, long byteOffset, T data) {
-        if(byteOffset + dataType.byteSize() > buffer.size()) {
+        if (byteOffset + dataType.byteSize() > buffer.size()) {
             buffer.resize(byteOffset + dataType.byteSize());
         }
         buffer.write(byteOffset, dataType, data);

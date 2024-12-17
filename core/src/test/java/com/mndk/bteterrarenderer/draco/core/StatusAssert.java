@@ -9,7 +9,7 @@ public class StatusAssert {
     }
 
     public static void assertOk(Status status) {
-        if(!status.isOk()) {
+        if (!status.isOk()) {
             fail(status);
         }
     }
@@ -21,7 +21,7 @@ public class StatusAssert {
     }
 
     public static void assertError(Status status) {
-        if(status.isOk()) {
+        if (status.isOk()) {
             Assert.fail("Expected error, but got OK");
         }
     }

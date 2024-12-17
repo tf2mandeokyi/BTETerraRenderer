@@ -54,7 +54,7 @@ public abstract class MPSchemeGeometricNormalPredictorBase<DataT> {
     public abstract Status setNormalPredictionMode(NormalPredictionMode mode);
 
     protected VectorD.D3<Long> getPositionForDataId(int dataId) {
-        if(!this.isInitialized()) {
+        if (!this.isInitialized()) {
             throw new IllegalStateException("Not initialized");
         }
         PointIndex pointId = entryToPointIdMap.get(dataId);
@@ -65,7 +65,7 @@ public abstract class MPSchemeGeometricNormalPredictorBase<DataT> {
     }
 
     protected VectorD.D3<Long> getPositionForCorner(CornerIndex ci) {
-        if(!this.isInitialized()) {
+        if (!this.isInitialized()) {
             throw new IllegalStateException("Not initialized");
         }
         int vertId = meshData.getCornerTable().getVertex(ci).getValue();
@@ -74,7 +74,7 @@ public abstract class MPSchemeGeometricNormalPredictorBase<DataT> {
     }
 
     protected VectorD.D2<Integer> getOctahedralCoordForDataId(int dataId, Pointer<DataT> data) {
-        if(!this.isInitialized()) {
+        if (!this.isInitialized()) {
             throw new IllegalStateException("Not initialized");
         }
         int dataOffset = dataId * 2;

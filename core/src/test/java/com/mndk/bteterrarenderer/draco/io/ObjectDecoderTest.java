@@ -99,7 +99,7 @@ public class ObjectDecoderTest {
         Assert.assertEquals(2, attribute.size());
         Assert.assertEquals(0, attribute.getValue(AttributeValueIndex.of(0), DataType.uint8(), 1).get().intValue());
         Assert.assertEquals(1, attribute.getValue(AttributeValueIndex.of(1), DataType.uint8(), 1).get().intValue());
-        for(int i = 0; i < 6; i++) {
+        for (int i = 0; i < 6; i++) {
             Assert.assertEquals(0, attribute.getMappedIndex(PointIndex.of((4 * i    ))).getValue());
             Assert.assertEquals(1, attribute.getMappedIndex(PointIndex.of((4 * i + 1))).getValue());
             Assert.assertEquals(0, attribute.getMappedIndex(PointIndex.of((4 * i + 2))).getValue());

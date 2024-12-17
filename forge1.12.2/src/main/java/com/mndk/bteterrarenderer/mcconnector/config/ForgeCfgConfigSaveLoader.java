@@ -19,12 +19,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MC12ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
+public class ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
 
     private final Configuration configuration;
     private final Stack<String> categoryNameStack = new Stack<>();
 
-    public MC12ForgeCfgConfigSaveLoader(Class<?> configClass, String modId) {
+    public ForgeCfgConfigSaveLoader(Class<?> configClass, String modId) {
         super(configClass);
         File configDir = Loader.instance().getConfigDir();
         File configFile = new File(configDir, modId + ".cfg");
@@ -58,9 +58,9 @@ public class MC12ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
 
         // Determine property type
         Property.Type type = Property.Type.STRING;
-        if(clazz == Integer.class || clazz == int.class) type = Property.Type.INTEGER;
-        else if(clazz == Double.class || clazz == double.class) type = Property.Type.DOUBLE;
-        else if(clazz == Boolean.class || clazz == boolean.class) type = Property.Type.BOOLEAN;
+        if (clazz == Integer.class || clazz == int.class) type = Property.Type.INTEGER;
+        else if (clazz == Double.class || clazz == double.class) type = Property.Type.DOUBLE;
+        else if (clazz == Boolean.class || clazz == boolean.class) type = Property.Type.BOOLEAN;
         final Property.Type finalType = type;
 
         // Set property object
@@ -69,7 +69,7 @@ public class MC12ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
         Function<Property, Object> propertyFunction = Property::getString;
 
         // Check if enum
-        if(Enum.class.isAssignableFrom(clazz)) {
+        if (Enum.class.isAssignableFrom(clazz)) {
             Enum<?>[] values = BTRUtil.uncheckedCast(clazz.getEnumConstants());
             String[] defaultValues = Arrays.stream(values).map(Enum::name).toArray(String[]::new);
             propertyFunction = p -> Enum.valueOf(BTRUtil.uncheckedCast(clazz), p.getString());
@@ -78,25 +78,25 @@ public class MC12ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
         }
 
         // Property functions: used for load
-        if(clazz == Integer.class || clazz == int.class) propertyFunction = Property::getInt;
-        else if(clazz == Double.class || clazz == double.class) propertyFunction = Property::getDouble;
-        else if(clazz == Boolean.class || clazz == boolean.class) propertyFunction = Property::getBoolean;
+        if (clazz == Integer.class || clazz == int.class) propertyFunction = Property::getInt;
+        else if (clazz == Double.class || clazz == double.class) propertyFunction = Property::getDouble;
+        else if (clazz == Boolean.class || clazz == boolean.class) propertyFunction = Property::getBoolean;
         final Function<Property, Object> finalPropertyFunction = propertyFunction;
 
         ConfigRangeInt rangeInt = field.getAnnotation(ConfigRangeInt.class);
-        if(rangeInt != null) {
+        if (rangeInt != null) {
             propertyConsumers.add(p -> p.setMinValue(rangeInt.min()));
             propertyConsumers.add(p -> p.setMaxValue(rangeInt.max()));
         }
 
         ConfigRangeDouble rangeDouble = field.getAnnotation(ConfigRangeDouble.class);
-        if(rangeDouble != null) {
+        if (rangeDouble != null) {
             propertyConsumers.add(p -> p.setMinValue(rangeDouble.min()));
             propertyConsumers.add(p -> p.setMaxValue(rangeDouble.max()));
         }
 
         ConfigSlidingOption slidingOption = field.getAnnotation(ConfigSlidingOption.class);
-        if(slidingOption != null) {
+        if (slidingOption != null) {
             propertyConsumers.add(p -> p.setHasSlidingControl(true));
         }
 

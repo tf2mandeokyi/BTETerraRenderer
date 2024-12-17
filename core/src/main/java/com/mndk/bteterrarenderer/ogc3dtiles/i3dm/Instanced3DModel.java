@@ -38,7 +38,7 @@ public class Instanced3DModel extends TileData {
 
     public static Instanced3DModel from(ByteBuf buf, SpheroidCoordinatesConverter converter) throws IOException {
         String magic = buf.readBytes(4).toString(StandardCharsets.UTF_8);
-        if(!"i3dm".equals(magic)) throw new IOException("expected i3dm format, found: " + magic);
+        if (!"i3dm".equals(magic)) throw new IOException("expected i3dm format, found: " + magic);
 
         int version = buf.readIntLE();
         /* int byteLength = */ buf.readIntLE();

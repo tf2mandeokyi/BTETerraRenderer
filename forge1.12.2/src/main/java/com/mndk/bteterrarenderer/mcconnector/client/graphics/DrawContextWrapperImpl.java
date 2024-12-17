@@ -105,7 +105,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
 
     public void drawButton(int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState) {
         int i = 0;
-        switch(hoverState) {
+        switch (hoverState) {
             case DISABLED:          break;
             case DEFAULT:    i = 1; break;
             case MOUSE_OVER: i = 2; break;
@@ -151,8 +151,8 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
 
     public void drawHoverEvent(StyleWrapper styleWrapper, int x, int y) {
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if(currentScreen == null) return;
-        if(!(currentScreen instanceof AbstractGuiScreenImpl)) return;
+        if (currentScreen == null) return;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl)) return;
 
         ((AbstractGuiScreenImpl) currentScreen).handleStyleHover(styleWrapper.get(), x, y);
     }

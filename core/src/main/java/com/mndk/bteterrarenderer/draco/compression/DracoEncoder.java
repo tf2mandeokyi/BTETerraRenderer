@@ -41,7 +41,7 @@ public class DracoEncoder extends DracoEncoderBase<EncoderOptionsBase<GeometryAt
         DracoExpertEncoder encoder = new DracoExpertEncoder(m);
         encoder.reset(this.createExpertEncoderOptions(m));
         Status status = encoder.encodeToBuffer(outBuffer);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
 
         this.setNumEncodedPoints(encoder.getNumEncodedPoints());
         this.setNumEncodedFaces(encoder.getNumEncodedFaces());
@@ -73,7 +73,7 @@ public class DracoEncoder extends DracoEncoderBase<EncoderOptionsBase<GeometryAt
 
     public Status setAttributePredictionScheme(GeometryAttribute.Type type, int predictionSchemeMethod) {
         Status status = super.checkPredictionScheme(type, PredictionSchemeMethod.valueOf(predictionSchemeMethod));
-        if(status.isError()) return status;
+        if (status.isError()) return status;
         this.getOptions().setAttributeInt(type, "prediction_scheme", predictionSchemeMethod);
         return status;
     }
@@ -86,9 +86,9 @@ public class DracoEncoder extends DracoEncoderBase<EncoderOptionsBase<GeometryAt
         EncoderOptions retOptions = EncoderOptions.createEmptyOptions();
         retOptions.setGlobalOptions(this.getOptions().getGlobalOptions());
         retOptions.setFeatureOptions(this.getOptions().getFeatureOptions());
-        for(int i = 0; i < pc.getNumAttributes(); ++i) {
+        for (int i = 0; i < pc.getNumAttributes(); ++i) {
             Options attOptions = this.getOptions().findAttributeOptions(pc.getAttribute(i).getAttributeType());
-            if(attOptions != null) {
+            if (attOptions != null) {
                 retOptions.setAttributeOptions(i, attOptions);
             }
         }

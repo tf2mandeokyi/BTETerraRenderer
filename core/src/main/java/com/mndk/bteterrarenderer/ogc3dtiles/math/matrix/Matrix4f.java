@@ -17,8 +17,15 @@ public class Matrix4f extends Matrixf {
         super(4, 4, columnRowFunction);
     }
 
+    public Matrix4f multiply(Matrix4f other) { return super.multiply(other).toMatrix4(); }
+    @Override public Matrix4f inverse() {
+        Matrixf inverse = super.inverse();
+        return inverse == null ? null : inverse.toMatrix4();
+    }
+    @Override public Matrix4f toMatrix4() { return this; }
+
     public static Matrix4f fromArray(double[] array, MatrixMajor matrixMajor) {
-        if(matrixMajor == MatrixMajor.ROW) {
+        if (matrixMajor == MatrixMajor.ROW) {
             return new Matrix4f((c, r) -> (float) array[r*4+c]);
         } else {
             return new Matrix4f((c, r) -> (float) array[c*4+r]);
@@ -27,7 +34,7 @@ public class Matrix4f extends Matrixf {
 
     public static Matrix4f fromTranslation(Cartesian3f translation) {
         return new Matrix4f((c, r) -> {
-            if(c == 3) switch (r) {
+            if (c == 3) switch (r) {
                 case 0: return translation.getX();
                 case 1: return translation.getY();
                 case 2: return translation.getZ();
@@ -38,7 +45,7 @@ public class Matrix4f extends Matrixf {
 
     public static Matrix4f fromScale(Cartesian3f scale) {
         return new Matrix4f((c, r) -> {
-            if(r == c) switch (r) {
+            if (r == c) switch (r) {
                 case 0: return scale.getX();
                 case 1: return scale.getY();
                 case 2: return scale.getZ();
@@ -50,8 +57,8 @@ public class Matrix4f extends Matrixf {
 
     public static Matrix4f fromScaleMatrix(Matrix3f scaleMatrix) {
         return new Matrix4f((c, r) -> {
-            if(r == 3 && c == 3) return 1;
-            else if(r == 3 || c == 3) return 0;
+            if (r == 3 && c == 3) return 1;
+            else if (r == 3 || c == 3) return 0;
             return scaleMatrix.get(c, r);
         });
     }

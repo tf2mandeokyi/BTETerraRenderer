@@ -12,7 +12,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
-import com.mndk.bteterrarenderer.mcconnector.config.MC18ForgeTomlConfigSaveLoader;
+import com.mndk.bteterrarenderer.mcconnector.config.ForgeTomlConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
 import net.minecraft.Util;
@@ -39,7 +39,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
 
     @Override
     public AbstractConfigSaveLoader newConfigSaveLoader(Class<?> configClass, String modId) {
-        return new MC18ForgeTomlConfigSaveLoader(configClass);
+        return new ForgeTomlConfigSaveLoader(configClass);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
 
     public void sendTextComponentToChat(TextWrapper textComponent) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if(player == null) return;
+        if (player == null) return;
         player.sendMessage(textComponent.get(), Util.NIL_UUID);
     }
 

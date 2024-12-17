@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,10 @@ public class GraphicsModel {
 
     public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,
                               McCoordTransformer transformer, float alpha) {
-        McConnector.client().glGraphicsManager.setShaderTexture(textureObject);
+        NativeTextureWrapper texture = this.textureObject.isDeleted()
+                ? McConnector.client().glGraphicsManager.getMissingTextureObject()
+                : this.textureObject;
+        McConnector.client().glGraphicsManager.setShaderTexture(texture);
         shapes.drawAndRender(drawContextWrapper, transformer, alpha);
     }
 }

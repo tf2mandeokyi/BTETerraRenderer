@@ -54,7 +54,7 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     }
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         // Skip if the "pressed" mouse button is either scroll up or scroll down
-        if(mouseButton == 63 || mouseButton == 64) return;
+        if (mouseButton == 63 || mouseButton == 64) return;
 
         this.pMouseX = mouseX; this.pMouseY = mouseY;
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -72,7 +72,7 @@ public class AbstractGuiScreenImpl extends GuiScreen {
         delegate.mouseScrolled(mouseX, mouseY, Mouse.getEventDWheel());
     }
     public void keyTyped(char key, int keyCode) throws IOException {
-        if(delegate.shouldCloseOnEsc()) {
+        if (delegate.shouldCloseOnEsc()) {
             super.keyTyped(key, keyCode);
         }
         delegate.charTyped(key, keyCode);
@@ -155,9 +155,9 @@ public class AbstractGuiScreenImpl extends GuiScreen {
     @Override
     public void confirmClicked(boolean result, int id)
     {
-        if(id != 31102009) return;
+        if (id != 31102009) return;
 
-        if(result) this.openWebLink(this.clickedLinkURI);
+        if (result) this.openWebLink(this.clickedLinkURI);
         this.clickedLinkURI = null;
         this.mc.displayGuiScreen(this);
     }
@@ -175,7 +175,7 @@ public class AbstractGuiScreenImpl extends GuiScreen {
 
     public void handleStyleHover(@Nonnull Style style, int x, int y) {
         HoverEvent hoverEvent = style.getHoverEvent();
-        if(hoverEvent == null) return;
+        if (hoverEvent == null) return;
 
         switch (hoverEvent.getAction()) {
             case SHOW_ITEM:

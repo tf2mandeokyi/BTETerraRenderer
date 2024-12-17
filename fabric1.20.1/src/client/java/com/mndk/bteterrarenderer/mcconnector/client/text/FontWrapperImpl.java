@@ -24,10 +24,10 @@ public class FontWrapperImpl extends FontWrapper<TextRenderer> {
     }
     public int getWidth(TextWrapper textWrapper) {
         Object textComponent = textWrapper.get();
-        if(textComponent instanceof StringVisitable visitable) {
+        if (textComponent instanceof StringVisitable visitable) {
             return getThisWrapped().getWidth(visitable);
         }
-        else if(textComponent instanceof OrderedText text) {
+        else if (textComponent instanceof OrderedText text) {
             return getThisWrapped().getWidth(text);
         }
         return 0;
@@ -48,10 +48,10 @@ public class FontWrapperImpl extends FontWrapper<TextRenderer> {
     public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft) {
         Object lineComponent = textWrapper.get();
         Style style = null;
-        if(lineComponent instanceof StringVisitable visitable) {
+        if (lineComponent instanceof StringVisitable visitable) {
             style = getThisWrapped().getTextHandler().getStyleAt(visitable, mouseXFromLeft);
         }
-        else if(lineComponent instanceof OrderedText text) {
+        else if (lineComponent instanceof OrderedText text) {
             style = getThisWrapped().getTextHandler().getStyleAt(text, mouseXFromLeft);
         }
         return style != null ? new StyleWrapper(style) : null;

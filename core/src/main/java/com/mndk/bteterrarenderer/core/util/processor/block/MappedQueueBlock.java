@@ -16,11 +16,11 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
     /**
      * @param maxRetryCount Max retry count. set this to -1 for no retry restrictions
      */
-    protected MappedQueueBlock(int nThreads, int maxRetryCount, boolean closeableByModel) {
+    protected MappedQueueBlock(int nThreads, int maxRetryCount, boolean closeableByModel, QueueKey initialQueueKey) {
         super(closeableByModel);
-        this.processor = new SimpleMappedQueueProcessor(maxRetryCount);
+        this.processor = new SimpleMappedQueueProcessor(maxRetryCount, initialQueueKey);
         this.threads = new Thread[nThreads];
-        for(int i = 0; i < nThreads; i++) {
+        for (int i = 0; i < nThreads; i++) {
             Thread t = new Thread(new CurrentQueueWatchingTask(i));
             this.threads[i] = t;
             t.start();
@@ -39,8 +39,8 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
 
     @Override
     public void close() {
-        for(Thread t : this.threads) {
-            if(t.isAlive()) t.interrupt();
+        for (Thread t : this.threads) {
+            if (t.isAlive()) t.interrupt();
         }
     }
 
@@ -48,8 +48,8 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
 
     private class SimpleMappedQueueProcessor extends MappedQueueProcessor<QueueKey, BlockPayload<Key, Input>> {
 
-        protected SimpleMappedQueueProcessor(int maxRetryCount) {
-            super(maxRetryCount);
+        protected SimpleMappedQueueProcessor(int maxRetryCount, QueueKey initialQueueKey) {
+            super(maxRetryCount, initialQueueKey);
         }
 
         @Override
@@ -76,9 +76,9 @@ public abstract class MappedQueueBlock<Key, QueueKey, Input, Output> extends Pro
 
         @SuppressWarnings({ "InfiniteLoopStatement", "BusyWait" })
         public void run() {
-            if(debug) Loggers.get(this).info("Thread #" + index + " started");
+            if (debug) Loggers.get(this).info("Thread #{} started", index);
             try {
-                while(true) {
+                while (true) {
                     if (processor.isCurrentQueueEmpty()) {
                         Thread.sleep(250);
                         continue;

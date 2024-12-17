@@ -55,15 +55,15 @@ public class MeshAreEquivalent {
 
         @Override
         public int compare(FaceIndex o1, FaceIndex o2) {
-            if(o1.equals(o2)) return 0;
+            if (o1.equals(o2)) return 0;
             int c0 = meshInfo.cornerIndexOfSmallestVertex.get(o1);
             int c1 = meshInfo.cornerIndexOfSmallestVertex.get(o2);
 
-            for(int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; ++i) {
                 VectorD.D3<Float> vf0 = getPosition(meshInfo.mesh, o1, (c0 + i) % 3);
                 VectorD.D3<Float> vf1 = getPosition(meshInfo.mesh, o2, (c1 + i) % 3);
-                if(vf0.compareTo(vf1) < 0) return -1;
-                if(vf0.compareTo(vf1) > 0) return 1;
+                if (vf0.compareTo(vf1) < 0) return -1;
+                if (vf0.compareTo(vf1) > 0) return 1;
             }
             // In case the two faces are equivalent.
             return 0;
@@ -76,17 +76,17 @@ public class MeshAreEquivalent {
     public <T> Status equals(Mesh mesh0, Mesh mesh1) {
         StatusChain chain = new StatusChain();
 
-        if(mesh0.getNumFaces() != mesh1.getNumFaces()) {
+        if (mesh0.getNumFaces() != mesh1.getNumFaces()) {
             return Status.invalidParameter("Number of faces mismatch");
         }
-        if(mesh0.getNumAttributes() != mesh1.getNumAttributes()) {
+        if (mesh0.getNumAttributes() != mesh1.getNumAttributes()) {
             return Status.invalidParameter("Number of attributes mismatch");
         }
 
-        if(this.init(mesh0, mesh1).isError(chain)) return chain.get();
+        if (this.init(mesh0, mesh1).isError(chain)) return chain.get();
 
         int attMax = GeometryAttribute.Type.NAMED_ATTRIBUTES_COUNT;
-        for(int attId = 0; attId < attMax; ++attId) {
+        for (int attId = 0; attId < attMax; ++attId) {
             GeometryAttribute.Type namedType = GeometryAttribute.Type.valueOf(attId);
             PointAttribute att0 = mesh0.getNamedAttribute(namedType);
             PointAttribute att1 = mesh1.getNamedAttribute(namedType);
@@ -113,13 +113,13 @@ public class MeshAreEquivalent {
             Pointer<T> data1 = dataType.newArray(numComponents);
 
             // Check every corner of every face.
-            for(int i = 0; i < numFaces; i++) {
+            for (int i = 0; i < numFaces; i++) {
                 FaceIndex f0 = meshInfos.get(0).orderedIndexOfFace.get(i);
                 FaceIndex f1 = meshInfos.get(1).orderedIndexOfFace.get(i);
                 int c0Off = meshInfos.get(0).cornerIndexOfSmallestVertex.get(f0);
                 int c1Off = meshInfos.get(1).cornerIndexOfSmallestVertex.get(f1);
 
-                for(int c = 0; c < 3; c++) {
+                for (int c = 0; c < 3; c++) {
                     PointIndex corner0 = mesh0.getFace(f0).get((c0Off + c) % 3);
                     PointIndex corner1 = mesh1.getFace(f1).get((c1Off + c) % 3);
                     AttributeValueIndex index0 = att0.getMappedIndex(corner0);
@@ -128,7 +128,7 @@ public class MeshAreEquivalent {
                     // Obtaining the data.
                     att0.getValue(index0, data0);
                     att1.getValue(index1, data1);
-                    if(!PointerHelper.contentEquals(data0, data1, numComponents)) {
+                    if (!PointerHelper.contentEquals(data0, data1, numComponents)) {
                         return Status.invalidParameter("Attribute data mismatch");
                     }
                 }
@@ -144,19 +144,19 @@ public class MeshAreEquivalent {
         meshInfos.add(new MeshInfo(mesh0));
         meshInfos.add(new MeshInfo(mesh1));
 
-        if(meshInfos.size() != 2) {
+        if (meshInfos.size() != 2) {
             return Status.invalidParameter("Mesh infos size mismatch");
         }
-        if(!meshInfos.get(0).cornerIndexOfSmallestVertex.isEmpty()) {
+        if (!meshInfos.get(0).cornerIndexOfSmallestVertex.isEmpty()) {
             return Status.invalidParameter("Corner index of smallest vertex is not empty");
         }
-        if(!meshInfos.get(1).cornerIndexOfSmallestVertex.isEmpty()) {
+        if (!meshInfos.get(1).cornerIndexOfSmallestVertex.isEmpty()) {
             return Status.invalidParameter("Corner index of smallest vertex is not empty");
         }
-        if(!meshInfos.get(0).orderedIndexOfFace.isEmpty()) {
+        if (!meshInfos.get(0).orderedIndexOfFace.isEmpty()) {
             return Status.invalidParameter("Ordered index of face is not empty");
         }
-        if(!meshInfos.get(1).orderedIndexOfFace.isEmpty()) {
+        if (!meshInfos.get(1).orderedIndexOfFace.isEmpty()) {
             return Status.invalidParameter("Ordered index of face is not empty");
         }
 
@@ -176,12 +176,12 @@ public class MeshAreEquivalent {
 
     private static int computeCornerIndexOfSmallestPointXYZ(Mesh mesh, FaceIndex f) {
         VectorD.D3<Float>[] pos = BTRUtil.uncheckedCast(new VectorD.D3[3]);
-        for(int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             pos[i] = getPosition(mesh, f, i);
         }
         int minIndex = 0;
-        for(int i = 1; i < 3; ++i) {
-            if(pos[i].compareTo(pos[minIndex]) < 0) {
+        for (int i = 1; i < 3; ++i) {
+            if (pos[i].compareTo(pos[minIndex]) < 0) {
                 minIndex = i;
             }
         }
@@ -189,46 +189,46 @@ public class MeshAreEquivalent {
     }
 
     private void initCornerIndexOfSmallestPointXYZ() {
-        if(!meshInfos.get(0).cornerIndexOfSmallestVertex.isEmpty()) {
+        if (!meshInfos.get(0).cornerIndexOfSmallestVertex.isEmpty()) {
             throw new IllegalStateException("Corner index of smallest vertex is not empty");
         }
-        if(!meshInfos.get(1).cornerIndexOfSmallestVertex.isEmpty()) {
+        if (!meshInfos.get(1).cornerIndexOfSmallestVertex.isEmpty()) {
             throw new IllegalStateException("Corner index of smallest vertex is not empty");
         }
-        for(int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; ++i) {
             meshInfos.get(i).cornerIndexOfSmallestVertex.reserve(numFaces);
-            for(FaceIndex f : FaceIndex.range(0, numFaces)) {
+            for (FaceIndex f : FaceIndex.range(0, numFaces)) {
                 meshInfos.get(i).cornerIndexOfSmallestVertex.pushBack(
                         computeCornerIndexOfSmallestPointXYZ(meshInfos.get(i).mesh, f));
             }
         }
-        if(meshInfos.get(0).cornerIndexOfSmallestVertex.size() != numFaces) {
+        if (meshInfos.get(0).cornerIndexOfSmallestVertex.size() != numFaces) {
             throw new IllegalStateException("Corner index of smallest vertex size mismatch");
         }
-        if(meshInfos.get(1).cornerIndexOfSmallestVertex.size() != numFaces) {
+        if (meshInfos.get(1).cornerIndexOfSmallestVertex.size() != numFaces) {
             throw new IllegalStateException("Corner index of smallest vertex size mismatch");
         }
     }
 
     private void initOrderedFaceIndex() {
-        if(!meshInfos.get(0).orderedIndexOfFace.isEmpty()) {
+        if (!meshInfos.get(0).orderedIndexOfFace.isEmpty()) {
             throw new IllegalStateException("Ordered index of face is not empty");
         }
-        if(!meshInfos.get(1).orderedIndexOfFace.isEmpty()) {
+        if (!meshInfos.get(1).orderedIndexOfFace.isEmpty()) {
             throw new IllegalStateException("Ordered index of face is not empty");
         }
-        for(int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; ++i) {
             meshInfos.get(i).orderedIndexOfFace.reserve(numFaces);
-            for(FaceIndex j : FaceIndex.range(0, numFaces)) {
+            for (FaceIndex j : FaceIndex.range(0, numFaces)) {
                 meshInfos.get(i).orderedIndexOfFace.pushBack(j);
             }
             FaceIndexLess less = new FaceIndexLess(meshInfos.get(i));
             meshInfos.get(i).orderedIndexOfFace.sort(less);
 
-            if(meshInfos.get(i).orderedIndexOfFace.size() != numFaces) {
+            if (meshInfos.get(i).orderedIndexOfFace.size() != numFaces) {
                 throw new IllegalStateException("Ordered index of face size mismatch");
             }
-            if(!meshInfos.get(i).orderedIndexOfFace.isSorted(less)) {
+            if (!meshInfos.get(i).orderedIndexOfFace.isSorted(less)) {
                 throw new IllegalStateException("Ordered index of face is not sorted");
             }
         }

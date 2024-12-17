@@ -40,11 +40,11 @@ public class SequentialIntegerAttributeEncodingTest {
 
         PointAttribute pa = new PointAttribute();
         pa.init(GeometryAttribute.Type.GENERIC, (byte) 1, DracoDataType.INT32, false, values.length);
-        for(int i = 0; i < values.length; ++i) {
+        for (int i = 0; i < values.length; ++i) {
             pa.setAttributeValue(AttributeValueIndex.of(i), valuesPointer.add(i));
         }
         CppVector<PointIndex> pointIds = new CppVector<>(PointIndex.type(), values.length);
-        for(int i = 0; i < values.length; ++i) {
+        for (int i = 0; i < values.length; ++i) {
             pointIds.set(i, PointIndex.of(i));
         }
 
@@ -64,7 +64,7 @@ public class SequentialIntegerAttributeEncodingTest {
         StatusAssert.assertOk(id.decodeDataNeededByPortableTransform(pointIds, inBuf));
         StatusAssert.assertOk(id.transformAttributeToOriginalFormat(pointIds));
 
-        for(int i = 0; i < values.length; ++i) {
+        for (int i = 0; i < values.length; ++i) {
             Pointer<Integer> entryVal = Pointer.newInt();
             pa.getValue(AttributeValueIndex.of(i), entryVal);
             Assert.assertEquals(values[i], entryVal.get().intValue());

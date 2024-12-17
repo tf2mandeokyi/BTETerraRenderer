@@ -37,7 +37,7 @@ public class CategoryMap<T> {
 	@Nonnull
 	public Wrapper<T> getItemWrapper(String categoryName, String elementId) {
 		Category<T> category = map.get(categoryName);
-		if(category == null) return new Wrapper<>(null, null, null);
+		if (category == null) return new Wrapper<>(null, null, null);
 		Wrapper<T> wrapped = category.get(elementId);
 		return wrapped != null ? wrapped : new Wrapper<>(category, null, null);
 	}
@@ -59,7 +59,7 @@ public class CategoryMap<T> {
 	}
 
 	public void setSource(String source) {
-		for(Category<T> category : map.values()) {
+		for (Category<T> category : map.values()) {
 			category.setSource(source);
 		}
 	}
@@ -100,12 +100,12 @@ public class CategoryMap<T> {
 
 		@Override
 		public boolean equals(Object o) {
-			if(this == o) return true;
-			if(o == null || getClass() != o.getClass()) return false;
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
 
 			Wrapper<?> wrapper = (Wrapper<?>) o;
-			if(!Objects.equals(source, wrapper.source)) return false;
-			if(!Objects.equals(parentCategory.name, wrapper.parentCategory.name)) return false;
+			if (!Objects.equals(source, wrapper.source)) return false;
+			if (!Objects.equals(parentCategory.name, wrapper.parentCategory.name)) return false;
 			return Objects.equals(id, wrapper.id);
 		}
 	}
@@ -115,11 +115,11 @@ public class CategoryMap<T> {
 		public void serialize(CategoryMap<Object> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 			gen.writeStartObject(); // main
 
-			for(Map.Entry<String, Category<Object>> categoryEntry : value.getCategories()) {
+			for (Map.Entry<String, Category<Object>> categoryEntry : value.getCategories()) {
 				gen.writeFieldName(categoryEntry.getKey());
 				gen.writeStartObject();
 
-				for(Map.Entry<String, Wrapper<Object>> wrapperEntry : categoryEntry.getValue().entrySet()) {
+				for (Map.Entry<String, Wrapper<Object>> wrapperEntry : categoryEntry.getValue().entrySet()) {
 					gen.writeFieldName(wrapperEntry.getKey());
 					gen.writeObject(wrapperEntry.getValue().item);
 				}
@@ -150,16 +150,16 @@ public class CategoryMap<T> {
 			JsonNode node = ctxt.readTree(p);
 			CategoryMap<Object> result = new CategoryMap<>();
 
-			for(Iterator<Map.Entry<String, JsonNode>> categoryIt = node.fields(); categoryIt.hasNext(); ) {
+			for (Iterator<Map.Entry<String, JsonNode>> categoryIt = node.fields(); categoryIt.hasNext(); ) {
 				Map.Entry<String, JsonNode> categoryEntry = categoryIt.next();
 				String categoryName = categoryEntry.getKey();
 				JsonNode categoryNode = categoryEntry.getValue();
 
-				if(!categoryNode.isObject())
+				if (!categoryNode.isObject())
 					throw JsonMappingException.from(p, "category should be an object");
 
 				Category<Object> category = new Category<>(categoryName);
-				for(Iterator<Map.Entry<String, JsonNode>> it = categoryNode.fields(); it.hasNext(); ) {
+				for (Iterator<Map.Entry<String, JsonNode>> it = categoryNode.fields(); it.hasNext(); ) {
 					Map.Entry<String, JsonNode> valueEntry = it.next();
 					String valueId = valueEntry.getKey();
 					Object valueObject = ctxt.readTreeAsValue(valueEntry.getValue(), this.valueType);

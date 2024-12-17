@@ -40,9 +40,9 @@ public class FontWrapperImpl extends FontWrapper<FontRenderer> {
     public StyleWrapper getStyleComponentFromLine(@Nonnull TextWrapper textWrapper, int mouseXFromLeft) {
         int xPos = 0;
         ITextComponent clicked = null, textComponent = textWrapper.get();
-        for(ITextComponent child : textComponent.getSiblings()) {
+        for (ITextComponent child : textComponent.getSiblings()) {
             int childWidth = this.getWidth(new TextWrapper(child));
-            if(xPos <= mouseXFromLeft && mouseXFromLeft <= xPos + childWidth) {
+            if (xPos <= mouseXFromLeft && mouseXFromLeft <= xPos + childWidth) {
                 clicked = child; break;
             }
             xPos += childWidth;

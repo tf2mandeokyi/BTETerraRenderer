@@ -164,7 +164,7 @@ public enum InputKey {
     }
 
     static {
-        for(InputKey key : values()) {
+        for (InputKey key : values()) {
             GLFW_KEYCODE_MAP.put(key.glfwKeyCode, key);
             KEYCODE_MAP.put(key.keyboardCode, key);
         }

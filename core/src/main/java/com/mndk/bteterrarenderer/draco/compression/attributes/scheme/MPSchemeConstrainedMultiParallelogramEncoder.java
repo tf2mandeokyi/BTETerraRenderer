@@ -44,14 +44,14 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
         int numBits;
         int residualError;
         @Override public int compareTo(Error o) {
-            if(numBits < o.numBits) return -1;
-            if(numBits > o.numBits) return 1;
+            if (numBits < o.numBits) return -1;
+            if (numBits > o.numBits) return 1;
             return Integer.compare(residualError, o.residualError);
         }
     }
 
     private final List<CppVector<Boolean>> isCreaseEdge = new ArrayList<>(); {
-        for(int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
+        for (int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
             isCreaseEdge.add(new CppVector<>(DataType.bool()));
         }
     }
@@ -75,7 +75,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
         // Predicted values for all simple parallelograms encountered at any given vertex.
         List<CppVector<DataT>> predVals = new ArrayList<>();
-        for(int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
+        for (int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
             predVals.add(new CppVector<>(dataType, numComponents));
         }
         // Used to store predicted value for various multi-parallelogram predictions.
@@ -104,7 +104,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
         // We start processing the vertices from the end because this prediction uses
         // data from previous entries that could be overwritten when an entry is processed.
-        for(int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
+        for (int p = (int) (this.getMeshData().getDataToCornerMap().size() - 1); p > 0; p--) {
             CornerIndex startCornerId = this.getMeshData().getDataToCornerMap().get(p);
 
             // Go over all corners attached to the vertex and compute the predicted
@@ -112,11 +112,11 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
             CornerIndex cornerId = startCornerId;
             int numParallelograms = 0;
             boolean firstPass = true;
-            while(cornerId.isValid()) {
+            while (cornerId.isValid()) {
                 Status status = MPSchemeParallelogram.computeParallelogramPrediction(
                         p, cornerId, table, vertexToDataMap, inData, numComponents,
                         predVals.get(numParallelograms).getPointer());
-                if(status.isOk()) {
+                if (status.isOk()) {
                     ++numParallelograms;
                     if (numParallelograms == MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS) {
                         break;
@@ -125,10 +125,10 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
                 // Proceed to the next corner attached to the vertex.
                 cornerId = firstPass ? table.swingLeft(cornerId) : table.swingRight(cornerId);
-                if(cornerId.equals(startCornerId)) {
+                if (cornerId.equals(startCornerId)) {
                     break;
                 }
-                if(cornerId.isInvalid() && firstPass) {
+                if (cornerId.isInvalid() && firstPass) {
                     firstPass = false;
                     cornerId = table.swingRight(startCornerId);
                 }
@@ -141,7 +141,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
             Error error = computeError(inData.add(srcOffset), inData.add(dstOffset),
                     currentResiduals.getPointer(), numComponents);
 
-            if(numParallelograms > 0) {
+            if (numParallelograms > 0) {
                 totalParallelograms[numParallelograms - 1] += numParallelograms;
                 long newOverheadBits = computeOverheadBits(
                         totalUsedParallelograms[numParallelograms - 1],
@@ -158,27 +158,27 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
             bestPrediction.residuals.assign(currentResiduals.getPointer(), currentResiduals.size());
 
             // Compute prediction error for different cases of used parallelograms.
-            for(int numUsedParallelograms = 1; numUsedParallelograms <= numParallelograms; ++numUsedParallelograms) {
+            for (int numUsedParallelograms = 1; numUsedParallelograms <= numParallelograms; ++numUsedParallelograms) {
                 int finalNumUsedParallelograms = numUsedParallelograms;
                 PointerHelper.fill(excludedParallelograms, numParallelograms, true);
                 PointerHelper.fill(excludedParallelograms, finalNumUsedParallelograms, false);
                 do {
-                    for(int j = 0; j < numComponents; ++j) {
+                    for (int j = 0; j < numComponents; ++j) {
                         multiPredVals.set(j, dataType.from(0));
                     }
                     UByte configuration = UByte.ZERO;
-                    for(int j = 0; j < numParallelograms; ++j) {
-                        if(excludedParallelograms.get(j)) {
+                    for (int j = 0; j < numParallelograms; ++j) {
+                        if (excludedParallelograms.get(j)) {
                             continue;
                         }
-                        for(int c = 0; c < numComponents; ++c) {
+                        for (int c = 0; c < numComponents; ++c) {
                             DataT predVal = predVals.get(j).get(c);
                             multiPredVals.set(c, val -> dataType.add(val, predVal));
                         }
                         configuration = configuration.or(UByte.of(1 << j));
                     }
 
-                    for(int j = 0; j < numComponents; j++) {
+                    for (int j = 0; j < numComponents; j++) {
                         multiPredVals.set(j, val -> dataType.div(val, finalNumUsedParallelograms));
                     }
                     error = computeError(multiPredVals.getPointer(), inData.add(dstOffset),
@@ -189,27 +189,27 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
                     // Add overhead bits to the total error.
                     error.numBits += (int) newOverheadBits;
-                    if(error.compareTo(bestPrediction.error) < 0) {
+                    if (error.compareTo(bestPrediction.error) < 0) {
                         bestPrediction.error = error;
                         bestPrediction.configuration = configuration;
                         bestPrediction.numUsedParallelograms = finalNumUsedParallelograms;
                         bestPrediction.predictedValue.assign(multiPredVals.getPointer(), multiPredVals.size());
                         bestPrediction.residuals.assign(currentResiduals.getPointer(), currentResiduals.size());
                     }
-                } while(PointerHelper.nextPermutation(excludedParallelograms, numParallelograms, Boolean::compare));
+                } while (PointerHelper.nextPermutation(excludedParallelograms, numParallelograms, Boolean::compare));
             }
-            if(numParallelograms > 0) {
+            if (numParallelograms > 0) {
                 totalUsedParallelograms[numParallelograms - 1] += bestPrediction.numUsedParallelograms;
             }
 
             // Update the entropy stream by adding selected residuals as symbols to the stream.
-            for(int i = 0; i < numComponents; ++i) {
+            for (int i = 0; i < numComponents; ++i) {
                 entropySymbols.set(i, BitUtils.convertSignedIntToSymbol(DataType.int32(), bestPrediction.residuals.get(i),
                         DataType.uint32()));
             }
             entropyTracker.push(entropySymbols.getPointer(), numComponents);
 
-            for(int i = 0; i < numParallelograms; i++) {
+            for (int i = 0; i < numParallelograms; i++) {
                 isCreaseEdge.get(numParallelograms - 1).pushBack(
                         bestPrediction.configuration.and(1 << i).equals(0));
             }
@@ -217,7 +217,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
                     outCorr.add(dstOffset));
         }
         // First element is always fixed because it cannot be predicted.
-        for(int i = 0; i < numComponents; ++i) {
+        for (int i = 0; i < numComponents; ++i) {
             predVals.get(0).set(i, dataType.from(0));
         }
         this.getTransform().computeCorrection(inData, predVals.get(0).getPointer(), outCorr);
@@ -226,15 +226,15 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
 
     @Override
     public Status encodePredictionData(EncoderBuffer buffer) {
-        for(int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
+        for (int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
             int numUsedParallelograms = i + 1;
             buffer.encodeVarint(DataType.uint32(), UInt.of(isCreaseEdge.get(i).size()));
-            if(!isCreaseEdge.get(i).isEmpty()) {
+            if (!isCreaseEdge.get(i).isEmpty()) {
                 RAnsBitEncoder encoder = new RAnsBitEncoder();
                 encoder.startEncoding();
 
-                for(int j = (int) (isCreaseEdge.get(i).size() - numUsedParallelograms); j >= 0; j -= numUsedParallelograms) {
-                    for(int k = 0; k < numUsedParallelograms; ++k) {
+                for (int j = (int) (isCreaseEdge.get(i).size() - numUsedParallelograms); j >= 0; j -= numUsedParallelograms) {
+                    for (int k = 0; k < numUsedParallelograms; ++k) {
                         encoder.encodeBit(isCreaseEdge.get(i).get(j + k));
                     }
                 }
@@ -265,7 +265,7 @@ public class MPSchemeConstrainedMultiParallelogramEncoder<DataT, CorrT> extends 
         Error error = new Error();
         DataNumberType<DataT> dataType = this.getDataType();
 
-        for(int i = 0; i < numComponents; ++i) {
+        for (int i = 0; i < numComponents; ++i) {
             int dif = dataType.toInt(dataType.sub(predictedVal.get(i), actualVal.get(i)));
             error.residualError += Math.abs(dif);
             outResiduals.set(i, dif);

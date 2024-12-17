@@ -57,21 +57,21 @@ public class VertexCornersIterator implements Iterator<CornerIndex> {
         CornerIndex tempCorner = corner;
         boolean tempTraversal = leftTraversal;
 
-        if(tempCorner == null) {
+        if (tempCorner == null) {
             tempCorner = startCorner;
-        } else if(tempTraversal) {
+        } else if (tempTraversal) {
             tempCorner = cornerTable.swingLeft(tempCorner);
-            if(tempCorner.isInvalid()) {
+            if (tempCorner.isInvalid()) {
                 tempCorner = cornerTable.swingRight(startCorner);
                 tempTraversal = false;
-            } else if(tempCorner.equals(startCorner)) {
+            } else if (tempCorner.equals(startCorner)) {
                 tempCorner = CornerIndex.INVALID;
             }
         } else {
             tempCorner = cornerTable.swingRight(tempCorner);
         }
 
-        if(apply) {
+        if (apply) {
             corner = tempCorner;
             leftTraversal = tempTraversal;
         }

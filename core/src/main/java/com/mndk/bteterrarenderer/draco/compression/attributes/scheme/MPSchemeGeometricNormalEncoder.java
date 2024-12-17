@@ -50,10 +50,10 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
         DataNumberType<CorrT> corrType = this.getCorrType().asNumber();
         this.setQuantizationBits(this.getTransform().getQuantizationBits());
         this.predictor.setEntryToPointIdMap(entryToPointIdMap);
-        if(!this.isInitialized()) {
+        if (!this.isInitialized()) {
             return Status.dracoError("Predictor is not initialized");
         }
-        if(numComponents != 2) {
+        if (numComponents != 2) {
             return Status.invalidParameter("Expecting in_data in octahedral coordinates");
         }
 
@@ -66,13 +66,13 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
         VectorD.D2<Integer> negPredNormalOct = VectorD.int2();
         VectorD.D2<Integer> posCorrection = VectorD.int2();
         VectorD.D2<Integer> negCorrection = VectorD.int2();
-        for(int dataId = 0; dataId < cornerMapSize; dataId++) {
+        for (int dataId = 0; dataId < cornerMapSize; dataId++) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(dataId);
             this.predictor.computePredictedValue(cornerId, predNormal3D.getPointer().asRawTo(dataType));
 
             // Compute predicted octahedral coordinates
             octahedronToolBox.canonicalizeIntegerVector(predNormal3D.getPointer().asRawTo(dataType));
-            if(predNormal3D.absSum() != octahedronToolBox.getCenterValue()) {
+            if (predNormal3D.absSum() != octahedronToolBox.getCenterValue()) {
                 return Status.dracoError("Invalid normal");
             }
 
@@ -94,7 +94,7 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
             negCorrection.set(0, octahedronToolBox.modMax(negCorrection.get(0)));
             negCorrection.set(1, octahedronToolBox.modMax(negCorrection.get(1)));
             Pointer<CorrT> outOffset = outCorr.add(dataOffset);
-            if(posCorrection.absSum() < negCorrection.absSum()) {
+            if (posCorrection.absSum() < negCorrection.absSum()) {
                 flipNormalBitEncoder.encodeBit(false);
                 outOffset.set(0, corrType.from(octahedronToolBox.makePositive(posCorrection.get(0))));
                 outOffset.set(1, corrType.from(octahedronToolBox.makePositive(posCorrection.get(1))));
@@ -111,7 +111,7 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
     @Override
     public Status encodePredictionData(EncoderBuffer buffer) {
         Status status = this.getTransform().encodeTransformData(buffer);
-        if(status.isError()) return status;
+        if (status.isError()) return status;
         flipNormalBitEncoder.endEncoding(buffer);
         return Status.ok();
     }
@@ -133,16 +133,16 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
 
     @Override
     public GeometryAttribute.Type getParentAttributeType(int i) {
-        if(i != 0) throw new IllegalArgumentException("Invalid parent attribute index");
+        if (i != 0) throw new IllegalArgumentException("Invalid parent attribute index");
         return GeometryAttribute.Type.POSITION;
     }
 
     @Override
     public Status setParentAttribute(PointAttribute att) {
-        if(att.getAttributeType() != GeometryAttribute.Type.POSITION) {
+        if (att.getAttributeType() != GeometryAttribute.Type.POSITION) {
             return Status.invalidParameter("Invalid attribute type");
         }
-        if(!att.getNumComponents().equals(3)) {
+        if (!att.getNumComponents().equals(3)) {
             return Status.invalidParameter("Currently works only for 3 component positions");
         }
         predictor.setPositionAttribute(att);
@@ -150,7 +150,7 @@ public class MPSchemeGeometricNormalEncoder<DataT, CorrT> extends MPSchemeEncode
     }
 
     private void setQuantizationBits(int q) {
-        if(q < 2 || q > 30) {
+        if (q < 2 || q > 30) {
             throw new IllegalArgumentException("Quantization bits must be between 2 and 30");
         }
         octahedronToolBox.setQuantizationBits(q);

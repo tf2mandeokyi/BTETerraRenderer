@@ -47,12 +47,12 @@ public class MeshTraversalSequencer extends PointsSequencer {
         attribute.setExplicitMapping(mesh.getNumPoints());
         int numFaces = mesh.getNumFaces();
         int numPoints = mesh.getNumPoints();
-        for(FaceIndex f : FaceIndex.range(0, numFaces)) {
+        for (FaceIndex f : FaceIndex.range(0, numFaces)) {
             Mesh.Face face = mesh.getFace(f);
-            for(int p = 0; p < 3; ++p) {
+            for (int p = 0; p < 3; ++p) {
                 PointIndex pointId = face.get(p);
                 VertexIndex vertId = cornerTable.getVertex(CornerIndex.of(3 * f.getValue() + p));
-                if(vertId.isInvalid()) {
+                if (vertId.isInvalid()) {
                     return Status.ioError("Invalid vertex index");
                 }
                 AttributeValueIndex attEntryId = AttributeValueIndex.of(
@@ -77,14 +77,14 @@ public class MeshTraversalSequencer extends PointsSequencer {
         this.getOutPointIds().reserve(traverser.getCornerTable().getNumVertices());
 
         traverser.onTraversalStart();
-        if(cornerOrder != null) {
-            for(CornerIndex cornerIndex : cornerOrder) {
-                if(this.processCorner(cornerIndex).isError(chain)) return chain.get();
+        if (cornerOrder != null) {
+            for (CornerIndex cornerIndex : cornerOrder) {
+                if (this.processCorner(cornerIndex).isError(chain)) return chain.get();
             }
         } else {
             int numFaces = traverser.getCornerTable().getNumFaces();
-            for(int i = 0; i < numFaces; ++i) {
-                if(this.processCorner(CornerIndex.of(3 * i)).isError(chain)) return chain.get();
+            for (int i = 0; i < numFaces; ++i) {
+                if (this.processCorner(CornerIndex.of(3 * i)).isError(chain)) return chain.get();
             }
         }
         traverser.onTraversalEnd();

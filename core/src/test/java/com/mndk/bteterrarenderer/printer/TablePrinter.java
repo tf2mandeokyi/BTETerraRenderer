@@ -17,22 +17,22 @@ public class TablePrinter {
     public void print(PrintStream stream) {
         int[] widths = new int[table.size()];
         int maxRowCount = 0;
-        for(int columnIndex = 0; columnIndex < table.size(); ++columnIndex) {
+        for (int columnIndex = 0; columnIndex < table.size(); ++columnIndex) {
             List<String> column = table.get(columnIndex);
             widths[columnIndex] = -1;
-            for(String row : column) {
+            for (String row : column) {
                 widths[columnIndex] = Math.max(widths[columnIndex], row.length());
             }
             maxRowCount = Math.max(maxRowCount, column.size());
         }
 
-        for(int lineIndex = 0; lineIndex < maxRowCount; ++lineIndex) {
-            for(int columnIndex = 0; columnIndex < table.size(); ++columnIndex) {
+        for (int lineIndex = 0; lineIndex < maxRowCount; ++lineIndex) {
+            for (int columnIndex = 0; columnIndex < table.size(); ++columnIndex) {
                 List<String> column = table.get(columnIndex);
                 String cell = lineIndex < column.size() ? column.get(lineIndex) : "";
-                if(widths[columnIndex] != -1) {
+                if (widths[columnIndex] != -1) {
                     stream.printf("%-" + widths[columnIndex] + "s", cell);
-                    if(columnIndex != table.size() - 1) stream.print(attachDelimiter);
+                    if (columnIndex != table.size() - 1) stream.print(attachDelimiter);
                 }
             }
             stream.println();

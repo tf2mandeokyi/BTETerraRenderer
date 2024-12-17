@@ -32,7 +32,7 @@ public class FlatTileURLConverter {
         Matcher m = Pattern.compile("\\{random:([^{}]+)}").matcher(url);
         StringBuffer buffer = new StringBuffer();
         Random r = new Random();
-        while(m.find()) {
+        while (m.find()) {
             String[] randoms = m.group(1).split(",");
             m.appendReplacement(buffer, randoms[r.nextInt(randoms.length)]);
         }

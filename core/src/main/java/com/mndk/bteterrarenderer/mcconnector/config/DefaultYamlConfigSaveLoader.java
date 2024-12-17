@@ -83,10 +83,10 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
         } catch (JsonProcessingException e) {
             Loggers.get(this).error("Caught json error while reading config.yml", e);
             return;
-        } catch(FileNotFoundException ignored) {
+        } catch (FileNotFoundException ignored) {
             Loggers.get(this).warn("config.yml missing, thus will not load config");
             return;
-        } catch(IOException e) {
+        } catch (IOException e) {
             Loggers.get(this).error("Caught IO error while loading config.yml", e);
             return;
         }
@@ -95,18 +95,18 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
     }
 
     private void loadMap(Map<String, Object> source, Map<String, Object> destination) {
-        for(Map.Entry<String, Object> entry : destination.entrySet()) {
+        for (Map.Entry<String, Object> entry : destination.entrySet()) {
             String key = entry.getKey();
-            if(!source.containsKey(key)) continue;
+            if (!source.containsKey(key)) continue;
 
             Object oldValue = entry.getValue(), newValue = source.get(key);
-            if(oldValue instanceof Map) {
-                if(!(newValue instanceof Map)) continue;
+            if (oldValue instanceof Map) {
+                if (!(newValue instanceof Map)) continue;
 
                 this.loadMap(BTRUtil.uncheckedCast(newValue), BTRUtil.uncheckedCast(oldValue));
             }
-            else if(oldValue instanceof Enum) {
-                if(!(newValue instanceof String)) continue;
+            else if (oldValue instanceof Enum) {
+                if (!(newValue instanceof String)) continue;
 
                 destination.put(key, Enum.valueOf(BTRUtil.uncheckedCast(oldValue.getClass()), (String) newValue));
             }

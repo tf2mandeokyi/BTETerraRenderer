@@ -51,12 +51,12 @@ public class MeshEdgebreakerTraversalPredictiveDecoder extends MeshEdgebreakerTr
     @Override
     public Status start(DecoderBuffer outBuffer) {
         StatusChain chain = new StatusChain();
-        if(super.start(outBuffer).isError(chain)) return chain.get();
+        if (super.start(outBuffer).isError(chain)) return chain.get();
 
         Pointer<Integer> numSplitSymbolsRef = Pointer.newInt();
-        if(outBuffer.decode(numSplitSymbolsRef).isError(chain)) return chain.get();
+        if (outBuffer.decode(numSplitSymbolsRef).isError(chain)) return chain.get();
         int numSplitSymbols = numSplitSymbolsRef.get();
-        if(numSplitSymbols < 0 || numSplitSymbols >= numVertices) {
+        if (numSplitSymbols < 0 || numSplitSymbols >= numVertices) {
             return Status.ioError("Invalid number of split symbols: " + numSplitSymbols + " (numVertices = " + numVertices + ")");
         }
 
@@ -68,9 +68,9 @@ public class MeshEdgebreakerTraversalPredictiveDecoder extends MeshEdgebreakerTr
     @Override
     public EdgebreakerTopology decodeSymbol() {
         // First check if we have a predicted symbol.
-        if(predictedSymbol != EdgebreakerTopology.INVALID) {
+        if (predictedSymbol != EdgebreakerTopology.INVALID) {
             // Double check that the predicted symbol was predicted correctly.
-            if(predictionDecoder.decodeNextBit()) {
+            if (predictionDecoder.decodeNextBit()) {
                 lastSymbol = predictedSymbol;
                 return predictedSymbol;
             }
@@ -85,7 +85,7 @@ public class MeshEdgebreakerTraversalPredictiveDecoder extends MeshEdgebreakerTr
         CornerIndex next = cornerTable.next(corner);
         CornerIndex prev = cornerTable.previous(corner);
         // Update valences.
-        switch(lastSymbol) {
+        switch (lastSymbol) {
             case C:
             case S:
                 vertexValences.set(cornerTable.getVertex(next).getValue(), val -> val + 1);
@@ -110,9 +110,9 @@ public class MeshEdgebreakerTraversalPredictiveDecoder extends MeshEdgebreakerTr
                 break;
         }
         // Compute the new predicted symbol.
-        if(lastSymbol == EdgebreakerTopology.C || lastSymbol == EdgebreakerTopology.R) {
+        if (lastSymbol == EdgebreakerTopology.C || lastSymbol == EdgebreakerTopology.R) {
             int pivot = cornerTable.getVertex(cornerTable.next(corner)).getValue();
-            if(vertexValences.get(pivot) < 6) {
+            if (vertexValences.get(pivot) < 6) {
                 predictedSymbol = EdgebreakerTopology.R;
             } else {
                 predictedSymbol = EdgebreakerTopology.C;

@@ -43,9 +43,9 @@ public class VertexRingIterator<T extends ICornerTable> implements Iterator<Vert
         CornerIndex tempCorner = corner;
         boolean tempTraversal = leftTraversal;
 
-        if(tempCorner == null) {
+        if (tempCorner == null) {
             tempCorner = startCorner;
-        } else if(tempTraversal) {
+        } else if (tempTraversal) {
             tempCorner = cornerTable.swingLeft(tempCorner);
             if (tempCorner.isInvalid()) {
                 tempCorner = startCorner;
@@ -58,7 +58,7 @@ public class VertexRingIterator<T extends ICornerTable> implements Iterator<Vert
         }
 
         CornerIndex ringCorner = tempTraversal ? cornerTable.previous(tempCorner) : cornerTable.next(tempCorner);
-        if(apply) {
+        if (apply) {
             corner = tempCorner;
             leftTraversal = tempTraversal;
         }

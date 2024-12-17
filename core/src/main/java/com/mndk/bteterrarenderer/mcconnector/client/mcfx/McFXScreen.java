@@ -24,7 +24,7 @@ public class McFXScreen<T extends McFXElement> extends AbstractGuiScreenCopy {
 
     @Override
     public void tick() {
-        if(prevScreenWidth != this.getWidth() || prevScreenHeight != this.getHeight()) {
+        if (prevScreenWidth != this.getWidth() || prevScreenHeight != this.getHeight()) {
             this.mainComponent.onWidthChange(this.getWidth());
             this.prevScreenWidth = this.getWidth();
             this.prevScreenHeight = this.getHeight();

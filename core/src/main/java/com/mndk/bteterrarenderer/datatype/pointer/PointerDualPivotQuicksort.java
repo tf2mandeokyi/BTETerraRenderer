@@ -27,9 +27,9 @@ class PointerDualPivotQuicksort {
 
         for (long k = left; k < right; run[count] = k) {
             if (c.compare(a.get(k), a.get(k + 1)) < 0) {
-                while(++k <= right && c.compare(a.get(k - 1), a.get(k)) <= 0);
+                while (++k <= right && c.compare(a.get(k - 1), a.get(k)) <= 0);
             } else if (c.compare(a.get(k), a.get(k + 1)) > 0) {
-                while(++k <= right && c.compare(a.get(k - 1), a.get(k)) >= 0);
+                while (++k <= right && c.compare(a.get(k - 1), a.get(k)) >= 0);
                 for (long lo = run[count] - 1, hi = k; ++lo < --hi; ) {
                     a.swap(lo, hi);
                 }

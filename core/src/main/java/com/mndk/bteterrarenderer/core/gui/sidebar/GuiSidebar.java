@@ -86,7 +86,7 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
     }
 
     private void updateSide() {
-        if(side.get() == SidebarSide.LEFT) {
+        if (side.get() == SidebarSide.LEFT) {
             McFXVerticalList sidebar = McFX.vList(0, 0)
                     .add(this.sideChangingButton)
                     .add(McFX.hList()
@@ -117,11 +117,11 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
     public boolean mouseHovered(int mouseX, int mouseY, float partialTicks) {
         this.isChatFocused = !this.chatScreenWrapper.isEmpty();
 
-        if(super.mouseHovered(mouseX, mouseY, partialTicks)) return true;
+        if (super.mouseHovered(mouseX, mouseY, partialTicks)) return true;
 
         // Width change bar
         boolean widthChangeBarHoverState = Math.abs(mouseX - this.getWidthChangeBarX()) <= 4;
-        if(widthChangeBarHoverState) {
+        if (widthChangeBarHoverState) {
             this.widthChangeBar.setBackgroundColor(WIDTH_CHANGE_BAR_COLOR_HOVERED);
             this.widthChangeBarShadow.setBackgroundColor(WIDTH_CHANGE_BAR_SHADOW_HOVERED);
         } else {
@@ -136,7 +136,7 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
         this.initialWidth = sidebarWidth.get();
         this.mouseClickX = mouseX;
 
-        if(super.mousePressed(mouseX, mouseY, mouseButton)) return true;
+        if (super.mousePressed(mouseX, mouseY, mouseButton)) return true;
         return this.widthChangingState = Math.abs(mouseX - this.getWidthChangeBarX()) <= 4;
     }
 
@@ -154,9 +154,9 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double pMouseX, double pMouseY) {
-        if(this.widthChangingState) {
+        if (this.widthChangingState) {
             double dMouseX = mouseX - mouseClickX;
-            if(side.get() == SidebarSide.RIGHT) dMouseX = -dMouseX;
+            if (side.get() == SidebarSide.RIGHT) dMouseX = -dMouseX;
 
             double sidebarWidth = BTRUtil.clamp(initialWidth + dMouseX, 180, 320);
             this.sidebarWidth.set(sidebarWidth);
@@ -169,14 +169,14 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
 
     @Override
     public boolean keyPressed(InputKey key, int scanCode, int modifiers) {
-        if(this.chatScreenWrapper.isEmpty()) {
-            if(key == InputKey.KEY_ESCAPE) {
+        if (this.chatScreenWrapper.isEmpty()) {
+            if (key == InputKey.KEY_ESCAPE) {
                 McConnector.client().displayGuiScreen(null);
                 return true;
             }
             // TODO: Use user-bound key instead of fixed key like this
             // TODO: Add slash
-            else if(key == InputKey.KEY_T) {
+            else if (key == InputKey.KEY_T) {
                 NativeGuiScreenWrapper<?> nativeScreen = McConnector.client().newChatScreen("");
                 NativeGuiScreenWrappedScreen screen = new NativeGuiScreenWrappedScreen(nativeScreen, true);
                 this.chatScreenWrapper.setScreen(screen);

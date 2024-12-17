@@ -48,8 +48,8 @@ public class SequentialQuantizationAttributeDecoder extends SequentialIntegerAtt
     protected Status decodeIntegerValues(CppVector<PointIndex> pointIds, DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(this.getDecoder().getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
-            if(this.decodeQuantizedDataInfo().isError(chain)) return chain.get();
+        if (this.getDecoder().getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 0)) {
+            if (this.decodeQuantizedDataInfo().isError(chain)) return chain.get();
         }
         return super.decodeIntegerValues(pointIds, inBuffer);
     }
@@ -58,8 +58,8 @@ public class SequentialQuantizationAttributeDecoder extends SequentialIntegerAtt
     public Status decodeDataNeededByPortableTransform(CppVector<PointIndex> pointIds, DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(this.getDecoder().getBitstreamVersion() >= DracoVersions.getBitstreamVersion(2, 0)) {
-            if(this.decodeQuantizedDataInfo().isError(chain)) return chain.get();
+        if (this.getDecoder().getBitstreamVersion() >= DracoVersions.getBitstreamVersion(2, 0)) {
+            if (this.decodeQuantizedDataInfo().isError(chain)) return chain.get();
         }
         return this.quantizationTransform.transferToAttribute(this.getPortableAttributeInternal());
     }

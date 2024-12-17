@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 
 import java.awt.image.BufferedImage;
@@ -55,6 +56,9 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         RenderSystem.setShaderTexture(0, textureObject.get());
     }
 
+    public NativeTextureWrapper getMissingTextureObject() {
+        return new NativeTextureWrapper(MissingTextureAtlasSprite.getLocation());
+    }
     @SneakyThrows
     public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
@@ -63,7 +67,7 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
                 .register("bteterrarenderer-textures", texture);
         return new NativeTextureWrapper(location);
     }
-    public void deleteTextureObject(NativeTextureWrapper textureObject) {
+    public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         Minecraft.getInstance().getTextureManager().release(textureObject.get());
     }
 

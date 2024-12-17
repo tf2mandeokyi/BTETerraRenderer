@@ -15,7 +15,7 @@ public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile,
 
 	@Override
 	public void refresh() {
-		if(result != null) {
+		if (result != null) {
 			for (val category : result.getCategories()) {
 				for (val entry : category.getValue().entrySet()) {
                     try {

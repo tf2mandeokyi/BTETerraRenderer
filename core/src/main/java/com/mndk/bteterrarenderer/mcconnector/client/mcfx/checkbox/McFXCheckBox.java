@@ -43,7 +43,7 @@ public class McFXCheckBox extends McFXElement {
 
     @Override
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        if(this.checkBox.mousePressed(mouseX, mouseY, mouseButton)) {
+        if (this.checkBox.mousePressed(mouseX, mouseY, mouseButton)) {
             propertyAccessor.set(this.checkBox.isChecked());
             return true;
         }

@@ -46,7 +46,7 @@ public class Mesh extends PointCloud {
         @Override public String toString() { return "Face{" + points[0] + ", " + points[1] + ", " + points[2] + "}"; }
         @Override public int hashCode() { return Objects.hash(points[0], points[1], points[2]); }
         @Override public boolean equals(Object obj) {
-            if(!(obj instanceof Face)) return false;
+            if (!(obj instanceof Face)) return false;
             Face other = (Face) obj;
             return points[0] == other.points[0] && points[1] == other.points[1] && points[2] == other.points[2];
         }
@@ -89,7 +89,7 @@ public class Mesh extends PointCloud {
 
     public void setAttribute(int attId, PointAttribute data) {
         super.setAttribute(attId, data);
-        if(attId >= attributeData.size()) {
+        if (attId >= attributeData.size()) {
             attributeData.resize(attId + 1);
         }
     }
@@ -122,8 +122,8 @@ public class Mesh extends PointCloud {
     protected void applyPointIdDeduplication(IndexTypeVector<PointIndex, PointIndex> idMap,
                                              CppVector<PointIndex> uniquePointIds) {
         super.applyPointIdDeduplication(idMap, uniquePointIds);
-        for(FaceIndex f : FaceIndex.range(0, getNumFaces())) {
-            for(int c = 0; c < 3; ++c) {
+        for (FaceIndex f : FaceIndex.range(0, getNumFaces())) {
+            for (int c = 0; c < 3; ++c) {
                 PointIndex p = faces.get(f).get(c);
                 faces.get(f).set(c, idMap.get(p));
             }

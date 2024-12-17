@@ -71,7 +71,7 @@ public class McFXNumberInput extends McFXElement {
 
     @Override
     public boolean handleScreenEscape() {
-        if(textField.isFocused()) {
+        if (textField.isFocused()) {
             textField.setFocused(false);
             return false;
         }

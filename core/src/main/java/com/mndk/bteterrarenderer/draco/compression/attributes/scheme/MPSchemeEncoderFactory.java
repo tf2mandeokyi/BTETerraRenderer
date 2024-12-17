@@ -30,7 +30,7 @@ public class MPSchemeEncoderFactory<DataT, CorrT>
             PSchemeEncodingTransform<DataT, CorrT> transform, MPSchemeData<?> meshData,
             UShort bitstreamVersion)
     {
-        switch(method) {
+        switch (method) {
             case MESH_PARALLELOGRAM:
                 return new MPSchemeParallelogramEncoder<>(attribute, transform, meshData);
             case MESH_MULTI_PARALLELOGRAM:

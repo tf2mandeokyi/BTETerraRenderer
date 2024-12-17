@@ -42,8 +42,8 @@ public enum EncodedGeometryType {
         return valueOf(value.intValue());
     }
     public static EncodedGeometryType valueOf(int value) {
-        for(EncodedGeometryType type : values()) {
-            if(type.value == value) return type;
+        for (EncodedGeometryType type : values()) {
+            if (type.value == value) return type;
         }
         return INVALID_GEOMETRY_TYPE;
     }

@@ -64,18 +64,18 @@ public class DataBuffer {
         return this.update(data, 0, size);
     }
     public Status update(@Nullable RawPointer data, long offset, long size) {
-        if(data == null) {
-            if(size + offset < 0) {
+        if (data == null) {
+            if (size + offset < 0) {
                 return Status.invalidParameter("Invalid offset: " + offset);
             }
             // If no data is provided, simply resize the buffer
             this.resize(size + offset);
         }
         else {
-            if(size < 0) {
+            if (size < 0) {
                 return Status.invalidParameter("Invalid size: " + size);
             }
-            if(size + offset > this.data.size()) {
+            if (size + offset > this.data.size()) {
                 this.resize(size + offset);
             }
             PointerHelper.rawCopy(data, this.data.getRawPointer().rawAdd(offset), size);

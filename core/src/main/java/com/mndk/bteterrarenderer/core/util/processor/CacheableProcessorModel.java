@@ -48,7 +48,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
 
     public synchronized void insertInput(Key key, Input input) {
         this.storage.setKeyInProcessingState(this, key);
-        if(this.blocks == null) this.blocks = this.getSequentialBuilder().build();
+        if (this.blocks == null) this.blocks = this.getSequentialBuilder().build();
         this.blocks.get(0).insert(new BlockPayload<>(this, key, input));
     }
 
@@ -59,7 +59,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     @Nullable
     public synchronized Output updateOrInsert(Key key, Supplier<Input> computeInputIfAbsent) {
         ProcessingState state = this.storage.getKeyState(key);
-        switch(state) {
+        switch (state) {
             case PROCESSED:
                 return this.updateAndGetOutput(key);
             case NOT_PROCESSED:
@@ -75,7 +75,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     @Nullable
     public synchronized Output updateOrInsert(Key key, Input input) {
         ProcessingState state = this.storage.getKeyState(key);
-        switch(state) {
+        switch (state) {
             case PROCESSED:
                 return this.updateAndGetOutput(key);
             case NOT_PROCESSED:
@@ -86,8 +86,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     }
 
     public synchronized void onProcessingDone(Key key, Output output, @Nullable Exception error) {
-        this.storage.storeValue(this, key, output, error,
-                resource -> this.deleteResource(BTRUtil.uncheckedCast(resource)));
+        this.storage.storeValue(this, key, output, error, this::deleteResource);
     }
 
     @Override
@@ -103,9 +102,9 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     @Override
     public synchronized void close() throws IOException {
         // Close blocks
-        for(ProcessingBlock<Key, ?, ?> block : blocks) {
-            if(!block.isCloseableByModel()) continue;
-            if(!(block instanceof Closeable)) continue;
+        for (ProcessingBlock<Key, ?, ?> block : blocks) {
+            if (!block.isCloseableByModel()) continue;
+            if (!(block instanceof Closeable)) continue;
             ((Closeable) block).close();
         }
         this.closed = true;

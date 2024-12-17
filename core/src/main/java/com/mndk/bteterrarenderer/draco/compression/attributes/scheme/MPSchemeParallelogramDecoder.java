@@ -49,12 +49,12 @@ public class MPSchemeParallelogramDecoder<DataT, CorrT> extends MPSchemeDecoder<
         this.getTransform().computeOriginalValue(predVals, inCorr, outData);
 
         int cornerMapSize = (int) this.getMeshData().getDataToCornerMap().size();
-        for(int p = 1; p < cornerMapSize; ++p) {
+        for (int p = 1; p < cornerMapSize; ++p) {
             CornerIndex cornerId = this.getMeshData().getDataToCornerMap().get(p);
             int dstOffset = p * numComponents;
             Status status = MPSchemeParallelogram.computeParallelogramPrediction(
                     p, cornerId, table, vertexToDataMap, outData, numComponents, predVals);
-            if(status.isError()) {
+            if (status.isError()) {
                 // Parallelogram could not be computed, Possible because some of the
                 // vertices are not valid (not encoded yet).
                 // We use the last encoded point as a reference (delta coding).

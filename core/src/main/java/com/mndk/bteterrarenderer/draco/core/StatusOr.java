@@ -25,6 +25,7 @@ import java.util.function.Function;
 
 import static com.mndk.bteterrarenderer.draco.core.Status.Code.*;
 
+@SuppressWarnings("unused")
 @RequiredArgsConstructor
 public class StatusOr<T> {
 
@@ -68,7 +69,7 @@ public class StatusOr<T> {
     }
 
     public T getValueOr(Consumer<Status> consumer) {
-        if(status.isError()) {
+        if (status.isError()) {
             consumer.accept(status);
             return null;
         }
@@ -76,12 +77,12 @@ public class StatusOr<T> {
     }
 
     public T getValueOr(Function<Status, T> function) {
-        if(status.isError()) return function.apply(status);
+        if (status.isError()) return function.apply(status);
         return value;
     }
 
     public T getValue() {
-        if(status.isError()) throw status.getException();
+        if (status.isError()) throw status.getException();
         return value;
     }
 }

@@ -34,7 +34,7 @@ public class Dequantizer {
     * provided to the initializer of the {@link Quantizer} class.
     */
     public Status init(float range, int maxQuantizedValue) {
-        if(maxQuantizedValue <= 0) {
+        if (maxQuantizedValue <= 0) {
             return Status.invalidParameter("max_quantized_value must be greater than 0");
         }
         this.delta = range / maxQuantizedValue;

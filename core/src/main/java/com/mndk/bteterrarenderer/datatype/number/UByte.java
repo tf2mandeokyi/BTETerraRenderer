@@ -13,7 +13,7 @@ public class UByte extends CppNumber<UByte> {
     // 256 isn't that big of a number, so we can make a cache table for all possible values
     private static final UByte[] CACHE = new UByte[256];
     private static final int CACHE_OFFSET = 128;
-    static { for(int i = 0; i < 256; ++i) CACHE[i] = new UByte((byte) (i - CACHE_OFFSET)); }
+    static { for (int i = 0; i < 256; ++i) CACHE[i] = new UByte((byte) (i - CACHE_OFFSET)); }
 
     public static final UByte MIN = of((byte) 0);
     public static final UByte MAX = of((byte) -1);

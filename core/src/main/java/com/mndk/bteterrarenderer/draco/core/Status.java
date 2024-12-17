@@ -83,7 +83,7 @@ public class Status {
 
     @Nullable
     static StackTraceElement[] generateStackTrace() {
-        if(!DEBUG) return null;
+        if (!DEBUG) return null;
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         StackTraceElement[] newStackTrace = new StackTraceElement[stackTrace.length - 4];
         System.arraycopy(stackTrace, 4, newStackTrace, 0, newStackTrace.length);
@@ -99,8 +99,8 @@ public class Status {
     }
 
     public boolean isError(@Nullable StatusChain chain) {
-        if(this.code != Code.OK) {
-            if(chain != null) chain.set(this);
+        if (this.code != Code.OK) {
+            if (chain != null) chain.set(this);
             return true;
         }
         return false;
@@ -117,19 +117,19 @@ public class Status {
     }
 
     public void throwException() {
-        if(this.isError()) throw this.getException();
+        if (this.isError()) throw this.getException();
     }
 
     @Override
     public String toString() {
-        if(this.isOk()) return this.code.toString();
+        if (this.isOk()) return this.code.toString();
         return this.getErrorMessage();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == this) return true;
-        if(obj instanceof Status) {
+        if (obj == this) return true;
+        if (obj instanceof Status) {
             Status other = (Status) obj;
             return this.code == other.code && this.errorMessage.equals(other.errorMessage);
         }

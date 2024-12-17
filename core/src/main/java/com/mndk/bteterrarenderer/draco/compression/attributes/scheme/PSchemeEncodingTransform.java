@@ -33,7 +33,7 @@ public interface PSchemeEncodingTransform<DataT, CorrT> {
     default void computeCorrection(Pointer<DataT> origVals, Pointer<DataT> predVals, Pointer<CorrT> outCorrVals) {
         DataNumberType<DataT> dataType = this.getDataType();
         DataNumberType<CorrT> corrType = this.getCorrType();
-        if(!origVals.getType().equals(outCorrVals.getType())) {
+        if (!origVals.getType().equals(outCorrVals.getType())) {
             throw new IllegalArgumentException(
                     "For the default prediction transform, correction and input " +
                     "data must be of the same type.");

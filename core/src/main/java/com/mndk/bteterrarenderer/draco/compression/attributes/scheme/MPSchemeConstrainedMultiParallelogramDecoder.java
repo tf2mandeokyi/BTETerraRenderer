@@ -155,12 +155,12 @@ public class MPSchemeConstrainedMultiParallelogramDecoder<DataT, CorrT> extends 
     public Status decodePredictionData(DecoderBuffer buffer) {
         StatusChain chain = new StatusChain();
 
-        if(buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
+        if (buffer.getBitstreamVersion() < DracoVersions.getBitstreamVersion(2, 2)) {
             // Decode prediction mode.
             Pointer<UByte> modeRef = Pointer.newUByte();
-            if(buffer.decode(modeRef).isError(chain)) return chain.get();
+            if (buffer.decode(modeRef).isError(chain)) return chain.get();
             UByte mode = modeRef.get();
-            if(!mode.equals(MPSchemeConstrainedMultiParallelogram.OPTIMAL_MULTI_PARALLELOGRAM)) {
+            if (!mode.equals(MPSchemeConstrainedMultiParallelogram.OPTIMAL_MULTI_PARALLELOGRAM)) {
                 // Unsupported mode.
                 return Status.ioError("Unsupported mode");
             }
@@ -169,7 +169,7 @@ public class MPSchemeConstrainedMultiParallelogramDecoder<DataT, CorrT> extends 
         // Encode selected edges using separate rans bit coder for each context.
         for (int i = 0; i < MPSchemeConstrainedMultiParallelogram.MAX_NUM_PARALLELOGRAMS; ++i) {
             Pointer<UInt> numFlagsRef = Pointer.newUInt();
-            if(buffer.decodeVarint(numFlagsRef).isError(chain)) return chain.get();
+            if (buffer.decodeVarint(numFlagsRef).isError(chain)) return chain.get();
             int numFlags = numFlagsRef.get().intValue();
             if (numFlags > this.getMeshData().getCornerTable().getNumCorners()) {
                 return Status.ioError("numFlags > cornerTable.getNumCorners()");

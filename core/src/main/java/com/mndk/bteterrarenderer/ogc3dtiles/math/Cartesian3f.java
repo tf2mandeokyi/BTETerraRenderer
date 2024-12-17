@@ -167,7 +167,7 @@ public class Cartesian3f {
 
     public static Cartesian3f fromOctEncoding(float x, float y) {
         float x3 = x, y3 = y, z3 = 1 - (Math.abs(x) + Math.abs(y));
-        if(z3 < 0) {
+        if (z3 < 0) {
             float oldX3 = x3;
             x3 = (1.0f - Math.abs(y3)) * signNotZero(oldX3);
             y3 = (1.0f - Math.abs(oldX3)) * signNotZero(y3);

@@ -85,7 +85,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
     }
 
     private void onChanged(String newText) {
-        if(this.changedListener == null) return;
+        if (this.changedListener == null) return;
         this.changedListener.accept(newText);
     }
 
@@ -140,23 +140,23 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         boolean flag = delta < 0;
         int j = Math.abs(delta);
 
-        for(int k = 0; k < j; ++k) {
+        for (int k = 0; k < j; ++k) {
             if (!flag) {
                 int l = this.text.length();
                 i = this.text.indexOf(32, i);
                 if (i == -1) {
                     i = l;
                 } else {
-                    while(p_94143_ && i < l && this.text.charAt(i) == ' ') {
+                    while (p_94143_ && i < l && this.text.charAt(i) == ' ') {
                         ++i;
                     }
                 }
             } else {
-                while(p_94143_ && i > 0 && this.text.charAt(i - 1) == ' ') {
+                while (p_94143_ && i > 0 && this.text.charAt(i - 1) == ' ') {
                     --i;
                 }
 
-                while(i > 0 && this.text.charAt(i - 1) != ' ') {
+                while (i > 0 && this.text.charAt(i - 1) != ' ') {
                     --i;
                 }
             }
@@ -339,7 +339,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
             drawContextWrapper.drawTextWithShadow(getDefaultFont(), text, (float)j1, (float)i1, i2);
         }
 
-        if(!flag2 && this.suggestion != null) {
+        if (!flag2 && this.suggestion != null) {
             drawContextWrapper.drawTextWithShadow(getDefaultFont(), this.suggestion, k1 - 1, i1, 0xFF808080);
         }
 
@@ -384,7 +384,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
     public void setMaxStringLength(int maxStringLength) {
         this.maxStringLength = maxStringLength;
 
-        if(this.text.length() <= maxStringLength) return;
+        if (this.text.length() <= maxStringLength) return;
         this.text = this.text.substring(0, maxStringLength);
         this.onChanged(this.text);
     }

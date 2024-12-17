@@ -126,10 +126,10 @@ public class McFX {
                 propertyClass == Integer.class || propertyClass == int.class ||
                 propertyClass == Short.class || propertyClass == short.class ||
                 propertyClass == Byte.class || propertyClass == byte.class;
-        if(numberAssignable) {
+        if (numberAssignable) {
             PropertyAccessor<Number> numberProperty = BTRUtil.uncheckedCast(property);
             Range<Number> range = numberProperty.getRange();
-            if(range != null) {
+            if (range != null) {
                 return McFX.i18nSlider(property.getI18nKey(), numberProperty);
             }
 
@@ -139,7 +139,7 @@ public class McFX {
             );
             return McFX.i18nNumberInput(property.getI18nKey(), propertyWrapper);
         }
-        else if(propertyClass == Boolean.class || propertyClass == boolean.class) {
+        else if (propertyClass == Boolean.class || propertyClass == boolean.class) {
             return McFX.i18nBoolButton(property.getI18nKey(), BTRUtil.uncheckedCast(property));
         }
         throw new RuntimeException("Unsupported property type: " + propertyClass);

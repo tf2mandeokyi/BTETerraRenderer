@@ -18,7 +18,7 @@ public class McFXSlider<T extends Number> extends McFXElement {
 
     public McFXSlider(PropertyAccessor<T> value,
                       String prefix, String suffix) {
-        if(value.getRange() == null) throw new IllegalArgumentException("PropertyAccessor must have a range");
+        if (value.getRange() == null) throw new IllegalArgumentException("PropertyAccessor must have a range");
         this.value = value;
         this.prefix = prefix; this.suffix = suffix;
 
@@ -36,7 +36,7 @@ public class McFXSlider<T extends Number> extends McFXElement {
     protected void init() {
         assert value != null;
         Range<T> range = value.getRange();
-        if(range == null) throw new IllegalArgumentException("PropertyAccessor must have a range");
+        if (range == null) throw new IllegalArgumentException("PropertyAccessor must have a range");
 
         T min = range.getMinimum();
         T max = range.getMaximum();
@@ -67,9 +67,9 @@ public class McFXSlider<T extends Number> extends McFXElement {
 
     @Override
     public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
-        if(this.slider.drawString) {
+        if (this.slider.drawString) {
             boolean testResult;
-            if(this.isInteger) {
+            if (this.isInteger) {
                 testResult = value.isAvailable(BTRUtil.doubleToNumber(value.getPropertyClass(), this.slider.getValue()));
             } else {
                 testResult = this.value.isAvailable(BTRUtil.integerToNumber(value.getPropertyClass(), this.slider.getValueInt()));

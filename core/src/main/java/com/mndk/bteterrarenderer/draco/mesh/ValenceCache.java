@@ -42,23 +42,23 @@ public class ValenceCache<T extends ICornerTable> {
     }
 
     public byte valenceFromCacheInaccurate(CornerIndex c) {
-        if(c.equals(CornerIndex.INVALID)) {
+        if (c.equals(CornerIndex.INVALID)) {
             return -1;
         }
         return valenceFromCacheInaccurate(table.getVertex(c));
     }
     public int valenceFromCache(CornerIndex c) {
-        if(c.equals(CornerIndex.INVALID)) {
+        if (c.equals(CornerIndex.INVALID)) {
             return -1;
         }
         return valenceFromCache(table.getVertex(c));
     }
 
     public int confidentValenceFromCache(VertexIndex v) {
-        if(v.getValue() >= table.getNumVertices()) {
+        if (v.getValue() >= table.getNumVertices()) {
             throw new IllegalArgumentException("Vertex index out of bounds");
         }
-        if(vertexValenceCache32Bit.size() != table.getNumVertices()) {
+        if (vertexValenceCache32Bit.size() != table.getNumVertices()) {
             throw new IllegalStateException("Cache not filled");
         }
         return vertexValenceCache32Bit.get(v);
@@ -67,48 +67,48 @@ public class ValenceCache<T extends ICornerTable> {
     public void cacheValencesInaccurate() {
         if (!vertexValenceCache8Bit.isEmpty()) return;
         vertexValenceCache8Bit.resize(table.getNumVertices());
-        for(VertexIndex v : VertexIndex.range(0, table.getNumVertices())) {
+        for (VertexIndex v : VertexIndex.range(0, table.getNumVertices())) {
             vertexValenceCache8Bit.set(v, (byte) Math.min(Byte.MAX_VALUE, table.getValence(v)));
         }
     }
     public void cacheValences() {
         if (!vertexValenceCache32Bit.isEmpty()) return;
         vertexValenceCache32Bit.resize(table.getNumVertices());
-        for(VertexIndex v : VertexIndex.range(0, table.getNumVertices())) {
+        for (VertexIndex v : VertexIndex.range(0, table.getNumVertices())) {
             vertexValenceCache32Bit.set(v, table.getValence(v));
         }
     }
 
     public byte confidentValenceFromCacheInaccurate(CornerIndex c) {
-        if(c.getValue() < 0) {
+        if (c.getValue() < 0) {
             throw new IllegalArgumentException("Corner index out of bounds");
         }
         return confidentValenceFromCacheInaccurate(table.getConfidentVertex(c));
     }
     public int confidentValenceFromCache(CornerIndex c) {
-        if(c.getValue() < 0) {
+        if (c.getValue() < 0) {
             throw new IllegalArgumentException("Corner index out of bounds");
         }
         return confidentValenceFromCache(table.getConfidentVertex(c));
     }
     public byte valenceFromCacheInaccurate(VertexIndex v) {
-        if(v.equals(VertexIndex.INVALID) || v.getValue() >= table.getNumVertices()) {
+        if (v.equals(VertexIndex.INVALID) || v.getValue() >= table.getNumVertices()) {
             return -1;
         }
         return confidentValenceFromCacheInaccurate(v);
     }
     public byte confidentValenceFromCacheInaccurate(VertexIndex v) {
-        if(v.getValue() >= table.getNumVertices()) {
+        if (v.getValue() >= table.getNumVertices()) {
             throw new IllegalArgumentException("Vertex index out of bounds");
         }
-        if(vertexValenceCache8Bit.size() != table.getNumVertices()) {
+        if (vertexValenceCache8Bit.size() != table.getNumVertices()) {
             throw new IllegalStateException("Cache not filled");
         }
         return vertexValenceCache8Bit.get(v);
     }
 
     public int valenceFromCache(VertexIndex v) {
-        if(v.equals(VertexIndex.INVALID) || v.getValue() >= table.getNumVertices()) {
+        if (v.equals(VertexIndex.INVALID) || v.getValue() >= table.getNumVertices()) {
             return -1;
         }
         return confidentValenceFromCache(v);

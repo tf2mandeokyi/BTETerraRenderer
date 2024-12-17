@@ -1,36 +1,35 @@
 package com.mndk.bteterrarenderer.core.tile;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
-import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
-import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.json.JsonString;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,7 +42,6 @@ import java.util.Optional;
 public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     private static final GraphicsModelTextureBakingBlock<?> MODEL_BAKER = new GraphicsModelTextureBakingBlock<>();
-    private static final ImageTexturePair MISSING_TEXTURE;
     private static boolean MISSING_TEXTURE_BAKED = false;
     public static final int DEFAULT_MAX_THREAD = 2;
 
@@ -51,6 +49,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private final Translatable<String> name;
     @Nullable private final Translatable<String> copyrightTextJson;
     @Nullable private final URL iconUrl;
+    @Nullable private final GeographicProjection hologramProjection;
     @Getter(value = AccessLevel.PRIVATE)
     private final String dummyTileUrl;
 
@@ -66,16 +65,16 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
                 .map(json -> json.map(JsonString::getValue))
                 .orElse(null);
         this.nThreads = commonYamlObject.nThreads;
+        this.hologramProjection = commonYamlObject.hologramProjection;
         this.stateAccessors.addAll(this.makeStateAccessors());
-        this.storage = new ProcessorCacheStorage<>(1000 * 60 * 30 /* 30 minutes */, -1, false);
+        this.storage = new ProcessorCacheStorage<>(commonYamlObject.cacheConfig);
     }
 
     @Override
     public final List<GraphicsModel> getModels(McCoord playerPos) {
         // Bake textures
-        if(!MISSING_TEXTURE_BAKED) {
-            MISSING_TEXTURE.bake();
-            MODEL_BAKER.setDefaultTexture(MISSING_TEXTURE.getTextureObject());
+        if (!MISSING_TEXTURE_BAKED) {
+            MODEL_BAKER.setDefaultTexture(McConnector.client().glGraphicsManager.getMissingTextureObject());
             MISSING_TEXTURE_BAKED = true;
         }
         this.preRender(playerPos);
@@ -84,13 +83,13 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         // Get tileId list
         List<TileId> renderTileIdList;
         try {
-            double[] geoCoord = Projections.getHologramProjection().toGeo(playerPos.getX(), playerPos.getZ());
+            double[] geoCoord = this.getHologramProjection().toGeo(playerPos.getX(), playerPos.getZ());
             renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], playerPos.getY());
-        } catch(OutOfProjectionBoundsException e) { return Collections.emptyList(); }
+        } catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
 
         // Get models based on tileId list
         List<GraphicsModel> result = new ArrayList<>();
-        for(TileId tileId : renderTileIdList) {
+        for (TileId tileId : renderTileIdList) {
             List<GraphicsModel> models = this.getModelsForId(tileId);
             if (models == null) continue;
             result.addAll(models);
@@ -110,22 +109,27 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             case PROCESSING:
                 try {
                     List<GraphicsModel> loadingModel = this.getLoadingModel(tileId);
-                    if(loadingModel != null) return loadingModel;
-                } catch(OutOfProjectionBoundsException ignored) {}
+                    if (loadingModel != null) return loadingModel;
+                } catch (OutOfProjectionBoundsException ignored) {}
                 break;
             case ERROR:
                 try {
                     List<GraphicsModel> errorModel = this.getErrorModel(tileId);
-                    if(errorModel != null) return errorModel;
-                } catch(OutOfProjectionBoundsException ignored) {}
+                    if (errorModel != null) return errorModel;
+                } catch (OutOfProjectionBoundsException ignored) {}
                 break;
         }
         return null;
     }
 
+    @Nonnull
+    public final GeographicProjection getHologramProjection() {
+        return hologramProjection != null ? hologramProjection : Projections.getHologramProjection();
+    }
+
     @Override
-    public McCoordTransformer getPositionTransformer(McCoord playerPos) {
-        return pos -> pos.subtract(playerPos);
+    public McCoordTransformer getPositionTransformer() {
+        return McCoordTransformer.IDENTITY;
     }
 
     private CacheableProcessorModel<TileId, TileId, List<GraphicsModel>> getModelMaker() {
@@ -147,7 +151,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     @Override public final boolean equals(Object obj) { return super.equals(obj); }
     @Override public final int hashCode() { return super.hashCode(); }
     @Override public void close() throws IOException {
-        if(this.modelMaker != null) this.modelMaker.close();
+        if (this.modelMaker != null) this.modelMaker.close();
         this.storage.close();
     }
 
@@ -195,7 +199,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
         @Override
         protected void deleteResource(List<GraphicsModel> graphicsModels) {
-            for(GraphicsModel model : graphicsModels) {
+            for (GraphicsModel model : graphicsModels) {
                 McConnector.client().glGraphicsManager.deleteTextureObject(model.getTextureObject());
             }
         }
@@ -225,33 +229,54 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = ctxt.readTree(p);
-            return this.deserialize(node, CommonYamlObject.read(node), ctxt);
+            CommonYamlObject commonYamlObject = ctxt.readTreeAsValue(node, CommonYamlObject.class);
+            return this.deserialize(node, commonYamlObject, ctxt);
         }
         protected abstract T deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt)
                 throws IOException;
     }
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     protected static class CommonYamlObject {
-        private static final JavaType TRANSLATABLE_STRING_JAVATYPE;
-        private static final JavaType TRANSLATABLE_JSONSTRING_JAVATYPE;
 
         private Translatable<String> name;
-        @Nullable
-        private Translatable<JsonString> copyrightTextJson;
         private String tileUrl;
         private URL iconUrl;
         private int nThreads;
+        @Nullable private Translatable<JsonString> copyrightTextJson;
+        @Nullable private GeographicProjection hologramProjection;
+        @Nullable private ProcessorCacheStorage.Config cacheConfig;
+
+        @JsonCreator
+        public CommonYamlObject(
+                @JsonProperty(value = "name", required = true) Translatable<String> name,
+                @JsonProperty(value = "tile_url", required = true) String tileUrl,
+                @Nullable @JsonProperty("max_thread") Integer nThreads,
+                @Nullable @JsonProperty("copyright") Translatable<JsonString> copyrightTextJson,
+                @Nullable @JsonProperty("icon_url") URL iconUrl,
+                @Nullable @JsonProperty("hologram_projection") GeographicProjection hologramProjection,
+                @Nullable @JsonProperty("cache") ProcessorCacheStorage.Config cacheConfig
+        ) {
+            this.name = name;
+            this.copyrightTextJson = copyrightTextJson;
+            this.tileUrl = tileUrl;
+            this.iconUrl = iconUrl;
+            this.nThreads = nThreads != null ? nThreads : DEFAULT_MAX_THREAD;
+            this.hologramProjection = hologramProjection;
+            this.cacheConfig = cacheConfig;
+        }
 
         private void write(JsonGenerator gen) throws IOException {
             gen.writeObjectField("name", this.name);
             gen.writeStringField("tile_url", this.tileUrl);
-            if(this.iconUrl != null) {
+            if (this.iconUrl != null) {
                 gen.writeStringField("icon_url", this.iconUrl.toString());
             }
             gen.writeNumberField("max_thread", this.nThreads);
             gen.writeObjectField("copyright", this.copyrightTextJson);
+            gen.writeObjectField("hologram_projection", this.hologramProjection);
         }
 
         private static CommonYamlObject from(AbstractTileMapService<?> tms) {
@@ -263,36 +288,9 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             result.copyrightTextJson = Optional.ofNullable(tms.copyrightTextJson)
                     .map(json -> json.map(JsonString::fromUnsafe))
                     .orElse(null);
-            return result;
-        }
-
-        private static CommonYamlObject read(JsonNode node) throws IOException {
-            CommonYamlObject result = new CommonYamlObject();
-            result.name = BTETerraRenderer.JSON_MAPPER.treeToValue(node.get("name"), TRANSLATABLE_STRING_JAVATYPE);
-            result.tileUrl = node.get("tile_url").asText();
-            String iconUrl = JsonParserUtil.getOrDefault(node, "icon_url", null);
-            result.iconUrl = iconUrl != null ? new URL(iconUrl) : null;
-            result.nThreads = JsonParserUtil.getOrDefault(node, "max_thread", DEFAULT_MAX_THREAD);
-            result.copyrightTextJson = BTETerraRenderer.JSON_MAPPER.treeToValue(node.get("copyright"), TRANSLATABLE_JSONSTRING_JAVATYPE);
+            result.hologramProjection = tms.getHologramProjection();
 
             return result;
         }
-
-        static {
-            TypeFactory typeFactory = BTETerraRenderer.JSON_MAPPER.getTypeFactory();
-            TRANSLATABLE_STRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<String>>() {});
-            TRANSLATABLE_JSONSTRING_JAVATYPE = typeFactory.constructType(new TypeReference<Translatable<JsonString>>() {});
-        }
-    }
-
-    static {
-        BufferedImage missingTexture = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
-        for(int x = 0; x < 256; x++) {
-            for(int y = 0; y < 256; y++) {
-                int color = (x / 32 + y / 32) % 2 == 0 ? 0xFFFFFFFF : 0xFFFF00FF;
-                missingTexture.setRGB(x, y, color);
-            }
-        }
-        MISSING_TEXTURE = new ImageTexturePair(missingTexture);
     }
 }

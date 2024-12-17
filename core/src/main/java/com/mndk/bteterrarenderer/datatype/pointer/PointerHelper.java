@@ -23,13 +23,13 @@ public class PointerHelper {
      * @return The first byte index where the two raw pointers differ, or -1 if they are equal
      */
     public long searchRawDifference(RawPointer a, RawPointer b, long byteSize) {
-        for(long i = 0; i < byteSize; i++) if(a.getRawByte(i) != b.getRawByte(i)) return i;
+        for (long i = 0; i < byteSize; i++) if (a.getRawByte(i) != b.getRawByte(i)) return i;
         return -1;
     }
 
     public <T> long searchDifference(Pointer<T> a, Pointer<T> b, long elementCount) {
         DataType<T> type = a.getType();
-        for(long i = 0; i < elementCount; i++) if(!type.equals(a.get(i), b.get(i))) return i;
+        for (long i = 0; i < elementCount; i++) if (!type.equals(a.get(i), b.get(i))) return i;
         return -1;
     }
 
@@ -44,16 +44,16 @@ public class PointerHelper {
     public <T> int contentHashCode(Pointer<T> pointer, long elementCount) {
         int hash = 0;
         DataType<T> type = pointer.getType();
-        for(long i = 0; i < elementCount; i++) hash = 31 * hash + type.hashCode(pointer.get(i));
+        for (long i = 0; i < elementCount; i++) hash = 31 * hash + type.hashCode(pointer.get(i));
         return hash;
     }
 
     public <T> String contentToString(Pointer<T> pointer, long count) {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
-        for(long i = 0; i < count; i++) {
+        for (long i = 0; i < count; i++) {
             builder.append(pointer.get(i));
-            if(i < count - 1) builder.append(", ");
+            if (i < count - 1) builder.append(", ");
         }
         builder.append("]");
         return builder.toString();
@@ -64,7 +64,7 @@ public class PointerHelper {
     }
 
     public <T> void sortContent(Pointer<T> pointer, long elementCount, Comparator<T> comparator, boolean stable) {
-        if(stable) {
+        if (stable) {
             PointerTimSort.sort(pointer, 0, elementCount, comparator, null, 0, 0);
         } else {
             PointerDualPivotQuicksort.sort(pointer, 0, elementCount - 1, comparator, null, 0, 0);
@@ -72,11 +72,11 @@ public class PointerHelper {
     }
 
     public <T> boolean isContentSorted(Pointer<T> pointer, long elementCount, Comparator<T> comparator) {
-        if(elementCount == 0) return true;
+        if (elementCount == 0) return true;
         T previous = pointer.get(0);
-        for(long i = 1; i < elementCount; i++) {
+        for (long i = 1; i < elementCount; i++) {
             T current = pointer.get(i);
-            if(comparator.compare(previous, current) > 0) return false;
+            if (comparator.compare(previous, current) > 0) return false;
             previous = current;
         }
         return true;
@@ -107,7 +107,7 @@ public class PointerHelper {
     // "Unsafe copy" methods directly copy data from src to dst,
     // without checking if the data is being overwritten.
     private void unsafeRawCopy(RawPointer src, RawPointer dst, long byteSize) {
-        for(long i = 0; i < byteSize; i++) {
+        for (long i = 0; i < byteSize; i++) {
             dst.setRawByte(i, src.getRawByte(i));
         }
     }
@@ -115,7 +115,7 @@ public class PointerHelper {
     private <T> void unsafeCopyMultiple(Pointer<T> src, RawPointer dst, long srcElementCount) {
         DataType<T> type = src.getType();
         long elementByteSize = type.byteSize();
-        for(long i = 0; i < srcElementCount; i++) {
+        for (long i = 0; i < srcElementCount; i++) {
             type.write(dst.rawAdd(i * elementByteSize), src.get(i));
         }
     }
@@ -123,13 +123,13 @@ public class PointerHelper {
     private <T> void unsafeCopyMultiple(RawPointer src, Pointer<T> dst, long dstElementCount) {
         DataType<T> type = dst.getType();
         long elementByteSize = type.byteSize();
-        for(long i = 0; i < dstElementCount; i++) {
+        for (long i = 0; i < dstElementCount; i++) {
             dst.set(i, type.read(src.rawAdd(i * elementByteSize)));
         }
     }
 
     private <T> void unsafeCopyMultiple(Pointer<T> src, Pointer<T> dst, long elementCount) {
-        for(long i = 0; i < elementCount; i++) {
+        for (long i = 0; i < elementCount; i++) {
             dst.set(i, src.get(i));
         }
     }
@@ -137,7 +137,7 @@ public class PointerHelper {
     // We do not directly copy data from src to dst, since if both the src and dst had a same origin,
     // the copy operation would not work correctly due to the fact that the data would be overwritten.
     public void rawCopy(RawPointer src, RawPointer dst, long byteSize) {
-        if(src.getOrigin() == dst.getOrigin()) {
+        if (src.getOrigin() == dst.getOrigin()) {
             RawPointer temp = DataType.uint8().newArray(byteSize).asRaw();
             unsafeRawCopy(src, temp, byteSize);
             unsafeRawCopy(temp, dst, byteSize);
@@ -147,15 +147,15 @@ public class PointerHelper {
     }
 
     public void rawCopy(byte[] src, int srcOffset, RawPointer dst, int byteSize) {
-        for(int i = 0; i < byteSize; i++) dst.setRawByte(i, src[srcOffset + i]);
+        for (int i = 0; i < byteSize; i++) dst.setRawByte(i, src[srcOffset + i]);
     }
 
     public void rawCopy(RawPointer src, byte[] dst, int dstOffset, int byteSize) {
-        for(int i = 0; i < byteSize; i++) dst[dstOffset + i] = src.getRawByte(i);
+        for (int i = 0; i < byteSize; i++) dst[dstOffset + i] = src.getRawByte(i);
     }
 
     public <T> void copyMultiple(Pointer<T> src, Pointer<T> dst, long elementCount) {
-        if(src.getOrigin() == dst.getOrigin()) {
+        if (src.getOrigin() == dst.getOrigin()) {
             DataType<T> type = src.getType();
             Pointer<T> temp = type.newArray(elementCount);
             unsafeCopyMultiple(src, temp, elementCount);
@@ -167,7 +167,7 @@ public class PointerHelper {
 
     public <T> void copySingle(RawPointer src, Pointer<T> dst) {
         DataType<T> type = dst.getType();
-        if(src.getOrigin() == dst.getOrigin()) {
+        if (src.getOrigin() == dst.getOrigin()) {
             long byteSize = type.byteSize();
             RawPointer temp = DataType.uint8().newArray(byteSize).asRaw();
             unsafeRawCopy(src, temp, byteSize);
@@ -178,7 +178,7 @@ public class PointerHelper {
     }
 
     public <T> void copyMultiple(RawPointer src, Pointer<T> dst, long dstElementCount) {
-        if(src.getOrigin() == dst.getOrigin()) {
+        if (src.getOrigin() == dst.getOrigin()) {
             DataType<T> type = dst.getType();
             long elementByteSize = type.byteSize();
             RawPointer temp = DataType.uint8().newArray(elementByteSize * dstElementCount).asRaw();
@@ -191,7 +191,7 @@ public class PointerHelper {
 
     public <T> void copySingle(Pointer<T> src, RawPointer dst) {
         DataType<T> type = src.getType();
-        if(src.getOrigin() == dst.getOrigin()) {
+        if (src.getOrigin() == dst.getOrigin()) {
             long byteSize = type.byteSize();
             RawPointer temp = DataType.uint8().newArray(byteSize).asRaw();
             type.write(temp, src.get());
@@ -202,7 +202,7 @@ public class PointerHelper {
     }
 
     public <T> void copyMultiple(Pointer<T> src, RawPointer dst, long srcElementCount) {
-        if(src.getOrigin() == dst.getOrigin()) {
+        if (src.getOrigin() == dst.getOrigin()) {
             long elementByteSize = src.getType().byteSize();
             RawPointer temp = DataType.uint8().newArray(elementByteSize * srcElementCount).asRaw();
             unsafeCopyMultiple(src, temp, srcElementCount);
@@ -213,32 +213,32 @@ public class PointerHelper {
     }
 
     public <T> void reverse(Pointer<T> pointer, long length) {
-        for(long i = 0; i < length / 2; i++) {
+        for (long i = 0; i < length / 2; i++) {
             pointer.swap(i, length - i - 1);
         }
     }
 
     public <T> boolean nextPermutation(Pointer<T> pointer, long elementCount, @Nullable Comparator<T> comparator) {
-        if(elementCount <= 1) return false;
+        if (elementCount <= 1) return false;
 
         Comparator<T> realComparator = comparator != null ? comparator : pointer.getType().asNumber()::compareTo;
         long i = elementCount - 1, j = elementCount - 1;
 
-        while(i > 0 && realComparator.compare(pointer.get(i - 1), pointer.get(i)) >= 0) i--;
-        if(i == 0) return false;
+        while (i > 0 && realComparator.compare(pointer.get(i - 1), pointer.get(i)) >= 0) i--;
+        if (i == 0) return false;
 
-        while(realComparator.compare(pointer.get(i - 1), pointer.get(j)) >= 0) j--;
+        while (realComparator.compare(pointer.get(i - 1), pointer.get(j)) >= 0) j--;
         pointer.swap(i - 1, j);
 
         j = elementCount - 1;
-        for(; i < j; i++, j--) {
+        for (; i < j; i++, j--) {
             pointer.swap(i, j);
         }
         return true;
     }
 
     public static <T> void fill(Pointer<T> pointer, long count, T value) {
-        for(long i = 0; i < count; i++) {
+        for (long i = 0; i < count; i++) {
             pointer.set(i, value);
         }
     }

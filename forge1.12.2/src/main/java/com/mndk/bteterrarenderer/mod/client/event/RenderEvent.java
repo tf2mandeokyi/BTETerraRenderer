@@ -29,7 +29,7 @@ public class RenderEvent {
 			// Since there's no "PoseStack" class in 1.12.2
 			// We'll just pass the instance here
 			TileRenderer.renderTiles(DrawContextWrapperImpl.INSTANCE, px, py, pz);
-		} catch(IllegalArgumentException exception) {
+		} catch (IllegalArgumentException exception) {
 			Loggers.get().error("Error while rendering tiles", exception);
 		}
 	}

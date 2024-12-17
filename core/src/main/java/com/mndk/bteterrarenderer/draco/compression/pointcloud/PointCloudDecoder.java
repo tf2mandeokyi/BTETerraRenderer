@@ -65,25 +65,25 @@ public abstract class PointCloudDecoder {
         StatusChain chain = new StatusChain();
         // Draco string
         RawPointer dracoStringRef = RawPointer.newArray(5);
-        if(buffer.decode(dracoStringRef, 5).isError(chain)) return chain.get();
+        if (buffer.decode(dracoStringRef, 5).isError(chain)) return chain.get();
         outHeader.setDracoString(PointerHelper.rawToString(dracoStringRef, 5));
-        if(!outHeader.getDracoString().equals("DRACO")) {
+        if (!outHeader.getDracoString().equals("DRACO")) {
             return Status.dracoError("Not a Draco file.");
         }
 
         // Version major
         Pointer<UByte> versionMajorRef = Pointer.newUByte();
-        if(buffer.decode(versionMajorRef).isError(chain)) return chain.get();
+        if (buffer.decode(versionMajorRef).isError(chain)) return chain.get();
         outHeader.setVersionMajor(versionMajorRef.get());
 
         // Version minor
         Pointer<UByte> versionMinorRef = Pointer.newUByte();
-        if(buffer.decode(versionMinorRef).isError(chain)) return chain.get();
+        if (buffer.decode(versionMinorRef).isError(chain)) return chain.get();
         outHeader.setVersionMinor(versionMinorRef.get());
 
         // Encoder type
         Pointer<UByte> encoderTypeRef = Pointer.newUByte();
-        if(buffer.decode(encoderTypeRef).isError(chain)) return chain.get();
+        if (buffer.decode(encoderTypeRef).isError(chain)) return chain.get();
         EncodedGeometryType encoderType = EncodedGeometryType.valueOf(encoderTypeRef.get());
         if (encoderType == EncodedGeometryType.INVALID_GEOMETRY_TYPE) {
             return Status.dracoError("Unsupported / invalid geometry type: " + encoderTypeRef.get());
@@ -92,16 +92,16 @@ public abstract class PointCloudDecoder {
 
         // Encoder method
         Pointer<UByte> encoderMethodRef = Pointer.newUByte();
-        if(buffer.decode(encoderMethodRef).isError(chain)) return chain.get();
+        if (buffer.decode(encoderMethodRef).isError(chain)) return chain.get();
         MeshEncoderMethod encoderMethod = MeshEncoderMethod.valueOf(encoderMethodRef.get());
-        if(encoderMethod == null) {
+        if (encoderMethod == null) {
             return Status.dracoError("Unsupported / invalid encoder method: " + encoderMethodRef.get());
         }
         outHeader.setEncoderMethod(encoderMethod);
 
         // Flags
         Pointer<UShort> flagsRef = Pointer.newUShort();
-        if(buffer.decode(flagsRef).isError(chain)) return chain.get();
+        if (buffer.decode(flagsRef).isError(chain)) return chain.get();
         outHeader.setFlags(flagsRef.get());
         return Status.ok();
     }
@@ -111,7 +111,7 @@ public abstract class PointCloudDecoder {
 
         GeometryMetadata metadata = new GeometryMetadata();
         MetadataDecoder metadataDecoder = new MetadataDecoder();
-        if(metadataDecoder.decodeGeometryMetadata(buffer, metadata).isError(chain)) return chain.get();
+        if (metadataDecoder.decodeGeometryMetadata(buffer, metadata).isError(chain)) return chain.get();
         pointCloud.addMetadata(metadata);
         return Status.ok();
     }
@@ -203,17 +203,17 @@ public abstract class PointCloudDecoder {
         // derived classes can use any data encoded in the
         // PointCloudEncoder::EncodeAttributesEncoderIdentifier() call.
         for (int i = 0; i < numAttributesDecoders; ++i) {
-            if(createAttributesDecoder(i).isError(chain)) return chain.get();
+            if (createAttributesDecoder(i).isError(chain)) return chain.get();
         }
 
         // Initialize all attributes decoders. No data is decoded here.
         for (AttributesDecoderInterface attDec : attributesDecoders) {
-            if(attDec.init(this, pointCloud).isError(chain)) return chain.get();
+            if (attDec.init(this, pointCloud).isError(chain)) return chain.get();
         }
 
         // Decode any data needed by the attribute decoders.
         for (int i = 0; i < numAttributesDecoders; ++i) {
-            if(attributesDecoders.get(i).decodeAttributesDecoderData(buffer).isError(chain)) return chain.get();
+            if (attributesDecoders.get(i).decodeAttributesDecoderData(buffer).isError(chain)) return chain.get();
         }
 
         // Create map between attribute and decoder ids.

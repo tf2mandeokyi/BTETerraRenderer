@@ -18,8 +18,14 @@ public interface GlGraphicsManager {
     void setPositionTexColorNormalShader();
     void setShaderTexture(NativeTextureWrapper textureObject);
 
+    NativeTextureWrapper getMissingTextureObject();
     NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image);
-    void deleteTextureObject(NativeTextureWrapper textureObject);
+    void deleteTextureObjectInternal(NativeTextureWrapper textureObject);
+    default void deleteTextureObject(NativeTextureWrapper textureObject) {
+        if (textureObject.isDeleted()) return;
+        deleteTextureObjectInternal(textureObject);
+        textureObject.markAsDeleted();
+    }
 
     void glEnableScissorTest();
     void glScissorBox(int x, int y, int width, int height);

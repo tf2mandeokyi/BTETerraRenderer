@@ -41,13 +41,13 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
 
     @Override
     public boolean mouseHovered(int mouseX, int mouseY, float partialTicks, boolean mouseHidden) {
-        if(this.dragging) this.updateSliderValue(mouseX);
+        if (this.dragging) this.updateSliderValue(mouseX);
         return super.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
     }
 
     @Override
     public void drawBackground(DrawContextWrapper<?> drawContextWrapper) {
-        if(!this.visible) return;
+        if (!this.visible) return;
 
         drawContextWrapper.drawButton(
                 this.x + (int) (this.sliderValue * (double)(this.width - 8)), this.y,
@@ -58,7 +58,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
 
     @Override
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
-        if(super.mousePressed(mouseX, mouseY, mouseButton)) {
+        if (super.mousePressed(mouseX, mouseY, mouseButton)) {
             this.updateSliderValue(mouseX);
             this.dragging = true;
             return true;
@@ -89,7 +89,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
 
 
     public void tick() {
-        if(this.isIntegerSlider) {
+        if (this.isIntegerSlider) {
             int intValue = (int) Math.round(this.getValue());
             this.sliderValue = (intValue - this.minValue) / (this.maxValue - this.minValue);
         }
@@ -103,7 +103,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
 
     private void updateDisplayString() {
         double value = this.getValue();
-        if(!this.drawString) {
+        if (!this.drawString) {
             this.text = "";
             return;
         }
@@ -113,7 +113,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
                 Integer.toString((int) Math.round(value));
 
         this.text = this.prefix + valueString + this.suffix;
-        if(sliderChangeHandler != null) {
+        if (sliderChangeHandler != null) {
             sliderChangeHandler.handleSliderChange(this);
         }
     }

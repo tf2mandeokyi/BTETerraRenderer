@@ -49,9 +49,9 @@ public class MeshCleanup {
         int numDegeneratedFaces = 0;
 
         int[] posIndices = new int[3];
-        for(FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
+        for (FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
             Mesh.Face face = mesh.getFace(f);
-            for(int p = 0; p < 3; ++p) {
+            for (int p = 0; p < 3; ++p) {
                 posIndices[p] = posAtt.getMappedIndex(face.get(p)).getValue();
             }
             if (posIndices[0] == posIndices[1] || posIndices[0] == posIndices[2] ||
@@ -70,7 +70,7 @@ public class MeshCleanup {
         Set<Mesh.Face> isFaceUsed = new HashSet<>();
 
         int numDuplicateFaces = 0;
-        for(FaceIndex fi : FaceIndex.range(0, mesh.getNumFaces())) {
+        for (FaceIndex fi : FaceIndex.range(0, mesh.getNumFaces())) {
             Mesh.Face face = mesh.getFace(fi);
             while (face.get(0).getValue() > face.get(1).getValue() || face.get(0).getValue() > face.get(2).getValue()) {
                 PointIndex temp = face.get(0);
@@ -98,9 +98,9 @@ public class MeshCleanup {
         CppVector<Boolean> isPointUsed = new CppVector<>(DataType.bool());
         int numNewPoints = 0;
         isPointUsed.resize(mesh.getNumPoints(), false);
-        for(FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
+        for (FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
             Mesh.Face face = mesh.getFace(f);
-            for(int p = 0; p < 3; ++p) {
+            for (int p = 0; p < 3; ++p) {
                 if (!isPointUsed.get(face.get(p).getValue())) {
                     isPointUsed.set(face.get(p).getValue(), true);
                     numNewPoints++;
@@ -112,19 +112,19 @@ public class MeshCleanup {
         int numOriginalPoints = mesh.getNumPoints();
         IndexTypeVector<PointIndex, PointIndex> pointMap =
                 new IndexTypeVector<>(PointIndex.type(), numOriginalPoints);
-        if(numNewPoints < mesh.getNumPoints()) {
+        if (numNewPoints < mesh.getNumPoints()) {
             numNewPoints = 0;
-            for(PointIndex i : PointIndex.range(0, numOriginalPoints)) {
-                if(isPointUsed.get(i.getValue())) {
+            for (PointIndex i : PointIndex.range(0, numOriginalPoints)) {
+                if (isPointUsed.get(i.getValue())) {
                     pointMap.set(i, PointIndex.of(numNewPoints++));
                 } else {
                     pointMap.set(i, PointIndex.INVALID);
                 }
             }
             // Go over faces and update their points.
-            for(FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
+            for (FaceIndex f : FaceIndex.range(0, mesh.getNumFaces())) {
                 Mesh.Face face = mesh.getFace(f);
-                for(int p = 0; p < 3; p++) {
+                for (int p = 0; p < 3; p++) {
                     face.set(p, pointMap.get(face.get(p)));
                 }
                 mesh.setFace(f, face);
@@ -135,7 +135,7 @@ public class MeshCleanup {
         }
         else {
             // No points were removed. Initialize identity map between the old and new points.
-            for(PointIndex i : PointIndex.range(0, numOriginalPoints)) {
+            for (PointIndex i : PointIndex.range(0, numOriginalPoints)) {
                 pointMap.set(i, i);
             }
         }
@@ -145,16 +145,16 @@ public class MeshCleanup {
                 new IndexTypeVector<>(DataType.bool());
         IndexTypeVector<AttributeValueIndex, AttributeValueIndex> attIndexMap =
                 new IndexTypeVector<>(AttributeValueIndex.type());
-        for(int a = 0; a < mesh.getNumAttributes(); a++) {
+        for (int a = 0; a < mesh.getNumAttributes(); a++) {
             PointAttribute att = mesh.getAttribute(a);
             // First detect which attribute entries are used (included in a point).
             isAttIndexUsed.assign(att.size(), false);
             attIndexMap.clear();
             int numUsedEntries = 0;
-            for(PointIndex i : PointIndex.range(0, numOriginalPoints)) {
-                if(pointMap.get(i).isValid()) {
+            for (PointIndex i : PointIndex.range(0, numOriginalPoints)) {
+                if (pointMap.get(i).isValid()) {
                     AttributeValueIndex entryId = att.getMappedIndex(i);
-                    if(!isAttIndexUsed.get(entryId)) {
+                    if (!isAttIndexUsed.get(entryId)) {
                         isAttIndexUsed.set(entryId, true);
                         numUsedEntries++;
                     }
@@ -163,13 +163,13 @@ public class MeshCleanup {
             boolean attIndicesChanged = false;
             // If there are some unused attribute entries, remap the attribute values
             // in the attribute buffer.
-            if(numUsedEntries < att.size()) {
+            if (numUsedEntries < att.size()) {
                 attIndexMap.resize(att.size());
                 numUsedEntries = 0;
-                for(AttributeValueIndex i : AttributeValueIndex.range(0, att.size())) {
-                    if(isAttIndexUsed.get(i)) {
+                for (AttributeValueIndex i : AttributeValueIndex.range(0, att.size())) {
+                    if (isAttIndexUsed.get(i)) {
                         attIndexMap.set(i, AttributeValueIndex.of(numUsedEntries));
-                        if(i.getValue() > numUsedEntries) {
+                        if (i.getValue() > numUsedEntries) {
                             Pointer<UByte> srcAdd = att.getAddress(i).toUByte();
                             att.getBuffer().write(att.getBytePos(AttributeValueIndex.of(numUsedEntries)),
                                     srcAdd, att.getByteStride());
@@ -183,19 +183,19 @@ public class MeshCleanup {
             }
             // If either the points or attribute indices have changed, we need to
             // update the attribute index mapping.
-            if(pointsChanged || attIndicesChanged) {
-                if(att.isMappingIdentity()) {
-                    if(numUsedEntries != mesh.getNumPoints()) {
+            if (pointsChanged || attIndicesChanged) {
+                if (att.isMappingIdentity()) {
+                    if (numUsedEntries != mesh.getNumPoints()) {
                         att.setExplicitMapping(numOriginalPoints);
-                        for(PointIndex i : PointIndex.range(0, numOriginalPoints)) {
+                        for (PointIndex i : PointIndex.range(0, numOriginalPoints)) {
                             att.setPointMapEntry(i, AttributeValueIndex.of(i.getValue()));
                         }
                     }
                 }
-                if(!att.isMappingIdentity()) {
-                    for(PointIndex i : PointIndex.range(0, numOriginalPoints)) {
+                if (!att.isMappingIdentity()) {
+                    for (PointIndex i : PointIndex.range(0, numOriginalPoints)) {
                         PointIndex newPointId = pointMap.get(i);
-                        if(newPointId.isInvalid()) {
+                        if (newPointId.isInvalid()) {
                             continue;
                         }
                         AttributeValueIndex originalEntryIndex = att.getMappedIndex(i);

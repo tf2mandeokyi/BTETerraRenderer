@@ -32,7 +32,7 @@ public class TextManagerImpl implements TextManager {
 
     public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-        if(currentScreen == null) return false;
+        if (currentScreen == null) return false;
 
         Style style = styleWrapper.get();
         return currentScreen.handleTextClick(style);

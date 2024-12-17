@@ -59,7 +59,7 @@ public class MeshIOUtil {
         String fileName = file.getName();
         String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
         MeshFileFormat format = MeshFileFormat.fromExtension(extension);
-        if(format == null) return StatusOr.invalidParameter("Unsupported file format: " + extension);
+        if (format == null) return StatusOr.invalidParameter("Unsupported file format: " + extension);
         return decode(file, format, options);
     }
 
@@ -76,17 +76,17 @@ public class MeshIOUtil {
                 decoder.setPreservePolygons(options.getBool("preserve_polygons"));
                 decoder.setDeduplicateInputValues(options.getBool("deduplicate_input_values"));
 
-                if(decoder.decodeFromFile(file, mesh).isError(chain)) return StatusOr.error(chain.get());
+                if (decoder.decodeFromFile(file, mesh).isError(chain)) return StatusOr.error(chain.get());
                 return StatusOr.ok(mesh);
             }
             case PLY: {
                 PlyDecoder decoder = new PlyDecoder();
-                if(decoder.decodeFromFile(file, mesh).isError(chain)) return StatusOr.error(chain.get());
+                if (decoder.decodeFromFile(file, mesh).isError(chain)) return StatusOr.error(chain.get());
                 return StatusOr.ok(mesh);
             }
             case DRACO: {
                 DecoderBuffer decoderBuffer = new DecoderBuffer();
-                try(InputStream stream = Files.newInputStream(file.toPath())) {
+                try (InputStream stream = Files.newInputStream(file.toPath())) {
                     decoderBuffer.init(stream);
                 } catch (IOException e) {
                     return StatusOr.ioError(e.getMessage(), e);

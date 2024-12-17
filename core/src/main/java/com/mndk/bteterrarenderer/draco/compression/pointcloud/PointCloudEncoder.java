@@ -66,16 +66,16 @@ public abstract class PointCloudEncoder {
         attributeToEncoderMap.clear();
         attributesEncoderIdsOrder.clear();
 
-        if(pointCloud == null) {
+        if (pointCloud == null) {
             return Status.dracoError("Invalid input geometry.");
         }
-        if(this.encodeHeader().isError(chain)) return chain.get();
-        if(this.encodeMetadata().isError(chain)) return chain.get();
-        if(this.initializeEncoder().isError(chain)) return chain.get();
-        if(this.encodeEncoderData().isError(chain)) return chain.get();
-        if(this.encodeGeometryData().isError(chain)) return chain.get();
-        if(this.encodePointAttributes().isError(chain)) return chain.get();
-        if(options.getGlobalBool("store_number_of_encoded_points", false)) {
+        if (this.encodeHeader().isError(chain)) return chain.get();
+        if (this.encodeMetadata().isError(chain)) return chain.get();
+        if (this.initializeEncoder().isError(chain)) return chain.get();
+        if (this.encodeEncoderData().isError(chain)) return chain.get();
+        if (this.encodeGeometryData().isError(chain)) return chain.get();
+        if (this.encodePointAttributes().isError(chain)) return chain.get();
+        if (options.getGlobalBool("store_number_of_encoded_points", false)) {
             this.computeNumberOfEncodedPoints();
         }
         return Status.ok();
@@ -101,7 +101,7 @@ public abstract class PointCloudEncoder {
     }
 
     public Status markParentAttribute(int parentAttId) {
-        if(parentAttId < 0 || parentAttId >= pointCloud.getNumAttributes()) {
+        if (parentAttId < 0 || parentAttId >= pointCloud.getNumAttributes()) {
             return Status.invalidParameter("Invalid parent attribute ID");
         }
         int parentAttEncoderId = attributeToEncoderMap.get(parentAttId);
@@ -110,7 +110,7 @@ public abstract class PointCloudEncoder {
     }
 
     public PointAttribute getPortableAttribute(int parentAttributeId) {
-        if(parentAttributeId < 0 || parentAttributeId >= pointCloud.getNumAttributes()) {
+        if (parentAttributeId < 0 || parentAttributeId >= pointCloud.getNumAttributes()) {
             return null;
         }
         int parentAttEncoderId = attributeToEncoderMap.get(parentAttributeId);
@@ -127,31 +127,31 @@ public abstract class PointCloudEncoder {
     protected Status encodePointAttributes() {
         StatusChain chain = new StatusChain();
 
-        if(this.generateAttributesEncoders().isError(chain)) return chain.get();
+        if (this.generateAttributesEncoders().isError(chain)) return chain.get();
 
         // Encode the number of attribute encoders.
         buffer.encode(UByte.of(attributesEncoders.size()));
 
         // Initialize all the encoders (this is used for example to init attribute
         // dependencies, no data is encoded in this step).
-        for(AttributesEncoder attEnc : attributesEncoders) {
-            if(attEnc.init(this, pointCloud).isError(chain)) return chain.get();
+        for (AttributesEncoder attEnc : attributesEncoders) {
+            if (attEnc.init(this, pointCloud).isError(chain)) return chain.get();
         }
 
         // Rearrange attributes to respect dependencies between individual attributes.
-        if(this.rearrangeAttributesEncoders().isError(chain)) return chain.get();
+        if (this.rearrangeAttributesEncoders().isError(chain)) return chain.get();
 
         // Encode any data that is necessary to create the corresponding attribute
         // decoder.
-        for(int attEncoderId : attributesEncoderIdsOrder) {
-            if(this.encodeAttributesEncoderIdentifier(attEncoderId).isError(chain)) return chain.get();
+        for (int attEncoderId : attributesEncoderIdsOrder) {
+            if (this.encodeAttributesEncoderIdentifier(attEncoderId).isError(chain)) return chain.get();
         }
 
         // Also encode any attribute encoder data (such as the info about encoded
         // attributes).
-        for(int attEncoderId : attributesEncoderIdsOrder) {
+        for (int attEncoderId : attributesEncoderIdsOrder) {
             AttributesEncoder attEncoder = attributesEncoders.get(attEncoderId);
-            if(attEncoder.encodeAttributesEncoderData(buffer).isError(chain)) return chain.get();
+            if (attEncoder.encodeAttributesEncoderData(buffer).isError(chain)) return chain.get();
         }
 
         // Lastly encode all the attributes using the provided attribute encoders.
@@ -161,13 +161,13 @@ public abstract class PointCloudEncoder {
     protected Status generateAttributesEncoders() {
         StatusChain chain = new StatusChain();
 
-        for(int i = 0; i < pointCloud.getNumAttributes(); ++i) {
-            if(this.generateAttributesEncoder(i).isError(chain)) return chain.get();
+        for (int i = 0; i < pointCloud.getNumAttributes(); ++i) {
+            if (this.generateAttributesEncoder(i).isError(chain)) return chain.get();
         }
         attributeToEncoderMap.resize(pointCloud.getNumAttributes());
-        for(int i = 0; i < attributesEncoders.size(); ++i) {
+        for (int i = 0; i < attributesEncoders.size(); ++i) {
             AttributesEncoder attEnc = attributesEncoders.get(i);
-            for(int j = 0; j < attEnc.getNumAttributes(); ++j) {
+            for (int j = 0; j < attEnc.getNumAttributes(); ++j) {
                 attributeToEncoderMap.set(attEnc.getAttributeId(j), i);
             }
         }
@@ -183,9 +183,9 @@ public abstract class PointCloudEncoder {
     protected Status encodeAllAttributes() {
         StatusChain chain = new StatusChain();
 
-        for(int attEncoderId : attributesEncoderIdsOrder) {
+        for (int attEncoderId : attributesEncoderIdsOrder) {
             AttributesEncoder attEncoder = attributesEncoders.get(attEncoderId);
-            if(attEncoder.encodeAttributes(buffer).isError(chain)) return chain.get();
+            if (attEncoder.encodeAttributes(buffer).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -212,7 +212,7 @@ public abstract class PointCloudEncoder {
         // Reserved for flags.
         UShort flags = UShort.of(0);
         // First bit of {@code flags} is reserved for metadata.
-        if(pointCloud.getMetadata() != null) {
+        if (pointCloud.getMetadata() != null) {
             flags = flags.or(DracoHeader.METADATA_FLAG_MASK);
         }
         buffer.encode(flags);
@@ -221,11 +221,11 @@ public abstract class PointCloudEncoder {
 
     private Status encodeMetadata() {
         StatusChain chain = new StatusChain();
-        if(pointCloud.getMetadata() == null) {
+        if (pointCloud.getMetadata() == null) {
             return Status.ok();
         }
         MetadataEncoder metadataEncoder = new MetadataEncoder();
-        if(metadataEncoder.encodeGeometryMetadata(buffer, pointCloud.getMetadata()).isError(chain)) return chain.get();
+        if (metadataEncoder.encodeGeometryMetadata(buffer, pointCloud.getMetadata()).isError(chain)) return chain.get();
         return Status.ok();
     }
 
@@ -236,28 +236,28 @@ public abstract class PointCloudEncoder {
         attributesEncoderIdsOrder.resize(attributesEncoders.size());
         CppVector<Boolean> isEncoderProcessed = new CppVector<>(DataType.bool(), attributesEncoders.size(), false);
         int numProcessedEncoders = 0;
-        while(numProcessedEncoders < attributesEncoders.size()) {
+        while (numProcessedEncoders < attributesEncoders.size()) {
             // Flagged when any of the encoder get processed.
             boolean encoderProcessed = false;
-            for(int i = 0; i < attributesEncoders.size(); ++i) {
-                if(isEncoderProcessed.get(i)) {
+            for (int i = 0; i < attributesEncoders.size(); ++i) {
+                if (isEncoderProcessed.get(i)) {
                     continue;  // Encoder already processed.
                 }
                 // Check if all parent encoders are already processed.
                 boolean canBeProcessed = true;
                 AttributesEncoder attEnc = attributesEncoders.get(i);
-                for(int p = 0; p < attEnc.getNumAttributes(); ++p) {
+                for (int p = 0; p < attEnc.getNumAttributes(); ++p) {
                     int attId = attEnc.getAttributeId(p);
-                    for(int ap = 0; ap < attEnc.getNumParentAttributes(attId); ++ap) {
+                    for (int ap = 0; ap < attEnc.getNumParentAttributes(attId); ++ap) {
                         int parentAttId = attEnc.getParentAttributeId(attId, ap);
                         int parentEncoderId = attributeToEncoderMap.get(parentAttId);
-                        if(parentAttId != i && !isEncoderProcessed.get(parentEncoderId)) {
+                        if (parentAttId != i && !isEncoderProcessed.get(parentEncoderId)) {
                             canBeProcessed = false;
                             break;
                         }
                     }
                 }
-                if(!canBeProcessed) {
+                if (!canBeProcessed) {
                     continue;  // Try to process the encoder in the next iteration.
                 }
                 // Encoder can be processed. Update the encoding order.
@@ -265,7 +265,7 @@ public abstract class PointCloudEncoder {
                 isEncoderProcessed.set(i, true);
                 encoderProcessed = true;
             }
-            if(!encoderProcessed && numProcessedEncoders < attributesEncoders.size()) {
+            if (!encoderProcessed && numProcessedEncoders < attributesEncoders.size()) {
                 // No encoder was processed but there are still some remaining unprocessed
                 // encoders.
                 return Status.dracoError("Failed to rearrange attributes encoders");
@@ -277,33 +277,33 @@ public abstract class PointCloudEncoder {
         CppVector<Integer> attributeEncodingOrder = new CppVector<>(DataType.int32());
         CppVector<Boolean> isAttributeProcessed = new CppVector<>(DataType.bool(), pointCloud.getNumAttributes(), false);
 
-        for(int aeOrder = 0; aeOrder < attributesEncoders.size(); aeOrder++) {
+        for (int aeOrder = 0; aeOrder < attributesEncoders.size(); aeOrder++) {
             int ae = attributesEncoderIdsOrder.get(aeOrder);
             int numEncoderAttributes = attributesEncoders.get(ae).getNumAttributes();
-            if(numEncoderAttributes < 2) {
+            if (numEncoderAttributes < 2) {
                 continue;  // No need to resolve dependencies for a single attribute.
             }
 
             int numProcessedAttributes = 0;
             attributeEncodingOrder.resize(numEncoderAttributes);
-            while(numProcessedAttributes < numEncoderAttributes) {
+            while (numProcessedAttributes < numEncoderAttributes) {
                 // Flagged when any of the attributes get processed.
                 boolean attributeProcessed = false;
-                for(int i = 0; i < numEncoderAttributes; ++i) {
+                for (int i = 0; i < numEncoderAttributes; ++i) {
                     int attId = attributesEncoders.get(ae).getAttributeId(i);
-                    if(isAttributeProcessed.get(i)) {
+                    if (isAttributeProcessed.get(i)) {
                         continue;  // Attribute already processed.
                     }
                     // Check if all parent attributes are already processed.
                     boolean canBeProcessed = true;
-                    for(int p = 0; p < attributesEncoders.get(ae).getNumParentAttributes(attId); ++p) {
+                    for (int p = 0; p < attributesEncoders.get(ae).getNumParentAttributes(attId); ++p) {
                         int parentAttId = attributesEncoders.get(ae).getParentAttributeId(attId, p);
-                        if(!isAttributeProcessed.get(parentAttId)) {
+                        if (!isAttributeProcessed.get(parentAttId)) {
                             canBeProcessed = false;
                             break;
                         }
                     }
-                    if(!canBeProcessed) {
+                    if (!canBeProcessed) {
                         continue;  // Try to process the attribute in the next iteration.
                     }
                     // Attribute can be processed. Update the encoding order.
@@ -311,7 +311,7 @@ public abstract class PointCloudEncoder {
                     isAttributeProcessed.set(i, true);
                     attributeProcessed = true;
                 }
-                if(!attributeProcessed && numProcessedAttributes < numEncoderAttributes) {
+                if (!attributeProcessed && numProcessedAttributes < numEncoderAttributes) {
                     // No attribute was processed but there are still some remaining
                     // unprocessed attributes.
                     return Status.dracoError("Failed to rearrange attributes encoders");

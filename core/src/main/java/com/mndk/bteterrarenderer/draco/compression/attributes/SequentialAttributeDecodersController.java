@@ -41,23 +41,23 @@ public class SequentialAttributeDecodersController extends AttributesDecoder {
     public Status decodeAttributesDecoderData(DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
 
-        if(super.decodeAttributesDecoderData(inBuffer).isError(chain)) return chain.get();
+        if (super.decodeAttributesDecoderData(inBuffer).isError(chain)) return chain.get();
 
         // Decode unique ids of all sequential encoders and create them.
         final int numAttributes = getNumAttributes();
         sequentialDecoders.resize(numAttributes);
-        for(int i = 0; i < numAttributes; ++i) {
+        for (int i = 0; i < numAttributes; ++i) {
             Pointer<UByte> decoderTypeRef = Pointer.newUByte();
-            if(inBuffer.decode(decoderTypeRef).isError(chain)) return chain.get();
+            if (inBuffer.decode(decoderTypeRef).isError(chain)) return chain.get();
             SequentialAttributeEncoderType decoderType = SequentialAttributeEncoderType.valueOf(decoderTypeRef.get());
-            if(decoderType == null) {
+            if (decoderType == null) {
                 return Status.ioError("Failed to decode sequential attribute encoder type");
             }
 
             // Create the decoder from the id.
             SequentialAttributeDecoder decoder = this.createSequentialDecoder(decoderType);
-            if(decoder == null) return Status.ioError("Failed to create sequential decoder");
-            if(decoder.init(this.getDecoder(), getAttributeId(i)).isError(chain)) return chain.get();
+            if (decoder == null) return Status.ioError("Failed to create sequential decoder");
+            if (decoder.init(this.getDecoder(), getAttributeId(i)).isError(chain)) return chain.get();
 
             sequentialDecoders.set(i, decoder);
         }
@@ -67,13 +67,13 @@ public class SequentialAttributeDecodersController extends AttributesDecoder {
     @Override
     public Status decodeAttributes(DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
-        if(sequencer == null) return Status.ioError("Sequencer is null");
-        if(sequencer.generateSequence(pointIds).isError(chain)) return chain.get();
+        if (sequencer == null) return Status.ioError("Sequencer is null");
+        if (sequencer.generateSequence(pointIds).isError(chain)) return chain.get();
         // Initialize point to attribute value mapping for all decoded attributes.
         final int numAttributes = getNumAttributes();
-        for(int i = 0; i < numAttributes; ++i) {
+        for (int i = 0; i < numAttributes; ++i) {
             PointAttribute pa = this.getDecoder().getPointCloud().getAttribute(getAttributeId(i));
-            if(sequencer.updatePointToAttributeIndexMapping(pa).isError(chain)) return chain.get();
+            if (sequencer.updatePointToAttributeIndexMapping(pa).isError(chain)) return chain.get();
         }
         return super.decodeAttributes(inBuffer);
     }
@@ -81,7 +81,7 @@ public class SequentialAttributeDecodersController extends AttributesDecoder {
     @Override
     public PointAttribute getPortableAttribute(int pointAttributeId) {
         int locId = getLocalIdForPointAttribute(pointAttributeId);
-        if(locId < 0) return null;
+        if (locId < 0) return null;
         return sequentialDecoders.get(locId).getPortableAttribute();
     }
 
@@ -89,9 +89,9 @@ public class SequentialAttributeDecodersController extends AttributesDecoder {
     protected Status decodePortableAttributes(DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
         final int numAttributes = getNumAttributes();
-        for(int i = 0; i < numAttributes; ++i) {
+        for (int i = 0; i < numAttributes; ++i) {
             SequentialAttributeDecoder decoder = sequentialDecoders.get(i);
-            if(decoder.decodePortableAttribute(pointIds, inBuffer).isError(chain)) return chain.get();
+            if (decoder.decodePortableAttribute(pointIds, inBuffer).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -100,9 +100,9 @@ public class SequentialAttributeDecodersController extends AttributesDecoder {
     protected Status decodeDataNeededByPortableTransforms(DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
         final int numAttributes = getNumAttributes();
-        for(int i = 0; i < numAttributes; ++i) {
+        for (int i = 0; i < numAttributes; ++i) {
             SequentialAttributeDecoder decoder = sequentialDecoders.get(i);
-            if(decoder.decodeDataNeededByPortableTransform(pointIds, inBuffer).isError(chain)) return chain.get();
+            if (decoder.decodeDataNeededByPortableTransform(pointIds, inBuffer).isError(chain)) return chain.get();
         }
         return Status.ok();
     }
@@ -111,7 +111,7 @@ public class SequentialAttributeDecodersController extends AttributesDecoder {
     protected Status transformAttributesToOriginalFormat() {
         StatusChain chain = new StatusChain();
         final int numAttributes = getNumAttributes();
-        for(int i = 0; i < numAttributes; ++i) {
+        for (int i = 0; i < numAttributes; ++i) {
             SequentialAttributeDecoder decoder = sequentialDecoders.get(i);
             // Check whether the attribute transform should be skipped.
             if (this.getDecoder().getOptions() != null) {

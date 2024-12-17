@@ -83,11 +83,11 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
         int nextDataId = meshData.getVertexToDataMap().get(nextVertId);
         int prevDataId = meshData.getVertexToDataMap().get(prevVertId);
 
-        if(prevDataId < dataId && nextDataId < dataId) {
+        if (prevDataId < dataId && nextDataId < dataId) {
             // Both other corners have available UV coordinates for prediction.
             VectorD.D2<Long> nUV = getTexCoordForEntryId(nextDataId, data);
             VectorD.D2<Long> pUV = getTexCoordForEntryId(prevDataId, data);
-            if(pUV.equals(nUV)) {
+            if (pUV.equals(nUV)) {
                 // We cannot do a reliable prediction on degenerated UV triangles.
                 predictedValue.set(0, dataType.from(pUV.get(0)));
                 predictedValue.set(1, dataType.from(pUV.get(1)));
@@ -102,22 +102,22 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
             // coordinate on the tip corner C.
             VectorD.D3<Long> pn = prevPos.subtract(nextPos);
             long pnNorm2Squared = pn.squaredNorm();
-            if(pnNorm2Squared != 0) {
+            if (pnNorm2Squared != 0) {
                 // Compute the projection of C onto PN by computing dot product of CN with
                 // PN and normalizing it by length of PN.
                 long cnDotPn = pn.dot(tipPos.subtract(nextPos));
                 VectorD.D2<Long> pnUV = pUV.subtract(nUV);
                 long nUVAbsMaxElement = Math.max(Math.abs(nUV.get(0)), Math.abs(nUV.get(1)));
-                if(nUVAbsMaxElement > Long.MAX_VALUE / pnNorm2Squared) {
+                if (nUVAbsMaxElement > Long.MAX_VALUE / pnNorm2Squared) {
                     return Status.ioError("Overflow");
                 }
                 long pnUVAbsMaxElement = Math.max(Math.abs(pnUV.get(0)), Math.abs(pnUV.get(1)));
-                if(Math.abs(cnDotPn) > Long.MAX_VALUE / pnUVAbsMaxElement) {
+                if (Math.abs(cnDotPn) > Long.MAX_VALUE / pnUVAbsMaxElement) {
                     return Status.ioError("Overflow");
                 }
                 VectorD.D2<Long> xUV = nUV.multiply(pnNorm2Squared).add(pnUV.multiply(cnDotPn));
                 long pnAbsMaxElement = Math.max(Math.max(Math.abs(pn.get(0)), Math.abs(pn.get(1))), Math.abs(pn.get(2)));
-                if(Math.abs(cnDotPn) > Long.MAX_VALUE / pnAbsMaxElement) {
+                if (Math.abs(cnDotPn) > Long.MAX_VALUE / pnAbsMaxElement) {
                     return Status.ioError("Overflow");
                 }
 
@@ -134,11 +134,11 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
                 // Predicted uv coordinate is then computed by either adding or
                 // subtracting CX_UV to/from X_UV.
                 VectorD.D2<Long> predictedUV;
-                if(isEncoder) {
+                if (isEncoder) {
                     VectorD.D2<Long> predictedUV0 = xUV.add(cxUV).divide(pnNorm2Squared);
                     VectorD.D2<Long> predictedUV1 = xUV.subtract(cxUV).divide(pnNorm2Squared);
                     VectorD.D2<Long> cUV = getTexCoordForEntryId(dataId, data);
-                    if(cUV.subtract(predictedUV0).squaredNorm() < cUV.subtract(predictedUV1).squaredNorm()) {
+                    if (cUV.subtract(predictedUV0).squaredNorm() < cUV.subtract(predictedUV1).squaredNorm()) {
                         predictedUV = predictedUV0;
                         orientations.pushBack(true);
                     } else {
@@ -146,13 +146,13 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
                         orientations.pushBack(false);
                     }
                 } else {
-                    if(orientations.isEmpty()) {
+                    if (orientations.isEmpty()) {
                         return Status.ioError("Orientation is empty");
                     }
                     boolean orientation = orientations.popBack();
                     VectorD.D2<ULong> xUVu = VectorD.uLong2(xUV);
                     VectorD.D2<ULong> cxUVu = VectorD.uLong2(cxUV);
-                    if(orientation) {
+                    if (orientation) {
                         predictedUV = VectorD.long2(xUVu.add(cxUVu)).divide(pnNorm2Squared);
                     } else {
                         predictedUV = VectorD.long2(xUVu.subtract(cxUVu)).divide(pnNorm2Squared);
@@ -166,22 +166,22 @@ public class MPSchemeTexCoordsPortablePredictor<DataT> {
         // Else we don't have available textures on both corners or the position data
         // is invalid.
         int dataOffset;
-        if(prevDataId < dataId) {
+        if (prevDataId < dataId) {
             dataOffset = prevDataId * NUM_COMPONENTS;
         }
-        if(nextDataId < dataId) {
+        if (nextDataId < dataId) {
             dataOffset = nextDataId * NUM_COMPONENTS;
         } else {
-            if(dataId > 0) {
+            if (dataId > 0) {
                 dataOffset = (dataId - 1) * NUM_COMPONENTS;
             } else {
-                for(int i = 0; i < NUM_COMPONENTS; ++i) {
+                for (int i = 0; i < NUM_COMPONENTS; ++i) {
                     predictedValue.set(i, dataType.from(0));
                 }
                 return Status.ok();
             }
         }
-        for(int i = 0; i < NUM_COMPONENTS; ++i) {
+        for (int i = 0; i < NUM_COMPONENTS; ++i) {
             predictedValue.set(i, data.get(dataOffset + i));
         }
         return Status.ok();

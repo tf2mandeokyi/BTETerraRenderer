@@ -65,7 +65,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
         // [1, ransPrecision - 1]. The total probability needs to be equal to
         // ransPrecision.
         int totalRansProb = 0;
-        for(int i = 0; i < numSymbols; ++i) {
+        for (int i = 0; i < numSymbols; ++i) {
             ULong freq = frequencies.get(i);
 
             // Normalized probability.
@@ -73,7 +73,7 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
 
             // RAns probability in range of [1, ransPrecision - 1].
             UInt ransProb = UInt.of((int) (prob * ransPrecisionD + 0.5));
-            if(ransProb.equals(0) && freq.gt(0)) {
+            if (ransProb.equals(0) && freq.gt(0)) {
                 ransProb = UInt.of(1);
             }
             probabilityTable.get(i).prob = ransProb;
@@ -81,13 +81,13 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
         }
         // Because of rounding errors, the total precision may not be exactly accurate
         // and we may need to adjust the entries a little bit.
-        if(totalRansProb != ransPrecision) {
+        if (totalRansProb != ransPrecision) {
             CppVector<Integer> sortedProbabilities = new CppVector<>(DataType.int32(), numSymbols);
-            for(int i = 0; i < numSymbols; ++i) {
+            for (int i = 0; i < numSymbols; ++i) {
                 sortedProbabilities.set(i, i);
             }
             sortedProbabilities.sort((a, b) -> probabilityTable.get(a).prob.compareTo(probabilityTable.get(b).prob));
-            if(totalRansProb < ransPrecision) {
+            if (totalRansProb < ransPrecision) {
                 // This happens rather infrequently, just add the extra needed precision
                 // to the most frequent symbol.
                 RAnsSymbol symbol = probabilityTable.get(sortedProbabilities.back());
@@ -96,14 +96,14 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
                 // We have over-allocated the precision, which is quite common.
                 // Rescale the probabilities of all symbols.
                 int error = totalRansProb - ransPrecision;
-                while(error > 0) {
+                while (error > 0) {
                     double actTotalProbD = totalRansProb;
                     double actRelErrorD = ransPrecisionD / actTotalProbD;
-                    for(int j = numSymbols - 1; j > 0; --j) {
+                    for (int j = numSymbols - 1; j > 0; --j) {
                         int symbolId = sortedProbabilities.get(j);
                         RAnsSymbol symbol = probabilityTable.get(symbolId);
-                        if(symbol.prob.le(1)) {
-                            if(j == numSymbols - 1) {
+                        if (symbol.prob.le(1)) {
+                            if (j == numSymbols - 1) {
                                 return Status.ioError("Most frequent symbol is empty");
                             }
                             break;
@@ -111,19 +111,19 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
                         int newProb = (int) Math.floor(actRelErrorD * symbol.prob.intValue());
                         // int32_t fix = probability_table_[symbol_id].prob - new_prob;
                         int fix = symbol.prob.intValue() - newProb;
-                        if(fix == 0) {
+                        if (fix == 0) {
                             fix = 1;
                         }
-                        if(fix >= symbol.prob.intValue()) {
+                        if (fix >= symbol.prob.intValue()) {
                             fix = symbol.prob.sub(1).intValue();
                         }
-                        if(fix > error) {
+                        if (fix > error) {
                             fix = error;
                         }
                         symbol.prob = symbol.prob.sub(fix);
                         totalRansProb -= fix;
                         error -= fix;
-                        if(totalRansProb == ransPrecision) {
+                        if (totalRansProb == ransPrecision) {
                             break;
                         }
                     }
@@ -133,20 +133,20 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
 
         // Compute the cumulative probability (cdf).
         UInt totalProb = UInt.ZERO;
-        for(int i = 0; i < numSymbols; ++i) {
+        for (int i = 0; i < numSymbols; ++i) {
             RAnsSymbol symbol = probabilityTable.get(i);
             symbol.cumProb = totalProb;
             totalProb = totalProb.add(symbol.prob);
         }
-        if(!totalProb.equals(ransPrecision)) {
+        if (!totalProb.equals(ransPrecision)) {
             return Status.ioError("Total probability is not equal to ransPrecision");
         }
 
         // Estimate the number of bits needed to encode the input.
         double numBits = 0;
-        for(int i = 0; i < numSymbols; ++i) {
+        for (int i = 0; i < numSymbols; ++i) {
             RAnsSymbol symbol = probabilityTable.get(i);
-            if(symbol.prob.equals(0)) {
+            if (symbol.prob.equals(0)) {
                 continue;
             }
             double normProb = symbol.prob.doubleValue() / ransPrecisionD;
@@ -199,48 +199,48 @@ public class RAnsSymbolEncoder implements SymbolEncoder {
     private Status encodeTable(EncoderBuffer buffer) {
         StatusChain chain = new StatusChain();
 
-        if(buffer.encodeVarint(numSymbols).isError(chain)) return chain.get();
+        if (buffer.encodeVarint(numSymbols).isError(chain)) return chain.get();
         // Use varint encoding for the probabilities (first two bits represent the
         // number of bytes used - 1).
-        for(UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {
+        for (UInt i = UInt.ZERO; i.lt(numSymbols); i = i.add(1)) {
             UInt prob = probabilityTable.get(i).prob;
             int numExtraBytes = 0;
-            if(prob.ge(1 << 6)) {
+            if (prob.ge(1 << 6)) {
                 numExtraBytes++;
-                if(prob.ge(1 << 14)) {
+                if (prob.ge(1 << 14)) {
                     numExtraBytes++;
-                    if(prob.ge(1 << 22)) {
+                    if (prob.ge(1 << 22)) {
                         // The maximum number of precision bits is 20, so we should not really
                         // get to this point.
                         return Status.ioError("The maximum number of precision bits is 20");
                     }
                 }
             }
-            if(prob.equals(0)) {
+            if (prob.equals(0)) {
                 // When the probability of the symbol is 0, set the first two bits to 1
                 // (unique identifier) and use the remaining 6 bits to store the offset
                 // to the next symbol with non-zero probability.
                 UInt offset = UInt.ZERO;
-                for(; offset.lt((1 << 6) - 1); offset = offset.add(1)) {
+                for (; offset.lt((1 << 6) - 1); offset = offset.add(1)) {
                     // Note: we don't have to check whether the next symbol id is larger
                     // than num_symbols_ because we know that the last symbol always has
                     // non-zero probability.
                     UInt nextProb = probabilityTable.get(i.add(offset).add(1)).prob;
-                    if(nextProb.gt(0)) {
+                    if (nextProb.gt(0)) {
                         break;
                     }
                 }
                 UByte temp = offset.shl(2).or(3).uByteValue();
-                if(buffer.encode(temp).isError(chain)) return chain.get();
+                if (buffer.encode(temp).isError(chain)) return chain.get();
                 i = i.add(offset);
             } else {
                 // Encode the first byte (including the number of extra bytes).
                 UByte temp = prob.shl(2).or(numExtraBytes & 3).uByteValue();
-                if(buffer.encode(temp).isError(chain)) return chain.get();
+                if (buffer.encode(temp).isError(chain)) return chain.get();
                 // Encode the extra bytes
-                for(int b = 0; b < numExtraBytes; ++b) {
+                for (int b = 0; b < numExtraBytes; ++b) {
                     UByte temp1 = prob.shr(8 * (b + 1) - 2).uByteValue();
-                    if(buffer.encode(temp1).isError(chain)) return chain.get();
+                    if (buffer.encode(temp1).isError(chain)) return chain.get();
                 }
             }
         }

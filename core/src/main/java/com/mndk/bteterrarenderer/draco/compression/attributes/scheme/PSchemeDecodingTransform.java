@@ -36,7 +36,7 @@ public interface PSchemeDecodingTransform<DataT, CorrT> {
                                       Pointer<DataT> outOrigVals) {
         DataNumberType<DataT> dataType = this.getDataType();
         DataNumberType<CorrT> corrType = this.getCorrType();
-        if(!dataType.equals(corrType)) {
+        if (!dataType.equals(corrType)) {
             throw new IllegalArgumentException("For the default prediction transform, correction and input " +
                     "data must be of the same type.");
         }

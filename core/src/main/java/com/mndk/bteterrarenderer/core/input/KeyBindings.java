@@ -25,16 +25,16 @@ public class KeyBindings {
     }
 
     public static void checkInputs() {
-        if(KeyBindings.MAP_TOGGLE_KEY.wasPressed()) {
+        if (KeyBindings.MAP_TOGGLE_KEY.wasPressed()) {
             BTETerraRendererConfig.toggleRender();
         }
-        if(KeyBindings.MAP_OPTIONS_KEY.wasPressed()) {
+        if (KeyBindings.MAP_OPTIONS_KEY.wasPressed()) {
             MapRenderingOptionsSidebar.open();
         }
-        while(KeyBindings.MOVE_UP_KEY.wasPressed()) {
+        while (KeyBindings.MOVE_UP_KEY.wasPressed()) {
             TileMapService.getSelected().getItem().moveAlongYAxis(0.5);
         }
-        while(KeyBindings.MOVE_DOWN_KEY.wasPressed()) {
+        while (KeyBindings.MOVE_DOWN_KEY.wasPressed()) {
             TileMapService.getSelected().getItem().moveAlongYAxis(-0.5);
         }
     }

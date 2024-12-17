@@ -69,7 +69,7 @@ public class MPSchemeTexCoordsPortableDecoder<DataT, CorrT> extends MPSchemeDeco
         StatusChain chain = new StatusChain();
 
         Pointer<Integer> numOrientationsRef = Pointer.newInt();
-        if(buffer.decode(numOrientationsRef).isError(chain)) return chain.get();
+        if (buffer.decode(numOrientationsRef).isError(chain)) return chain.get();
         int numOrientations = numOrientationsRef.get();
         if (numOrientations < 0) {
             return Status.ioError("Invalid number of orientations");
@@ -78,9 +78,9 @@ public class MPSchemeTexCoordsPortableDecoder<DataT, CorrT> extends MPSchemeDeco
         predictor.resizeOrientations(numOrientations);
         boolean lastOrientation = true;
         RAnsBitDecoder decoder = new RAnsBitDecoder();
-        if(decoder.startDecoding(buffer).isError(chain)) return chain.get();
+        if (decoder.startDecoding(buffer).isError(chain)) return chain.get();
         for (int i = 0; i < numOrientations; ++i) {
-            if(!decoder.decodeNextBit()) {
+            if (!decoder.decodeNextBit()) {
                 lastOrientation = !lastOrientation;
             }
             predictor.setOrientation(i, lastOrientation);
@@ -106,16 +106,16 @@ public class MPSchemeTexCoordsPortableDecoder<DataT, CorrT> extends MPSchemeDeco
 
     @Override
     public GeometryAttribute.Type getParentAttributeType(int i) {
-        if(i != 0) throw new IllegalArgumentException("Invalid parent attribute index");
+        if (i != 0) throw new IllegalArgumentException("Invalid parent attribute index");
         return GeometryAttribute.Type.POSITION;
     }
 
     @Override
     public Status setParentAttribute(PointAttribute att) {
-        if(att == null || att.getAttributeType() != GeometryAttribute.Type.POSITION) {
+        if (att == null || att.getAttributeType() != GeometryAttribute.Type.POSITION) {
             return Status.invalidParameter("Invalid attribute type");
         }
-        if(!att.getNumComponents().equals(3)) {
+        if (!att.getNumComponents().equals(3)) {
             return Status.invalidParameter("Currently works only for 3 component positions");
         }
         predictor.setPositionAttribute(att);

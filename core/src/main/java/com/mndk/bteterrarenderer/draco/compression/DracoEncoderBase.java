@@ -66,25 +66,25 @@ public abstract class DracoEncoderBase<Op extends EncoderOptionsBase<?>> {
             return Status.dracoError("Invalid prediction scheme requested.");
         }
         // Deprecated prediction schemes:
-        if(predictionScheme == PredictionSchemeMethod.MESH_TEX_COORDS_DEPRECATED) {
+        if (predictionScheme == PredictionSchemeMethod.MESH_TEX_COORDS_DEPRECATED) {
             return Status.dracoError("MESH_PREDICTION_TEX_COORDS_DEPRECATED is deprecated.");
         }
-        if(predictionScheme == PredictionSchemeMethod.MESH_MULTI_PARALLELOGRAM) {
+        if (predictionScheme == PredictionSchemeMethod.MESH_MULTI_PARALLELOGRAM) {
             return Status.dracoError("MESH_PREDICTION_MULTI_PARALLELOGRAM is deprecated.");
         }
         // Attribute specific checks:
-        if(predictionScheme == PredictionSchemeMethod.MESH_TEX_COORDS_PORTABLE) {
-            if(attType != GeometryAttribute.Type.TEX_COORD) {
+        if (predictionScheme == PredictionSchemeMethod.MESH_TEX_COORDS_PORTABLE) {
+            if (attType != GeometryAttribute.Type.TEX_COORD) {
                 return Status.dracoError("Invalid prediction scheme for attribute type.");
             }
         }
-        if(predictionScheme == PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL) {
-            if(attType != GeometryAttribute.Type.NORMAL) {
+        if (predictionScheme == PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL) {
+            if (attType != GeometryAttribute.Type.NORMAL) {
                 return Status.dracoError("Invalid prediction scheme for attribute type.");
             }
         }
-        if(attType == GeometryAttribute.Type.NORMAL) {
-            if(!(predictionScheme == PredictionSchemeMethod.DIFFERENCE ||
+        if (attType == GeometryAttribute.Type.NORMAL) {
+            if (!(predictionScheme == PredictionSchemeMethod.DIFFERENCE ||
                     predictionScheme == PredictionSchemeMethod.MESH_GEOMETRIC_NORMAL)) {
                 return Status.dracoError("Invalid prediction scheme for attribute type.");
             }

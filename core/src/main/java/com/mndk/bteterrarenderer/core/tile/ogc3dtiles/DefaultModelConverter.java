@@ -38,7 +38,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         AccessorModel positionAccessor = meshPrimitiveModel.getAttributes().get("POSITION");
         AccessorModel normalAccessor = meshPrimitiveModel.getAttributes().get("NORMAL");
         AccessorModel textureCoordAccessor = meshPrimitiveModel.getAttributes().get("TEXCOORD_0");
-        if(textureCoordAccessor == null) {
+        if (textureCoordAccessor == null) {
             Loggers.get(this).warn("texture coord accessor is null");
         }
 
@@ -51,7 +51,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
 
         int numPoints = positionAccessor.getCount();
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
-        for(int i = 0; i < numPoints; i++) {
+        for (int i = 0; i < numPoints; i++) {
             Cartesian3f position = readPosition(positionAccessor, i, positionTransform);
             McCoord gamePos = this.transformEarthCoordToGame(position);
 
@@ -67,20 +67,20 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
 
     private static Cartesian3f readPosition(AccessorModel positionAccessor, int index, @Nullable Matrix4f transform) {
         Cartesian3f cartesian = readCartesian3(positionAccessor, index);
-        if(transform != null) cartesian = cartesian.transform(transform);
+        if (transform != null) cartesian = cartesian.transform(transform);
         return cartesian;
     }
 
     private static float[] readTextureCoord(@Nullable AccessorModel textureCoordAccessor, int index) {
         // Return random point if the texture coordinate accessor is null
-        if(textureCoordAccessor == null) return new float[] { 0, 0 };
+        if (textureCoordAccessor == null) return new float[] { 0, 0 };
         AccessorData data = textureCoordAccessor.getAccessorData();
         return readFloatArray(data, index, 2);
     }
 
     private static Cartesian3f readNormal(AccessorModel normalAccessor, int index, @Nullable Matrix4f transform) {
         Cartesian3f cartesian = readCartesian3(normalAccessor, index);
-        if(transform != null) cartesian = cartesian.transform(transform);
+        if (transform != null) cartesian = cartesian.transform(transform);
         return cartesian;
     }
 
@@ -90,8 +90,8 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         int meshCount = indicesAccessor != null ? indicesAccessor.getCount() : points.length;
 
         int meshMode = meshPrimitiveModel.getMode();
-        if(meshMode == MeshPrimitiveModelModes.TRIANGLES) {
-            for(int i = 0; i < meshCount; i += 3) {
+        if (meshMode == MeshPrimitiveModelModes.TRIANGLES) {
+            for (int i = 0; i < meshCount; i += 3) {
                 int[] meshIndices = indicesAccessor != null ? new int[] {
                         readInteger(indicesAccessor, i),
                         readInteger(indicesAccessor, i + 1),
@@ -120,15 +120,15 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
 
     private static int readInteger(@Nonnull AccessorModel accessor, int defaultValue) {
         AccessorData data = accessor.getAccessorData();
-        if(data == null) return defaultValue;
+        if (data == null) return defaultValue;
 
-        if(data instanceof AccessorByteData) {
+        if (data instanceof AccessorByteData) {
             return ((AccessorByteData) data).get(defaultValue);
         }
-        else if(data instanceof AccessorShortData) {
+        else if (data instanceof AccessorShortData) {
             return ((AccessorShortData) data).get(defaultValue);
         }
-        else if(data instanceof AccessorIntData) {
+        else if (data instanceof AccessorIntData) {
             return ((AccessorIntData) data).get(defaultValue);
         }
         else {
@@ -138,29 +138,29 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
 
     private static float[] readFloatArray(AccessorData data, int elementIndex, int componentCount) {
         float[] result = new float[componentCount];
-        if(data instanceof AccessorFloatData) {
-            for(int i = 0; i < componentCount; i++) {
+        if (data instanceof AccessorFloatData) {
+            for (int i = 0; i < componentCount; i++) {
                 result[i] = ((AccessorFloatData) data).get(elementIndex, i);
             }
             return result;
         }
-        else if(data instanceof AccessorIntData) {
-            for(int i = 0; i < componentCount; i++) {
+        else if (data instanceof AccessorIntData) {
+            for (int i = 0; i < componentCount; i++) {
                 result[i] = ((AccessorIntData) data).get(elementIndex, i);
             }
             return result;
         }
-        else if(data instanceof AccessorShortData) {
+        else if (data instanceof AccessorShortData) {
             AccessorShortData shortData = (AccessorShortData) data;
-            for(int i = 0; i < componentCount; i++) {
+            for (int i = 0; i < componentCount; i++) {
                 int value = shortData.getInt(elementIndex, i);
                 result[i] = QuantizationUtil.normalizeShort(value, shortData.isUnsigned());
             }
             return result;
         }
-        else if(data instanceof AccessorByteData) {
+        else if (data instanceof AccessorByteData) {
             AccessorByteData byteData = (AccessorByteData) data;
-            for(int i = 0; i < componentCount; i++) {
+            for (int i = 0; i < componentCount; i++) {
                 int value = byteData.getInt(elementIndex, i);
                 result[i] = QuantizationUtil.normalizeByte(value, byteData.isUnsigned());
             }

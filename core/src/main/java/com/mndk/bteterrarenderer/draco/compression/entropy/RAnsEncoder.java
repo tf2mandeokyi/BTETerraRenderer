@@ -44,23 +44,23 @@ public class RAnsEncoder {
     }
 
     public ULong writeEnd() {
-        if(ans.state.lt(this.lRansBase) || ans.state.ge(this.lRansBase * Ans.DRACO_ANS_IO_BASE)) {
+        if (ans.state.lt(this.lRansBase) || ans.state.ge(this.lRansBase * Ans.DRACO_ANS_IO_BASE)) {
             throw new IllegalStateException("Illegal state number to be serialized");
         }
         UInt state = ans.state.sub(this.lRansBase);
-        if(state.lt(1 << 6)) {
+        if (state.lt(1 << 6)) {
             UByte value = state.uByteValue();
             ans.buf.setRawByte(ans.bufOffset, value);
             return ULong.of(ans.bufOffset + 1);
-        } else if(state.lt(1 << 14)) {
+        } else if (state.lt(1 << 14)) {
             UInt value = UInt.of(0x01 << 14).add(state);
             Ans.memPutLe16(ans.buf.rawAdd(ans.bufOffset), value);
             return ULong.of(ans.bufOffset + 2);
-        } else if(state.lt(1 << 22)) {
+        } else if (state.lt(1 << 22)) {
             UInt value = UInt.of(0x02 << 22).add(state);
             Ans.memPutLe24(ans.buf.rawAdd(ans.bufOffset), value);
             return ULong.of(ans.bufOffset + 3);
-        } else if(state.lt(1 << 30)) {
+        } else if (state.lt(1 << 30)) {
             UInt value = UInt.of(0x03 << 30).add(state);
             Ans.memPutLe32(ans.buf.rawAdd(ans.bufOffset), value);
             return ULong.of(ans.bufOffset + 4);
@@ -71,7 +71,7 @@ public class RAnsEncoder {
 
     public void ransWrite(RAnsSymbol sym) {
         UInt p = sym.prob;
-        while(ans.state.ge(p.mul(this.lRansBase / this.ransPrecision * Ans.DRACO_ANS_IO_BASE))) {
+        while (ans.state.ge(p.mul(this.lRansBase / this.ransPrecision * Ans.DRACO_ANS_IO_BASE))) {
             UByte value = ans.state.mod(Ans.DRACO_ANS_IO_BASE).uByteValue();
             ans.buf.setRawByte(ans.bufOffset++, value);
             ans.state = ans.state.div(Ans.DRACO_ANS_IO_BASE);

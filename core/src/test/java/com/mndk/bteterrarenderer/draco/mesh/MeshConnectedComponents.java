@@ -77,7 +77,7 @@ public class MeshConnectedComponents {
                     }
 
                     int oppFaceId = cornerTable.getFace(oppCorner).getValue();
-                    if(isFaceVisited.get(oppFaceId)) continue;
+                    if (isFaceVisited.get(oppFaceId)) continue;
                     isFaceVisited.set(oppFaceId, true);
                     faceStack.pushBack(oppFaceId);
                 }

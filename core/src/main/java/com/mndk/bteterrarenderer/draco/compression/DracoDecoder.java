@@ -53,30 +53,30 @@ public class DracoDecoder {
         StatusChain chain = new StatusChain();
         DecoderBuffer tempBuffer = new DecoderBuffer(inBuffer);
         DracoHeader header = new DracoHeader();
-        if(PointCloudDecoder.decodeHeader(tempBuffer, header).isError(chain)) return StatusOr.error(chain.get());
+        if (PointCloudDecoder.decodeHeader(tempBuffer, header).isError(chain)) return StatusOr.error(chain.get());
         return StatusOr.ok(header.getEncoderType());
     }
 
-//    /**
-//     * Decodes point cloud from the provided buffer. The buffer must be filled
-//     * with data that was encoded with either the {@link EncodePointCloudToBuffer} or
-//     * {@link EncodeMeshToBuffer} methods. In case the input buffer contains
-//     * mesh, the returned instance can be down-casted to {@link Mesh}.
-//     */
-//    public StatusOr<PointCloud> decodePointCloudFromBuffer(DecoderBuffer inBuffer) {
-//
-//    }
+    /**
+     * Decodes point cloud from the provided buffer. The buffer must be filled
+     * with data that was encoded with either the {@link DracoEncoder#encodePointCloudToBuffer} or
+     * {@link DracoEncoder#encodeMeshToBuffer} methods. In case the input buffer contains
+     * mesh, the returned instance can be down-casted to {@link Mesh}.
+     */
+    public StatusOr<PointCloud> decodePointCloudFromBuffer(DecoderBuffer inBuffer) {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
 
     /**
      * Decodes a triangular mesh from the provided buffer. The mesh must be filled
-     * with data that was encoded using the {@link encodeMeshToBuffer} method.
+     * with data that was encoded using the {@link DracoEncoder#encodeMeshToBuffer} method.
      * The function will return {@code null} in case the input is invalid or if it was
-     * encoded with the {@link encodePointCloudToBuffer} method.
+     * encoded with the {@link DracoEncoder#encodePointCloudToBuffer} method.
      */
     public StatusOr<Mesh> decodeMeshFromBuffer(DecoderBuffer inBuffer) {
         StatusChain chain = new StatusChain();
         Mesh mesh = new Mesh();
-        if(this.decodeBufferToGeometry(inBuffer, mesh).isError(chain)) return StatusOr.error(chain.get());
+        if (this.decodeBufferToGeometry(inBuffer, mesh).isError(chain)) return StatusOr.error(chain.get());
         return StatusOr.ok(mesh);
     }
 
@@ -92,19 +92,19 @@ public class DracoDecoder {
         return this.decodeMeshFromBuffer(decoderBuffer);
     }
 
-//    /**
-//     * Decodes the buffer into a provided geometry. If the geometry is
-//     * incompatible with the encoded data. For example, when {@code outGeometry} is
-//     * {@link Mesh} while the data contains a point cloud, the function will return
-//     * an error status.
-//     */
-//    public Status decodeBufferToGeometry(DecoderBuffer inBuffer, PointCloud outGeometry) {
-//
-//    }
-//
-//    private static StatusOr<PointCloudDecoder> createPointCloudDecoder(PointCloudEncodingMethod method) {
-//
-//    }
+    /**
+     * Decodes the buffer into a provided geometry. If the geometry is
+     * incompatible with the encoded data. For example, when {@code outGeometry} is
+     * {@link Mesh} while the data contains a point cloud, the function will return
+     * an error status.
+     */
+    public Status decodeBufferToGeometry(DecoderBuffer inBuffer, PointCloud outGeometry) {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    private static StatusOr<PointCloudDecoder> createPointCloudDecoder(PointCloudEncodingMethod method) {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
 
     /**
      * Decodes the buffer into a provided geometry. If the geometry is
@@ -117,22 +117,22 @@ public class DracoDecoder {
         DecoderBuffer tempBuffer = new DecoderBuffer(inBuffer);
         // Parse header
         DracoHeader header = new DracoHeader();
-        if(PointCloudDecoder.decodeHeader(tempBuffer, header).isError(chain)) return chain.get();
-        if(header.getEncoderType() != EncodedGeometryType.TRIANGULAR_MESH) {
+        if (PointCloudDecoder.decodeHeader(tempBuffer, header).isError(chain)) return chain.get();
+        if (header.getEncoderType() != EncodedGeometryType.TRIANGULAR_MESH) {
             return Status.dracoError("Input is not a mesh.");
         }
         // Get decoder
         StatusOr<MeshDecoder> decoderOrError = createMeshDecoder(header.getEncoderMethod());
-        if(decoderOrError.isError(chain)) return chain.get();
+        if (decoderOrError.isError(chain)) return chain.get();
         MeshDecoder decoder = decoderOrError.getValue();
         // Decode
         return decoder.decode(options, inBuffer, outGeometry);
     }
 
     private static StatusOr<MeshDecoder> createMeshDecoder(MeshEncoderMethod method) {
-        if(method == MeshEncoderMethod.SEQUENTIAL) {
+        if (method == MeshEncoderMethod.SEQUENTIAL) {
             return StatusOr.ok(new MeshSequentialDecoder());
-        } else if(method == MeshEncoderMethod.EDGEBREAKER) {
+        } else if (method == MeshEncoderMethod.EDGEBREAKER) {
             return StatusOr.ok(new MeshEdgebreakerDecoder());
         }
         return StatusOr.dracoError("Unsupported encoding method.");

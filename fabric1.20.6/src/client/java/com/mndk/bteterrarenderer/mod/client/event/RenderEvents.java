@@ -27,10 +27,10 @@ public class RenderEvents {
     public void onRender(WorldRenderContext renderContext) {
         World world = renderContext.world();
         MinecraftClient client = renderContext.gameRenderer().getClient();
-        if(world == null) return;
-        if(client.player == null) return;
+        if (world == null) return;
+        if (client.player == null) return;
 
-        Matrix4f currentMatrix = switch(renderContext.matrixStack()) {
+        Matrix4f currentMatrix = switch (renderContext.matrixStack()) {
             case MatrixStack stack -> stack.peek().getPositionMatrix();
             case null -> new Matrix4f();
         };

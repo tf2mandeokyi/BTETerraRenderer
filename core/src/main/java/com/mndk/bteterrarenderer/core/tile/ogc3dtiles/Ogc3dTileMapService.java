@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
-import com.mndk.bteterrarenderer.core.projection.Projections;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
@@ -27,8 +26,8 @@ import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
@@ -44,7 +43,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.*;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
@@ -91,7 +89,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(1000 * 60 * 10 /* 10 minutes */, 10000, false));
         this.storageFetcher = ImmediateBlock.of((key, input) -> {
             ProcessingState state = tileDataStorage.getResourceProcessingState(input);
-            if(state != ProcessingState.PROCESSED) return null;
+            if (state != ProcessingState.PROCESSED) return null;
             return tileDataStorage.updateAndGetOutput(input);
         });
         this.streamParser = ImmediateBlock.of((key, pair) -> {
@@ -101,26 +99,20 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    public McCoordTransformer getPositionTransformer(McCoord playerPos) {
+    public McCoordTransformer getPositionTransformer() {
         float yAlign = (float) BTETerraRendererConfig.HOLOGRAM.getYAlign();
-        if(!this.yDistortion) {
-            McCoord offset = new McCoord(0, yAlign, 0).subtract(playerPos);
+        if (!this.yDistortion) {
+            McCoord offset = new McCoord(0, yAlign, 0);
             return pos -> pos.add(offset);
         }
         else {
-            return pos -> new McCoord(
-                    pos.getX() - playerPos.getX(),
-                    (float) (pos.getY() * this.magnitude + yAlign - playerPos.getY()),
-                    pos.getZ() - playerPos.getZ()
-            );
+            return pos -> new McCoord(pos.getX(), (float) (pos.getY() * this.magnitude + yAlign), pos.getZ());
         }
     }
 
     @Override
     protected void preRender(McCoord playerPos) {
-        GeographicProjection projection = Projections.getHologramProjection();
-        if(projection == null) return;
-
+        GeographicProjection projection = this.getHologramProjection();
         try {
             // Normally it's good to calculate distortion for individual model vertices...
             // But that significantly drops the fps value (100 -> 4), so I'll put the player position instead.
@@ -129,7 +121,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             double[] geoCoord = projection.toGeo(playerPos.getX(), playerPos.getZ());
             double[] tissot = projection.tissot(geoCoord[0], geoCoord[1]);
             this.magnitude = Math.sqrt(Math.abs(tissot[0]));
-        } catch(OutOfProjectionBoundsException ignored) {}
+        } catch (OutOfProjectionBoundsException ignored) {}
     }
 
     @Override
@@ -140,7 +132,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Override
     protected CacheableProcessorModel.SequentialBuilder<TileGlobalKey, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
         return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher)
-                .then(ImmediateBlock.of((key, pair) -> Triple.of(pair.getLeft(), pair.getRight(), this)))
+                .then(ImmediateBlock.of((key, pair) -> Ogc3dTileParsingBlock.payload(pair.getLeft(), pair.getRight(), this)))
                 .then(TILE_PARSER);
     }
 
@@ -162,7 +154,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     public List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight) {
-        if(radius == 0) return Collections.emptyList();
+        if (radius == 0) return Collections.emptyList();
 
         Spheroid3 spheroid = Spheroid3.fromDegrees(longitude, latitude, seaLevelHeight);
         Cartesian3f cartesian = coordConverter.toCartesian(spheroid);
@@ -174,10 +166,10 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private Tileset getRootTileset() {
         TileGlobalKey key = TileGlobalKey.ROOT_KEY;
         Pair<Matrix4f, TileData> pair = tileDataStorage.updateOrInsert(key, Pair.of(Matrix4f.IDENTITY, this.rootTilesetUrl));
-        if(pair == null) return null;
+        if (pair == null) return null;
 
         TileData tileData = pair.getRight();
-        if(!(tileData instanceof Tileset)) {
+        if (!(tileData instanceof Tileset)) {
             Loggers.get(this).warn("Root tile url is not a tile set");
             return null;
         }
@@ -197,52 +189,47 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
         Stack<Node> nodes = new Stack<>();
         Tileset rootTileset = this.getRootTileset();
-        if(rootTileset == null) return Collections.emptyList();
+        if (rootTileset == null) return Collections.emptyList();
         nodes.add(new Node(rootTileset, this.rootTilesetUrl, new TileLocalKey[0], Matrix4f.IDENTITY));
 
-        do {
+        while (!nodes.isEmpty()) {
             Node node = nodes.pop();
-            Tileset currentTileset = node.tileset;
-            URL parentUrl = node.parentUrl;
-            TileLocalKey[] parentKeys = node.parentKeys;
-            Matrix4f parentTransform = node.parentTransform;
 
             // Get intersections from the current tileset
             List<LocalTileNode> intersections = TileKeyManager.getIntersectionsFromTileset(
-                    currentTileset, playerSphere, parentTransform, this.renderSurroundings);
+                    node.tileset, playerSphere, node.parentTransform, this.renderSurroundings);
 
             for (LocalTileNode localTileNode : intersections) {
-                TileLocalKey localKey = localTileNode.getKey();
                 TileContentLink contentLink = localTileNode.getContentLink();
                 Matrix4f currentTransform = localTileNode.getTransform();
 
                 // Skip if the url is malformed
                 URL currentUrl;
                 try {
-                    currentUrl = contentLink.getTrueUrl(parentUrl);
-                } catch(MalformedURLException e) {
-                    Loggers.get(this).warn("Malformed URL: " + contentLink + " (parent: " + parentUrl + ")");
+                    currentUrl = contentLink.getTrueUrl(node.parentUrl);
+                } catch (MalformedURLException e) {
+                    Loggers.get(this).warn("Malformed URL: {} (parent: {})", contentLink, node.parentUrl);
                     continue;
                 }
 
-                TileLocalKey[] currentKeys = ArrayUtil.expandOne(parentKeys, localKey, TileLocalKey[]::new);
+                TileLocalKey[] currentKeys = ArrayUtil.expandOne(node.parentKeys, localTileNode.getKey(), TileLocalKey[]::new);
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
 
                 // Get data from cache
                 Pair<Matrix4f, TileData> parsedData = tileDataStorage.updateOrInsert(currentKey,
                         Pair.of(currentTransform, currentUrl));
-                if(parsedData == null) continue;
+                if (parsedData == null) continue;
 
 				TileData tileData = parsedData.getRight();
-                if(tileData.getGltfModelInstance() != null) {
+                if (tileData.getGltfModelInstance() != null) {
                     result.add(currentKey);
                 }
-                if(tileData instanceof Tileset) {
+                if (tileData instanceof Tileset) {
                     Tileset newTileset = (Tileset) tileData;
                     nodes.add(new Node(newTileset, currentUrl, currentKeys, currentTransform));
                 }
             }
-        } while(!nodes.isEmpty());
+        }
 
         return result;
     }
@@ -283,7 +270,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             double semiMinorAxis = JsonParserUtil.getOrDefault(node, "semi_minor", Wgs84Constants.SEMI_MINOR_AXIS);
             String geoidType = JsonParserUtil.getOrDefault(node, "geoid", "wgs84");
             GeoidHeightFunction function;
-            switch(geoidType) {
+            switch (geoidType) {
                 case "wgs84": function = GeoidHeightFunction.WGS84_ELLIPSOID; break;
                 case "egm96": function = GeoidHeightFunction.EGM96_WW15MGH; break;
                 default: throw new IOException("Unknown geoid type: " + geoidType);
