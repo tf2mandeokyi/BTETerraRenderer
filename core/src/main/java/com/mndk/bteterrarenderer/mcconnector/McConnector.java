@@ -12,7 +12,7 @@ public class McConnector {
 
     public static void initialize(CommonMinecraftManager minecraft) {
         if (MINECRAFT != null) LOGGER.warn("Minecraft reinitialization");
-        LOGGER.info("initialization: " + minecraft.getClass());
+        LOGGER.info("initialization: {}", minecraft.getClass());
         MINECRAFT = minecraft;
     }
 

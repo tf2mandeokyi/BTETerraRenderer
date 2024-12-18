@@ -66,9 +66,18 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
         return Minecraft.ON_OSX;
     }
 
+    public double getFovDegrees() {
+        return Minecraft.getInstance().options.fov;
+    }
+
     public double getPlayerRotationYaw() {
         LocalPlayer player = Minecraft.getInstance().player;
         return player != null ? player.getYRot() : 0;
+    }
+
+    public double getPlayerRotationPitch() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player != null ? player.getXRot() : 0;
     }
 
     public void sendTextComponentToChat(TextWrapper textComponent) {

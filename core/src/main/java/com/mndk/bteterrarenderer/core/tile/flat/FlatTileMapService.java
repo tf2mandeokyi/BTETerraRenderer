@@ -83,7 +83,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    public McCoordTransformer getPositionTransformer() {
+    public McCoordTransformer getModelPositionTransformer() {
         float yAlign = (float) (BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON);
         return pos -> pos.add(new McCoord(0, yAlign, 0));
     }
@@ -126,12 +126,13 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    public List<FlatTileKey> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight) {
+    public List<FlatTileKey> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         if (this.coordTranslator == null) return Collections.emptyList();
 
         try {
             List<FlatTileKey> result = new ArrayList<>();
-            int[] tileCoord = this.coordTranslator.geoCoordToTileCoord(longitude, latitude, relativeZoom);
+            double[] geo = this.getHologramProjection().toGeo(cameraPos.getX(), cameraPos.getZ());
+            int[] tileCoord = this.coordTranslator.geoCoordToTileCoord(geo[0], geo[1], relativeZoom);
 
             // Diamond pattern
             for (int i = 0; i < 2 * this.radius + 1; ++i) {

@@ -1,8 +1,12 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key;
 
+import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.Ogc3dTileMapService;
 import com.mndk.bteterrarenderer.core.util.ArrayUtil;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidFrustum;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tile;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileRefinement;
@@ -17,9 +21,8 @@ import java.util.Stack;
 @UtilityClass
 public class TileKeyManager {
 
-    public List<LocalTileNode> getIntersectionsFromTileset(Tileset tileset, Sphere playerSphere,
-                                                           Matrix4f parentTilesetTransform,
-                                                           boolean selectSurroundings) {
+    public List<LocalTileNode> getIntersectionsFromTileset(Tileset tileset, Matrix4f parentTilesetTransform,
+                                                           SpheroidFrustum frustum, Ogc3dTileMapService tms) {
         @RequiredArgsConstructor
         class Node {
             final int[] indexes;
@@ -27,9 +30,13 @@ public class TileKeyManager {
             final Matrix4f previousTransform;
         }
 
+        Plane[] planes = frustum.getPlanes();
         List<LocalTileNode> resultList = new ArrayList<>();
         Stack<Node> nodeStack = new Stack<>();
         nodeStack.push(new Node(new int[0], tileset.getRootTile(), parentTilesetTransform));
+
+        boolean renderSurroundings = tms.isRenderSurroundings();
+        SpheroidCoordinatesConverter converter = tms.getCoordConverter();
 
         while (!nodeStack.isEmpty()) {
             Node currentNode = nodeStack.pop();
@@ -40,8 +47,8 @@ public class TileKeyManager {
             Matrix4f currentTransform = currentNode.previousTransform;
             if (localTransform != null) currentTransform = currentTransform.multiply(localTransform);
 
-            // TODO: Change this to use frustum culling
-            if (!selectSurroundings && !currentTile.getBoundingVolume().intersectsSphere(playerSphere, currentTransform))
+            Volume boundingVolume = currentTile.getBoundingVolume();
+            if (!renderSurroundings && !boundingVolume.intersectsPositiveSides(planes, currentTransform, converter))
                 continue;
 
             List<Tile> children = currentTile.getChildren();
@@ -49,7 +56,8 @@ public class TileKeyManager {
 
             boolean atLeastOneChildIntersects = false;
             for (Tile child : children) {
-                if (child.getBoundingVolume().intersectsSphere(playerSphere, currentTransform)) {
+                Volume childBoundingVolume = child.getBoundingVolume();
+                if (childBoundingVolume.intersectsPositiveSides(planes, currentTransform, converter)) {
                     atLeastOneChildIntersects = true;
                     break;
                 }

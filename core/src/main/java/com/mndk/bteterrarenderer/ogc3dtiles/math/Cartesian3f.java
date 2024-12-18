@@ -27,6 +27,10 @@ public class Cartesian3f {
         this((float) x, (float) y, (float) z);
     }
 
+    public float[] toArray() {
+        return new float[] { x, y, z };
+    }
+
     /**
      * Returns a transformable 1x3 matrix of itself: {@code [x, y, z]^T}<br>
      * @return The matrix
@@ -101,28 +105,12 @@ public class Cartesian3f {
         return this.scale(1 / this.distance());
     }
 
-	/**
-	 * Returns the xy distance from the origin
-	 * @return The distance
-	 */
-	public float xyDistance() {
-		return (float) Math.sqrt(x*x + y*y);
-	}
-
     /**
      * Returns the distance from the origin
      * @return The distance
      */
     public float distance() {
         return (float) Math.sqrt(x*x + y*y + z*z);
-    }
-
-    /**
-     * Returns the distance from the origin squared
-     * @return The distance
-     */
-    public float distance2() {
-        return x*x + y*y + z*z;
     }
 
     /**
@@ -173,6 +161,13 @@ public class Cartesian3f {
             y3 = (1.0f - Math.abs(oldX3)) * signNotZero(y3);
         }
         return new Cartesian3f(x3, y3, z3).toNormalized();
+    }
+
+    public static Cartesian3f min(Cartesian3f a, Cartesian3f b) {
+        return new Cartesian3f(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
+    }
+    public static Cartesian3f max(Cartesian3f a, Cartesian3f b) {
+        return new Cartesian3f(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
     }
 
     static class Deserializer extends JsonDeserializer<Cartesian3f> {

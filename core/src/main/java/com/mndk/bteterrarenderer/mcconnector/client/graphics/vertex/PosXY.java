@@ -18,6 +18,11 @@ public class PosXY extends GraphicsVertex<PosXY> {
     }
 
     @Override
+    public McCoord getMcCoord() {
+        return new McCoord(0, 0, 0);
+    }
+
+    @Override
     public String toString() {
         return String.format("PosXY(pos=[%.2f, %.2f])", x, y);
     }

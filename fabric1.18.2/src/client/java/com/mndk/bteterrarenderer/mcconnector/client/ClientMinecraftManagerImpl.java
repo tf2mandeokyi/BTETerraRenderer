@@ -74,9 +74,18 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
         return MinecraftClient.IS_SYSTEM_MAC;
     }
 
+    public double getFovDegrees() {
+        return MinecraftClient.getInstance().options.fov;
+    }
+
     public double getPlayerRotationYaw() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         return player != null ? player.getYaw() : 0;
+    }
+
+    public double getPlayerRotationPitch() {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        return player != null ? player.getPitch() : 0;
     }
 
     public void sendTextComponentToChat(TextWrapper textComponent) {

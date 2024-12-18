@@ -18,6 +18,11 @@ public class PosTex extends GraphicsVertex<PosTex> {
     }
 
     @Override
+    public McCoord getMcCoord() {
+        return pos;
+    }
+
+    @Override
     public String toString() {
         return String.format("PosTex(pos=%s, tex=[%.4f, %.4f])", pos, u, v);
     }

@@ -12,8 +12,8 @@ import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,8 +35,8 @@ public interface TileMapService extends AutoCloseable {
     List<PropertyAccessor.Localized<?>> getStateAccessors();
     void moveAlongYAxis(double amount);
 
-    List<GraphicsModel> getModels(McCoord playerPos);
-    McCoordTransformer getPositionTransformer();
+    List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees);
+    McCoordTransformer getModelPositionTransformer();
     void cleanUp();
 
     class Serializer extends JsonSerializer<TileMapService> {

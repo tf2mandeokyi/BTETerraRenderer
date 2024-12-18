@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,21 +70,17 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     }
 
     @Override
-    public final List<GraphicsModel> getModels(McCoord playerPos) {
+    public final List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         // Bake textures
         if (!MISSING_TEXTURE_BAKED) {
             MODEL_BAKER.setDefaultTexture(McConnector.client().glGraphicsManager.getMissingTextureObject());
             MISSING_TEXTURE_BAKED = true;
         }
-        this.preRender(playerPos);
+        this.preRender(cameraPos);
         MODEL_BAKER.process(2);
 
         // Get tileId list
-        List<TileId> renderTileIdList;
-        try {
-            double[] geoCoord = this.getHologramProjection().toGeo(playerPos.getX(), playerPos.getZ());
-            renderTileIdList = this.getRenderTileIdList(geoCoord[0], geoCoord[1], playerPos.getY());
-        } catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
+        List<TileId> renderTileIdList = this.getRenderTileIdList(cameraPos, yawDegrees, pitchDegrees);
 
         // Get models based on tileId list
         List<GraphicsModel> result = new ArrayList<>();
@@ -128,7 +123,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     }
 
     @Override
-    public McCoordTransformer getPositionTransformer() {
+    public McCoordTransformer getModelPositionTransformer() {
         return McCoordTransformer.IDENTITY;
     }
 
@@ -170,12 +165,14 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     protected abstract List<PropertyAccessor.Localized<?>> makeStateAccessors();
 
     /**
-     * @param longitude Player longitude, in degrees
-     * @param latitude  Player latitude, in degrees
-     * @param seaLevelHeight    Player height, in meters
-     * @return A list of tile ids
+     * Retrieves a list of tile IDs to be rendered based on the given spheroid coordinates and frustum.
+     *
+     * @param cameraPos The camera position
+     * @param yawDegrees The yaw angle of the camera
+     * @param pitchDegrees The pitch angle of the camera
+     * @return A list of tile IDs to be rendered.
      */
-    public abstract List<TileId> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight);
+    public abstract List<TileId> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees);
 
     @Nullable
     public abstract List<GraphicsModel> getLoadingModel(TileId tileId) throws OutOfProjectionBoundsException;

@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
 import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordAABB;
 
 public class GraphicsQuad<T extends GraphicsVertex<T>> extends GraphicsShape<T> {
 
@@ -32,6 +33,14 @@ public class GraphicsQuad<T extends GraphicsVertex<T>> extends GraphicsShape<T> 
     @Override
     public int getVerticesCount() {
         return 4;
+    }
+
+    @Override
+    public McCoordAABB getBoundingBox() {
+        return new McCoordAABB(this.getVertex(0).getMcCoord())
+                .include(this.getVertex(1).getMcCoord())
+                .include(this.getVertex(2).getMcCoord())
+                .include(this.getVertex(3).getMcCoord());
     }
 
     public static GraphicsQuad<PosTex> newPosTex() {

@@ -35,7 +35,9 @@ public abstract class ClientMinecraftManager extends CommonMinecraftManager {
     public abstract NativeGuiScreenWrapper<?> newChatScreen(String initialText);
 
     public abstract boolean isOnMac();
+    public abstract double getFovDegrees();
     public abstract double getPlayerRotationYaw();
+    public abstract double getPlayerRotationPitch();
     public abstract void playClickSound();
 
     public abstract void sendTextComponentToChat(TextWrapper textComponent);

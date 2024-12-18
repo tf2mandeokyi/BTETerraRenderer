@@ -16,6 +16,7 @@ public class TileRenderer {
         if (!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
 
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
+        float opacity = (float) hologramConfig.getOpacity();
 
         TileMapService tms = TileMapService.getSelected().getItem();
         if (tms == null) return;
@@ -30,13 +31,14 @@ public class TileRenderer {
         McConnector.client().glGraphicsManager.glEnableBlend();
         McConnector.client().glGraphicsManager.glSetAlphaBlendFunc();
 
-        McCoord playerPos = new McCoord(px, (float) py, pz);
-        List<GraphicsModel> models = tms.getModels(playerPos);
-        McCoordTransformer transformer = tms.getPositionTransformer();
-        McCoordTransformer finalTransformer = pos -> transformer.transform(pos).subtract(playerPos);
-        float opacity = (float) hologramConfig.getOpacity();
+        double yawDegrees = McConnector.client().getPlayerRotationYaw();
+        double pitchDegrees = McConnector.client().getPlayerRotationPitch();
+        McCoord cameraPos = new McCoord(px, (float) py, pz);
+        List<GraphicsModel> models = tms.getModels(cameraPos, yawDegrees, pitchDegrees);
+        McCoordTransformer transformer = tms.getModelPositionTransformer();
+        McCoordTransformer modelPosTransformer = pos -> transformer.transform(pos).subtract(cameraPos);
         for (GraphicsModel model : models) {
-            model.drawAndRender(drawContextWrapper, finalTransformer, opacity);
+            model.drawAndRender(drawContextWrapper, modelPosTransformer, opacity);
         }
         tms.cleanUp();
 

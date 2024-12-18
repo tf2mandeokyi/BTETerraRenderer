@@ -29,52 +29,23 @@ public class TestEnvironmentVirtualMinecraftManager extends ClientMinecraftManag
     }
 
     @Override
-    public ResourceLocationWrapper<?> newResourceLocation(String modId, String location) {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
     public File getGameDirectory() {
         return this.gameDirectory;
     }
 
-    @Override
-    public WindowDimension getWindowSize() {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
+    public ResourceLocationWrapper<?> newResourceLocation(String modId, String location) { throw unsupported(); }
+    public WindowDimension getWindowSize() { throw unsupported(); }
+    public FontWrapper<?> getDefaultFont() { throw unsupported(); }
+    public void displayGuiScreen(@Nullable AbstractGuiScreenCopy screen) { throw unsupported(); }
+    public NativeGuiScreenWrapper<?> newChatScreen(String initialText) { throw unsupported(); }
+    public boolean isOnMac() { throw unsupported(); }
+    public double getFovDegrees() { throw unsupported(); }
+    public double getPlayerRotationYaw() { throw unsupported(); }
+    public double getPlayerRotationPitch() { throw unsupported(); }
+    public void playClickSound() { throw unsupported(); }
+    public void sendTextComponentToChat(TextWrapper textComponent) { throw unsupported(); }
 
-    @Override
-    public FontWrapper<?> getDefaultFont() {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public void displayGuiScreen(@Nullable AbstractGuiScreenCopy screen) {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public NativeGuiScreenWrapper<?> newChatScreen(String initialText) {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public boolean isOnMac() {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public double getPlayerRotationYaw() {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public void playClickSound() {
-        throw new UnsupportedOperationException("Minecraft is empty");
-    }
-
-    @Override
-    public void sendTextComponentToChat(TextWrapper textComponent) {
-        throw new UnsupportedOperationException("Minecraft is empty");
+    public static UnsupportedOperationException unsupported() {
+        return new UnsupportedOperationException("Minecraft is empty");
     }
 }

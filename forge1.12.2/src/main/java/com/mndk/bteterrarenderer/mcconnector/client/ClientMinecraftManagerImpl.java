@@ -65,8 +65,16 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
         return Minecraft.IS_RUNNING_ON_MAC;
     }
 
+    public double getFovDegrees() {
+        return Minecraft.getMinecraft().gameSettings.fovSetting;
+    }
+
     public double getPlayerRotationYaw() {
         return Minecraft.getMinecraft().player.rotationYaw;
+    }
+
+    public double getPlayerRotationPitch() {
+        return Minecraft.getMinecraft().player.rotationPitch;
     }
 
     public void sendTextComponentToChat(TextWrapper textComponent) {

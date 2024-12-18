@@ -61,10 +61,9 @@ public class MapAligner extends McFXVerticalList {
     }
 
     private void updatePlayerYawRadians() {
-        this.alignBox.setPlayerYawRadians(lockNorth.get() ?
-                Math.PI :
-                Math.toRadians(McConnector.client().getPlayerRotationYaw())
-        );
+        this.alignBox.setPlayerYawRadians(lockNorth.get()
+                ? Math.PI
+                : Math.toRadians(McConnector.client().getPlayerRotationYaw()));
     }
 
     @Override

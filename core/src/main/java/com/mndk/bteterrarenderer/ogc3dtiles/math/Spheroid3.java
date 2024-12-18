@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
 import lombok.*;
 
-@Getter
 @Setter
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -22,16 +21,19 @@ public class Spheroid3 {
     /**
      * The height (in meters) from the surface of the sphere/spheroid
      */
+    @Getter
     private final double height;
 
+    public double getLongitudeRadians() { return longitude; }
+    public double getLatitudeRadians() { return latitude; }
     public double getLongitudeDegrees() { return Math.toDegrees(longitude); }
     public double getLatitudeDegrees() { return Math.toDegrees(latitude); }
 
     public Spheroid3 add(Spheroid3 other) {
         double latitude = this.latitude + other.latitude;
         // clamping
-        latitude = Math.abs(Math.PI - (latitude - Math.PI / 2) % (2 * Math.PI)) - Math.PI / 2;
-        return new Spheroid3((longitude + other.longitude) % (2 * Math.PI), latitude, height + other.height);
+        latitude = Math.abs(Math.PI - (latitude - Math.PI / 2) % MathConstants.PI2) - Math.PI / 2;
+        return new Spheroid3((longitude + other.longitude) % MathConstants.PI2, latitude, height + other.height);
     }
 
     @Override

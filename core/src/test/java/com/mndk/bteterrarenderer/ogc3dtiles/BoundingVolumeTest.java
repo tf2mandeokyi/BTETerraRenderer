@@ -26,7 +26,7 @@ public class BoundingVolumeTest {
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Region.class));
 
         Region region = (Region) volume;
-        Assert.assertEquals(region.getMaxHeight() - region.getMinHeight(), 20, 0.00001);
+        Assert.assertEquals(20, region.getMaxHeight() - region.getMinHeight(), 0.00001);
     }
 
     @Test
@@ -34,7 +34,7 @@ public class BoundingVolumeTest {
         String json = "{\"sphere\": [0, 0, 10, 141.4214]}";
         Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Sphere.class));
-        Assert.assertEquals(((Sphere) volume).getRadius(), 141.4214, 0.00001);
+        Assert.assertEquals(141.4214, ((Sphere) volume).getRadius(), 0.00001);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class BoundingVolumeTest {
                 "  ]}";
         Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Box.class));
-        Assert.assertEquals(((Box) volume).getCenter(), new Cartesian3f(0, 0, 10));
+        Assert.assertEquals(new Cartesian3f(0, 0, 10), ((Box) volume).getCenter());
     }
 
     @Test

@@ -1,11 +1,10 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitSphere;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrixf;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrixf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -17,10 +16,6 @@ public class Sphere extends Volume {
     final float radius;
     @ToString.Exclude
     private transient final Matrix4f sphereMatrix;
-
-    public Sphere(Cartesian3f center, double radius) {
-        this(center, (float) radius);
-    }
 
     public Sphere(Cartesian3f center, float radius) {
         this.center = center;
@@ -35,69 +30,23 @@ public class Sphere extends Volume {
     }
 
     @Override
-    public boolean intersectsSphere(Sphere other, Matrix4f thisTransform) {
+    public boolean intersectsPositiveSides(Plane[] planes, Matrix4f thisTransform,
+                                           SpheroidCoordinatesConverter converter) {
         Matrix4f actualSphereMatrix = thisTransform.multiply(this.sphereMatrix);
-        Matrix4f inverseOtherMatrix = other.sphereMatrix.inverse();
-        if (inverseOtherMatrix == null) return false;
+        Cartesian3f sx = new Cartesian3f(actualSphereMatrix.get(0, 0), actualSphereMatrix.get(0, 1), actualSphereMatrix.get(0, 2));
+        Cartesian3f sy = new Cartesian3f(actualSphereMatrix.get(1, 0), actualSphereMatrix.get(1, 1), actualSphereMatrix.get(1, 2));
+        Cartesian3f sz = new Cartesian3f(actualSphereMatrix.get(2, 0), actualSphereMatrix.get(2, 1), actualSphereMatrix.get(2, 2));
+        Cartesian3f c = new Cartesian3f(actualSphereMatrix.get(0, 3), actualSphereMatrix.get(1, 3), actualSphereMatrix.get(2, 3));
 
-        // "Unit-alize" the other sphere
-        Matrix4f transformedSphereMatrix = inverseOtherMatrix.multiply(actualSphereMatrix);
-        return UnitSphere.checkEllipsoidIntersection(transformedSphereMatrix);
-    }
-
-    @Override
-    public boolean intersectsRay(Cartesian3f rayStart, Cartesian3f rayEnd, Matrix4f thisTransform) {
-        Matrix4f actualSphereMatrix = thisTransform.multiply(this.sphereMatrix);
-        Matrix4f inverse = actualSphereMatrix.inverse();
-        if (inverse == null) return false;
-
-        Cartesian3f unitRayStart = rayStart.transform(inverse);
-        Cartesian3f unitRayEnd = rayEnd.transform(inverse);
-        return UnitSphere.checkRayIntersection(unitRayStart, unitRayEnd);
-    }
-
-    public Region[] toBoundingRegions() {
-        // For simplicity, we will consider that the Earth is a sphere, instead of a spheroid
-
-        Spheroid3 coordinate = SpheroidCoordinatesConverter.WGS84.toSpheroid(this.center);
-        double longitude = coordinate.getLongitude();
-        double latitude = coordinate.getLatitude();
-
-        double distance = this.center.distance();
-        if (distance == 0) return new Region[0];
-        if (distance > this.radius) {
-
-            double latitudeDiff = Math.asin(this.radius / distance);
-            if (this.center.xyDistance() > this.radius) {
-                double longitudeDiff = Math.asin(this.radius / this.center.xyDistance());
-                return new Region[] {
-                        new Region(
-                                longitude - longitudeDiff, latitude - latitudeDiff,
-                                longitude + longitudeDiff, latitude + latitudeDiff,
-                                coordinate.getHeight() - radius,
-                                coordinate.getHeight() + radius
-                        )
-                };
-            } else {
-                Region sameSide = new Region(
-                        longitude - Math.PI, latitude - latitudeDiff,
-                        longitude + Math.PI, Math.PI / 2,
-                        coordinate.getHeight() - radius,
-                        coordinate.getHeight() + radius
-                );
-                Region otherSide = new Region(
-                        longitude + Math.PI, Math.PI - (latitude + latitudeDiff),
-                        longitude - Math.PI, Math.PI / 2,
-                        coordinate.getHeight() - radius,
-                        coordinate.getHeight() + radius
-                );
-                return new Region[] { sameSide, otherSide };
-            }
-        } else {
-            return new Region[] {
-                    new Region(-Math.PI, -Math.PI / 2, Math.PI, Math.PI / 2, 0, distance + radius)
-            };
+        for (Plane plane : planes) {
+            float dx = sx.dot(plane.getNormal());
+            float dy = sy.dot(plane.getNormal());
+            float dz = sz.dot(plane.getNormal());
+            float r = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+            float s = plane.getNormal().dot(c.subtract(plane.getPoint()));
+            if (s + r < 0) return false;
         }
+        return true;
     }
 
     public static Sphere fromArray(double[] array) {

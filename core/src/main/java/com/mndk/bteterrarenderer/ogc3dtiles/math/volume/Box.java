@@ -1,12 +1,12 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitCube;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitSphere;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrixf;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.MatrixMajor;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrixf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -33,26 +33,32 @@ public class Box extends Volume {
     }
 
     @Override
-    public boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform) {
+    public boolean intersectsPositiveSides(Plane[] planes, Matrix4f thisTransform,
+                                           SpheroidCoordinatesConverter converter) {
         Matrix4f actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
-        Matrix4f inverseSphereMatrix = sphere.getSphereMatrix().inverse();
-        if (inverseSphereMatrix == null) return false;
-
-        // "Unit-alize" the sphere
-        Matrix4f transformedBoxMatrix = inverseSphereMatrix.multiply(actualBoxMatrix);
-        return UnitSphere.checkParallelepipedIntersection(transformedBoxMatrix);
-    }
-
-    @Override
-    public boolean intersectsRay(Cartesian3f rayStart, Cartesian3f rayEnd, Matrix4f thisTransform) {
-        Matrix4f actualBoxMatrix = thisTransform.multiply(this.boxMatrix);
-        Matrix4f inverse = actualBoxMatrix.inverse();
-        if (inverse == null) return false;
-
-        // "Unit-alize" the box
-        Cartesian3f unitRayStart = rayStart.transform(inverse);
-        Cartesian3f unitRayEnd = rayEnd.transform(inverse);
-        return UnitCube.checkRayIntersection(unitRayStart, unitRayEnd);
+        Cartesian3f[] vertices = {
+                new Cartesian3f(+1, +1, +1).transform(actualBoxMatrix),
+                new Cartesian3f(+1, +1, -1).transform(actualBoxMatrix),
+                new Cartesian3f(+1, -1, +1).transform(actualBoxMatrix),
+                new Cartesian3f(+1, -1, -1).transform(actualBoxMatrix),
+                new Cartesian3f(-1, +1, +1).transform(actualBoxMatrix),
+                new Cartesian3f(-1, +1, -1).transform(actualBoxMatrix),
+                new Cartesian3f(-1, -1, +1).transform(actualBoxMatrix),
+                new Cartesian3f(-1, -1, -1).transform(actualBoxMatrix)
+        };
+        for (Plane plane : planes) {
+            // Condition: At least one vertex is on the positive side of the plane
+            boolean atLeastOneVertexOnPositiveSide = false;
+            for (int i = 0; i < 8; ++i) {
+                // Positive side: n * (p - p0) >= 0
+                boolean result = plane.getNormal().dot(vertices[i].subtract(plane.getPoint())) >= 0;
+                if (!result) continue;
+                atLeastOneVertexOnPositiveSide = true;
+                break;
+            }
+            if (!atLeastOneVertexOnPositiveSide) return false;
+        }
+        return true;
     }
 
     public static Box fromArray(double[] array) {

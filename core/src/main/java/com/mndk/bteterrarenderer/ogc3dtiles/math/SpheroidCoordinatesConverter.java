@@ -35,8 +35,8 @@ public class SpheroidCoordinatesConverter {
     }
 
     public Cartesian3f toCartesian(Spheroid3 spheroid) {
-        double latitude = spheroid.getLatitude();
-        double longitude = spheroid.getLongitude();
+        double latitude = spheroid.getLatitudeRadians();
+        double longitude = spheroid.getLongitudeRadians();
         double height = spheroid.getHeight() + this.geoidHeightFunction.getHeight(spheroid);
         double R = this.getCurvatureRadius(latitude);
         double x = (R + height) * Math.cos(latitude) * Math.cos(longitude);

@@ -1,71 +1,57 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
+import com.mndk.bteterrarenderer.ogc3dtiles.math.AABB;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidArc;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.UnitCube;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Region extends Volume {
-    // read these from array in order
-    /** In radians */
-    private final double westLon, southLat, eastLon, northLat;
-    private final double minHeight, maxHeight;
 
-    @Override
-    public boolean intersectsSphere(Sphere sphere, Matrix4f thisTransform) {
-		Region[] sphereRegions = sphere.toBoundingRegions();
-		for (Region sphereRegion : sphereRegions) {
-			if (this.intersectsRegion(sphereRegion)) return true;
-		}
-		return false;
+    private final SpheroidArc southInnerArc;
+    private final SpheroidArc northInnerArc;
+    private final SpheroidArc southOuterArc;
+    private final SpheroidArc northOuterArc;
+
+    public Region(double westLon, double southLat, double eastLon, double northLat, double minHeight, double maxHeight) {
+        this.southInnerArc = new SpheroidArc(westLon, eastLon, southLat, minHeight);
+        this.northInnerArc = new SpheroidArc(westLon, eastLon, northLat, minHeight);
+        this.southOuterArc = new SpheroidArc(westLon, eastLon, southLat, maxHeight);
+        this.northOuterArc = new SpheroidArc(westLon, eastLon, northLat, maxHeight);
     }
 
-    @Override
-    public boolean intersectsGeoCoordinateRay(double[] coordinateDegrees, Matrix4f thisTransform, SpheroidCoordinatesConverter converter) {
-        double lonRad = Math.toRadians(coordinateDegrees[0]), latRad = Math.toRadians(coordinateDegrees[1]);
-        if (westLon <= eastLon) {
-            if (lonRad < westLon || eastLon < lonRad) return false;
-        } else {
-            if (eastLon < lonRad && westLon < lonRad) return false;
-        }
+    public double getWestLonRadian() { return southInnerArc.getWest(); }
+    public double getEastLonRadian() { return southInnerArc.getEast(); }
+    public double getSouthLatRadian() { return southInnerArc.getLatitude(); }
+    public double getNorthLatRadian() { return northOuterArc.getLatitude(); }
+    public double getMinHeight() { return southInnerArc.getHeight(); }
+    public double getMaxHeight() { return northOuterArc.getHeight(); }
 
-        return southLat <= latRad && latRad <= northLat;
+    @Override
+    public boolean intersectsPositiveSides(Plane[] planes, Matrix4f thisTransform,
+                                           SpheroidCoordinatesConverter converter) {
+        AABB boundingBox = this.getBoundingBox(converter);
+        Box box = boundingBox.toBox();
+        return box.intersectsPositiveSides(planes, Matrix4f.IDENTITY, converter);
     }
 
-	public boolean intersectsRegion(Region other) {
-        if (!UnitCube.rangeIntersects(this.minHeight, this.maxHeight, other.minHeight, other.maxHeight))
-            return false;
-		if (!UnitCube.rangeIntersects(this.southLat, this.northLat, other.southLat, other.northLat))
-			return false;
-
-        if (this.westLon < this.eastLon) {
-            if (other.westLon < other.eastLon) return
-                    UnitCube.rangeIntersects(this.westLon, this.eastLon, other.westLon, other.eastLon);
-            else return
-                    UnitCube.rangeIntersects(this.westLon, this.eastLon, other.westLon,       Math.PI) ||
-                    UnitCube.rangeIntersects(this.westLon, this.eastLon,      -Math.PI, other.eastLon);
-        }
-        else {
-            if (other.westLon < other.eastLon) return
-                    UnitCube.rangeIntersects(this.westLon,      Math.PI, other.westLon, other.eastLon) ||
-                    UnitCube.rangeIntersects(    -Math.PI, this.eastLon, other.westLon, other.eastLon);
-            else return
-                    UnitCube.rangeIntersects(this.westLon,      Math.PI, other.westLon,       Math.PI) ||
-                    UnitCube.rangeIntersects(this.westLon,      Math.PI,      -Math.PI, other.eastLon) ||
-                    UnitCube.rangeIntersects(    -Math.PI, this.eastLon, other.westLon,       Math.PI) ||
-                    UnitCube.rangeIntersects(    -Math.PI, this.eastLon,      -Math.PI, other.eastLon);
-        }
-	}
+    public AABB getBoundingBox(SpheroidCoordinatesConverter converter) {
+        return southInnerArc.getBoundingBox(converter)
+                .include(northInnerArc.getBoundingBox(converter))
+                .include(southOuterArc.getBoundingBox(converter))
+                .include(northOuterArc.getBoundingBox(converter));
+    }
 
     public String toString() {
         return String.format(
                 "Region(lon=[W=%.7f°, E=%.7f°], lat=[N=%.7f°, S=%.7f°], height=[%.1fm ~ %.1fm])",
-                Math.toDegrees(westLon), Math.toDegrees(eastLon),
-                Math.toDegrees(northLat), Math.toDegrees(southLat),
-                minHeight, maxHeight
+                Math.toDegrees(getWestLonRadian()), Math.toDegrees(getEastLonRadian()),
+                Math.toDegrees(getNorthLatRadian()), Math.toDegrees(getSouthLatRadian()),
+                southInnerArc.getHeight(), northOuterArc.getHeight()
         );
     }
 

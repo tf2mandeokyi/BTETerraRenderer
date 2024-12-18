@@ -20,6 +20,11 @@ public class PosTexNorm extends GraphicsVertex<PosTexNorm> {
     }
 
     @Override
+    public McCoord getMcCoord() {
+        return pos;
+    }
+
+    @Override
     public String toString() {
         return String.format("PosTexNorm(pos=%s, tex=[%.4f, %.4f], norm=%s)", pos, u, v, normal);
     }

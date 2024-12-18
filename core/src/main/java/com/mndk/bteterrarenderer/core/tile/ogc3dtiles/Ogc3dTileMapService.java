@@ -25,6 +25,8 @@ import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
@@ -35,8 +37,8 @@ import com.mndk.bteterrarenderer.ogc3dtiles.geoid.GeoidHeightFunction;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidFrustum;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Sphere;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import io.netty.buffer.ByteBuf;
@@ -99,7 +101,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    public McCoordTransformer getPositionTransformer() {
+    public McCoordTransformer getModelPositionTransformer() {
         float yAlign = (float) BTETerraRendererConfig.HOLOGRAM.getYAlign();
         if (!this.yDistortion) {
             McCoord offset = new McCoord(0, yAlign, 0);
@@ -152,14 +154,43 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         );
     }
 
+    private Spheroid3 mcCoordToSpheroid(McCoord coord) throws OutOfProjectionBoundsException {
+        double[] geo = this.getHologramProjection().toGeo(coord.getX(), coord.getZ());
+        return Spheroid3.fromDegrees(geo[0], geo[1], coord.getY());
+    }
+
     @Override
-    public List<TileGlobalKey> getRenderTileIdList(double longitude, double latitude, double seaLevelHeight) {
+    public List<TileGlobalKey> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         if (radius == 0) return Collections.emptyList();
 
-        Spheroid3 spheroid = Spheroid3.fromDegrees(longitude, latitude, seaLevelHeight);
-        Cartesian3f cartesian = coordConverter.toCartesian(spheroid);
-        Sphere playerSphere = new Sphere(cartesian, (float) radius);
-        return this.getIdListRecursively(playerSphere);
+        Cartesian3f point, viewDirection, rightDirection;
+        try {
+            McCoord mcViewDirection = cameraPos.add(McCoord.fromYawPitch(yawDegrees, pitchDegrees));
+            McCoord mcRightDirection = cameraPos.add(McCoord.fromYawPitch(yawDegrees + 90, 0));
+
+            Spheroid3 pointSpheroid = this.mcCoordToSpheroid(cameraPos);
+            Spheroid3 viewDirectionSpheroid = this.mcCoordToSpheroid(mcViewDirection);
+            Spheroid3 rightDirectionSpheroid = this.mcCoordToSpheroid(mcRightDirection);
+
+            point = this.coordConverter.toCartesian(pointSpheroid);
+            viewDirection = this.coordConverter.toCartesian(viewDirectionSpheroid).subtract(point).toNormalized();
+            rightDirection = this.coordConverter.toCartesian(rightDirectionSpheroid).subtract(point).toNormalized();
+        } catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
+
+        SpheroidFrustum frustum = this.getFrustum(point, viewDirection, rightDirection);
+        return this.getIdListRecursively(frustum);
+    }
+
+    private SpheroidFrustum getFrustum(Cartesian3f point, Cartesian3f viewDirection, Cartesian3f rightDirection) {
+        WindowDimension dimension = McConnector.client().getWindowSize();
+        float aspectRatio = dimension.getScaledWidth() / (float) dimension.getScaledHeight();
+        float verticalFovRadians = (float) Math.toRadians(McConnector.client().getFovDegrees());
+        float horizontalFovRadians = 2 * (float) Math.atan(Math.tan(verticalFovRadians / 2) * aspectRatio);
+        return new SpheroidFrustum(
+                point, viewDirection, rightDirection,
+                horizontalFovRadians, verticalFovRadians,
+                0f, (float) radius
+        );
     }
 
     @Nullable
@@ -169,14 +200,12 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         if (pair == null) return null;
 
         TileData tileData = pair.getRight();
-        if (!(tileData instanceof Tileset)) {
-            Loggers.get(this).warn("Root tile url is not a tile set");
-            return null;
-        }
-        return (Tileset) tileData;
+        if (tileData instanceof Tileset) return (Tileset) tileData;
+        Loggers.get(this).warn("Root tile url is not a tile set");
+        return null;
     }
 
-    public List<TileGlobalKey> getIdListRecursively(Sphere playerSphere) {
+    public List<TileGlobalKey> getIdListRecursively(SpheroidFrustum frustum) {
         List<TileGlobalKey> result = new ArrayList<>();
 
         @RequiredArgsConstructor
@@ -197,7 +226,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
             // Get intersections from the current tileset
             List<LocalTileNode> intersections = TileKeyManager.getIntersectionsFromTileset(
-                    node.tileset, playerSphere, node.parentTransform, this.renderSurroundings);
+                    node.tileset, node.parentTransform, frustum, this);
 
             for (LocalTileNode localTileNode : intersections) {
                 TileContentLink contentLink = localTileNode.getContentLink();
