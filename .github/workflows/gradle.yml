@@ -52,6 +52,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Update git submodules
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          arguments: gitSubmoduleUpdate
+
       - name: Build core with Gradle
         uses: gradle/actions/setup-gradle@v3
         with:

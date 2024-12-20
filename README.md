@@ -47,6 +47,7 @@ See [API Documentation](YML_CONFIG.md) for more information.
 
 ```bash
 # You must run this before building other subprojects
+./gradlew gitSubmoduleUpdate
 ./gradlew buildNonModProjects
 
 # Building for all available MC versions:

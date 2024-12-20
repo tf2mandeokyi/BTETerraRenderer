@@ -145,7 +145,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         PropertyAccessor<Double> radius = PropertyAccessor.ranged(
                 this::getRadius, this::setRadius, 1, 1000);
         PropertyAccessor<Double> lodFactor = PropertyAccessor.ranged(
-                this::getLodFactor, this::setLodFactor, 0.5, 2);
+                this::getLodFactor, this::setLodFactor, 0.5, 10);
         PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(
                 this::isRenderSurroundings, this::setRenderSurroundings);
         PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(

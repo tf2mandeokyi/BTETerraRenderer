@@ -108,7 +108,7 @@ public class Ogc3dBfsNode {
         double distance = sphereCenter.subtract(cameraPosition).distance();
         double effectiveDistance = Math.max(distance - sphereRadius, 0);
 
-        return effectiveDistance * lodFactor < geometricError;
+        return effectiveDistance < geometricError * lodFactor;
     }
 
     public static Ogc3dBfsNode fromRoot(Ogc3dTileMapService tms, Tileset tileset, URL parentUrl) {
