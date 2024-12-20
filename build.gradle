@@ -29,16 +29,21 @@ plugins {
 }
 
 enum SubprojectType {
-    CORE, FORGE, FABRIC
+    CORE(false), FORGE(true), FABRIC(true), LIBRARY(false)
+
+    public final boolean isMod
+    private SubprojectType(boolean isMod) {
+        this.isMod = isMod
+    }
 }
 
 subprojects { p ->
 
     def subprojectType = {
-        if     (project.name == 'core')            SubprojectType.CORE
-        else if(project.name.startsWith('forge'))  SubprojectType.FORGE
-        else if(project.name.startsWith('fabric')) SubprojectType.FABRIC
-        else throw new RuntimeException("illegal project name ${project.name}")
+        if      (project.name == 'core')            SubprojectType.CORE
+        else if (project.name.startsWith('forge'))  SubprojectType.FORGE
+        else if (project.name.startsWith('fabric')) SubprojectType.FABRIC
+        else                                        SubprojectType.LIBRARY
     }()
 
     // Match version
@@ -46,26 +51,26 @@ subprojects { p ->
     def mcVersion = mcVersionMatcher.find() ? Double.parseDouble(mcVersionMatcher.group(2)) : null
 
     apply plugin: 'java'
-    if(subprojectType == SubprojectType.CORE) {
+    if (subprojectType == SubprojectType.CORE || subprojectType == SubprojectType.LIBRARY) {
         apply plugin: 'maven-publish'
     }
-    else if(subprojectType == SubprojectType.FORGE) {
+    else if (subprojectType == SubprojectType.FORGE) {
         apply plugin: 'net.minecraftforge.gradle'
         apply plugin: 'org.spongepowered.mixin'
         apply plugin: 'com.github.johnrengelman.shadow'
     }
-    else if(subprojectType == SubprojectType.FABRIC) {
+    else if (subprojectType == SubprojectType.FABRIC) {
         apply plugin: 'fabric-loom'
     }
 
     def (javaVersionInteger, javaVersionEnum) = {
-        if     (mcVersion >= 20.5) [ 21, JavaVersion.VERSION_21  ]
-        else if(mcVersion >= 18  ) [ 17, JavaVersion.VERSION_17  ]
-        else                       [  8, JavaVersion.VERSION_1_8 ] // this includes :core subproject
+        if      (mcVersion >= 20.5) [ 21, JavaVersion.VERSION_21  ]
+        else if (mcVersion >= 18  ) [ 17, JavaVersion.VERSION_17  ]
+        else                        [  8, JavaVersion.VERSION_1_8 ] // this includes CORE and LIBRARY
     }()
     println("Java version set to $javaVersionEnum for $p")
 
-    if(javaVersionInteger != 8) {
+    if (javaVersionInteger != 8) {
         // Java 8 does not support the command line argument '--release'
         // so this configuration should not be applied to that version
         tasks.withType(JavaCompile).configureEach {
@@ -73,12 +78,12 @@ subprojects { p ->
         }
     }
     java {
-        if(subprojectType == SubprojectType.FABRIC) withSourcesJar()
+        if (subprojectType == SubprojectType.FABRIC) withSourcesJar()
         toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersionInteger))
         sourceCompatibility = targetCompatibility = javaVersionEnum
     }
 
-    if(subprojectType == SubprojectType.FABRIC) {
+    if (subprojectType == SubprojectType.FABRIC) {
         loom {
             splitEnvironmentSourceSets()
 
@@ -100,22 +105,33 @@ subprojects { p ->
         implementation.extendsFrom shadowDep
         compileOnly.extendsFrom compileAndTestOnly
         testImplementation.extendsFrom compileAndTestOnly
-        if(subprojectType == SubprojectType.FABRIC) include.extendsFrom shadowDep
+        if (subprojectType == SubprojectType.FABRIC) include.extendsFrom shadowDep
     }
 
     dependencies {
 
-        if(subprojectType != SubprojectType.CORE) {
+        if (project.name != 'common') shadowDep project(':common')
+        if (project.name != 'common' && project.name != 'mcconnector') {
+            shadowDep project(':mcconnector')
+        }
+
+        if (subprojectType != SubprojectType.LIBRARY) {
+            shadowDep project(':draco')
+            shadowDep project(':terraplusplus')
+            shadowDep project(':mcconnector')
+        }
+
+        if (subprojectType.isMod) {
             shadowDep project(':core')
         }
 
-        if(subprojectType == SubprojectType.FABRIC) {
+        if (subprojectType == SubprojectType.FABRIC) {
             minecraft "com.mojang:minecraft:${project.minecraftVersion}"
             mappings "net.fabricmc:yarn:${project.yarnMappings}:v2"
             modImplementation "net.fabricmc:fabric-loader:${rootProject.fabricLoaderVersion}"
             modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
         }
-        else if(subprojectType == SubprojectType.FORGE) {
+        else if (subprojectType == SubprojectType.FORGE) {
             minecraft "net.minecraftforge:forge:${project.minecraftVersion}-${project.forgeVersion}"
         }
 
@@ -151,10 +167,10 @@ subprojects { p ->
         shadowDep(group: 'org.w3c.dom', name: 'svg' , version: '1.1.0')
         shadowDep(group: 'org.w3c.dom', name: 'smil', version: '1.0.0')
         shadowDep(group: 'org.yaml', name: 'snakeyaml', version: '1.33')
-        if(mcVersion > 12) { // for T++
+        if (mcVersion > 12) { // for T++
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
-        if(mcVersion >= 19) {
+        if (mcVersion >= 19) {
             shadowDep(group: 'io.netty', name: 'netty-codec-http' , version: '4.1.9.Final')
             shadowDep(group: 'io.netty', name: 'netty-codec-http2', version: '4.1.9.Final')
             shadowDep(group: 'org.apache.xmlgraphics', name: 'xmlgraphics-commons', version: '2.9')
@@ -172,7 +188,7 @@ subprojects { p ->
         testCompileOnly 'org.projectlombok:lombok:1.18.32'
         annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-        if(subprojectType == SubprojectType.FORGE) {
+        if (subprojectType == SubprojectType.FORGE) {
             annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
             testImplementation 'org.spongepowered:lwts:1.0.0'
             testImplementation 'org.spongepowered:mixin:0.8.5'
@@ -189,7 +205,7 @@ subprojects { p ->
     // Since we're going to do jar-in-jar for fabric,
     // we don't also need to "relocate" dependencies on there.
     // only forge needs the relocations
-    if(subprojectType == SubprojectType.FORGE) {
+    if (subprojectType == SubprojectType.FORGE) {
         shadowJar {
             configurations = [ project.configurations.shadowDep ]
 
@@ -304,7 +320,7 @@ subprojects { p ->
 
         // Make .json from .lang
         doLast {
-            if(subprojectType == SubprojectType.CORE) {
+            if (subprojectType == SubprojectType.CORE) {
                 fileTree(dir: outputs.files.asPath, include: '**/*.lang').each { File langFile ->
                     // Make json content
                     String content = langFile.getText('UTF-8').split('\n')
@@ -320,7 +336,7 @@ subprojects { p ->
                     jsonFile.setText("{\n$content\n}", 'UTF-8')
                 }
             }
-            else {
+            else if (subprojectType.isMod) {
                 File logoFile = new File(project(':core').projectDir, 'src/main/resources/icon.png')
                 byte[] logoContent = logoFile.readBytes()
 
@@ -330,7 +346,7 @@ subprojects { p ->
         }
     }
 
-    if(subprojectType != SubprojectType.CORE) {
+    if (subprojectType.isMod) {
         project.tasks.register('copyBuildResultToRoot', Copy) {
             group = 'build'
             description = 'Copies build result into root build directory'
@@ -343,27 +359,23 @@ subprojects { p ->
         tasks.named('build').configure {
             finalizedBy('copyBuildResultToRoot')
         }
+        project.tasks.register('cleanModProjects', Delete) {
+            group = 'build'
+            description = 'Cleans mod projects'
+
+            dependsOn('clean')
+        }
     }
     else {
-        tasks.register('gitSubmoduleUpdate', Exec) {
-            group = 'other'
-            description = 'Updates submodules'
-
-            commandLine 'git', 'submodule', 'update', '--init'
-
-            def stdout = new ByteArrayOutputStream()
-            standardOutput = stdout
-            doLast {
-                println('Submodule update command output: ')
-                if(stdout.size() > 0) {
-                    println(stdout.toString())
-                } else {
-                    println('(none)')
-                }
-            }
-        }
         tasks.named('test').configure {
-            dependsOn('gitSubmoduleUpdate')
+            dependsOn(rootProject.tasks.gitSubmoduleUpdate)
+        }
+        project.tasks.register('buildNonModProjects') {
+            group = 'build'
+            description = 'Builds non-mod projects.\n' +
+                    'This is because fabric requires dependency jars to be present before building.'
+
+            dependsOn('build')
         }
     }
 }
@@ -406,6 +418,24 @@ publishing {
     }
 }
 
+tasks.register('gitSubmoduleUpdate', Exec) {
+    group = 'other'
+    description = 'Updates submodules'
+
+    commandLine 'git', 'submodule', 'update', '--init'
+
+    def stdout = new ByteArrayOutputStream()
+    standardOutput = stdout
+    doLast {
+        println('Submodule update command output: ')
+        if (stdout.size() > 0) {
+            println(stdout.toString())
+        } else {
+            println('(none)')
+        }
+    }
+}
+
 class ReplacePropertyContentTransformer implements Transformer {
 
     @Input
@@ -426,7 +456,7 @@ class ReplacePropertyContentTransformer implements Transformer {
 
         // Replace if exists
         this.replacements.each { k, v ->
-            if(!content.contains(k)) return
+            if (!content.contains(k)) return
             content = content.replaceAll(k, v)
         }
         this.pathMap[context.path] = content

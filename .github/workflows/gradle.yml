@@ -55,7 +55,7 @@ jobs:
       - name: Build core with Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          arguments: :core:build
+          arguments: buildNonModProjects
 
       - name: Build subprojects with Gradle
         uses: gradle/actions/setup-gradle@v3

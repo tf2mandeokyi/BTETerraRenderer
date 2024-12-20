@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.loader.yml;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
-import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.util.Loggers;
 import lombok.Getter;
 import lombok.Setter;
 

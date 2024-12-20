@@ -10,10 +10,10 @@ import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistr
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
-import com.mndk.bteterrarenderer.core.util.json.JsonString;
+import com.mndk.bteterrarenderer.util.json.JsonString;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;

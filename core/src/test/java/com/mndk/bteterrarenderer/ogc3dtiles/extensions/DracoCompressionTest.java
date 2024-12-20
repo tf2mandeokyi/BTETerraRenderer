@@ -2,7 +2,8 @@ package com.mndk.bteterrarenderer.ogc3dtiles.extensions;
 
 import com.mndk.bteterrarenderer.draco.compression.DracoDecoder;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
-import com.mndk.bteterrarenderer.draco.core.StatusAssert;
+import com.mndk.bteterrarenderer.draco.core.StatusChain;
+import com.mndk.bteterrarenderer.draco.core.StatusOr;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
@@ -47,8 +48,11 @@ public class DracoCompressionTest {
         DecoderBuffer decoderBuffer = new DecoderBuffer();
         decoderBuffer.init(byteBuffer);
 
+        StatusChain chain = new StatusChain();
         DracoDecoder decoder = new DracoDecoder();
-        return Pair.of(StatusAssert.assertOk(decoder.decodeMeshFromBuffer(decoderBuffer)), draco);
+        StatusOr<Mesh> statusOr = decoder.decodeMeshFromBuffer(decoderBuffer);
+        if (statusOr.isError(chain)) throw chain.get().getException();
+        return Pair.of(statusOr.getValue(), draco);
     }
 
     private List<Pair<Mesh, DracoMeshCompression>> decodeDracoMeshData(GltfModel model) throws IOException {

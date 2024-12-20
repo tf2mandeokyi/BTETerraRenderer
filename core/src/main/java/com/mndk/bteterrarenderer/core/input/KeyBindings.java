@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.input;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;

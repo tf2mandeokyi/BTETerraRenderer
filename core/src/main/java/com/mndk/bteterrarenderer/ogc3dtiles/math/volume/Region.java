@@ -1,9 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.AABB;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidArc;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.*;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,8 +32,15 @@ public class Region extends Volume {
     public boolean intersectsPositiveSides(Plane[] planes, Matrix4f thisTransform,
                                            SpheroidCoordinatesConverter converter) {
         AABB boundingBox = this.getBoundingBox(converter);
-        Box box = boundingBox.toBox();
-        return box.intersectsPositiveSides(planes, Matrix4f.IDENTITY, converter);
+        Parallelepiped parallelepiped = boundingBox.toBox();
+        return parallelepiped.intersectsPositiveSides(planes, Matrix4f.IDENTITY, converter);
+    }
+
+    @Override
+    public BoundingSphere getLevelOfDetailSphere(Matrix4f thisTransform, SpheroidCoordinatesConverter converter) {
+        AABB boundingBox = this.getBoundingBox(converter);
+        Parallelepiped parallelepiped = boundingBox.toBox();
+        return parallelepiped.getLevelOfDetailSphere(Matrix4f.IDENTITY, converter);
     }
 
     public AABB getBoundingBox(SpheroidCoordinatesConverter converter) {

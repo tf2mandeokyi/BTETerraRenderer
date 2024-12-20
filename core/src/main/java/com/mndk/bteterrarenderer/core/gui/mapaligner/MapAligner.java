@@ -5,7 +5,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.input.McFXNumberInput;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXHorizontalList;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.WidthFunction;

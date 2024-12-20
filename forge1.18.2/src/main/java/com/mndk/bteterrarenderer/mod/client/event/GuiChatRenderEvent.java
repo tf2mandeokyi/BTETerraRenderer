@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;

@@ -10,6 +10,11 @@ pluginManagement {
 }
 
 rootProject.name = "BTETerraRenderer"
+include ':common'
+include ':terraplusplus'
+include ':draco'
+include ':mcconnector'
+
 include ':core'
 include ':forge1.12.2'
 include ':forge1.18.2'

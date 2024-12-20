@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
-import com.mndk.bteterrarenderer.core.util.IOUtil;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;

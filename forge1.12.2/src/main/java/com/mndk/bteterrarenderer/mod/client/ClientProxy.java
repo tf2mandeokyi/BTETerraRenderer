@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
 import com.mndk.bteterrarenderer.mcconnector.client.ClientMinecraftManagerImpl;
 import com.mndk.bteterrarenderer.mod.CommonProxy;
@@ -16,7 +16,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
-		BTETerraRenderer.initialize(new ClientMinecraftManagerImpl());
+		BTETerraRendererCore.initialize(new ClientMinecraftManagerImpl());
 	}
 	
 	@Override

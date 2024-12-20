@@ -10,10 +10,8 @@ import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.core.util.Loggers;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
@@ -29,6 +27,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown.McFXDropdown;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -265,14 +264,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 p = new ProcessBuilder("usr/bin/open", directory.getAbsolutePath()).start();
             }
             else {
-                Loggers.sendErrorMessageToChat("Cannot open file explorer! Instead you can manually go to:");
-                Loggers.sendErrorMessageToChat(directory.getAbsolutePath());
+                McConnector.sendErrorMessageToChat("Cannot open file explorer! Instead you can manually go to:");
+                McConnector.sendErrorMessageToChat(directory.getAbsolutePath());
                 return;
             }
             p.waitFor(3, TimeUnit.SECONDS);
             p.destroy();
         } catch (Exception e) {
-            Loggers.sendErrorMessageToChat(this, "Error opening the map folder!", e);
+            McConnector.sendErrorMessageToChat(this, "Error opening the map folder!", e);
         }
     }
 

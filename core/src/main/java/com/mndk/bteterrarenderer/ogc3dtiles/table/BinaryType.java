@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.table;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

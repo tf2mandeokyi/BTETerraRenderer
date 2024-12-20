@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.mcconnector.TestEnvironmentVirtualMinecraftManager;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class SvgToPngConversionTest {
 
     static {
         try {
-            BTETerraRenderer.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
+            BTETerraRendererCore.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.network;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.network.ServerWelcomeMessage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;

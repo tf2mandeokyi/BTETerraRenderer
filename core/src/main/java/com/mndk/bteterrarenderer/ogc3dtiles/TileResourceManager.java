@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.IOUtil;
+import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.b3dm.Batched3DModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;
 import com.mndk.bteterrarenderer.ogc3dtiles.i3dm.Instanced3DModel;

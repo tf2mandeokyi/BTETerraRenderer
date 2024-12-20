@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.util.processor.block;
 
-import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.core.util.processor.BlockPayload;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,11 +1,8 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.matrix;
 
-import lombok.EqualsAndHashCode;
-
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
-@EqualsAndHashCode
 public class Matrixf {
     public static final ColumnRowFunction IDENTITY_FUNCTION = (c, r) -> r == c ? 1 : 0;
 
@@ -114,6 +111,19 @@ public class Matrixf {
     public Matrix4f toMatrix4() {
         if (columns != 4 || rows != 4) throw new RuntimeException("this matrix cannot be Matrix4");
         return new Matrix4f((c, r) -> elements[r][c]);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Matrixf)) return false;
+        Matrixf other = (Matrixf) obj;
+        if (other.columns != columns || other.rows != rows) return false;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
+                if (other.get(c, r) != get(c, r)) return false;
+            }
+        }
+        return true;
     }
 
     @Override

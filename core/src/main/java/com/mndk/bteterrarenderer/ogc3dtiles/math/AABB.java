@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3f;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Box;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Parallelepiped;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,11 +22,11 @@ public class AABB {
         return new AABB(min, max);
     }
 
-    public Box toBox() {
+    public Parallelepiped toBox() {
         Cartesian3f center = this.min.add(this.max).scale(0.5f);
         float[] halfScale = this.max.subtract(this.min).scale(0.5f).toArray();
         Matrix3f scale = new Matrix3f((c, r) -> c == r ? halfScale[c] : 0);
-        return new Box(center, scale);
+        return new Parallelepiped(center, scale);
     }
 
     public static AABB fromPoint(Cartesian3f point) {

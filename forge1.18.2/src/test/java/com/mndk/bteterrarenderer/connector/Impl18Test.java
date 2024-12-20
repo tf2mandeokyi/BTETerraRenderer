@@ -8,7 +8,7 @@ public class Impl18Test {
 
     @Test
     public void testImplFinder() {
-        Assert.assertEquals(BTETerraRendererConfig.GENERAL.getMapServiceId(), "osm");
+        Assert.assertEquals("osm", BTETerraRendererConfig.GENERAL.getMapServiceId());
     }
 
 }

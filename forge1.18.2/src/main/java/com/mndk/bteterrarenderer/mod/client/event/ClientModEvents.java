@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.input.KeyBindings;
-import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.util.Loggers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

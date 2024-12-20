@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
-import com.mndk.bteterrarenderer.core.util.Loggers;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.util.Loggers;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

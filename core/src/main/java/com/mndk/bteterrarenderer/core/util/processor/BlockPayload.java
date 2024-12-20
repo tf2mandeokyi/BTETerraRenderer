@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;

@@ -18,7 +18,7 @@ public class Proj4ProjectionTest {
                 "\"param\": \"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs \"" +
         "}}");
 
-        Assert.assertEquals(projection.getTargetCrs().getName(), "WGS84");
+        Assert.assertEquals("WGS84", projection.getTargetCrs().getName());
     }
 
     @Test
@@ -29,12 +29,12 @@ public class Proj4ProjectionTest {
         "}}");
 
         double[] coord = projection.fromGeo(127, 37);
-        Assert.assertArrayEquals(coord, new double[] { 200000, 489012.95569100516 }, 0.01);
+        Assert.assertArrayEquals(new double[] { 200000, 489012.95569100516 }, coord, 0.01);
     }
 
     static {
         try {
-            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRenderer");
+            Class.forName("com.mndk.bteterrarenderer.core.BTETerraRendererCore");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

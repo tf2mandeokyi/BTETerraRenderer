@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.projection;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
@@ -21,8 +21,8 @@ public class FlatTileProjectionTest {
     public void givenYamlConfig_testWebMercatorTransform() throws Exception {
         FlatTileProjection webMercator = PROJECTION_MAP.get("webmercator");
         Assert.assertArrayEquals(
-                webMercator.toTileCoord(LONGITUDE, LATITUDE, 21),
-                WEBMERCATOR_COORD
+                WEBMERCATOR_COORD,
+                webMercator.toTileCoord(LONGITUDE, LATITUDE, 21)
         );
     }
 
@@ -30,13 +30,13 @@ public class FlatTileProjectionTest {
     public void givenYamlConfig_testKakaoProjectionTransform() throws Exception {
         FlatTileProjection kakaoProjection = PROJECTION_MAP.get("kakaoprojection");
         Assert.assertArrayEquals(
-                kakaoProjection.toTileCoord(LONGITUDE, LATITUDE, 1),
-                KAKAOPROJECTION_COORD
+                KAKAOPROJECTION_COORD,
+                kakaoProjection.toTileCoord(LONGITUDE, LATITUDE, 1)
         );
     }
 
     static {
-        BTETerraRenderer.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
+        BTETerraRendererCore.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
         PROJECTION_MAP = ConfigLoaders.flatProj().getResult();
     }
 }

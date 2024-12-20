@@ -18,8 +18,8 @@ public class BatchTableTest {
         byte[] binary = new byte[] { 12, 0, 0, 0, 24, 0, 0, 0 };
         BatchTable table = BatchTable.from(2, json, binary);
 
-        Assert.assertEquals(table.get(0).getByName("id"), "unique id");
-        Assert.assertEquals(table.get(1).getByName("yearBuilt"), 2015);
-        Assert.assertEquals(table.get(1).getByName("binary"), 24);
+        Assert.assertEquals("unique id", table.get(0).getByName("id"));
+        Assert.assertEquals(2015, table.get(1).getByName("yearBuilt"));
+        Assert.assertEquals(24, table.get(1).getByName("binary"));
     }
 }

@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
 import com.google.common.collect.ImmutableList;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.processor.block.ProcessingBlock;
 import lombok.Getter;
 

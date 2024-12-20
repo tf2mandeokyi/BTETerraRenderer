@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.core.util.IOUtil;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.http.Http;
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;

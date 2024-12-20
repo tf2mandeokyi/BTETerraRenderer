@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.config;
 
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigRangeDouble;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigRangeInt;
 import net.minecraftforge.common.ForgeConfigSpec;

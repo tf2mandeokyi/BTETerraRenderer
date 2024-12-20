@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.util.json.JsonParserUtil;
+import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 
 import java.io.IOException;
@@ -24,6 +24,13 @@ public class Matrix4f extends Matrixf {
     }
     @Override public Matrix4f toMatrix4() { return this; }
 
+    public Cartesian3f[] getScaleRowVectors() {
+        Cartesian3f sx = new Cartesian3f(this.get(0, 0), this.get(0, 1), this.get(0, 2));
+        Cartesian3f sy = new Cartesian3f(this.get(1, 0), this.get(1, 1), this.get(1, 2));
+        Cartesian3f sz = new Cartesian3f(this.get(2, 0), this.get(2, 1), this.get(2, 2));
+        return new Cartesian3f[] { sx, sy, sz };
+    }
+
     public static Matrix4f fromArray(double[] array, MatrixMajor matrixMajor) {
         if (matrixMajor == MatrixMajor.ROW) {
             return new Matrix4f((c, r) -> (float) array[r*4+c]);
@@ -34,24 +41,25 @@ public class Matrix4f extends Matrixf {
 
     public static Matrix4f fromTranslation(Cartesian3f translation) {
         return new Matrix4f((c, r) -> {
-            if (c == 3) switch (r) {
+            if (c != 3) return r == c ? 1 : 0;
+            switch (r) {
                 case 0: return translation.getX();
                 case 1: return translation.getY();
                 case 2: return translation.getZ();
+                default: return 1;
             }
-            return r == c ? 1 : 0;
         });
     }
 
     public static Matrix4f fromScale(Cartesian3f scale) {
         return new Matrix4f((c, r) -> {
-            if (r == c) switch (r) {
+            if (r != c) return 0;
+            switch (r) {
                 case 0: return scale.getX();
                 case 1: return scale.getY();
                 case 2: return scale.getZ();
-                case 3: return 1;
+                default: return 1;
             }
-            return 0;
         });
     }
 

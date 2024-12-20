@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.core.util.IOUtil;
-import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.util.IOUtil;
+import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;

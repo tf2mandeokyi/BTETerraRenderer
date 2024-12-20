@@ -47,15 +47,16 @@ See [API Documentation](YML_CONFIG.md) for more information.
 
 ```bash
 # You must run this before building other subprojects
-./gradlew :core:build
+./gradlew buildNonModProjects
+
+# Building for all available MC versions:
+./gradlew cleanModProjects
+./gradlew copyBuildResultToRoot
 
 # Building for specific MC versions:
 # Cleaning is to refresh the core subproject dependency.
 ./gradlew :fabric1.18.2:clean
 ./gradlew :fabric1.18.2:build
-
-# Building for all available MC versions:
-./gradlew copyBuildResultToRoot
 ```
 
 After building for MC versions you can find the jar files in `build/libs` directory.

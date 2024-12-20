@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.event.ClientConnectionEvents;
 import lombok.experimental.UtilityClass;
 import net.minecraftforge.api.distmarker.Dist;

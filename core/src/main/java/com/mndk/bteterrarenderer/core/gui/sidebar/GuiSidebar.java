@@ -8,8 +8,8 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXHorizontalList
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.WidthFunction;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXScreenWrapper;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrappedScreen;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;

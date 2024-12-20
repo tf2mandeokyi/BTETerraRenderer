@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.loader;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.loader.json.TileMapServiceStatesLoader;
 import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;

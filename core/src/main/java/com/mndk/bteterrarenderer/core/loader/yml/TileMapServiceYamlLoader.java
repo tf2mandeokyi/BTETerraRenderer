@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.loader.yml;
 
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.util.Loggers;
 import lombok.val;
 
 import java.io.IOException;

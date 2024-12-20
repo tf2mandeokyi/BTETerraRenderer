@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

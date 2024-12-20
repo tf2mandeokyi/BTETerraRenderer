@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod.client.command;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.experimental.UtilityClass;
 import net.minecraft.commands.CommandSourceStack;

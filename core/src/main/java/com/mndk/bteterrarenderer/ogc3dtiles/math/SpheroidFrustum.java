@@ -1,9 +1,8 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
-import lombok.Getter;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 
-@Getter
-@SuppressWarnings("MismatchedReadAndWriteOfArray")
 public class SpheroidFrustum {
     private final Plane[] planes;
 
@@ -46,5 +45,9 @@ public class SpheroidFrustum {
         this.planes[3] = new Plane(point, rightNormal); // Right plane
         this.planes[4] = new Plane(point, topNormal); // Top plane
         this.planes[5] = new Plane(point, bottomNormal); // Bottom plane
+    }
+
+    public boolean intersectsVolume(Volume volume, Matrix4f volumeTransform, SpheroidCoordinatesConverter converter) {
+        return volume.intersectsPositiveSides(this.planes, volumeTransform, converter);
     }
 }

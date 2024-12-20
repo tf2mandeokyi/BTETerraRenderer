@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMessageImpl;
 import com.mndk.bteterrarenderer.mod.network.ServerWelcomeMsgHandler;
 import net.minecraftforge.fml.common.Mod;

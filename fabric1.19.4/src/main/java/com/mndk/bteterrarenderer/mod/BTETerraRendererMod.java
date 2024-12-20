@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mod;
 
-import com.mndk.bteterrarenderer.core.util.Loggers;
+import com.mndk.bteterrarenderer.util.Loggers;
 import net.fabricmc.api.ModInitializer;
 
 public class BTETerraRendererMod implements ModInitializer {

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.i3dm;
 
-import com.mndk.bteterrarenderer.core.util.IOUtil;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileDataFormat;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.TileGltfModel;

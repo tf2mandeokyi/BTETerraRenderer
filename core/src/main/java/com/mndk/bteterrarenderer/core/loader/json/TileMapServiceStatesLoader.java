@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.core.loader.json;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
-import com.mndk.bteterrarenderer.core.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.core.util.Loggers;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.Loggers;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;

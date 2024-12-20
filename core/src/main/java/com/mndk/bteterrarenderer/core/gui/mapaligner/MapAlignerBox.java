@@ -1,16 +1,16 @@
 package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
-import com.mndk.bteterrarenderer.core.util.StringUtil;
-import com.mndk.bteterrarenderer.core.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
+import com.mndk.bteterrarenderer.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 

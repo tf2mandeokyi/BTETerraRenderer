@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;

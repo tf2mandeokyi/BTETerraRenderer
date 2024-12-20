@@ -2,7 +2,8 @@ package com.mndk.bteterrarenderer.core.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mndk.bteterrarenderer.core.BTETerraRenderer;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
@@ -54,7 +55,7 @@ public class TileMapServiceJsonCopyTest {
     }
 
     static {
-        BTETerraRenderer.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
+        BTETerraRendererCore.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
     }
 
 }

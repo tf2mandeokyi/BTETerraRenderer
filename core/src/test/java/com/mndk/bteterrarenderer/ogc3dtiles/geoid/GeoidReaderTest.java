@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.geoid;
 
-import com.mndk.bteterrarenderer.core.util.IOUtil;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import org.junit.Assert;
 import org.junit.Test;

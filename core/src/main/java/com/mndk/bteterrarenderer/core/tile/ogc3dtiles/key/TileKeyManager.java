@@ -1,8 +1,7 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key;
 
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.Ogc3dTileMapService;
-import com.mndk.bteterrarenderer.core.util.ArrayUtil;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
+import com.mndk.bteterrarenderer.util.ArrayUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidFrustum;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
@@ -30,7 +29,6 @@ public class TileKeyManager {
             final Matrix4f previousTransform;
         }
 
-        Plane[] planes = frustum.getPlanes();
         List<LocalTileNode> resultList = new ArrayList<>();
         Stack<Node> nodeStack = new Stack<>();
         nodeStack.push(new Node(new int[0], tileset.getRootTile(), parentTilesetTransform));
@@ -48,7 +46,7 @@ public class TileKeyManager {
             if (localTransform != null) currentTransform = currentTransform.multiply(localTransform);
 
             Volume boundingVolume = currentTile.getBoundingVolume();
-            if (!renderSurroundings && !boundingVolume.intersectsPositiveSides(planes, currentTransform, converter))
+            if (!renderSurroundings && !frustum.intersectsVolume(boundingVolume, currentTransform, converter))
                 continue;
 
             List<Tile> children = currentTile.getChildren();
@@ -57,7 +55,7 @@ public class TileKeyManager {
             boolean atLeastOneChildIntersects = false;
             for (Tile child : children) {
                 Volume childBoundingVolume = child.getBoundingVolume();
-                if (childBoundingVolume.intersectsPositiveSides(planes, currentTransform, converter)) {
+                if (frustum.intersectsVolume(childBoundingVolume, currentTransform, converter)) {
                     atLeastOneChildIntersects = true;
                     break;
                 }
