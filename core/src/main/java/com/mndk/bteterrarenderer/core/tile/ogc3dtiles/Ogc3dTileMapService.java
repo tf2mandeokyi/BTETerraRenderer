@@ -12,12 +12,7 @@ import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
-import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileKeyManager;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
-import com.mndk.bteterrarenderer.util.ArrayUtil;
-import com.mndk.bteterrarenderer.util.Loggers;
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
@@ -41,9 +36,15 @@ import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidFrustum;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
+import com.mndk.bteterrarenderer.util.Loggers;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -67,6 +68,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Setter private transient double radius = 40;
     @Setter private transient boolean yDistortion = false;
     @Setter private transient boolean renderSurroundings = false;
+    @Setter private transient double lodFactor = 1;
     private transient double magnitude = 1;
 
     private final URL rootTilesetUrl;
@@ -142,15 +144,18 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     protected List<PropertyAccessor.Localized<?>> makeStateAccessors() {
         PropertyAccessor<Double> radius = PropertyAccessor.ranged(
                 this::getRadius, this::setRadius, 1, 1000);
-        PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
-                this::isYDistortion, this::setYDistortion);
+        PropertyAccessor<Double> lodFactor = PropertyAccessor.ranged(
+                this::getLodFactor, this::setLodFactor, 0.5, 2);
         PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(
                 this::isRenderSurroundings, this::setRenderSurroundings);
+        PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
+                this::isYDistortion, this::setYDistortion);
 
         return Arrays.asList(
                 PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radius),
-                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion),
-                PropertyAccessor.localized("render_surroundings", "gui.bteterrarenderer.settings.render_surroundings", renderSurroundings)
+                PropertyAccessor.localized("lod_factor", "gui.bteterrarenderer.settings.lod_factor", lodFactor),
+                PropertyAccessor.localized("render_surroundings", "gui.bteterrarenderer.settings.render_surroundings", renderSurroundings),
+                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion)
         );
     }
 
@@ -208,25 +213,16 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     public List<TileGlobalKey> getIdListRecursively(SpheroidFrustum frustum) {
         List<TileGlobalKey> result = new ArrayList<>();
 
-        @RequiredArgsConstructor
-        class Node {
-            final Tileset tileset;
-            final URL parentUrl;
-            final TileLocalKey[] parentKeys;
-            final Matrix4f parentTransform;
-        }
-
-        Stack<Node> nodes = new Stack<>();
+        Stack<Ogc3dBfsNode> nodes = new Stack<>();
         Tileset rootTileset = this.getRootTileset();
         if (rootTileset == null) return Collections.emptyList();
-        nodes.add(new Node(rootTileset, this.rootTilesetUrl, new TileLocalKey[0], Matrix4f.IDENTITY));
+        nodes.add(Ogc3dBfsNode.fromRoot(this, rootTileset, this.rootTilesetUrl));
 
         while (!nodes.isEmpty()) {
-            Node node = nodes.pop();
 
             // Get intersections from the current tileset
-            List<LocalTileNode> intersections = TileKeyManager.getIntersectionsFromTileset(
-                    node.tileset, node.parentTransform, frustum, this);
+            Ogc3dBfsNode node = nodes.pop();
+            List<LocalTileNode> intersections = node.selectIntersections(frustum);
 
             for (LocalTileNode localTileNode : intersections) {
                 TileContentLink contentLink = localTileNode.getContentLink();
@@ -234,14 +230,13 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
                 // Skip if the url is malformed
                 URL currentUrl;
-                try {
-                    currentUrl = contentLink.getTrueUrl(node.parentUrl);
-                } catch (MalformedURLException e) {
-                    Loggers.get(this).warn("Malformed URL: {} (parent: {})", contentLink, node.parentUrl);
+                try { currentUrl = contentLink.getTrueUrl(node.getParentUrl()); }
+                catch (MalformedURLException e) {
+                    Loggers.get(this).warn("Malformed URL: {} (parent: {})", contentLink, node.getParentUrl());
                     continue;
                 }
 
-                TileLocalKey[] currentKeys = ArrayUtil.expandOne(node.parentKeys, localTileNode.getKey(), TileLocalKey[]::new);
+                TileLocalKey[] currentKeys = node.attachKey(localTileNode);
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
 
                 // Get data from cache
@@ -255,7 +250,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 }
                 if (tileData instanceof Tileset) {
                     Tileset newTileset = (Tileset) tileData;
-                    nodes.add(new Node(newTileset, currentUrl, currentKeys, currentTransform));
+                    Ogc3dBfsNode newNode = new Ogc3dBfsNode(this, newTileset, currentUrl, currentKeys, currentTransform);
+                    nodes.add(newNode);
                 }
             }
         }
