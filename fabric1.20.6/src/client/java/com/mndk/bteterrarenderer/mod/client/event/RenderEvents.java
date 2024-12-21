@@ -20,7 +20,7 @@ public class RenderEvents {
     private static final VertexConsumerProvider.Immediate DUMMY_CONSUMER = VertexConsumerProvider.immediate(new BufferBuilder(0));
 
     public void registerEvents() {
-        WorldRenderEvents.END.register(RenderEvents::onRender);
+        WorldRenderEvents.LAST.register(RenderEvents::onRender);
     }
 
     @SuppressWarnings("resource")
