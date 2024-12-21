@@ -4,7 +4,7 @@ import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
-import com.mndk.bteterrarenderer.mcconnector.TestEnvironmentVirtualMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.client.TestEnvironmentDummyMinecraft;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class FlatTileProjectionTest {
     }
 
     static {
-        BTETerraRendererCore.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
+        BTETerraRendererCore.initialize(TestEnvironmentDummyMinecraft.getInstance());
         PROJECTION_MAP = ConfigLoaders.flatProj().getResult();
     }
 }

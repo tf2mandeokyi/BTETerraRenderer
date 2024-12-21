@@ -114,11 +114,15 @@ subprojects { p ->
         if (project.name != 'common' && project.name != 'mcconnector') {
             shadowDep project(':mcconnector')
         }
+        if (project.name == 'ogc3dtiles') {
+            shadowDep project(':draco')
+        }
 
         if (subprojectType != SubprojectType.LIBRARY) {
             shadowDep project(':draco')
             shadowDep project(':terraplusplus')
             shadowDep project(':mcconnector')
+            shadowDep project(':ogc3dtiles')
         }
 
         if (subprojectType.isMod) {

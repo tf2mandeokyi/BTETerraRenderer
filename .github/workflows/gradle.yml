@@ -30,10 +30,10 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-      - name: Run core project tests
+      - name: Run project tests
         uses: gradle/actions/setup-gradle@v3
         with:
-          arguments: :core:test
+          arguments: test
 
   build:
     runs-on: ubuntu-latest

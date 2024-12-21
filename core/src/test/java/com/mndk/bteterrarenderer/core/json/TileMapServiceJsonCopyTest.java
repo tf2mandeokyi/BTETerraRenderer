@@ -9,7 +9,7 @@ import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.TestEnvironmentVirtualMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.client.TestEnvironmentDummyMinecraft;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,7 +55,7 @@ public class TileMapServiceJsonCopyTest {
     }
 
     static {
-        BTETerraRendererCore.initialize(TestEnvironmentVirtualMinecraftManager.getInstance());
+        BTETerraRendererCore.initialize(TestEnvironmentDummyMinecraft.getInstance());
     }
 
 }

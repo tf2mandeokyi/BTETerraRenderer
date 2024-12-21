@@ -26,3 +26,4 @@ gui.bteterrarenderer.settings.y_distortion=Apply Y-axis Distortion
 gui.bteterrarenderer.settings.lock_north=Lock North
 
 gui.bteterrarenderer.settings.3d_radius=Render Radius
+gui.bteterrarenderer.settings.render_surroundings=Render surroundings

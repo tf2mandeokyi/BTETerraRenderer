@@ -9,7 +9,7 @@ import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistr
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
+import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;

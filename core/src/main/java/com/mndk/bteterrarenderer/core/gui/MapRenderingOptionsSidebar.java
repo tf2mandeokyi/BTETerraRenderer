@@ -12,7 +12,7 @@ import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.core.util.i18n.Translatable;
+import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
