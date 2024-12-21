@@ -10,8 +10,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
@@ -35,8 +34,28 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
-        return new BufferBuilderWrapperImpl(Tesselator.getInstance().getBuilder());
+    public BufferBuilderWrapper<?> beginPtcnTriangles() {
+        return begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+    }
+    public BufferBuilderWrapper<?> beginPtcQuads() {
+        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPtcTriangles() {
+        return begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPcQuads() {
+        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPtQuads() {
+        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+    }
+    public BufferBuilderWrapper<?> beginPQuads() {
+        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+    }
+    private static BufferBuilderWrapper<?> begin(VertexFormat.Mode drawMode, VertexFormat format) {
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        builder.begin(drawMode, format);
+        return new BufferBuilderWrapperImpl(builder);
     }
 
     public void translate(float x, float y, float z) {

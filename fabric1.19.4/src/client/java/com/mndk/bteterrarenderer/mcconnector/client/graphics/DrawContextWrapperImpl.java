@@ -15,8 +15,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
@@ -35,8 +34,28 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
-        return new BufferBuilderWrapperImpl(Tessellator.getInstance().getBuffer());
+    public BufferBuilderWrapper<?> beginPtcnTriangles() {
+        return begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR_NORMAL);
+    }
+    public BufferBuilderWrapper<?> beginPtcQuads() {
+        return begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPtcTriangles() {
+        return begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPcQuads() {
+        return begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPtQuads() {
+        return begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+    }
+    public BufferBuilderWrapper<?> beginPQuads() {
+        return begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
+    }
+    private static BufferBuilderWrapper<?> begin(VertexFormat.DrawMode drawMode, VertexFormat format) {
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(drawMode, format);
+        return new BufferBuilderWrapperImpl(builder);
     }
 
     public void translate(float x, float y, float z) {

@@ -16,7 +16,7 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
 
     DrawingFormat<PosTex, GraphicsQuad<PosTex>> QUAD_PT_ALPHA = DrawingFormat.of(
             GlGraphicsManager::setPositionTexColorShader,
-            BufferBuilderWrapper::beginPtcQuads,
+            DrawContextWrapper::beginPtcQuads,
             (context, builder, vertex, alpha) -> builder
                     .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
@@ -26,7 +26,7 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
 
     DrawingFormat<PosTexNorm, GraphicsTriangle<PosTexNorm>> TRI_PTN_ALPHA = DrawingFormat.of(
             GlGraphicsManager::setPositionTexColorNormalShader,
-            BufferBuilderWrapper::beginPtcnTriangles,
+            DrawContextWrapper::beginPtcnTriangles,
             (context, builder, vertex, alpha) -> builder
                     .position(context, vertex.pos.getX(), vertex.pos.getY(), vertex.pos.getZ())
                     .texture(vertex.u, vertex.v)
@@ -35,9 +35,8 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
                     .next()
     );
 
-    default void nextShape(DrawContextWrapper<?> drawContextWrapper,
+    default void nextShape(DrawContextWrapper<?> drawContextWrapper, BufferBuilderWrapper<?> builder,
                            U shape, McCoordTransformer mcCoordTransformer, float alpha) {
-        BufferBuilderWrapper<?> builder = drawContextWrapper.tessellatorBufferBuilder();
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             T vertex = shape.getVertex(i).transformMcCoord(mcCoordTransformer);
             this.nextVertex(drawContextWrapper, builder, vertex, alpha);
@@ -52,8 +51,8 @@ public interface DrawingFormat<T extends GraphicsVertex<T>, U extends GraphicsSh
             public void setShader(GlGraphicsManager glGraphicsManager) {
                 shaderSetter.setShader(glGraphicsManager);
             }
-            public void begin(BufferBuilderWrapper<?> builder) {
-                beginner.begin(builder);
+            public BufferBuilderWrapper<?> begin(DrawContextWrapper<?> drawContextWrapper) {
+                return beginner.begin(drawContextWrapper);
             }
             public void nextVertex(DrawContextWrapper<?> drawContextWrapper, BufferBuilderWrapper<?> builder,
                                    T vertex, float alpha) {

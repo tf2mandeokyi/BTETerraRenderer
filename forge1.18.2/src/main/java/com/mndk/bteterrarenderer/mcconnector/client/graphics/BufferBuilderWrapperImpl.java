@@ -12,25 +12,6 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
         super(delegate);
     }
 
-    public void beginPtcnTriangles() {
-        getThisWrapped().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
-    }
-    public void beginPtcQuads() {
-        getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-    }
-    public void beginPtcTriangles() {
-        getThisWrapped().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
-    }
-    public void beginPcQuads() {
-        getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-    }
-    public void beginPtQuads() {
-        getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-    }
-    public void beginPQuads() {
-        getThisWrapped().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-    }
-
     public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
         PoseStack poseStack = drawContextWrapper.get();
         Matrix4f matrix = poseStack.last().pose();

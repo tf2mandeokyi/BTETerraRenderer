@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -38,8 +39,28 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         super(new Object());
     }
 
-    public BufferBuilderWrapper<?> tessellatorBufferBuilder() {
-        return new BufferBuilderWrapperImpl(Tessellator.getInstance().getBuffer());
+    public BufferBuilderWrapper<?> beginPtcnTriangles() {
+        return begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+    }
+    public BufferBuilderWrapper<?> beginPtcQuads() {
+        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPtcTriangles() {
+        return begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPcQuads() {
+        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+    }
+    public BufferBuilderWrapper<?> beginPtQuads() {
+        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+    }
+    public BufferBuilderWrapper<?> beginPQuads() {
+        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+    }
+    private static BufferBuilderWrapper<?> begin(int drawMode, VertexFormat format) {
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+        bufferBuilder.begin(drawMode, format);
+        return new BufferBuilderWrapperImpl(bufferBuilder);
     }
 
     public void translate(float x, float y, float z) {

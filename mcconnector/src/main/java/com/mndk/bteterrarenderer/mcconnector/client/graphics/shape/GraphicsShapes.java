@@ -29,12 +29,10 @@ public class GraphicsShapes {
     public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,
                               McCoordTransformer modelPosTransformer, float alpha) {
         shapeMap.forEach((format, shapes) -> {
-            BufferBuilderWrapper<?> builder = drawContextWrapper.tessellatorBufferBuilder();
-
             format.setShader(McConnector.client().glGraphicsManager);
-            format.begin(builder);
+            BufferBuilderWrapper<?> builder = format.begin(drawContextWrapper);
             for (GraphicsShape<?> shape : shapes) {
-                format.nextShape(drawContextWrapper, BTRUtil.uncheckedCast(shape), modelPosTransformer, alpha);
+                format.nextShape(drawContextWrapper, builder, BTRUtil.uncheckedCast(shape), modelPosTransformer, alpha);
             }
             builder.drawAndRender();
         });

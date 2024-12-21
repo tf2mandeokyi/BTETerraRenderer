@@ -23,8 +23,18 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         super(delegate);
     }
 
-    // Buffer builder
-    public abstract BufferBuilderWrapper<?> tessellatorBufferBuilder();
+    /** Buffer builder. PTCN stands for Position-Texture-Color-Normal */
+    public abstract BufferBuilderWrapper<?> beginPtcnTriangles();
+    /** Buffer builder. PTC stands for Position-Texture-Color */
+    public abstract BufferBuilderWrapper<?> beginPtcQuads();
+    /** Buffer builder. PTC stands for Position-Texture-Color */
+    public abstract BufferBuilderWrapper<?> beginPtcTriangles();
+    /** Buffer builder. PC stands for Position-Color */
+    public abstract BufferBuilderWrapper<?> beginPcQuads();
+    /** Buffer builder. PT stands for Position-Texture */
+    public abstract BufferBuilderWrapper<?> beginPtQuads();
+    /** Buffer builder. P stands for Position */
+    public abstract BufferBuilderWrapper<?> beginPQuads();
 
     // Transformation
     public abstract void translate(float x, float y, float z);
@@ -75,8 +85,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         McConnector.client().glGraphicsManager.glDisableTexture();
         McConnector.client().glGraphicsManager.glDefaultBlendFunc();
         McConnector.client().glGraphicsManager.setPositionColorShader();
-        BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
-        bufferBuilder.beginPcQuads();
+        BufferBuilderWrapper<?> bufferBuilder = this.beginPcQuads();
         bufferBuilder.pcNext(this, v0.x, v0.y, z, r, g, b, a);
         bufferBuilder.pcNext(this, v1.x, v1.y, z, r, g, b, a);
         bufferBuilder.pcNext(this, v2.x, v2.y, z, r, g, b, a);
@@ -87,8 +96,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
     }
 
     protected void drawPosQuad(float x, float y, float w, float h) {
-        BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
-        bufferBuilder.beginPQuads();
+        BufferBuilderWrapper<?> bufferBuilder = this.beginPQuads();
         bufferBuilder.pNext(this, x, y, 0);
         bufferBuilder.pNext(this, x, y+h, 0);
         bufferBuilder.pNext(this, x+w, y+h, 0);
@@ -98,8 +106,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
 
     protected void drawPosTexQuad(int x, int y, int w, int h,
                                   float u0, float v0, float u1, float v1) {
-        BufferBuilderWrapper<?> bufferBuilder = this.tessellatorBufferBuilder();
-        bufferBuilder.beginPtQuads();
+        BufferBuilderWrapper<?> bufferBuilder = this.beginPtQuads();
         bufferBuilder.ptNext(this, x, y, 0, u0, v0);
         bufferBuilder.ptNext(this, x, y+h, 0, u0, v1);
         bufferBuilder.ptNext(this, x+w, y+h, 0, u1, v1);

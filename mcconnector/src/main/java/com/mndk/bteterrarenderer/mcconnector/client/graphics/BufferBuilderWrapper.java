@@ -10,19 +10,6 @@ public abstract class BufferBuilderWrapper<T> extends MinecraftNativeObjectWrapp
         super(delegate);
     }
 
-    /** PTCN stands for Position-Texture-Color-Normal */
-    public abstract void beginPtcnTriangles();
-    /** PTC stands for Position-Texture-Color */
-    public abstract void beginPtcQuads();
-    /** PTC stands for Position-Texture-Color */
-    public abstract void beginPtcTriangles();
-    /** PC stands for Position-Color */
-    public abstract void beginPcQuads();
-    /** PT stands for Position-Texture */
-    public abstract void beginPtQuads();
-    /** P stands for Position */
-    public abstract void beginPQuads();
-
     /** PC stands for Position-Color */
     public final void pcNext(DrawContextWrapper<?> drawContextWrapper,
                              float x, float y, float z,

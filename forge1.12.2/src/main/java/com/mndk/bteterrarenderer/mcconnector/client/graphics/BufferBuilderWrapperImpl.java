@@ -2,8 +2,6 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 
@@ -13,25 +11,6 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
 
     public BufferBuilderWrapperImpl(@Nonnull BufferBuilder delegate) {
         super(delegate);
-    }
-
-    public void beginPtcnTriangles() {
-        getThisWrapped().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-    }
-    public void beginPtcQuads() {
-        getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-    }
-    public void beginPtcTriangles() {
-        getThisWrapped().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
-    }
-    public void beginPcQuads() {
-        getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-    }
-    public void beginPtQuads() {
-        getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-    }
-    public void beginPQuads() {
-        getThisWrapped().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
     }
 
     public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
