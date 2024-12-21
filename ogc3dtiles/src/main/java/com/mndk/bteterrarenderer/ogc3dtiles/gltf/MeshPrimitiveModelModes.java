@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.gltf;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
+@SuppressWarnings("unused")
 public class MeshPrimitiveModelModes {
     public final int POINTS = 0;
     public final int LINES = 1;
