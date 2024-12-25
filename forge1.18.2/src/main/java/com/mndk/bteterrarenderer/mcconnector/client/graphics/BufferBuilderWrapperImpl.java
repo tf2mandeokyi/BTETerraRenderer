@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 
 import javax.annotation.Nonnull;
 
@@ -30,6 +31,14 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
     }
     public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
         getThisWrapped().color(r, g, b, a);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> light(int light) {
+        getThisWrapped().uv2(light);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> defaultOverlay() {
+        getThisWrapped().overlayCoords(OverlayTexture.NO_OVERLAY);
         return this;
     }
     public void next() {

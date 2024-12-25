@@ -89,7 +89,7 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
             ParsedPoint point2 = points[mesh.getFace(faceIndex).getValue(2)];
 
             ParsedTriangle triangle = new ParsedTriangle(point0, point1, point2);
-            shapes.add(DrawingFormat.TRI_PTN_ALPHA, triangle.toGraphics());
+            shapes.add(DrawingFormat.QUAD_PTN, triangle.toGraphics().toQuad());
         }
         return shapes;
     }

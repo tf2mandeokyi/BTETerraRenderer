@@ -1,6 +1,8 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawModeEnum;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormatEnum;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
@@ -23,18 +25,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         super(delegate);
     }
 
-    /** Buffer builder. PTCN stands for Position-Texture-Color-Normal */
-    public abstract BufferBuilderWrapper<?> beginPtcnTriangles();
-    /** Buffer builder. PTC stands for Position-Texture-Color */
-    public abstract BufferBuilderWrapper<?> beginPtcQuads();
-    /** Buffer builder. PTC stands for Position-Texture-Color */
-    public abstract BufferBuilderWrapper<?> beginPtcTriangles();
-    /** Buffer builder. PC stands for Position-Color */
-    public abstract BufferBuilderWrapper<?> beginPcQuads();
-    /** Buffer builder. PT stands for Position-Texture */
-    public abstract BufferBuilderWrapper<?> beginPtQuads();
-    /** Buffer builder. P stands for Position */
-    public abstract BufferBuilderWrapper<?> beginPQuads();
+    public abstract BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat);
 
     // Transformation
     public abstract void translate(float x, float y, float z);
@@ -84,38 +75,38 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         McConnector.client().glGraphicsManager.glEnableBlend();
         McConnector.client().glGraphicsManager.glDisableTexture();
         McConnector.client().glGraphicsManager.glDefaultBlendFunc();
-        McConnector.client().glGraphicsManager.setPositionColorShader();
-        BufferBuilderWrapper<?> bufferBuilder = this.beginPcQuads();
-        bufferBuilder.pcNext(this, v0.x, v0.y, z, r, g, b, a);
-        bufferBuilder.pcNext(this, v1.x, v1.y, z, r, g, b, a);
-        bufferBuilder.pcNext(this, v2.x, v2.y, z, r, g, b, a);
-        bufferBuilder.pcNext(this, v3.x, v3.y, z, r, g, b, a);
+        McConnector.client().glGraphicsManager.setPosColorShader();
+        BufferBuilderWrapper<?> bufferBuilder = this.begin(DrawModeEnum.QUADS, VertexFormatEnum.POSITION_COLOR);
+        bufferBuilder.position(this, v0.x, v0.y, z).color(r, g, b, a).next();
+        bufferBuilder.position(this, v1.x, v1.y, z).color(r, g, b, a).next();
+        bufferBuilder.position(this, v2.x, v2.y, z).color(r, g, b, a).next();
+        bufferBuilder.position(this, v3.x, v3.y, z).color(r, g, b, a).next();
         bufferBuilder.drawAndRender();
         McConnector.client().glGraphicsManager.glEnableTexture();
         McConnector.client().glGraphicsManager.glDisableBlend();
     }
 
     protected void drawPosQuad(float x, float y, float w, float h) {
-        BufferBuilderWrapper<?> bufferBuilder = this.beginPQuads();
-        bufferBuilder.pNext(this, x, y, 0);
-        bufferBuilder.pNext(this, x, y+h, 0);
-        bufferBuilder.pNext(this, x+w, y+h, 0);
-        bufferBuilder.pNext(this, x+w, y, 0);
+        BufferBuilderWrapper<?> bufferBuilder = this.begin(DrawModeEnum.QUADS, VertexFormatEnum.POSITION);
+        bufferBuilder.position(this, x, y, 0).next();
+        bufferBuilder.position(this, x, y+h, 0).next();
+        bufferBuilder.position(this, x+w, y+h, 0).next();
+        bufferBuilder.position(this, x+w, y, 0).next();
         bufferBuilder.drawAndRender();
     }
 
     protected void drawPosTexQuad(int x, int y, int w, int h,
                                   float u0, float v0, float u1, float v1) {
-        BufferBuilderWrapper<?> bufferBuilder = this.beginPtQuads();
-        bufferBuilder.ptNext(this, x, y, 0, u0, v0);
-        bufferBuilder.ptNext(this, x, y+h, 0, u0, v1);
-        bufferBuilder.ptNext(this, x+w, y+h, 0, u1, v1);
-        bufferBuilder.ptNext(this, x+w, y, 0, u1, v0);
+        BufferBuilderWrapper<?> bufferBuilder = this.begin(DrawModeEnum.QUADS, VertexFormatEnum.POSITION_TEXTURE);
+        bufferBuilder.position(this, x, y, 0).texture(u0, v0).next();
+        bufferBuilder.position(this, x, y+h, 0).texture(u0, v1).next();
+        bufferBuilder.position(this, x+w, y+h, 0).texture(u1, v1).next();
+        bufferBuilder.position(this, x+w, y, 0).texture(u1, v0).next();
         bufferBuilder.drawAndRender();
     }
 
     public void drawNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
-        McConnector.client().glGraphicsManager.setPositionTexShader();
+        McConnector.client().glGraphicsManager.setPosTexShader();
         McConnector.client().glGraphicsManager.setShaderTexture(allocatedTextureObject);
         McConnector.client().glGraphicsManager.glEnableBlend();
         McConnector.client().glGraphicsManager.glDefaultBlendFunc();
@@ -201,7 +192,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
     }
 
     private void glUpdateScissorBox() {
-        McConnector.client().glGraphicsManager.glDisableScissorTest();
+        McConnector.client().glGraphicsManager.glDisableScissor();
         if (SCISSOR_DIM_STACK.isEmpty()) return;
 
         // Calculate intersections
@@ -223,8 +214,7 @@ public abstract class DrawContextWrapper<T> extends MinecraftNativeObjectWrapper
         // Do scissor
         int scissorX = totalMinX, scissorWidth = totalMaxX - totalMinX;
         int scissorY = totalMinY, scissorHeight = totalMaxY - totalMinY;
-        McConnector.client().glGraphicsManager.glEnableScissorTest();
-        McConnector.client().glGraphicsManager.glScissorBox(scissorX, scissorY, scissorWidth, scissorHeight);
+        McConnector.client().glGraphicsManager.glEnableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
     }
 
     @Nullable

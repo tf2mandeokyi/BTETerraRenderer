@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
 
-public class GlGraphicsManagerImpl implements GlGraphicsManager {
+public class GlGraphicsManagerImpl extends GlGraphicsManager {
     public void glEnableTexture() {
         GlStateManager.enableTexture2D();
     }
@@ -32,10 +32,10 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     }
 
-    public void setPositionTexShader() {}
-    public void setPositionColorShader() {}
-    public void setPositionTexColorShader() {}
-    public void setPositionTexColorNormalShader() {}
+    public void setPosTexShader() {}
+    public void setPosColorShader() {}
+    public void setPosTexColorShader() {}
+    public void setPosColorTexLightNormalShader() {}
     public void setShaderTexture(NativeTextureWrapper textureObject) {
         GlStateManager.bindTexture(textureObject.get());
     }
@@ -43,7 +43,7 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
     public NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapper(TextureUtil.MISSING_TEXTURE.getGlTextureId());
     }
-    public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
+    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
         int glId = GL11.glGenTextures();
         int width = image.getWidth(), height = image.getHeight();
         TextureUtil.allocateTexture(glId, width, height);
@@ -57,13 +57,11 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         GlStateManager.deleteTexture(textureObject.get());
     }
 
-    public void glEnableScissorTest() {
+    public void glEnableScissor(int x, int y, int width, int height) {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-    }
-    public void glScissorBox(int x, int y, int width, int height) {
         GL11.glScissor(x, y, width, height);
     }
-    public void glDisableScissorTest() {
+    public void glDisableScissor() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 }

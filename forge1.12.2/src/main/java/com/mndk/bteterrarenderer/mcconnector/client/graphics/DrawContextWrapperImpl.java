@@ -2,6 +2,8 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawModeEnum;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormatEnum;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiEventListenerCopy;
@@ -39,25 +41,23 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         super(new Object());
     }
 
-    public BufferBuilderWrapper<?> beginPtcnTriangles() {
-        return begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-    }
-    public BufferBuilderWrapper<?> beginPtcQuads() {
-        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-    }
-    public BufferBuilderWrapper<?> beginPtcTriangles() {
-        return begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
-    }
-    public BufferBuilderWrapper<?> beginPcQuads() {
-        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-    }
-    public BufferBuilderWrapper<?> beginPtQuads() {
-        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-    }
-    public BufferBuilderWrapper<?> beginPQuads() {
-        return begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-    }
-    private static BufferBuilderWrapper<?> begin(int drawMode, VertexFormat format) {
+    public BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
+        int drawMode;
+        switch (glMode) {
+            case TRIANGLES: drawMode = GL11.GL_TRIANGLES; break;
+            case QUADS: drawMode = GL11.GL_QUADS; break;
+            default: throw new IllegalArgumentException("Unsupported draw mode: " + glMode);
+        }
+        VertexFormat format;
+        switch (vertexFormat) {
+            case POSITION_COLOR_TEXTURE_LIGHT_NORMAL: format = DefaultVertexFormats.BLOCK; break;
+            case POSITION_TEXTURE_COLOR_NORMAL: format = DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL; break;
+            case POSITION_TEXTURE_COLOR: format = DefaultVertexFormats.POSITION_TEX_COLOR; break;
+            case POSITION_COLOR: format = DefaultVertexFormats.POSITION_COLOR; break;
+            case POSITION_TEXTURE: format = DefaultVertexFormats.POSITION_TEX; break;
+            case POSITION: format = DefaultVertexFormats.POSITION; break;
+            default: throw new IllegalArgumentException("Unsupported vertex format: " + vertexFormat);
+        }
         BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(drawMode, format);
         return new BufferBuilderWrapperImpl(bufferBuilder);

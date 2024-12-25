@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
@@ -11,6 +12,6 @@ public class ImageBakingBlock<Key> extends SingleQueueBlock<Key, BufferedImage, 
 
     @Override
     protected NativeTextureWrapper processInternal(Key key, @Nonnull BufferedImage image) {
-        return McConnector.client().glGraphicsManager.allocateAndGetTextureObject(image);
+        return McConnector.client().glGraphicsManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
     }
 }

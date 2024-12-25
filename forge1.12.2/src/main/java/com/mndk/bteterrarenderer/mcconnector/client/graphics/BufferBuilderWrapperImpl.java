@@ -29,6 +29,13 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
         getThisWrapped().color(r, g, b, a);
         return this;
     }
+    public BufferBuilderWrapper<BufferBuilder> light(int light) {
+        getThisWrapped().lightmap(light & '\uffff', light >> 16 & '\uffff');
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> defaultOverlay() {
+        return this;
+    }
     public void next() {
         getThisWrapped().endVertex();
     }

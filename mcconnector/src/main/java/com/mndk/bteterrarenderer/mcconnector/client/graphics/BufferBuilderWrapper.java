@@ -1,6 +1,9 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.MinecraftNativeObjectWrapper;
+import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 
 import javax.annotation.Nonnull;
 
@@ -10,42 +13,33 @@ public abstract class BufferBuilderWrapper<T> extends MinecraftNativeObjectWrapp
         super(delegate);
     }
 
-    /** PC stands for Position-Color */
-    public final void pcNext(DrawContextWrapper<?> drawContextWrapper,
-                             float x, float y, float z,
-                             float r, float g, float b, float a) {
-        this.position(drawContextWrapper, x, y, z)
-                .color(r, g, b, a)
+    public void nextPosTex(DrawContextWrapper<?> drawContextWrapper, PosTex vertex, float alpha) {
+        this.position(drawContextWrapper, vertex.pos)
+                .texture(vertex.u, vertex.v)
+                .color(1, 1, 1, alpha)
                 .next();
     }
 
-    /** PT stands for Position-Color */
-    public final void ptNext(DrawContextWrapper<?> drawContextWrapper,
-                             float x, float y, float z,
-                             float u, float v) {
-        this.position(drawContextWrapper, x, y, z)
-                .texture(u, v)
+    public void nextPosTex(DrawContextWrapper<?> drawContextWrapper, PosTexNorm vertex, float alpha) {
+        this.position(drawContextWrapper, vertex.pos)
+                .texture(vertex.u, vertex.v)
+                .color(1, 1, 1, alpha)
                 .next();
     }
 
-    /** P stands for Position */
-    public final void pNext(DrawContextWrapper<?> drawContextWrapper,
-                            float x, float y, float z) {
-        this.position(drawContextWrapper, x, y, z)
-                .next();
+    public final BufferBuilderWrapper<T> position(DrawContextWrapper<?> drawContextWrapper, McCoord coord) {
+        return this.position(drawContextWrapper, (float) coord.getX(), coord.getY(), (float) coord.getZ());
     }
-
-    public final BufferBuilderWrapper<T> position(DrawContextWrapper<?> drawContextWrapper, double x, double y, double z) {
-        return this.position(drawContextWrapper, (float) x, (float) y, (float) z);
-    }
-    public final BufferBuilderWrapper<T> normal(DrawContextWrapper<?> drawContextWrapper, double x, double y, double z) {
-        return this.normal(drawContextWrapper, (float) x, (float) y, (float) z);
+    public final BufferBuilderWrapper<T> normal(DrawContextWrapper<?> drawContextWrapper, McCoord coord) {
+        return this.normal(drawContextWrapper, (float) coord.getX(), coord.getY(), (float) coord.getZ());
     }
 
     public abstract BufferBuilderWrapper<T> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z);
     public abstract BufferBuilderWrapper<T> normal(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z);
     public abstract BufferBuilderWrapper<T> texture(float u, float v);
     public abstract BufferBuilderWrapper<T> color(float r, float g, float b, float a);
+    public abstract BufferBuilderWrapper<T> light(int light);
+    public abstract BufferBuilderWrapper<T> defaultOverlay();
     public abstract void next();
 
     public abstract void drawAndRender();

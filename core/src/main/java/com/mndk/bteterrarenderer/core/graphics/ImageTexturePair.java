@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import lombok.Getter;
@@ -15,6 +16,6 @@ public class ImageTexturePair {
 
     public void bake() {
         if (this.textureObject != null) return;
-        this.textureObject = McConnector.client().glGraphicsManager.allocateAndGetTextureObject(this.image);
+        this.textureObject = McConnector.client().glGraphicsManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, this.image);
     }
 }

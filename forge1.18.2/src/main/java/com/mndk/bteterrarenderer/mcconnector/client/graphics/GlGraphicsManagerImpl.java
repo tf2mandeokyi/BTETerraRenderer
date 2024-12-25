@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.awt.image.BufferedImage;
 
-public class GlGraphicsManagerImpl implements GlGraphicsManager {
+public class GlGraphicsManagerImpl extends GlGraphicsManager {
 
     public void glEnableTexture() {
         RenderSystem.enableTexture();
@@ -40,17 +40,17 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         RenderSystem.defaultBlendFunc();
     }
 
-    public void setPositionTexShader() {
+    public void setPosTexShader() {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
     }
-    public void setPositionColorShader() {
+    public void setPosColorShader() {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
     }
-    public void setPositionTexColorShader() {
+    public void setPosTexColorShader() {
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
     }
-    public void setPositionTexColorNormalShader() {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+    public void setPosColorTexLightNormalShader() {
+        RenderSystem.setShader(GameRenderer::getRendertypeSolidShader);
     }
     public void setShaderTexture(NativeTextureWrapper textureObject) {
         RenderSystem.setShaderTexture(0, textureObject.get());
@@ -60,26 +60,21 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         return new NativeTextureWrapper(MissingTextureAtlasSprite.getLocation());
     }
     @SneakyThrows
-    public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
+    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
         DynamicTexture texture = new DynamicTexture(nativeImage);
-        ResourceLocation location = Minecraft.getInstance().getTextureManager()
-                .register("bteterrarenderer-textures", texture);
+        ResourceLocation location = new ResourceLocation(modId, "dynamic-" + count);
+        Minecraft.getInstance().getTextureManager().register(location, texture);
         return new NativeTextureWrapper(location);
     }
     public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         Minecraft.getInstance().getTextureManager().release(textureObject.get());
     }
 
-    public void glEnableScissorTest() {
-        RenderSystem.assertOnGameThreadOrInit();
-        GlStateManager._enableScissorTest();
+    public void glEnableScissor(int x, int y, int width, int height) {
+        RenderSystem.enableScissor(x, y, width, height);
     }
-    public void glScissorBox(int x, int y, int width, int height) {
-        RenderSystem.assertOnGameThreadOrInit();
-        GlStateManager._scissorBox(x, y, width, height);
-    }
-    public void glDisableScissorTest() {
+    public void glDisableScissor() {
         RenderSystem.disableScissor();
     }
 }

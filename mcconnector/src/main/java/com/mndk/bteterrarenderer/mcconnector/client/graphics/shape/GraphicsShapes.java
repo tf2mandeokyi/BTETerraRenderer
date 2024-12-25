@@ -23,7 +23,8 @@ public class GraphicsShapes {
     public <T extends GraphicsVertex<T>, U extends GraphicsShape<T>> void add(DrawingFormat<T, U> format, U shape) {
         List<U> list = BTRUtil.uncheckedCast(shapeMap.computeIfAbsent(format, key -> new ArrayList<>()));
         list.add(shape);
-        boundingBox = boundingBox == null ? shape.getBoundingBox() : boundingBox.include(shape.getBoundingBox());
+        McCoordAABB shapeBoundingBox = shape.getBoundingBox();
+        boundingBox = boundingBox == null ? shapeBoundingBox : boundingBox.include(shapeBoundingBox);
     }
 
     public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,

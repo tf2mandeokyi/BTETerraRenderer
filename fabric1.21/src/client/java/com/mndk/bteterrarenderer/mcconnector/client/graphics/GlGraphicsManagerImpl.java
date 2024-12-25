@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 import java.awt.image.BufferedImage;
 
-public class GlGraphicsManagerImpl implements GlGraphicsManager {
+public class GlGraphicsManagerImpl extends GlGraphicsManager {
 
     public void glEnableTexture() {}
     public void glDisableTexture() {}
@@ -36,17 +36,17 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         RenderSystem.defaultBlendFunc();
     }
 
-    public void setPositionTexShader() {
+    public void setPosTexShader() {
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
     }
-    public void setPositionColorShader() {
+    public void setPosColorShader() {
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
     }
-    public void setPositionTexColorShader() {
+    public void setPosTexColorShader() {
         RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
     }
-    public void setPositionTexColorNormalShader() {
-        RenderSystem.setShader(GameRenderer::getRenderTypeCloudsProgram);
+    public void setPosColorTexLightNormalShader() {
+        RenderSystem.setShader(GameRenderer::getRenderTypeSolidProgram);
     }
     public void setShaderTexture(NativeTextureWrapper textureObject) {
         RenderSystem.setShaderTexture(0, textureObject.get());
@@ -56,26 +56,21 @@ public class GlGraphicsManagerImpl implements GlGraphicsManager {
         return new NativeTextureWrapper(MissingSprite.getMissingSpriteId());
     }
     @SneakyThrows
-    public NativeTextureWrapper allocateAndGetTextureObject(BufferedImage image) {
+    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
         NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
-        Identifier id = MinecraftClient.getInstance().getTextureManager()
-                .registerDynamicTexture("bteterrarenderer-texture", texture);
+        Identifier id = Identifier.of(modId, "dynamic-" + count);
+        MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
         return new NativeTextureWrapper(id);
     }
     public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject.get());
     }
 
-    public void glEnableScissorTest() {
-        RenderSystem.assertOnRenderThread();
-        GlStateManager._enableScissorTest();
+    public void glEnableScissor(int x, int y, int width, int height) {
+        RenderSystem.enableScissor(x, y, width, height);
     }
-    public void glScissorBox(int x, int y, int width, int height) {
-        RenderSystem.assertOnRenderThread();
-        GlStateManager._scissorBox(x, y, width, height);
-    }
-    public void glDisableScissorTest() {
+    public void glDisableScissor() {
         RenderSystem.disableScissor();
     }
 

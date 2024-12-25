@@ -9,9 +9,16 @@ public class GraphicsTriangle<T extends GraphicsVertex<T>> extends GraphicsShape
 
     private final Object[] vertices;
 
-    private GraphicsTriangle(Class<T> vertexClass, T v0, T v1, T v2) {
+    public GraphicsTriangle(Class<T> vertexClass, T v0, T v1, T v2) {
         super(vertexClass);
         this.vertices = new Object[] { v0, v1, v2 };
+    }
+
+    public GraphicsQuad<T> toQuad() {
+        T v0 = this.getVertex(0);
+        T v1 = this.getVertex(1);
+        T v2 = this.getVertex(2);
+        return new GraphicsQuad<>(this.getVertexClass(), v0, v1, v2, v0);
     }
 
     @Override

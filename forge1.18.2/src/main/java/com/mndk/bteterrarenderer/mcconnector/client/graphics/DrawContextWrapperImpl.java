@@ -2,6 +2,8 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawModeEnum;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormatEnum;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
@@ -34,25 +36,19 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<?> beginPtcnTriangles() {
-        return begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
-    }
-    public BufferBuilderWrapper<?> beginPtcQuads() {
-        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-    }
-    public BufferBuilderWrapper<?> beginPtcTriangles() {
-        return begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
-    }
-    public BufferBuilderWrapper<?> beginPcQuads() {
-        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-    }
-    public BufferBuilderWrapper<?> beginPtQuads() {
-        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-    }
-    public BufferBuilderWrapper<?> beginPQuads() {
-        return begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-    }
-    private static BufferBuilderWrapper<?> begin(VertexFormat.Mode drawMode, VertexFormat format) {
+    public BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
+        VertexFormat.Mode drawMode = switch (glMode) {
+            case TRIANGLES -> VertexFormat.Mode.TRIANGLES;
+            case QUADS -> VertexFormat.Mode.QUADS;
+        };
+        VertexFormat format = switch (vertexFormat) {
+            case POSITION_COLOR_TEXTURE_LIGHT_NORMAL -> DefaultVertexFormat.BLOCK;
+            case POSITION_TEXTURE_COLOR_NORMAL -> DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL;
+            case POSITION_TEXTURE_COLOR -> DefaultVertexFormat.POSITION_TEX_COLOR;
+            case POSITION_COLOR -> DefaultVertexFormat.POSITION_COLOR;
+            case POSITION_TEXTURE -> DefaultVertexFormat.POSITION_TEX;
+            case POSITION -> DefaultVertexFormat.POSITION;
+        };
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(drawMode, format);
         return new BufferBuilderWrapperImpl(builder);

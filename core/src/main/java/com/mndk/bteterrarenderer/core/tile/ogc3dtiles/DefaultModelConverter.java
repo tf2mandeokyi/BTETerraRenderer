@@ -103,7 +103,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
                 ParsedPoint point2 = points[meshIndices[2]];
 
                 ParsedTriangle triangle = new ParsedTriangle(point0, point1, point2);
-                shapes.add(DrawingFormat.TRI_PTN_ALPHA, triangle.toGraphics());
+                shapes.add(DrawingFormat.QUAD_PTN, triangle.toGraphics().toQuad());
             }
         } else {
             Loggers.get().warn("meshMode not supported: {}", meshMode);

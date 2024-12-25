@@ -204,7 +204,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         }
 
         GraphicsShapes shapes = new GraphicsShapes();
-        shapes.add(DrawingFormat.QUAD_PT_ALPHA, quad);
+        shapes.add(DrawingFormat.QUAD_PT, quad);
         return shapes;
     }
 

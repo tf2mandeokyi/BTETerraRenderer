@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.core.graphics;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
@@ -26,7 +27,7 @@ public class GraphicsModelTextureBakingBlock<Key> extends SingleQueueBlock<Key, 
 			BufferedImage image = preBakedModel.getImage();
 			NativeTextureWrapper textureObject = image == null
 					? defaultTexture
-					: McConnector.client().glGraphicsManager.allocateAndGetTextureObject(image);
+					: McConnector.client().glGraphicsManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
 			models.add(new GraphicsModel(textureObject, preBakedModel.getShapes()));
 		}
 		return models;

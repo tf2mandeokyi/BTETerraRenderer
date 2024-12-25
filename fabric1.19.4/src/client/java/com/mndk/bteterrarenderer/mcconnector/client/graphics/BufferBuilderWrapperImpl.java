@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
 
 import javax.annotation.Nonnull;
@@ -28,6 +29,14 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
     }
     public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
         getThisWrapped().color(r, g, b, a);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> light(int light) {
+        getThisWrapped().light(light);
+        return this;
+    }
+    public BufferBuilderWrapper<BufferBuilder> defaultOverlay() {
+        getThisWrapped().overlay(OverlayTexture.DEFAULT_UV);
         return this;
     }
     public void next() {
