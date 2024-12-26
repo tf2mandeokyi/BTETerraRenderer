@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
@@ -11,6 +10,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 import com.mndk.bteterrarenderer.util.StringUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -31,7 +31,7 @@ class MapAlignerBox extends McFXElement {
     private static final int SECONDARY_LINE_COLOR = 0xFF4D4D4D;
     private static final int LINE_LENGTH = 1000;
     
-    private static final ResourceLocationWrapper<?> ALIGNMENT_MARKER = McConnector.client().newResourceLocation(
+    private static final ResourceLocationWrapper ALIGNMENT_MARKER = McConnector.client().newResourceLocation(
             BTETerraRenderer.MODID, "textures/ui/alignment_marker.png"
     );
     
@@ -56,7 +56,7 @@ class MapAlignerBox extends McFXElement {
     public void onWidthChange() {}
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         int elementWidth = this.getWidth();
         int centerX = elementWidth / 2, centerY = this.height / 2;
 
@@ -135,7 +135,7 @@ class MapAlignerBox extends McFXElement {
         }
     }
 
-    private void drawGridLines(DrawContextWrapper<?> drawContextWrapper, int boxWidth) {
+    private void drawGridLines(DrawContextWrapper drawContextWrapper, int boxWidth) {
         // Draw lines & arrows
         drawContextWrapper.glPushRelativeScissor(0, 0, boxWidth, this.height);
         for (GridLine line : this.gridLines) {

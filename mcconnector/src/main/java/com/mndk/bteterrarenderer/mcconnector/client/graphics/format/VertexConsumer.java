@@ -7,5 +7,5 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVert
 @FunctionalInterface
 public
 interface VertexConsumer<T extends GraphicsVertex<T>> {
-    void nextVertex(DrawContextWrapper<?> drawContextWrapper, BufferBuilderWrapper<?> builder, T vertex, float alpha);
+    void nextVertex(DrawContextWrapper drawContextWrapper, BufferBuilderWrapper builder, T vertex, float alpha);
 }

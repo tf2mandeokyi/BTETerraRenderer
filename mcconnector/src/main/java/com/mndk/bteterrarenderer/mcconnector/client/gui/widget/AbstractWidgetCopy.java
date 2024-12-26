@@ -38,7 +38,7 @@ public abstract class AbstractWidgetCopy implements GuiComponentCopy {
         return this.hovered = !mouseHidden && this.isMouseOnWidget(mouseX, mouseY);
     }
 
-    public void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawComponent(DrawContextWrapper drawContextWrapper) {
         if (!this.visible) return;
 
         HoverState hoverState = this.getButtonHoverState(this.hovered);
@@ -60,7 +60,7 @@ public abstract class AbstractWidgetCopy implements GuiComponentCopy {
         drawContextWrapper.drawCenteredTextWithShadow(getDefaultFont(), buttonText, this.x + this.width / 2f, this.y + (this.height - 8) / 2f, color);
     }
 
-    public void drawBackground(DrawContextWrapper<?> drawContextWrapper) {}
+    public void drawBackground(DrawContextWrapper drawContextWrapper) {}
 
     public boolean mousePressed(double mouseX, double mouseY, int mouseButton) {
         return this.enabled && this.visible && this.isMouseOnWidget(mouseX, mouseY);

@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.WorldVertexBufferUploader;
 
 import javax.annotation.Nonnull;
 
-public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder> {
+public class BufferBuilderWrapperImpl extends AbstractBufferBuilderWrapper<BufferBuilder> {
 
     private final WorldVertexBufferUploader vboUploader = new WorldVertexBufferUploader();
 
@@ -13,35 +13,35 @@ public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder
         super(delegate);
     }
 
-    public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
-        getThisWrapped().pos(x, y, z);
+    public AbstractBufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+        getWrapped().pos(x, y, z);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
-        getThisWrapped().normal(x, y, z);
+    public AbstractBufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+        getWrapped().normal(x, y, z);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
-        getThisWrapped().tex(u, v);
+    public AbstractBufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
+        getWrapped().tex(u, v);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
-        getThisWrapped().color(r, g, b, a);
+    public AbstractBufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
+        getWrapped().color(r, g, b, a);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> light(int light) {
-        getThisWrapped().lightmap(light & '\uffff', light >> 16 & '\uffff');
+    public AbstractBufferBuilderWrapper<BufferBuilder> light(int light) {
+        getWrapped().lightmap(light & '\uffff', light >> 16 & '\uffff');
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> defaultOverlay() {
+    public AbstractBufferBuilderWrapper<BufferBuilder> defaultOverlay() {
         return this;
     }
     public void next() {
-        getThisWrapped().endVertex();
+        getWrapped().endVertex();
     }
 
     public void drawAndRender() {
-        getThisWrapped().finishDrawing();
-        this.vboUploader.draw(getThisWrapped());
+        getWrapped().finishDrawing();
+        this.vboUploader.draw(getWrapped());
     }
 }

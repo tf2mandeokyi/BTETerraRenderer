@@ -29,10 +29,10 @@ public abstract class ClientMinecraftManager extends CommonMinecraftManager {
     }
 
     public abstract WindowDimension getWindowSize();
-    public abstract FontWrapper<?> getDefaultFont();
+    public abstract FontWrapper getDefaultFont();
 
     public abstract void displayGuiScreen(@Nullable AbstractGuiScreenCopy screen);
-    public abstract NativeGuiScreenWrapper<?> newChatScreen(String initialText);
+    public abstract NativeGuiScreenWrapper newChatScreen(String initialText);
 
     public abstract boolean isOnMac();
     public abstract double getFovDegrees();

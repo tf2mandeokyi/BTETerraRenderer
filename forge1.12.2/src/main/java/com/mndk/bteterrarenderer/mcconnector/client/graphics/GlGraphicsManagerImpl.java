@@ -37,11 +37,11 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
     public void setPosTexColorShader() {}
     public void setPosColorTexLightNormalShader() {}
     public void setShaderTexture(NativeTextureWrapper textureObject) {
-        GlStateManager.bindTexture(textureObject.get());
+        GlStateManager.bindTexture(((NativeTextureWrapperImpl) textureObject).getWrapped());
     }
 
     public NativeTextureWrapper getMissingTextureObject() {
-        return new NativeTextureWrapper(TextureUtil.MISSING_TEXTURE.getGlTextureId());
+        return new NativeTextureWrapperImpl(TextureUtil.MISSING_TEXTURE.getGlTextureId());
     }
     protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
         int glId = GL11.glGenTextures();
@@ -51,10 +51,10 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         int[] imageData = new int[width * height];
         image.getRGB(0, 0, width, height, imageData, 0, width);
         TextureUtil.uploadTexture(glId, imageData, width, height);
-        return new NativeTextureWrapper(glId);
+        return new NativeTextureWrapperImpl(glId);
     }
-    public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
-        GlStateManager.deleteTexture(textureObject.get());
+    protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
+        GlStateManager.deleteTexture(((NativeTextureWrapperImpl) textureObject).getWrapped());
     }
 
     public void glEnableScissor(int x, int y, int width, int height) {

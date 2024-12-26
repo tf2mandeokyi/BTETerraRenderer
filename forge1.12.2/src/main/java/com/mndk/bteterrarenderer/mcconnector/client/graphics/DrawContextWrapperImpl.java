@@ -4,15 +4,17 @@ import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawModeEnum;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormatEnum;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiEventListenerCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
+import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -22,7 +24,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -31,7 +32,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import java.nio.FloatBuffer;
 
-public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
+public class DrawContextWrapperImpl extends AbstractDrawContextWrapper<Object> {
 
     public static final DrawContextWrapperImpl INSTANCE = new DrawContextWrapperImpl();
 
@@ -41,7 +42,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         super(new Object());
     }
 
-    public BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
+    public BufferBuilderWrapper begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
         int drawMode;
         switch (glMode) {
             case TRIANGLES: drawMode = GL11.GL_TRIANGLES; break;
@@ -143,7 +144,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
         drawButton(x, y, width, height, AbstractWidgetCopy.HoverState.DISABLED);
         if (checked) {
-            FontWrapper<?> font = McConnector.client().getDefaultFont();
+            FontWrapper font = McConnector.client().getDefaultFont();
             this.drawCenteredTextWithShadow(font, "x", x + width / 2f + 1, y + 1,
                     GuiEventListenerCopy.NORMAL_TEXT_COLOR);
         }
@@ -161,8 +162,8 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         GlStateManager.enableTexture2D();
     }
 
-    public void drawImage(ResourceLocationWrapper<?> res, int x, int y, int w, int h, float u0, float v0, float u1, float v1) {
-        ResourceLocation resourceLocation = res.get();
+    public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u0, float v0, float u1, float v1) {
+        ResourceLocation resourceLocation = ((ResourceLocationWrapperImpl) res).getWrapped();
         Minecraft.getMinecraft().renderEngine.bindTexture(resourceLocation);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -175,7 +176,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         if (currentScreen == null) return;
         if (!(currentScreen instanceof AbstractGuiScreenImpl)) return;
 
-        ((AbstractGuiScreenImpl) currentScreen).handleStyleHover(styleWrapper.get(), x, y);
+        ((AbstractGuiScreenImpl) currentScreen).handleStyleHover(((StyleWrapperImpl) styleWrapper).getWrapped(), x, y);
     }
 
     public void drawNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
@@ -183,15 +184,8 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<Object> {
         super.drawNativeImage(allocatedTextureObject, x, y, w, h);
     }
 
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, String string, float x, float y, int color) {
-        FontRenderer fontRenderer = fontWrapper.get();
+    public int drawTextWithShadow(FontWrapper fontWrapper, String string, float x, float y, int color) {
+        FontRenderer fontRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
         return fontRenderer.drawStringWithShadow(string, x, y, color);
-    }
-
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, TextWrapper textWrapper, float x, float y, int color) {
-        FontRenderer fontRenderer = fontWrapper.get();
-        ITextComponent textComponent = textWrapper.get();
-        String formatted = textComponent.getFormattedText();
-        return fontRenderer.drawStringWithShadow(formatted, x, y, color);
     }
 }

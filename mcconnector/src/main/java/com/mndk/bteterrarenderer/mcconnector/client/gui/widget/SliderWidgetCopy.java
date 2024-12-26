@@ -46,7 +46,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
     }
 
     @Override
-    public void drawBackground(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawBackground(DrawContextWrapper drawContextWrapper) {
         if (!this.visible) return;
 
         drawContextWrapper.drawButton(

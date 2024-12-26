@@ -13,27 +13,27 @@ import javax.annotation.Nonnull;
 public class TextManagerImpl implements TextManager {
     public TextWrapper fromJson(@Nonnull String json) {
         Text text = Text.Serializer.fromJson(json);
-        return text != null ? new TextWrapper(text) : null;
+        return text != null ? new TextWrapperImpl(text) : null;
     }
 
     public TextWrapper fromString(@Nonnull String text) {
-        return new TextWrapper(new LiteralText(text));
+        return new TextWrapperImpl(new LiteralText(text));
     }
 
     public StyleWrapper emptyStyle() {
-        return new StyleWrapper(Style.EMPTY);
+        return new StyleWrapperImpl(Style.EMPTY);
     }
 
     public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
-        Style style = styleWrapper.get();
-        return new StyleWrapper(style.withColor(textColor.getColorIndex()));
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        return new StyleWrapperImpl(style.withColor(textColor.getColorIndex()));
     }
 
     public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
         if (currentScreen == null) return false;
 
-        Style style = styleWrapper.get();
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
         return currentScreen.handleTextClick(style);
     }
 }

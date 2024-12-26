@@ -33,11 +33,11 @@ public class TestEnvironmentDummyMinecraft extends ClientMinecraftManager {
         return this.gameDirectory;
     }
 
-    public ResourceLocationWrapper<?> newResourceLocation(String modId, String location) { throw unsupported(); }
+    public ResourceLocationWrapper newResourceLocation(String modId, String location) { throw unsupported(); }
     public WindowDimension getWindowSize() { throw unsupported(); }
-    public FontWrapper<?> getDefaultFont() { throw unsupported(); }
+    public FontWrapper getDefaultFont() { throw unsupported(); }
     public void displayGuiScreen(@Nullable AbstractGuiScreenCopy screen) { throw unsupported(); }
-    public NativeGuiScreenWrapper<?> newChatScreen(String initialText) { throw unsupported(); }
+    public NativeGuiScreenWrapper newChatScreen(String initialText) { throw unsupported(); }
     public boolean isOnMac() { throw unsupported(); }
     public double getFovDegrees() { throw unsupported(); }
     public double getPlayerRotationYaw() { throw unsupported(); }

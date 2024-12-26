@@ -11,7 +11,7 @@ public interface GuiScreenCopy extends GuiEventListenerCopy {
     void setScreenSize(int width, int height);
 
     void tick();
-    void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper, int mouseX, int mouseY, float partialTicks);
+    void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper, int mouseX, int mouseY, float partialTicks);
 
     boolean mousePressed(double mouseX, double mouseY, int mouseButton);
     boolean mouseReleased(double mouseX, double mouseY, int mouseButton);

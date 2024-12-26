@@ -6,5 +6,5 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 @FunctionalInterface
 public
 interface VertexBeginner {
-    BufferBuilderWrapper<?> begin(DrawContextWrapper<?> drawContextWrapper);
+    BufferBuilderWrapper begin(DrawContextWrapper drawContextWrapper);
 }

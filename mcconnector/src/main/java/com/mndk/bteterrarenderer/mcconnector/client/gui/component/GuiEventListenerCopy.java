@@ -28,7 +28,7 @@ public interface GuiEventListenerCopy {
      */
     default boolean handleScreenEscape() { return true; }
 
-    default FontWrapper<?> getDefaultFont() {
+    default FontWrapper getDefaultFont() {
         return McConnector.client().getDefaultFont();
     }
 }

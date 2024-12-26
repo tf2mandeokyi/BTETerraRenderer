@@ -4,20 +4,15 @@ import com.mndk.bteterrarenderer.util.BTRUtil;
 
 import javax.annotation.Nonnull;
 
-public class MinecraftNativeObjectWrapper<T> {
+public class MinecraftObjectWrapper<T> {
     private final T delegate;
 
-    protected MinecraftNativeObjectWrapper(@Nonnull T delegate) {
+    protected MinecraftObjectWrapper(@Nonnull T delegate) {
         this.delegate = BTRUtil.uncheckedCast(delegate);
     }
 
     @Nonnull
-    protected T getThisWrapped() {
+    public T getWrapped() {
         return this.delegate;
-    }
-
-    @Nonnull
-    public <U> U get() {
-        return BTRUtil.uncheckedCast(this.delegate);
     }
 }

@@ -1,5 +1,9 @@
 package com.mndk.bteterrarenderer.core.gui.sidebar;
 
+import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrappedScreen;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXScreen;
@@ -10,10 +14,6 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.WidthFunction;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrappedScreen;
-import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -177,7 +177,7 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
             // TODO: Use user-bound key instead of fixed key like this
             // TODO: Add slash
             else if (key == InputKey.KEY_T) {
-                NativeGuiScreenWrapper<?> nativeScreen = McConnector.client().newChatScreen("");
+                NativeGuiScreenWrapper nativeScreen = McConnector.client().newChatScreen("");
                 NativeGuiScreenWrappedScreen screen = new NativeGuiScreenWrappedScreen(nativeScreen, true);
                 this.chatScreenWrapper.setScreen(screen);
                 // no return statement here, or else a letter "t" will be left when the chat is initialized.

@@ -38,7 +38,7 @@ public class McFXScreen<T extends McFXElement> extends AbstractGuiScreenCopy {
     }
 
     @Override
-    public void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper) {
+    public void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper) {
         drawContextWrapper.pushMatrix();
         this.mainComponent.drawComponent(drawContextWrapper);
         drawContextWrapper.popMatrix();

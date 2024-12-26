@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.AbstractBufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
@@ -27,11 +28,11 @@ public class GraphicsShapes {
         boundingBox = boundingBox == null ? shapeBoundingBox : boundingBox.include(shapeBoundingBox);
     }
 
-    public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,
+    public void drawAndRender(DrawContextWrapper drawContextWrapper,
                               McCoordTransformer modelPosTransformer, float alpha) {
         shapeMap.forEach((format, shapes) -> {
             format.setShader(McConnector.client().glGraphicsManager);
-            BufferBuilderWrapper<?> builder = format.begin(drawContextWrapper);
+            BufferBuilderWrapper builder = format.begin(drawContextWrapper);
             for (GraphicsShape<?> shape : shapes) {
                 format.nextShape(drawContextWrapper, builder, BTRUtil.uncheckedCast(shape), modelPosTransformer, alpha);
             }

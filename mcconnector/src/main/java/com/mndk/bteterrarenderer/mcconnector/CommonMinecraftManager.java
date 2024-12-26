@@ -19,7 +19,7 @@ public abstract class CommonMinecraftManager {
                 configClass, () -> new File(this.getConfigDirectory(modId), "config.yml"));
     }
 
-    public abstract ResourceLocationWrapper<?> newResourceLocation(String modId, String location);
+    public abstract ResourceLocationWrapper newResourceLocation(String modId, String location);
 
     public abstract File getGameDirectory();
 

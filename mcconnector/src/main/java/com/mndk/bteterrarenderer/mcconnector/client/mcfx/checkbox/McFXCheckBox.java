@@ -37,7 +37,7 @@ public class McFXCheckBox extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         this.checkBox.drawComponent(drawContextWrapper);
     }
 

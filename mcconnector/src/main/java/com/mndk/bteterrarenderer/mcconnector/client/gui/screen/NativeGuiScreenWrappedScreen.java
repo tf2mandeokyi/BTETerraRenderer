@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class NativeGuiScreenWrappedScreen extends AbstractGuiScreenCopy {
 
     @Nonnull @Getter
-    private final NativeGuiScreenWrapper<?> nativeScreen;
+    private final NativeGuiScreenWrapper nativeScreen;
     private final boolean ignoreFirstKeyInput;
     private boolean initialized = false;
     private boolean charTyped = false, keyPressed = false;
@@ -44,7 +44,7 @@ public class NativeGuiScreenWrappedScreen extends AbstractGuiScreenCopy {
     }
     
     @Override
-    public void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper) {
+    public void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper) {
         // TODO: Fix tooltips not being rendered properly
         // TODO: Fix text highlight not being translated
         nativeScreen.drawScreen(drawContextWrapper, this.mouseX, this.mouseY, this.mousePartialTicks);

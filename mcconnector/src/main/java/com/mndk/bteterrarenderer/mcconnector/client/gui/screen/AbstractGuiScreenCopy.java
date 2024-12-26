@@ -26,11 +26,11 @@ public abstract class AbstractGuiScreenCopy implements GuiScreenCopy {
     }
 
     @Override
-    public final void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper, int mouseX, int mouseY, float partialTicks) {
+    public final void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper, int mouseX, int mouseY, float partialTicks) {
         this.mouseHovered(mouseX, mouseY, partialTicks);
         this.drawScreen(drawContextWrapper);
     }
-    public abstract void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper);
+    public abstract void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper);
 
     /**
      * This should be called before the {@link GuiComponentCopy#drawComponent} call.

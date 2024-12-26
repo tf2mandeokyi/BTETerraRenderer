@@ -27,7 +27,7 @@ public class RenderEvents {
         // So the camera's position should be given instead, unlike in 1.12.2.
         final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         Minecraft.getInstance().getProfiler().push("hologram_render");
-        DrawContextWrapper<?> drawContextWrapper = new DrawContextWrapperImpl(event.getPoseStack());
+        DrawContextWrapper drawContextWrapper = new DrawContextWrapperImpl(event.getPoseStack());
         TileRenderer.renderTiles(drawContextWrapper, cameraPos.x, cameraPos.y, cameraPos.z);
         Minecraft.getInstance().getProfiler().pop();
     }

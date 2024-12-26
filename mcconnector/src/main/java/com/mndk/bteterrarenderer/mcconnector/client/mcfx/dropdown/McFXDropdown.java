@@ -1,11 +1,11 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown;
 
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -99,7 +99,7 @@ public class McFXDropdown<T> extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         int mainBoxColor = this.mouseOnMainBox ? HOVERED_COLOR : MAINBOX_BORDER_COLOR;
         boolean opened = this.isOpened();
 
@@ -148,7 +148,7 @@ public class McFXDropdown<T> extends McFXElement {
         drawContextWrapper.popMatrix();
     }
 
-    private void drawDropdownArrow(DrawContextWrapper<?> drawContextWrapper, int top, int colorARGB, boolean flip) {
+    private void drawDropdownArrow(DrawContextWrapper drawContextWrapper, int top, int colorARGB, boolean flip) {
         int bottom = top + getDefaultFont().getHeight();
         int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
         int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - getDefaultFont().getHeight();
@@ -188,7 +188,7 @@ public class McFXDropdown<T> extends McFXElement {
         abstract boolean checkMouseHovered(double mouseX, double mouseY);
         abstract void mouseIsNotHovered();
         /** Translation should be done before this method ends */
-        abstract void drawItem(DrawContextWrapper<?> drawContextWrapper, T selectedValue, boolean isLast);
+        abstract void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast);
         /** This is called after the {@link DropdownItem#checkMouseHovered} call. */
         abstract void mouseClicked();
     }
@@ -215,7 +215,7 @@ public class McFXDropdown<T> extends McFXElement {
         }
 
         @Override
-        void drawItem(DrawContextWrapper<?> drawContextWrapper, T selectedValue, boolean isLast) {
+        void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
             String name = nameGetter.apply(this.value);
             int color = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
             int height = this.getHeight();
@@ -300,7 +300,7 @@ public class McFXDropdown<T> extends McFXElement {
         }
 
         @Override
-        void drawItem(DrawContextWrapper<?> drawContextWrapper, T selectedValue, boolean isLast) {
+        void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
             int categoryColor = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 
             if (!this.main) {

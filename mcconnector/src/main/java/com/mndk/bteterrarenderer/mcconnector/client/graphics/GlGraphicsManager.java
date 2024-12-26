@@ -30,8 +30,8 @@ public abstract class GlGraphicsManager {
         return this.allocateAndGetTextureObject(modId, id, image);
     }
     protected abstract NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image);
-    public abstract void deleteTextureObjectInternal(NativeTextureWrapper textureObject);
-    public void deleteTextureObject(NativeTextureWrapper textureObject) {
+    protected abstract void deleteTextureObjectInternal(NativeTextureWrapper textureObject);
+    public final void deleteTextureObject(NativeTextureWrapper textureObject) {
         if (textureObject.isDeleted()) return;
         deleteTextureObjectInternal(textureObject);
         textureObject.markAsDeleted();

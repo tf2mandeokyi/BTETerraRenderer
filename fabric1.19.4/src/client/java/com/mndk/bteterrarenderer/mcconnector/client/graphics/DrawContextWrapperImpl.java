@@ -7,9 +7,11 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormat
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
+import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -19,16 +21,14 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import javax.annotation.Nonnull;
 
-public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
+public class DrawContextWrapperImpl extends AbstractDrawContextWrapper<MatrixStack> {
 
     private static final Identifier CHECKBOX = new Identifier("textures/gui/checkbox.png");
 
@@ -36,7 +36,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
+    public BufferBuilderWrapper begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
         VertexFormat.DrawMode drawMode = switch (glMode) {
             case TRIANGLES -> VertexFormat.DrawMode.TRIANGLES;
             case QUADS -> VertexFormat.DrawMode.QUADS;
@@ -55,13 +55,13 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
     }
 
     public void translate(float x, float y, float z) {
-        getThisWrapped().translate(x, y, z);
+        getWrapped().translate(x, y, z);
     }
     public void pushMatrix() {
-        getThisWrapped().push();
+        getWrapped().push();
     }
     public void popMatrix() {
-        getThisWrapped().pop();
+        getWrapped().pop();
     }
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
@@ -72,7 +72,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         float scaleFactorX = window.getScaleFactorX();
         float scaleFactorY = window.getScaleFactorY();
 
-        Matrix4f matrix = getThisWrapped().peek().getPositionMatrix();
+        Matrix4f matrix = getWrapped().peek().getPositionMatrix();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
         Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
         start = matrix.transform(start);
@@ -99,8 +99,8 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
             case MOUSE_OVER -> 2;
         };
 
-        DrawableHelper.drawTexture(getThisWrapped(), x, y, 0, 0, 46 + i * 20, width / 2, height, 256, 256);
-        DrawableHelper.drawTexture(getThisWrapped(), x + width / 2, y, 0, 200 - (float) width / 2, 46 + i * 20, width / 2, height, 256, 256);
+        DrawableHelper.drawTexture(getWrapped(), x, y, 0, 0, 46 + i * 20, width / 2, height, 256, 256);
+        DrawableHelper.drawTexture(getWrapped(), x + width / 2, y, 0, 200 - (float) width / 2, 46 + i * 20, width / 2, height, 256, 256);
     }
 
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
@@ -130,9 +130,9 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         RenderSystem.disableColorLogicOp();
     }
 
-    public void drawImage(ResourceLocationWrapper<?> res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
+    public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, res.get());
+        RenderSystem.setShaderTexture(0, ((ResourceLocationWrapperImpl) res).getWrapped());
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -144,24 +144,12 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<MatrixStack> {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
         if (!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
 
-        Style style = styleWrapper.get();
-        guiScreen.renderTextHoverEffect(getThisWrapped(), style, x, y);
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        guiScreen.renderTextHoverEffect(getWrapped(), style, x, y);
     }
 
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, String string, float x, float y, int color) {
-        TextRenderer textRenderer = fontWrapper.get();
-        return textRenderer.drawWithShadow(getThisWrapped(), string, x, y, color);
-    }
-
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, TextWrapper textWrapper, float x, float y, int color) {
-        TextRenderer textRenderer = fontWrapper.get();
-        Object textComponent = textWrapper.get();
-        if (textComponent instanceof Text text) {
-            return textRenderer.drawWithShadow(getThisWrapped(), text, x, y, color);
-        }
-        else if (textComponent instanceof OrderedText text) {
-            return textRenderer.drawWithShadow(getThisWrapped(), text, x, y, color);
-        }
-        return 0;
+    public int drawTextWithShadow(FontWrapper fontWrapper, String string, float x, float y, int color) {
+        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
+        return textRenderer.drawWithShadow(getWrapped(), string, x, y, color);
     }
 }

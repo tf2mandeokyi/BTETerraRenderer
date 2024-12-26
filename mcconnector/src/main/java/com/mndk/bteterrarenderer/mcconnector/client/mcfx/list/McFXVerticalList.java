@@ -178,7 +178,7 @@ public class McFXVerticalList extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         int prevYPos = 0;
 
         if (this.maxHeight != null) {
@@ -207,7 +207,7 @@ public class McFXVerticalList extends McFXElement {
         this.drawVerticalSlider(drawContextWrapper);
     }
 
-    private void drawVerticalSlider(DrawContextWrapper<?> drawContextWrapper) {
+    private void drawVerticalSlider(DrawContextWrapper drawContextWrapper) {
         if (this.maxHeight == null) return;
 
         int[] dimension = this.getVerticalSliderDimension();

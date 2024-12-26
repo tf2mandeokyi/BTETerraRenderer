@@ -12,7 +12,7 @@ public class GraphicsModel {
     private final NativeTextureWrapper textureObject;
     private final GraphicsShapes shapes;
 
-    public void drawAndRender(DrawContextWrapper<?> drawContextWrapper,
+    public void drawAndRender(DrawContextWrapper drawContextWrapper,
                               McCoordTransformer modelPosTransformer, float alpha) {
         NativeTextureWrapper texture = this.textureObject.isDeleted()
                 ? McConnector.client().glGraphicsManager.getMissingTextureObject()

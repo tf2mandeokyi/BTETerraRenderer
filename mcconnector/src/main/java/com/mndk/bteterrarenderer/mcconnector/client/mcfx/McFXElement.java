@@ -33,7 +33,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     @Setter private HorizontalAlign align = HorizontalAlign.LEFT;
     private boolean initialized = false;
     private TextWrapper textContent = null;
-    private List<TextWrapper> lineComponents;
+    private List<? extends TextWrapper> lineComponents;
     private StyleWrapper hoveredStyleComponent;
     private int hoverX, hoverY;
 
@@ -59,7 +59,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     /** This function is called both in initialization and on width change. */
     public abstract void onWidthChange();
 
-    protected abstract void drawElement(DrawContextWrapper<?> drawContextWrapper);
+    protected abstract void drawElement(DrawContextWrapper drawContextWrapper);
 
     public int getPhysicalHeight() {
         return getDefaultFont().getHeight() * this.lineComponents.size();
@@ -93,7 +93,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     }
 
     @Override
-    public final void drawComponent(DrawContextWrapper<?> drawContextWrapper) {
+    public final void drawComponent(DrawContextWrapper drawContextWrapper) {
         int height = this.getPhysicalHeight();
         drawContextWrapper.fillRect(0, 0, this.getWidth(), height, this.backgroundColor);
 

@@ -24,10 +24,10 @@ public final class DrawingFormat<T extends GraphicsVertex<T>, U extends Graphics
 
     // TODO(fabric1.20.4): Fix holograms rendering over world
     public static final DrawingFormat<PosTexNorm, GraphicsQuad<PosTexNorm>> QUAD_PTN = new DrawingFormat<>(
-            GlGraphicsManager::setPosTexColorShader, // GlGraphicsManager::setPosColorTexLightNormalShader,
-            DrawModeEnum.QUADS, VertexFormatEnum.POSITION_TEXTURE_COLOR, // VertexFormatEnum.POSITION_COLOR_TEXTURE_LIGHT_NORMAL,
+            GlGraphicsManager::setPosColorTexLightNormalShader,
+            DrawModeEnum.QUADS, VertexFormatEnum.POSITION_COLOR_TEXTURE_LIGHT_NORMAL,
             (context, builder, vertex, alpha) ->
-                    builder.nextPosTex(context, vertex, alpha)
+                    builder.nextPosTexNorm(context, vertex, alpha)
     );
 
     private final ShaderSetter shaderSetter;
@@ -35,7 +35,7 @@ public final class DrawingFormat<T extends GraphicsVertex<T>, U extends Graphics
     private final VertexFormatEnum vertexFormat;
     private final VertexConsumer<T> vertexConsumer;
 
-    public void nextShape(DrawContextWrapper<?> drawContextWrapper, BufferBuilderWrapper<?> builder,
+    public void nextShape(DrawContextWrapper drawContextWrapper, BufferBuilderWrapper builder,
                           U shape, McCoordTransformer mcCoordTransformer, float alpha) {
         for (int i = 0; i < shape.getVerticesCount(); i++) {
             T vertex = shape.getVertex(i).transformMcCoord(mcCoordTransformer);
@@ -46,10 +46,10 @@ public final class DrawingFormat<T extends GraphicsVertex<T>, U extends Graphics
     public void setShader(GlGraphicsManager glGraphicsManager) {
         shaderSetter.setShader(glGraphicsManager);
     }
-    public BufferBuilderWrapper<?> begin(DrawContextWrapper<?> drawContextWrapper) {
+    public BufferBuilderWrapper begin(DrawContextWrapper drawContextWrapper) {
         return drawContextWrapper.begin(this.drawMode, this.vertexFormat);
     }
-    public void nextVertex(DrawContextWrapper<?> drawContextWrapper, BufferBuilderWrapper<?> builder,
+    public void nextVertex(DrawContextWrapper drawContextWrapper, BufferBuilderWrapper builder,
                            T vertex, float alpha) {
         vertexConsumer.nextVertex(drawContextWrapper, builder, vertex, alpha);
     }

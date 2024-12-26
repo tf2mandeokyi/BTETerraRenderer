@@ -7,9 +7,11 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormat
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
+import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -21,14 +23,12 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
 
 import javax.annotation.Nonnull;
 
-public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
+public class DrawContextWrapperImpl extends AbstractDrawContextWrapper<PoseStack> {
 
     private static final ResourceLocation CHECKBOX = new ResourceLocation("textures/gui/checkbox.png");
 
@@ -36,7 +36,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
+    public BufferBuilderWrapper begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
         VertexFormat.Mode drawMode = switch (glMode) {
             case TRIANGLES -> VertexFormat.Mode.TRIANGLES;
             case QUADS -> VertexFormat.Mode.QUADS;
@@ -55,13 +55,13 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
     }
 
     public void translate(float x, float y, float z) {
-        getThisWrapped().translate(x, y, z);
+        getWrapped().translate(x, y, z);
     }
     public void pushMatrix() {
-        getThisWrapped().pushPose();
+        getWrapped().pushPose();
     }
     public void popMatrix() {
-        getThisWrapped().popPose();
+        getWrapped().popPose();
     }
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
@@ -72,7 +72,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         float scaleFactorX = window.getScaleFactorX();
         float scaleFactorY = window.getScaleFactorY();
 
-        Matrix4f matrix = getThisWrapped().last().pose();
+        Matrix4f matrix = getWrapped().last().pose();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
         Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
         start.transform(matrix);
@@ -99,7 +99,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
             case MOUSE_OVER -> 2;
         };
 
-        PoseStack poseStack = getThisWrapped();
+        PoseStack poseStack = getWrapped();
         GuiComponent.blit(poseStack, x, y, 0, 0, 46 + i * 20, width / 2, height, 256, 256);
         GuiComponent.blit(poseStack, x + width / 2, y, 0, 200 - (float) width / 2, 46 + i * 20, width / 2, height, 256, 256);
     }
@@ -133,9 +133,9 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         RenderSystem.enableTexture();
     }
 
-    public void drawImage(ResourceLocationWrapper<?> res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
+    public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, res.get());
+        RenderSystem.setShaderTexture(0, ((ResourceLocationWrapperImpl) res).getWrapped());
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -147,24 +147,12 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<PoseStack> {
         Screen currentScreen = Minecraft.getInstance().screen;
         if (!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
 
-        Style style = styleWrapper.get();
-        guiScreen.renderComponentHoverEffect(getThisWrapped(), style, x, y);
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        guiScreen.renderComponentHoverEffect(getWrapped(), style, x, y);
     }
 
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, String string, float x, float y, int color) {
-        Font font = fontWrapper.get();
-        return font.drawShadow(getThisWrapped(), string, x, y, color);
-    }
-
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, TextWrapper textWrapper, float x, float y, int color) {
-        Font font = fontWrapper.get();
-        Object textComponent = textWrapper.get();
-        if (textComponent instanceof Component component) {
-            return font.drawShadow(getThisWrapped(), component, x, y, color);
-        }
-        else if (textComponent instanceof FormattedCharSequence sequence) {
-            return font.drawShadow(getThisWrapped(), sequence, x, y, color);
-        }
-        return 0;
+    public int drawTextWithShadow(FontWrapper fontWrapper, String string, float x, float y, int color) {
+        Font font = ((FontWrapperImpl) fontWrapper).getWrapped();
+        return font.drawShadow(getWrapped(), string, x, y, color);
     }
 }

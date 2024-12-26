@@ -14,27 +14,27 @@ public class TextManagerImpl implements TextManager {
 
     public TextWrapper fromJson(@Nonnull String json) {
         Component component = Component.Serializer.fromJson(json);
-        return component != null ? new TextWrapper(component) : null;
+        return component != null ? new TextComponentWrapperImpl(component) : null;
     }
 
     public TextWrapper fromString(@Nonnull String text) {
-        return new TextWrapper(new TextComponent(text));
+        return new TextComponentWrapperImpl(new TextComponent(text));
     }
 
     public StyleWrapper emptyStyle() {
-        return new StyleWrapper(Style.EMPTY);
+        return new StyleWrapperImpl(Style.EMPTY);
     }
 
     public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
-        Style style = styleWrapper.get();
-        return new StyleWrapper(style.withColor(textColor.getColorIndex()));
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        return new StyleWrapperImpl(style.withColor(textColor.getColorIndex()));
     }
 
     public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
         Screen currentScreen = Minecraft.getInstance().screen;
         if (currentScreen == null) return false;
 
-        Style style = styleWrapper.get();
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
         return currentScreen.handleComponentClicked(style);
     }
 }

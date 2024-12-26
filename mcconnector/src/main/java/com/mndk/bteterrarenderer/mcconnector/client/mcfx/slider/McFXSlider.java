@@ -66,7 +66,7 @@ public class McFXSlider<T extends Number> extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         if (this.slider.drawString) {
             boolean testResult;
             if (this.isInteger) {

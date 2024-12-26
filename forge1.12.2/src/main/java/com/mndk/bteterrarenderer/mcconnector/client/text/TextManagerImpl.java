@@ -15,22 +15,22 @@ import javax.annotation.Nonnull;
 public class TextManagerImpl implements TextManager {
     public TextWrapper fromJson(@Nonnull String json) {
         ITextComponent textComponent = ITextComponent.Serializer.jsonToComponent(json);
-        return textComponent != null ? new TextWrapper(textComponent) : null;
+        return textComponent != null ? new TextWrapperImpl(textComponent) : null;
     }
 
     public TextWrapper fromString(@Nonnull String text) {
-        return new TextWrapper(new TextComponentString(text));
+        return new TextWrapperImpl(new TextComponentString(text));
     }
 
     public StyleWrapper emptyStyle() {
-        return new StyleWrapper(new Style());
+        return new StyleWrapperImpl(new Style());
     }
 
     public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
-        Style style = styleWrapper.get();
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
         TextFormatting formatting = TextFormatting.fromColorIndex(textColor.getColorIndex());
         if (formatting != null) style = style.createDeepCopy().setColor(formatting);
-        return new StyleWrapper(style);
+        return new StyleWrapperImpl(style);
     }
 
     public boolean handleClick(@Nonnull StyleWrapper styleWrapper) {
@@ -38,6 +38,6 @@ public class TextManagerImpl implements TextManager {
         if (currentScreen == null) return false;
         if (!(currentScreen instanceof AbstractGuiScreenImpl)) return false;
 
-        return ((AbstractGuiScreenImpl) currentScreen).handleStyleClick(styleWrapper.get());
+        return ((AbstractGuiScreenImpl) currentScreen).handleStyleClick(((StyleWrapperImpl) styleWrapper).getWrapped());
     }
 }

@@ -1,16 +1,10 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManagerImpl;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.*;
 import com.mndk.bteterrarenderer.mcconnector.client.i18n.ClientI18nManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManagerImpl;
-import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
-import com.mndk.bteterrarenderer.mcconnector.client.text.TextManagerImpl;
-import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.*;
 import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.config.ForgeTomlConfigSaveLoader;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
@@ -48,7 +42,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     }
 
     @Override
-    public FontWrapper<?> getDefaultFont() {
+    public FontWrapper getDefaultFont() {
         return new FontWrapperImpl(Minecraft.getInstance().font);
     }
 
@@ -58,7 +52,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     }
 
     @Override
-    public NativeGuiScreenWrapper<?> newChatScreen(String initialText) {
+    public NativeGuiScreenWrapper newChatScreen(String initialText) {
         return new NativeGuiScreenWrapperImpl(new ChatScreen(initialText));
     }
 
@@ -83,7 +77,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     public void sendTextComponentToChat(TextWrapper textComponent) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
-        player.sendMessage(textComponent.get(), Util.NIL_UUID);
+        player.sendMessage(((TextComponentWrapperImpl) textComponent).getWrapped(), Util.NIL_UUID);
     }
 
     public void playClickSound() {
@@ -93,7 +87,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     }
 
     @Override
-    public ResourceLocationWrapper<?> newResourceLocation(String modId, String location) {
+    public ResourceLocationWrapper newResourceLocation(String modId, String location) {
         return new ResourceLocationWrapperImpl(new ResourceLocation(modId, location));
     }
 

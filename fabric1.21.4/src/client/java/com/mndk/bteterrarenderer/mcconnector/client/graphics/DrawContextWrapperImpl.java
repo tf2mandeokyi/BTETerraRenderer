@@ -6,18 +6,18 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawModeEnum
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.VertexFormatEnum;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
+import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ButtonTextures;
 import net.minecraft.client.render.*;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
@@ -25,7 +25,7 @@ import org.joml.Vector4f;
 
 import javax.annotation.Nonnull;
 
-public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
+public class DrawContextWrapperImpl extends AbstractDrawContextWrapper<DrawContext> {
 
     private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = Identifier.of("widget/checkbox_selected_highlighted");
     private static final Identifier CHECKBOX_SELECTED = Identifier.of("widget/checkbox_selected");
@@ -41,7 +41,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<?> begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
+    public BufferBuilderWrapper begin(DrawModeEnum glMode, VertexFormatEnum vertexFormat) {
         VertexFormat.DrawMode drawMode = switch (glMode) {
             case TRIANGLES -> VertexFormat.DrawMode.TRIANGLES;
             case QUADS -> VertexFormat.DrawMode.QUADS;
@@ -59,13 +59,13 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
     }
 
     public void translate(float x, float y, float z) {
-        getThisWrapped().getMatrices().translate(x, y, z);
+        getWrapped().getMatrices().translate(x, y, z);
     }
     public void pushMatrix() {
-        getThisWrapped().getMatrices().push();
+        getWrapped().getMatrices().push();
     }
     public void popMatrix() {
-        getThisWrapped().getMatrices().pop();
+        getWrapped().getMatrices().pop();
     }
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
@@ -76,7 +76,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
         float scaleFactorX = window.getScaleFactorX();
         float scaleFactorY = window.getScaleFactorY();
 
-        Matrix4f matrix = getThisWrapped().getMatrices().peek().getPositionMatrix();
+        Matrix4f matrix = getWrapped().getMatrices().peek().getPositionMatrix();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
         Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
         start = matrix.transform(start);
@@ -93,7 +93,7 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
         boolean enabled = hoverState != AbstractWidgetCopy.HoverState.DISABLED;
         boolean focused = hoverState == AbstractWidgetCopy.HoverState.MOUSE_OVER;
         Identifier buttonTexture = BUTTON_TEXTURES.get(enabled, focused);
-        getThisWrapped().drawGuiTexture(RenderLayer::getGuiTextured, buttonTexture, x, y, width, height);
+        getWrapped().drawGuiTexture(RenderLayer::getGuiTextured, buttonTexture, x, y, width, height);
     }
 
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
@@ -103,44 +103,31 @@ public class DrawContextWrapperImpl extends DrawContextWrapper<DrawContext> {
         Identifier identifier = checked ?
                 (focused ? CHECKBOX_SELECTED_HIGHLIGHTED : CHECKBOX_SELECTED) :
                 (focused ? CHECKBOX_HIGHLIGHTED : CHECKBOX);
-        getThisWrapped().drawGuiTexture(RenderLayer::getGuiTextured, identifier, x, y, width, height, ColorHelper.getWhite(1));
+        getWrapped().drawGuiTexture(RenderLayer::getGuiTextured, identifier, x, y, width, height, ColorHelper.getWhite(1));
     }
 
     public void drawTextHighlight(int startX, int startY, int endX, int endY) {
-        getThisWrapped().fill(RenderLayer.getGuiTextHighlight(), startX, startY, endX, endY, 0xff0000ff);
+        getWrapped().fill(RenderLayer.getGuiTextHighlight(), startX, startY, endX, endY, 0xff0000ff);
     }
 
-    public void drawImage(ResourceLocationWrapper<?> res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
+    public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float v1, float u2, float v2) {
         McConnector.client().glGraphicsManager.setPosTexShader();
-        RenderSystem.setShaderTexture(0, res.get());
+        RenderSystem.setShaderTexture(0, ((ResourceLocationWrapperImpl) res).getWrapped());
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        /*RenderLayer layer =*/ RenderLayer.getGuiTextured(res.get());
         this.drawPosTexQuad(x, y, w, h, u1, v1, u2, v2);
     }
 
     public void drawHoverEvent(StyleWrapper styleWrapper, int x, int y) {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        Style style = styleWrapper.get();
-        getThisWrapped().drawHoverEvent(textRenderer, style, x, y);
+        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        getWrapped().drawHoverEvent(textRenderer, style, x, y);
     }
 
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, String string, float x, float y, int color) {
-        TextRenderer textRenderer = fontWrapper.get();
-        return getThisWrapped().drawTextWithShadow(textRenderer, string, (int) x, (int) y, color);
-    }
-
-    public int drawTextWithShadow(FontWrapper<?> fontWrapper, TextWrapper textWrapper, float x, float y, int color) {
-        TextRenderer textRenderer = fontWrapper.get();
-        Object textComponent = textWrapper.get();
-        if (textComponent instanceof Text text) {
-            return getThisWrapped().drawTextWithShadow(textRenderer, text, (int) x, (int) y, color);
-        }
-        else if (textComponent instanceof OrderedText text) {
-            return getThisWrapped().drawTextWithShadow(textRenderer, text, (int) x, (int) y, color);
-        }
-        return 0;
+    public int drawTextWithShadow(FontWrapper fontWrapper, String string, float x, float y, int color) {
+        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
+        return getWrapped().drawTextWithShadow(textRenderer, string, (int) x, (int) y, color);
     }
 }

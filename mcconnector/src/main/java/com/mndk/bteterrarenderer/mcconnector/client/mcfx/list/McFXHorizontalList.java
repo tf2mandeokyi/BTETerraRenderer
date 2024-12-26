@@ -184,7 +184,7 @@ public class McFXHorizontalList extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         int prevXPos = 0;
 
         drawContextWrapper.pushMatrix();

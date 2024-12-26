@@ -11,8 +11,6 @@ import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
@@ -27,7 +25,9 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown.McFXDropdown;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
+import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -162,7 +162,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     @Override
-    public void drawScreen(@Nonnull DrawContextWrapper<?> drawContextWrapper) {
+    public void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper) {
         ICON_MAKER.iconBaker.process(1);
         super.drawScreen(drawContextWrapper);
     }

@@ -49,7 +49,7 @@ public class McFXNumberInput extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         textField.drawComponent(drawContextWrapper);
     }
 

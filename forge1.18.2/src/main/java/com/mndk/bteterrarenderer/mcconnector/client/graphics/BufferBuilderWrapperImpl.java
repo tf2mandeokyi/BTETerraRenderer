@@ -7,46 +7,46 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 
 import javax.annotation.Nonnull;
 
-public class BufferBuilderWrapperImpl extends BufferBuilderWrapper<BufferBuilder> {
+public class BufferBuilderWrapperImpl extends AbstractBufferBuilderWrapper<BufferBuilder> {
 
     public BufferBuilderWrapperImpl(@Nonnull BufferBuilder delegate) {
         super(delegate);
     }
 
-    public BufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
-        PoseStack poseStack = drawContextWrapper.get();
+    public AbstractBufferBuilderWrapper<BufferBuilder> position(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+        PoseStack poseStack = ((DrawContextWrapperImpl) drawContextWrapper).getWrapped();
         Matrix4f matrix = poseStack.last().pose();
-        getThisWrapped().vertex(matrix, x, y, z);
+        getWrapped().vertex(matrix, x, y, z);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper<?> drawContextWrapper, float x, float y, float z) {
-        PoseStack poseStack = drawContextWrapper.get();
+    public AbstractBufferBuilderWrapper<BufferBuilder> normal(DrawContextWrapper drawContextWrapper, float x, float y, float z) {
+        PoseStack poseStack = ((DrawContextWrapperImpl) drawContextWrapper).getWrapped();
         Matrix3f matrix = poseStack.last().normal();
-        getThisWrapped().normal(matrix, x, y, z);
+        getWrapped().normal(matrix, x, y, z);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
-        getThisWrapped().uv(u, v);
+    public AbstractBufferBuilderWrapper<BufferBuilder> texture(float u, float v) {
+        getWrapped().uv(u, v);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
-        getThisWrapped().color(r, g, b, a);
+    public AbstractBufferBuilderWrapper<BufferBuilder> color(float r, float g, float b, float a) {
+        getWrapped().color(r, g, b, a);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> light(int light) {
-        getThisWrapped().uv2(light);
+    public AbstractBufferBuilderWrapper<BufferBuilder> light(int light) {
+        getWrapped().uv2(light);
         return this;
     }
-    public BufferBuilderWrapper<BufferBuilder> defaultOverlay() {
-        getThisWrapped().overlayCoords(OverlayTexture.NO_OVERLAY);
+    public AbstractBufferBuilderWrapper<BufferBuilder> defaultOverlay() {
+        getWrapped().overlayCoords(OverlayTexture.NO_OVERLAY);
         return this;
     }
     public void next() {
-        getThisWrapped().endVertex();
+        getWrapped().endVertex();
     }
 
     public void drawAndRender() {
-        getThisWrapped().end();
-        BufferUploader.end(getThisWrapped());
+        getWrapped().end();
+        BufferUploader.end(getWrapped());
     }
 }

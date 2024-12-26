@@ -62,7 +62,7 @@ public class McFXWrapper extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    public void drawElement(DrawContextWrapper drawContextWrapper) {
         drawContextWrapper.translate(leftPadding, topPadding, 0);
         if (element != null) element.drawComponent(drawContextWrapper);
         drawContextWrapper.translate(-leftPadding, -topPadding, 0);

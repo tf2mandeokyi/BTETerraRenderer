@@ -49,11 +49,11 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         RenderSystem.setShader(GameRenderer::getRenderTypeSolidProgram);
     }
     public void setShaderTexture(NativeTextureWrapper textureObject) {
-        RenderSystem.setShaderTexture(0, textureObject.get());
+        RenderSystem.setShaderTexture(0, ((NativeTextureWrapperImpl) textureObject).getWrapped());
     }
 
     public NativeTextureWrapper getMissingTextureObject() {
-        return new NativeTextureWrapper(MissingSprite.getMissingSpriteId());
+        return new NativeTextureWrapperImpl(MissingSprite.getMissingSpriteId());
     }
     @SneakyThrows
     protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
@@ -61,10 +61,10 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
         Identifier id = Identifier.of(modId, "dynamic-" + count);
         MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
-        return new NativeTextureWrapper(id);
+        return new NativeTextureWrapperImpl(id);
     }
-    public void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
-        MinecraftClient.getInstance().getTextureManager().destroyTexture(textureObject.get());
+    protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
+        MinecraftClient.getInstance().getTextureManager().destroyTexture(((NativeTextureWrapperImpl) textureObject).getWrapped());
     }
 
     public void glEnableScissor(int x, int y, int width, int height) {

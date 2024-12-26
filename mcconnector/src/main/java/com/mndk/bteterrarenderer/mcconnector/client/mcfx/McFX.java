@@ -1,6 +1,5 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
@@ -15,6 +14,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider.McFXSlider;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXScreenWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper.McFXWrapper;
 import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.Range;
 
@@ -57,7 +57,7 @@ public class McFX {
         return new McFXElement() {
             protected void init() {}
             public void onWidthChange() {}
-            protected void drawElement(DrawContextWrapper<?> drawContextWrapper) {}
+            protected void drawElement(DrawContextWrapper drawContextWrapper) {}
         };
     }
 
@@ -68,7 +68,7 @@ public class McFX {
             }
             protected void init() {}
             public void onWidthChange() {}
-            protected void drawElement(DrawContextWrapper<?> drawContextWrapper) {}
+            protected void drawElement(DrawContextWrapper drawContextWrapper) {}
         };
     }
 
@@ -79,7 +79,7 @@ public class McFX {
             }
             protected void init() {}
             public void onWidthChange() {}
-            protected void drawElement(DrawContextWrapper<?> drawContextWrapper) {}
+            protected void drawElement(DrawContextWrapper drawContextWrapper) {}
         };
     }
 

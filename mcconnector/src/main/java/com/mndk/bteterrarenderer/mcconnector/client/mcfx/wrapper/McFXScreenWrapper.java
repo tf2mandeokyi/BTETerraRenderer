@@ -67,7 +67,7 @@ public class McFXScreenWrapper extends McFXElement {
     }
 
     @Override
-    protected void drawElement(DrawContextWrapper<?> drawContextWrapper) {
+    protected void drawElement(DrawContextWrapper drawContextWrapper) {
         if (screen == null) return;
         screen.drawScreen(drawContextWrapper);
     }
