@@ -89,8 +89,7 @@ public class DracoCompressionTest {
 //        SpheroidCoordinatesConverter converter = SpheroidCoordinatesConverter.WGS84;
 //        GltfModel model = this.readGltfModel("glb_models/model_test1.glb", converter);
 //
-//        Float[] center = Arrays.stream(new String[] { "3258869.7866948475", "-1158451.3178201506", "-4877243.302543961" })
-//                .map(Float::parseFloat).toArray(Float[]::new);
+//        float[] center = new float[] { 3258869.7866948475f, -1158451.3178201506f, -4877243.302543961f };
 //        float[] posArrayTemp = new float[3];
 //        float[] min = new float[] {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
 //        float[] max = new float[] {Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE};

@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math.volume;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.*;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.joml.Matrix4d;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -29,18 +29,18 @@ public class Region extends Volume {
     public double getMaxHeight() { return northOuterArc.getHeight(); }
 
     @Override
-    public boolean intersectsPositiveSides(Plane[] planes, Matrix4f thisTransform,
+    public boolean intersectsPositiveSides(Plane[] planes, Matrix4d thisTransform,
                                            SpheroidCoordinatesConverter converter) {
         AABB boundingBox = this.getBoundingBox(converter);
         Parallelepiped parallelepiped = boundingBox.toBox();
-        return parallelepiped.intersectsPositiveSides(planes, Matrix4f.IDENTITY, converter);
+        return parallelepiped.intersectsPositiveSides(planes, new Matrix4d(), converter);
     }
 
     @Override
-    public BoundingSphere getLevelOfDetailSphere(Matrix4f thisTransform, SpheroidCoordinatesConverter converter) {
+    public BoundingSphere getLevelOfDetailSphere(Matrix4d thisTransform, SpheroidCoordinatesConverter converter) {
         AABB boundingBox = this.getBoundingBox(converter);
         Parallelepiped parallelepiped = boundingBox.toBox();
-        return parallelepiped.getLevelOfDetailSphere(Matrix4f.IDENTITY, converter);
+        return parallelepiped.getLevelOfDetailSphere(new Matrix4d(), converter);
     }
 
     public AABB getBoundingBox(SpheroidCoordinatesConverter converter) {

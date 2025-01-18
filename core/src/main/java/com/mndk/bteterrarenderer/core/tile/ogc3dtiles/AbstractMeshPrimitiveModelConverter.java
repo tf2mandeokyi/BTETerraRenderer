@@ -1,21 +1,21 @@
 package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.util.IOUtil;
-import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
+import com.mndk.bteterrarenderer.util.IOUtil;
+import com.mndk.bteterrarenderer.util.Loggers;
 import de.javagl.jgltf.model.ImageModel;
 import de.javagl.jgltf.model.MaterialModel;
 import de.javagl.jgltf.model.TextureModel;
 import de.javagl.jgltf.model.v1.MaterialModelV1;
 import de.javagl.jgltf.model.v2.MaterialModelV2;
 import lombok.RequiredArgsConstructor;
+import org.joml.Matrix4d;
+import org.joml.Vector3d;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,7 +31,7 @@ public abstract class AbstractMeshPrimitiveModelConverter {
 
     protected abstract PreBakedModel convert() throws Exception;
 
-    protected McCoord transformEarthCoordToGame(Cartesian3f earthCartesian) throws OutOfProjectionBoundsException {
+    protected McCoord transformEarthCoordToGame(Vector3d earthCartesian) throws OutOfProjectionBoundsException {
         return context.transformEarthCoordToGame(earthCartesian);
     }
 
@@ -68,12 +68,12 @@ public abstract class AbstractMeshPrimitiveModelConverter {
     @RequiredArgsConstructor
     public static class Context {
 
-        private final Matrix4f transform;
+        private final Matrix4d transform;
         private final GeographicProjection projection;
         private final SpheroidCoordinatesConverter coordConverter;
 
-        public McCoord transformEarthCoordToGame(Cartesian3f earthCoordinate) throws OutOfProjectionBoundsException {
-            Cartesian3f transformed = earthCoordinate.transform(this.transform);
+        public McCoord transformEarthCoordToGame(Vector3d earthCoordinate) throws OutOfProjectionBoundsException {
+            Vector3d transformed = this.transform.transformPosition(earthCoordinate, new Vector3d());
 
             Spheroid3 s3 = coordConverter.toSpheroid(transformed);
             double[] posXY = this.projection.fromGeo(s3.getLongitudeDegrees(), s3.getLatitudeDegrees());

@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.widget;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.AbstractDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;

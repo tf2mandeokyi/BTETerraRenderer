@@ -5,10 +5,10 @@ import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import de.javagl.jgltf.model.GltfModel;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.joml.Matrix4d;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -25,7 +25,7 @@ public class Ogc3dTileParsingBlock
 
     @Override
     protected List<PreBakedModel> processInternal(TileGlobalKey key, @Nonnull Payload payload) {
-        Matrix4f transform = payload.transform;
+        Matrix4d transform = payload.transform;
         TileData tileData = payload.tileData;
 
         GltfModel gltfModel = tileData.getGltfModelInstance();
@@ -38,13 +38,13 @@ public class Ogc3dTileParsingBlock
                 coordConverter, rotateModelAlongEarthXAxis);
     }
 
-    public static Payload payload(Matrix4f transform, TileData tileData, Ogc3dTileMapService tms) {
+    public static Payload payload(Matrix4d transform, TileData tileData, Ogc3dTileMapService tms) {
         return new Payload(transform, tileData, tms);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Payload {
-        private final Matrix4f transform;
+        private final Matrix4d transform;
         private final TileData tileData;
         private final Ogc3dTileMapService tms;
     }

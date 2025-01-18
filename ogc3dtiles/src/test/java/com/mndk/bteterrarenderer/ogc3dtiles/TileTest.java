@@ -2,11 +2,11 @@ package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Region;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tile;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.joml.Matrix4d;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,6 +53,11 @@ public class TileTest {
         Tile tile = BTETerraRenderer.JSON_MAPPER.readValue(json, Tile.class);
         MatcherAssert.assertThat(tile.getBoundingVolume(), CoreMatchers.instanceOf(Region.class));
         Assert.assertEquals(2, tile.getContents().size());
-        Assert.assertEquals(new Matrix4f((c, r) -> c*4+r), tile.getTileLocalTransform());
+        Assert.assertEquals(new Matrix4d(
+                0, 4, 8, 12,
+                1, 5, 9, 13,
+                2, 6, 10, 14,
+                3, 7, 11, 15
+        ), tile.getTileLocalTransform());
     }
 }

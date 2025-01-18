@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.i3dm;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.ogc3dtiles.Ogc3dTiles;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.JOMLUtils;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.table.BinaryJsonTableElement;
@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
 
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class I3dmFeatureTable {
 
-    @Nullable private final Cartesian3f rtcCenter;
+    @Nullable private final Vector3d rtcCenter;
     private final Instance[] instances;
 
     public static I3dmFeatureTable from(String json, byte[] binary, SpheroidCoordinatesConverter coordConverter)
@@ -28,12 +29,12 @@ public class I3dmFeatureTable {
     {
         RawFeatureTableJson jsonParsed = Ogc3dTiles.jsonMapper().readValue(json, RawFeatureTableJson.class);
 
-        Cartesian3f rtcCenter = jsonParsed.globalRtcCenter == null ? null :
-                Cartesian3f.fromArray(jsonParsed.globalRtcCenter.getValue(binary).getElements());
-        Cartesian3f quantizedVolumeOffset = jsonParsed.globalQuantizedVolumeOffset == null ? null :
-                Cartesian3f.fromArray(jsonParsed.globalQuantizedVolumeOffset.getValue(binary).getElements());
-        Cartesian3f quantizedVolumeScale = jsonParsed.globalQuantizedVolumeScale == null ? null :
-                Cartesian3f.fromArray(jsonParsed.globalQuantizedVolumeScale.getValue(binary).getElements());
+        Vector3d rtcCenter = jsonParsed.globalRtcCenter == null ? null :
+                JOMLUtils.vector3d(jsonParsed.globalRtcCenter.getValue(binary).getElements());
+        Vector3d quantizedVolumeOffset = jsonParsed.globalQuantizedVolumeOffset == null ? null :
+                JOMLUtils.vector3d(jsonParsed.globalQuantizedVolumeOffset.getValue(binary).getElements());
+        Vector3d quantizedVolumeScale = jsonParsed.globalQuantizedVolumeScale == null ? null :
+                JOMLUtils.vector3d(jsonParsed.globalQuantizedVolumeScale.getValue(binary).getElements());
         boolean eastNorthUp = jsonParsed.globalEastNorthUp != null && jsonParsed.globalEastNorthUp.getValue(binary);
 
         int instanceLength = jsonParsed.globalInstancesLength.getValue(binary);
@@ -43,9 +44,9 @@ public class I3dmFeatureTable {
             // Position vectors
             // "If both POSITION and POSITION_QUANTIZED are defined for an instance,
             //  the higher precision POSITION will be used."
-            Cartesian3f position;
+            Vector3d position;
             if (jsonParsed.instancePosition != null) {
-                position = Cartesian3f.fromArray(jsonParsed.instancePosition.getValue(binary, i).getElements());
+                position = JOMLUtils.vector3d(jsonParsed.instancePosition.getValue(binary, i).getElements());
             }
             else if (jsonParsed.instanceQuantizedPosition != null) {
                 if (quantizedVolumeOffset == null || quantizedVolumeScale == null) {
@@ -54,17 +55,17 @@ public class I3dmFeatureTable {
 
                 Short[] quantized = jsonParsed.instanceQuantizedPosition.getValue(binary, i).getElements();
                 float[] array = QuantizationUtil.normalizeShorts(quantized, false);
-                position = Cartesian3f.fromArray(array).scale(quantizedVolumeScale).add(quantizedVolumeOffset);
+                position = new Vector3d(array).mul(quantizedVolumeScale).add(quantizedVolumeOffset);
             }
             else throw new RuntimeException("Malformed i3dm: Nor position or quantized position for instances exist");
 
             // Normal vectors
             // "If NORMAL_UP, NORMAL_RIGHT, NORMAL_UP_OCT32P, and NORMAL_RIGHT_OCT32P are defined for an instance,
             //  the higher precision NORMAL_UP and NORMAL_RIGHT will be used."
-            Cartesian3f normalUp = null, normalRight = null;
+            Vector3d normalUp = null, normalRight = null;
             if (jsonParsed.instanceNormalUp != null && jsonParsed.instanceNormalRight != null) {
-                normalUp = Cartesian3f.fromArray(jsonParsed.instanceNormalUp.getValue(binary, i).getElements());
-                normalRight = Cartesian3f.fromArray(jsonParsed.instanceNormalRight.getValue(binary, i).getElements());
+                normalUp = JOMLUtils.vector3d(jsonParsed.instanceNormalUp.getValue(binary, i).getElements());
+                normalRight = JOMLUtils.vector3d(jsonParsed.instanceNormalRight.getValue(binary, i).getElements());
             }
             else if (jsonParsed.instanceNormalUpOct32p != null && jsonParsed.instanceNormalRightOct32p != null) {
                 float[] sNormUp = QuantizationUtil.sNormalizeShorts(
@@ -72,28 +73,26 @@ public class I3dmFeatureTable {
                 float[] sNormRight = QuantizationUtil.sNormalizeShorts(
                         jsonParsed.instanceNormalRightOct32p.getValue(binary, i).getElements(), true);
 
-                normalUp = Cartesian3f.fromOctEncoding(sNormUp[0], sNormUp[1]);
-                normalRight = Cartesian3f.fromOctEncoding(sNormRight[0], sNormRight[1]);
+                normalUp = JOMLUtils.fromOctEncoding(sNormUp[0], sNormUp[1]);
+                normalRight = JOMLUtils.fromOctEncoding(sNormRight[0], sNormRight[1]);
             }
             else if (eastNorthUp) {
                 // Hacky implementation, maybe TODO add a test code for this?
                 float epsilon = 1e-7f;
                 Spheroid3 spheroid3 = coordConverter.toSpheroid(position);
-                Cartesian3f dphi = coordConverter.toCartesian(spheroid3.add(Spheroid3.fromRadians(epsilon, 0, 0)))
-                        .subtract(position);
-                Cartesian3f dh = coordConverter.toCartesian(spheroid3.add(Spheroid3.fromRadians(0, 0, epsilon)))
-                        .subtract(position);
-                normalUp = dh.scale(1 / epsilon).toNormalized();
-                normalRight = dphi.scale(1 / epsilon).toNormalized();
+                Spheroid3 dphi = Spheroid3.fromRadians(epsilon, 0, 0);
+                Spheroid3 dh = Spheroid3.fromRadians(0, 0, epsilon);
+                normalUp = coordConverter.toCartesian(spheroid3.add(dh)).sub(position).mul(1 / epsilon).normalize();
+                normalRight = coordConverter.toCartesian(spheroid3.add(dphi)).sub(position).mul(1 / epsilon).normalize();
             }
 
-            Cartesian3f scaled = Cartesian3f.UNIT;
+            Vector3d scaled = new Vector3d(1, 1, 1);
             if (jsonParsed.instanceScale != null) {
-                scaled = scaled.scale(jsonParsed.instanceScale.getValue(binary, i));
+                scaled.mul(jsonParsed.instanceScale.getValue(binary, i));
             }
             if (jsonParsed.instanceScaleNonUniform != null) {
-                Cartesian3f scale = Cartesian3f.fromArray(jsonParsed.instanceScaleNonUniform.getValue(binary, i).getElements());
-                scaled = scaled.scale(scale);
+                Vector3d scale = JOMLUtils.vector3d(jsonParsed.instanceScaleNonUniform.getValue(binary, i).getElements());
+                scaled.mul(scale);
             }
 
             int batchId = jsonParsed.instanceBatchId == null ? -1 : jsonParsed.instanceBatchId.getValue(binary, i);
@@ -109,9 +108,9 @@ public class I3dmFeatureTable {
     public static class Instance {
         /** Default value is -1 */
         private final int batchId;
-        private final Cartesian3f position, scale;
+        private final Vector3d position, scale;
         @Nullable
-        private final Cartesian3f normalUp, normalRight;
+        private final Vector3d normalUp, normalRight;
     }
 
     @Data

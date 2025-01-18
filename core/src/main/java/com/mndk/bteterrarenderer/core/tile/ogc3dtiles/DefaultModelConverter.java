@@ -9,10 +9,10 @@ import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttributes;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.util.QuantizationUtil;
 import de.javagl.jgltf.model.*;
+import org.joml.Matrix4d;
+import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,20 +43,22 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         }
 
         Web3dQuantizedAttributes positionExtension = GltfExtensionsUtil.getExtension(positionAccessor, Web3dQuantizedAttributes.class);
-        Matrix4f positionTransform = positionExtension != null ? positionExtension.getDecodeMatrix() : null;
+        Matrix4d positionTransform = positionExtension != null ? positionExtension.getDecodeMatrix() : null;
 
         Web3dQuantizedAttributes normalExtension = normalAccessor == null ? null
                 : GltfExtensionsUtil.getExtension(normalAccessor, Web3dQuantizedAttributes.class);
-        Matrix4f normalTransform = normalExtension != null ? normalExtension.getDecodeMatrix() : null;
+        Matrix4d normalTransform = normalExtension != null ? normalExtension.getDecodeMatrix() : null;
 
         int numPoints = positionAccessor.getCount();
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
         for (int i = 0; i < numPoints; i++) {
-            Cartesian3f position = readPosition(positionAccessor, i, positionTransform);
+            Vector3d position = readPosition(positionAccessor, i, positionTransform);
             McCoord gamePos = this.transformEarthCoordToGame(position);
 
-            Cartesian3f normal = normalAccessor == null ? null : readNormal(normalAccessor, i, normalTransform);
-            McCoord gameNormal = normal == null ? null : this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
+            Vector3d normal = normalAccessor == null ? null
+                    : readNormal(normalAccessor, i, normalTransform);
+            McCoord gameNormal = normal == null ? null
+                    : this.transformEarthCoordToGame(position.add(normal, new Vector3d())).subtract(gamePos);
 
             float[] tex = readTextureCoord(textureCoordAccessor, i);
 
@@ -65,12 +67,25 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         return parsedPoints;
     }
 
-    private static Cartesian3f readPosition(AccessorModel positionAccessor, int index, @Nullable Matrix4f transform) {
-        Cartesian3f cartesian = readCartesian3(positionAccessor, index);
-        if (transform != null) cartesian = cartesian.transform(transform);
+    /**
+     * Reads the position of the point, and transforms it if necessary
+     * @param positionAccessor The position accessor
+     * @param index The index
+     * @param transform The transformation matrix
+     * @return A new instance of {@link Vector3d} corresponding to the position
+     */
+    private static Vector3d readPosition(AccessorModel positionAccessor, int index, @Nullable Matrix4d transform) {
+        Vector3d cartesian = readVector3d(positionAccessor, index);
+        if (transform != null) transform.transformPosition(cartesian);
         return cartesian;
     }
 
+    /**
+     * Reads the texture coordinate of the point
+     * @param textureCoordAccessor The texture coordinate accessor
+     * @param index The index
+     * @return A new float array of size 2
+     */
     private static float[] readTextureCoord(@Nullable AccessorModel textureCoordAccessor, int index) {
         // Return random point if the texture coordinate accessor is null
         if (textureCoordAccessor == null) return new float[] { 0, 0 };
@@ -78,9 +93,16 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         return readFloatArray(data, index, 2);
     }
 
-    private static Cartesian3f readNormal(AccessorModel normalAccessor, int index, @Nullable Matrix4f transform) {
-        Cartesian3f cartesian = readCartesian3(normalAccessor, index);
-        if (transform != null) cartesian = cartesian.transform(transform);
+    /**
+     * Reads the normal of the point, and transforms it if necessary
+     * @param normalAccessor The normal accessor
+     * @param index The index
+     * @param transform The transformation matrix
+     * @return A new instance of {@link Vector3d} corresponding to the normal
+     */
+    private static Vector3d readNormal(AccessorModel normalAccessor, int index, @Nullable Matrix4d transform) {
+        Vector3d cartesian = readVector3d(normalAccessor, index);
+        if (transform != null) transform.transformPosition(cartesian);
         return cartesian;
     }
 
@@ -112,10 +134,15 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         return shapes;
     }
 
-    private static Cartesian3f readCartesian3(AccessorModel accessor, int index) {
+    /**
+     * Reads a 3d vector from the accessor
+     * @param accessor The accessor
+     * @param index The index
+     * @return A new instance of {@link Vector3d}
+     */
+    private static Vector3d readVector3d(AccessorModel accessor, int index) {
         AccessorData data = accessor.getAccessorData();
-        float[] position = readFloatArray(data, index, 3);
-        return new Cartesian3f(position[0], position[1], position[2]);
+        return new Vector3d(readFloatArray(data, index, 3));
     }
 
     private static int readInteger(@Nonnull AccessorModel accessor, int defaultValue) {

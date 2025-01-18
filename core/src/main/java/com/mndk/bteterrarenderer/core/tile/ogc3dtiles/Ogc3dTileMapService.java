@@ -29,11 +29,9 @@ import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileResourceManager;
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.geoid.GeoidHeightFunction;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidFrustum;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import com.mndk.bteterrarenderer.util.Loggers;
@@ -46,6 +44,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joml.Matrix4d;
+import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
@@ -77,8 +77,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private final String geoidType;
 
     private transient final TileDataStorage tileDataStorage;
-    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4f, TileData>> storageFetcher;
-    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4f, InputStream>, Pair<Matrix4f, TileData>> streamParser;
+    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4d, TileData>> storageFetcher;
+    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4d, InputStream>, Pair<Matrix4d, TileData>> streamParser;
 
     @Builder
     @SneakyThrows(MalformedURLException.class)
@@ -168,7 +168,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     public List<TileGlobalKey> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         if (radius == 0) return Collections.emptyList();
 
-        Cartesian3f point, viewDirection, rightDirection;
+        Vector3d point, viewDirection, rightDirection;
         try {
             McCoord mcViewDirection = cameraPos.add(McCoord.fromYawPitch(yawDegrees, pitchDegrees));
             McCoord mcRightDirection = cameraPos.add(McCoord.fromYawPitch(yawDegrees + 90, 0));
@@ -178,15 +178,15 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             Spheroid3 rightDirectionSpheroid = this.mcCoordToSpheroid(mcRightDirection);
 
             point = this.coordConverter.toCartesian(pointSpheroid);
-            viewDirection = this.coordConverter.toCartesian(viewDirectionSpheroid).subtract(point).toNormalized();
-            rightDirection = this.coordConverter.toCartesian(rightDirectionSpheroid).subtract(point).toNormalized();
+            viewDirection = this.coordConverter.toCartesian(viewDirectionSpheroid).sub(point).normalize();
+            rightDirection = this.coordConverter.toCartesian(rightDirectionSpheroid).sub(point).normalize();
         } catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
 
         SpheroidFrustum frustum = this.getFrustum(point, viewDirection, rightDirection);
         return this.getIdListRecursively(frustum);
     }
 
-    private SpheroidFrustum getFrustum(Cartesian3f point, Cartesian3f viewDirection, Cartesian3f rightDirection) {
+    private SpheroidFrustum getFrustum(Vector3d point, Vector3d viewDirection, Vector3d rightDirection) {
         WindowDimension dimension = McConnector.client().getWindowSize();
         float aspectRatio = dimension.getScaledWidth() / (float) dimension.getScaledHeight();
         float verticalFovRadians = (float) Math.toRadians(McConnector.client().getFovDegrees());
@@ -201,7 +201,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Nullable
     private Tileset getRootTileset() {
         TileGlobalKey key = TileGlobalKey.ROOT_KEY;
-        Pair<Matrix4f, TileData> pair = tileDataStorage.updateOrInsert(key, Pair.of(Matrix4f.IDENTITY, this.rootTilesetUrl));
+        Pair<Matrix4d, TileData> pair = tileDataStorage.updateOrInsert(key, Pair.of(new Matrix4d(), this.rootTilesetUrl));
         if (pair == null) return null;
 
         TileData tileData = pair.getRight();
@@ -226,7 +226,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
             for (LocalTileNode localTileNode : intersections) {
                 TileContentLink contentLink = localTileNode.getContentLink();
-                Matrix4f currentTransform = localTileNode.getTransform();
+                Matrix4d currentTransform = localTileNode.getTransform();
 
                 // Skip if the url is malformed
                 URL currentUrl;
@@ -240,7 +240,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
 
                 // Get data from cache
-                Pair<Matrix4f, TileData> parsedData = tileDataStorage.updateOrInsert(currentKey,
+                Pair<Matrix4d, TileData> parsedData = tileDataStorage.updateOrInsert(currentKey,
                         Pair.of(currentTransform, currentUrl));
                 if (parsedData == null) continue;
 
@@ -312,13 +312,13 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         }
     }
 
-    private class TileDataStorage extends CacheableProcessorModel<TileGlobalKey, Pair<Matrix4f, URL>, Pair<Matrix4f, TileData>>
+    private class TileDataStorage extends CacheableProcessorModel<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, TileData>>
             implements Closeable {
 
         private final ExecutorService executorService;
-        private final MultiThreadedBlock<TileGlobalKey, Pair<Matrix4f, URL>, Pair<Matrix4f, InputStream>> tileStreamFetcher;
+        private final MultiThreadedBlock<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, InputStream>> tileStreamFetcher;
 
-        protected TileDataStorage(ProcessorCacheStorage<TileGlobalKey, Pair<Matrix4f, TileData>> storage) {
+        protected TileDataStorage(ProcessorCacheStorage<TileGlobalKey, Pair<Matrix4d, TileData>> storage) {
             super(storage);
 
             this.executorService = Executors.newFixedThreadPool(Ogc3dTileMapService.this.nThreads);
@@ -329,13 +329,13 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         }
 
         @Override
-        protected SequentialBuilder<TileGlobalKey, Pair<Matrix4f, URL>, Pair<Matrix4f, TileData>> getSequentialBuilder() {
+        protected SequentialBuilder<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, TileData>> getSequentialBuilder() {
             return new CacheableProcessorModel.SequentialBuilder<>(this.tileStreamFetcher)
                     .then(Ogc3dTileMapService.this.streamParser);
         }
 
         @Override
-        protected void deleteResource(Pair<Matrix4f, TileData> parsedData) {}
+        protected void deleteResource(Pair<Matrix4d, TileData> parsedData) {}
 
         @Override
         public void close() {

@@ -2,16 +2,16 @@ package com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import lombok.Data;
+import org.joml.Vector3d;
 
 @Data
 @GltfExtension("CESIUM_RTC")
 public class CesiumRTC {
-    private final Cartesian3f center;
+    private final Vector3d center;
 
     @JsonCreator
-    public CesiumRTC(@JsonProperty(value = "center") Cartesian3f center) {
-        this.center = center;
+    public CesiumRTC(@JsonProperty(value = "center") double[] center) {
+        this.center = new Vector3d(center);
     }
 }

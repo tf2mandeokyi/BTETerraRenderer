@@ -14,9 +14,9 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingForma
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import de.javagl.jgltf.model.BufferViewModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
+import org.joml.Vector3d;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -63,13 +63,13 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
         for (PointIndex pointIndex : PointIndex.range(0, numPoints)) {
             positionAttribute.getMappedValue(pointIndex, Pointer.wrap(posArray));
-            Cartesian3f position = Cartesian3f.fromArray(posArray);
+            Vector3d position = new Vector3d(posArray);
             McCoord gamePos = this.transformEarthCoordToGame(position);
 
             McCoord gameNormal = null;
             if (normalAttribute != null) {
                 normalAttribute.getMappedValue(pointIndex, Pointer.wrap(normArray));
-                Cartesian3f normal = Cartesian3f.fromArray(normArray);
+                Vector3d normal = new Vector3d(normArray);
                 gameNormal = this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
             }
 

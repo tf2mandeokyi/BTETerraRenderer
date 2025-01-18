@@ -3,9 +3,7 @@ package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.BoundingSphere;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidFrustum;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tile;
 import com.mndk.bteterrarenderer.ogc3dtiles.tile.TileContentLink;
@@ -14,6 +12,8 @@ import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import com.mndk.bteterrarenderer.util.ArrayUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.joml.Matrix4d;
+import org.joml.Vector3d;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class Ogc3dBfsNode {
     private final Tileset tileset;
     private final URL parentUrl;
     private final TileLocalKey[] parentKeys;
-    private final Matrix4f parentTransform;
+    private final Matrix4d parentTransform;
 
     public List<LocalTileNode> selectIntersections(SpheroidFrustum frustum) {
 
@@ -42,9 +42,9 @@ public class Ogc3dBfsNode {
             int[] currentIndexes = currentNode.indexes;
             Tile currentTile = currentNode.tile;
 
-            Matrix4f localTransform = currentTile.getTileLocalTransform();
-            Matrix4f currentTransform = currentNode.previousTransform;
-            if (localTransform != null) currentTransform = currentTransform.multiply(localTransform);
+            Matrix4d localTransform = currentTile.getTileLocalTransform();
+            Matrix4d currentTransform = new Matrix4d(currentNode.previousTransform);
+            if (localTransform != null) currentTransform.mul(localTransform);
 
             if (!renderSurroundings && !this.shouldIncludeTile(currentTile, frustum, currentTransform))
                 continue;
@@ -64,7 +64,7 @@ public class Ogc3dBfsNode {
         return resultList;
     }
 
-    private void addContentsToResult(List<LocalTileNode> resultList, Tile tile, int[] indexes, Matrix4f transform) {
+    private void addContentsToResult(List<LocalTileNode> resultList, Tile tile, int[] indexes, Matrix4d transform) {
         for (int i = 0; i < tile.getContents().size(); i++) {
             TileLocalKey contentKey = new TileLocalKey(indexes, i);
             TileContentLink content = tile.getContents().get(i);
@@ -72,14 +72,14 @@ public class Ogc3dBfsNode {
         }
     }
 
-    private void addChildrenToStack(Stack<IntersectionBfsNode> stack, Tile tile, int[] indexes, Matrix4f previousTransform) {
+    private void addChildrenToStack(Stack<IntersectionBfsNode> stack, Tile tile, int[] indexes, Matrix4d previousTransform) {
         for (int i = 0; i < tile.getChildren().size(); i++) {
             Tile child = tile.getChildren().get(i);
             stack.add(new IntersectionBfsNode(ArrayUtil.expandOne(indexes, i), child, previousTransform));
         }
     }
 
-    private boolean atLeastOneChildIntersects(Tile currentTile, SpheroidFrustum frustum, Matrix4f currentTransform) {
+    private boolean atLeastOneChildIntersects(Tile currentTile, SpheroidFrustum frustum, Matrix4d currentTransform) {
         for (Tile child : currentTile.getChildren()) {
             if (this.shouldIncludeTile(child, frustum, currentTransform)) {
                 return true;
@@ -92,7 +92,7 @@ public class Ogc3dBfsNode {
         return ArrayUtil.expandOne(this.parentKeys, node.getKey(), TileLocalKey[]::new);
     }
 
-    private boolean shouldIncludeTile(Tile tile, SpheroidFrustum frustum, Matrix4f transform) {
+    private boolean shouldIncludeTile(Tile tile, SpheroidFrustum frustum, Matrix4d transform) {
         Volume volume = tile.getBoundingVolume();
         boolean intersects = frustum.intersectsVolume(volume, transform, tms.getCoordConverter());
         if (!intersects) return false;
@@ -101,24 +101,24 @@ public class Ogc3dBfsNode {
         double geometricError = tile.getGeometricError();
 
         BoundingSphere lodSphere = volume.getLevelOfDetailSphere(transform, tms.getCoordConverter());
-        Cartesian3f sphereCenter = lodSphere.getCenter();
+        Vector3d sphereCenter = lodSphere.getCenter();
         double sphereRadius = lodSphere.getRadius();
 
-        Cartesian3f cameraPosition = frustum.getCameraPosition();
-        double distance = sphereCenter.subtract(cameraPosition).distance();
+        Vector3d cameraPosition = frustum.getCameraPosition();
+        double distance = sphereCenter.distance(cameraPosition);
         double effectiveDistance = Math.max(distance - sphereRadius, 0);
 
         return effectiveDistance < geometricError * lodFactor;
     }
 
     public static Ogc3dBfsNode fromRoot(Ogc3dTileMapService tms, Tileset tileset, URL parentUrl) {
-        return new Ogc3dBfsNode(tms, tileset, parentUrl, new TileLocalKey[0], Matrix4f.IDENTITY);
+        return new Ogc3dBfsNode(tms, tileset, parentUrl, new TileLocalKey[0], new Matrix4d());
     }
 
     @RequiredArgsConstructor
     private static class IntersectionBfsNode {
         private final int[] indexes;
         private final Tile tile;
-        private final Matrix4f previousTransform;
+        private final Matrix4d previousTransform;
     }
 }

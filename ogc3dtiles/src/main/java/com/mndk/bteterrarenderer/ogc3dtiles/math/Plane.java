@@ -1,14 +1,15 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
 import lombok.Getter;
+import org.joml.Vector3d;
 
 @Getter
 public class Plane {
-    private final Cartesian3f point;
-    private final Cartesian3f normal;
+    private final Vector3d point;
+    private final Vector3d normal;
 
-    public Plane(Cartesian3f point, Cartesian3f normal) {
+    public Plane(Vector3d point, Vector3d normal) {
         this.point = point;
-        this.normal = normal.toNormalized();
+        this.normal = normal.normalize(new Vector3d());
     }
 }

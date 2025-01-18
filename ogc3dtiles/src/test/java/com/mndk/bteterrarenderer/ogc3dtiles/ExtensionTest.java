@@ -2,8 +2,8 @@ package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttributes;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
+import org.joml.Matrix4d;
+import org.joml.Vector3d;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,8 +21,8 @@ public class ExtensionTest {
         Web3dQuantizedAttributes extension =
                 BTETerraRenderer.JSON_MAPPER.convertValue(json, Web3dQuantizedAttributes.class);
 
-        Assert.assertEquals(Matrix4f.IDENTITY, extension.getDecodeMatrix());
-        Assert.assertEquals(new Cartesian3f(0, 0, 0), extension.getDecodedMin());
-        Assert.assertEquals(new Cartesian3f(1, 1, 1), extension.getDecodedMax());
+        Assert.assertEquals(new Matrix4d(), extension.getDecodeMatrix());
+        Assert.assertEquals(new Vector3d(0, 0, 0), extension.getDecodedMin());
+        Assert.assertEquals(new Vector3d(1, 1, 1), extension.getDecodedMax());
     }
 }

@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.math;
 import com.mndk.bteterrarenderer.ogc3dtiles.Wgs84Constants;
 import com.mndk.bteterrarenderer.ogc3dtiles.geoid.GeoidHeightFunction;
 import lombok.Getter;
+import org.joml.Vector3d;
 
 @Getter
 public class SpheroidCoordinatesConverter {
@@ -34,7 +35,12 @@ public class SpheroidCoordinatesConverter {
         return semiMajorAxis / Math.sqrt(1 - (eccentricitySquared * Math.pow(Math.sin(latitude), 2)));
     }
 
-    public Cartesian3f toCartesian(Spheroid3 spheroid) {
+    /**
+     * @link <a href="https://gssc.esa.int/navipedia/index.php/Ellipsoidal_and_Cartesian_Coordinates_Conversion">
+     *     Ellipsoidal and Cartesian Coordinates Conversion</a>
+     * @return A new instance of the cartesian coordinate corresponding to the given spheroidal coordinate
+     */
+    public Vector3d toCartesian(Spheroid3 spheroid) {
         double latitude = spheroid.getLatitudeRadians();
         double longitude = spheroid.getLongitudeRadians();
         double height = spheroid.getHeight() + this.geoidHeightFunction.getHeight(spheroid);
@@ -42,7 +48,7 @@ public class SpheroidCoordinatesConverter {
         double x = (R + height) * Math.cos(latitude) * Math.cos(longitude);
         double y = (R + height) * Math.cos(latitude) * Math.sin(longitude);
         double z = ((1 - this.eccentricitySquared) * R + height) * Math.sin(latitude);
-        return new Cartesian3f((float) x, (float) y, (float) z);
+        return new Vector3d(x, y, z);
     }
 
     /**
@@ -50,10 +56,10 @@ public class SpheroidCoordinatesConverter {
      *     Ellipsoidal and Cartesian Coordinates Conversion</a>
      * @return The spheroidal coordinate corresponding to the given cartesian coordinate
      */
-    public Spheroid3 toSpheroid(Cartesian3f cartesian) {
-        double x = cartesian.getX();
-        double y = cartesian.getY();
-        double z = cartesian.getZ();
+    public Spheroid3 toSpheroid(Vector3d cartesian) {
+        double x = cartesian.x;
+        double y = cartesian.y;
+        double z = cartesian.z;
 
         double longitude = Math.atan2(y, x);
         double p = Math.sqrt(x*x + y*y);

@@ -1,35 +1,37 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Parallelepiped;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.joml.Vector3d;
 
 @Getter
 @RequiredArgsConstructor
 public class AABB {
-    private final Cartesian3f min, max;
+    private final Vector3d min, max;
 
-    public AABB include(Cartesian3f point) {
-        Cartesian3f min = Cartesian3f.min(this.min, point);
-        Cartesian3f max = Cartesian3f.max(this.max, point);
+    public AABB include(Vector3d point) {
+        Vector3d min = this.min.min(point, new Vector3d());
+        Vector3d max = this.max.max(point, new Vector3d());
         return new AABB(min, max);
     }
 
     public AABB include(AABB box) {
-        Cartesian3f min = Cartesian3f.min(this.min, box.min);
-        Cartesian3f max = Cartesian3f.max(this.max, box.max);
+        Vector3d min = this.min.min(box.min, new Vector3d());
+        Vector3d max = this.max.max(box.max, new Vector3d());
         return new AABB(min, max);
     }
 
     public Parallelepiped toBox() {
-        Cartesian3f center = this.min.add(this.max).scale(0.5f);
-        float[] halfScale = this.max.subtract(this.min).scale(0.5f).toArray();
-        Matrix3f scale = new Matrix3f((c, r) -> c == r ? halfScale[c] : 0);
-        return new Parallelepiped(center, scale);
+        Vector3d center = this.min.add(this.max, new Vector3d()).mul(0.5);
+        Vector3d halfScale = this.max.sub(this.min, new Vector3d()).mul(0.5);
+        Vector3d sx = new Vector3d(halfScale.x, 0, 0);
+        Vector3d sy = new Vector3d(0, halfScale.y, 0);
+        Vector3d sz = new Vector3d(0, 0, halfScale.z);
+        return new Parallelepiped(center, sx, sy, sz);
     }
 
-    public static AABB fromPoint(Cartesian3f point) {
+    public static AABB fromPoint(Vector3d point) {
         return new AABB(point, point);
     }
 

@@ -2,13 +2,14 @@ package com.mndk.bteterrarenderer.ogc3dtiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.Cartesian3f;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Ellipsoid;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Parallelepiped;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Region;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.volume.Volume;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.joml.Matrix3d;
+import org.joml.Vector3d;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +35,8 @@ public class BoundingVolumeTest {
         String json = "{\"sphere\": [0, 0, 10, 141.4214]}";
         Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Ellipsoid.class));
-        Assert.assertEquals(141.4214, ((Ellipsoid) volume).getRadius(), 0.00001);
+        Matrix3d radiusMatrix = ((Ellipsoid) volume).getRadiusMatrix();
+        Assert.assertEquals(141.4214, Math.cbrt(radiusMatrix.determinant()), 0.00001);
     }
 
     @Test
@@ -47,7 +49,7 @@ public class BoundingVolumeTest {
                 "  ]}";
         Volume volume = BTETerraRenderer.JSON_MAPPER.readValue(json, Volume.class);
         MatcherAssert.assertThat(volume, CoreMatchers.instanceOf(Parallelepiped.class));
-        Assert.assertEquals(new Cartesian3f(0, 0, 10), ((Parallelepiped) volume).getCenter());
+        Assert.assertEquals(new Vector3d(0, 0, 10), ((Parallelepiped) volume).getCenter());
     }
 
     @Test

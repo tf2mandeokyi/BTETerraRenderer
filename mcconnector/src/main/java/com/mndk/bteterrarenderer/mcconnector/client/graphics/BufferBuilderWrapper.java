@@ -1,12 +1,8 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 
 public interface BufferBuilderWrapper {
-    void nextPosTex(DrawContextWrapper drawContextWrapper, PosTex vertex, float alpha);
-    void nextPosTexNorm(DrawContextWrapper drawContextWrapper, PosTexNorm vertex, float alpha);
 
     default BufferBuilderWrapper position(DrawContextWrapper drawContextWrapper, McCoord coord) {
         return this.position(drawContextWrapper, (float) coord.getX(), coord.getY(), (float) coord.getZ());

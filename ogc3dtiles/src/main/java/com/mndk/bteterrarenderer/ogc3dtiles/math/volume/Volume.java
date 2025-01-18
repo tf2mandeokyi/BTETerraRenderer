@@ -9,18 +9,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.BoundingSphere;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Plane;
 import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
-import com.mndk.bteterrarenderer.ogc3dtiles.math.matrix.Matrix4f;
 import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
+import org.joml.Matrix4d;
 
 import java.io.IOException;
 
 @JsonDeserialize(using = Volume.Deserializer.class)
 public abstract class Volume {
 
-    public abstract boolean intersectsPositiveSides(Plane[] planes, Matrix4f thisTransform,
+    public abstract boolean intersectsPositiveSides(Plane[] planes, Matrix4d thisTransform,
                                                     SpheroidCoordinatesConverter converter);
 
-    public abstract BoundingSphere getLevelOfDetailSphere(Matrix4f thisTransform, SpheroidCoordinatesConverter converter);
+    public abstract BoundingSphere getLevelOfDetailSphere(Matrix4d thisTransform, SpheroidCoordinatesConverter converter);
 
     static class Deserializer extends JsonDeserializer<Volume> {
 

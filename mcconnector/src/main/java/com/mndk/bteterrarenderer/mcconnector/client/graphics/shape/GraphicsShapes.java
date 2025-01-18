@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.AbstractBufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;

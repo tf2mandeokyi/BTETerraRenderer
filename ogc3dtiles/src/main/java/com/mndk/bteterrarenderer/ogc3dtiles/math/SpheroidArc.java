@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.ogc3dtiles.math;
 
 import lombok.Getter;
+import org.joml.Vector3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class SpheroidArc {
         return result;
     }
 
-    public Cartesian3f toCartesian3f(double angleRadians, SpheroidCoordinatesConverter converter) {
+    public Vector3d toCartesian3f(double angleRadians, SpheroidCoordinatesConverter converter) {
         Spheroid3 spheroid = Spheroid3.fromRadians(angleRadians, latitude, height);
         return converter.toCartesian(spheroid);
     }
