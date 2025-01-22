@@ -5,9 +5,6 @@ import java.awt.image.BufferedImage;
 public class DummyGlGraphicsManager extends GlGraphicsManager {
     @Override protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {}
 
-    @Override public void glEnableScissor(int x, int y, int width, int height) {}
-    @Override public void glDisableScissor() {}
-
     @Override public NativeTextureWrapper getMissingTextureObject() {
         return new DummyNativeTextureWrapperImpl(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
     }

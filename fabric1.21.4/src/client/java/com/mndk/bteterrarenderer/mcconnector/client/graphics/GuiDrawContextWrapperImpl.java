@@ -72,6 +72,14 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
         return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
     }
+    protected void glEnableScissor(int x, int y, int width, int height) {
+        delegate.draw();
+        RenderSystem.enableScissor(x, y, width, height);
+    }
+    protected void glDisableScissor() {
+        delegate.draw();
+        RenderSystem.disableScissor();
+    }
 
     public void fillQuad(GraphicsQuad<PosXY> quad, int color, float z) {
         Matrix4f matrix4f = delegate.getMatrices().peek().getPositionMatrix();

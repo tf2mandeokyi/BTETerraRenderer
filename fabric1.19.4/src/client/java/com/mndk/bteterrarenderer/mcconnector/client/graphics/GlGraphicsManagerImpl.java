@@ -1,7 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.util.IOUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.MissingSprite;
@@ -26,13 +25,6 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
     }
     protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         MinecraftClient.getInstance().getTextureManager().destroyTexture(((NativeTextureWrapperImpl) textureObject).delegate);
-    }
-
-    public void glEnableScissor(int x, int y, int width, int height) {
-        RenderSystem.enableScissor(x, y, width, height);
-    }
-    public void glDisableScissor() {
-        RenderSystem.disableScissor();
     }
 
 }

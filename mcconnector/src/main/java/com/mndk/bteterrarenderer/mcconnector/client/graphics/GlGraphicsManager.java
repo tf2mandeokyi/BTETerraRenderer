@@ -22,6 +22,4 @@ public abstract class GlGraphicsManager {
         textureObject.markAsDeleted();
     }
 
-    public abstract void glEnableScissor(int x, int y, int width, int height);
-    public abstract void glDisableScissor();
 }

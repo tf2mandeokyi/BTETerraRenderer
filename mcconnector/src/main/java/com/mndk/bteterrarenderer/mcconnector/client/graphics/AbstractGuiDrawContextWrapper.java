@@ -23,6 +23,8 @@ public abstract class AbstractGuiDrawContextWrapper implements GuiDrawContextWra
      * @return {@code [ scissorX, scissorY, scissorWidth, scissorHeight ]}
      */
     protected abstract int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight);
+    protected abstract void glEnableScissor(int x, int y, int width, int height);
+    protected abstract void glDisableScissor();
 
     // GUI implementations
     public final void fillRect(int x1, int y1, int x2, int y2, int color) {
@@ -115,7 +117,7 @@ public abstract class AbstractGuiDrawContextWrapper implements GuiDrawContextWra
     }
 
     private void glUpdateScissorBox() {
-        McConnector.client().glGraphicsManager.glDisableScissor();
+        this.glDisableScissor();
         if (scissorDimStack.isEmpty()) return;
 
         // Calculate intersections
@@ -137,7 +139,7 @@ public abstract class AbstractGuiDrawContextWrapper implements GuiDrawContextWra
         // Do scissor
         int scissorX = totalMinX, scissorWidth = totalMaxX - totalMinX;
         int scissorY = totalMinY, scissorHeight = totalMaxY - totalMinY;
-        McConnector.client().glGraphicsManager.glEnableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
+        this.glEnableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
     }
 
     @Nullable

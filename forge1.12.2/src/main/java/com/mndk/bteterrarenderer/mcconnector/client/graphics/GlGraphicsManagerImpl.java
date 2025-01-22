@@ -25,11 +25,4 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         GlStateManager.deleteTexture(((NativeTextureWrapperImpl) textureObject).delegate);
     }
 
-    public void glEnableScissor(int x, int y, int width, int height) {
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(x, y, width, height);
-    }
-    public void glDisableScissor() {
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
-    }
 }

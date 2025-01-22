@@ -2,7 +2,6 @@ package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -28,10 +27,4 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         Minecraft.getInstance().getTextureManager().release(((NativeTextureWrapperImpl) textureObject).delegate);
     }
 
-    public void glEnableScissor(int x, int y, int width, int height) {
-        RenderSystem.enableScissor(x, y, width, height);
-    }
-    public void glDisableScissor() {
-        RenderSystem.disableScissor();
-    }
 }
