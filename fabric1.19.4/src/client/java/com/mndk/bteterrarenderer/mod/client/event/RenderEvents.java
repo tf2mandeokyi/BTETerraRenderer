@@ -1,12 +1,14 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.tile.TileRenderer;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapperImpl;
 import lombok.experimental.UtilityClass;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -14,7 +16,7 @@ import net.minecraft.world.World;
 public class RenderEvents {
 
     public void registerEvents() {
-        WorldRenderEvents.END.register(RenderEvents::onRender);
+        WorldRenderEvents.AFTER_ENTITIES.register(RenderEvents::onRender);
     }
 
     @SuppressWarnings("resource")
@@ -24,12 +26,17 @@ public class RenderEvents {
         if (world == null) return;
         if (client.player == null) return;
 
+        MatrixStack stack = renderContext.matrixStack();
+        VertexConsumerProvider provider = renderContext.consumers();
+        if (stack == null) return;
+        if (provider == null) return;
+        WorldDrawContextWrapper context = new WorldDrawContextWrapperImpl(stack, provider);
+
         // While the player is the "rendering center" in 1.12.2,
         // After 1.18.2 it is the camera being that center.
         // So the camera's position should be given instead, unlike in 1.12.2.
         Vec3d cameraPos = renderContext.camera().getPos();
         world.getProfiler().swap("bteterrarenderer-hologram");
-        DrawContextWrapper drawContextWrapper = new DrawContextWrapperImpl(renderContext.matrixStack());
-        TileRenderer.renderTiles(drawContextWrapper, cameraPos.x, cameraPos.y, cameraPos.z);
+        TileRenderer.renderTiles(context, cameraPos.x, cameraPos.y, cameraPos.z);
     }
 }

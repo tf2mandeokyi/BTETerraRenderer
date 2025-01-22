@@ -1,26 +1,26 @@
 package com.mndk.bteterrarenderer.mcconnector.client.text;
 
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.FontRenderer;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class FontWrapperImpl extends AbstractFontWrapper<FontRenderer> {
+@RequiredArgsConstructor
+public class FontWrapperImpl extends AbstractFontWrapper {
 
-    public FontWrapperImpl(@Nonnull FontRenderer delegate) {
-        super(delegate);
-    }
+    @Nonnull public final FontRenderer delegate;
 
     public int getHeight() {
-        return getWrapped().FONT_HEIGHT;
+        return delegate.FONT_HEIGHT;
     }
     public int getWidth(String string) {
-        return getWrapped().getStringWidth(string);
+        return delegate.getStringWidth(string);
     }
     public String trimToWidth(String string, int width) {
-        return getWrapped().trimStringToWidth(string, width);
+        return delegate.trimStringToWidth(string, width);
     }
     protected List<String> splitByWidthUnsafe(String string, int wrapWidth) {
-        return getWrapped().listFormattedStringToWidth(string, wrapWidth);
+        return delegate.listFormattedStringToWidth(string, wrapWidth);
     }
 }

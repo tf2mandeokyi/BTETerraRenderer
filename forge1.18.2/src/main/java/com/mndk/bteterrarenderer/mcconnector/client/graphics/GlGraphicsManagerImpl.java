@@ -1,12 +1,10 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
 import com.mndk.bteterrarenderer.util.IOUtil;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.SneakyThrows;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -14,47 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import java.awt.image.BufferedImage;
 
 public class GlGraphicsManagerImpl extends GlGraphicsManager {
-
-    public void glEnableTexture() {
-        RenderSystem.enableTexture();
-    }
-    public void glDisableTexture() {
-        RenderSystem.disableTexture();
-    }
-    public void glEnableCull() {
-        RenderSystem.enableCull();
-    }
-    public void glDisableCull() {
-        RenderSystem.disableCull();
-    }
-    public void glEnableBlend() {
-        RenderSystem.enableBlend();
-    }
-    public void glDisableBlend() {
-        RenderSystem.disableBlend();
-    }
-    public void glSetAlphaBlendFunc() {
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-    }
-    public void glDefaultBlendFunc() {
-        RenderSystem.defaultBlendFunc();
-    }
-
-    public void setPosTexShader() {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-    }
-    public void setPosColorShader() {
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-    }
-    public void setPosTexColorShader() {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-    }
-    public void setPosColorTexLightNormalShader() {
-        RenderSystem.setShader(GameRenderer::getRendertypeSolidShader);
-    }
-    public void setShaderTexture(NativeTextureWrapper textureObject) {
-        RenderSystem.setShaderTexture(0, ((NativeTextureWrapperImpl) textureObject).getWrapped());
-    }
 
     public NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(MissingTextureAtlasSprite.getLocation());
@@ -68,7 +25,7 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         return new NativeTextureWrapperImpl(location);
     }
     protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
-        Minecraft.getInstance().getTextureManager().release(((NativeTextureWrapperImpl) textureObject).getWrapped());
+        Minecraft.getInstance().getTextureManager().release(((NativeTextureWrapperImpl) textureObject).delegate);
     }
 
     public void glEnableScissor(int x, int y, int width, int height) {

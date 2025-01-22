@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.mcfx.input;
 
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.GuiNumberInput;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 
@@ -49,7 +49,7 @@ public class McFXNumberInput extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         textField.drawComponent(drawContextWrapper);
     }
 

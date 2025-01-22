@@ -7,38 +7,6 @@ import org.lwjgl.opengl.GL11;
 import java.awt.image.BufferedImage;
 
 public class GlGraphicsManagerImpl extends GlGraphicsManager {
-    public void glEnableTexture() {
-        GlStateManager.enableTexture2D();
-    }
-    public void glDisableTexture() {
-        GlStateManager.disableTexture2D();
-    }
-    public void glEnableCull() {
-        GlStateManager.enableCull();
-    }
-    public void glDisableCull() {
-        GlStateManager.disableCull();
-    }
-    public void glEnableBlend() {
-        GlStateManager.enableBlend();
-    }
-    public void glDisableBlend() {
-        GlStateManager.disableBlend();
-    }
-    public void glSetAlphaBlendFunc() {
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-    }
-    public void glDefaultBlendFunc() {
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-    }
-
-    public void setPosTexShader() {}
-    public void setPosColorShader() {}
-    public void setPosTexColorShader() {}
-    public void setPosColorTexLightNormalShader() {}
-    public void setShaderTexture(NativeTextureWrapper textureObject) {
-        GlStateManager.bindTexture(((NativeTextureWrapperImpl) textureObject).getWrapped());
-    }
 
     public NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(TextureUtil.MISSING_TEXTURE.getGlTextureId());
@@ -54,7 +22,7 @@ public class GlGraphicsManagerImpl extends GlGraphicsManager {
         return new NativeTextureWrapperImpl(glId);
     }
     protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
-        GlStateManager.deleteTexture(((NativeTextureWrapperImpl) textureObject).getWrapped());
+        GlStateManager.deleteTexture(((NativeTextureWrapperImpl) textureObject).delegate);
     }
 
     public void glEnableScissor(int x, int y, int width, int height) {

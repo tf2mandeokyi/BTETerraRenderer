@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.screen;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiComponentCopy;
 import lombok.Getter;
 
@@ -26,11 +26,11 @@ public abstract class AbstractGuiScreenCopy implements GuiScreenCopy {
     }
 
     @Override
-    public final void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper, int mouseX, int mouseY, float partialTicks) {
+    public final void drawScreen(@Nonnull GuiDrawContextWrapper drawContextWrapper, int mouseX, int mouseY, float partialTicks) {
         this.mouseHovered(mouseX, mouseY, partialTicks);
         this.drawScreen(drawContextWrapper);
     }
-    public abstract void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper);
+    public abstract void drawScreen(@Nonnull GuiDrawContextWrapper drawContextWrapper);
 
     /**
      * This should be called before the {@link GuiComponentCopy#drawComponent} call.

@@ -4,7 +4,9 @@ import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigComment;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigIgnore;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigName;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigurableClass;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -68,7 +70,7 @@ public abstract class AbstractConfigSaveLoader {
         return connections;
     }
 
-    private List<ConfigPropertyConnection> getConnections(Field field, Object parentInstance) throws IllegalAccessException {
+    private <T> List<ConfigPropertyConnection> getConnections(Field field, Object parentInstance) throws IllegalAccessException {
         if (field.getAnnotation(ConfigIgnore.class) != null) return Collections.emptyList();
 
         ConfigName configName = field.getAnnotation(ConfigName.class);
@@ -79,16 +81,21 @@ public abstract class AbstractConfigSaveLoader {
                 .reduce((prev, curr) -> prev + "\n" + curr).orElse("");
 
         Class<?> fieldClass = field.getType();
-        Object fieldValue = field.get(parentInstance);
+        T fieldValue = BTRUtil.uncheckedCast(field.get(parentInstance));
+        if (fieldValue == null) {
+            throw new NullPointerException("Field value \"" + field.getName() + "\" is null for class " + field.getDeclaringClass().getName());
+        }
         if (!fieldClass.isPrimitive() && !fieldClass.isEnum() && fieldClass != String.class) {
             return getClassConnections(name, comment, fieldClass, fieldValue);
         }
 
-        Supplier<?> getter = () -> {
-            try { return field.get(parentInstance); } catch (Throwable t) { throw new RuntimeException(t); }
+        Supplier<T> getter = () -> {
+            try { return BTRUtil.uncheckedCast(field.get(parentInstance)); }
+            catch (Throwable t) { throw new RuntimeException(t); }
         };
-        Consumer<Object> setter = (value) -> {
-            try { field.set(parentInstance, value); } catch (Throwable t) { throw new RuntimeException(t); }
+        Consumer<T> setter = (value) -> {
+            try { field.set(parentInstance, value); }
+            catch (Throwable t) { throw new RuntimeException(t); }
         };
 
         ConfigPropertyConnection connection = this.makePropertyConnection(field, name, comment, getter, setter, fieldValue);
@@ -113,8 +120,9 @@ public abstract class AbstractConfigSaveLoader {
 
     protected abstract void onPush(String pathName, @Nullable String comment);
     protected abstract void onPop();
-    protected abstract ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
-                                                                       Supplier<?> getter, Consumer<Object> setter, Object defaultValue);
+    protected abstract <T> ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
+                                                                           Supplier<T> getter, Consumer<T> setter,
+                                                                           @Nonnull T defaultValue);
     protected abstract void postInitialization();
     protected abstract void saveToFile();
     protected abstract void loadFromFile();

@@ -27,6 +27,7 @@
             "environment": "client"
         }
     ],
+    "accessWidener": "bteterrarenderer.accesswidener",
     "depends": {
         "fabricloader": ">=${fabricLoaderVersion}",
         "fabric": "*",

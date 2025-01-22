@@ -93,6 +93,9 @@ subprojects { p ->
                     sourceSet sourceSets.client
                 }
             }
+
+            def accessWidener = file("src/main/resources/${project.mod_id}.accesswidener")
+            if (accessWidener.exists()) accessWidenerPath = accessWidener
         }
 
         jar {}
@@ -174,7 +177,7 @@ subprojects { p ->
         if (mcVersion > 12) { // for T++
             shadowDep(group: 'lzma', name: 'lzma', version: '0.0.1')
         }
-        if (mcVersion < 18) {
+        if (mcVersion < 19) {
             shadowDep(group: 'org.joml', name: 'joml', version: '1.10.8') {
                 exclude group: 'org.jetbrains', module: 'annotations'
             }
@@ -192,7 +195,9 @@ subprojects { p ->
         compileAndTestOnly 'com.google.guava:guava:31.1-jre' // Minecraft; for T++
         compileAndTestOnly 'io.netty:netty-all:4.1.9.Final' // Minecraft; for T++
         compileAndTestOnly 'lzma:lzma:0.0.1' // Minecraft
-        compileAndTestOnly 'org.joml:joml:1.10.8' // Minecraft (>=1.18)
+        if (!subprojectType.isMod) {
+            compileAndTestOnly 'org.joml:joml:1.10.8' // Minecraft (>=1.18)
+        }
 
         compileOnly 'org.projectlombok:lombok:1.18.32'
         testCompileOnly 'org.projectlombok:lombok:1.18.32'
@@ -216,6 +221,53 @@ subprojects { p ->
     // we don't also need to "relocate" dependencies on there.
     // only forge needs the relocations
     if (subprojectType == SubprojectType.FORGE) {
+
+        minecraft {
+            mappings channel: "${project.mappingsChannel}", version: "${project.mappingsVersion}"
+
+            def accessTransformerPath = file("src/main/resources/META-INF/accesstransformer.cfg")
+            if (accessTransformerPath.exists()) accessTransformer = accessTransformerPath
+
+            runs {
+                client {
+                    workingDirectory project.file('run')
+                    property 'forge.logging.markers', 'REGISTRIES'
+                    property 'forge.logging.console.level', 'debug'
+                    mods {
+                        bteterrarenderer { source sourceSets.main }
+                    }
+                }
+
+                server {
+                    workingDirectory project.file('run')
+                    property 'forge.logging.markers', 'REGISTRIES'
+                    property 'forge.logging.console.level', 'debug'
+                    mods {
+                        bteterrarenderer { source sourceSets.main }
+                    }
+                }
+
+                gameTestServer {
+                    workingDirectory project.file('run')
+                    property 'forge.logging.markers', 'REGISTRIES'
+                    property 'forge.logging.console.level', 'debug'
+                    mods {
+                        bteterrarenderer { source sourceSets.main }
+                    }
+                }
+
+                data {
+                    workingDirectory project.file('run')
+                    property 'forge.logging.markers', 'REGISTRIES'
+                    property 'forge.logging.console.level', 'debug'
+                    args '--mod', 'bteterrarenderer', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+                    mods {
+                        bteterrarenderer { source sourceSets.main }
+                    }
+                }
+            }
+        }
+
         shadowJar {
             configurations = [ project.configurations.shadowDep ]
 
@@ -281,6 +333,7 @@ subprojects { p ->
         jar {
             manifest.attributes(
                     "MixinConfigs": 'mixins.bteterrarenderer.json',
+                    "FMLAT": 'accesstransformer.cfg',
                     "ForceLoadAsMod": 'true',
                     "TweakClass": 'org.spongepowered.asm.launch.MixinTweaker',
                     "TweakOrder": 0,

@@ -20,7 +20,7 @@ import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawingFormat;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
@@ -191,18 +191,24 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
          *   |          |
          *  i=3 ------ i=2
          */
-        GraphicsQuad<PosTex> quad = GraphicsQuad.newPosTex();
+        McCoord[] corners = new McCoord[4];
+        float[] texCoords = new float[8];
         for (int i = 0; i < 4; i++) {
             int[] mat = this.coordTranslator.getCornerMatrix(i);
             double[] geoCoord = this.coordTranslator.tileCoordToGeoCoord(tileKey.x + mat[0], tileKey.y + mat[1], tileKey.relativeZoom);
             double[] gameCoord = this.getHologramProjection().fromGeo(geoCoord[0], geoCoord[1]);
 
-            quad.setVertex(i, new PosTex(
-                    new McCoord(gameCoord[0], 0, gameCoord[1]), // position
-                    mat[2], mat[3] // texture coordinate
-            ));
+            corners[i] = new McCoord(gameCoord[0], 0, gameCoord[1]);
+            texCoords[i * 2] = mat[2];
+            texCoords[i * 2 + 1] = mat[3];
         }
 
+        GraphicsQuad<PosTex> quad = new GraphicsQuad<>(
+                new PosTex(corners[0], texCoords[0], texCoords[1]),
+                new PosTex(corners[1], texCoords[2], texCoords[3]),
+                new PosTex(corners[2], texCoords[4], texCoords[5]),
+                new PosTex(corners[3], texCoords[6], texCoords[7])
+        );
         GraphicsShapes shapes = new GraphicsShapes();
         shapes.add(DrawingFormat.QUAD_PT, quad);
         return shapes;

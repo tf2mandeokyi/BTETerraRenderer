@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.slider;
 
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.SliderWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.util.BTRUtil;
@@ -66,7 +66,7 @@ public class McFXSlider<T extends Number> extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         if (this.slider.drawString) {
             boolean testResult;
             if (this.isInteger) {

@@ -1,17 +1,11 @@
 package com.mndk.bteterrarenderer.mcconnector.client.text;
 
-import com.mndk.bteterrarenderer.mcconnector.util.MinecraftObjectWrapper;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 @SuppressWarnings("UnusedReturnValue")
-public abstract class AbstractFontWrapper<T> extends MinecraftObjectWrapper<T> implements FontWrapper {
-
-    protected AbstractFontWrapper(@Nonnull T delegate) {
-        super(delegate);
-    }
+public abstract class AbstractFontWrapper implements FontWrapper {
 
     protected abstract List<String> splitByWidthUnsafe(String string, int wrapWidth);
     public final int getWordWrappedHeight(String text, int maxWidth) {

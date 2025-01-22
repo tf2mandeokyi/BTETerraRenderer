@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrappedScreen;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
@@ -67,7 +67,7 @@ public class McFXScreenWrapper extends McFXElement {
     }
 
     @Override
-    protected void drawElement(DrawContextWrapper drawContextWrapper) {
+    protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         if (screen == null) return;
         screen.drawScreen(drawContextWrapper);
     }

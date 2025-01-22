@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
 import com.mndk.bteterrarenderer.mcconnector.CommonMinecraftManager;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuildersManager;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManager;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
@@ -17,15 +18,16 @@ public abstract class ClientMinecraftManager extends CommonMinecraftManager {
     public final GlGraphicsManager glGraphicsManager;
     public final GameInputManager inputManager;
     public final TextManager textManager;
+    public final BufferBuildersManager bufferBuildersManager;
 
-    public ClientMinecraftManager(GameInputManager inputManager,
-                                  GlGraphicsManager glGraphicsManager,
-                                  I18nManager i18nManager,
-                                  TextManager textManager) {
+    public ClientMinecraftManager(GameInputManager inputManager, GlGraphicsManager glGraphicsManager,
+                                  I18nManager i18nManager, TextManager textManager,
+                                  BufferBuildersManager bufferBuildersManager) {
         super(i18nManager);
         this.inputManager = inputManager;
         this.glGraphicsManager = glGraphicsManager;
         this.textManager = textManager;
+        this.bufferBuildersManager = bufferBuildersManager;
     }
 
     public abstract WindowDimension getWindowSize();

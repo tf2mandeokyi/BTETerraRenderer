@@ -12,12 +12,10 @@ public class GraphicsModel {
     private final NativeTextureWrapper textureObject;
     private final GraphicsShapes shapes;
 
-    public void drawAndRender(DrawContextWrapper drawContextWrapper,
-                              McCoordTransformer modelPosTransformer, float alpha) {
+    public void drawAndRender(WorldDrawContextWrapper context, McCoordTransformer modelPosTransformer, float alpha) {
         NativeTextureWrapper texture = this.textureObject.isDeleted()
                 ? McConnector.client().glGraphicsManager.getMissingTextureObject()
                 : this.textureObject;
-        McConnector.client().glGraphicsManager.setShaderTexture(texture);
-        shapes.drawAndRender(drawContextWrapper, modelPosTransformer, alpha);
+        shapes.drawAndRender(context, texture, modelPosTransformer, alpha);
     }
 }

@@ -1,5 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuildersManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.*;
 import com.mndk.bteterrarenderer.mcconnector.client.i18n.ClientI18nManagerImpl;
@@ -22,10 +23,8 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
 
     public ClientMinecraftManagerImpl() {
         super(
-                new GameInputManagerImpl(),
-                new GlGraphicsManagerImpl(),
-                new ClientI18nManagerImpl(),
-                new TextManagerImpl()
+                new GameInputManagerImpl(), new GlGraphicsManagerImpl(), new ClientI18nManagerImpl(),
+                new TextManagerImpl(), new BufferBuildersManagerImpl()
         );
     }
 
@@ -85,7 +84,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
     public void sendTextComponentToChat(TextWrapper textComponent) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
-        player.sendMessage(((TextWrapperImpl) textComponent).getWrapped(), false);
+        player.sendMessage(((TextWrapperImpl) textComponent).delegate, false);
     }
 
     public void playClickSound() {

@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
@@ -56,7 +56,7 @@ class MapAlignerBox extends McFXElement {
     public void onWidthChange() {}
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         int elementWidth = this.getWidth();
         int centerX = elementWidth / 2, centerY = this.height / 2;
 
@@ -135,7 +135,7 @@ class MapAlignerBox extends McFXElement {
         }
     }
 
-    private void drawGridLines(DrawContextWrapper drawContextWrapper, int boxWidth) {
+    private void drawGridLines(GuiDrawContextWrapper drawContextWrapper, int boxWidth) {
         // Draw lines & arrows
         drawContextWrapper.glPushRelativeScissor(0, 0, boxWidth, this.height);
         for (GridLine line : this.gridLines) {
@@ -158,7 +158,7 @@ class MapAlignerBox extends McFXElement {
             float arrowBackY = y - dyNorm * ALIGNBOX_ARROW_SIZE;
             float sideDx = dyNorm * ALIGNBOX_ARROW_SIZE * line.arrowWidth;
             float sideDy = -dxNorm * ALIGNBOX_ARROW_SIZE * line.arrowWidth;
-            drawContextWrapper.fillQuad(GraphicsQuad.newPosXY(
+            drawContextWrapper.fillQuad(new GraphicsQuad<>(
                     new PosXY(x, y),
                     new PosXY(arrowBackX + sideDx, arrowBackY + sideDy),
                     new PosXY(arrowBackX - sideDx, arrowBackY - sideDy),

@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.widget;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 
 /**
  * Copied from 1.18.2's net.minecraft.client.gui.components.AbstractSliderButton
@@ -46,7 +46,7 @@ public class SliderWidgetCopy extends AbstractWidgetCopy {
     }
 
     @Override
-    public void drawBackground(DrawContextWrapper drawContextWrapper) {
+    public void drawBackground(GuiDrawContextWrapper drawContextWrapper) {
         if (!this.visible) return;
 
         drawContextWrapper.drawButton(

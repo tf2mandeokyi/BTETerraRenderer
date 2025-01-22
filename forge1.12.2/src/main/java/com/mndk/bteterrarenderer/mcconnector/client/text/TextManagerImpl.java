@@ -27,7 +27,7 @@ public class TextManagerImpl implements TextManager {
     }
 
     public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
-        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        Style style = ((StyleWrapperImpl) styleWrapper).delegate;
         TextFormatting formatting = TextFormatting.fromColorIndex(textColor.getColorIndex());
         if (formatting != null) style = style.createDeepCopy().setColor(formatting);
         return new StyleWrapperImpl(style);
@@ -38,6 +38,6 @@ public class TextManagerImpl implements TextManager {
         if (currentScreen == null) return false;
         if (!(currentScreen instanceof AbstractGuiScreenImpl)) return false;
 
-        return ((AbstractGuiScreenImpl) currentScreen).handleStyleClick(((StyleWrapperImpl) styleWrapper).getWrapped());
+        return ((AbstractGuiScreenImpl) currentScreen).handleStyleClick(((StyleWrapperImpl) styleWrapper).delegate);
     }
 }

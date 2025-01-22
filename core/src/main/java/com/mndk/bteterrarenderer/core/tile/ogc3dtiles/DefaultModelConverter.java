@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawingFormat;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.MeshPrimitiveModelModes;
@@ -125,7 +125,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
                 ParsedPoint point2 = points[meshIndices[2]];
 
                 ParsedTriangle triangle = new ParsedTriangle(point0, point1, point2);
-                shapes.add(DrawingFormat.QUAD_PTN, triangle.toGraphics().toQuad());
+                shapes.add(DrawingFormat.TRI_PTN, triangle.toGraphics());
             }
         } else {
             Loggers.get().warn("meshMode not supported: {}", meshMode);

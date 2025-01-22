@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.button;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.ButtonWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 
@@ -41,7 +41,7 @@ public class McFXButton extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         this.button.drawComponent(drawContextWrapper);
     }
 

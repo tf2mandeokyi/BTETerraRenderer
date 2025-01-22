@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiComponentCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
@@ -59,7 +59,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     /** This function is called both in initialization and on width change. */
     public abstract void onWidthChange();
 
-    protected abstract void drawElement(DrawContextWrapper drawContextWrapper);
+    protected abstract void drawElement(GuiDrawContextWrapper drawContextWrapper);
 
     public int getPhysicalHeight() {
         return getDefaultFont().getHeight() * this.lineComponents.size();
@@ -93,7 +93,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     }
 
     @Override
-    public final void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public final void drawComponent(GuiDrawContextWrapper drawContextWrapper) {
         int height = this.getPhysicalHeight();
         drawContextWrapper.fillRect(0, 0, this.getWidth(), height, this.backgroundColor);
 

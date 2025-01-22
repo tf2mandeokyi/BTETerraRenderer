@@ -17,7 +17,7 @@ public class Projections {
 
 	public static void updateHologramProjection() {
 		String json = BTETerraRendererConfig.HOLOGRAM.projectionJson;
-        if (json == null) return;
+        if (json == null || json.isEmpty()) return;
         GeographicProjection parse = GeographicProjection.parse(json);
         if (parse != null) SERVER_PROJECTION = parse;
     }

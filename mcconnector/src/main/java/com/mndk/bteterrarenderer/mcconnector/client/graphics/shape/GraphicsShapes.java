@@ -1,41 +1,33 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
-import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuilderWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
-import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordAABB;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawingFormat;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.BTRUtil;
-import lombok.Getter;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GraphicsShapes {
-    private final Map<DrawingFormat<?, ?>, List<GraphicsShape<?>>> shapeMap = new HashMap<>();
-    @Getter @Nullable private McCoordAABB boundingBox = null;
+    private final Map<DrawingFormat<?>, List<GraphicsShape>> shapeMap = new HashMap<>();
 
-    public <T extends GraphicsVertex<T>, U extends GraphicsShape<T>> void add(DrawingFormat<T, U> format, U shape) {
+    public <U extends GraphicsShape> void add(DrawingFormat<U> format, U shape) {
         List<U> list = BTRUtil.uncheckedCast(shapeMap.computeIfAbsent(format, key -> new ArrayList<>()));
         list.add(shape);
-        McCoordAABB shapeBoundingBox = shape.getBoundingBox();
-        boundingBox = boundingBox == null ? shapeBoundingBox : boundingBox.include(shapeBoundingBox);
     }
 
-    public void drawAndRender(DrawContextWrapper drawContextWrapper,
+    public void drawAndRender(WorldDrawContextWrapper context, NativeTextureWrapper texture,
                               McCoordTransformer modelPosTransformer, float alpha) {
         shapeMap.forEach((format, shapes) -> {
-            format.setShader(McConnector.client().glGraphicsManager);
-            BufferBuilderWrapper builder = format.begin(drawContextWrapper);
-            for (GraphicsShape<?> shape : shapes) {
-                format.nextShape(drawContextWrapper, builder, BTRUtil.uncheckedCast(shape), modelPosTransformer, alpha);
+            BufferBuilderWrapper<?> builder = format.begin(texture);
+            for (GraphicsShape shape : shapes) {
+                builder.nextShape(context, BTRUtil.uncheckedCast(shape), modelPosTransformer, alpha);
             }
-            builder.drawAndRender();
+            builder.drawAndRender(context);
         });
     }
 }

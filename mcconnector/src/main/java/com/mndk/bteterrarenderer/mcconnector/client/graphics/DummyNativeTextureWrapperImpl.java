@@ -1,10 +1,11 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
+import lombok.RequiredArgsConstructor;
+
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
-public class DummyNativeTextureWrapperImpl extends AbstractNativeTextureWrapper<BufferedImage> {
-    public DummyNativeTextureWrapperImpl(@Nonnull BufferedImage delegate) {
-        super(delegate);
-    }
+@RequiredArgsConstructor
+public class DummyNativeTextureWrapperImpl extends AbstractNativeTextureWrapper {
+    @Nonnull public final BufferedImage delegate;
 }

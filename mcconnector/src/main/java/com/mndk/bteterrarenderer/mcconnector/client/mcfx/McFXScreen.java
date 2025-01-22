@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import lombok.AccessLevel;
@@ -38,7 +38,7 @@ public class McFXScreen<T extends McFXElement> extends AbstractGuiScreenCopy {
     }
 
     @Override
-    public void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper) {
+    public void drawScreen(@Nonnull GuiDrawContextWrapper drawContextWrapper) {
         drawContextWrapper.pushMatrix();
         this.mainComponent.drawComponent(drawContextWrapper);
         drawContextWrapper.popMatrix();

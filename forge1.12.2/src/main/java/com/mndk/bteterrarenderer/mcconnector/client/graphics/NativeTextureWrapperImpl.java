@@ -1,9 +1,9 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics;
 
+import lombok.RequiredArgsConstructor;
 import javax.annotation.Nonnull;
 
-public class NativeTextureWrapperImpl extends AbstractNativeTextureWrapper<Integer> {
-    public NativeTextureWrapperImpl(@Nonnull Integer delegate) {
-        super(delegate);
-    }
+@RequiredArgsConstructor
+public class NativeTextureWrapperImpl extends AbstractNativeTextureWrapper {
+    @Nonnull public final Integer delegate;
 }

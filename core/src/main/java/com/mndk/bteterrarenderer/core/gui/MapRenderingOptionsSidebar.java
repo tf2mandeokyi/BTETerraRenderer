@@ -14,7 +14,7 @@ import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
@@ -162,7 +162,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     }
 
     @Override
-    public void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper) {
+    public void drawScreen(@Nonnull GuiDrawContextWrapper drawContextWrapper) {
         ICON_MAKER.iconBaker.process(1);
         super.drawScreen(drawContextWrapper);
     }

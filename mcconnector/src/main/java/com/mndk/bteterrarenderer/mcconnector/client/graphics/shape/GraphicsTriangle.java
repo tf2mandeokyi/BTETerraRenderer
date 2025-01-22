@@ -1,54 +1,30 @@
 package com.mndk.bteterrarenderer.mcconnector.client.graphics.shape;
 
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.GraphicsVertex;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
-import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordAABB;
-import com.mndk.bteterrarenderer.util.BTRUtil;
+import lombok.RequiredArgsConstructor;
 
-public class GraphicsTriangle<T extends GraphicsVertex<T>> extends GraphicsShape<T> {
+import java.util.function.Consumer;
 
-    private final Object[] vertices;
+@RequiredArgsConstructor
+public class GraphicsTriangle<T extends GraphicsVertex> implements GraphicsShape {
 
-    public GraphicsTriangle(Class<T> vertexClass, T v0, T v1, T v2) {
-        super(vertexClass);
-        this.vertices = new Object[] { v0, v1, v2 };
+    public final T v0, v1, v2;
+
+    public void forEach(Consumer<T> consumer) {
+        consumer.accept(this.v0);
+        consumer.accept(this.v1);
+        consumer.accept(this.v2);
     }
 
-    public GraphicsQuad<T> toQuad() {
-        T v0 = this.getVertex(0);
-        T v1 = this.getVertex(1);
-        T v2 = this.getVertex(2);
-        return new GraphicsQuad<>(this.getVertexClass(), v0, v1, v2, v0);
-    }
-
-    @Override
-    public T getVertex(int index) {
-        return BTRUtil.uncheckedCast(vertices[index]);
-    }
-
-    @Override
-    public void setVertex(int index, T value) {
-        vertices[index] = value;
-    }
-
-    @Override
-    public int getVerticesCount() {
-        return 3;
-    }
-
-    @Override
-    public McCoordAABB getBoundingBox() {
-        return new McCoordAABB(this.getVertex(0).getMcCoord())
-                .include(this.getVertex(1).getMcCoord())
-                .include(this.getVertex(2).getMcCoord());
-    }
-
-    public static GraphicsTriangle<PosTexNorm> newPosTexNorm(PosTexNorm v0, PosTexNorm v1, PosTexNorm v2) {
-        return new GraphicsTriangle<>(PosTexNorm.class, v0, v1, v2);
+    public void forEachAsQuad(Consumer<T> consumer) {
+        consumer.accept(this.v0);
+        consumer.accept(this.v1);
+        consumer.accept(this.v2);
+        consumer.accept(this.v0);
     }
 
     @Override
     public String toString() {
-        return String.format("GraphicsTriangle[%s, %s, %s]", vertices[0], vertices[1], vertices[2]);
+        return String.format("GraphicsTriangle[%s, %s, %s]", v0, v1, v2);
     }
 }

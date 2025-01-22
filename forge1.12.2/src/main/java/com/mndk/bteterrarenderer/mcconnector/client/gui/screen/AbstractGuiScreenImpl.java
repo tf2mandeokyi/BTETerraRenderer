@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.gui.screen;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mndk.bteterrarenderer.util.Loggers;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiConfirmOpenLink;
@@ -50,7 +50,7 @@ public class AbstractGuiScreenImpl extends GuiScreen {
         delegate.tick();
     }
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        delegate.drawScreen(DrawContextWrapperImpl.INSTANCE, mouseX, mouseY, partialTicks);
+        delegate.drawScreen(GuiDrawContextWrapperImpl.INSTANCE, mouseX, mouseY, partialTicks);
     }
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         // Skip if the "pressed" mouse button is either scroll up or scroll down

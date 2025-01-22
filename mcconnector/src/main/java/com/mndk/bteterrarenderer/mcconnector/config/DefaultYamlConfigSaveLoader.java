@@ -6,6 +6,7 @@ import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.util.Loggers;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,8 +47,9 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
     }
 
     @Override
-    protected ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
-                                                              Supplier<?> getter, Consumer<Object> setter, Object defaultValue) {
+    protected <T> ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
+                                                                  Supplier<T> getter, Consumer<T> setter,
+                                                                  @Nonnull T defaultValue) {
         final Map<String, Object> top = mapStack.peek();
         top.put(name, defaultValue);
         return new ConfigPropertyConnection() {
@@ -55,7 +57,7 @@ public class DefaultYamlConfigSaveLoader extends AbstractConfigSaveLoader {
                 top.put(name, getter.get());
             }
             public void load() {
-                setter.accept(top.get(name));
+                setter.accept(BTRUtil.uncheckedCast(top.get(name)));
             }
         };
     }

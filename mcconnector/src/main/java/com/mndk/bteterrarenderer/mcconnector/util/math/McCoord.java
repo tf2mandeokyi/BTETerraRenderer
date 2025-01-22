@@ -22,10 +22,6 @@ public class McCoord {
         return new McCoord(x - other.x, y - other.y, z - other.z);
     }
 
-    public McCoord multiply(double scalar) {
-        return new McCoord(x * scalar, (float) (y * scalar), z * scalar);
-    }
-
     public McCoord cross(McCoord other) {
         return new McCoord(
                 y * other.z - z * other.y,
@@ -51,12 +47,5 @@ public class McCoord {
         float y = (float) -Math.sin(pitch);
         double z = Math.cos(pitch) * Math.cos(yaw);
         return new McCoord(x, y, z);
-    }
-
-    public static McCoord min(McCoord a, McCoord b) {
-        return new McCoord(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z));
-    }
-    public static McCoord max(McCoord a, McCoord b) {
-        return new McCoord(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z));
     }
 }

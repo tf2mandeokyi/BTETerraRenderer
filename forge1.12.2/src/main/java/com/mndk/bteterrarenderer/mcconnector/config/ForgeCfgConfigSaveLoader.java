@@ -8,6 +8,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Loader;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -50,8 +51,9 @@ public class ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
     }
 
     @Override
-    protected ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
-                                                              Supplier<?> getter, Consumer<Object> setter, Object defaultValue) {
+    protected <T> ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
+                                                                  Supplier<T> getter, Consumer<T> setter,
+                                                                  @Nonnull T defaultValue) {
         String wholePath = this.getCategoryWholePath();
         Class<?> clazz = field.getType();
         List<Consumer<Property>> propertyConsumers = new ArrayList<>();
@@ -109,7 +111,7 @@ public class ForgeCfgConfigSaveLoader extends AbstractConfigSaveLoader {
             public void load() {
                 Property p = propertyGetter.get();
                 for (Consumer<Property> propertyConsumer : propertyConsumers) propertyConsumer.accept(p);
-                setter.accept(finalPropertyFunction.apply(p));
+                setter.accept(BTRUtil.uncheckedCast(finalPropertyFunction.apply(p)));
             }
         };
     }

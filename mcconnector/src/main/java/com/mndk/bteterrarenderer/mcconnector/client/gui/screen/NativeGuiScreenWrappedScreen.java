@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.screen;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class NativeGuiScreenWrappedScreen extends AbstractGuiScreenCopy {
     }
     
     @Override
-    public void drawScreen(@Nonnull DrawContextWrapper drawContextWrapper) {
+    public void drawScreen(@Nonnull GuiDrawContextWrapper drawContextWrapper) {
         // TODO: Fix tooltips not being rendered properly
         // TODO: Fix text highlight not being translated
         nativeScreen.drawScreen(drawContextWrapper, this.mouseX, this.mouseY, this.mousePartialTicks);

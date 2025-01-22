@@ -77,9 +77,9 @@ public class BTETerraRendererConfig {
         @ConfigName("Projection JSON")
         @ConfigComment({
                 "The projection JSON string for the map.",
-                "Set this to null to use the default projection."
+                "Empty this to use the default projection."
         })
-        public String projectionJson = null;
+        public String projectionJson = "";
     }
 
     @ConfigName("UI Settings")

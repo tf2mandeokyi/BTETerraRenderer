@@ -1,42 +1,42 @@
 package com.mndk.bteterrarenderer.mcconnector.client.text;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class TextWrapperImpl extends AbstractTextWrapper<Text> {
+@RequiredArgsConstructor
+public class TextWrapperImpl extends AbstractTextWrapper {
 
-    protected TextWrapperImpl(@NotNull Text delegate) {
-        super(delegate);
-    }
+    @Nonnull public final Text delegate;
 
     protected List<? extends TextWrapper> splitByWidthUnsafe(FontWrapper fontWrapper, int wrapWidth) {
-        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
-        return textRenderer.wrapLines(getWrapped(), wrapWidth).stream().map(OrderedTextWrapperImpl::new).toList();
+        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).delegate;
+        return textRenderer.wrapLines(delegate, wrapWidth).stream().map(OrderedTextWrapperImpl::new).toList();
     }
 
     public int getWidth(FontWrapper fontWrapper) {
-        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
-        return textRenderer.getWidth(getWrapped());
+        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).delegate;
+        return textRenderer.getWidth(delegate);
     }
 
     @Nullable
     public StyleWrapper getStyleComponentFromLine(FontWrapper fontWrapper, int mouseXFromLeft) {
-        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
-        Style style = textRenderer.getTextHandler().getStyleAt(getWrapped(), mouseXFromLeft);
+        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).delegate;
+        Style style = textRenderer.getTextHandler().getStyleAt(delegate, mouseXFromLeft);
         return style != null ? new StyleWrapperImpl(style) : null;
     }
 
-    public int drawWithShadow(FontWrapper fontWrapper, DrawContextWrapper drawContextWrapper, float x, float y, int color) {
-        DrawContext drawContext = ((DrawContextWrapperImpl) drawContextWrapper).getWrapped();
-        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).getWrapped();
-        return drawContext.drawTextWithShadow(textRenderer, getWrapped(), (int) x, (int) y, color);
+    public int drawWithShadow(FontWrapper fontWrapper, GuiDrawContextWrapper context, float x, float y, int color) {
+        DrawContext drawContext = ((GuiDrawContextWrapperImpl) context).delegate;
+        TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).delegate;
+        return drawContext.drawTextWithShadow(textRenderer, delegate, (int) x, (int) y, color);
     }
 }

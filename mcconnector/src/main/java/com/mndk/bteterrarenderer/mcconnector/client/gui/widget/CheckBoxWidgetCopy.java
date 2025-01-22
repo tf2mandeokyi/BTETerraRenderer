@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.widget;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +21,7 @@ public class CheckBoxWidgetCopy extends AbstractWidgetCopy {
     }
 
     @Override
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(GuiDrawContextWrapper drawContextWrapper) {
         if (!this.visible) return;
 
         drawContextWrapper.drawCheckBox(x, y, BOX_WIDTH, height, this.isFocused(), checked);

@@ -24,7 +24,7 @@ public class TestEnvironmentDummyMinecraft extends ClientMinecraftManager {
     private final File gameDirectory;
 
     private TestEnvironmentDummyMinecraft(File gameDirectory) {
-        super(null, new DummyGlGraphicsManager(), new DummyI18nManager(), null);
+        super(null, new DummyGlGraphicsManager(), new DummyI18nManager(), null, null);
         this.gameDirectory = gameDirectory;
     }
 

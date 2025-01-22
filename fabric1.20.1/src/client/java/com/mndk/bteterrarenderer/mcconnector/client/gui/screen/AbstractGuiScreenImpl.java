@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.screen;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -28,7 +28,7 @@ public class AbstractGuiScreenImpl extends Screen {
         delegate.tick();
     }
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        delegate.drawScreen(new DrawContextWrapperImpl(context), mouseX, mouseY, delta);
+        delegate.drawScreen(new GuiDrawContextWrapperImpl(context), mouseX, mouseY, delta);
     }
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);

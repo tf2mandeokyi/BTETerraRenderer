@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.wrapper;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import lombok.Getter;
@@ -62,7 +62,7 @@ public class McFXWrapper extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         drawContextWrapper.translate(leftPadding, topPadding, 0);
         if (element != null) element.drawComponent(drawContextWrapper);
         drawContextWrapper.translate(-leftPadding, -topPadding, 0);

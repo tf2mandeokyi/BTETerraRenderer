@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.mcfx.list;
 import com.google.common.collect.Lists;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
@@ -178,7 +178,7 @@ public class McFXVerticalList extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         int prevYPos = 0;
 
         if (this.maxHeight != null) {
@@ -207,7 +207,7 @@ public class McFXVerticalList extends McFXElement {
         this.drawVerticalSlider(drawContextWrapper);
     }
 
-    private void drawVerticalSlider(DrawContextWrapper drawContextWrapper) {
+    private void drawVerticalSlider(GuiDrawContextWrapper drawContextWrapper) {
         if (this.maxHeight == null) return;
 
         int[] dimension = this.getVerticalSliderDimension();

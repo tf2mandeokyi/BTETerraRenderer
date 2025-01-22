@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.input.McFXNumberInput;
@@ -67,7 +67,7 @@ public class MapAligner extends McFXVerticalList {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         this.updatePlayerYawRadians();
         super.drawElement(drawContextWrapper);
     }

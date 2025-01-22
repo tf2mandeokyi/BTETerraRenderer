@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
@@ -99,7 +99,7 @@ public class McFXDropdown<T> extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         int mainBoxColor = this.mouseOnMainBox ? HOVERED_COLOR : MAINBOX_BORDER_COLOR;
         boolean opened = this.isOpened();
 
@@ -129,7 +129,7 @@ public class McFXDropdown<T> extends McFXElement {
             NativeTextureWrapper iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
             if (iconTextureObject != null) {
                 int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
-                drawContextWrapper.drawNativeImage(iconTextureObject,
+                drawContextWrapper.drawWholeNativeImage(iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
@@ -148,7 +148,7 @@ public class McFXDropdown<T> extends McFXElement {
         drawContextWrapper.popMatrix();
     }
 
-    private void drawDropdownArrow(DrawContextWrapper drawContextWrapper, int top, int colorARGB, boolean flip) {
+    private void drawDropdownArrow(GuiDrawContextWrapper drawContextWrapper, int top, int colorARGB, boolean flip) {
         int bottom = top + getDefaultFont().getHeight();
         int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
         int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - getDefaultFont().getHeight();
@@ -158,7 +158,7 @@ public class McFXDropdown<T> extends McFXElement {
             temp = right; right = left; left = temp;
         }
 
-        GraphicsQuad<PosXY> quad = GraphicsQuad.newPosXY(
+        GraphicsQuad<PosXY> quad = new GraphicsQuad<>(
                 new PosXY(left, top),
                 new PosXY((left + right) / 2f, bottom),
                 new PosXY((left + right) / 2f, bottom),
@@ -188,7 +188,7 @@ public class McFXDropdown<T> extends McFXElement {
         abstract boolean checkMouseHovered(double mouseX, double mouseY);
         abstract void mouseIsNotHovered();
         /** Translation should be done before this method ends */
-        abstract void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast);
+        abstract void drawItem(GuiDrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast);
         /** This is called after the {@link DropdownItem#checkMouseHovered} call. */
         abstract void mouseClicked();
     }
@@ -215,7 +215,7 @@ public class McFXDropdown<T> extends McFXElement {
         }
 
         @Override
-        void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
+        void drawItem(GuiDrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
             String name = nameGetter.apply(this.value);
             int color = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
             int height = this.getHeight();
@@ -230,7 +230,7 @@ public class McFXDropdown<T> extends McFXElement {
             if (iconTextureObject != null) {
                 int textHeight = getDefaultFont().getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
                 int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;
-                drawContextWrapper.drawNativeImage(iconTextureObject,
+                drawContextWrapper.drawWholeNativeImage(iconTextureObject,
                         textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
                 limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
                 textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
@@ -300,7 +300,7 @@ public class McFXDropdown<T> extends McFXElement {
         }
 
         @Override
-        void drawItem(DrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
+        void drawItem(GuiDrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
             int categoryColor = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
 
             if (!this.main) {

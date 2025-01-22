@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.widget;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.util.StringUtil;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
@@ -76,7 +76,7 @@ public class GuiNumberInput extends AbstractWidgetCopy {
 		return this.delegate.mouseHovered(mouseX, mouseY, partialTicks, mouseHidden);
 	}
 
-	public void drawComponent(DrawContextWrapper drawContextWrapper) {
+	public void drawComponent(GuiDrawContextWrapper drawContextWrapper) {
 		int fontHeight = getDefaultFont().getHeight();
 
 		int color = this.delegate.isHovered() ? HOVERED_COLOR : NORMAL_TEXT_COLOR;

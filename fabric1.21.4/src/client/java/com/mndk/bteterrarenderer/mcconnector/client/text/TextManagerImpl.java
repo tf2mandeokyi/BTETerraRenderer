@@ -26,7 +26,7 @@ public class TextManagerImpl implements TextManager {
     }
 
     public StyleWrapper styleWithColor(StyleWrapper styleWrapper, TextFormatCopy textColor) {
-        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        Style style = ((StyleWrapperImpl) styleWrapper).delegate();
         return new StyleWrapperImpl(style.withColor(textColor.getColorIndex()));
     }
 
@@ -34,7 +34,7 @@ public class TextManagerImpl implements TextManager {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
         if (currentScreen == null) return false;
 
-        Style style = ((StyleWrapperImpl) styleWrapper).getWrapped();
+        Style style = ((StyleWrapperImpl) styleWrapper).delegate();
         return currentScreen.handleTextClick(style);
     }
 }

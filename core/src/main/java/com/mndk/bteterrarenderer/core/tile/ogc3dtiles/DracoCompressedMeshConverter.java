@@ -10,7 +10,7 @@ import com.mndk.bteterrarenderer.draco.compression.DracoDecoder;
 import com.mndk.bteterrarenderer.draco.compression.config.EncodedGeometryType;
 import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.format.DrawingFormat;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawingFormat;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
@@ -89,7 +89,7 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
             ParsedPoint point2 = points[mesh.getFace(faceIndex).getValue(2)];
 
             ParsedTriangle triangle = new ParsedTriangle(point0, point1, point2);
-            shapes.add(DrawingFormat.QUAD_PTN, triangle.toGraphics().toQuad());
+            shapes.add(DrawingFormat.TRI_PTN, triangle.toGraphics());
         }
         return shapes;
     }

@@ -34,7 +34,7 @@ class ParsedTriangle {
     }
 
     public GraphicsTriangle<PosTexNorm> toGraphics() {
-        return GraphicsTriangle.newPosTexNorm(
+        return new GraphicsTriangle<>(
                 this.getGraphicsVertex(0),
                 this.getGraphicsVertex(1),
                 this.getGraphicsVertex(2)

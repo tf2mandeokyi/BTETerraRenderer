@@ -4,8 +4,4 @@ import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 
-public class ResourceLocationWrapperImpl extends MinecraftObjectWrapper<Identifier> implements ResourceLocationWrapper {
-    public ResourceLocationWrapperImpl(@Nonnull Identifier delegate) {
-        super(delegate);
-    }
-}
+public record ResourceLocationWrapperImpl(@Nonnull Identifier delegate) implements ResourceLocationWrapper {}

@@ -8,6 +8,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -31,8 +32,9 @@ public class ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
     }
 
     @Override
-    protected ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
-                                                              Supplier<?> getter, Consumer<Object> setter, Object defaultValue) {
+    protected <T> ConfigPropertyConnection makePropertyConnection(Field field, String name, @Nullable String comment,
+                                                                  Supplier<T> getter, Consumer<T> setter,
+                                                                  @Nonnull T defaultValue) {
         Class<?> clazz = field.getType();
         ConfigRangeInt rangeInt = field.getAnnotation(ConfigRangeInt.class);
         ConfigRangeDouble rangeDouble = field.getAnnotation(ConfigRangeDouble.class);
@@ -59,7 +61,7 @@ public class ForgeTomlConfigSaveLoader extends AbstractConfigSaveLoader {
                 configValue.set(BTRUtil.uncheckedCast(getter.get()));
             }
             public void load() {
-                setter.accept(configValue.get());
+                setter.accept(BTRUtil.uncheckedCast(configValue.get()));
             }
         };
     }

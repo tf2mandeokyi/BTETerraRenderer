@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox;
 
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.CheckBoxWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 
@@ -37,7 +37,7 @@ public class McFXCheckBox extends McFXElement {
     }
 
     @Override
-    public void drawElement(DrawContextWrapper drawContextWrapper) {
+    public void drawElement(GuiDrawContextWrapper drawContextWrapper) {
         this.checkBox.drawComponent(drawContextWrapper);
     }
 

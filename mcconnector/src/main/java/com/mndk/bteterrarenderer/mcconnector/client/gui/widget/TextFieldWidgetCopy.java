@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.widget;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
@@ -297,7 +297,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         return true;
     }
 
-    public void drawComponent(DrawContextWrapper drawContextWrapper) {
+    public void drawComponent(GuiDrawContextWrapper drawContextWrapper) {
         if (!this.isVisible()) return;
 
         if (this.drawsBackground) {
@@ -357,7 +357,7 @@ public class TextFieldWidgetCopy extends AbstractWidgetCopy {
         }
     }
 
-    private void drawSelectionBox(DrawContextWrapper drawContextWrapper, int startX, int startY, int endX, int endY) {
+    private void drawSelectionBox(GuiDrawContextWrapper drawContextWrapper, int startX, int startY, int endX, int endY) {
         if (startX < endX) {
             int i = startX;
             startX = endX;

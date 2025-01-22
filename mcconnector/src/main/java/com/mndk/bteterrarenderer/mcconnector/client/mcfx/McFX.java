@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXBooleanButton;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
@@ -57,7 +57,7 @@ public class McFX {
         return new McFXElement() {
             protected void init() {}
             public void onWidthChange() {}
-            protected void drawElement(DrawContextWrapper drawContextWrapper) {}
+            protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {}
         };
     }
 
@@ -68,7 +68,7 @@ public class McFX {
             }
             protected void init() {}
             public void onWidthChange() {}
-            protected void drawElement(DrawContextWrapper drawContextWrapper) {}
+            protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {}
         };
     }
 
@@ -79,7 +79,7 @@ public class McFX {
             }
             protected void init() {}
             public void onWidthChange() {}
-            protected void drawElement(DrawContextWrapper drawContextWrapper) {}
+            protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {}
         };
     }
 
