@@ -8,9 +8,6 @@ import java.nio.ByteBuffer;
 
 @Getter
 @RequiredArgsConstructor
-/*
- * TODO: Separating "VecN"s shouldn't be a good idea. Try Number[] instead
- */
 public enum BinaryType {
     SCALAR(1, null, null),
     VEC2(2, BinaryVector.Vec2.class, BinaryVector.Vec2::new),

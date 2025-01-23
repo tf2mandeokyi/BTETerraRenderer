@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-/*
- * TODO: change these to GL constants or something
- */
 public enum BinaryComponentType {
     BYTE(Arrays.asList(Byte.class, byte.class), 1, 0, ByteBuffer::get),
     UNSIGNED_BYTE(Arrays.asList(Byte.class, byte.class), 1, 1, ByteBuffer::get),

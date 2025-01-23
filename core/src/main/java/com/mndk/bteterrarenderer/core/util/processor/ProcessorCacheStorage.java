@@ -276,9 +276,9 @@ public class ProcessorCacheStorage<K, V> implements Closeable {
          * Configuration class for ProcessorCacheStorage.
          *
          * @param expireMilliseconds The time in milliseconds after which a cache entry expires.
-         *                           If null, defaults to {@code DEFAULT_CACHE_EXPIRE_MILLISECONDS}.
-         * @param maximumSize        The maximum number of cache entries. If null, defaults to {@code DEFAULT_CACHE_MAXIMUM_SIZE}.
-         * @param debug              Whether to enable debug logging. If null, defaults to {@code DEFAULT_CACHE_DEBUG}.
+         *                           If null, defaults to {@link #DEFAULT_CACHE_EXPIRE_MILLISECONDS}.
+         * @param maximumSize        The maximum number of cache entries. If null, defaults to {@link #DEFAULT_CACHE_MAXIMUM_SIZE}.
+         * @param debug              Whether to enable debug logging. If null, defaults to {@link #DEFAULT_CACHE_DEBUG}.
          */
         @JsonCreator
         public Config(

@@ -6,9 +6,6 @@ import lombok.Getter;
 
 @Data
 @Getter
-/*
- * TODO: Separating "VecN"s shouldn't be a good idea. Try Number[] instead
- */
 public abstract class BinaryVector<T> {
     protected final T[] elements;
 

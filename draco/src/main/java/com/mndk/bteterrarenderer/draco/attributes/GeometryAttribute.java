@@ -46,7 +46,6 @@ import java.util.stream.Stream;
  * the {@link GeometryAttribute#byteOffset}, the actual number of bytes that the attribute occupies is
  * given by the {@link GeometryAttribute#dataType} and the number of components.<br>
  * <br>
- * TODO: Add bufferDescriptor field
  */
 @Getter
 @Setter
