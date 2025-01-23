@@ -16,13 +16,6 @@ public class GraphicsTriangle<T extends GraphicsVertex> implements GraphicsShape
         consumer.accept(this.v2);
     }
 
-    public void forEachAsQuad(Consumer<T> consumer) {
-        consumer.accept(this.v0);
-        consumer.accept(this.v1);
-        consumer.accept(this.v2);
-        consumer.accept(this.v0);
-    }
-
     @Override
     public String toString() {
         return String.format("GraphicsTriangle[%s, %s, %s]", v0, v1, v2);

@@ -80,7 +80,6 @@ public class MeshEdgebreakerEncodingTest {
         testFile(DracoTestFileUtil.toFile("draco/testdata/extra_vertex.obj"));
     }
 
-    // TODO Add test code for .ply files
     @Test
     public void testPly() {
         testFile(DracoTestFileUtil.toFile("draco/testdata/test_pos_color.ply"));

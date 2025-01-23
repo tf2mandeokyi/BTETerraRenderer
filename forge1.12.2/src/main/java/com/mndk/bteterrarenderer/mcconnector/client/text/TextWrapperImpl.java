@@ -3,19 +3,22 @@ package com.mndk.bteterrarenderer.mcconnector.client.text;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class TextWrapperImpl extends AbstractTextWrapper {
     @Nonnull public final ITextComponent delegate;
 
     protected List<? extends TextWrapper> splitByWidthUnsafe(FontWrapper fontWrapper, int wrapWidth) {
-        return Collections.emptyList();
+        FontRenderer font = ((FontWrapperImpl) fontWrapper).delegate;
+        return GuiUtilRenderComponents.splitText(delegate, wrapWidth, font, true, false)
+                .stream().map(TextWrapperImpl::new).collect(Collectors.toList());
     }
 
     public int getWidth(FontWrapper fontWrapper) {

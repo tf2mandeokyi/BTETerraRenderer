@@ -1,2 +1,4 @@
 accessWidener v2 named
 accessible method net/minecraft/client/gui/DrawableHelper drawTexturedQuad (Lorg/joml/Matrix4f;IIIIIFFFF)V
+accessible class net/minecraft/client/render/RenderPhase$Texture
+accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters

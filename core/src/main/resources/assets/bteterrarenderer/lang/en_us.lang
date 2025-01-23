@@ -19,11 +19,12 @@ gui.bteterrarenderer.settings.map_settings=Map Settings
 gui.bteterrarenderer.settings.map_reload=Reload maps...
 gui.bteterrarenderer.settings.map_folder=Open maps folder...
 
+gui.bteterrarenderer.settings.3d_radius=Render Radius
+gui.bteterrarenderer.settings.lod_factor=LOD Factor
+gui.bteterrarenderer.settings.render_surroundings=Render surroundings
+gui.bteterrarenderer.settings.y_distortion=Apply Y-axis Distortion
+
 gui.bteterrarenderer.settings.map_offset=Map Offset
 gui.bteterrarenderer.settings.zoom=Map Zoom
 gui.bteterrarenderer.settings.size=Map Size
-gui.bteterrarenderer.settings.y_distortion=Apply Y-axis Distortion
 gui.bteterrarenderer.settings.lock_north=Lock North
-
-gui.bteterrarenderer.settings.3d_radius=Render Radius
-gui.bteterrarenderer.settings.render_surroundings=Render surroundings

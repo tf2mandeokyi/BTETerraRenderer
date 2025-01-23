@@ -64,7 +64,7 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
         };
     }
 
-    private void nextVertex(BufferBuilder bufferBuilder, McCoord pos, float u, float v, float alpha) {
+    private static void nextVertex(BufferBuilder bufferBuilder, McCoord pos, float u, float v, float alpha) {
         bufferBuilder.pos((float) pos.getX(), pos.getY(), (float) pos.getZ())
                 .color(1, 1, 1, alpha)
                 .tex(u, v)

@@ -6,9 +6,9 @@ import com.mndk.bteterrarenderer.mcconnector.config.annotation.ConfigRangeInt;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 import java.util.function.Supplier;

@@ -104,7 +104,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
     }
 
     public void drawTextHighlight(int startX, int startY, int endX, int endY) {
-        delegate.fill(RenderLayer.getGuiTextHighlight(), startX, startY, endX, endY, -16776961);
+        delegate.fill(RenderLayer.getGuiTextHighlight(), startX, startY, endX, endY, 0xff0000ff);
     }
 
     public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float u2, float v1, float v2) {

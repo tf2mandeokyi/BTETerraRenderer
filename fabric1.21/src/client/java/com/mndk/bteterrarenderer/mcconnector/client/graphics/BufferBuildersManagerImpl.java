@@ -6,17 +6,26 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
+
+import java.util.function.Function;
 
 public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
+    private static final Function<Identifier, RenderLayer> QUADS = Util.memoize(texture ->
+            RenderLayer.of("bteterrarenderer-quads", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
+                    VertexFormat.DrawMode.QUADS, 1536, true, true, generateParameters(texture)));
+
+    private static final Function<Identifier, RenderLayer> TRIS = Util.memoize(texture ->
+            RenderLayer.of("bteterrarenderer-tris", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
+                    VertexFormat.DrawMode.TRIANGLES, 1536, true, true, generateParameters(texture)));
+
     public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture) {
         Identifier id = ((NativeTextureWrapperImpl) texture).delegate;
-        RenderLayer renderLayer = RenderLayer.getEntityTranslucent(id);
+        RenderLayer renderLayer = QUADS.apply(id);
 
         // DrawMode.QUADS
         // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
@@ -32,7 +41,7 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
     public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture) {
         Identifier id = ((NativeTextureWrapperImpl) texture).delegate;
-        RenderLayer renderLayer = RenderLayer.getEntityTranslucent(id);
+        RenderLayer renderLayer = TRIS.apply(id);
 
         // DrawMode.QUADS
         // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
@@ -40,13 +49,13 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
             public void nextShape(WorldDrawContextWrapper context, GraphicsTriangle<PosTexNorm> shape, McCoordTransformer modelPosTransformer, float alpha) {
                 MatrixStack stack = ((WorldDrawContextWrapperImpl) context).stack();
                 VertexConsumer consumer = ((WorldDrawContextWrapperImpl) context).provider().getBuffer(renderLayer);
-                shape.forEachAsQuad(v -> nextVertex(stack, consumer, modelPosTransformer.transform(v.pos), v.u, v.v, alpha));
+                shape.forEach(v -> nextVertex(stack, consumer, modelPosTransformer.transform(v.pos), v.u, v.v, alpha));
             }
             public void drawAndRender(WorldDrawContextWrapper context) {}
         };
     }
 
-    private void nextVertex(MatrixStack stack, VertexConsumer consumer, McCoord pos, float u, float v, float alpha) {
+    private static void nextVertex(MatrixStack stack, VertexConsumer consumer, McCoord pos, float u, float v, float alpha) {
         consumer.vertex(stack.peek(), (float) pos.getX(), pos.getY(), (float) pos.getZ())
                 .color(1, 1, 1, alpha)
                 .texture(u, v)
@@ -57,5 +66,16 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
                 // otherwise the models will have somewhat "random" brightness values,
                 // making the models look weird.
                 .normal(stack.peek(), 0, 1, 0);
+    }
+
+    private static RenderLayer.MultiPhaseParameters generateParameters(Identifier texture) {
+        return RenderLayer.MultiPhaseParameters.builder()
+                .program(RenderPhase.ENTITY_TRANSLUCENT_PROGRAM)
+                .texture(new RenderPhase.Texture(texture, true, true))
+                .transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY)
+                .cull(RenderPhase.DISABLE_CULLING)
+                .lightmap(RenderPhase.ENABLE_LIGHTMAP)
+                .overlay(RenderPhase.ENABLE_OVERLAY_COLOR)
+                .build(true);
     }
 }

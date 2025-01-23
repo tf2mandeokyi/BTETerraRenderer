@@ -175,12 +175,17 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
                 return true;
             }
             // TODO: Use user-bound key instead of fixed key like this
-            // TODO: Add slash
             else if (key == InputKey.KEY_T) {
                 NativeGuiScreenWrapper nativeScreen = McConnector.client().newChatScreen("");
                 NativeGuiScreenWrappedScreen screen = new NativeGuiScreenWrappedScreen(nativeScreen, true);
                 this.chatScreenWrapper.setScreen(screen);
                 // no return statement here, or else a letter "t" will be left when the chat is initialized.
+            }
+            else if (key == InputKey.KEY_SLASH) {
+                NativeGuiScreenWrapper nativeScreen = McConnector.client().newChatScreen("/");
+                NativeGuiScreenWrappedScreen screen = new NativeGuiScreenWrappedScreen(nativeScreen, true);
+                this.chatScreenWrapper.setScreen(screen);
+                // no return statement here, or else a letter "/" will be left when the chat is initialized.
             }
         }
 
