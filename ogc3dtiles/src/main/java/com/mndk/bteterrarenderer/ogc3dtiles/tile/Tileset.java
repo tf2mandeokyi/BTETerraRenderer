@@ -41,6 +41,15 @@ public class Tileset extends TileData {
 
     @Nullable
     @Override
+    public String getCopyright() {
+        Object copyright = asset.get("copyright");
+        if (copyright == null) return null;
+        if (copyright instanceof String) return (String) copyright;
+        return null;
+    }
+
+    @Nullable
+    @Override
     public GltfModel getGltfModelInstance() {
         return null;
     }

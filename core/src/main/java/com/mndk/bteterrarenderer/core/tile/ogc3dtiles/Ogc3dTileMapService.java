@@ -23,6 +23,10 @@ import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBou
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
+import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
@@ -79,6 +83,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private transient final TileDataStorage tileDataStorage;
     private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4d, TileData>> storageFetcher;
     private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4d, InputStream>, Pair<Matrix4d, TileData>> streamParser;
+    private transient final Map<String, Integer> copyrightOccurrences = new HashMap<>();
 
     @Builder
     @SneakyThrows(MalformedURLException.class)
@@ -111,6 +116,20 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         }
         else {
             return pos -> new McCoord(pos.getX(), (float) (pos.getY() * this.magnitude + yAlign), pos.getZ());
+        }
+    }
+
+    @Override
+    public void renderHud(GuiDrawContextWrapper context) {
+        List<Map.Entry<String, Integer>> sorted = new ArrayList<>(this.copyrightOccurrences.entrySet());
+        sorted.sort(Comparator.comparingInt(Map.Entry::getValue));
+        Collections.reverse(sorted);
+
+        FontWrapper font = McConnector.client().getDefaultFont();
+        int yPos = 4;
+        for (Map.Entry<String, Integer> entry : sorted) {
+            context.drawTextWithShadow(font, "© " + entry.getKey(), HorizontalAlign.LEFT, VerticalAlign.TOP, 4, yPos, 0xFFFFFFFF);
+            yPos += font.getHeight();
         }
     }
 
@@ -217,6 +236,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         Tileset rootTileset = this.getRootTileset();
         if (rootTileset == null) return Collections.emptyList();
         nodes.add(Ogc3dBfsNode.fromRoot(this, rootTileset, this.rootTilesetUrl));
+        this.copyrightOccurrences.clear();
 
         while (!nodes.isEmpty()) {
 
@@ -248,6 +268,22 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 if (tileData.getGltfModelInstance() != null) {
                     result.add(currentKey);
                 }
+
+                String copyright = tileData.getCopyright();
+                if (copyright != null) {
+                    // According to the Google Earth API specification:
+                    // 1. Extract all the copyright information from all the tiles in view.
+                    // 2. Separate multiple copyright sources with a semicolon.
+                    // 3. Sort the information based on the number of occurrences.
+                    // 4. Display the copyright sources on-screen, ordered from most occurrences to the least.
+                    String[] sources = copyright.split(";");
+                    for (String source : sources) {
+                        if (source.isEmpty()) continue;
+                        int count = this.copyrightOccurrences.getOrDefault(source, 0);
+                        this.copyrightOccurrences.put(source, count + 1);
+                    }
+                }
+
                 if (tileData instanceof Tileset) {
                     Tileset newTileset = (Tileset) tileData;
                     Ogc3dBfsNode newNode = new Ogc3dBfsNode(this, newTileset, currentUrl, currentKeys, currentTransform);

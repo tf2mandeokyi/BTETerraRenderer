@@ -1,12 +1,17 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.tile.TileRenderer;
+import com.mndk.bteterrarenderer.core.tile.RenderManager;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapperImpl;
 import lombok.experimental.UtilityClass;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -16,11 +21,12 @@ import net.minecraft.world.World;
 public class RenderEvents {
 
     public void registerEvents() {
-        WorldRenderEvents.AFTER_ENTITIES.register(RenderEvents::onRender);
+        WorldRenderEvents.AFTER_ENTITIES.register(RenderEvents::onWorldRender);
+        HudRenderCallback.EVENT.register(RenderEvents::onHudRender);
     }
 
     @SuppressWarnings("resource")
-    public void onRender(WorldRenderContext renderContext) {
+    public void onWorldRender(WorldRenderContext renderContext) {
         World world = renderContext.world();
         MinecraftClient client = renderContext.gameRenderer().getClient();
         if (world == null) return;
@@ -37,6 +43,11 @@ public class RenderEvents {
         // So the camera's position should be given instead, unlike in 1.12.2.
         Vec3d cameraPos = renderContext.camera().getPos();
         world.getProfiler().swap("bteterrarenderer-hologram");
-        TileRenderer.renderTiles(context, cameraPos.x, cameraPos.y, cameraPos.z);
+        RenderManager.renderTiles(context, cameraPos.x, cameraPos.y, cameraPos.z);
+    }
+
+    public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
+        GuiDrawContextWrapper wrapper = new GuiDrawContextWrapperImpl(drawContext);
+        RenderManager.renderHud(wrapper);
     }
 }

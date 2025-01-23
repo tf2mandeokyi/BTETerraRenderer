@@ -3,6 +3,7 @@ package com.mndk.bteterrarenderer.core.tile;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
@@ -10,7 +11,7 @@ import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class TileRenderer {
+public class RenderManager {
 
     public static void renderTiles(@Nonnull WorldDrawContextWrapper context, double px, double py, double pz) {
         if (!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
@@ -36,5 +37,12 @@ public class TileRenderer {
             model.drawAndRender(context, modelPosTransformer, opacity);
         }
         tms.cleanUp();
+    }
+
+    public static void renderHud(@Nonnull GuiDrawContextWrapper context) {
+        if (!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
+
+        TileMapService tms = TileMapService.getSelected().getItem();
+        if (tms != null) tms.renderHud(context);
     }
 }

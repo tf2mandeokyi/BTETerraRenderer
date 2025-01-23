@@ -24,11 +24,8 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
 
     public ClientMinecraftManagerImpl() {
         super(
-                new GameInputManagerImpl(),
-                new GlGraphicsManagerImpl(),
-                new ClientI18nManagerImpl(),
-                new TextManagerImpl(),
-                new BufferBuildersManagerImpl()
+                new GameInputManagerImpl(), new GlGraphicsManagerImpl(), new ClientI18nManagerImpl(),
+                new TextManagerImpl(), new BufferBuildersManagerImpl()
         );
     }
 

@@ -14,5 +14,8 @@ public abstract class TileData {
     private final TileDataFormat dataFormat;
 
     @Nullable
+    public abstract String getCopyright();
+
+    @Nullable
     public abstract GltfModel getGltfModelInstance();
 }

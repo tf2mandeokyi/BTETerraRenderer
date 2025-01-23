@@ -34,7 +34,7 @@ public class LevelRendererMixin {
     private void afterEntities(CallbackInfo ci) {
         // I had to imitate fabric api's WorldRenderContext because otherwise
         // there would be rendering artifacts due to some quirky rendering behavior.
-        RenderEvents.onRenderEvent(bTETerraRenderer$levelRenderContext);
+        RenderEvents.onWorldRender(bTETerraRenderer$levelRenderContext);
     }
 
 }

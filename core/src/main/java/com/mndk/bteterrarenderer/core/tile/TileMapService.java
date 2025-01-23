@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-// TODO: Make copyright information appear on the UI
 @JsonSerialize(using = TileMapService.Serializer.class)
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public interface TileMapService extends AutoCloseable {
@@ -38,6 +38,8 @@ public interface TileMapService extends AutoCloseable {
     List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees);
     McCoordTransformer getModelPositionTransformer();
     void cleanUp();
+
+    void renderHud(GuiDrawContextWrapper context);
 
     class Serializer extends JsonSerializer<TileMapService> {
         @Override

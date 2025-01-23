@@ -63,6 +63,12 @@ public class Instanced3DModel extends TileData {
 
     @Nullable
     @Override
+    public String getCopyright() {
+        return this.gltfModel.getCopyright();
+    }
+
+    @Nullable
+    @Override
     public GltfModel getGltfModelInstance() {
         return this.getGltfModel().getInstance();
     }

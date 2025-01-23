@@ -1,20 +1,24 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
-import com.mndk.bteterrarenderer.core.tile.TileRenderer;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.LevelRenderContext;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
+import com.mndk.bteterrarenderer.core.tile.RenderManager;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 @UtilityClass
+@Mod.EventBusSubscriber(modid = BTETerraRenderer.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class RenderEvents {
 
-    public void onRenderEvent(final LevelRenderContext event) {
+    public void onWorldRender(final LevelRenderContext event) {
         ClientLevel world = event.getLevel();
         Minecraft mc = event.getGameRenderer().getMinecraft();
         if (world == null) return;
@@ -30,6 +34,12 @@ public class RenderEvents {
         // So the camera's position should be given instead, unlike in 1.12.2.
         final Vec3 cameraPos = event.getCamera().getPosition();
         world.getProfiler().popPush("bteterrarenderer-hologram");
-        TileRenderer.renderTiles(context, cameraPos.x, cameraPos.y, cameraPos.z);
+        RenderManager.renderTiles(context, cameraPos.x, cameraPos.y, cameraPos.z);
+    }
+
+    @SubscribeEvent
+    public void onHudRender(final RenderGameOverlayEvent.Post event) {
+        GuiDrawContextWrapper wrapper = new GuiDrawContextWrapperImpl(event.getMatrixStack());
+        RenderManager.renderHud(wrapper);
     }
 }
