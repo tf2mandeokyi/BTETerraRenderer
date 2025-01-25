@@ -1,10 +1,8 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;

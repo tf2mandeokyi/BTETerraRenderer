@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.button;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.ButtonWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 

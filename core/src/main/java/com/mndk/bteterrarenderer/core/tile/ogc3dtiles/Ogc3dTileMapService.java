@@ -28,6 +28,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
@@ -78,7 +79,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Setter private transient double radius = 40;
     @Setter private transient boolean yDistortion = false;
     @Setter private transient boolean renderSurroundings = false;
-    @Setter private transient double lodFactor = 1;
+    @Setter private transient double lodFactor = 0;
     @Setter private transient boolean enableTexture = true;
     private transient double magnitude = 1;
 
@@ -193,7 +194,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         PropertyAccessor<Double> radius = PropertyAccessor.ranged(
                 this::getRadius, this::setRadius, 1, 1000);
         PropertyAccessor<Double> lodFactor = PropertyAccessor.ranged(
-                this::getLodFactor, this::setLodFactor, 0.5, 10);
+                this::getLodFactor, this::setLodFactor, 0, 5);
         PropertyAccessor<Boolean> enableTexture = PropertyAccessor.of(
                 this::isEnableTexture, this::setEnableTexture);
         PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(

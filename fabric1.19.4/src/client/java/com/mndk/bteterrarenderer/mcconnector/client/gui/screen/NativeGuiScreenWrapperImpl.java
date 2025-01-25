@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client.gui.screen;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;

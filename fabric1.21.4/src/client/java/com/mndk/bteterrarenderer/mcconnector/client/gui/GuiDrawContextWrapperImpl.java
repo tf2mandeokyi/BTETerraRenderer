@@ -1,7 +1,9 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
@@ -21,6 +23,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
@@ -29,14 +32,14 @@ import javax.annotation.Nonnull;
 @RequiredArgsConstructor
 public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
 
-    private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = new Identifier("widget/checkbox_selected_highlighted");
-    private static final Identifier CHECKBOX_SELECTED = new Identifier("widget/checkbox_selected");
-    private static final Identifier CHECKBOX_HIGHLIGHTED = new Identifier("widget/checkbox_highlighted");
-    private static final Identifier CHECKBOX = new Identifier("widget/checkbox");
+    private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = Identifier.of("widget/checkbox_selected_highlighted");
+    private static final Identifier CHECKBOX_SELECTED = Identifier.of("widget/checkbox_selected");
+    private static final Identifier CHECKBOX_HIGHLIGHTED = Identifier.of("widget/checkbox_highlighted");
+    private static final Identifier CHECKBOX = Identifier.of("widget/checkbox");
     private static final ButtonTextures BUTTON_TEXTURES = new ButtonTextures(
-            new Identifier("widget/button"),
-            new Identifier("widget/button_disabled"),
-            new Identifier("widget/button_highlighted")
+            Identifier.of("widget/button"),
+            Identifier.of("widget/button_disabled"),
+            Identifier.of("widget/button_highlighted")
     );
 
     @Nonnull public final DrawContext delegate;
@@ -72,24 +75,25 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
     }
     protected void glEnableScissor(int x, int y, int width, int height) {
+        delegate.draw();
         RenderSystem.enableScissor(x, y, width, height);
     }
     protected void glDisableScissor() {
+        delegate.draw();
         RenderSystem.disableScissor();
     }
 
     public void fillQuad(GraphicsQuad<PosXY> quad, int color, float z) {
         Matrix4f matrix4f = delegate.getMatrices().peek().getPositionMatrix();
-        VertexConsumer vertexConsumer = delegate.getVertexConsumers().getBuffer(RenderLayer.getGui());
-        quad.forEach(v -> vertexConsumer.vertex(matrix4f, v.x, v.y, z).color(color).next());
-        delegate.draw();
+        VertexConsumer vertexConsumer = delegate.vertexConsumers.getBuffer(RenderLayer.getGui());
+        quad.forEach(v -> vertexConsumer.vertex(matrix4f, v.x, v.y, z).color(color));
     }
 
     public void drawButton(int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState) {
         boolean enabled = hoverState != AbstractWidgetCopy.HoverState.DISABLED;
         boolean focused = hoverState == AbstractWidgetCopy.HoverState.MOUSE_OVER;
         Identifier buttonTexture = BUTTON_TEXTURES.get(enabled, focused);
-        delegate.drawGuiTexture(buttonTexture, x, y, width, height);
+        delegate.drawGuiTexture(RenderLayer::getGuiTextured, buttonTexture, x, y, width, height);
     }
 
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
@@ -99,8 +103,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         Identifier identifier = checked ?
                 (focused ? CHECKBOX_SELECTED_HIGHLIGHTED : CHECKBOX_SELECTED) :
                 (focused ? CHECKBOX_HIGHLIGHTED : CHECKBOX);
-        delegate.setShaderColor(1, 1, 1, 1);
-        delegate.drawGuiTexture(identifier, x, y, width, height);
+        delegate.drawGuiTexture(RenderLayer::getGuiTextured, identifier, x, y, width, height, ColorHelper.getWhite(1));
     }
 
     public void drawTextHighlight(int startX, int startY, int endX, int endY) {
@@ -109,12 +112,12 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
 
     public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float u2, float v1, float v2) {
         Identifier texture = ((ResourceLocationWrapperImpl) res).delegate();
-        delegate.drawTexturedQuad(texture, x, x+w, y, y+h, 0, u1, u2, v1, v2);
+        delegate.drawTexturedQuad(RenderLayer::getGuiTextured, texture, x, x+w, y, y+h, u1, u2, v1, v2, ColorHelper.getWhite(1));
     }
 
     public void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
         Identifier texture = ((NativeTextureWrapperImpl) allocatedTextureObject).delegate;
-        delegate.drawTexturedQuad(texture, x, x+w, y, y+h, 0, 0, 1, 0, 1);
+        delegate.drawTexturedQuad(RenderLayer::getGuiTextured, texture, x, x+w, y, y+h, 0, 1, 0, 1, ColorHelper.getWhite(1));
     }
 
     public void drawHoverEvent(StyleWrapper styleWrapper, int x, int y) {

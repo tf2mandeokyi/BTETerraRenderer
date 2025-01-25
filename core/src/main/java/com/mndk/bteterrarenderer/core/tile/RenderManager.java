@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.tile;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.VertexBeginner;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;

@@ -1,7 +1,9 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
@@ -29,14 +31,14 @@ import javax.annotation.Nonnull;
 @RequiredArgsConstructor
 public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
 
-    private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = Identifier.of("widget/checkbox_selected_highlighted");
-    private static final Identifier CHECKBOX_SELECTED = Identifier.of("widget/checkbox_selected");
-    private static final Identifier CHECKBOX_HIGHLIGHTED = Identifier.of("widget/checkbox_highlighted");
-    private static final Identifier CHECKBOX = Identifier.of("widget/checkbox");
+    private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = new Identifier("widget/checkbox_selected_highlighted");
+    private static final Identifier CHECKBOX_SELECTED = new Identifier("widget/checkbox_selected");
+    private static final Identifier CHECKBOX_HIGHLIGHTED = new Identifier("widget/checkbox_highlighted");
+    private static final Identifier CHECKBOX = new Identifier("widget/checkbox");
     private static final ButtonTextures BUTTON_TEXTURES = new ButtonTextures(
-            Identifier.of("widget/button"),
-            Identifier.of("widget/button_disabled"),
-            Identifier.of("widget/button_highlighted")
+            new Identifier("widget/button"),
+            new Identifier("widget/button_disabled"),
+            new Identifier("widget/button_highlighted")
     );
 
     @Nonnull public final DrawContext delegate;
@@ -81,7 +83,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
     public void fillQuad(GraphicsQuad<PosXY> quad, int color, float z) {
         Matrix4f matrix4f = delegate.getMatrices().peek().getPositionMatrix();
         VertexConsumer vertexConsumer = delegate.getVertexConsumers().getBuffer(RenderLayer.getGui());
-        quad.forEach(v -> vertexConsumer.vertex(matrix4f, v.x, v.y, z).color(color));
+        quad.forEach(v -> vertexConsumer.vertex(matrix4f, v.x, v.y, z).color(color).next());
         delegate.draw();
     }
 

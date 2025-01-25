@@ -1,7 +1,9 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
@@ -24,8 +26,8 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vector4f;
 
 import javax.annotation.Nonnull;
 
@@ -57,13 +59,13 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         Matrix4f matrix = delegate.peek().getPositionMatrix();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
         Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
-        start = matrix.transform(start);
-        end = matrix.transform(end);
+        start.transform(matrix);
+        end.transform(matrix);
 
-        int scissorX = (int) (scaleFactorX * Math.min(start.x(), end.x()));
-        int scissorY = (int) (window.getPixelHeight() - scaleFactorY * Math.max(start.y(), end.y()));
-        int scissorWidth = (int) (scaleFactorX * Math.abs(start.x() - end.x()));
-        int scissorHeight = (int) (scaleFactorY * Math.abs(start.y() - end.y()));
+        int scissorX = (int) (scaleFactorX * Math.min(start.getX(), end.getX()));
+        int scissorY = (int) (window.getPixelHeight() - scaleFactorY * Math.max(start.getY(), end.getY()));
+        int scissorWidth = (int) (scaleFactorX * Math.abs(start.getX() - end.getX()));
+        int scissorHeight = (int) (scaleFactorY * Math.abs(start.getY() - end.getY()));
         return new int[] { scissorX, scissorY, scissorWidth, scissorHeight };
     }
     protected void glEnableScissor(int x, int y, int width, int height) {
@@ -75,19 +77,25 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
 
     public void fillQuad(GraphicsQuad<PosXY> quad, int color, float z) {
         Matrix4f matrix4f = delegate.peek().getPositionMatrix();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
         RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.disableTexture();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         quad.forEach(v -> bufferBuilder.vertex(matrix4f, v.x, v.y, z).color(color).next());
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        tessellator.draw();
+        RenderSystem.enableTexture();
         RenderSystem.disableBlend();
     }
 
     public void drawButton(int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, ClickableWidget.WIDGETS_TEXTURE);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
 
         int i = switch (hoverState) {
@@ -95,7 +103,9 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
             case DEFAULT -> 1;
             case MOUSE_OVER -> 2;
         };
-        DrawableHelper.drawNineSlicedTexture(delegate, x, y, width, height, 20, 4, 200, 20, 0, 46 + i * 20);
+
+        DrawableHelper.drawTexture(delegate, x, y, 0, 0, 46 + i * 20, width / 2, height, 256, 256);
+        DrawableHelper.drawTexture(delegate, x + width / 2, y, 0, 200 - (float) width / 2, 46 + i * 20, width / 2, height, 256, 256);
     }
 
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
@@ -104,18 +114,32 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 
-        float size = 20 / 64f;
-        float u0 = focused ? size : 0, v0 = checked ? size : 0;
-        float u1 = u0 + size, v1 = v0 + size;
+        float textureSize = 20 / 64f;
+        float u0 = focused ? textureSize : 0, v0 = checked ? textureSize : 0;
+        float u1 = u0 + textureSize, v1 = v0 + textureSize;
         DrawableHelper.drawTexturedQuad(matrix4f, x, x+width, y, y+height, 0, u0, u1, v0, v1);
     }
 
     public void drawTextHighlight(int startX, int startY, int endX, int endY) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        RenderSystem.setShader(GameRenderer::getPositionShader);
+        RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
+        RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        DrawableHelper.fill(delegate, startX, startY, endX, endY, 0xff0000ff);
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
+        bufferBuilder.vertex(startX, endY, 0).next();
+        bufferBuilder.vertex(endX, endY, 0).next();
+        bufferBuilder.vertex(endX, startY, 0).next();
+        bufferBuilder.vertex(startX, startY, 0).next();
+        tessellator.draw();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableColorLogicOp();
+        RenderSystem.enableTexture();
     }
 
     public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float u2, float v1, float v2) {
@@ -123,6 +147,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         RenderSystem.setShaderTexture(0, ((ResourceLocationWrapperImpl) res).delegate());
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         DrawableHelper.drawTexturedQuad(matrix4f, x, x+w, y, y+h, 0, u1, u2, v1, v2);
     }
@@ -132,6 +157,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         RenderSystem.setShaderTexture(0, ((NativeTextureWrapperImpl) allocatedTextureObject).delegate);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         DrawableHelper.drawTexturedQuad(matrix4f, x, x+w, y, y+h, 0, 0, 1, 0, 1);
     }

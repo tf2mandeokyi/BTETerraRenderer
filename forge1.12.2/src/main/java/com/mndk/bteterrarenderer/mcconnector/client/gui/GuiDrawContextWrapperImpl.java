@@ -1,7 +1,9 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.component.GuiEventListenerCopy;

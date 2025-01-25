@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.gui.mapaligner;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.input.McFXNumberInput;

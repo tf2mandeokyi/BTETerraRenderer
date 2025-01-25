@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.tile.RenderManager;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;

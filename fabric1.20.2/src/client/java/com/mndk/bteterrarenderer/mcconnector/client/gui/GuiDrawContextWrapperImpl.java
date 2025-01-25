@@ -1,7 +1,9 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
@@ -16,8 +18,9 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.*;
+import net.minecraft.client.gui.screen.ButtonTextures;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
@@ -28,7 +31,15 @@ import javax.annotation.Nonnull;
 @RequiredArgsConstructor
 public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
 
-    private static final Identifier CHECKBOX_TEXTURE = new Identifier("textures/gui/checkbox.png");
+    private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = new Identifier("widget/checkbox_selected_highlighted");
+    private static final Identifier CHECKBOX_SELECTED = new Identifier("widget/checkbox_selected");
+    private static final Identifier CHECKBOX_HIGHLIGHTED = new Identifier("widget/checkbox_highlighted");
+    private static final Identifier CHECKBOX = new Identifier("widget/checkbox");
+    private static final ButtonTextures BUTTON_TEXTURES = new ButtonTextures(
+            new Identifier("widget/button"),
+            new Identifier("widget/button_disabled"),
+            new Identifier("widget/button_highlighted")
+    );
 
     @Nonnull public final DrawContext delegate;
 
@@ -77,31 +88,23 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
     }
 
     public void drawButton(int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState) {
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-
-        int i = switch (hoverState) {
-            case DISABLED -> 0;
-            case DEFAULT -> 1;
-            case MOUSE_OVER -> 2;
-        };
-
-        delegate.setShaderColor(1, 1, 1, 1);
-        delegate.drawNineSlicedTexture(ClickableWidget.WIDGETS_TEXTURE, x, y, width, height, 20, 4, 200, 20, 0, 46 + i * 20);
+        boolean enabled = hoverState != AbstractWidgetCopy.HoverState.DISABLED;
+        boolean focused = hoverState == AbstractWidgetCopy.HoverState.MOUSE_OVER;
+        Identifier buttonTexture = BUTTON_TEXTURES.get(enabled, focused);
+        delegate.drawGuiTexture(buttonTexture, x, y, width, height);
     }
 
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
 
-        float size = 20 / 64f;
-        float u0 = focused ? size : 0, v0 = checked ? size : 0;
-        float u1 = u0 + size, v1 = v0 + size;
+        Identifier identifier = checked ?
+                (focused ? CHECKBOX_SELECTED_HIGHLIGHTED : CHECKBOX_SELECTED) :
+                (focused ? CHECKBOX_HIGHLIGHTED : CHECKBOX);
         delegate.setShaderColor(1, 1, 1, 1);
-        delegate.drawTexturedQuad(CHECKBOX_TEXTURE, x, x+width, y, y+height, 0, u0, u1, v0, v1);
+        delegate.drawGuiTexture(identifier, x, y, width, height);
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     public void drawTextHighlight(int startX, int startY, int endX, int endY) {
         delegate.fill(RenderLayer.getGuiTextHighlight(), startX, startY, endX, endY, 0xff0000ff);
     }

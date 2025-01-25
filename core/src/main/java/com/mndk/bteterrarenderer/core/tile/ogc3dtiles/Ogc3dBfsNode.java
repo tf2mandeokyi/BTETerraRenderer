@@ -97,7 +97,8 @@ public class Ogc3dBfsNode {
         boolean intersects = frustum.intersectsVolume(volume, transform, tms.getCoordConverter());
         if (!intersects) return false;
 
-        double lodFactor = tms.getLodFactor(); // ranges from 0.5 to 2.0
+        double lodFactor = tms.getLodFactor(); // ranges from 0 to 5
+        double lodFactorPow = Math.pow(2, lodFactor); // ranges from 1 to 32
         double geometricError = tile.getGeometricError();
 
         BoundingSphere lodSphere = volume.getLevelOfDetailSphere(transform, tms.getCoordConverter());
@@ -108,7 +109,7 @@ public class Ogc3dBfsNode {
         double distance = sphereCenter.distance(cameraPosition);
         double effectiveDistance = Math.max(distance - sphereRadius, 0);
 
-        return effectiveDistance < geometricError * lodFactor;
+        return effectiveDistance < geometricError * lodFactorPow;
     }
 
     public static Ogc3dBfsNode fromRoot(Ogc3dTileMapService tms, Tileset tileset, URL parentUrl) {

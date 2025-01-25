@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.mcconnector.client.text;
 
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 
 import javax.annotation.Nullable;
 import java.util.List;

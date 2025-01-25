@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.mcconnector.client.gui.screen;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mndk.bteterrarenderer.util.Loggers;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.input.InputKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiConfirmOpenLink;

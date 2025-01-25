@@ -17,7 +17,7 @@ Logo by [vicrobex](https://github.com/vicrobex)
 * (And many others)
 
 You can add other map services by adding/editing configuration files.<br>
-See [API Documentation](YML_CONFIG.md) for more information.
+Visit the [wiki page](https://github.com/tf2mandeokyi/BTETerraRenderer/wiki) for more information.
 
 ## How to use
 

@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.mod.client.event;
 
 import com.mndk.bteterrarenderer.core.tile.RenderManager;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapperImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapperImpl;
 import lombok.experimental.UtilityClass;

@@ -23,6 +23,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;

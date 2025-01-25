@@ -1,9 +1,12 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.client.gui;
 
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.widget.AbstractWidgetCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapperImpl;
@@ -11,14 +14,16 @@ import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapperImpl;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapperImpl;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ButtonTextures;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
@@ -29,26 +34,18 @@ import javax.annotation.Nonnull;
 @RequiredArgsConstructor
 public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
 
-    private static final Identifier CHECKBOX_SELECTED_HIGHLIGHTED = new Identifier("widget/checkbox_selected_highlighted");
-    private static final Identifier CHECKBOX_SELECTED = new Identifier("widget/checkbox_selected");
-    private static final Identifier CHECKBOX_HIGHLIGHTED = new Identifier("widget/checkbox_highlighted");
-    private static final Identifier CHECKBOX = new Identifier("widget/checkbox");
-    private static final ButtonTextures BUTTON_TEXTURES = new ButtonTextures(
-            new Identifier("widget/button"),
-            new Identifier("widget/button_disabled"),
-            new Identifier("widget/button_highlighted")
-    );
+    private static final Identifier CHECKBOX = new Identifier("textures/gui/checkbox.png");
 
-    @Nonnull public final DrawContext delegate;
+    @Nonnull public final MatrixStack delegate;
 
     public void translate(float x, float y, float z) {
-        delegate.getMatrices().translate(x, y, z);
+        delegate.translate(x, y, z);
     }
     public void pushMatrix() {
-        delegate.getMatrices().push();
+        delegate.push();
     }
     public void popMatrix() {
-        delegate.getMatrices().pop();
+        delegate.pop();
     }
 
     protected int[] getAbsoluteScissorDimension(int relX, int relY, int relWidth, int relHeight) {
@@ -59,7 +56,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         float scaleFactorX = window.getScaleFactorX();
         float scaleFactorY = window.getScaleFactorY();
 
-        Matrix4f matrix = delegate.getMatrices().peek().getPositionMatrix();
+        Matrix4f matrix = delegate.peek().getPositionMatrix();
         Vector4f start = new Vector4f(relX, relY, 0, 1);
         Vector4f end = new Vector4f(relX + relWidth, relY + relHeight, 0, 1);
         start = matrix.transform(start);
@@ -79,52 +76,78 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
     }
 
     public void fillQuad(GraphicsQuad<PosXY> quad, int color, float z) {
-        Matrix4f matrix4f = delegate.getMatrices().peek().getPositionMatrix();
-        VertexConsumer vertexConsumer = delegate.getVertexConsumers().getBuffer(RenderLayer.getGui());
-        quad.forEach(v -> vertexConsumer.vertex(matrix4f, v.x, v.y, z).color(color).next());
-        delegate.draw();
+        Matrix4f matrix4f = delegate.peek().getPositionMatrix();
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        quad.forEach(v -> bufferBuilder.vertex(matrix4f, v.x, v.y, z).color(color).next());
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
     }
 
     public void drawButton(int x, int y, int width, int height, AbstractWidgetCopy.HoverState hoverState) {
-        boolean enabled = hoverState != AbstractWidgetCopy.HoverState.DISABLED;
-        boolean focused = hoverState == AbstractWidgetCopy.HoverState.MOUSE_OVER;
-        Identifier buttonTexture = BUTTON_TEXTURES.get(enabled, focused);
-        delegate.drawGuiTexture(buttonTexture, x, y, width, height);
+        RenderSystem.setShaderTexture(0, ClickableWidget.WIDGETS_TEXTURE);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+
+        int i = switch (hoverState) {
+            case DISABLED -> 0;
+            case DEFAULT -> 1;
+            case MOUSE_OVER -> 2;
+        };
+        DrawableHelper.drawNineSlicedTexture(delegate, x, y, width, height, 20, 4, 200, 20, 0, 46 + i * 20);
     }
 
     public void drawCheckBox(int x, int y, int width, int height, boolean focused, boolean checked) {
+        Matrix4f matrix4f = delegate.peek().getPositionMatrix();
+        RenderSystem.setShaderTexture(0, CHECKBOX);
         RenderSystem.enableDepthTest();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
 
-        Identifier identifier = checked ?
-                (focused ? CHECKBOX_SELECTED_HIGHLIGHTED : CHECKBOX_SELECTED) :
-                (focused ? CHECKBOX_HIGHLIGHTED : CHECKBOX);
-        delegate.setShaderColor(1, 1, 1, 1);
-        delegate.drawGuiTexture(identifier, x, y, width, height);
+        float size = 20 / 64f;
+        float u0 = focused ? size : 0, v0 = checked ? size : 0;
+        float u1 = u0 + size, v1 = v0 + size;
+        DrawableHelper.drawTexturedQuad(matrix4f, x, x+width, y, y+height, 0, u0, u1, v0, v1);
     }
 
     public void drawTextHighlight(int startX, int startY, int endX, int endY) {
-        delegate.fill(RenderLayer.getGuiTextHighlight(), startX, startY, endX, endY, 0xff0000ff);
+        RenderSystem.enableColorLogicOp();
+        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
+        DrawableHelper.fill(delegate, startX, startY, endX, endY, 0xff0000ff);
+        RenderSystem.disableColorLogicOp();
     }
 
     public void drawImage(ResourceLocationWrapper res, int x, int y, int w, int h, float u1, float u2, float v1, float v2) {
-        Identifier texture = ((ResourceLocationWrapperImpl) res).delegate();
-        delegate.drawTexturedQuad(texture, x, x+w, y, y+h, 0, u1, u2, v1, v2);
+        Matrix4f matrix4f = delegate.peek().getPositionMatrix();
+        RenderSystem.setShaderTexture(0, ((ResourceLocationWrapperImpl) res).delegate());
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        DrawableHelper.drawTexturedQuad(matrix4f, x, x+w, y, y+h, 0, u1, u2, v1, v2);
     }
 
     public void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
-        Identifier texture = ((NativeTextureWrapperImpl) allocatedTextureObject).delegate;
-        delegate.drawTexturedQuad(texture, x, x+w, y, y+h, 0, 0, 1, 0, 1);
+        Matrix4f matrix4f = delegate.peek().getPositionMatrix();
+        RenderSystem.setShaderTexture(0, ((NativeTextureWrapperImpl) allocatedTextureObject).delegate);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        DrawableHelper.drawTexturedQuad(matrix4f, x, x+w, y, y+h, 0, 0, 1, 0, 1);
     }
 
     public void drawHoverEvent(StyleWrapper styleWrapper, int x, int y) {
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+        if (!(currentScreen instanceof AbstractGuiScreenImpl guiScreen)) return;
+
         Style style = ((StyleWrapperImpl) styleWrapper).delegate();
-        delegate.drawHoverEvent(textRenderer, style, x, y);
+        guiScreen.renderTextHoverEffect(delegate, style, x, y);
     }
 
     public int drawTextWithShadow(FontWrapper fontWrapper, String string, float x, float y, int color) {
         TextRenderer textRenderer = ((FontWrapperImpl) fontWrapper).delegate;
-        return delegate.drawTextWithShadow(textRenderer, string, (int) x, (int) y, color);
+        return textRenderer.drawWithShadow(delegate, string, x, y, color);
     }
 }
