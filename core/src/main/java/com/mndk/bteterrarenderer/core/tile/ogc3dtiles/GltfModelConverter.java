@@ -17,6 +17,7 @@ import org.joml.Matrix4d;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,27 +47,23 @@ public class GltfModelConverter {
                 .coordConverter(coordConverter)
                 .rotateModelAlongEarthXAxis(rotateModelAlongEarthXAxis)
                 .build();
-        return converter.convertModel(model, transform);
-    }
-
-    private List<PreBakedModel> convertModel(GltfModel model, Matrix4d transform) {
-        return new SingleGltfModelConverter(model).convert(transform);
+        return converter.new SingleGltfModelConverter(model).convert(transform);
     }
 
     @Data
     private class SingleGltfModelConverter {
         private final GltfModel topLevelModel;
         private final List<PreBakedModel> models = new ArrayList<>();
+        @Nullable private Vector3d center;
 
         private List<PreBakedModel> convert(Matrix4d transform) {
             models.clear();
 
             CesiumRTC cesiumRTC = GltfExtensionsUtil.getExtension(this.topLevelModel, CesiumRTC.class);
-            Matrix4d newTransform = new Matrix4d(transform);
-            if (cesiumRTC != null) newTransform.translate(cesiumRTC.getCenter());
+            if (cesiumRTC != null) center = cesiumRTC.getCenter();
 
             for (SceneModel scene : this.topLevelModel.getSceneModels()) {
-                this.convertSceneModel(scene, newTransform);
+                this.convertSceneModel(scene, transform);
             }
             return models;
         }
@@ -77,39 +74,36 @@ public class GltfModelConverter {
             }
         }
 
-        private void convertNodeModel(NodeModel nodeModel, Matrix4d transform) {
+        private void convertNodeModel(NodeModel nodeModel, Matrix4d parentTransform) {
             float[] matrixArray = nodeModel.getMatrix();
-            Matrix4d newTransform = new Matrix4d(transform);
+            Matrix4d localTransform = new Matrix4d(parentTransform);
 
             if (matrixArray == null) {
                 // TODO: Wait for JglTF to support double precision for translation, rotation, and scale
-                float[] translationArray = nodeModel.getTranslation();
-                float[] rotationArray = nodeModel.getRotation();
+                Matrix4d nodeTransform = new Matrix4d();
                 float[] scaleArray = nodeModel.getScale();
+                float[] rotationArray = nodeModel.getRotation();
+                float[] translationArray = nodeModel.getTranslation();
 
-                if (translationArray != null) {
-                    newTransform.translate(new Vector3d(translationArray));
-                }
-                if (rotationArray != null) {
-                    newTransform.rotate(JOMLUtils.quaternionXYZW(rotationArray).normalize());
-                }
-                if (scaleArray != null) {
-                    newTransform.scale(new Vector3d(scaleArray));
-                }
+                if (scaleArray != null) nodeTransform.scale(new Vector3d(scaleArray));
+                if (rotationArray != null) nodeTransform.rotate(JOMLUtils.quaternionXYZW(rotationArray).normalize());
+                if (translationArray != null) nodeTransform.translate(new Vector3d(translationArray));
+
+                localTransform.mul(nodeTransform);
             }
             else {
-                newTransform.mul(JOMLUtils.columnMajor4d(matrixArray));
+                localTransform.mul(JOMLUtils.columnMajor4d(matrixArray));
             }
 
             if (rotateModelAlongEarthXAxis) {
-                newTransform.mulLocal(ROTATE_X_AXIS);
+                localTransform.mulLocal(ROTATE_X_AXIS);
             }
 
             for (MeshModel mesh : nodeModel.getMeshModels()) {
-                this.convertMeshModel(mesh, newTransform);
+                this.convertMeshModel(mesh, localTransform);
             }
             for (NodeModel child : nodeModel.getChildren()) {
-                this.convertNodeModel(child, newTransform);
+                this.convertNodeModel(child, localTransform);
             }
         }
 
@@ -136,7 +130,7 @@ public class GltfModelConverter {
                                                                               Matrix4d transform,
                                                                               DracoMeshCompression draco) {
             AbstractMeshPrimitiveModelConverter.Context context = new AbstractMeshPrimitiveModelConverter.Context(
-                    transform, projection, coordConverter);
+                    transform, center, projection, coordConverter);
             if (draco != null) {
                 List<BufferViewModel> bufferViewModels = this.topLevelModel.getBufferViewModels();
                 return new DracoCompressedMeshConverter(meshPrimitiveModel, bufferViewModels, draco, context);

@@ -12,8 +12,8 @@ public class SpheroidArc {
     private static final double[] CRITICAL_ANGLES = { 0, Math.PI / 2, Math.PI, Math.PI * 3 / 2 };
 
     /** In radians */
-    private final double west, east;
-    private final double latitude, height;
+    private final double west, east, latitude;
+    private final double height;
 
     public SpheroidArc(double west, double east, double latitude, double height) {
         this.west = normalizeAngle(west);

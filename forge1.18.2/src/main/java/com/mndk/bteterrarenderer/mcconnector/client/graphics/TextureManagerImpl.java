@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.awt.image.BufferedImage;
 
-public class GlGraphicsManagerImpl extends GlGraphicsManager {
+public class TextureManagerImpl extends TextureManager {
 
     public NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(MissingTextureAtlasSprite.getLocation());

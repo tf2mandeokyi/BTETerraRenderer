@@ -10,10 +10,6 @@ import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistr
 import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.util.BTRUtil;
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
-import com.mndk.bteterrarenderer.util.json.JsonString;
 import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
 import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
@@ -21,8 +17,12 @@ import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjecti
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
+import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.json.JsonString;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,7 +54,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     private transient final List<PropertyAccessor.Localized<?>> stateAccessors = new ArrayList<>();
     private transient ModelMaker modelMaker; // late init
-    private final ProcessorCacheStorage<TileId, List<GraphicsModel>> storage;
+    private transient final ProcessorCacheStorage<TileId, List<GraphicsModel>> storage;
 
     protected AbstractTileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
@@ -73,7 +73,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     public final List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         // Bake textures
         if (!MISSING_TEXTURE_BAKED) {
-            MODEL_BAKER.setDefaultTexture(McConnector.client().glGraphicsManager.getMissingTextureObject());
+            MODEL_BAKER.setDefaultTexture(McConnector.client().textureManager.getMissingTextureObject());
             MISSING_TEXTURE_BAKED = true;
         }
         this.preRender(cameraPos);
@@ -197,7 +197,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         @Override
         protected void deleteResource(List<GraphicsModel> graphicsModels) {
             for (GraphicsModel model : graphicsModels) {
-                McConnector.client().glGraphicsManager.deleteTextureObject(model.getTextureObject());
+                McConnector.client().textureManager.deleteTextureObject(model.getTextureObject());
             }
         }
     }

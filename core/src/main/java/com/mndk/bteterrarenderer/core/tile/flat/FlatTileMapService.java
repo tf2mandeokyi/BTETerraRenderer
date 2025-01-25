@@ -17,12 +17,12 @@ import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
 import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawingFormat;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;
@@ -53,7 +53,6 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     public static final int DEFAULT_ZOOM = 18;
 
     private static final ImageTexturePair SOMETHING_WENT_WRONG, LOADING;
-    private static boolean STATIC_IMAGES_BAKED = false;
 
     private transient int relativeZoom = 0;
     @Setter private transient int radius = 3;
@@ -90,16 +89,25 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
+    public VertexBeginner getVertexBeginner(BufferBuildersManager manager, float opacity) {
+        return new VertexBeginner() {
+            public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture) {
+                return manager.begin3dQuad(texture, opacity);
+            }
+            public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture) {
+                throw new UnsupportedOperationException("Triangles are not supported in FlatTileMapService");
+            }
+        };
+    }
+
+    @Override
     public void renderHud(GuiDrawContextWrapper context) {}
 
     @Override
     protected void preRender(McCoord playerPos) {
         this.imageToPreModel.process(2);
-        if (!STATIC_IMAGES_BAKED) {
-            SOMETHING_WENT_WRONG.bake();
-            LOADING.bake();
-            STATIC_IMAGES_BAKED = true;
-        }
+        SOMETHING_WENT_WRONG.bake();
+        LOADING.bake();
     }
 
     @Override
@@ -109,7 +117,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
     @Override
     protected CacheableProcessorModel.SequentialBuilder<FlatTileKey, FlatTileKey, List<PreBakedModel>> getModelSequentialBuilder() {
-        return new CacheableProcessorModel.SequentialBuilder<>(this.tileKeyToUrl)
+        return CacheableProcessorModel.builder(this.tileKeyToUrl)
                 .then(this.imageFetcher)
                 .then(this.byteBufToImage)
                 .then(this.imageToPreModel)

@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.mcconnector.client;
 
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuildersManagerImpl;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManagerImpl;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.TextureManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.*;
 import com.mndk.bteterrarenderer.mcconnector.client.i18n.ClientI18nManagerImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManagerImpl;
@@ -23,7 +23,7 @@ public class ClientMinecraftManagerImpl extends ClientMinecraftManager {
 
     public ClientMinecraftManagerImpl() {
         super(
-                new GameInputManagerImpl(), new GlGraphicsManagerImpl(), new ClientI18nManagerImpl(),
+                new GameInputManagerImpl(), new TextureManagerImpl(), new ClientI18nManagerImpl(),
                 new TextManagerImpl(), new BufferBuildersManagerImpl()
         );
     }

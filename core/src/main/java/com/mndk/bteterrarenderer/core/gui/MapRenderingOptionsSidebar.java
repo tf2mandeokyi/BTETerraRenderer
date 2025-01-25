@@ -311,14 +311,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         @Override
         protected SequentialBuilder<URL, URL, NativeTextureWrapper> getSequentialBuilder() {
-            return new SequentialBuilder<>(this.iconFetcher)
+            return CacheableProcessorModel.builder(this.iconFetcher)
                     .then(this.imageResize)
                     .then(this.iconBaker);
         }
 
         @Override
         protected void deleteResource(NativeTextureWrapper o) {
-            McConnector.client().glGraphicsManager.deleteTextureObject(o);
+            McConnector.client().textureManager.deleteTextureObject(o);
         }
     }
 }

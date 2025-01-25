@@ -19,11 +19,14 @@ gui.bteterrarenderer.settings.map_settings=Map Settings
 gui.bteterrarenderer.settings.map_reload=Reload maps...
 gui.bteterrarenderer.settings.map_folder=Open maps folder...
 
+# 3D tile rendering
 gui.bteterrarenderer.settings.3d_radius=Render Radius
 gui.bteterrarenderer.settings.lod_factor=LOD Factor
+gui.bteterrarenderer.settings.enable_texture=Enable Texture
 gui.bteterrarenderer.settings.render_surroundings=Render surroundings
 gui.bteterrarenderer.settings.y_distortion=Apply Y-axis Distortion
 
+# Map offset
 gui.bteterrarenderer.settings.map_offset=Map Offset
 gui.bteterrarenderer.settings.zoom=Map Zoom
 gui.bteterrarenderer.settings.size=Map Size

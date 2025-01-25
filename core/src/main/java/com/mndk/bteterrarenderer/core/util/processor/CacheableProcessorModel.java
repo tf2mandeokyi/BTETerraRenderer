@@ -117,10 +117,14 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     protected abstract SequentialBuilder<Key, Input, Output> getSequentialBuilder();
     protected abstract void deleteResource(Output output);
 
+    public static <Key, Initial, T> SequentialBuilder<Key, Initial, T> builder(@Nonnull ProcessingBlock<Key, Initial, T> firstBlock) {
+        return new SequentialBuilder<>(firstBlock);
+    }
+
     public static class SequentialBuilder<Key, Initial, T> {
         private final List<ProcessingBlock<Key, ?, ?>> blocks = new ArrayList<>();
 
-        public SequentialBuilder(@Nonnull ProcessingBlock<Key, Initial, T> firstBlock) {
+        private SequentialBuilder(@Nonnull ProcessingBlock<Key, Initial, T> firstBlock) {
             this.blocks.add(firstBlock);
         }
 

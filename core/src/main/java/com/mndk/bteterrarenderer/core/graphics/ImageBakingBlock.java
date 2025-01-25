@@ -12,6 +12,6 @@ public class ImageBakingBlock<Key> extends SingleQueueBlock<Key, BufferedImage, 
 
     @Override
     protected NativeTextureWrapper processInternal(Key key, @Nonnull BufferedImage image) {
-        return McConnector.client().glGraphicsManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
+        return McConnector.client().textureManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
     }
 }

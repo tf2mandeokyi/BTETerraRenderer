@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
 
-public class GlGraphicsManagerImpl extends GlGraphicsManager {
+public class TextureManagerImpl extends TextureManager {
 
     public NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(TextureUtil.MISSING_TEXTURE.getGlTextureId());

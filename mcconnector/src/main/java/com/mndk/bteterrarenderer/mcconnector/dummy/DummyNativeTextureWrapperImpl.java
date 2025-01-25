@@ -1,5 +1,6 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.dummy;
 
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.AbstractNativeTextureWrapper;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;

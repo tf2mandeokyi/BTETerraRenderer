@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class GlGraphicsManager {
+public abstract class TextureManager {
 
     private final Map<String, Integer> textureIdMap = new HashMap<>();
 

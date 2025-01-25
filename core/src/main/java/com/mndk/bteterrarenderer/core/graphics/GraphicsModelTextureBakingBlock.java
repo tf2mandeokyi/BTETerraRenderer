@@ -27,7 +27,7 @@ public class GraphicsModelTextureBakingBlock<Key> extends SingleQueueBlock<Key, 
 			BufferedImage image = preBakedModel.getImage();
 			NativeTextureWrapper textureObject = image == null
 					? defaultTexture
-					: McConnector.client().glGraphicsManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
+					: McConnector.client().textureManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
 			models.add(new GraphicsModel(textureObject, preBakedModel.getShapes()));
 		}
 		return models;

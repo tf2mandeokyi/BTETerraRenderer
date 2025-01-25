@@ -44,10 +44,17 @@ public class Region extends Volume {
     }
 
     public AABB getBoundingBox(SpheroidCoordinatesConverter converter) {
-        return southInnerArc.getBoundingBox(converter)
+        AABB result = southInnerArc.getBoundingBox(converter)
                 .include(northInnerArc.getBoundingBox(converter))
                 .include(southOuterArc.getBoundingBox(converter))
                 .include(northOuterArc.getBoundingBox(converter));
+        if (southInnerArc.getLatitude() < 0 && northInnerArc.getLatitude() > 0) {
+            SpheroidArc equatorArc = new SpheroidArc(
+                    southInnerArc.getWest(), southInnerArc.getEast(), 0, southInnerArc.getHeight()
+            );
+            result = result.include(equatorArc.getBoundingBox(converter));
+        }
+        return result;
     }
 
     public String toString() {

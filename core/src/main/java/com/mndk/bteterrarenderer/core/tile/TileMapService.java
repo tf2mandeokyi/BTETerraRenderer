@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuildersManager;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.VertexBeginner;
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
@@ -39,6 +41,7 @@ public interface TileMapService extends AutoCloseable {
     McCoordTransformer getModelPositionTransformer();
     void cleanUp();
 
+    VertexBeginner getVertexBeginner(BufferBuildersManager manager, float opacity);
     void renderHud(GuiDrawContextWrapper context);
 
     class Serializer extends JsonSerializer<TileMapService> {

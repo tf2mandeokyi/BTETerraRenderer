@@ -90,7 +90,8 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         // Return random point if the texture coordinate accessor is null
         if (textureCoordAccessor == null) return new float[] { 0, 0 };
         AccessorData data = textureCoordAccessor.getAccessorData();
-        return readFloatArray(data, index, 2);
+        boolean normalized = textureCoordAccessor.isNormalized();
+        return readFloatArray(data, normalized, index, 2);
     }
 
     /**
@@ -142,7 +143,8 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
      */
     private static Vector3d readVector3d(AccessorModel accessor, int index) {
         AccessorData data = accessor.getAccessorData();
-        return new Vector3d(readFloatArray(data, index, 3));
+        boolean normalized = accessor.isNormalized();
+        return new Vector3d(readFloatArray(data, normalized, index, 3));
     }
 
     private static int readInteger(@Nonnull AccessorModel accessor, int defaultValue) {
@@ -163,7 +165,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
         }
     }
 
-    private static float[] readFloatArray(AccessorData data, int elementIndex, int componentCount) {
+    private static float[] readFloatArray(AccessorData data, boolean normalized, int elementIndex, int componentCount) {
         float[] result = new float[componentCount];
         if (data instanceof AccessorFloatData) {
             for (int i = 0; i < componentCount; i++) {
@@ -181,7 +183,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
             AccessorShortData shortData = (AccessorShortData) data;
             for (int i = 0; i < componentCount; i++) {
                 int value = shortData.getInt(elementIndex, i);
-                result[i] = QuantizationUtil.normalizeShort(value, shortData.isUnsigned());
+                result[i] = normalized ? QuantizationUtil.normalizeShort(value, shortData.isUnsigned()) : value;
             }
             return result;
         }
@@ -189,7 +191,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
             AccessorByteData byteData = (AccessorByteData) data;
             for (int i = 0; i < componentCount; i++) {
                 int value = byteData.getInt(elementIndex, i);
-                result[i] = QuantizationUtil.normalizeByte(value, byteData.isUnsigned());
+                result[i] = normalized ? QuantizationUtil.normalizeByte(value, byteData.isUnsigned()) : value;
             }
             return result;
         }

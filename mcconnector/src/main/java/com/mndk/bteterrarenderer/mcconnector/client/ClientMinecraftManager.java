@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.mcconnector.client;
 
 import com.mndk.bteterrarenderer.mcconnector.CommonMinecraftManager;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuildersManager;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GlGraphicsManager;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.TextureManager;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.AbstractGuiScreenCopy;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.screen.NativeGuiScreenWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.text.TextManager;
@@ -15,17 +15,17 @@ import javax.annotation.Nullable;
 
 public abstract class ClientMinecraftManager extends CommonMinecraftManager {
 
-    public final GlGraphicsManager glGraphicsManager;
+    public final TextureManager textureManager;
     public final GameInputManager inputManager;
     public final TextManager textManager;
     public final BufferBuildersManager bufferBuildersManager;
 
-    public ClientMinecraftManager(GameInputManager inputManager, GlGraphicsManager glGraphicsManager,
+    public ClientMinecraftManager(GameInputManager inputManager, TextureManager textureManager,
                                   I18nManager i18nManager, TextManager textManager,
                                   BufferBuildersManager bufferBuildersManager) {
         super(i18nManager);
         this.inputManager = inputManager;
-        this.glGraphicsManager = glGraphicsManager;
+        this.textureManager = textureManager;
         this.textManager = textManager;
         this.bufferBuildersManager = bufferBuildersManager;
     }

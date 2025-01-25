@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
@@ -22,8 +23,11 @@ import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjecti
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
@@ -52,6 +56,7 @@ import org.joml.Matrix4d;
 import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
+import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,6 +71,7 @@ import java.util.concurrent.Executors;
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
+    private static final ImageTexturePair WHITE_TEXTURE;
     private static final Ogc3dTileParsingBlock TILE_PARSER = new Ogc3dTileParsingBlock(
             Executors.newCachedThreadPool(), 3, 100, false);
 
@@ -73,6 +79,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Setter private transient boolean yDistortion = false;
     @Setter private transient boolean renderSurroundings = false;
     @Setter private transient double lodFactor = 1;
+    @Setter private transient boolean enableTexture = true;
     private transient double magnitude = 1;
 
     private final URL rootTilesetUrl;
@@ -120,6 +127,27 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
+    public VertexBeginner getVertexBeginner(BufferBuildersManager manager, float opacity) {
+        return new VertexBeginner() {
+            public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture) {
+                throw new UnsupportedOperationException("Quads are not supported in 3D tiles");
+            }
+            public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture) {
+                NativeTextureWrapper white = WHITE_TEXTURE.getTextureObject();
+                if (!enableTexture && white != null) {
+                    return manager.begin3dTri(WHITE_TEXTURE.getTextureObject(), opacity, true);
+                } else {
+                    // Disabling the normal value (or fixing it to (0, 1, 0)) will give us
+                    // the full brightness. So even though PosTexNorm has normal values,
+                    // we will ignore it or otherwise the models will have somewhat
+                    // "random" brightness values, making the models look weird.
+                    return manager.begin3dTri(texture, opacity, false);
+                }
+            }
+        };
+    }
+
+    @Override
     public void renderHud(GuiDrawContextWrapper context) {
         List<Map.Entry<String, Integer>> sorted = new ArrayList<>(this.copyrightOccurrences.entrySet());
         sorted.sort(Comparator.comparingInt(Map.Entry::getValue));
@@ -135,6 +163,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected void preRender(McCoord playerPos) {
+        WHITE_TEXTURE.bake();
         GeographicProjection projection = this.getHologramProjection();
         try {
             // Normally it's good to calculate distortion for individual model vertices...
@@ -154,7 +183,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected CacheableProcessorModel.SequentialBuilder<TileGlobalKey, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
-        return new CacheableProcessorModel.SequentialBuilder<>(this.storageFetcher)
+        return CacheableProcessorModel.builder(this.storageFetcher)
                 .then(ImmediateBlock.of((key, pair) -> Ogc3dTileParsingBlock.payload(pair.getLeft(), pair.getRight(), this)))
                 .then(TILE_PARSER);
     }
@@ -165,6 +194,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 this::getRadius, this::setRadius, 1, 1000);
         PropertyAccessor<Double> lodFactor = PropertyAccessor.ranged(
                 this::getLodFactor, this::setLodFactor, 0.5, 10);
+        PropertyAccessor<Boolean> enableTexture = PropertyAccessor.of(
+                this::isEnableTexture, this::setEnableTexture);
         PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(
                 this::isRenderSurroundings, this::setRenderSurroundings);
         PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
@@ -173,6 +204,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         return Arrays.asList(
                 PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radius),
                 PropertyAccessor.localized("lod_factor", "gui.bteterrarenderer.settings.lod_factor", lodFactor),
+                PropertyAccessor.localized("enable_texture", "gui.bteterrarenderer.settings.enable_texture", enableTexture),
                 PropertyAccessor.localized("render_surroundings", "gui.bteterrarenderer.settings.render_surroundings", renderSurroundings),
                 PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion)
         );
@@ -366,7 +398,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
         @Override
         protected SequentialBuilder<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, TileData>> getSequentialBuilder() {
-            return new CacheableProcessorModel.SequentialBuilder<>(this.tileStreamFetcher)
+            return CacheableProcessorModel.builder(this.tileStreamFetcher)
                     .then(Ogc3dTileMapService.this.streamParser);
         }
 
@@ -377,5 +409,13 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         public void close() {
             this.executorService.shutdownNow();
         }
+    }
+
+    static {
+        BufferedImage white = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) white.setRGB(x, y, 0xFFFFFFFF);
+        }
+        WHITE_TEXTURE = new ImageTexturePair(white);
     }
 }

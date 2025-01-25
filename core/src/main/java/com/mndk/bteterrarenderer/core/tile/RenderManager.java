@@ -4,6 +4,7 @@ import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.VertexBeginner;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
@@ -16,12 +17,10 @@ public class RenderManager {
     public static void renderTiles(@Nonnull WorldDrawContextWrapper context, double px, double py, double pz) {
         if (!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
 
-        BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
-        float opacity = (float) hologramConfig.getOpacity();
-
         TileMapService tms = TileMapService.getSelected().getItem();
         if (tms == null) return;
 
+        BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
         double yDiff = hologramConfig.getFlatMapYAxis() - py;
         if (Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;
         px += hologramConfig.getXAlign();
@@ -33,8 +32,12 @@ public class RenderManager {
         List<GraphicsModel> models = tms.getModels(cameraPos, yawDegrees, pitchDegrees);
         McCoordTransformer transformer = tms.getModelPositionTransformer();
         McCoordTransformer modelPosTransformer = pos -> transformer.transform(pos).subtract(cameraPos);
+        VertexBeginner beginner = tms.getVertexBeginner(
+                McConnector.client().bufferBuildersManager,
+                (float) hologramConfig.getOpacity()
+        );
         for (GraphicsModel model : models) {
-            model.drawAndRender(context, modelPosTransformer, opacity);
+            model.drawAndRender(context, modelPosTransformer, beginner);
         }
         tms.cleanUp();
     }

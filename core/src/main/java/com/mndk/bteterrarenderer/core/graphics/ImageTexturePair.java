@@ -16,6 +16,6 @@ public class ImageTexturePair {
 
     public void bake() {
         if (this.textureObject != null) return;
-        this.textureObject = McConnector.client().glGraphicsManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, this.image);
+        this.textureObject = McConnector.client().textureManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, this.image);
     }
 }

@@ -1,8 +1,11 @@
-package com.mndk.bteterrarenderer.mcconnector.client.graphics;
+package com.mndk.bteterrarenderer.mcconnector.dummy;
+
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.TextureManager;
 
 import java.awt.image.BufferedImage;
 
-public class DummyGlGraphicsManager extends GlGraphicsManager {
+public class DummyTextureManager extends TextureManager {
     @Override protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {}
 
     @Override public NativeTextureWrapper getMissingTextureObject() {
