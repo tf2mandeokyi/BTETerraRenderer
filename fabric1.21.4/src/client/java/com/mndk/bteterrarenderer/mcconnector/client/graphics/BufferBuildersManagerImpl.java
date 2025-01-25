@@ -5,7 +5,6 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTrian
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
-import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
@@ -27,13 +26,15 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
                 .build(true);
     }
 
-    private static final Function<Identifier, RenderLayer> QUADS = Util.memoize(texture ->
-            RenderLayer.of("bteterrarenderer-quads", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
-                    VertexFormat.DrawMode.QUADS, 1536, true, true, generateParameters(texture)));
+    private static final Function<Identifier, RenderLayer> QUADS = Util.memoize(texture -> RenderLayer.of(
+            "bteterrarenderer-quads", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
+            VertexFormat.DrawMode.QUADS, 1536, true, true, generateParameters(texture)
+    ));
 
-    private static final Function<Identifier, RenderLayer> TRIS = Util.memoize(texture ->
-            RenderLayer.of("bteterrarenderer-tris", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
-                    VertexFormat.DrawMode.TRIANGLES, 1536, true, true, generateParameters(texture)));
+    private static final Function<Identifier, RenderLayer> TRIS = Util.memoize(texture -> RenderLayer.of(
+            "bteterrarenderer-tris", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
+            VertexFormat.DrawMode.TRIANGLES, 1536, true, true, generateParameters(texture)
+    ));
 
     @Override
     public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture, float alpha) {
@@ -42,16 +43,18 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
         // DrawMode.QUADS
         // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
-        return new BufferBuilderWrapper<>() {
-            public void nextShape(WorldDrawContextWrapper context, GraphicsQuad<PosTex> shape, McCoordTransformer transformer) {
-                MatrixStack.Entry entry = ((WorldDrawContextWrapperImpl) context).stack().peek();
-                VertexConsumer consumer = ((WorldDrawContextWrapperImpl) context).provider().getBuffer(renderLayer);
-                shape.forEach(v -> {
-                    McCoord tp = transformer.transform(v.pos);
-                    nextVertex(entry, consumer, tp, new McCoord(0, 1, 0), v.u, v.v, alpha);
-                });
+        return new QuadBufferBuilderWrapper<>() {
+            private MatrixStack.Entry entry;
+            private VertexConsumer consumer;
+            public void setContext(WorldDrawContextWrapper context) {
+                this.entry = ((WorldDrawContextWrapperImpl) context).stack().peek();
+                this.consumer = ((WorldDrawContextWrapperImpl) context).provider().getBuffer(renderLayer);
             }
-            public void drawAndRender(WorldDrawContextWrapper context) {}
+            public void next(PosTex vertex) {
+                McCoord tp = this.getTransformer().transform(vertex.pos);
+                nextVertex(entry, consumer, tp, new McCoord(0, 1, 0), vertex.u, vertex.v, alpha);
+            }
+            public void drawAndRender() {}
         };
     }
 
@@ -63,16 +66,18 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
         // DrawMode.QUADS
         // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
-        return new BufferBuilderWrapper<>() {
-            public void nextShape(WorldDrawContextWrapper context, GraphicsTriangle<PosTexNorm> shape, McCoordTransformer transformer) {
-                MatrixStack.Entry entry = ((WorldDrawContextWrapperImpl) context).stack().peek();
-                VertexConsumer consumer = ((WorldDrawContextWrapperImpl) context).provider().getBuffer(renderLayer);
-                shape.forEach(v -> {
-                    PosTexNorm tv = v.transform(transformer);
-                    nextVertex(entry, consumer, tv.pos, enableNormal ? tv.normal : new McCoord(0, 1, 0), v.u, v.v, alpha);
-                });
+        return new TriangleBufferBuilderWrapper<>() {
+            private MatrixStack.Entry entry;
+            private VertexConsumer consumer;
+            public void setContext(WorldDrawContextWrapper context) {
+                this.entry = ((WorldDrawContextWrapperImpl) context).stack().peek();
+                this.consumer = ((WorldDrawContextWrapperImpl) context).provider().getBuffer(renderLayer);
             }
-            public void drawAndRender(WorldDrawContextWrapper context) {}
+            public void next(PosTexNorm vertex) {
+                PosTexNorm tv = vertex.transform(this.getTransformer());
+                nextVertex(entry, consumer, tv.pos, enableNormal ? tv.normal : new McCoord(0, 1, 0), tv.u, tv.v, alpha);
+            }
+            public void drawAndRender() {}
         };
     }
 

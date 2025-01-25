@@ -5,7 +5,6 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTrian
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
-import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -26,11 +25,12 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
         // GL11.GL_QUADS
         // DefaultVertexFormats.POSITION_COLOR_TEX_LIGHT
-        return new BufferBuilderWrapper<GraphicsQuad<PosTex>>() {
-            public void nextShape(WorldDrawContextWrapper context, GraphicsQuad<PosTex> shape, McCoordTransformer transformer) {
-                shape.forEach(v -> nextVertex(bufferBuilder, transformer.transform(v.pos), v.u, v.v, alpha));
+        return new QuadBufferBuilderWrapper<PosTex>() {
+            public void setContext(WorldDrawContextWrapper context) {}
+            public void next(PosTex vertex) {
+                nextVertex(bufferBuilder, this.getTransformer().transform(vertex.pos), vertex.u, vertex.v, alpha);
             }
-            public void drawAndRender(WorldDrawContextWrapper context) {
+            public void drawAndRender() {
                 tessellator.draw();
                 GlStateManager.enableCull();
                 GlStateManager.disableBlend();
@@ -52,11 +52,12 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
         // GL11.GL_TRIANGLES
         // DefaultVertexFormats.POSITION_COLOR_TEX_LIGHT
-        return new BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>>() {
-            public void nextShape(WorldDrawContextWrapper context, GraphicsTriangle<PosTexNorm> shape, McCoordTransformer transformer) {
-                shape.forEach(v -> nextVertex(bufferBuilder, transformer.transform(v.pos), v.u, v.v, alpha));
+        return new TriangleBufferBuilderWrapper<PosTexNorm>() {
+            public void setContext(WorldDrawContextWrapper context) {}
+            public void next(PosTexNorm vertex) {
+                nextVertex(bufferBuilder, this.getTransformer().transform(vertex.pos), vertex.u, vertex.v, alpha);
             }
-            public void drawAndRender(WorldDrawContextWrapper context) {
+            public void drawAndRender() {
                 tessellator.draw();
                 GlStateManager.enableCull();
                 GlStateManager.disableBlend();

@@ -21,10 +21,12 @@ public class GraphicsShapes {
                               McCoordTransformer modelPosTransformer, VertexBeginner beginner) {
         shapeMap.forEach((format, shapes) -> {
             BufferBuilderWrapper<?> builder = format.begin(beginner, texture);
+            builder.setContext(context);
+            builder.setTransformer(modelPosTransformer);
             for (GraphicsShape shape : shapes) {
-                builder.nextShape(context, BTRUtil.uncheckedCast(shape), modelPosTransformer);
+                builder.nextShape(BTRUtil.uncheckedCast(shape));
             }
-            builder.drawAndRender(context);
+            builder.drawAndRender();
         });
     }
 }
