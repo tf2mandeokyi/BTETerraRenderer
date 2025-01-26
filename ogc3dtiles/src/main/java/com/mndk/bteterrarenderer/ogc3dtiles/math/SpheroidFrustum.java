@@ -5,6 +5,10 @@ import lombok.Getter;
 import org.joml.Matrix4d;
 import org.joml.Vector3d;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpheroidFrustum {
     private final Plane[] planes;
     @Getter
@@ -22,18 +26,18 @@ public class SpheroidFrustum {
      * @param far            The distance to the far clipping plane.
      */
     public SpheroidFrustum(Vector3d cameraPosition, Vector3d viewDirection, Vector3d rightDirection,
-                           float horizontalFov, float verticalFov, float near, float far) {
+                           double horizontalFov, double verticalFov, @Nullable Double near, @Nullable Double far) {
         this.cameraPosition = cameraPosition;
         Vector3d z = viewDirection.normalize(new Vector3d());
         Vector3d x = rightDirection.normalize(new Vector3d());
         Vector3d y = x.cross(z, new Vector3d()).normalize();
 
-        float halfHFov = horizontalFov / 2;
-        float halfVFov = verticalFov / 2;
-        float sinHalfHFov = (float) Math.sin(halfHFov);
-        float sinHalfVFov = (float) Math.sin(halfVFov);
-        float cosHalfHFov = (float) Math.cos(halfHFov);
-        float cosHalfVFov = (float) Math.cos(halfVFov);
+        double halfHFov = horizontalFov / 2;
+        double halfVFov = verticalFov / 2;
+        double sinHalfHFov = Math.sin(halfHFov);
+        double sinHalfVFov = Math.sin(halfVFov);
+        double cosHalfHFov = Math.cos(halfHFov);
+        double cosHalfVFov = Math.cos(halfVFov);
 
         Vector3d zSinHalfHFov = z.mul(sinHalfHFov, new Vector3d());
         Vector3d zSinHalfVFov = z.mul(sinHalfVFov, new Vector3d());
@@ -42,19 +46,25 @@ public class SpheroidFrustum {
         Vector3d topNormal = y.mul(-cosHalfVFov, new Vector3d()).add(zSinHalfVFov).normalize();
         Vector3d bottomNormal = y.mul(cosHalfVFov, new Vector3d()).add(zSinHalfVFov).normalize();
 
-        Vector3d zNear = z.mul(near, new Vector3d());
-        Vector3d zFar = z.mul(far, new Vector3d());
-        Vector3d zNeg = z.negate(new Vector3d());
-        Vector3d nearCenter = cameraPosition.add(zNear, new Vector3d());
-        Vector3d farCenter = cameraPosition.add(zFar, new Vector3d());
+        List<Plane> planes = new ArrayList<>(6);
+        planes.add(new Plane(cameraPosition, leftNormal)); // Left plane
+        planes.add(new Plane(cameraPosition, rightNormal)); // Right plane
+        planes.add(new Plane(cameraPosition, topNormal)); // Top plane
+        planes.add(new Plane(cameraPosition, bottomNormal)); // Bottom plane
 
-        this.planes = new Plane[6];
-        this.planes[0] = new Plane(nearCenter, z); // Near plane
-        this.planes[1] = new Plane(farCenter, zNeg); // Far plane
-        this.planes[2] = new Plane(cameraPosition, leftNormal); // Left plane
-        this.planes[3] = new Plane(cameraPosition, rightNormal); // Right plane
-        this.planes[4] = new Plane(cameraPosition, topNormal); // Top plane
-        this.planes[5] = new Plane(cameraPosition, bottomNormal); // Bottom plane
+        if (near != null) {
+            Vector3d zNear = z.mul(near, new Vector3d());
+            Vector3d nearCenter = cameraPosition.add(zNear, new Vector3d());
+            planes.add(new Plane(nearCenter, z)); // Near plane
+        }
+        if (far != null) {
+            Vector3d zNeg = z.negate(new Vector3d());
+            Vector3d zFar = z.mul(far, new Vector3d());
+            Vector3d farCenter = cameraPosition.add(zFar, new Vector3d());
+            planes.add(new Plane(farCenter, zNeg)); // Far plane
+        }
+
+        this.planes = planes.toArray(new Plane[0]);
     }
 
     public boolean intersectsVolume(Volume volume, Matrix4d volumeTransform, SpheroidCoordinatesConverter converter) {

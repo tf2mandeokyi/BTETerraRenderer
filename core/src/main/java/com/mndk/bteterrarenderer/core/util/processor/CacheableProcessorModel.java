@@ -1,8 +1,8 @@
 package com.mndk.bteterrarenderer.core.util.processor;
 
 import com.google.common.collect.ImmutableList;
-import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.core.util.processor.block.ProcessingBlock;
+import com.mndk.bteterrarenderer.util.BTRUtil;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
@@ -11,7 +11,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public abstract class CacheableProcessorModel<Key, Input, Output> implements Closeable {
 
@@ -19,6 +18,8 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     private boolean closed = false;
     private final ProcessorCacheStorage<Key, Output> storage;
     ImmutableList<ProcessingBlock<Key, ?, ?>> blocks = null; // late init
+    @Getter
+    private int processingCount = 0;
 
     protected CacheableProcessorModel(ProcessorCacheStorage<Key, Output> storage) {
         this.storage = storage;
@@ -49,24 +50,8 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
     public synchronized void insertInput(Key key, Input input) {
         this.storage.setKeyInProcessingState(this, key);
         if (this.blocks == null) this.blocks = this.getSequentialBuilder().build();
+        this.processingCount++;
         this.blocks.get(0).insert(new BlockPayload<>(this, key, input));
-    }
-
-    /**
-     * Returns the output resource if it exists. Else, it inserts the result of the {@code computeInputIfAbsent} function
-     * and returns {@code null}.
-     */
-    @Nullable
-    public synchronized Output updateOrInsert(Key key, Supplier<Input> computeInputIfAbsent) {
-        ProcessingState state = this.storage.getKeyState(key);
-        switch (state) {
-            case PROCESSED:
-                return this.updateAndGetOutput(key);
-            case NOT_PROCESSED:
-                this.insertInput(key, computeInputIfAbsent.get());
-                break;
-        }
-        return null;
     }
 
     /**
@@ -87,6 +72,7 @@ public abstract class CacheableProcessorModel<Key, Input, Output> implements Clo
 
     public synchronized void onProcessingDone(Key key, Output output, @Nullable Exception error) {
         this.storage.storeValue(this, key, output, error, this::deleteResource);
+        this.processingCount--;
     }
 
     @Override

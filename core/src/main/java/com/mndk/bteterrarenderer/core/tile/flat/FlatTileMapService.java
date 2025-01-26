@@ -83,9 +83,13 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, this.computeTileQuad(key)));
     }
 
+    private static float getFlatMapYAxis() {
+        return (float) BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis();
+    }
+
     @Override
     public McCoordTransformer getModelPositionTransformer() {
-        float yAlign = (float) (BTETerraRendererConfig.HOLOGRAM.getFlatMapYAxis() + Y_EPSILON);
+        float yAlign = (float) (getFlatMapYAxis() + Y_EPSILON);
         return pos -> pos.add(new McCoord(0, yAlign, 0));
     }
 
@@ -141,6 +145,9 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     @Override
     public List<FlatTileKey> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         if (this.coordTranslator == null) return Collections.emptyList();
+
+        double yDiff = getFlatMapYAxis() - cameraPos.getY();
+        if (Math.abs(yDiff) >= BTETerraRendererConfig.HOLOGRAM.getYDiffLimit()) return Collections.emptyList();
 
         try {
             List<FlatTileKey> result = new ArrayList<>();

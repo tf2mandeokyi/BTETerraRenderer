@@ -155,10 +155,19 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         Collections.reverse(sorted);
 
         FontWrapper font = McConnector.client().getDefaultFont();
+        int xPos = 4;
         int yPos = 4;
         for (Map.Entry<String, Integer> entry : sorted) {
-            context.drawTextWithShadow(font, "© " + entry.getKey(), HorizontalAlign.LEFT, VerticalAlign.TOP, 4, yPos, 0xFFFFFFFF);
+            context.drawTextWithShadow(font, "© " + entry.getKey(), HorizontalAlign.LEFT, VerticalAlign.TOP,
+                    xPos, yPos, 0xFFFFFFFF);
             yPos += font.getHeight();
+        }
+
+        int count = this.tileDataStorage.getProcessingCount();
+        if (count != 0) {
+            // TODO: Add localization
+            String text = "Loading " + count + " model(s)...";
+            context.drawTextWithShadow(font, text, HorizontalAlign.LEFT, VerticalAlign.TOP, xPos, yPos, 0xFFFFFFFF);
         }
     }
 
@@ -246,7 +255,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         return new SpheroidFrustum(
                 point, viewDirection, rightDirection,
                 horizontalFovRadians, verticalFovRadians,
-                0f, (float) radius
+                0.0, radius == 1000 ? null : radius
         );
     }
 
@@ -265,16 +274,16 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     public List<TileGlobalKey> getIdListRecursively(SpheroidFrustum frustum) {
         List<TileGlobalKey> result = new ArrayList<>();
 
-        Stack<Ogc3dBfsNode> nodes = new Stack<>();
+        Stack<Ogc3dTilesetBfsNode> nodes = new Stack<>();
         Tileset rootTileset = this.getRootTileset();
         if (rootTileset == null) return Collections.emptyList();
-        nodes.add(Ogc3dBfsNode.fromRoot(this, rootTileset, this.rootTilesetUrl));
+        nodes.add(Ogc3dTilesetBfsNode.fromRoot(this, rootTileset, this.rootTilesetUrl));
         this.copyrightOccurrences.clear();
 
         while (!nodes.isEmpty()) {
 
             // Get intersections from the current tileset
-            Ogc3dBfsNode node = nodes.pop();
+            Ogc3dTilesetBfsNode node = nodes.pop();
             List<LocalTileNode> intersections = node.selectIntersections(frustum);
 
             for (LocalTileNode localTileNode : intersections) {
@@ -297,12 +306,12 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                         Pair.of(currentTransform, currentUrl));
                 if (parsedData == null) continue;
 
-				TileData tileData = parsedData.getRight();
-                if (tileData.getGltfModelInstance() != null) {
+				TileData child = parsedData.getRight();
+                if (child.getGltfModelInstance() != null) {
                     result.add(currentKey);
                 }
 
-                String copyright = tileData.getCopyright();
+                String copyright = child.getCopyright();
                 if (copyright != null) {
                     // According to the Google Earth API specification:
                     // 1. Extract all the copyright information from all the tiles in view.
@@ -317,9 +326,9 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                     }
                 }
 
-                if (tileData instanceof Tileset) {
-                    Tileset newTileset = (Tileset) tileData;
-                    Ogc3dBfsNode newNode = new Ogc3dBfsNode(this, newTileset, currentUrl, currentKeys, currentTransform);
+                if (child instanceof Tileset) {
+                    Tileset childTileset = (Tileset) child;
+                    Ogc3dTilesetBfsNode newNode = new Ogc3dTilesetBfsNode(this, childTileset, currentUrl, currentKeys, currentTransform);
                     nodes.add(newNode);
                 }
             }

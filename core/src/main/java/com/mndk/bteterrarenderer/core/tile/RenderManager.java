@@ -15,20 +15,15 @@ import java.util.List;
 public class RenderManager {
 
     public static void renderTiles(@Nonnull WorldDrawContextWrapper context, double px, double py, double pz) {
-        if (!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
+        BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
+        if (!hologramConfig.isDoRender()) return;
 
         TileMapService tms = TileMapService.getSelected().getItem();
         if (tms == null) return;
 
-        BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
-        double yDiff = hologramConfig.getFlatMapYAxis() - py;
-        if (Math.abs(yDiff) >= hologramConfig.getYDiffLimit()) return;
-        px += hologramConfig.getXAlign();
-        pz += hologramConfig.getZAlign();
-
         double yawDegrees = McConnector.client().getPlayerRotationYaw();
         double pitchDegrees = McConnector.client().getPlayerRotationPitch();
-        McCoord cameraPos = new McCoord(px, (float) py, pz);
+        McCoord cameraPos = new McCoord(px + hologramConfig.getXAlign(), (float) py, pz + hologramConfig.getZAlign());
         List<GraphicsModel> models = tms.getModels(cameraPos, yawDegrees, pitchDegrees);
         McCoordTransformer transformer = tms.getModelPositionTransformer();
         McCoordTransformer modelPosTransformer = pos -> transformer.transform(pos).subtract(cameraPos);
