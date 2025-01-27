@@ -103,7 +103,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         this.rotateModelAlongEarthXAxis = rotateModelAlongEarthXAxis;
         this.geoidType = geoidType;
 
-        this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(1000 * 60 * 10 /* 10 minutes */, 10000, false));
+        this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(commonYamlObject.getCacheConfig()));
         this.storageFetcher = ImmediateBlock.of((key, input) -> {
             ProcessingState state = tileDataStorage.getResourceProcessingState(input);
             if (state != ProcessingState.PROCESSED) return null;

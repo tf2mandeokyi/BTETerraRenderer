@@ -19,10 +19,11 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Tile {
 
+    // late init; for memoization
     @Nullable @JsonIgnore
     private Tile parent;
 
-    // For memoization
+    // late init; for memoization
     @Nullable @JsonIgnore
     private Matrix4d tilesetLocalTransform;
 
@@ -115,18 +116,16 @@ public class Tile {
     @Nonnull
     private Matrix4d getTilesetLocalTransform() {
         if (this.tilesetLocalTransform != null) return this.tilesetLocalTransform;
-        Matrix4d parentTransform = this.parent != null ? new Matrix4d(this.parent.getTilesetLocalTransform()) : new Matrix4d();
+        Matrix4d parentTransform = this.parent != null ? this.parent.getTilesetLocalTransform() : new Matrix4d();
         Matrix4d result = this.tileLocalTransform != null ? this.tileLocalTransform : new Matrix4d();
-        this.tilesetLocalTransform = parentTransform.mul(result);
+        this.tilesetLocalTransform = parentTransform.mul(result, new Matrix4d());
         return this.tilesetLocalTransform;
     }
 
     @Nonnull
     public Matrix4d getGlobalTransform(Matrix4d parentTilesetTransform) {
-        Matrix4d result = new Matrix4d(parentTilesetTransform);
         Matrix4d tilesetLocalTransform = this.getTilesetLocalTransform();
-        result.mul(tilesetLocalTransform);
-        return result;
+        return parentTilesetTransform.mul(tilesetLocalTransform, new Matrix4d());
     }
 
     @Nonnull
