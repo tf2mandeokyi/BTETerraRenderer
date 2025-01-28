@@ -11,6 +11,7 @@ import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.GltfExtensionsUtil;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.Web3dQuantizedAttributes;
 import com.mndk.bteterrarenderer.ogc3dtiles.util.QuantizationUtil;
 import de.javagl.jgltf.model.*;
+import org.joml.Matrix3d;
 import org.joml.Matrix4d;
 import org.joml.Vector3d;
 
@@ -42,12 +43,13 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
             Loggers.get(this).warn("texture coord accessor is null");
         }
 
+        Matrix4d positionTransform = new Matrix4d();
+        Matrix3d normalTransform = new Matrix3d();
         Web3dQuantizedAttributes positionExtension = GltfExtensionsUtil.getExtension(positionAccessor, Web3dQuantizedAttributes.class);
-        Matrix4d positionTransform = positionExtension != null ? positionExtension.getDecodeMatrix() : null;
-
-        Web3dQuantizedAttributes normalExtension = normalAccessor == null ? null
-                : GltfExtensionsUtil.getExtension(normalAccessor, Web3dQuantizedAttributes.class);
-        Matrix4d normalTransform = normalExtension != null ? normalExtension.getDecodeMatrix() : null;
+        if (positionExtension != null) {
+            positionTransform = positionExtension.getDecodeMatrix();
+            normalTransform = new Matrix3d(positionTransform).invert().transpose();
+        }
 
         int numPoints = positionAccessor.getCount();
         ParsedPoint[] parsedPoints = new ParsedPoint[numPoints];
@@ -55,8 +57,7 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
             Vector3d position = readPosition(positionAccessor, i, positionTransform);
             McCoord gamePos = this.transformEarthCoordToGame(position);
 
-            Vector3d normal = normalAccessor == null ? null
-                    : readNormal(normalAccessor, i, normalTransform);
+            Vector3d normal = normalAccessor == null ? null : readNormal(normalAccessor, i, normalTransform);
             McCoord gameNormal = normal == null ? null
                     : this.transformEarthCoordToGame(position.add(normal, new Vector3d())).subtract(gamePos);
 
@@ -74,9 +75,9 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
      * @param transform The transformation matrix
      * @return A new instance of {@link Vector3d} corresponding to the position
      */
-    private static Vector3d readPosition(AccessorModel positionAccessor, int index, @Nullable Matrix4d transform) {
+    private static Vector3d readPosition(AccessorModel positionAccessor, int index, @Nonnull Matrix4d transform) {
         Vector3d cartesian = readVector3d(positionAccessor, index);
-        if (transform != null) transform.transformPosition(cartesian);
+        transform.transformPosition(cartesian);
         return cartesian;
     }
 
@@ -101,9 +102,9 @@ class DefaultModelConverter extends AbstractMeshPrimitiveModelConverter {
      * @param transform The transformation matrix
      * @return A new instance of {@link Vector3d} corresponding to the normal
      */
-    private static Vector3d readNormal(AccessorModel normalAccessor, int index, @Nullable Matrix4d transform) {
+    private static Vector3d readNormal(AccessorModel normalAccessor, int index, @Nonnull Matrix3d transform) {
         Vector3d cartesian = readVector3d(normalAccessor, index);
-        if (transform != null) transform.transformPosition(cartesian);
+        transform.transform(cartesian);
         return cartesian;
     }
 

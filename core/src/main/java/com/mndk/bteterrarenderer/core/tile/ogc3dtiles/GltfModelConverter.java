@@ -29,23 +29,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GltfModelConverter {
 
-    // Next, for consistency with the z-up coordinate system of 3D Tiles,
-    // glTFs shall be transformed from y-up to z-up at runtime.
-    // This is done by rotating the model about the x-axis by pi/2 radians.
-    private static final Matrix4d ROTATE_X_AXIS = new Matrix4d().rotateX(Math.PI / 2);
-
     private final GeographicProjection projection;
     private final SpheroidCoordinatesConverter coordConverter;
-    private final boolean rotateModelAlongEarthXAxis;
 
     public static List<PreBakedModel> convertModel(GltfModel model, Matrix4d transform,
                                                    GeographicProjection projection,
-                                                   SpheroidCoordinatesConverter coordConverter,
-                                                   boolean rotateModelAlongEarthXAxis) {
+                                                   SpheroidCoordinatesConverter coordConverter) {
         GltfModelConverter converter = GltfModelConverter.builder()
                 .projection(projection)
                 .coordConverter(coordConverter)
-                .rotateModelAlongEarthXAxis(rotateModelAlongEarthXAxis)
                 .build();
         return converter.new SingleGltfModelConverter(model).convert(transform);
     }
@@ -93,10 +85,6 @@ public class GltfModelConverter {
             }
             else {
                 localTransform.mul(JOMLUtils.columnMajor4d(matrixArray));
-            }
-
-            if (rotateModelAlongEarthXAxis) {
-                localTransform.mulLocal(ROTATE_X_AXIS);
             }
 
             for (MeshModel mesh : nodeModel.getMeshModels()) {
