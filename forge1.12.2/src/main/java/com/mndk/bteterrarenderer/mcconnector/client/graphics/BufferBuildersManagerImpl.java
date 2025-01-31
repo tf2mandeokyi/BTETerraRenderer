@@ -9,28 +9,30 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11;
 
 public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
-    public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture, float alpha) {
-        GlStateManager.disableCull();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        GlStateManager.bindTexture(((NativeTextureWrapperImpl) texture).delegate);
-
+    public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture, float alpha, boolean cull) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
         // GL11.GL_QUADS
         // DefaultVertexFormats.POSITION_COLOR_TEX_LIGHT
         return new QuadBufferBuilderWrapper<PosTex>() {
             public void setContext(WorldDrawContextWrapper context) {}
-            public void next(PosTex vertex) {
-                nextVertex(bufferBuilder, this.getTransformer().transform(vertex.pos), vertex.u, vertex.v, alpha);
+            public void preUpload() {
+                GlStateManager.disableCull();
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                GlStateManager.bindTexture(((NativeTextureWrapperImpl) texture).delegate);
+                bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
             }
-            public void drawAndRender() {
+            public void next(PosTex vertex) {
+                nextVertex(bufferBuilder, this.getTransformer().transform(vertex.pos), vertex.tex, alpha);
+            }
+            public void upload() {
                 tessellator.draw();
                 GlStateManager.enableCull();
                 GlStateManager.disableBlend();
@@ -41,23 +43,25 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
     public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture,
                                                                          float alpha, boolean enableNormal) {
-        GlStateManager.disableCull();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        GlStateManager.bindTexture(((NativeTextureWrapperImpl) texture).delegate);
-
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.BLOCK);
 
         // GL11.GL_TRIANGLES
         // DefaultVertexFormats.POSITION_COLOR_TEX_LIGHT
         return new TriangleBufferBuilderWrapper<PosTexNorm>() {
             public void setContext(WorldDrawContextWrapper context) {}
-            public void next(PosTexNorm vertex) {
-                nextVertex(bufferBuilder, this.getTransformer().transform(vertex.pos), vertex.u, vertex.v, alpha);
+            public void preUpload() {
+                GlStateManager.disableCull();
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                GlStateManager.bindTexture(((NativeTextureWrapperImpl) texture).delegate);
+
+                bufferBuilder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.BLOCK);
             }
-            public void drawAndRender() {
+            public void next(PosTexNorm vertex) {
+                nextVertex(bufferBuilder, this.getTransformer().transform(vertex.pos), vertex.tex, alpha);
+            }
+            public void upload() {
                 tessellator.draw();
                 GlStateManager.enableCull();
                 GlStateManager.disableBlend();
@@ -66,10 +70,10 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
         };
     }
 
-    private static void nextVertex(BufferBuilder bufferBuilder, McCoord pos, float u, float v, float alpha) {
+    private static void nextVertex(BufferBuilder bufferBuilder, McCoord pos, Vector2f tex, float alpha) {
         bufferBuilder.pos((float) pos.getX(), pos.getY(), (float) pos.getZ())
                 .color(1, 1, 1, alpha)
-                .tex(u, v)
+                .tex(tex.x, tex.y)
                 .lightmap(0xf0, 0xf0)
                 .endVertex();
     }

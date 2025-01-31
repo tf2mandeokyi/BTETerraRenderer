@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.util.IOUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.http.Http;
+import com.mndk.bteterrarenderer.util.IOUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
 import org.apache.batik.transcoder.TranscoderException;
@@ -73,7 +73,7 @@ public class HttpResourceManager {
     }
 
     private InputStream fixBrokenSvgFile(InputStream brokenSvgStream) throws IOException, SAXException, TransformerException {
-        // "The attribute "offset" of the element <stop> is required" error handler
+        // "The attribute 'offset' of the element <stop> is required" error handler
         Document svgDocument = DOCUMENT_BUILDER.parse(brokenSvgStream);
         NodeList stopTags = svgDocument.getElementsByTagName("stop");
         for (int i = 0; i < stopTags.getLength(); i++) {

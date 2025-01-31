@@ -4,16 +4,17 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTrian
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import lombok.Data;
+import org.joml.Vector2f;
 
 @Data
 class ParsedTriangle {
     public final McCoord[] gamePositions;
-    public final float[][] tex;
+    public final Vector2f[] tex;
     public final McCoord[] gameNormals;
 
     ParsedTriangle(ParsedPoint p1, ParsedPoint p2, ParsedPoint p3) {
         this.gamePositions = new McCoord[] { p1.gamePos, p2.gamePos, p3.gamePos };
-        this.tex = new float[][] { p1.tex, p2.tex, p3.tex };
+        this.tex = new Vector2f[] { p1.tex, p2.tex, p3.tex };
 
         if (p1.gameNormal != null && p2.gameNormal != null && p3.gameNormal != null) {
             this.gameNormals = new McCoord[] { p1.gameNormal, p2.gameNormal, p3.gameNormal };
@@ -30,7 +31,7 @@ class ParsedTriangle {
     }
 
     private PosTexNorm getGraphicsVertex(int index) {
-        return new PosTexNorm(gamePositions[index], tex[index][0], tex[index][1], gameNormals[index]);
+        return new PosTexNorm(gamePositions[index], tex[index], gameNormals[index]);
     }
 
     public GraphicsTriangle<PosTexNorm> toGraphics() {

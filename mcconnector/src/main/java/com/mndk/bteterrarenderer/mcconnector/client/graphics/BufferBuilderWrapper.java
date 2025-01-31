@@ -7,5 +7,7 @@ public interface BufferBuilderWrapper<S extends GraphicsShape> {
     void setContext(WorldDrawContextWrapper context);
     void setTransformer(McCoordTransformer modelPosTransformer);
     void nextShape(S shape);
-    void drawAndRender();
+
+    default void preUpload() {}
+    default void upload() {}
 }

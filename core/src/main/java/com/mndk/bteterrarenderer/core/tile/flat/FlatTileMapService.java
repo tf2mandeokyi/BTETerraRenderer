@@ -97,7 +97,8 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     public VertexBeginner getVertexBeginner(BufferBuildersManager manager, float opacity) {
         return new VertexBeginner() {
             public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture) {
-                return manager.begin3dQuad(texture, opacity);
+                // TODO: Enable users to change cull value
+                return manager.begin3dQuad(texture, opacity, false);
             }
             public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture) {
                 throw new UnsupportedOperationException("Triangles are not supported in FlatTileMapService");

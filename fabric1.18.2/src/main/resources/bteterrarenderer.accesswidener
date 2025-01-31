@@ -6,5 +6,6 @@ accessible class net/minecraft/client/render/RenderPhase$Texture
 accessible field net/minecraft/client/render/RenderPhase ENTITY_TRANSLUCENT_SHADER Lnet/minecraft/client/render/RenderPhase$Shader;
 accessible field net/minecraft/client/render/RenderPhase TRANSLUCENT_TRANSPARENCY Lnet/minecraft/client/render/RenderPhase$Transparency;
 accessible field net/minecraft/client/render/RenderPhase DISABLE_CULLING Lnet/minecraft/client/render/RenderPhase$Cull;
+accessible field net/minecraft/client/render/RenderPhase ENABLE_CULLING Lnet/minecraft/client/render/RenderPhase$Cull;
 accessible field net/minecraft/client/render/RenderPhase ENABLE_LIGHTMAP Lnet/minecraft/client/render/RenderPhase$Lightmap;
 accessible field net/minecraft/client/render/RenderPhase ENABLE_OVERLAY_COLOR Lnet/minecraft/client/render/RenderPhase$Overlay;

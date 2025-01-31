@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.core.tile.ogc3dtiles;
 
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.datatype.pointer.Pointer;
+import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.draco.attributes.FaceIndex;
 import com.mndk.bteterrarenderer.draco.attributes.PointAttribute;
@@ -12,10 +13,13 @@ import com.mndk.bteterrarenderer.draco.core.DecoderBuffer;
 import com.mndk.bteterrarenderer.draco.mesh.Mesh;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.DrawingFormat;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShapes;
-import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.ogc3dtiles.gltf.extensions.DracoMeshCompression;
+import com.mndk.bteterrarenderer.ogc3dtiles.math.SpheroidCoordinatesConverter;
 import de.javagl.jgltf.model.BufferViewModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
+import lombok.Builder;
+import org.joml.Matrix4d;
+import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 import java.awt.image.BufferedImage;
@@ -24,16 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConverter {
+public class DracoCompressedMpmConverter extends AbstractMpmConverter {
 
     private final MeshPrimitiveModel meshPrimitiveModel;
     private final BufferViewModel bufferViewModel;
     private final Map<String, Integer> attributeMapping;
 
-    public DracoCompressedMeshConverter(MeshPrimitiveModel meshPrimitiveModel,
-                                        List<BufferViewModel> topLevelBufferViewModels, DracoMeshCompression extension,
-                                        Context context) {
-        super(context);
+    @Builder
+    private DracoCompressedMpmConverter(Matrix4d transform, GeographicProjection projection,
+                                        SpheroidCoordinatesConverter coordConverter, MeshPrimitiveModel meshPrimitiveModel,
+                                        List<BufferViewModel> topLevelBufferViewModels, DracoMeshCompression extension) {
+        super(transform, projection, coordConverter);
         this.meshPrimitiveModel = meshPrimitiveModel;
         this.bufferViewModel = topLevelBufferViewModels.get(extension.getBufferView());
         this.attributeMapping = extension.getAttributes();
@@ -64,19 +69,20 @@ public class DracoCompressedMeshConverter extends AbstractMeshPrimitiveModelConv
         for (PointIndex pointIndex : PointIndex.range(0, numPoints)) {
             positionAttribute.getMappedValue(pointIndex, Pointer.wrap(posArray));
             Vector3d position = new Vector3d(posArray);
-            McCoord gamePos = this.transformEarthCoordToGame(position);
 
-            McCoord gameNormal = null;
+            Vector3d normal = null;
             if (normalAttribute != null) {
                 normalAttribute.getMappedValue(pointIndex, Pointer.wrap(normArray));
-                Vector3d normal = new Vector3d(normArray);
-                gameNormal = this.transformEarthCoordToGame(position.add(normal)).subtract(gamePos);
+                normal = new Vector3d(normArray);
             }
 
-            if (texAttribute != null) texAttribute.getMappedValue(pointIndex, Pointer.wrap(texArray));
-            float[] tex = texAttribute == null ? null : new float[] { texArray[0], texArray[1] };
+            Vector2f tex = null;
+            if (texAttribute != null) {
+                texAttribute.getMappedValue(pointIndex, Pointer.wrap(texArray));
+                tex = new Vector2f(texArray);
+            }
 
-            parsedPoints[pointIndex.getValue()] = new ParsedPoint(gamePos, tex, gameNormal);
+            parsedPoints[pointIndex.getValue()] = this.toParsedPoint(position, null, normal, null, tex);
         }
         return parsedPoints;
     }
