@@ -284,7 +284,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         URL iconUrl = tms.getIconUrl();
         if (iconUrl == null) return null;
 
-        return ICON_STORAGE.getOrCompute(iconUrl, key -> HttpResourceManager.downloadAsImage(key.toString())
+        return ICON_STORAGE.getOrCompute(iconUrl, () -> HttpResourceManager.downloadAsImage(iconUrl.toString())
                 .thenApplyAsync(
                         image -> HttpResourceManager.resizeImage(image, 256, 256),
                         MULTI_THREADED

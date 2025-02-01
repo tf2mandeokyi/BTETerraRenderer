@@ -90,10 +90,9 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     @Nullable
     private List<GraphicsModel> getModelsForId(TileId tileId) {
-        return this.storage.getOrCompute(tileId, key -> {
-            CompletableFuture<List<PreBakedModel>> future = AbstractTileMapService.this.processModel(key);
-            if (future == null) return null;
-            return future.thenApplyAsync(AbstractTileMapService::bake, MODEL_BAKER);
+        return this.storage.getOrCompute(tileId, () -> {
+            CompletableFuture<List<PreBakedModel>> future = AbstractTileMapService.this.processModel(tileId);
+            return future == null ? null : future.thenApplyAsync(AbstractTileMapService::bake, MODEL_BAKER);
         });
     }
 

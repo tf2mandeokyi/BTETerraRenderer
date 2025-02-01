@@ -190,7 +190,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(TileGlobalKey tileGlobalKey) {
-        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(tileGlobalKey, key -> null);
+        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(tileGlobalKey, () -> null);
         if (pair == null) return null;
         return CompletableFuture.supplyAsync(() -> this.parse(pair.getLeft(), pair.getRight()), this.tileFetcher);
     }
@@ -214,7 +214,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     private Pair<Matrix4d, TileData> downloadModel(TileGlobalKey tileGlobalKey, Matrix4d transform, URL url) {
-        return this.tileDataStorage.getOrCompute(tileGlobalKey, key -> HttpResourceManager.download(url.toString())
+        return this.tileDataStorage.getOrCompute(tileGlobalKey, () -> HttpResourceManager.download(url.toString())
                 .thenApply(ByteBufInputStream::new)
                 .thenApplyAsync(stream -> {
                     try { return Pair.of(transform, TileResourceManager.parse(stream, this.coordConverter)); }

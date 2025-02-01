@@ -15,8 +15,9 @@ public class MappedExecutors<Key> {
     private final Executor executor;
     private volatile Key currentKey;
 
-    public MappedExecutors(Executor executor) {
+    public MappedExecutors(Executor executor, Key currentKey) {
         this.executor = executor;
+        this.currentKey = currentKey;
     }
 
     public void setCurrentKey(Key key) {

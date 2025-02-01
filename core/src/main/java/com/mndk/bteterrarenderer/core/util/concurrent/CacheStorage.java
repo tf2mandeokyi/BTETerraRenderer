@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 public class CacheStorage<K, V> implements Closeable {
@@ -64,14 +64,14 @@ public class CacheStorage<K, V> implements Closeable {
     }
 
     @Nullable
-    public final V getOrCompute(K key, @Nonnull Function<K, CompletableFuture<V>> function) {
+    public final V getOrCompute(K key, @Nonnull Supplier<CompletableFuture<V>> function) {
         CacheWrapper wrapper = this.getWrapper(key);
         switch (wrapper.state) {
             case NOT_PROCESSED:
                 wrapper.state = ProcessingState.PROCESSING;
                 this.processingCount.addAndGet(1);
 
-                CompletableFuture<V> future = function.apply(key);
+                CompletableFuture<V> future = function.get();
                 if (future == null) {
                     this.processingCount.addAndGet(-1);
                     wrapper.state = ProcessingState.NOT_PROCESSED;
@@ -81,6 +81,7 @@ public class CacheStorage<K, V> implements Closeable {
                 future.whenComplete((models, error) -> {
                     this.storeValue(key, models, error, this::delete);
                     this.processingCount.addAndGet(-1);
+                    if (error != null) Loggers.get(this).error("Error processing cache value", error);
                 });
                 return null;
             case PROCESSED: return this.updateAndGetValue(key);

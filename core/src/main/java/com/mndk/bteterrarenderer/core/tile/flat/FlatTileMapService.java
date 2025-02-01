@@ -75,7 +75,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         this.coordTranslator = coordTranslator;
         this.urlConverter = urlConverter;
 
-        this.imageFetcher = new MappedExecutors<>(Executors.newFixedThreadPool(this.getNThreads()));
+        this.imageFetcher = new MappedExecutors<>(Executors.newFixedThreadPool(this.getNThreads()), this.relativeZoom);
         this.imageToPreModel = new ManualThreadExecutor();
     }
 
