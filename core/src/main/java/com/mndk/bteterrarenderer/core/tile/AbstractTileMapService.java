@@ -6,21 +6,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
-import com.mndk.bteterrarenderer.core.graphics.GraphicsModelTextureBakingBlock;
+import com.mndk.bteterrarenderer.core.graphics.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
-import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
-import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
+import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
-import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.json.JsonString;
 import lombok.AccessLevel;
@@ -30,21 +29,23 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @RequiredArgsConstructor
 public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
-    private static final GraphicsModelTextureBakingBlock<?> MODEL_BAKER = new GraphicsModelTextureBakingBlock<>();
-    private static boolean MISSING_TEXTURE_BAKED = false;
+    private static final ManualThreadExecutor MODEL_BAKER = new ManualThreadExecutor();
+
     public static final int DEFAULT_MAX_THREAD = 2;
 
-    protected final int nThreads;
+    private final int nThreads;
     private final Translatable<String> name;
     @Nullable private final Translatable<String> copyrightTextJson;
     @Nullable private final URL iconUrl;
@@ -53,8 +54,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private final String dummyTileUrl;
 
     private transient final List<PropertyAccessor.Localized<?>> stateAccessors = new ArrayList<>();
-    private transient ModelMaker modelMaker; // late init
-    private transient final ProcessorCacheStorage<TileId, List<GraphicsModel>> storage;
+    private transient final ModelStorage storage;
 
     protected AbstractTileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
@@ -66,16 +66,12 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         this.nThreads = commonYamlObject.nThreads;
         this.hologramProjection = commonYamlObject.hologramProjection;
         this.stateAccessors.addAll(this.makeStateAccessors());
-        this.storage = new ProcessorCacheStorage<>(commonYamlObject.cacheConfig);
+        this.storage = new ModelStorage(commonYamlObject.cacheConfig);
     }
 
     @Override
     public final List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         // Bake textures
-        if (!MISSING_TEXTURE_BAKED) {
-            MODEL_BAKER.setDefaultTexture(McConnector.client().textureManager.getMissingTextureObject());
-            MISSING_TEXTURE_BAKED = true;
-        }
         this.preRender(cameraPos);
         MODEL_BAKER.process(2);
 
@@ -94,27 +90,28 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     @Nullable
     private List<GraphicsModel> getModelsForId(TileId tileId) {
-        ProcessingState bakedState = this.getModelMaker().getResourceProcessingState(tileId);
-        switch (bakedState) {
-            case NOT_PROCESSED:
-                this.getModelMaker().insertInput(tileId, tileId);
-                break;
-            case PROCESSED:
-                return this.getModelMaker().updateAndGetOutput(tileId);
-            case PROCESSING:
-                try {
-                    List<GraphicsModel> loadingModel = this.getLoadingModel(tileId);
-                    if (loadingModel != null) return loadingModel;
-                } catch (OutOfProjectionBoundsException ignored) {}
-                break;
-            case ERROR:
-                try {
-                    List<GraphicsModel> errorModel = this.getErrorModel(tileId);
-                    if (errorModel != null) return errorModel;
-                } catch (OutOfProjectionBoundsException ignored) {}
-                break;
+        return this.storage.getOrCompute(tileId, key -> {
+            CompletableFuture<List<PreBakedModel>> future = AbstractTileMapService.this.processModel(key);
+            if (future == null) return null;
+            return future.thenApplyAsync(AbstractTileMapService::bake, MODEL_BAKER);
+        });
+    }
+
+    private static List<GraphicsModel> bake(List<PreBakedModel> preBakedModels) {
+        List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
+        for (PreBakedModel preBakedModel : preBakedModels) {
+            BufferedImage image = preBakedModel.getImage();
+            NativeTextureWrapper textureObject = McConnector.client().textureManager
+                    .allocateAndGetTextureObject(BTETerraRenderer.MODID, image);
+            models.add(new GraphicsModel(textureObject, preBakedModel.getShapes()));
         }
-        return null;
+        return models;
+    }
+
+    private static void delete(List<GraphicsModel> models) {
+        for (GraphicsModel model : models) {
+            McConnector.client().textureManager.deleteTextureObject(model.getTextureObject());
+        }
     }
 
     @Nonnull
@@ -125,11 +122,6 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     @Override
     public McCoordTransformer getModelPositionTransformer() {
         return McCoordTransformer.IDENTITY;
-    }
-
-    private CacheableProcessorModel<TileId, TileId, List<GraphicsModel>> getModelMaker() {
-        if (this.modelMaker == null) this.modelMaker = new ModelMaker(this.storage);
-        return this.modelMaker;
     }
 
     @Override
@@ -146,7 +138,6 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     @Override public final boolean equals(Object obj) { return super.equals(obj); }
     @Override public final int hashCode() { return super.hashCode(); }
     @Override public void close() throws IOException {
-        if (this.modelMaker != null) this.modelMaker.close();
         this.storage.close();
     }
 
@@ -157,7 +148,15 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
      */
     protected abstract void preRender(McCoord playerPos);
 
-    protected abstract CacheableProcessorModel.SequentialBuilder<TileId, TileId, List<PreBakedModel>> getModelSequentialBuilder();
+    /**
+     * Returns a list of pre-baked models for the given tile ID, or {@code null} if the
+     * corresponding tile is not yet ready to be processed.
+     * @param tileId The tile ID
+     * @return A list of pre-baked models, or {@code null} if the tile is not yet ready.
+     */
+    @Nullable
+    protected abstract CompletableFuture<List<PreBakedModel>> processModel(TileId tileId);
+
     /**
      * This method is called only once on the constructor
      * @return The property list
@@ -182,23 +181,29 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     // ######################## </ABSTRACT METHODS> ########################
 
-    private class ModelMaker extends CacheableProcessorModel<TileId, TileId, List<GraphicsModel>> {
+    private final class ModelStorage extends CacheStorage<TileId, List<GraphicsModel>> {
 
-        protected ModelMaker(ProcessorCacheStorage<TileId, List<GraphicsModel>> storage) {
-            super(storage);
+        public ModelStorage(@Nullable Config config) {
+            super(config);
         }
 
         @Override
-        protected SequentialBuilder<TileId, TileId, List<GraphicsModel>> getSequentialBuilder() {
-            return AbstractTileMapService.this.getModelSequentialBuilder()
-                    .then(BTRUtil.uncheckedCast(MODEL_BAKER));
+        protected List<GraphicsModel> whenProcessing(TileId key) {
+            try { return AbstractTileMapService.this.getLoadingModel(key); }
+            catch (OutOfProjectionBoundsException ignored) {}
+            return null;
         }
 
         @Override
-        protected void deleteResource(List<GraphicsModel> graphicsModels) {
-            for (GraphicsModel model : graphicsModels) {
-                McConnector.client().textureManager.deleteTextureObject(model.getTextureObject());
-            }
+        protected List<GraphicsModel> whenError(TileId key, Throwable error) {
+            try { return AbstractTileMapService.this.getErrorModel(key); }
+            catch (OutOfProjectionBoundsException ignored) {}
+            return null;
+        }
+
+        @Override
+        protected void delete(List<GraphicsModel> value) {
+            AbstractTileMapService.delete(value);
         }
     }
 
@@ -244,7 +249,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         private int nThreads;
         @Nullable private Translatable<JsonString> copyrightTextJson;
         @Nullable private GeographicProjection hologramProjection;
-        @Nullable private ProcessorCacheStorage.Config cacheConfig;
+        @Nullable private CacheStorage.Config cacheConfig;
 
         @JsonCreator
         public CommonYamlObject(
@@ -254,7 +259,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
                 @Nullable @JsonProperty("copyright") Translatable<JsonString> copyrightTextJson,
                 @Nullable @JsonProperty("icon_url") URL iconUrl,
                 @Nullable @JsonProperty("hologram_projection") GeographicProjection hologramProjection,
-                @Nullable @JsonProperty("cache") ProcessorCacheStorage.Config cacheConfig
+                @Nullable @JsonProperty("cache") CacheStorage.Config cacheConfig
         ) {
             this.name = name;
             this.copyrightTextJson = copyrightTextJson;

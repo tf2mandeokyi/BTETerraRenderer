@@ -8,15 +8,16 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
 public class TextureManagerImpl extends TextureManager {
 
-    public NativeTextureWrapper getMissingTextureObject() {
+    protected NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(MissingSprite.getMissingSpriteId());
     }
     @SneakyThrows
-    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
+    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, @Nonnull BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
         NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
         Identifier id = Identifier.of(modId, "dynamic-" + count);

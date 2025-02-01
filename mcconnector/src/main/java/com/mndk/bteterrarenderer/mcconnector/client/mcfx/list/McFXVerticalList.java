@@ -65,7 +65,7 @@ public class McFXVerticalList extends McFXElement {
     }
 
     /**
-     * Skips null elements
+     * Skips {@code null} elements
      */
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(McFXElement... elements) {
@@ -74,7 +74,7 @@ public class McFXVerticalList extends McFXElement {
     }
 
     /**
-     * Skips null elements
+     * Skips {@code null} elements
      */
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(List<McFXElement> elements) {

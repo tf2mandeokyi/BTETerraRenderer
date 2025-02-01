@@ -8,15 +8,16 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
 public class TextureManagerImpl extends TextureManager {
 
-    public NativeTextureWrapper getMissingTextureObject() {
+    protected NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(MissingTextureAtlasSprite.getLocation());
     }
     @SneakyThrows
-    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
+    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, @Nonnull BufferedImage image) {
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
         DynamicTexture texture = new DynamicTexture(nativeImage);
         ResourceLocation location = new ResourceLocation(modId, "dynamic-" + count);

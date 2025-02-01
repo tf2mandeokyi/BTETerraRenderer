@@ -71,7 +71,7 @@ public class BatchTable implements Iterable<BatchTable.Row> {
         private final int rowIndex;
 
         /**
-         * @return null if not found, else otherwise
+         * @return {@code null} if not found, else otherwise
          */
         public Object getByName(String columnName) {
             Integer columnIndex = columnIndexMap.get(columnName);

@@ -9,13 +9,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
+import com.mndk.bteterrarenderer.core.graphics.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
-import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
-import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
-import com.mndk.bteterrarenderer.core.util.processor.block.MappedQueueBlock;
-import com.mndk.bteterrarenderer.core.util.processor.block.SingleQueueBlock;
+import com.mndk.bteterrarenderer.core.util.concurrent.MappedExecutors;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
@@ -29,17 +28,18 @@ import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 @Getter
 @JsonSerialize(using = FlatTileMapService.Serializer.class)
@@ -62,11 +62,9 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     private final FlatTileCoordTranslator coordTranslator;
     private final FlatTileURLConverter urlConverter;
 
-    private transient final ImmediateBlock<FlatTileKey, FlatTileKey, String> tileKeyToUrl;
-    private transient final MappedQueueBlock<FlatTileKey, Integer, String, ByteBuf> imageFetcher;
-    private transient final ImmediateBlock<FlatTileKey, ByteBuf, BufferedImage> byteBufToImage;
+    private transient final MappedExecutors<Integer> imageFetcher;
     // This is to avoid quirky concurrent thingy
-    private transient final SingleQueueBlock<FlatTileKey, BufferedImage, PreBakedModel> imageToPreModel;
+    private transient final ManualThreadExecutor imageToPreModel;
 
     @Builder
     private FlatTileMapService(CommonYamlObject commonYamlObject,
@@ -77,10 +75,8 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
         this.coordTranslator = coordTranslator;
         this.urlConverter = urlConverter;
 
-        this.tileKeyToUrl = ImmediateBlock.of((key, input) -> this.getUrlFromTileCoordinate(input));
-        this.imageFetcher = new FlatTileResourceDownloadingBlock(this.nThreads, 3, true, 0);
-        this.byteBufToImage = ImmediateBlock.of((key, input) -> ImageIO.read(new ByteBufInputStream(input)));
-        this.imageToPreModel = SingleQueueBlock.of((key, image) -> new PreBakedModel(image, this.computeTileQuad(key)));
+        this.imageFetcher = new MappedExecutors<>(Executors.newFixedThreadPool(this.getNThreads()));
+        this.imageToPreModel = new ManualThreadExecutor();
     }
 
     private static float getFlatMapYAxis() {
@@ -117,17 +113,25 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    public void moveAlongYAxis(double amount) {
-        BTETerraRendererConfig.HOLOGRAM.flatMapYAxis += amount;
+    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(FlatTileKey tileId) {
+        String url = this.urlConverter.convertToUrl(this.urlTemplate, tileId);
+        GraphicsShapes shapes;
+        try { shapes = this.computeTileQuad(tileId); }
+        catch (OutOfProjectionBoundsException e) { return CompletableFuture.completedFuture(Collections.emptyList()); }
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                BufferedImage image = HttpResourceManager.downloadAsImage(url).get();
+                return Collections.singletonList(new PreBakedModel(image, shapes));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to download image from " + url, e);
+            }
+            }, this.imageFetcher.getExecutor(tileId.relativeZoom));
     }
 
     @Override
-    protected CacheableProcessorModel.SequentialBuilder<FlatTileKey, FlatTileKey, List<PreBakedModel>> getModelSequentialBuilder() {
-        return CacheableProcessorModel.builder(this.tileKeyToUrl)
-                .then(this.imageFetcher)
-                .then(this.byteBufToImage)
-                .then(this.imageToPreModel)
-                .then(ImmediateBlock.singletonList());
+    public void moveAlongYAxis(double amount) {
+        BTETerraRendererConfig.HOLOGRAM.flatMapYAxis += amount;
     }
 
     @Override
@@ -197,11 +201,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     public void setRelativeZoom(int newZoom) {
         if (this.relativeZoom == newZoom) return;
         this.relativeZoom = newZoom;
-        this.imageFetcher.setQueueKey(newZoom);
-    }
-
-    public String getUrlFromTileCoordinate(FlatTileKey flatTileKey) {
-        return this.urlConverter.convertToUrl(this.urlTemplate, flatTileKey);
+        this.imageFetcher.setCurrentKey(newZoom);
     }
 
     private GraphicsShapes computeTileQuad(FlatTileKey tileKey) throws OutOfProjectionBoundsException {

@@ -81,7 +81,7 @@ public class PointCloud {
     }
 
     /**
-     * Returns the first named attribute of a given type or null if the
+     * Returns the first named attribute of a given type or {@code null} if the
      * attribute is not used by the point cloud.
      */
     public PointAttribute getNamedAttribute(GeometryAttribute.Type type) {
@@ -167,7 +167,7 @@ public class PointCloud {
     }
 
     /**
-     * Creates and returns a new attribute or null in case of failure. This
+     * Creates and returns a new attribute or {@code null} in case of failure. This
      * method is similar to {@link #addAttribute}, except that it returns the new
      * attribute instead of adding it to the point cloud.
      */

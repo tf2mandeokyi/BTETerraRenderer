@@ -4,14 +4,15 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
 public class TextureManagerImpl extends TextureManager {
 
-    public NativeTextureWrapper getMissingTextureObject() {
+    protected NativeTextureWrapper getMissingTextureObject() {
         return new NativeTextureWrapperImpl(TextureUtil.MISSING_TEXTURE.getGlTextureId());
     }
-    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, BufferedImage image) {
+    protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, @Nonnull BufferedImage image) {
         int glId = GL11.glGenTextures();
         int width = image.getWidth(), height = image.getHeight();
         TextureUtil.allocateTexture(glId, width, height);

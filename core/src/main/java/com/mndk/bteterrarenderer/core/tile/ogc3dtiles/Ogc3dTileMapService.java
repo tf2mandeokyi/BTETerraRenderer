@@ -14,11 +14,7 @@ import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
-import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
-import com.mndk.bteterrarenderer.core.util.processor.ProcessingState;
-import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
-import com.mndk.bteterrarenderer.core.util.processor.block.ImmediateBlock;
-import com.mndk.bteterrarenderer.core.util.processor.block.MultiThreadedBlock;
+import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
@@ -46,7 +42,7 @@ import com.mndk.bteterrarenderer.ogc3dtiles.tile.Tileset;
 import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
-import io.netty.buffer.ByteBuf;
+import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,12 +54,11 @@ import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -72,9 +67,14 @@ import java.util.concurrent.Executors;
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
 public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
+    // From 6.7.1.6.2.2. y-up to z-up:
+    // Next, for consistency with the z-up coordinate system of 3D Tiles,
+    // glTFs shall be transformed from y-up to z-up at runtime.
+    // This is done by rotating the model about the x-axis by pi/2 radians.
+    private static final Matrix4d ROTATE_X_AXIS = new Matrix4d().rotateX(Math.PI / 2);
+
     private static final ImageTexturePair WHITE_TEXTURE;
-    private static final Ogc3dTileParsingBlock TILE_PARSER = new Ogc3dTileParsingBlock(
-            Executors.newCachedThreadPool(), 3, 100, false);
+    private static final ExecutorService TILE_PARSER = Executors.newCachedThreadPool();
 
     @Setter private transient double radius = 40;
     @Setter private transient boolean yDistortion = false;
@@ -88,9 +88,10 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private final boolean rotateModelAlongEarthXAxis;
     private final String geoidType;
 
-    private transient final TileDataStorage tileDataStorage;
-    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4d, TileData>> storageFetcher;
-    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4d, InputStream>, Pair<Matrix4d, TileData>> streamParser;
+    private transient final ExecutorService tileFetcher;
+    private transient final CacheStorage<TileGlobalKey, Pair<Matrix4d, TileData>> tileDataStorage;
+//    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4d, TileData>> storageFetcher;
+//    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4d, InputStream>, Pair<Matrix4d, TileData>> streamParser;
     private transient final Map<String, Integer> copyrightOccurrences = new HashMap<>();
 
     @Builder
@@ -103,16 +104,17 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         this.rotateModelAlongEarthXAxis = rotateModelAlongEarthXAxis;
         this.geoidType = geoidType;
 
-        this.tileDataStorage = new TileDataStorage(new ProcessorCacheStorage<>(commonYamlObject.getCacheConfig()));
-        this.storageFetcher = ImmediateBlock.of((key, input) -> {
-            ProcessingState state = tileDataStorage.getResourceProcessingState(input);
-            if (state != ProcessingState.PROCESSED) return null;
-            return tileDataStorage.updateAndGetOutput(input);
-        });
-        this.streamParser = ImmediateBlock.of((key, pair) -> {
-            TileData tileData = TileResourceManager.parse(pair.getRight(), this.coordConverter);
-            return Pair.of(pair.getLeft(), tileData);
-        });
+        this.tileFetcher = Executors.newFixedThreadPool(this.getNThreads());
+        this.tileDataStorage = new CacheStorage<>(commonYamlObject.getCacheConfig());
+//        this.storageFetcher = ImmediateBlock.of((key, input) -> {
+//            ProcessingState state = tileDataStorage.getResourceProcessingState(input);
+//            if (state != ProcessingState.PROCESSED) return null;
+//            return tileDataStorage.updateAndGetOutput(input);
+//        });
+//        this.streamParser = ImmediateBlock.of((key, pair) -> {
+//            TileData tileData = TileResourceManager.parse(pair.getRight(), this.coordConverter);
+//            return Pair.of(pair.getLeft(), tileData);
+//        });
     }
 
     @Override
@@ -187,15 +189,42 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    public void moveAlongYAxis(double amount) {
-        BTETerraRendererConfig.HOLOGRAM.yAlign += amount;
+    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(TileGlobalKey tileGlobalKey) {
+        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(tileGlobalKey, key -> null);
+        if (pair == null) return null;
+        return CompletableFuture.supplyAsync(() -> this.parse(pair.getLeft(), pair.getRight()), this.tileFetcher);
+    }
+
+    private List<PreBakedModel> parse(Matrix4d transform, TileData tileData) {
+        // From 6.7.1.6. Transforms:
+        // ...
+        // More broadly the order of transformations is:
+        //  1. glTF node hierarchy transformations
+        //  2. glTF y-up to z-up transform
+        //  3. Tile glTF transform
+        if (this.isRotateModelAlongEarthXAxis()) {
+            transform.mul(ROTATE_X_AXIS);
+        }
+
+        GltfModel gltfModel = tileData.getGltfModelInstance();
+        if (gltfModel == null) return Collections.emptyList();
+
+        SpheroidCoordinatesConverter coordConverter = this.getCoordConverter();
+        return GltfModelConverter.convertModel(gltfModel, transform, this.getHologramProjection(), coordConverter);
+    }
+
+    private Pair<Matrix4d, TileData> downloadModel(TileGlobalKey tileGlobalKey, Matrix4d transform, URL url) {
+        return this.tileDataStorage.getOrCompute(tileGlobalKey, key -> HttpResourceManager.download(url.toString())
+                .thenApply(ByteBufInputStream::new)
+                .thenApplyAsync(stream -> {
+                    try { return Pair.of(transform, TileResourceManager.parse(stream, this.coordConverter)); }
+                    catch (IOException e) { throw new RuntimeException(e); }
+                }, TILE_PARSER));
     }
 
     @Override
-    protected CacheableProcessorModel.SequentialBuilder<TileGlobalKey, TileGlobalKey, List<PreBakedModel>> getModelSequentialBuilder() {
-        return CacheableProcessorModel.builder(this.storageFetcher)
-                .then(ImmediateBlock.of((key, pair) -> Ogc3dTileParsingBlock.payload(pair.getLeft(), pair.getRight(), this)))
-                .then(TILE_PARSER);
+    public void moveAlongYAxis(double amount) {
+        BTETerraRendererConfig.HOLOGRAM.yAlign += amount;
     }
 
     @Override
@@ -262,7 +291,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Nullable
     private Tileset getRootTileset() {
         TileGlobalKey key = TileGlobalKey.ROOT_KEY;
-        Pair<Matrix4d, TileData> pair = tileDataStorage.updateOrInsert(key, Pair.of(new Matrix4d(), this.rootTilesetUrl));
+        Pair<Matrix4d, TileData> pair = this.downloadModel(key, new Matrix4d(), this.rootTilesetUrl);
         if (pair == null) return null;
 
         TileData tileData = pair.getRight();
@@ -302,8 +331,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
 
                 // Get data from cache
-                Pair<Matrix4d, TileData> parsedData = tileDataStorage.updateOrInsert(currentKey,
-                        Pair.of(currentTransform, currentUrl));
+                Pair<Matrix4d, TileData> parsedData = this.downloadModel(currentKey, currentTransform, currentUrl);
                 if (parsedData == null) continue;
 
 				TileData child = parsedData.getRight();
@@ -387,37 +415,6 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                     .rotateModelAlongEarthXAxis(rotateModelAlongXAxis)
                     .geoidType(geoidType)
                     .build();
-        }
-    }
-
-    private class TileDataStorage extends CacheableProcessorModel<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, TileData>>
-            implements Closeable {
-
-        private final ExecutorService executorService;
-        private final MultiThreadedBlock<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, InputStream>> tileStreamFetcher;
-
-        protected TileDataStorage(ProcessorCacheStorage<TileGlobalKey, Pair<Matrix4d, TileData>> storage) {
-            super(storage);
-
-            this.executorService = Executors.newFixedThreadPool(Ogc3dTileMapService.this.nThreads);
-            this.tileStreamFetcher = MultiThreadedBlock.of((key, pair) -> {
-                ByteBuf buf = HttpResourceManager.download(pair.getRight().toString());
-                return Pair.of(pair.getLeft(), new ByteBufInputStream(buf));
-            }, this.executorService, 3, 200, true);
-        }
-
-        @Override
-        protected SequentialBuilder<TileGlobalKey, Pair<Matrix4d, URL>, Pair<Matrix4d, TileData>> getSequentialBuilder() {
-            return CacheableProcessorModel.builder(this.tileStreamFetcher)
-                    .then(Ogc3dTileMapService.this.streamParser);
-        }
-
-        @Override
-        protected void deleteResource(Pair<Matrix4d, TileData> parsedData) {}
-
-        @Override
-        public void close() {
-            this.executorService.shutdownNow();
         }
     }
 

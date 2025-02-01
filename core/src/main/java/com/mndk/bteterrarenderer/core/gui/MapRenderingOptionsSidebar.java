@@ -1,21 +1,20 @@
 package com.mndk.bteterrarenderer.core.gui;
 
+import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.ImageBakingBlock;
-import com.mndk.bteterrarenderer.core.graphics.ImageResizingBlock;
+import com.mndk.bteterrarenderer.core.graphics.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.gui.mapaligner.MapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.core.network.SimpleImageFetchingBlock;
+import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.core.util.processor.CacheableProcessorModel;
-import com.mndk.bteterrarenderer.core.util.processor.ProcessorCacheStorage;
+import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
@@ -36,6 +35,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +46,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final int SIDE_PADDING = 7;
     private static final int ELEMENT_DISTANCE_BIG = 35;
 
-    private static final IconMaker ICON_MAKER = new IconMaker();
+    private static final ExecutorService MULTI_THREADED = Executors.newCachedThreadPool();
+    private static final ManualThreadExecutor ICON_MAKER = new ManualThreadExecutor();
+    private static final IconStorage ICON_STORAGE = new IconStorage();
 
     private static MapRenderingOptionsSidebar INSTANCE;
     private final McFXDropdown<CategoryMap.Wrapper<TileMapService>> mapSourceDropdown;
@@ -163,7 +165,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     @Override
     public void drawScreen(@Nonnull GuiDrawContextWrapper drawContextWrapper) {
-        ICON_MAKER.iconBaker.process(1);
+        ICON_MAKER.process(1);
         super.drawScreen(drawContextWrapper);
     }
 
@@ -281,7 +283,16 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         URL iconUrl = tms.getIconUrl();
         if (iconUrl == null) return null;
-        return ICON_MAKER.updateOrInsert(iconUrl, iconUrl);
+
+        return ICON_STORAGE.getOrCompute(iconUrl, key -> HttpResourceManager.downloadAsImage(key.toString())
+                .thenApplyAsync(
+                        image -> HttpResourceManager.resizeImage(image, 256, 256),
+                        MULTI_THREADED
+                )
+                .thenApplyAsync(
+                        image -> McConnector.client().textureManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image),
+                        ICON_MAKER
+                ));
     }
 
     public static void open() {
@@ -298,27 +309,12 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super.onRemoved();
     }
 
-    private static class IconMaker extends CacheableProcessorModel<URL, URL, NativeTextureWrapper> {
-
-        private final SimpleImageFetchingBlock<URL> iconFetcher = new SimpleImageFetchingBlock<>(
-                Executors.newCachedThreadPool(), 3, 500, true);
-        private final ImageResizingBlock<URL> imageResize = new ImageResizingBlock<>(256, 256);
-        private final ImageBakingBlock<URL> iconBaker = new ImageBakingBlock<>();
-
-        protected IconMaker() {
-            super(new ProcessorCacheStorage<>(-1, -1, false));
-        }
+    private static class IconStorage extends CacheStorage<URL, NativeTextureWrapper> {
+        protected IconStorage() { super(-1, -1, false); }
 
         @Override
-        protected SequentialBuilder<URL, URL, NativeTextureWrapper> getSequentialBuilder() {
-            return CacheableProcessorModel.builder(this.iconFetcher)
-                    .then(this.imageResize)
-                    .then(this.iconBaker);
-        }
-
-        @Override
-        protected void deleteResource(NativeTextureWrapper o) {
-            McConnector.client().textureManager.deleteTextureObject(o);
+        protected void delete(NativeTextureWrapper value) {
+            McConnector.client().textureManager.deleteTextureObject(value);
         }
     }
 }
