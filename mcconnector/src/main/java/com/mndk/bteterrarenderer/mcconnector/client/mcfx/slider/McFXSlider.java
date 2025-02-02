@@ -51,7 +51,7 @@ public class McFXSlider<T extends Number> extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         this.slider.setWidth(this.getWidth());
     }
 

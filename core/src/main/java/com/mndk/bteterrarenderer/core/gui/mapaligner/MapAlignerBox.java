@@ -53,7 +53,7 @@ class MapAlignerBox extends McFXElement {
     protected void init() {}
 
     @Override
-    public void onWidthChange() {}
+    protected void onWidthChange() {}
 
     @Override
     public void drawElement(GuiDrawContextWrapper drawContextWrapper) {

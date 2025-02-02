@@ -27,7 +27,7 @@ public class McFXCheckBox extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         this.checkBox.setWidth(this.getWidth());
     }
 

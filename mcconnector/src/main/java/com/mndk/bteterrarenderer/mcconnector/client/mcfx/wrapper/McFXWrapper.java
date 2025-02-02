@@ -44,7 +44,7 @@ public class McFXWrapper extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         if (element == null) return;
         element.onWidthChange(this.getWidth() - leftPadding - rightPadding);
     }

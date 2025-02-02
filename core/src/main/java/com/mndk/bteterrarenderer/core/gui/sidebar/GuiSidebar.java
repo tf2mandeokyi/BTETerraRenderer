@@ -71,11 +71,12 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
     protected void initGui() {
         super.initGui();
 
-        this.listComponent.clear()
-                .add(McFX.div(this.paddingTopBottom))
-                .add(McFX.vList(this.elementDistance, this.elementPaddingSide)
-                        .addAll(this.getSidebarElements()))
-                .add(McFX.div(this.paddingTopBottom));
+        this.listComponent.clear().addAll(
+                McFX.div(this.paddingTopBottom),
+                McFX.vList(this.elementDistance, this.elementPaddingSide)
+                        .addAll(this.getSidebarElements()),
+                McFX.div(this.paddingTopBottom)
+        );
 
         this.updateSide();
     }
@@ -87,11 +88,12 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
 
     private void updateSide() {
         if (side.get() == SidebarSide.LEFT) {
-            McFXVerticalList sidebar = McFX.vList(0, 0)
-                    .add(this.sideChangingButton)
-                    .add(McFX.hList()
+            McFXVerticalList sidebar = McFX.vList(0, 0).addAll(
+                    this.sideChangingButton,
+                    McFX.hList()
                             .add(this.listComponent, null)
-                            .add(this.widthChangeBarShadow, WidthFunction.px(1)));
+                            .add(this.widthChangeBarShadow, WidthFunction.px(1))
+            );
 
             this.getMainComponent().clear()
                     .add(sidebar, WidthFunction.px(this.sidebarWidth))
@@ -99,11 +101,12 @@ public abstract class GuiSidebar extends McFXScreen<McFXHorizontalList> {
                     .add(this.chatScreenWrapper, null);
         }
         else {
-            McFXVerticalList sidebar = McFX.vList(0, 0)
-                    .add(this.sideChangingButton)
-                    .add(McFX.hList()
+            McFXVerticalList sidebar = McFX.vList(0, 0).addAll(
+                    this.sideChangingButton,
+                    McFX.hList()
                             .add(this.widthChangeBarShadow, WidthFunction.px(1))
-                            .add(this.listComponent, null));
+                            .add(this.listComponent, null)
+            );
 
             this.getMainComponent().clear()
                     .add(this.chatScreenWrapper, null)

@@ -59,7 +59,7 @@ public class McFXDropdown<T> extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         this.itemInnerWidth = this.getWidth() - ITEM_PADDING_HORIZONTAL * 2;
     }
 

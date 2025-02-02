@@ -50,7 +50,7 @@ public class McFXScreenWrapper extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         if (screen == null) return;
         screen.setScreenSize(this.getWidth(), this.height.get());
     }

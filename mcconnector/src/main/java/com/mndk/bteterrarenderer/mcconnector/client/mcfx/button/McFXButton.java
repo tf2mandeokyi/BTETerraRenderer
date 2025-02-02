@@ -21,7 +21,7 @@ public class McFXButton extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         this.button.setWidth(this.getWidth());
     }
 

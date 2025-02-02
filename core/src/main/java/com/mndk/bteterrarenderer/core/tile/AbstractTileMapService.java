@@ -15,8 +15,12 @@ import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
+import com.mndk.bteterrarenderer.mcconnector.client.WindowDimension;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
@@ -55,6 +59,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
     private transient final List<PropertyAccessor.Localized<?>> stateAccessors = new ArrayList<>();
     private transient final ModelStorage storage;
+    private transient McFXElement hudElement;
 
     protected AbstractTileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
@@ -124,6 +129,28 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     }
 
     @Override
+    public final void renderHud(GuiDrawContextWrapper context) {
+        WindowDimension dimension = McConnector.client().getWindowSize();
+        int width = dimension.getScaledWidth();
+        if (this.hudElement == null) {
+            McFXElement element = this.makeHudElement();
+            if (element == null) element = McFX.div();
+            this.hudElement = McFX.vList(0, 4).addAll( // horizontal 4px
+                    McFX.div(4), // top 4px
+                    element,
+                    McFX.div(4) // bottom 4px
+            );
+            this.hudElement.init(width);
+        } else {
+            this.hudElement.onWidthChange(width);
+        }
+
+        context.pushMatrix();
+        this.hudElement.drawComponent(context);
+        context.popMatrix();
+    }
+
+    @Override
     public final void cleanUp() {
         this.storage.cleanUp();
     }
@@ -141,6 +168,9 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     }
 
     // ######################## <ABSTRACT METHODS> ########################
+
+    @Nullable
+    protected abstract McFXElement makeHudElement();
 
     /**
      * This method is executed in the getModels thread and before rendering tiles.

@@ -47,6 +47,7 @@ public abstract class McFXElement implements GuiComponentCopy {
         this.initialized = true;
     }
     public final void onWidthChange(int width) {
+        if (this.width == width) return;
         this.width = width;
         if (width > 0) {
             this.onWidthChange();
@@ -57,7 +58,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     protected abstract void init();
 
     /** This function is called both in initialization and on width change. */
-    public abstract void onWidthChange();
+    protected abstract void onWidthChange();
 
     protected abstract void drawElement(GuiDrawContextWrapper drawContextWrapper);
 

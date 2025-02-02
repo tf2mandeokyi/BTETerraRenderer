@@ -56,7 +56,7 @@ public class McFX {
     public McFXElement div() {
         return new McFXElement() {
             protected void init() {}
-            public void onWidthChange() {}
+            protected void onWidthChange() {}
             protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {}
         };
     }
@@ -67,7 +67,7 @@ public class McFX {
                 return height;
             }
             protected void init() {}
-            public void onWidthChange() {}
+            protected void onWidthChange() {}
             protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {}
         };
     }
@@ -78,7 +78,7 @@ public class McFX {
                 return height.get();
             }
             protected void init() {}
-            public void onWidthChange() {}
+            protected void onWidthChange() {}
             protected void drawElement(GuiDrawContextWrapper drawContextWrapper) {}
         };
     }

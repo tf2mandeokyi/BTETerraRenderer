@@ -57,11 +57,10 @@ public class McFXVerticalList extends McFXElement {
         return this;
     }
 
-    public McFXVerticalList add(McFXElement element) {
-        if (element == null) return this;
+    private void add(McFXElement element) {
+        if (element == null) return;
         this.entryList.add(new Entry(element));
         if (this.getWidth() != -1) element.init(this.getWidth() - 2 * this.sidePadding);
-        return this;
     }
 
     /**
@@ -70,6 +69,7 @@ public class McFXVerticalList extends McFXElement {
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(McFXElement... elements) {
         for (McFXElement element : elements) this.add(element);
+        this.calculateHeights();
         return this;
     }
 
@@ -79,6 +79,7 @@ public class McFXVerticalList extends McFXElement {
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(List<McFXElement> elements) {
         for (McFXElement element : elements) this.add(element);
+        this.calculateHeights();
         return this;
     }
 
@@ -111,7 +112,7 @@ public class McFXVerticalList extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         for (Entry entry : entryList) {
             McFXElement element = entry.element;
             if (element == null || element.hide) continue;

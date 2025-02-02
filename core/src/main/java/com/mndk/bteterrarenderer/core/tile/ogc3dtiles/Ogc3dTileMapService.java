@@ -24,10 +24,10 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.HorizontalAlign;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.VerticalAlign;
-import com.mndk.bteterrarenderer.mcconnector.client.text.FontWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.ogc3dtiles.TileData;
@@ -90,9 +90,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     private transient final ExecutorService tileFetcher;
     private transient final CacheStorage<TileGlobalKey, Pair<Matrix4d, TileData>> tileDataStorage;
-//    private transient final ImmediateBlock<TileGlobalKey, TileGlobalKey, Pair<Matrix4d, TileData>> storageFetcher;
-//    private transient final ImmediateBlock<TileGlobalKey, Pair<Matrix4d, InputStream>, Pair<Matrix4d, TileData>> streamParser;
     private transient final Map<String, Integer> copyrightOccurrences = new HashMap<>();
+    private transient final McFXVerticalList hudList = McFX.vList(0, 0);
 
     @Builder
     @SneakyThrows(MalformedURLException.class)
@@ -106,15 +105,6 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
         this.tileFetcher = Executors.newFixedThreadPool(this.getNThreads());
         this.tileDataStorage = new CacheStorage<>(commonYamlObject.getCacheConfig());
-//        this.storageFetcher = ImmediateBlock.of((key, input) -> {
-//            ProcessingState state = tileDataStorage.getResourceProcessingState(input);
-//            if (state != ProcessingState.PROCESSED) return null;
-//            return tileDataStorage.updateAndGetOutput(input);
-//        });
-//        this.streamParser = ImmediateBlock.of((key, pair) -> {
-//            TileData tileData = TileResourceManager.parse(pair.getRight(), this.coordConverter);
-//            return Pair.of(pair.getLeft(), tileData);
-//        });
     }
 
     @Override
@@ -151,26 +141,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    public void renderHud(GuiDrawContextWrapper context) {
-        List<Map.Entry<String, Integer>> sorted = new ArrayList<>(this.copyrightOccurrences.entrySet());
-        sorted.sort(Comparator.comparingInt(Map.Entry::getValue));
-        Collections.reverse(sorted);
-
-        FontWrapper font = McConnector.client().getDefaultFont();
-        int xPos = 4;
-        int yPos = 4;
-        for (Map.Entry<String, Integer> entry : sorted) {
-            context.drawTextWithShadow(font, "© " + entry.getKey(), HorizontalAlign.LEFT, VerticalAlign.TOP,
-                    xPos, yPos, 0xFFFFFFFF);
-            yPos += font.getHeight();
-        }
-
-        int count = this.tileDataStorage.getProcessingCount();
-        if (count != 0) {
-            // TODO: Add localization
-            String text = "Loading " + count + " model(s)...";
-            context.drawTextWithShadow(font, text, HorizontalAlign.LEFT, VerticalAlign.TOP, xPos, yPos, 0xFFFFFFFF);
-        }
+    protected McFXElement makeHudElement() {
+        return this.hudList;
     }
 
     @Override
@@ -186,40 +158,6 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             double[] tissot = projection.tissot(geoCoord[0], geoCoord[1]);
             this.magnitude = Math.sqrt(Math.abs(tissot[0]));
         } catch (OutOfProjectionBoundsException ignored) {}
-    }
-
-    @Override
-    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(TileGlobalKey tileGlobalKey) {
-        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(tileGlobalKey, () -> null);
-        if (pair == null) return null;
-        return CompletableFuture.supplyAsync(() -> this.parse(pair.getLeft(), pair.getRight()), this.tileFetcher);
-    }
-
-    private List<PreBakedModel> parse(Matrix4d transform, TileData tileData) {
-        // From 6.7.1.6. Transforms:
-        // ...
-        // More broadly the order of transformations is:
-        //  1. glTF node hierarchy transformations
-        //  2. glTF y-up to z-up transform
-        //  3. Tile glTF transform
-        if (this.isRotateModelAlongEarthXAxis()) {
-            transform.mul(ROTATE_X_AXIS);
-        }
-
-        GltfModel gltfModel = tileData.getGltfModelInstance();
-        if (gltfModel == null) return Collections.emptyList();
-
-        SpheroidCoordinatesConverter coordConverter = this.getCoordConverter();
-        return GltfModelConverter.convertModel(gltfModel, transform, this.getHologramProjection(), coordConverter);
-    }
-
-    private Pair<Matrix4d, TileData> downloadModel(TileGlobalKey tileGlobalKey, Matrix4d transform, URL url) {
-        return this.tileDataStorage.getOrCompute(tileGlobalKey, () -> HttpResourceManager.download(url.toString())
-                .thenApply(ByteBufInputStream::new)
-                .thenApplyAsync(stream -> {
-                    try { return Pair.of(transform, TileResourceManager.parse(stream, this.coordConverter)); }
-                    catch (IOException e) { throw new RuntimeException(e); }
-                }, TILE_PARSER));
     }
 
     @Override
@@ -273,7 +211,32 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         } catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
 
         SpheroidFrustum frustum = this.getFrustum(point, viewDirection, rightDirection);
-        return this.getIdListRecursively(frustum);
+        List<TileGlobalKey> result = this.getIdListRecursively(frustum);
+        this.updateHudList();
+        return result;
+    }
+
+    private void updateHudList() {
+        List<Map.Entry<String, Integer>> sorted = new ArrayList<>(this.copyrightOccurrences.entrySet());
+        sorted.sort(Comparator.comparingInt(Map.Entry::getValue));
+        Collections.reverse(sorted);
+
+        List<McFXElement> list = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : sorted) {
+            list.add(McFX.div()
+                    .setStringContent("© " + entry.getKey())
+                    .setAlign(HorizontalAlign.LEFT)
+                    .setColor(0xFFFFFFFF));
+        }
+
+        int count = this.tileDataStorage.getProcessingCount();
+        if (count != 0) {
+            list.add(McFX.div()
+                    .setStringContent("Loading " + count + " model(s)...")
+                    .setAlign(HorizontalAlign.LEFT)
+                    .setColor(0xFFFFFFFF));
+        }
+        this.hudList.clear().addAll(list);
     }
 
     private SpheroidFrustum getFrustum(Vector3d point, Vector3d viewDirection, Vector3d rightDirection) {
@@ -363,6 +326,40 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         }
 
         return result;
+    }
+
+    @Override
+    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(TileGlobalKey tileGlobalKey) {
+        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(tileGlobalKey, () -> null);
+        if (pair == null) return null;
+        return CompletableFuture.supplyAsync(() -> this.parse(pair.getLeft(), pair.getRight()), this.tileFetcher);
+    }
+
+    private List<PreBakedModel> parse(Matrix4d transform, TileData tileData) {
+        // From 6.7.1.6. Transforms:
+        // ...
+        // More broadly the order of transformations is:
+        //  1. glTF node hierarchy transformations
+        //  2. glTF y-up to z-up transform
+        //  3. Tile glTF transform
+        if (this.isRotateModelAlongEarthXAxis()) {
+            transform.mul(ROTATE_X_AXIS);
+        }
+
+        GltfModel gltfModel = tileData.getGltfModelInstance();
+        if (gltfModel == null) return Collections.emptyList();
+
+        SpheroidCoordinatesConverter coordConverter = this.getCoordConverter();
+        return GltfModelConverter.convertModel(gltfModel, transform, this.getHologramProjection(), coordConverter);
+    }
+
+    private Pair<Matrix4d, TileData> downloadModel(TileGlobalKey tileGlobalKey, Matrix4d transform, URL url) {
+        return this.tileDataStorage.getOrCompute(tileGlobalKey, () -> HttpResourceManager.download(url.toString())
+                .thenApply(ByteBufInputStream::new)
+                .thenApplyAsync(stream -> {
+                    try { return Pair.of(transform, TileResourceManager.parse(stream, this.coordConverter)); }
+                    catch (IOException e) { throw new RuntimeException(e); }
+                }, TILE_PARSER));
     }
 
     @Override

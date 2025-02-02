@@ -115,50 +115,58 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         return Arrays.asList(
                 // ===========================================================================================
-                McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                        .add(McFX.div()
+                McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
+                        McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.title")
                                 .setAlign(HorizontalAlign.CENTER)
-                                .setColor(0xFFFFFFFF)),
+                                .setColor(0xFFFFFFFF)
+                ),
 
                 // General components
-                McFX.vList(ELEMENT_DISTANCE, 0)
-                        .add(McFX.div()
+                McFX.vList(ELEMENT_DISTANCE, 0).addAll(
+                        McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.general")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF))
-                        .add(hl) // --------------------------------------------------------------------------
-                        .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                                .add(renderingTrigger)
-                                .add(opacitySlider)
-                                .add(this.yAxisInputWrapper)),
+                                .setColor(0xFFFFFFFF),
+                        hl, // --------------------------------------------------------------------------
+                        McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
+                                renderingTrigger,
+                                opacitySlider,
+                                this.yAxisInputWrapper
+                        )
+                ),
 
                 // Map source control components
-                McFX.vList(ELEMENT_DISTANCE, 0)
-                        .add(McFX.div()
+                McFX.vList(ELEMENT_DISTANCE, 0).addAll(
+                        McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_source")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF))
-                        .add(hl) // --------------------------------------------------------------------------
-                        .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                                .add(this.mapSourceDropdown)
-                                .add(this.mapCopyright)),
+                                .setColor(0xFFFFFFFF),
+                        hl, // --------------------------------------------------------------------------
+                        McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
+                                this.mapSourceDropdown,
+                                this.mapCopyright
+                        )
+                ),
 
                 this.tmsStateElementList,
 
-                McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                        .add(openMapsFolderButton)
-                        .add(reloadMapsButton),
+                McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
+                        openMapsFolderButton,
+                        reloadMapsButton
+                ),
 
                 // Map offset control components
-                McFX.vList(ELEMENT_DISTANCE, 0)
-                        .add(McFX.div()
+                McFX.vList(ELEMENT_DISTANCE, 0).addAll(
+                        McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_offset")
                                 .setAlign(HorizontalAlign.LEFT)
-                                .setColor(0xFFFFFFFF))
-                        .add(hl) // --------------------------------------------------------------------------
-                        .add(McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING)
-                                .add(mapAligner))
+                                .setColor(0xFFFFFFFF),
+                        hl, // --------------------------------------------------------------------------
+                        McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
+                                mapAligner
+                        )
+                )
                 // ===========================================================================================
         );
     }
@@ -189,10 +197,11 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         TileMapService.selectForDisplay(tmsWrapped);
 
         // Set property element list
-        this.tmsStateElementList.clear()
-                .add(McFX.div()
+        this.tmsStateElementList.clear().addAll(
+                McFX.div()
                         .setI18nKeyContent("gui.bteterrarenderer.settings.map_settings")
-                        .setAlign(HorizontalAlign.LEFT))
+                        .setAlign(HorizontalAlign.LEFT)
+                )
                 .addProperties(tms.getStateAccessors());
         this.tmsStateElementList.hide = false;
 

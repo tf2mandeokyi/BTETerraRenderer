@@ -22,7 +22,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsShape
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsTriangle;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTex;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosTexNorm;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;
@@ -84,6 +84,11 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
+    protected McFXElement makeHudElement() {
+        return null;
+    }
+
+    @Override
     public McCoordTransformer getModelPositionTransformer() {
         float yAlign = (float) (getFlatMapYAxis() + Y_EPSILON);
         return pos -> pos.add(new McCoord(0, yAlign, 0));
@@ -103,17 +108,15 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
     }
 
     @Override
-    public void renderHud(GuiDrawContextWrapper context) {}
-
-    @Override
     protected void preRender(McCoord playerPos) {
         this.imageToPreModel.process(2);
         SOMETHING_WENT_WRONG.bake();
         LOADING.bake();
     }
 
+    @Nullable
     @Override
-    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(FlatTileKey tileId) {
+    protected CompletableFuture<List<PreBakedModel>> processModel(FlatTileKey tileId) {
         String url = this.urlConverter.convertToUrl(this.urlTemplate, tileId);
         GraphicsShapes shapes;
         try { shapes = this.computeTileQuad(tileId); }

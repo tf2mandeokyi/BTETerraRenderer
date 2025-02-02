@@ -39,7 +39,7 @@ public class McFXNumberInput extends McFXElement {
     }
 
     @Override
-    public void onWidthChange() {
+    protected void onWidthChange() {
         this.textField.setWidth(this.getWidth());
     }
 
