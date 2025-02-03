@@ -42,7 +42,7 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
     }
 
     public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture,
-                                                                         float alpha, boolean enableNormal) {
+                                                                         float alpha, boolean enableNormal, boolean cull) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
 

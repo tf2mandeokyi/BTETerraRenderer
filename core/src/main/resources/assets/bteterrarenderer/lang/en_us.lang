@@ -21,10 +21,11 @@ gui.bteterrarenderer.settings.map_folder=Open maps folder...
 
 # 3D tile rendering
 gui.bteterrarenderer.settings.3d_radius=Render Radius
-gui.bteterrarenderer.settings.lod_factor=LOD Factor
-gui.bteterrarenderer.settings.enable_texture=Texture
-gui.bteterrarenderer.settings.render_surroundings=Render surroundings
-gui.bteterrarenderer.settings.y_distortion=Apply Y-axis Distortion
+gui.bteterrarenderer.settings.3d_lod_factor=LOD Factor
+gui.bteterrarenderer.settings.3d_texture=Texture
+gui.bteterrarenderer.settings.3d_culling=Culling
+gui.bteterrarenderer.settings.3d_render_surroundings=Render surroundings
+gui.bteterrarenderer.settings.3d_y_distortion=Apply Y-axis Distortion
 
 # Map offset
 gui.bteterrarenderer.settings.map_offset=Map Offset

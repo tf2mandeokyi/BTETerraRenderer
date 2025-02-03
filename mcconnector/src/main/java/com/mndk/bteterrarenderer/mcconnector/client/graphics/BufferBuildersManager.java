@@ -9,5 +9,5 @@ public interface BufferBuildersManager {
     BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture,
                                                            float alpha, boolean cull);
     BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture,
-                                                                  float alpha, boolean enableNormal);
+                                                                  float alpha, boolean enableNormal, boolean cull);
 }

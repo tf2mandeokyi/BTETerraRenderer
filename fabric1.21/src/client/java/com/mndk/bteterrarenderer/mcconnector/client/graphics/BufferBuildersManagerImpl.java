@@ -12,7 +12,6 @@ import net.minecraft.util.Util;
 import org.joml.Vector2f;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class BufferBuildersManagerImpl implements BufferBuildersManager {
 
@@ -32,9 +31,9 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
             VertexFormat.DrawMode.QUADS, 1536, true, true, generateParameters(texture, cull)
     ));
 
-    private static final Function<Identifier, RenderLayer> TRIS = Util.memoize(texture -> RenderLayer.of(
+    private static final BiFunction<Identifier, Boolean, RenderLayer> TRIS = Util.memoize((texture, cull) -> RenderLayer.of(
             "bteterrarenderer-tris", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
-            VertexFormat.DrawMode.TRIANGLES, 1536, true, true, generateParameters(texture, false)
+            VertexFormat.DrawMode.TRIANGLES, 1536, true, true, generateParameters(texture, cull)
     ));
 
     public BufferBuilderWrapper<GraphicsQuad<PosTex>> begin3dQuad(NativeTextureWrapper texture, float alpha, boolean cull) {
@@ -58,9 +57,9 @@ public class BufferBuildersManagerImpl implements BufferBuildersManager {
     }
 
     public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture,
-                                                                         float alpha, boolean enableNormal) {
+                                                                         float alpha, boolean enableNormal, boolean cull) {
         Identifier id = ((NativeTextureWrapperImpl) texture).delegate;
-        RenderLayer renderLayer = TRIS.apply(id);
+        RenderLayer renderLayer = TRIS.apply(id, cull);
 
         // DrawMode.QUADS
         // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL

@@ -81,6 +81,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Setter private transient boolean renderSurroundings = false;
     @Setter private transient double lodFactor = 0;
     @Setter private transient boolean enableTexture = true;
+    @Setter private transient boolean enableCulling = false;
     private transient double magnitude = 1;
 
     private final URL rootTilesetUrl;
@@ -128,13 +129,13 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             public BufferBuilderWrapper<GraphicsTriangle<PosTexNorm>> begin3dTri(NativeTextureWrapper texture) {
                 NativeTextureWrapper white = WHITE_TEXTURE.getTextureObject();
                 if (!enableTexture && white != null) {
-                    return manager.begin3dTri(WHITE_TEXTURE.getTextureObject(), opacity, true);
+                    return manager.begin3dTri(white, opacity, true, enableCulling);
                 } else {
                     // Disabling the normal value (or fixing it to (0, 1, 0)) will give us
                     // the full brightness. So even though PosTexNorm has normal values,
                     // we will ignore it or otherwise the models will have somewhat
                     // "random" brightness values, making the models look weird.
-                    return manager.begin3dTri(texture, opacity, false);
+                    return manager.begin3dTri(texture, opacity, false, enableCulling);
                 }
             }
         };
@@ -173,6 +174,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 this::getLodFactor, this::setLodFactor, 0, 5);
         PropertyAccessor<Boolean> enableTexture = PropertyAccessor.of(
                 this::isEnableTexture, this::setEnableTexture);
+        PropertyAccessor<Boolean> enableCulling = PropertyAccessor.of(
+                this::isEnableCulling, this::setEnableCulling);
         PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(
                 this::isRenderSurroundings, this::setRenderSurroundings);
         PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
@@ -180,10 +183,11 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
         return Arrays.asList(
                 PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radius),
-                PropertyAccessor.localized("lod_factor", "gui.bteterrarenderer.settings.lod_factor", lodFactor),
-                PropertyAccessor.localized("enable_texture", "gui.bteterrarenderer.settings.enable_texture", enableTexture),
-                PropertyAccessor.localized("render_surroundings", "gui.bteterrarenderer.settings.render_surroundings", renderSurroundings),
-                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.y_distortion", yDistortion)
+                PropertyAccessor.localized("lod_factor", "gui.bteterrarenderer.settings.3d_lod_factor", lodFactor),
+                PropertyAccessor.localized("enable_texture", "gui.bteterrarenderer.settings.3d_texture", enableTexture),
+                PropertyAccessor.localized("enable_culling", "gui.bteterrarenderer.settings.3d_culling", enableCulling),
+                PropertyAccessor.localized("render_surroundings", "gui.bteterrarenderer.settings.3d_render_surroundings", renderSurroundings),
+                PropertyAccessor.localized("y_dist", "gui.bteterrarenderer.settings.3d_y_distortion", yDistortion)
         );
     }
 
