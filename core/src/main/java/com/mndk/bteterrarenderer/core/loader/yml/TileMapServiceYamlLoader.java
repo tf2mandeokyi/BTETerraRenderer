@@ -3,7 +3,6 @@ package com.mndk.bteterrarenderer.core.loader.yml;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.util.Loggers;
-import lombok.val;
 
 import java.io.IOException;
 
@@ -15,17 +14,10 @@ public class TileMapServiceYamlLoader extends YamlLoader<TileMapServiceYamlFile,
 
 	@Override
 	public void refresh() {
-		if (result != null) {
-			for (val category : result.getCategories()) {
-				for (val entry : category.getValue().entrySet()) {
-                    try {
-                        entry.getValue().getItem().close();
-                    } catch (Exception e) {
-						Loggers.get(this).error("Couldn't close TMS", e);
-                    }
-                }
-			}
-		}
+		if (result != null) result.forEach((cn, category) -> category.forEach((n, wrapper) -> {
+			try { wrapper.getItem().close(); }
+			catch (Exception e) { Loggers.get(this).error("Couldn't close TMS", e); }
+		}));
 		super.refresh();
 	}
 

@@ -29,11 +29,8 @@ public class JsonString {
     }
 
     public static JsonString fromUnsafe(String json) {
-        try {
-            return JsonString.from(json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        try { return JsonString.from(json); }
+        catch (JsonProcessingException e) { throw new RuntimeException(e); }
     }
 
     public static JsonString from(JsonNode node) {

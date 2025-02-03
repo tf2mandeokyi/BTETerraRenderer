@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 @JsonSerialize(using = CategoryMap.Serializer.class)
 @JsonDeserialize(using = CategoryMap.Deserializer.class)
@@ -22,12 +23,14 @@ public class CategoryMap<T> {
 
 	private final Map<String, Category<T>> map = new LinkedHashMap<>();
 
-	public Category<T> getCategory(String categoryName) {
-		return map.get(categoryName);
+	public void forEach(BiConsumer<String, Category<T>> consumer) {
+		map.forEach(consumer);
 	}
 
-	public Set<Map.Entry<String, Category<T>>> getCategories() {
-		return map.entrySet();
+	public <E extends Throwable> void forEachThrowable(ThrowableBiConsumer<String, Category<T>, E> consumer) throws E {
+		for (Map.Entry<String, Category<T>> entry : map.entrySet()) {
+			consumer.accept(entry.getKey(), entry.getValue());
+		}
 	}
 
 	/**
@@ -83,6 +86,11 @@ public class CategoryMap<T> {
 		public void setSource(String source) {
 			this.values().forEach(wrapped -> wrapped.source = source);
 		}
+		public <E extends Throwable> void forEachThrowable(ThrowableBiConsumer<String, Wrapper<T>, E> consumer) throws E {
+			for (Map.Entry<String, Wrapper<T>> entry : this.entrySet()) {
+				consumer.accept(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	@Getter
@@ -115,16 +123,16 @@ public class CategoryMap<T> {
 		public void serialize(CategoryMap<Object> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 			gen.writeStartObject(); // main
 
-			for (Map.Entry<String, Category<Object>> categoryEntry : value.getCategories()) {
-				gen.writeFieldName(categoryEntry.getKey());
+			value.forEachThrowable((categoryName, category) -> {
+				gen.writeFieldName(categoryName);
 				gen.writeStartObject();
 
-				for (Map.Entry<String, Wrapper<Object>> wrapperEntry : categoryEntry.getValue().entrySet()) {
-					gen.writeFieldName(wrapperEntry.getKey());
-					gen.writeObject(wrapperEntry.getValue().item);
-				}
+				category.forEachThrowable((id, wrapper) -> {
+					gen.writeFieldName(id);
+					gen.writeObject(wrapper.item);
+				});
 				gen.writeEndObject();
-			}
+			});
 
 			gen.writeEndObject(); // main
 		}

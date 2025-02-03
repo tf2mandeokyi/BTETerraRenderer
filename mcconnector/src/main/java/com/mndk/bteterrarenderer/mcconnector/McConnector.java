@@ -19,11 +19,8 @@ public class McConnector {
 
     @Nonnull
     public static ClientMinecraftManager client() {
-        try {
-            return (ClientMinecraftManager) MINECRAFT;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("Minecraft is not client", e);
-        }
+        try { return (ClientMinecraftManager) MINECRAFT; }
+        catch (ClassCastException e) { throw new UnsupportedOperationException("Minecraft is not client", e); }
     }
 
     @Nonnull

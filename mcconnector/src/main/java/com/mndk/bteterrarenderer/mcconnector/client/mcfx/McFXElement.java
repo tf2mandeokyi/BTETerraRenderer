@@ -47,7 +47,6 @@ public abstract class McFXElement implements GuiComponentCopy {
         this.initialized = true;
     }
     public final void onWidthChange(int width) {
-        if (this.width == width) return;
         this.width = width;
         if (width > 0) {
             this.onWidthChange();

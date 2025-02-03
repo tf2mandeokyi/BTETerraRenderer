@@ -9,11 +9,8 @@ public abstract class CppNumber<T extends CppNumber<T>> extends Number implement
 
     public boolean equals(Object obj) {
         if (!(obj instanceof CppNumber)) return false;
-        try {
-            return this.equals(BTRUtil.uncheckedCast(obj));
-        } catch (ClassCastException ignored) {
-            return false;
-        }
+        try { return this.equals(BTRUtil.uncheckedCast(obj)); }
+        catch (ClassCastException ignored) { return false; }
     }
     public abstract int hashCode();
     public abstract String toString();

@@ -124,7 +124,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                BufferedImage image = HttpResourceManager.downloadAsImage(url).get();
+                BufferedImage image = HttpResourceManager.downloadAsImage(url, this.getNThreads()).get();
                 return Collections.singletonList(new PreBakedModel(image, shapes));
             } catch (Exception e) {
                 throw new RuntimeException("Failed to download image from " + url, e);

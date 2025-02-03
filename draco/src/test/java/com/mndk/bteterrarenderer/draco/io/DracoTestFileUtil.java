@@ -38,11 +38,8 @@ public class DracoTestFileUtil {
     public static File toFile(String fileName) {
         URL url = DracoTestFileUtil.class.getClassLoader().getResource(fileName);
         if (url == null) Assert.fail("File not found: " + fileName);
-        try {
-            return new File(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        try { return new File(url.toURI()); }
+        catch (URISyntaxException e) { throw new RuntimeException(e); }
     }
 
     public static void compareGoldenFile(File goldenFile, EncoderBuffer actualBuffer) {

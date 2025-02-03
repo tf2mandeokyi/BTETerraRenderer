@@ -6,14 +6,14 @@ import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @UtilityClass
 public class Loggers {
-    private final Map<Class<?>, Logger> LOGGERS = new HashMap<>();
+    private final Map<Class<?>, Logger> LOGGERS = new ConcurrentHashMap<>();
 
-    public synchronized Logger get(Class<?> clazz) {
+    public Logger get(Class<?> clazz) {
         return LOGGERS.computeIfAbsent(clazz, Loggers::makeLogger);
     }
 

@@ -37,11 +37,11 @@ public interface TileMapService extends AutoCloseable {
     List<PropertyAccessor.Localized<?>> getStateAccessors();
     void moveAlongYAxis(double amount);
 
+    VertexBeginner getVertexBeginner(BufferBuildersManager manager, float opacity);
     List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees);
     McCoordTransformer getModelPositionTransformer();
     void cleanUp();
 
-    VertexBeginner getVertexBeginner(BufferBuildersManager manager, float opacity);
     void renderHud(GuiDrawContextWrapper context);
 
     class Serializer extends JsonSerializer<TileMapService> {

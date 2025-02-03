@@ -135,16 +135,15 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         if (this.hudElement == null) {
             McFXElement element = this.makeHudElement();
             if (element == null) element = McFX.div();
-            this.hudElement = McFX.vList(0, 4).addAll( // horizontal 4px
+            this.hudElement = McFX.vList(4, 4).addAll( // horizontal 4px
                     McFX.div(4), // top 4px
                     element,
                     McFX.div(4) // bottom 4px
             );
             this.hudElement.init(width);
-        } else {
-            this.hudElement.onWidthChange(width);
         }
 
+        this.hudElement.onWidthChange(width);
         context.pushMatrix();
         this.hudElement.drawComponent(context);
         context.popMatrix();

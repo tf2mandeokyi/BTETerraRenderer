@@ -19,11 +19,8 @@ public class BTRUtil {
     }
 
     public boolean validateDouble(String s) {
-        try {
-            Double.parseDouble(s);
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        try { Double.parseDouble(s); }
+        catch (NumberFormatException e) { return false; }
         return true;
     }
 

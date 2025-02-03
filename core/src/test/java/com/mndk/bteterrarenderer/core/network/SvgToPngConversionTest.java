@@ -13,15 +13,12 @@ public class SvgToPngConversionTest {
     @Test
     public void givenUrl_testConversion() throws ExecutionException, InterruptedException {
         String url = "https://upload.wikimedia.org/wikipedia/commons/9/9c/Bing_Fluent_Logo.svg";
-        BufferedImage image = HttpResourceManager.downloadAsImage(url).get();
+        BufferedImage image = HttpResourceManager.downloadAsImage(url, null).get();
         Assert.assertEquals(678, image.getWidth()); // This number might change in the future
     }
 
     static {
-        try {
-            BTETerraRendererCore.initialize(TestEnvironmentDummyMinecraft.getInstance());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        try { BTETerraRendererCore.initialize(TestEnvironmentDummyMinecraft.getInstance()); }
+        catch (Exception e) { throw new RuntimeException(e); }
     }
 }

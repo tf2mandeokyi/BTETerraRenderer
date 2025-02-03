@@ -48,11 +48,8 @@ public class TileMapServiceStatesLoader {
         for (PropertyAccessor.Localized<?> state : states) {
             String key = state.getKey();
             if (!rawValues.containsKey(key)) continue;
-            try {
-                state.set(BTRUtil.uncheckedCast(rawValues.get(key)));
-            } catch (Exception e) {
-                Loggers.get(this).error("Could not set property for TMS", e);
-            }
+            try { state.set(BTRUtil.uncheckedCast(rawValues.get(key))); }
+            catch (Exception e) { Loggers.get(this).error("Could not set property for TMS", e); }
         }
     }
 

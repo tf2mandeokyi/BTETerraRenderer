@@ -32,9 +32,8 @@ public abstract class YamlLoader<F, T> {
     public void refresh() {
 
         // Load default data
-        try {
-            this.result = loadDefault();
-        } catch (IOException e) {
+        try { this.result = loadDefault(); }
+        catch (IOException e) {
             Loggers.get(this).error("Error while parsing default file: {}", defaultYamlPath, e);
             return;
         }

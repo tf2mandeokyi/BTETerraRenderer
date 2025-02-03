@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class FlatTileURLConverter {
 
+    private static final Pattern RANDOM_PATTERN = Pattern.compile("\\{random:([^{}]+)}");
+
     protected final int defaultZoom;
     protected final boolean invertZoom;
 
@@ -29,7 +31,7 @@ public class FlatTileURLConverter {
     }
 
     private static String replaceRandoms(String url) {
-        Matcher m = Pattern.compile("\\{random:([^{}]+)}").matcher(url);
+        Matcher m = RANDOM_PATTERN.matcher(url);
         StringBuffer buffer = new StringBuffer();
         Random r = new Random();
         while (m.find()) {

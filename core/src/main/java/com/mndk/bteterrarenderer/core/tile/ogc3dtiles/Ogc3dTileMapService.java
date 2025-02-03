@@ -354,7 +354,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     private Pair<Matrix4d, TileData> downloadModel(TileGlobalKey tileGlobalKey, Matrix4d transform, URL url) {
-        return this.tileDataStorage.getOrCompute(tileGlobalKey, () -> HttpResourceManager.download(url.toString())
+        return this.tileDataStorage.getOrCompute(tileGlobalKey, () -> HttpResourceManager.download(url.toString(), this.getNThreads())
                 .thenApply(ByteBufInputStream::new)
                 .thenApplyAsync(stream -> {
                     try { return Pair.of(transform, TileResourceManager.parse(stream, this.coordConverter)); }

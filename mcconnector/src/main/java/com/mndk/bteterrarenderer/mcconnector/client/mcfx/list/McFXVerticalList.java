@@ -69,7 +69,6 @@ public class McFXVerticalList extends McFXElement {
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(McFXElement... elements) {
         for (McFXElement element : elements) this.add(element);
-        this.calculateHeights();
         return this;
     }
 
@@ -79,7 +78,6 @@ public class McFXVerticalList extends McFXElement {
     @SuppressWarnings("UnusedReturnValue")
     public McFXVerticalList addAll(List<McFXElement> elements) {
         for (McFXElement element : elements) this.add(element);
-        this.calculateHeights();
         return this;
     }
 

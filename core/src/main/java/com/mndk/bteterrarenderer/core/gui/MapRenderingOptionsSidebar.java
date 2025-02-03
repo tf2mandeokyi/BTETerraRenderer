@@ -11,6 +11,7 @@ import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
+import com.mndk.bteterrarenderer.core.util.ImageUtil;
 import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
@@ -250,9 +251,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 mapSourceDropdown.itemListBuilder();
 
         CategoryMap<TileMapService> tmsCategoryMap = ConfigLoaders.tms().getResult();
-        tmsCategoryMap.getCategories().forEach(categoryEntry -> {
-            CategoryMap.Category<TileMapService> category = categoryEntry.getValue();
-            updater.push(categoryEntry.getKey());
+        tmsCategoryMap.forEach((name, category) -> {
+            updater.push(name);
             category.values().forEach(updater::add);
             updater.pop();
         });
@@ -293,9 +293,9 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         URL iconUrl = tms.getIconUrl();
         if (iconUrl == null) return null;
 
-        return ICON_STORAGE.getOrCompute(iconUrl, () -> HttpResourceManager.downloadAsImage(iconUrl.toString())
+        return ICON_STORAGE.getOrCompute(iconUrl, () -> HttpResourceManager.downloadAsImage(iconUrl.toString(), null)
                 .thenApplyAsync(
-                        image -> HttpResourceManager.resizeImage(image, 256, 256),
+                        image -> ImageUtil.resizeImage(image, 256, 256),
                         MULTI_THREADED
                 )
                 .thenApplyAsync(
