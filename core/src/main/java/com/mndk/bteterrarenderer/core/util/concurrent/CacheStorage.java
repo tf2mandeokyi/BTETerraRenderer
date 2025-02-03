@@ -69,18 +69,18 @@ public class CacheStorage<K, V> implements Closeable {
         switch (wrapper.state) {
             case NOT_PROCESSED:
                 wrapper.state = ProcessingState.PROCESSING;
-                this.processingCount.addAndGet(1);
+                this.processingCount.incrementAndGet();
 
                 CompletableFuture<V> future = function.get();
                 if (future == null) {
-                    this.processingCount.addAndGet(-1);
+                    this.processingCount.decrementAndGet();
                     wrapper.state = ProcessingState.NOT_PROCESSED;
                     return null;
                 }
 
                 future.whenComplete((models, error) -> {
                     this.storeValue(key, models, error, this::delete);
-                    this.processingCount.addAndGet(-1);
+                    this.processingCount.decrementAndGet();
                     if (error != null) Loggers.get(this).error("Error processing cache value", error);
                 });
                 return null;

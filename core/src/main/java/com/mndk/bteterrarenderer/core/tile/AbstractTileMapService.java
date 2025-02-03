@@ -60,6 +60,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private transient final List<PropertyAccessor.Localized<?>> stateAccessors = new ArrayList<>();
     private transient final ModelStorage storage;
     private transient McFXElement hudElement;
+    private final transient McFXElement bakingIndicatorWrapper = McFX.div().setColor(0xFFFFFFFF);
 
     protected AbstractTileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
@@ -96,12 +97,12 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     @Nullable
     private List<GraphicsModel> getModelsForId(TileId tileId) {
         return this.storage.getOrCompute(tileId, () -> {
-            CompletableFuture<List<PreBakedModel>> future = AbstractTileMapService.this.processModel(tileId);
-            return future == null ? null : future.thenApplyAsync(AbstractTileMapService::bake, MODEL_BAKER);
+            CompletableFuture<List<PreBakedModel>> future = this.processModel(tileId);
+            return future == null ? null : future.thenApplyAsync(this::bake, MODEL_BAKER);
         });
     }
 
-    private static List<GraphicsModel> bake(List<PreBakedModel> preBakedModels) {
+    private List<GraphicsModel> bake(List<PreBakedModel> preBakedModels) {
         List<GraphicsModel> models = new ArrayList<>(preBakedModels.size());
         for (PreBakedModel preBakedModel : preBakedModels) {
             BufferedImage image = preBakedModel.getImage();
@@ -135,14 +136,18 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         if (this.hudElement == null) {
             McFXElement element = this.makeHudElement();
             if (element == null) element = McFX.div();
-            this.hudElement = McFX.vList(4, 4).addAll( // horizontal 4px
-                    McFX.div(4), // top 4px
+            // side padding: 4px
+            this.hudElement = McFX.vList(0, 4).addAll(
+                    McFX.div(4), // top padding: 4px
                     element,
-                    McFX.div(4) // bottom 4px
+                    this.bakingIndicatorWrapper
             );
             this.hudElement.init(width);
         }
 
+        int bakingCounter = this.storage.getProcessingCount();
+        this.bakingIndicatorWrapper.setStringContent(bakingCounter != 0
+                ? "Baking " + bakingCounter + " model(s)..." : "");
         this.hudElement.onWidthChange(width);
         context.pushMatrix();
         this.hudElement.drawComponent(context);

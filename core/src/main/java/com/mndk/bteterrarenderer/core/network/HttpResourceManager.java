@@ -9,8 +9,9 @@ import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +20,7 @@ public class HttpResourceManager {
 
     // match -> replace with "$1://$2/"
     private final Pattern PROTOCOL_HOST_PORT = Pattern.compile("^(https?)://(([^:/]+)(?::(\\d+))?)/.*$");
-    private final HashMap<String, Integer> ENTRIES = new HashMap<>();
+    private final Map<String, Integer> MCR_ENTRIES = new ConcurrentHashMap<>();
 
     public CompletableFuture<BufferedImage> downloadAsImage(String url, @Nullable Integer maxConcurrentRequests) {
         return download(url, maxConcurrentRequests).thenApplyAsync(buf -> {
@@ -38,7 +39,7 @@ public class HttpResourceManager {
                 // 2. If the host is in the map, replace the value if it is different
                 // Update maximum concurrent requests to the host if the above
                 // conditions are met
-                Integer previous = ENTRIES.put(host, maxConcurrentRequests);
+                Integer previous = MCR_ENTRIES.put(host, maxConcurrentRequests);
                 if (previous == null || !previous.equals(maxConcurrentRequests)) {
                     Http.setMaximumConcurrentRequestsTo(host, maxConcurrentRequests);
                     Loggers.get(HttpResourceManager.class).info("Updated max concurrent requests to {}: {}", host, maxConcurrentRequests);
