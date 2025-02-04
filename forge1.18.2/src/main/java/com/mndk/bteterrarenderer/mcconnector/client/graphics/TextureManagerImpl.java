@@ -14,15 +14,17 @@ import java.awt.image.BufferedImage;
 public class TextureManagerImpl extends TextureManager {
 
     protected NativeTextureWrapper getMissingTextureObject() {
-        return new NativeTextureWrapperImpl(MissingTextureAtlasSprite.getLocation());
+        return new NativeTextureWrapperImpl(MissingTextureAtlasSprite.getLocation(), 16, 16);
     }
     @SneakyThrows
     protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, @Nonnull BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
         DynamicTexture texture = new DynamicTexture(nativeImage);
         ResourceLocation location = new ResourceLocation(modId, "dynamic-" + count);
         Minecraft.getInstance().getTextureManager().register(location, texture);
-        return new NativeTextureWrapperImpl(location);
+        return new NativeTextureWrapperImpl(location, width, height);
     }
     protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         Minecraft.getInstance().getTextureManager().release(((NativeTextureWrapperImpl) textureObject).delegate);

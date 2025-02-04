@@ -14,15 +14,17 @@ import java.awt.image.BufferedImage;
 public class TextureManagerImpl extends TextureManager {
 
     protected NativeTextureWrapper getMissingTextureObject() {
-        return new NativeTextureWrapperImpl(MissingSprite.getMissingSpriteId());
+        return new NativeTextureWrapperImpl(MissingSprite.getMissingSpriteId(), 16, 16);
     }
     @SneakyThrows
     protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, @Nonnull BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
         NativeImage nativeImage = NativeImage.read(IOUtil.imageToInputStream(image));
         NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
         Identifier id = Identifier.of(modId, "dynamic-" + count);
         MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
-        return new NativeTextureWrapperImpl(id);
+        return new NativeTextureWrapperImpl(id, width, height);
     }
     protected void deleteTextureObjectInternal(NativeTextureWrapper textureObject) {
         MinecraftClient.getInstance().getTextureManager().destroyTexture(((NativeTextureWrapperImpl) textureObject).delegate);

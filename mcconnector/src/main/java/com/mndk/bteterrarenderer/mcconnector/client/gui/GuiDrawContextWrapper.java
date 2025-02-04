@@ -9,6 +9,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.text.StyleWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.text.TextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.util.ResourceLocationWrapper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface GuiDrawContextWrapper {
@@ -32,7 +33,7 @@ public interface GuiDrawContextWrapper {
     // GUI implementations
     void fillRect(int x1, int y1, int x2, int y2, int color);
     void fillQuad(GraphicsQuad<PosXY> quad, int color, float z);
-    void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h);
+    void drawWholeNativeImage(@Nonnull NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h);
     void drawWholeImage(ResourceLocationWrapper res, int x, int y, int w, int h);
     void drawWholeCenteredImage(ResourceLocationWrapper res, int x, int y, int w, int h);
 

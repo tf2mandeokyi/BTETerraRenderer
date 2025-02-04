@@ -14,7 +14,7 @@ import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
-import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
+import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
@@ -168,18 +168,12 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Override
     protected List<PropertyAccessor.Localized<?>> makeStateAccessors() {
-        PropertyAccessor<Double> radius = PropertyAccessor.ranged(
-                this::getRadius, this::setRadius, 1, 1000);
-        PropertyAccessor<Double> lodFactor = PropertyAccessor.ranged(
-                this::getLodFactor, this::setLodFactor, 0, 5);
-        PropertyAccessor<Boolean> enableTexture = PropertyAccessor.of(
-                this::isEnableTexture, this::setEnableTexture);
-        PropertyAccessor<Boolean> enableCulling = PropertyAccessor.of(
-                this::isEnableCulling, this::setEnableCulling);
-        PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(
-                this::isRenderSurroundings, this::setRenderSurroundings);
-        PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(
-                this::isYDistortion, this::setYDistortion);
+        PropertyAccessor<Double> radius = PropertyAccessor.ranged(this::getRadius, this::setRadius, 1, 1000);
+        PropertyAccessor<Double> lodFactor = PropertyAccessor.ranged(this::getLodFactor, this::setLodFactor, 0, 5);
+        PropertyAccessor<Boolean> enableTexture = PropertyAccessor.of(this::isEnableTexture, this::setEnableTexture);
+        PropertyAccessor<Boolean> enableCulling = PropertyAccessor.of(this::isEnableCulling, this::setEnableCulling);
+        PropertyAccessor<Boolean> renderSurroundings = PropertyAccessor.of(this::isRenderSurroundings, this::setRenderSurroundings);
+        PropertyAccessor<Boolean> yDistortion = PropertyAccessor.of(this::isYDistortion, this::setYDistortion);
 
         return Arrays.asList(
                 PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.3d_radius", radius),
@@ -229,7 +223,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         for (Map.Entry<String, Integer> entry : sorted) {
             list.add(McFX.div()
                     .setStringContent("© " + entry.getKey())
-                    .setAlign(HorizontalAlign.LEFT)
+                    .setHorizontalAlign(HorizontalAlign.LEFT)
                     .setColor(0xFFFFFFFF));
         }
 
@@ -237,7 +231,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         if (count != 0) {
             list.add(McFX.div()
                     .setStringContent("Loading " + count + " model(s)...")
-                    .setAlign(HorizontalAlign.LEFT)
+                    .setHorizontalAlign(HorizontalAlign.LEFT)
                     .setColor(0xFFFFFFFF));
         }
         this.hudList.clear().addAll(list);

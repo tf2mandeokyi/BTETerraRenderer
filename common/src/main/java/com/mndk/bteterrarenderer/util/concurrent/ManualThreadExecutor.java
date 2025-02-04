@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.graphics;
+package com.mndk.bteterrarenderer.util.concurrent;
 
 import javax.annotation.Nonnull;
 import java.util.Queue;

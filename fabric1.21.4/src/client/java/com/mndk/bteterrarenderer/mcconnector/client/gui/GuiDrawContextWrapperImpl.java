@@ -115,7 +115,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         delegate.drawTexturedQuad(RenderLayer::getGuiTextured, texture, x, x+w, y, y+h, u1, u2, v1, v2, ColorHelper.getWhite(1));
     }
 
-    public void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
+    public void drawWholeNativeImage(@Nonnull NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
         Identifier texture = ((NativeTextureWrapperImpl) allocatedTextureObject).delegate;
         delegate.drawTexturedQuad(RenderLayer::getGuiTextured, texture, x, x+w, y, y+h, 0, 1, 0, 1, ColorHelper.getWhite(1));
     }

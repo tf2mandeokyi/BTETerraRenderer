@@ -30,7 +30,7 @@ public abstract class McFXElement implements GuiComponentCopy {
 
     @Setter private int backgroundColor = 0x00000000;
     @Setter private int color = NORMAL_TEXT_COLOR;
-    @Setter private HorizontalAlign align = HorizontalAlign.LEFT;
+    @Setter protected HorizontalAlign horizontalAlign = HorizontalAlign.LEFT;
     private boolean initialized = false;
     private TextWrapper textContent = null;
     private List<? extends TextWrapper> lineComponents;
@@ -99,7 +99,7 @@ public abstract class McFXElement implements GuiComponentCopy {
 
         if (this.textContent != null) {
             for (int i = 0; i < lineComponents.size(); ++i) {
-                drawContextWrapper.drawTextWithShadow(getDefaultFont(), lineComponents.get(i), this.align,
+                drawContextWrapper.drawTextWithShadow(getDefaultFont(), lineComponents.get(i), this.horizontalAlign,
                         0, i * getDefaultFont().getHeight(), this.getWidth(), this.color);
             }
             if (this.hoveredStyleComponent != null) {
@@ -158,7 +158,7 @@ public abstract class McFXElement implements GuiComponentCopy {
 
         int xPos = 0;
         int lineWidth = getDefaultFont().getWidth(lineComponent);
-        switch (this.align) {
+        switch (this.horizontalAlign) {
             case LEFT: break;
             case CENTER: xPos = (this.getWidth() - lineWidth) / 2; break;
             case RIGHT: xPos = this.getWidth() - lineWidth; break;

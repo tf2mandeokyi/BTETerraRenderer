@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
-import com.mndk.bteterrarenderer.core.graphics.ManualThreadExecutor;
+import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
-import com.mndk.bteterrarenderer.core.util.concurrent.MappedExecutors;
+import com.mndk.bteterrarenderer.util.concurrent.MappedExecutors;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
@@ -138,10 +138,8 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileKey> {
 
     @Override
     protected List<PropertyAccessor.Localized<?>> makeStateAccessors() {
-        PropertyAccessor<Integer> zoom = PropertyAccessor.ranged(
-                this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
-        PropertyAccessor<Integer> radius =  PropertyAccessor.ranged(
-                this::getRadius, this::setRadius, 1, 10);
+        PropertyAccessor<Integer> zoom = PropertyAccessor.ranged(this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
+        PropertyAccessor<Integer> radius =  PropertyAccessor.ranged(this::getRadius, this::setRadius, 1, 10);
 
         return Arrays.asList(
                 PropertyAccessor.localized("zoom", "gui.bteterrarenderer.settings.zoom", zoom),

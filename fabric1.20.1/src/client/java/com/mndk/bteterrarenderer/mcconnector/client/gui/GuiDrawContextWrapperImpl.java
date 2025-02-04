@@ -113,7 +113,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         delegate.drawTexturedQuad(texture, x, x+w, y, y+h, 0, u1, u2, v1, v2);
     }
 
-    public void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
+    public void drawWholeNativeImage(@Nonnull NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
         Identifier texture = ((NativeTextureWrapperImpl) allocatedTextureObject).delegate;
         delegate.drawTexturedQuad(texture, x, x+w, y, y+h, 0, 0, 1, 0, 1);
     }

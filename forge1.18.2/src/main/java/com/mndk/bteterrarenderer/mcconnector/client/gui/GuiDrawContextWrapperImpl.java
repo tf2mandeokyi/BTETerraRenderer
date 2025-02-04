@@ -152,7 +152,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         innerBlit(matrix4f, x, x+w, y, y+h, u1, u2, v1, v2);
     }
 
-    public void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
+    public void drawWholeNativeImage(@Nonnull NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
         Matrix4f matrix4f = delegate.last().pose();
         RenderSystem.setShaderTexture(0, ((NativeTextureWrapperImpl) allocatedTextureObject).delegate);
         RenderSystem.setShaderColor(1, 1, 1, 1);

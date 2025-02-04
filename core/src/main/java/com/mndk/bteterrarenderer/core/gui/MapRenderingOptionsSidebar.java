@@ -2,7 +2,7 @@ package com.mndk.bteterrarenderer.core.gui;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.graphics.ManualThreadExecutor;
+import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.gui.mapaligner.MapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
@@ -12,7 +12,7 @@ import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.core.util.ImageUtil;
-import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
+import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
@@ -80,7 +80,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 MapRenderingOptionsSidebar::tmsWrappedToString,
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
-        this.mapCopyright = McFX.div().setAlign(HorizontalAlign.LEFT);
+        this.mapCopyright = McFX.div().setHorizontalAlign(HorizontalAlign.LEFT);
         this.tmsStateElementList = McFX.vList(ELEMENT_DISTANCE, ELEMENT_DISTANCE);
     }
 
@@ -119,7 +119,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
                         McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.title")
-                                .setAlign(HorizontalAlign.CENTER)
+                                .setHorizontalAlign(HorizontalAlign.CENTER)
                                 .setColor(0xFFFFFFFF)
                 ),
 
@@ -127,7 +127,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 McFX.vList(ELEMENT_DISTANCE, 0).addAll(
                         McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.general")
-                                .setAlign(HorizontalAlign.LEFT)
+                                .setHorizontalAlign(HorizontalAlign.LEFT)
                                 .setColor(0xFFFFFFFF),
                         hl, // --------------------------------------------------------------------------
                         McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
@@ -141,7 +141,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 McFX.vList(ELEMENT_DISTANCE, 0).addAll(
                         McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_source")
-                                .setAlign(HorizontalAlign.LEFT)
+                                .setHorizontalAlign(HorizontalAlign.LEFT)
                                 .setColor(0xFFFFFFFF),
                         hl, // --------------------------------------------------------------------------
                         McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
@@ -161,7 +161,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
                 McFX.vList(ELEMENT_DISTANCE, 0).addAll(
                         McFX.div()
                                 .setI18nKeyContent("gui.bteterrarenderer.settings.map_offset")
-                                .setAlign(HorizontalAlign.LEFT)
+                                .setHorizontalAlign(HorizontalAlign.LEFT)
                                 .setColor(0xFFFFFFFF),
                         hl, // --------------------------------------------------------------------------
                         McFX.vList(ELEMENT_DISTANCE, SIDE_PADDING).addAll(
@@ -201,7 +201,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         this.tmsStateElementList.clear().addAll(
                 McFX.div()
                         .setI18nKeyContent("gui.bteterrarenderer.settings.map_settings")
-                        .setAlign(HorizontalAlign.LEFT)
+                        .setHorizontalAlign(HorizontalAlign.LEFT)
                 )
                 .addProperties(tms.getStateAccessors());
         this.tmsStateElementList.hide = false;

@@ -11,10 +11,12 @@ public class DummyTextureManager extends TextureManager {
 
     @Override
     protected NativeTextureWrapper getMissingTextureObject() {
-        return new DummyNativeTextureWrapperImpl(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
+        return new DummyNativeTextureWrapperImpl(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), 1, 1);
     }
     @Override
     protected NativeTextureWrapper allocateAndGetTextureObject(String modId, int count, @Nonnull BufferedImage image) {
-        return new DummyNativeTextureWrapperImpl(image);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        return new DummyNativeTextureWrapperImpl(image, width, height);
     }
 }

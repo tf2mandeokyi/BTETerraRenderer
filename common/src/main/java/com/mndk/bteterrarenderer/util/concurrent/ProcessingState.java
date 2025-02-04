@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.util.concurrent;
+package com.mndk.bteterrarenderer.util.concurrent;
 
 public enum ProcessingState {
     NOT_PROCESSED, PROCESSING, PROCESSED, ERROR

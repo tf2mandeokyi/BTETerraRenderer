@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.util.concurrent;
+package com.mndk.bteterrarenderer.util.concurrent;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

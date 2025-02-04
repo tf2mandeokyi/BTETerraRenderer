@@ -8,10 +8,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
-import com.mndk.bteterrarenderer.core.graphics.ManualThreadExecutor;
+import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.image.McFXImage;
+import com.mndk.bteterrarenderer.util.Loggers;
+import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.core.util.concurrent.CacheStorage;
+import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
@@ -45,7 +48,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
-    private static final ManualThreadExecutor MODEL_BAKER = new ManualThreadExecutor();
+    private static final ManualThreadExecutor TEXTURE_BAKER = new ManualThreadExecutor();
 
     public static final int DEFAULT_MAX_THREAD = 2;
 
@@ -53,6 +56,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private final Translatable<String> name;
     @Nullable private final Translatable<String> copyrightTextJson;
     @Nullable private final URL iconUrl;
+    @Nullable private final URL hudImageUrl;
     @Nullable private final GeographicProjection hologramProjection;
     @Getter(value = AccessLevel.PRIVATE)
     private final String dummyTileUrl;
@@ -61,11 +65,13 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private transient final ModelStorage storage;
     private transient McFXElement hudElement;
     private final transient McFXElement bakingIndicatorWrapper = McFX.div().setColor(0xFFFFFFFF);
+    private final transient McFXImage hudImage = McFX.image().setDimension(null, 32);
 
     protected AbstractTileMapService(CommonYamlObject commonYamlObject) {
         this.name = commonYamlObject.name;
         this.dummyTileUrl = commonYamlObject.tileUrl;
         this.iconUrl = commonYamlObject.iconUrl;
+        this.hudImageUrl = commonYamlObject.hudImageUrl;
         this.copyrightTextJson = Optional.ofNullable(commonYamlObject.copyrightTextJson)
                 .map(json -> json.map(JsonString::getValue))
                 .orElse(null);
@@ -79,7 +85,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     public final List<GraphicsModel> getModels(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         // Bake textures
         this.preRender(cameraPos);
-        MODEL_BAKER.process(2);
+        TEXTURE_BAKER.process(2);
 
         // Get tileId list
         List<TileId> renderTileIdList = this.getRenderTileIdList(cameraPos, yawDegrees, pitchDegrees);
@@ -98,7 +104,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     private List<GraphicsModel> getModelsForId(TileId tileId) {
         return this.storage.getOrCompute(tileId, () -> {
             CompletableFuture<List<PreBakedModel>> future = this.processModel(tileId);
-            return future == null ? null : future.thenApplyAsync(this::bake, MODEL_BAKER);
+            return future == null ? null : future.thenApplyAsync(this::bake, TEXTURE_BAKER);
         });
     }
 
@@ -139,9 +145,21 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             // side padding: 4px
             this.hudElement = McFX.vList(0, 4).addAll(
                     McFX.div(4), // top padding: 4px
+                    this.hudImage,
                     element,
                     this.bakingIndicatorWrapper
             );
+            if (this.hudImageUrl != null) {
+                HttpResourceManager.downloadAsImage(this.hudImageUrl.toString(), null)
+                        .thenApplyAsync(
+                                image -> McConnector.client().textureManager.allocateAndGetTextureObject(BTETerraRenderer.MODID, image),
+                                TEXTURE_BAKER
+                        )
+                        .whenComplete((texture, error) -> {
+                            if (error != null) Loggers.get(this).error("Error while parsing hud image", error);
+                            else this.hudImage.setTexture(texture);
+                        });
+            }
             this.hudElement.init(width);
         }
 
@@ -278,8 +296,9 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
 
         private Translatable<String> name;
         private String tileUrl;
-        private URL iconUrl;
         private int nThreads;
+        @Nullable private URL hudImageUrl;
+        @Nullable private URL iconUrl;
         @Nullable private Translatable<JsonString> copyrightTextJson;
         @Nullable private GeographicProjection hologramProjection;
         @Nullable private CacheStorage.Config cacheConfig;
@@ -291,6 +310,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
                 @Nullable @JsonProperty("max_thread") Integer nThreads,
                 @Nullable @JsonProperty("copyright") Translatable<JsonString> copyrightTextJson,
                 @Nullable @JsonProperty("icon_url") URL iconUrl,
+                @Nullable @JsonProperty("hud_image") URL hudImageUrl,
                 @Nullable @JsonProperty("hologram_projection") GeographicProjection hologramProjection,
                 @Nullable @JsonProperty("cache") CacheStorage.Config cacheConfig
         ) {
@@ -298,6 +318,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             this.copyrightTextJson = copyrightTextJson;
             this.tileUrl = tileUrl;
             this.iconUrl = iconUrl;
+            this.hudImageUrl = hudImageUrl;
             this.nThreads = nThreads != null ? nThreads : DEFAULT_MAX_THREAD;
             this.hologramProjection = hologramProjection;
             this.cacheConfig = cacheConfig;
@@ -309,6 +330,9 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             if (this.iconUrl != null) {
                 gen.writeStringField("icon_url", this.iconUrl.toString());
             }
+            if (this.hudImageUrl != null) {
+                gen.writeStringField("hud_image", this.hudImageUrl.toString());
+            }
             gen.writeNumberField("max_thread", this.nThreads);
             gen.writeObjectField("copyright", this.copyrightTextJson);
             gen.writeObjectField("hologram_projection", this.hologramProjection);
@@ -319,6 +343,7 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
             result.name = tms.getName();
             result.tileUrl = tms.getDummyTileUrl();
             result.iconUrl = tms.getIconUrl();
+            result.hudImageUrl = tms.getHudImageUrl();
             result.nThreads = tms.getNThreads();
             result.copyrightTextJson = Optional.ofNullable(tms.copyrightTextJson)
                     .map(json -> json.map(JsonString::fromUnsafe))

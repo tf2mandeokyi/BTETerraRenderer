@@ -7,6 +7,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXBooleanButto
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.button.McFXButton;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.checkbox.McFXCheckBox;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown.McFXDropdown;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.image.McFXImage;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.input.McFXNumberInput;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXHorizontalList;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.list.McFXVerticalList;
@@ -85,6 +86,10 @@ public class McFX {
 
     public McFXButton button(String text, McFXButton.MouseClickedEvent event) {
         return new McFXButton(text, event);
+    }
+
+    public McFXImage image() {
+        return new McFXImage();
     }
 
     public McFXButton i18nButton(String i18nKey, McFXButton.MouseClickedEvent event) {

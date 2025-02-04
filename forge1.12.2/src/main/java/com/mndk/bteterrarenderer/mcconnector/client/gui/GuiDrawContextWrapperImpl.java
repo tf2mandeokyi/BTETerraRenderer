@@ -29,6 +29,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
+import javax.annotation.Nonnull;
 import java.nio.FloatBuffer;
 
 public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
@@ -150,7 +151,7 @@ public class GuiDrawContextWrapperImpl extends AbstractGuiDrawContextWrapper {
         ((AbstractGuiScreenImpl) currentScreen).handleStyleHover(((StyleWrapperImpl) styleWrapper).delegate, x, y);
     }
 
-    public void drawWholeNativeImage(NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
+    public void drawWholeNativeImage(@Nonnull NativeTextureWrapper allocatedTextureObject, int x, int y, int w, int h) {
         GlStateManager.color(1, 1, 1, 1);
         GlStateManager.bindTexture(((NativeTextureWrapperImpl) allocatedTextureObject).delegate);
         GlStateManager.enableBlend();

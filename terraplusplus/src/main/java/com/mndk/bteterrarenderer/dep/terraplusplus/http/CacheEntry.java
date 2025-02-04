@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.dep.terraplusplus.http;
 
 import com.mndk.bteterrarenderer.dep.terraplusplus.TerraConfig;
+import com.mndk.bteterrarenderer.util.Loggers;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -81,9 +82,14 @@ public class CacheEntry {
                 : this.etag != null ? this.time : -1L;
 
         long fallbackExpireTime = this.time + TimeUnit.MINUTES.toMillis(TerraConfig.http.cacheTTL);
-        long expireTime = Math.max(
-                headers.getTimeMillis(HttpHeaderNames.EXPIRES, fallbackExpireTime),
-                maxStale >= 0L ? this.time + TimeUnit.SECONDS.toMillis(maxStale) : -1L);
+        long headerTimeMillis;
+        try { headerTimeMillis = headers.getTimeMillis(HttpHeaderNames.EXPIRES, fallbackExpireTime); }
+        catch (Exception e) {
+            Loggers.get(this).warn("Failed to parse Expires header for URL: {}", parsed);
+            headerTimeMillis = fallbackExpireTime;
+        }
+        long staleTimeMillis = maxStale >= 0L ? this.time + TimeUnit.SECONDS.toMillis(maxStale) : -1L;
+        long expireTime = Math.max(headerTimeMillis, staleTimeMillis);
         this.expireTime = expireTime < this.time ? fallbackExpireTime : expireTime;
 
         String location = null;
