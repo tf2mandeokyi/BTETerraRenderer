@@ -82,7 +82,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Setter private transient double lodFactor = 0;
     @Setter private transient boolean enableTexture = true;
     @Setter private transient boolean enableCulling = false;
-    private transient double magnitude = 1;
+    private transient double yDistMagnitude = 1;
 
     private final URL rootTilesetUrl;
     private final SpheroidCoordinatesConverter coordConverter;
@@ -111,13 +111,9 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     @Override
     public McCoordTransformer getModelPositionTransformer() {
         float yAlign = (float) BTETerraRendererConfig.HOLOGRAM.getYAlign();
-        if (!this.yDistortion) {
-            McCoord offset = new McCoord(0, yAlign, 0);
-            return pos -> pos.add(offset);
-        }
-        else {
-            return pos -> new McCoord(pos.getX(), (float) (pos.getY() * this.magnitude + yAlign), pos.getZ());
-        }
+        return this.yDistortion
+                ? (pos -> new McCoord(pos.getX(), (float) (pos.getY() * this.yDistMagnitude + yAlign), pos.getZ()))
+                : (pos -> pos.add(new McCoord(0, yAlign, 0)));
     }
 
     @Override
@@ -157,7 +153,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             // When the distortion calculation becomes fast enough, I'll go back to the original plan.
             double[] geoCoord = projection.toGeo(playerPos.getX(), playerPos.getZ());
             double[] tissot = projection.tissot(geoCoord[0], geoCoord[1]);
-            this.magnitude = Math.sqrt(Math.abs(tissot[0]));
+            this.yDistMagnitude = Math.sqrt(Math.abs(tissot[0]));
         } catch (OutOfProjectionBoundsException ignored) {}
     }
 
@@ -196,6 +192,11 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
         Vector3d point, viewDirection, rightDirection;
         try {
+            float y = cameraPos.getY();
+            y = this.yDistortion
+                    ? (float) ((y - BTETerraRendererConfig.HOLOGRAM.getYAlign()) / this.yDistMagnitude)
+                    : (float) (y - BTETerraRendererConfig.HOLOGRAM.getYAlign());
+            cameraPos = new McCoord(cameraPos.getX(), y, cameraPos.getZ());
             McCoord mcViewDirection = cameraPos.add(McCoord.fromYawPitch(yawDegrees, pitchDegrees));
             McCoord mcRightDirection = cameraPos.add(McCoord.fromYawPitch(yawDegrees + 90, 0));
 
