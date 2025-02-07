@@ -1,0 +1,45 @@
+{
+    "schemaVersion": 1,
+    "id": "bteterrarenderer",
+    "version": "${version}",
+    "name": "${displayName}",
+    "description": "${description}",
+    "authors": [ "${authors}" ],
+    "contact": {
+        "homepage": "${url}",
+        "sources": "${sourceUrl}"
+    },
+
+    "license": "${license}",
+    "icon": "icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "com.mndk.bteterrarenderer.mod.BTETerraRendererMod"
+        ],
+        "client": [
+            "com.mndk.bteterrarenderer.mod.client.BTETerraRendererClientMod"
+        ]
+    },
+    "mixins": [
+        {
+            "config": "mixins.bteterrarenderer.client.json",
+            "environment": "client"
+        }
+    ],
+    "accessWidener": "bteterrarenderer.accesswidener",
+    "depends": {
+        "fabricloader": ">=${fabricLoaderVersion}",
+        "fabric": "*",
+        "minecraft": "~${mcversion}",
+        "java": ">=17"
+    },
+    "custom": {
+        "modmenu": {
+            "links": {
+                "modmenu.discord": "${discordUrl}"
+            }
+        }
+    },
+    "suggests": {}
+}
