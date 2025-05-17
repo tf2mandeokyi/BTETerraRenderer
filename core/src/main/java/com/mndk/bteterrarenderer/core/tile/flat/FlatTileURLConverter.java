@@ -14,12 +14,9 @@ public class FlatTileURLConverter {
     protected final int defaultZoom;
     protected final boolean invertZoom;
 
-    public final String convertToUrl(String template, FlatTileKey flatTileKey) {
-        return this.convertToUrl(template, flatTileKey.x, flatTileKey.y, flatTileKey.relativeZoom);
-    }
-
-    public final String convertToUrl(String template, int tileX, int tileY, int relativeZoom) {
-        return this.convert(template, tileX, tileY, defaultZoom + (invertZoom ? -relativeZoom : relativeZoom));
+    public final String convertToUrl(String template, FlatTileRelCoord relCoord) {
+        return this.convert(template, relCoord.getX(), relCoord.getY(),
+                defaultZoom + (invertZoom ? -relCoord.getRelativeZoom() : relCoord.getRelativeZoom()));
     }
 
     private String convert(String template, int tileX, int tileY, int absoluteZoom) {

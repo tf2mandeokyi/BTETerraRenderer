@@ -3,6 +3,6 @@ package com.mndk.bteterrarenderer.core.tile.flat;
 import lombok.Data;
 
 @Data
-public class FlatTileKey {
-    public final int x, y, relativeZoom;
+public class FlatTileRelCoord {
+    private final int x, y, relativeZoom;
 }

@@ -200,10 +200,12 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     protected abstract void preRender(McCoord playerPos);
 
     /**
-     * Returns a list of pre-baked models for the given tile ID, or {@code null} if the
-     * corresponding tile is not yet ready to be processed.
-     * @param tileId The tile ID
-     * @return A list of pre-baked models, or {@code null} if the tile is not yet ready.
+     * Returns a future that completes with the list of pre-baked models for the given tile ID.
+     * To defer processing (e.g., when textures or data are not yet available), return {@code null}.
+     * The storage layer will treat {@code null} as "not ready" and retry later.
+     * To indicate an out-of-bounds or error condition, return a non-null future with an empty list.
+     * @param tileId The tile ID to process
+     * @return A future for the pre-baked models, or {@code null} to defer processing
      */
     @Nullable
     protected abstract CompletableFuture<List<PreBakedModel>> processModel(TileId tileId);

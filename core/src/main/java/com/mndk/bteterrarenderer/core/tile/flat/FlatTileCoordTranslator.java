@@ -54,7 +54,7 @@ public class FlatTileCoordTranslator {
      * @return Geographic coordinate (WGS84)
      * @throws OutOfProjectionBoundsException When the tile is out of bounds from the projection
      */
-    public final double[] tileCoordToGeoCoord(int tileX, int tileY, int relativeZoom)
+    public final double[] tileCoordToGeoCoord(double tileX, double tileY, int relativeZoom)
             throws OutOfProjectionBoundsException {
         int absoluteZoom = this.relativeZoomToAbsolute(relativeZoom);
         double[] coord = this.projection.toGeoCoord(tileX, tileY, absoluteZoom);

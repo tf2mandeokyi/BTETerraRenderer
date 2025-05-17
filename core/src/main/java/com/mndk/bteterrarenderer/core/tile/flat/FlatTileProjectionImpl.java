@@ -46,7 +46,7 @@ public class FlatTileProjectionImpl implements FlatTileProjection {
     }
 
     @Override
-    public double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException {
+    public double[] toGeoCoord(double tileX, double tileY, int absoluteZoom) throws OutOfProjectionBoundsException {
         TileMatrix matrix = this.matrices.get(absoluteZoom);
 
         double tileCoordinateX = tileX * matrix.tileSize[0] + matrix.pointOfOrigin[0];

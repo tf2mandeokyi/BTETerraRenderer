@@ -10,6 +10,6 @@ public interface FlatTileProjection {
     void setName(String name);
 
     int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException;
-    double[] toGeoCoord(int tileX, int tileY, int absoluteZoom) throws OutOfProjectionBoundsException;
+    double[] toGeoCoord(double tileX, double tileY, int absoluteZoom) throws OutOfProjectionBoundsException;
     boolean isAbsoluteZoomAvailable(int absoluteZoom);
 }

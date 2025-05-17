@@ -66,29 +66,30 @@ public class CacheStorage<K, V> implements Closeable {
     @Nullable
     public final V getOrCompute(K key, @Nonnull Supplier<CompletableFuture<V>> function) {
         CacheWrapper wrapper = this.getWrapper(key);
-        switch (wrapper.state) {
-            case NOT_PROCESSED:
-                wrapper.state = ProcessingState.PROCESSING;
-                this.processingCount.incrementAndGet();
-
-                CompletableFuture<V> future = function.get();
-                if (future == null) {
-                    this.processingCount.decrementAndGet();
-                    wrapper.state = ProcessingState.NOT_PROCESSED;
-                    return null;
-                }
-
-                future.whenComplete((models, error) -> {
-                    this.storeValue(key, models, error, this::delete);
-                    this.processingCount.decrementAndGet();
-                    if (error != null) Loggers.get(this).error("Error processing cache value", error);
-                });
-                return null;
-            case PROCESSED: return this.updateAndGetValue(key);
-            case PROCESSING: return this.whenProcessing(key);
-            case ERROR: return this.whenError(key, this.getWrapper(key).error);
+        synchronized (wrapper) {
+            switch (wrapper.state) {
+                case NOT_PROCESSED: wrapper.state = ProcessingState.PROCESSING; break;
+                case PROCESSING: return this.whenProcessing(key);
+                case PROCESSED: return this.updateAndGetValue(key);
+                case ERROR: return this.whenError(key, wrapper.error);
+                default: throw new IllegalStateException("Invalid processing state: " + wrapper.state);
+            }
         }
-        throw new IllegalStateException("Invalid processing state: " + wrapper.state);
+
+        this.processingCount.incrementAndGet();
+        CompletableFuture<V> future = function.get();
+        if (future == null) {
+            this.processingCount.decrementAndGet();
+            synchronized (wrapper) { wrapper.state = ProcessingState.NOT_PROCESSED; }
+            return null;
+        }
+
+        future.whenComplete((models, error) -> {
+            this.storeValue(key, models, error, this::delete);
+            this.processingCount.decrementAndGet();
+            if (error != null) Loggers.get(this).error("Error processing cache value", error);
+        });
+        return null;
     }
 
     /**
@@ -112,11 +113,12 @@ public class CacheStorage<K, V> implements Closeable {
      */
     private V updateAndGetValue(K key) {
         CacheWrapper wrapper = this.getWrapper(key);
-        if (wrapper.state != ProcessingState.PROCESSED) throw new NullPointerException();
-
-        V value = wrapper.value;
-        wrapper.lastUpdated = System.currentTimeMillis();
-        return value;
+        synchronized (wrapper) {
+            if (wrapper.state != ProcessingState.PROCESSED) throw new NullPointerException();
+            V value = wrapper.value;
+            wrapper.lastUpdated = System.currentTimeMillis();
+            return value;
+        }
     }
 
     /**
@@ -134,11 +136,13 @@ public class CacheStorage<K, V> implements Closeable {
         }
 
         CacheWrapper wrapper = this.getWrapper(BTRUtil.uncheckedCast(key));
-        wrapper.lastUpdated = System.currentTimeMillis();
-        wrapper.state = error != null ? ProcessingState.ERROR : ProcessingState.PROCESSED;
-        wrapper.value = value;
-        wrapper.error = error;
-        wrapper.deletingFunction = deletingFunction;
+        synchronized (wrapper) {
+            wrapper.lastUpdated = System.currentTimeMillis();
+            wrapper.state = error != null ? ProcessingState.ERROR : ProcessingState.PROCESSED;
+            wrapper.value = value;
+            wrapper.error = error;
+            wrapper.deletingFunction = deletingFunction;
+        }
 
         log("Added value[" + wrapper.state + "] of key=" + key + " (Size: " + map.size() + ")");
     }
@@ -150,10 +154,11 @@ public class CacheStorage<K, V> implements Closeable {
      */
     private void deleteValueByKey(K key) {
         CacheWrapper wrapper = this.getWrapper(key);
-        if (wrapper.deletingFunction != null) {
-            wrapper.deletingFunction.accept(wrapper.value);
+        synchronized (wrapper) {
+            if (wrapper.deletingFunction != null) {
+                wrapper.deletingFunction.accept(wrapper.value);
+            }
         }
-
         map.remove(key);
         log("Deleted value of key=" + key + " (Size: " + map.size() + ")");
     }
@@ -168,10 +173,12 @@ public class CacheStorage<K, V> implements Closeable {
 
         for (Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
             CacheWrapper wrapper = entry.getValue();
-            if (wrapper.state != ProcessingState.PROCESSED) continue;
-            if (wrapper.lastUpdated < oldest) {
-                oldestKey = entry.getKey();
-                oldest = wrapper.lastUpdated;
+            synchronized (wrapper) {
+                if (wrapper.state != ProcessingState.PROCESSED) continue;
+                if (wrapper.lastUpdated < oldest) {
+                    oldestKey = entry.getKey();
+                    oldest = wrapper.lastUpdated;
+                }
             }
         }
         if (oldestKey == null) return;
@@ -210,7 +217,9 @@ public class CacheStorage<K, V> implements Closeable {
         ArrayList<K> deleteList = new ArrayList<>();
         for (Map.Entry<K, CacheWrapper> entry : map.entrySet()) {
             CacheWrapper wrapper = entry.getValue();
-            if (wrapper.state != ProcessingState.PROCESSED) continue;
+            synchronized (wrapper) {
+                if (wrapper.state != ProcessingState.PROCESSED) continue;
+            }
             deleteList.add(entry.getKey());
         }
 
