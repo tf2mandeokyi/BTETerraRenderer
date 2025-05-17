@@ -9,13 +9,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
-import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
-import com.mndk.bteterrarenderer.util.concurrent.MappedExecutors;
-import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
@@ -28,6 +25,9 @@ import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
+import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
+import com.mndk.bteterrarenderer.util.concurrent.MappedExecutors;
 import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import lombok.*;
 
@@ -38,12 +38,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 @Getter
 @JsonSerialize(using = FlatTileMapService.Serializer.class)
 @JsonDeserialize(using = FlatTileMapService.Deserializer.class)
-public class FlatTileMapService extends AbstractTileMapService<FlatTileMapService.FlatTileKey> {
+public class FlatTileMapService extends AbstractTileMapService<FlatTileMapService.Key> {
 
     /**
      * This variable is to prevent z-fighting from happening.<br>
@@ -76,7 +78,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
         this.coordTranslator = coordTranslator;
         this.urlConverter = urlConverter;
 
-        this.imageFetcher = new MappedExecutors<>(Executors.newFixedThreadPool(this.getNThreads()), this.relativeZoom);
+        this.imageFetcher = new MappedExecutors<>(Executors.newCachedThreadPool(), this.relativeZoom);
         this.imageToPreModel = new ManualThreadExecutor();
         this.imageCache = new CacheStorage<>(commonYamlObject.getCacheConfig());
     }
@@ -134,14 +136,14 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
     }
 
     @Override
-    public List<FlatTileKey> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
+    public List<Key> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         if (this.coordTranslator == null) return Collections.emptyList();
 
         double yDiff = getFlatMapYAxis() - cameraPos.getY();
         if (Math.abs(yDiff) >= BTETerraRendererConfig.HOLOGRAM.getYDiffLimit()) return Collections.emptyList();
 
         try {
-            List<FlatTileKey> result = new ArrayList<>();
+            List<Key> result = new ArrayList<>();
             double[] geo = this.getHologramProjection().toGeo(cameraPos.getX(), cameraPos.getZ());
             int[] tileCoord = this.coordTranslator.geoCoordToTileCoord(geo[0], geo[1], relativeZoom);
 
@@ -164,10 +166,12 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
         return Collections.emptyList();
     }
 
-    private void addTile(List<FlatTileKey> list, int[] tileCoord, int dx, int dy) {
+    private void addTile(List<Key> list, int[] tileCoord, int dx, int dy) {
         if (Math.abs(dx) > radius || Math.abs(dy) > radius) return;
+        Key tileKey = new Key(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom, subdivision);
+        if (!this.coordTranslator.isTileCoordInBounds(tileKey.relCoord)) return;
         // include current subdivision in tile key so shapes get rebuilt per subdivision change
-        list.add(new FlatTileKey(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom, subdivision));
+        list.add(tileKey);
     }
 
     public void setRelativeZoom(int newZoom) {
@@ -176,9 +180,9 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
         this.imageFetcher.setCurrentKey(newZoom);
     }
 
-    private GraphicsShapes computeTileQuad(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+    private GraphicsShapes computeTileQuad(Key tileKey) throws OutOfProjectionBoundsException {
         // prepare for subdivision interpolation using cornerMatrix offsets
-        FlatTileRelCoord relCoord = tileKey.getRelCoord();
+        FlatTileRelCoord relCoord = tileKey.relCoord;
 
         int[][] off = new int[4][2]; float[] u = new float[4], v = new float[4];
         for (int i = 0; i < 4; i++) {
@@ -186,7 +190,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
             off[i][0] = cm[0]; off[i][1] = cm[1]; u[i] = cm[2]; v[i] = cm[3];
         }
 
-        int cells = tileKey.getSubdivision() + 1;
+        int cells = tileKey.subdivision + 1;
         PosTex[][] grid = new PosTex[cells+1][cells+1];
         for (int xi = 0; xi <= cells; xi++) {
             double fx = (double) xi / cells;
@@ -219,27 +223,34 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
 
     @Nullable
     @Override
-    protected CompletableFuture<List<PreBakedModel>> processModel(FlatTileKey tileId) {
-        GraphicsShapes shapes;
-        try { shapes = this.computeTileQuad(tileId); }
-        catch (OutOfProjectionBoundsException e) {
-            return CompletableFuture.completedFuture(Collections.emptyList());
-        }
-        FlatTileRelCoord relCoord = tileId.getRelCoord();
+    protected CompletableFuture<List<PreBakedModel>> processModel(Key tileId) {
+        FlatTileRelCoord relCoord = tileId.relCoord;
+        Executor executor = this.imageFetcher.getExecutor(relCoord.getRelativeZoom());
+
         String url = urlConverter.convertToUrl(this.urlTemplate, relCoord);
-        BufferedImage img = imageCache.getOrCompute(relCoord, () -> HttpResourceManager.downloadAsImage(url, this.getNThreads()));
+        Supplier<BufferedImage> imageGetter = () -> {
+            try { return HttpResourceManager.downloadAsImage(url, this.getNThreads()).get(); }
+            catch (Exception e) { throw new RuntimeException("Failed to download image from " + url, e); }
+        };
+        BufferedImage img = imageCache.getOrCompute(relCoord, () -> CompletableFuture.supplyAsync(imageGetter, executor));
         if (img == null) return null;
-        return CompletableFuture.completedFuture(Collections.singletonList(new PreBakedModel(img, shapes)));
+
+        return CompletableFuture.supplyAsync(() -> {
+            GraphicsShapes shapes;
+            try { shapes = this.computeTileQuad(tileId); }
+            catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
+            return Collections.singletonList(new PreBakedModel(img, shapes));
+        }, this.imageToPreModel);
     }
 
     @Override
-    public List<GraphicsModel> getLoadingModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+    public List<GraphicsModel> getLoadingModel(Key tileKey) throws OutOfProjectionBoundsException {
         GraphicsShapes shapes = this.computeTileQuad(tileKey);
         return Collections.singletonList(new GraphicsModel(LOADING.getTextureObject(), shapes));
     }
 
     @Override
-    public List<GraphicsModel> getErrorModel(FlatTileKey tileKey) throws OutOfProjectionBoundsException {
+    public List<GraphicsModel> getErrorModel(Key tileKey) throws OutOfProjectionBoundsException {
         GraphicsShapes shapes = this.computeTileQuad(tileKey);
         return Collections.singletonList(new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), shapes));
     }
@@ -312,11 +323,11 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
 
     @Data
     @RequiredArgsConstructor
-    public static class FlatTileKey {
+    public static class Key {
         private final FlatTileRelCoord relCoord;
         private final int subdivision;
 
-        public FlatTileKey(int x, int y, int relativeZoom, int subdivision) {
+        public Key(int x, int y, int relativeZoom, int subdivision) {
             this(new FlatTileRelCoord(x, y, relativeZoom), subdivision);
         }
     }

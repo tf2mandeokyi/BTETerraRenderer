@@ -12,7 +12,6 @@ import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.LocalTileNode;
-import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileGlobalKey;
 import com.mndk.bteterrarenderer.core.tile.ogc3dtiles.key.TileLocalKey;
 import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
@@ -44,10 +43,7 @@ import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import de.javagl.jgltf.model.GltfModel;
 import io.netty.buffer.ByteBufInputStream;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joml.Matrix4d;
 import org.joml.Vector3d;
@@ -65,7 +61,7 @@ import java.util.concurrent.Executors;
 @Getter
 @JsonSerialize(using = Ogc3dTileMapService.Serializer.class)
 @JsonDeserialize(using = Ogc3dTileMapService.Deserializer.class)
-public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
+public class Ogc3dTileMapService extends AbstractTileMapService<Ogc3dTileMapService.Key> {
 
     // From 6.7.1.6.2.2. y-up to z-up:
     // Next, for consistency with the z-up coordinate system of 3D Tiles,
@@ -90,7 +86,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     private final String geoidType;
 
     private transient final ExecutorService tileFetcher;
-    private transient final CacheStorage<TileGlobalKey, Pair<Matrix4d, TileData>> tileDataStorage;
+    private transient final CacheStorage<Key, Pair<Matrix4d, TileData>> tileDataStorage;
     private transient final Map<String, Integer> copyrightOccurrences = new HashMap<>();
     private transient final McFXVerticalList hudList = McFX.vList(0, 0);
 
@@ -187,7 +183,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    public List<TileGlobalKey> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
+    public List<Key> getRenderTileIdList(McCoord cameraPos, double yawDegrees, double pitchDegrees) {
         if (radius == 0) return Collections.emptyList();
 
         Vector3d point, viewDirection, rightDirection;
@@ -210,7 +206,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         } catch (OutOfProjectionBoundsException e) { return Collections.emptyList(); }
 
         SpheroidFrustum frustum = this.getFrustum(point, viewDirection, rightDirection);
-        List<TileGlobalKey> result = this.getIdListRecursively(frustum);
+        List<Key> result = this.getIdListRecursively(frustum);
         this.updateHudList();
         return result;
     }
@@ -252,7 +248,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
 
     @Nullable
     private Tileset getRootTileset() {
-        TileGlobalKey key = TileGlobalKey.ROOT_KEY;
+        Key key = Key.ROOT;
         Pair<Matrix4d, TileData> pair = this.downloadModel(key, new Matrix4d(), this.rootTilesetUrl);
         if (pair == null) return null;
 
@@ -262,8 +258,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         return null;
     }
 
-    public List<TileGlobalKey> getIdListRecursively(SpheroidFrustum frustum) {
-        List<TileGlobalKey> result = new ArrayList<>();
+    public List<Key> getIdListRecursively(SpheroidFrustum frustum) {
+        List<Key> result = new ArrayList<>();
 
         Stack<Ogc3dTilesetBfsNode> nodes = new Stack<>();
         Tileset rootTileset = this.getRootTileset();
@@ -290,7 +286,7 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
                 }
 
                 TileLocalKey[] currentKeys = node.attachKey(localTileNode);
-                TileGlobalKey currentKey = new TileGlobalKey(currentKeys);
+                Key currentKey = new Key(currentKeys);
 
                 // Get data from cache
                 Pair<Matrix4d, TileData> parsedData = this.downloadModel(currentKey, currentTransform, currentUrl);
@@ -328,8 +324,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(TileGlobalKey tileGlobalKey) {
-        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(tileGlobalKey, () -> null);
+    protected @Nullable CompletableFuture<List<PreBakedModel>> processModel(Key key) {
+        Pair<Matrix4d, TileData> pair = this.tileDataStorage.getOrCompute(key, () -> null);
         if (pair == null) return null;
         return CompletableFuture.supplyAsync(() -> this.parse(pair.getLeft(), pair.getRight()), this.tileFetcher);
     }
@@ -352,8 +348,8 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
         return GltfModelConverter.convertModel(gltfModel, transform, this.getHologramProjection(), coordConverter);
     }
 
-    private Pair<Matrix4d, TileData> downloadModel(TileGlobalKey tileGlobalKey, Matrix4d transform, URL url) {
-        return this.tileDataStorage.getOrCompute(tileGlobalKey, () -> HttpResourceManager.download(url.toString(), this.getNThreads())
+    private Pair<Matrix4d, TileData> downloadModel(Key key, Matrix4d transform, URL url) {
+        return this.tileDataStorage.getOrCompute(key, () -> HttpResourceManager.download(url.toString(), this.getNThreads())
                 .thenApply(ByteBufInputStream::new)
                 .thenApplyAsync(stream -> {
                     try { return Pair.of(transform, TileResourceManager.parse(stream, this.coordConverter)); }
@@ -362,12 +358,12 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
     }
 
     @Override
-    public List<GraphicsModel> getLoadingModel(TileGlobalKey o) {
+    public List<GraphicsModel> getLoadingModel(Key o) {
         return null;
     }
 
     @Override
-    public List<GraphicsModel> getErrorModel(TileGlobalKey o) {
+    public List<GraphicsModel> getErrorModel(Key o) {
         return null;
     }
 
@@ -420,5 +416,21 @@ public class Ogc3dTileMapService extends AbstractTileMapService<TileGlobalKey> {
             for (int y = 0; y < 16; ++y) white.setRGB(x, y, 0xFFFFFFFF);
         }
         WHITE_TEXTURE = new ImageTexturePair(white);
+    }
+
+    @Data
+    public static class Key {
+        public static final Key ROOT = new Key(new TileLocalKey[0]);
+
+        private final TileLocalKey[] keys;
+
+        @Override
+        public String toString() {
+            String result = Arrays.stream(keys)
+                    .map(TileLocalKey::toString)
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
+            return "TileGlobalKey[" + result + "]";
+        }
     }
 }

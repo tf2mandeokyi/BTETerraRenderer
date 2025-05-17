@@ -12,4 +12,5 @@ public interface FlatTileProjection {
     int[] toTileCoord(double longitude, double latitude, int absoluteZoom) throws OutOfProjectionBoundsException;
     double[] toGeoCoord(double tileX, double tileY, int absoluteZoom) throws OutOfProjectionBoundsException;
     boolean isAbsoluteZoomAvailable(int absoluteZoom);
+    boolean isTileCoordInBounds(int tileX, int tileY, int absoluteZoom);
 }

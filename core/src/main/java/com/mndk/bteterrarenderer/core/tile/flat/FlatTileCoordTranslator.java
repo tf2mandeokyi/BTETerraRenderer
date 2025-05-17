@@ -69,6 +69,10 @@ public class FlatTileCoordTranslator {
         int absoluteZoom = this.relativeZoomToAbsolute(relativeZoom);
         return this.projection.isAbsoluteZoomAvailable(absoluteZoom);
     }
+    public final boolean isTileCoordInBounds(FlatTileRelCoord tileCoord) {
+        int absoluteZoom = this.relativeZoomToAbsolute(tileCoord.getRelativeZoom());
+        return this.projection.isTileCoordInBounds(tileCoord.getX(), tileCoord.getY(), absoluteZoom);
+    }
 
     public int[] getCornerMatrix(int i) {
         return this.invertLatitude ^ this.flipVertically ? LAT_INVERTED_CORNER_MATRIX[i] : CORNER_MATRIX[i];
