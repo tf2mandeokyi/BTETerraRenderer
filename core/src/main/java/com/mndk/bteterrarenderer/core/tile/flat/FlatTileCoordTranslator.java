@@ -12,17 +12,17 @@ import lombok.experimental.Accessors;
 @RequiredArgsConstructor
 public class FlatTileCoordTranslator {
 
-    private static final int[][] CORNER_MATRIX = {
-            {0, 1, 0, 1}, // top left
-            {1, 1, 1, 1}, // top right
-            {1, 0, 1, 0}, // bottom right
-            {0, 0, 0, 0}  // bottom left
+    private static final MatrixRow[] CORNER_MATRIX = {
+            new MatrixRow(0, 1, 0, 1), // top left
+            new MatrixRow(1, 1, 1, 1), // top right
+            new MatrixRow(1, 0, 1, 0), // bottom right
+            new MatrixRow(0, 0, 0, 0)  // bottom left
     };
-    private static final int[][] LAT_INVERTED_CORNER_MATRIX = {
-            {0, 1, 0, 0}, // top left
-            {1, 1, 1, 0}, // top right
-            {1, 0, 1, 1}, // bottom right
-            {0, 0, 0, 1}  // bottom left
+    private static final MatrixRow[] LAT_INVERTED_CORNER_MATRIX = {
+            new MatrixRow(0, 1, 0, 0), // top left
+            new MatrixRow(1, 1, 1, 0), // top right
+            new MatrixRow(1, 0, 1, 1), // bottom right
+            new MatrixRow(0, 0, 0, 1)   // bottom left
     };
 
     private final FlatTileProjection projection;
@@ -74,7 +74,13 @@ public class FlatTileCoordTranslator {
         return this.projection.isTileCoordInBounds(tileCoord.getX(), tileCoord.getY(), absoluteZoom);
     }
 
-    public int[] getCornerMatrix(int i) {
+    public MatrixRow getCornerMatrixRow(int i) {
         return this.invertLatitude ^ this.flipVertically ? LAT_INVERTED_CORNER_MATRIX[i] : CORNER_MATRIX[i];
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class MatrixRow {
+        private final int x, y, u, v;
     }
 }

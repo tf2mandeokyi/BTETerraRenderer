@@ -24,6 +24,7 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;
+import com.mndk.bteterrarenderer.util.MathUtil;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
@@ -58,7 +59,7 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
 
     private transient int relativeZoom = 0;
     @Setter private transient int radius = 3;
-    @Getter @Setter private transient int subdivision = 0;
+    @Getter @Setter private transient int subdivisionLevel = 0;
 
     private final String urlTemplate;
     private final FlatTileCoordTranslator coordTranslator;
@@ -126,12 +127,12 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
     protected List<PropertyAccessor.Localized<?>> makeStateAccessors() {
         PropertyAccessor<Integer> zoom = PropertyAccessor.ranged(this::getRelativeZoom, this::setRelativeZoom, this::isRelativeZoomAvailable, -4, 4);
         PropertyAccessor<Integer> radius = PropertyAccessor.ranged(this::getRadius, this::setRadius, 1, 10);
-        PropertyAccessor<Integer> subdivision = PropertyAccessor.ranged(this::getSubdivision, this::setSubdivision, 0, 9);
+        PropertyAccessor<Integer> subdivisionLevel = PropertyAccessor.ranged(this::getSubdivisionLevel, this::setSubdivisionLevel, 0, 5);
 
         return Arrays.asList(
                 PropertyAccessor.localized("zoom", "gui.bteterrarenderer.settings.zoom", zoom),
                 PropertyAccessor.localized("radius", "gui.bteterrarenderer.settings.size", radius),
-                PropertyAccessor.localized("subdivision", "gui.bteterrarenderer.settings.subdivision", subdivision)
+                PropertyAccessor.localized("subdivision_level", "gui.bteterrarenderer.settings.subdivision_level", subdivisionLevel)
         );
     }
 
@@ -168,9 +169,9 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
 
     private void addTile(List<Key> list, int[] tileCoord, int dx, int dy) {
         if (Math.abs(dx) > radius || Math.abs(dy) > radius) return;
-        Key tileKey = new Key(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom, subdivision);
-        if (!this.coordTranslator.isTileCoordInBounds(tileKey.relCoord)) return;
         // include current subdivision in tile key so shapes get rebuilt per subdivision change
+        Key tileKey = new Key(tileCoord[0] + dx, tileCoord[1] + dy, relativeZoom, subdivisionLevel);
+        if (!this.coordTranslator.isTileCoordInBounds(tileKey.relCoord)) return;
         list.add(tileKey);
     }
 
@@ -184,35 +185,37 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
         // prepare for subdivision interpolation using cornerMatrix offsets
         FlatTileRelCoord relCoord = tileKey.relCoord;
 
-        int[][] off = new int[4][2]; float[] u = new float[4], v = new float[4];
+        int[][] off = new int[4][2];
+        double[] u = new double[4], v = new double[4];
         for (int i = 0; i < 4; i++) {
-            int[] cm = coordTranslator.getCornerMatrix(i);
-            off[i][0] = cm[0]; off[i][1] = cm[1]; u[i] = cm[2]; v[i] = cm[3];
+            FlatTileCoordTranslator.MatrixRow cm = coordTranslator.getCornerMatrixRow(i);
+            off[i][0] = cm.getX(); off[i][1] = cm.getY();
+            u[i] = cm.getU(); v[i] = cm.getV();
         }
 
-        int cells = tileKey.subdivision + 1;
-        PosTex[][] grid = new PosTex[cells+1][cells+1];
-        for (int xi = 0; xi <= cells; xi++) {
-            double fx = (double) xi / cells;
-            for (int yj = 0; yj <= cells; yj++) {
-                double fy = (double) yj / cells;
-                // bilinear interpolate tile offsets for proper tx, ty
-                double tx = relCoord.getX() + off[0][0] * (1-fx)*(1-fy) + off[1][0] * fx*(1-fy) + off[2][0] * fx*fy + off[3][0] * (1-fx)*fy;
-                double ty = relCoord.getY() + off[0][1] * (1-fx)*(1-fy) + off[1][1] * fx*(1-fy) + off[2][1] * fx*fy + off[3][1] * (1-fx)*fy;
+        int cells = 1 << tileKey.subdivisionLevel;
+        PosTex[] prevRowPosGrid = new PosTex[cells + 1];
+        PosTex[] currRowPosGrid = new PosTex[cells + 1];
+        GraphicsShapes shapes = new GraphicsShapes();
+        for (int yj = 0; yj <= cells; yj++) {
+            double fy = (double) yj / cells;
+            for (int xi = 0; xi <= cells; xi++) {
+                double fx = (double) xi / cells;
+                double[] t = MathUtil.bilerp(off[0], off[1], off[3], off[2], fx, fy);
+                double tx = relCoord.getX() + t[0];
+                double ty = relCoord.getY() + t[1];
                 double[] geo = coordTranslator.tileCoordToGeoCoord(tx, ty, relCoord.getRelativeZoom());
                 double[] mc = this.getHologramProjection().fromGeo(geo[0], geo[1]);
-                float tu = (float)(u[0]*(1-fx)*(1-fy) + u[1]*fx*(1-fy) + u[2]*fx*fy + u[3]*(1-fx)*fy);
-                float tv = (float)(v[0]*(1-fx)*(1-fy) + v[1]*fx*(1-fy) + v[2]*fx*fy + v[3]*(1-fx)*fy);
-                grid[xi][yj] = new PosTex(new McCoord(mc[0], 0, mc[1]), tu, tv);
-            }
-        }
-        GraphicsShapes shapes = new GraphicsShapes();
-        for (int i = 0; i < cells; i++) {
-            for (int j = 0; j < cells; j++) {
-                shapes.add(DrawingFormat.QUAD_PT,
-                    new GraphicsQuad<>(grid[i][j], grid[i+1][j], grid[i+1][j+1], grid[i][j+1])
+                float tu = (float) ((1-fy) * MathUtil.lerp(u[0], u[1], fx) + fy * MathUtil.lerp(u[3], u[2], fx));
+                float tv = (float) ((1-fy) * MathUtil.lerp(v[0], v[1], fx) + fy * MathUtil.lerp(v[3], v[2], fx));
+                currRowPosGrid[xi] = new PosTex(new McCoord(mc[0], 0, mc[1]), tu, tv);
+                if (xi > 0 && yj > 0) shapes.add(DrawingFormat.QUAD_PT,
+                    new GraphicsQuad<>(prevRowPosGrid[xi-1], prevRowPosGrid[xi], currRowPosGrid[xi], currRowPosGrid[xi-1])
                 );
             }
+            PosTex[] temp = prevRowPosGrid;
+            prevRowPosGrid = currRowPosGrid;
+            currRowPosGrid = temp;
         }
         return shapes;
     }
@@ -325,10 +328,10 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
     @RequiredArgsConstructor
     public static class Key {
         private final FlatTileRelCoord relCoord;
-        private final int subdivision;
+        private final int subdivisionLevel;
 
-        public Key(int x, int y, int relativeZoom, int subdivision) {
-            this(new FlatTileRelCoord(x, y, relativeZoom), subdivision);
+        public Key(int x, int y, int relativeZoom, int subdivisionLevel) {
+            this(new FlatTileRelCoord(x, y, relativeZoom), subdivisionLevel);
         }
     }
 }

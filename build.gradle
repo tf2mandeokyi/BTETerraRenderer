@@ -40,15 +40,19 @@ enum SubprojectType {
 subprojects { p ->
 
     def subprojectType = {
-        if      (project.name == 'core')            SubprojectType.CORE
-        else if (project.name.startsWith('forge'))  SubprojectType.FORGE
-        else if (project.name.startsWith('fabric')) SubprojectType.FABRIC
-        else                                        SubprojectType.LIBRARY
+        if      (project.modLoaderName == 'core')            SubprojectType.CORE
+        else if (project.modLoaderName.startsWith('forge'))  SubprojectType.FORGE
+        else if (project.modLoaderName.startsWith('fabric')) SubprojectType.FABRIC
+        else                                                 SubprojectType.LIBRARY
     }()
 
     // Match version
-    def mcVersionMatcher = project.name =~ /^[a-zA-Z]+(\d+)\.(.+)$/
-    def mcVersion = mcVersionMatcher.find() ? Double.parseDouble(mcVersionMatcher.group(2)) : null
+    def mcVersionMatcher = project.hasProperty('minecraftVersion')
+            ? project.minecraftVersion =~ /^(\d+)\.(.+)$/
+            : null
+    def mcVersion = mcVersionMatcher != null && mcVersionMatcher.find()
+            ? Double.parseDouble(mcVersionMatcher.group(2))
+            : null
 
     apply plugin: 'java'
     if (subprojectType == SubprojectType.CORE || subprojectType == SubprojectType.LIBRARY) {
@@ -113,11 +117,11 @@ subprojects { p ->
 
     dependencies {
 
-        if (project.name != 'common') shadowDep project(':common')
-        if (project.name != 'common' && project.name != 'mcconnector') {
+        if (project.modLoaderName != 'common') shadowDep project(':common')
+        if (project.modLoaderName != 'common' && project.modLoaderName != 'mcconnector') {
             shadowDep project(':mcconnector')
         }
-        if (project.name == 'ogc3dtiles') {
+        if (project.modLoaderName == 'ogc3dtiles') {
             shadowDep project(':draco')
         }
 
@@ -356,7 +360,7 @@ subprojects { p ->
         def replaceProperties = [
                 // Version properties
                 version:                rootProject.mod_version,
-                mcversion:              project.minecraftVersion,
+                mcversion:              project.hasProperty('minecraftVersion') ? project.minecraftVersion : '',
                 // Mod config file properties
                 authors:                rootProject.mod_authors,
                 displayName:            rootProject.mod_displayName,

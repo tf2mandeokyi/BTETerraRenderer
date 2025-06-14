@@ -31,5 +31,5 @@ gui.bteterrarenderer.settings.3d_y_distortion=Apply Y-axis Distortion
 gui.bteterrarenderer.settings.map_offset=Map Offset
 gui.bteterrarenderer.settings.zoom=Map Zoom
 gui.bteterrarenderer.settings.size=Map Size
-gui.bteterrarenderer.settings.subdivision=Coordinate Subdivision
+gui.bteterrarenderer.settings.subdivision_level=Coordinate Subdivision
 gui.bteterrarenderer.settings.lock_north=Lock North
