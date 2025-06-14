@@ -37,9 +37,13 @@ Visit the [wiki page](https://github.com/tf2mandeokyi/BTETerraRenderer/wiki) for
 | `Y`               | Moves map up along the Y-axis by 0.5 blocks   |
 | `I`               | Moves map down along the Y-axis by 0.5 blocks | 
 
-## Screenshot
+## Screenshots
 
-![Reference screenshot](docs/screenshot0.png "Location: Seattle, USA")
+![Reference screenshot](docs/screenshot0.png "Location: Seattle, Washington State, USA")
+
+![Reference screenshot](docs/screenshot1.png "Location: Manhattan, New York, USA")
+
+Visit this [wiki page](https://github.com/tf2mandeokyi/BTETerraRenderer/wiki/How-to-Add-Google-Earth) for more information on how to add Google Earth as a map source.
 
 ## Development
 
