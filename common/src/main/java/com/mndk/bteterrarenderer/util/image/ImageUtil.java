@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.util;
+package com.mndk.bteterrarenderer.util.image;
 
 import com.mndk.bteterrarenderer.util.IOUtil;
 import io.netty.buffer.ByteBuf;

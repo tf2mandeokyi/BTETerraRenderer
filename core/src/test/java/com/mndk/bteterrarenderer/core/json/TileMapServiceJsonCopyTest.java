@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.loader.LoaderRegistry;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
@@ -34,7 +34,7 @@ public class TileMapServiceJsonCopyTest {
 
     @Test
     public void givenTMSConfig_whenTileCoordProvided_testSameCoord() throws OutOfProjectionBoundsException, IOException {
-        FlatTileMapService tms = (FlatTileMapService) ConfigLoaders.tms().getResult()
+        FlatTileMapService tms = (FlatTileMapService) LoaderRegistry.tms().getResult()
                 .getItem("Global", "osm");
         Assert.assertNotNull(tms);
         int[] coord1 = tms.getCoordTranslator().getProjection().toTileCoord(LONGITUDE, LATITUDE, 21);

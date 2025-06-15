@@ -1,8 +1,6 @@
 package com.mndk.bteterrarenderer.core.config;
 
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
-import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.mcconnector.config.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -107,19 +105,4 @@ public class BTETerraRendererConfig {
         HOLOGRAM.setDoRender(!HOLOGRAM.isDoRender());
     }
 
-    public void save() {
-        ConfigLoaders.modConfig().save();
-        ConfigLoaders.tmsStates().save(ConfigLoaders.tms().getResult());
-        TileMapService.refreshSelectionFromConfig();
-    }
-
-    public void load(boolean loadMapsOnly) {
-        ConfigLoaders.flatProj().refresh(); // This should be called first
-        ConfigLoaders.tms().refresh();
-        ConfigLoaders.tmsStates().load(ConfigLoaders.tms().getResult());
-        TileMapService.refreshSelectionFromConfig();
-        if (loadMapsOnly) return;
-
-        ConfigLoaders.modConfig().load();
-    }
 }

@@ -2,6 +2,7 @@ package com.mndk.bteterrarenderer.ogc3dtiles.geoid;
 
 import com.mndk.bteterrarenderer.ogc3dtiles.math.Spheroid3;
 import com.mndk.bteterrarenderer.util.IOUtil;
+import com.mndk.bteterrarenderer.util.math.Interpolation;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -60,7 +61,7 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
         float[] p = new float[4];
         for (int i = 0; i < 4; i++) {
             int wrappedYIndex = wrapYIndex(yIndex + i - 1);
-            p[i] = cubicInterpolate(
+            p[i] = Interpolation.cubic(
                     data[wrappedYIndex][wrapXIndex(xIndex - 1)],
                     data[wrappedYIndex][wrapXIndex(xIndex    )],
                     data[wrappedYIndex][wrapXIndex(xIndex + 1)],
@@ -68,7 +69,7 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
                     (float) x
             );
         }
-        return cubicInterpolate(p[0], p[1], p[2], p[3], (float) y);
+        return Interpolation.cubic(p[0], p[1], p[2], p[3], (float) y);
     }
 
     private int wrapXIndex(int xIndex) { return (xIndex + WIDTH) % WIDTH; }
@@ -78,7 +79,4 @@ class Egm96Ww15mghData implements GeoidHeightFunction {
         return yIndex;
     }
 
-    private static float cubicInterpolate(float p0, float p1, float p2, float p3, float x) {
-        return p1 + 0.5f * x * (p2 - p0 + x * (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3 + x * (3.0f * (p1 - p2) + p3 - p0)));
-    }
 }

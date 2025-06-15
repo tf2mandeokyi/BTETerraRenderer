@@ -1,6 +1,6 @@
 package com.mndk.bteterrarenderer.core.network;
 
-import com.mndk.bteterrarenderer.core.util.ImageUtil;
+import com.mndk.bteterrarenderer.util.image.ImageUtil;
 import com.mndk.bteterrarenderer.dep.terraplusplus.http.Http;
 import com.mndk.bteterrarenderer.util.Loggers;
 import io.netty.buffer.ByteBuf;

@@ -2,17 +2,18 @@ package com.mndk.bteterrarenderer.core.loader.yml;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.util.loader.YamlLoader;
+import com.mndk.bteterrarenderer.util.merge.MapMergeStrategy;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class FlatTileProjectionYamlLoader extends YamlLoader<FlatTileProjectionYamlFile, Map<String, FlatTileProjectionImpl>> {
+public class FlatTileProjectionLoader extends YamlLoader<FlatTileProjectionDTO, Map<String, FlatTileProjectionImpl>> {
 
-    public FlatTileProjectionYamlLoader(String folderName, String defaultYamlPath) {
-        super(folderName, defaultYamlPath, FlatTileProjectionYamlFile.class);
+    public FlatTileProjectionLoader(String folderName, String defaultYamlPath) {
+        super(folderName, defaultYamlPath, FlatTileProjectionDTO.class, new MapMergeStrategy<>());
     }
 
     public FlatTileProjection get(JsonNode projectionNode) throws IOException {
@@ -22,7 +23,7 @@ public class FlatTileProjectionYamlLoader extends YamlLoader<FlatTileProjectionY
         }
         if (projectionNode.isTextual()) {
             String projectionName = projectionNode.asText();
-            FlatTileProjection projection = ConfigLoaders.flatProj().getResult().get(projectionName);
+            FlatTileProjection projection = this.getResult().get(projectionName);
             if (projection == null) {
                 throw new IOException("unknown projection name: " + projectionName);
             }
@@ -36,12 +37,7 @@ public class FlatTileProjectionYamlLoader extends YamlLoader<FlatTileProjectionY
     }
 
     @Override
-    protected Map<String, FlatTileProjectionImpl> load(String fileName, FlatTileProjectionYamlFile content) throws IOException {
-        return content.tileProjections;
-    }
-
-    @Override
-    protected void addToResult(Map<String, FlatTileProjectionImpl> originalT, Map<String, FlatTileProjectionImpl> newT) {
-        originalT.putAll(newT);
+    protected Map<String, FlatTileProjectionImpl> load(String fileName, FlatTileProjectionDTO content) {
+        return content.getTileProjections();
     }
 }

@@ -2,9 +2,10 @@ package com.mndk.bteterrarenderer.core.loader;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
-import com.mndk.bteterrarenderer.core.loader.json.TileMapServiceStatesLoader;
-import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionYamlLoader;
-import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceYamlLoader;
+import com.mndk.bteterrarenderer.core.loader.json.TileMapServiceStateLoader;
+import com.mndk.bteterrarenderer.core.loader.yml.FlatTileProjectionLoader;
+import com.mndk.bteterrarenderer.core.loader.yml.TileMapServiceLoader;
+import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.config.AbstractConfigSaveLoader;
 import lombok.experimental.UtilityClass;
@@ -12,23 +13,28 @@ import lombok.experimental.UtilityClass;
 import java.io.File;
 
 @UtilityClass
-public class ConfigLoaders {
-    private final TileMapServiceYamlLoader TMS_YML = new TileMapServiceYamlLoader(
+public class LoaderRegistry {
+    private final TileMapServiceLoader TMS_YML = new TileMapServiceLoader(
             "maps", "assets/" + BTETerraRenderer.MODID + "/default_maps.yml"
     );
-    private final FlatTileProjectionYamlLoader FLAT_PROJ = new FlatTileProjectionYamlLoader(
+    private final FlatTileProjectionLoader FLAT_PROJ = new FlatTileProjectionLoader(
             "projections", "assets/" + BTETerraRenderer.MODID + "/default_projections.yml"
     );
     private AbstractConfigSaveLoader MOD_CONFIG;
-    private TileMapServiceStatesLoader TMS_STATES;
+    private TileMapServiceStateLoader TMS_STATES;
 
     // Generate getters and setters for each static members
 
-    public TileMapServiceYamlLoader tms() {
+    public TileMapService getCurrentTMS() {
+        BTETerraRendererConfig.GeneralConfig config = BTETerraRendererConfig.GENERAL;
+        return TMS_YML.getResult().getItem(config.mapServiceCategory, config.mapServiceId);
+    }
+
+    public TileMapServiceLoader tms() {
         return TMS_YML;
     }
 
-    public FlatTileProjectionYamlLoader flatProj() {
+    public FlatTileProjectionLoader flatProj() {
         return FLAT_PROJ;
     }
 
@@ -36,7 +42,7 @@ public class ConfigLoaders {
         return MOD_CONFIG;
     }
 
-    public TileMapServiceStatesLoader tmsStates() {
+    public TileMapServiceStateLoader tmsStates() {
         return TMS_STATES;
     }
 
@@ -49,11 +55,25 @@ public class ConfigLoaders {
         FLAT_PROJ.refresh(configDirectory); // This should be called first after the TMS_YML.refresh
         TMS_YML.refresh(configDirectory);
 
-        TMS_STATES = new TileMapServiceStatesLoader(new File(configDirectory, "states.json"));
+        TMS_STATES = new TileMapServiceStateLoader(new File(configDirectory, "states.json"));
         TMS_STATES.load(TMS_YML.getResult());
 
         MOD_CONFIG = McConnector.common().newConfigSaveLoader(BTETerraRendererConfig.class, BTETerraRenderer.MODID);
         MOD_CONFIG.initialize();
         MOD_CONFIG.load();
+    }
+
+    public void save() {
+        modConfig().save();
+        tmsStates().save(tms().getResult());
+    }
+
+    public void load(boolean loadMapsOnly) {
+        flatProj().refresh(); // This should be called first
+        tms().refresh();
+        tmsStates().load(tms().getResult());
+        if (loadMapsOnly) return;
+
+        modConfig().load();
     }
 }

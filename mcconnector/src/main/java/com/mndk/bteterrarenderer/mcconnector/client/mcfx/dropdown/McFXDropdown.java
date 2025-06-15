@@ -1,50 +1,51 @@
 package com.mndk.bteterrarenderer.mcconnector.client.mcfx.dropdown;
 
-import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.vertex.PosXY;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Stack;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
-public class McFXDropdown<T> extends McFXElement {
+public class McFXDropdown extends McFXElement {
 
-    private static final int SELECTED_BACKGROUND_COLOR = 0xDFA0AFFF;
+    static final int SELECTED_BACKGROUND_COLOR = 0xDFA0AFFF;
 
-    private static final int ITEM_PADDING_HORIZONTAL = 12;
-    private static final int ITEM_PADDING_VERTICAL = 5;
-    private static final int ITEM_CATEGORY_PADDING_TOP = 2;
-    private static final int ICON_SIZE = 12;
-    private static final int ICON_MARGIN_LEFT = -6;
-    private static final int ICON_MARGIN_RIGHT = 4;
+    static final int ITEM_PADDING_HORIZONTAL = 12;
+    static final int ITEM_PADDING_VERTICAL = 5;
+    static final int ITEM_CATEGORY_PADDING_TOP = 2;
+    static final int ICON_SIZE = 12;
+    static final int ICON_MARGIN_LEFT = -6;
+    static final int ICON_MARGIN_RIGHT = 4;
 
-    private static final int DROPDOWN_PADDING_TOP = 8;
-    private static final int DROPDOWN_BACKGROUND_COLOR = 0xE8080808;
+    static final int DROPDOWN_PADDING_TOP = 8;
+    static final int DROPDOWN_BACKGROUND_COLOR = 0xE8080808;
 
-    private static final int MAINBOX_PADDING_HORIZONTAL = 12;
-    private static final int MAINBOX_PADDING_VERTICAL = 7;
-    private static final int MAINBOX_BACKGROUND_COLOR = 0x80000000;
-    private static final int MAINBOX_BORDER_COLOR = 0xFFFFFFFF;
+    static final int MAINBOX_PADDING_HORIZONTAL = 12;
+    static final int MAINBOX_PADDING_VERTICAL = 7;
+    static final int MAINBOX_BACKGROUND_COLOR = 0x80000000;
+    static final int MAINBOX_BORDER_COLOR = 0xFFFFFFFF;
 
-    private static final int ITEMLIST_SEPARATOR_LINE_COLOR = 0xA0FFFFFF;
+    static final int ITEMLIST_SEPARATOR_LINE_COLOR = 0xA0FFFFFF;
 
+    static final String ROOT_CATEGORY_NAME = "root";
 
-    private final ItemList dropdownItems = new ItemList("main", true);
-    private final PropertyAccessor<T> selectedValue;
-    private final Function<T, String> nameGetter;
-    private final Function<T, NativeTextureWrapper> iconTextureObjectGetter;
+    private final McFXDropdownItemList dropdownItems = new McFXDropdownItemList(this, ROOT_CATEGORY_NAME, true);
+    private final PropertyAccessor<String[]> selectedCategoryPath;
+    private final Function<String[], String> nameGetter;
+    private final Function<String[], NativeTextureWrapper> iconTextureObjectGetter;
 
     private boolean mouseOnMainBox = false;
+    @Getter(AccessLevel.PACKAGE)
     private int mainBoxHeight, singleLineElementHeight, itemInnerWidth;
 
 
@@ -70,7 +71,7 @@ public class McFXDropdown<T> extends McFXElement {
 
     @Override
     public int getVisualHeight() {
-        return this.mainBoxHeight + this.dropdownItems.getHeight();
+        return this.mainBoxHeight + this.dropdownItems.calculateHeight(new Stack<>());
     }
 
     @Override
@@ -79,7 +80,7 @@ public class McFXDropdown<T> extends McFXElement {
         if (!this.isOpened()) return this.mouseOnMainBox;
 
         if (!mouseHidden && this.mouseInHeight(mouseX, mouseY, this.getVisualHeight())) {
-            return this.dropdownItems.checkMouseHovered(mouseX, mouseY - this.mainBoxHeight) || this.mouseOnMainBox;
+            return this.dropdownItems.checkMouseHovered(new Stack<>(), mouseX, mouseY - this.mainBoxHeight) || this.mouseOnMainBox;
         } else {
             this.dropdownItems.mouseIsNotHovered();
             return this.mouseOnMainBox;
@@ -94,8 +95,31 @@ public class McFXDropdown<T> extends McFXElement {
         this.dropdownItems.toggleOpened();
     }
 
-    private boolean mouseInHeight(double mouseX, double mouseY, double height) {
+    boolean mouseInHeight(double mouseX, double mouseY, double height) {
         return mouseX >= 0 && mouseX <= this.getWidth() && mouseY >= 0 && mouseY <= height;
+    }
+
+    private String[] getPathWithoutRoot(Stack<String> pathWithRoot) {
+        if (pathWithRoot == null || pathWithRoot.isEmpty()) return null;
+        String[] pathWithoutRoot = new String[pathWithRoot.size() - 1];
+        for (int i = 1; i < pathWithRoot.size(); i++) {
+            pathWithoutRoot[i - 1] = pathWithRoot.get(i);
+        }
+        return pathWithoutRoot;
+    }
+
+    void setSelectedCategoryPath(Stack<String> pathWithRoot) {
+        String[] pathWithoutRoot = pathWithRoot != null ? this.getPathWithoutRoot(pathWithRoot) : null;
+        if (pathWithoutRoot == null) throw new IllegalArgumentException("Path cannot be null or empty");
+        this.selectedCategoryPath.set(pathWithoutRoot);
+    }
+
+    String getNameWithRoot(Stack<String> pathWithRoot) {
+        return nameGetter.apply(this.getPathWithoutRoot(pathWithRoot));
+    }
+
+    NativeTextureWrapper getIconTextureObjectWithRoot(Stack<String> pathWithRoot) {
+        return iconTextureObjectGetter.apply(this.getPathWithoutRoot(pathWithRoot));
     }
 
     @Override
@@ -119,36 +143,39 @@ public class McFXDropdown<T> extends McFXElement {
         drawContextWrapper.fillRect(this.getWidth(), -1, this.getWidth() + 1, mainBoxHeight + 1, mainBoxColor);
         drawContextWrapper.fillRect(0, mainBoxHeight, this.getWidth(), mainBoxHeight + 1, mainBoxColor);
 
-        T selectedValue = this.selectedValue.get();
-        if (selectedValue != null) {
-            String currentName = nameGetter.apply(selectedValue).replace("\n", " ");
-            int fontHeight = getDefaultFont().getHeight();
-            int textLeft = MAINBOX_PADDING_HORIZONTAL, limit = itemInnerWidth - fontHeight;
+        String[] selectedWithoutRoot = selectedCategoryPath.get();
+        String currentName = nameGetter.apply(selectedWithoutRoot).replace("\n", " ");
+        int fontHeight = getDefaultFont().getHeight();
+        int textLeft = MAINBOX_PADDING_HORIZONTAL, limit = itemInnerWidth - fontHeight;
 
-            // Get icon
-            NativeTextureWrapper iconTextureObject = this.iconTextureObjectGetter.apply(selectedValue);
-            if (iconTextureObject != null) {
-                int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
-                drawContextWrapper.drawWholeNativeImage(iconTextureObject,
-                        textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
-                limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
-                textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
-            }
-
-            // Handle overflow
-            if (getDefaultFont().getWidth(currentName) > limit) {
-                currentName = getDefaultFont().trimToWidth(currentName, limit);
-            }
-            drawContextWrapper.drawTextWithShadow(getDefaultFont(), currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
+        // Get icon
+        NativeTextureWrapper iconTextureObject = this.iconTextureObjectGetter.apply(selectedWithoutRoot);
+        if (iconTextureObject != null) {
+            int y = MAINBOX_PADDING_VERTICAL + fontHeight / 2 - ICON_SIZE / 2;
+            drawContextWrapper.drawWholeNativeImage(iconTextureObject,
+                    textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
+            limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
+            textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
         }
 
+        // Handle overflow
+        if (getDefaultFont().getWidth(currentName) > limit) {
+            currentName = getDefaultFont().trimToWidth(currentName, limit);
+        }
+        drawContextWrapper.drawTextWithShadow(getDefaultFont(), currentName, textLeft, MAINBOX_PADDING_VERTICAL, mainBoxColor);
+
+        String[] selected = new String[selectedWithoutRoot.length + 1];
+        System.arraycopy(selectedWithoutRoot, 0, selected, 1, selectedWithoutRoot.length);
+        selected[0] = ROOT_CATEGORY_NAME;
+
+        this.dropdownItems.calculateHeight(new Stack<>());
         drawContextWrapper.pushMatrix();
         drawContextWrapper.translate(0, mainBoxHeight, 0);
-        this.dropdownItems.drawItem(drawContextWrapper, selectedValue, true);
+        this.dropdownItems.drawItem(drawContextWrapper, new Stack<>(), selected, 0, true);
         drawContextWrapper.popMatrix();
     }
 
-    private void drawDropdownArrow(GuiDrawContextWrapper drawContextWrapper, int top, int colorARGB, boolean flip) {
+    void drawDropdownArrow(GuiDrawContextWrapper drawContextWrapper, int top, int colorARGB, boolean flip) {
         int bottom = top + getDefaultFont().getHeight();
         int right = this.getWidth() - MAINBOX_PADDING_HORIZONTAL;
         int left = this.getWidth() - MAINBOX_PADDING_HORIZONTAL - getDefaultFont().getHeight();
@@ -176,171 +203,22 @@ public class McFXDropdown<T> extends McFXElement {
             return true;
         }
 
-        this.dropdownItems.mouseClicked();
+        Stack<String> categoryPath = new Stack<>();
+        this.dropdownItems.mouseClicked(categoryPath);
         return true;
     }
 
-
-    private abstract class DropdownItem {
-        boolean mouseHovered = false;
-        abstract int getHeight();
-        /** Pretends itself is at y=0. */
-        abstract boolean checkMouseHovered(double mouseX, double mouseY);
-        abstract void mouseIsNotHovered();
-        /** Translation should be done before this method ends */
-        abstract void drawItem(GuiDrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast);
-        /** This is called after the {@link DropdownItem#checkMouseHovered} call. */
-        abstract void mouseClicked();
-    }
-
-    @ToString
-    @RequiredArgsConstructor
-    private class ValueWrapper extends DropdownItem {
-        final T value;
-
-        @Override
-        int getHeight() {
-            return getDefaultFont().getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth)
-                    + ITEM_PADDING_VERTICAL * 2;
-        }
-
-        @Override
-        boolean checkMouseHovered(double mouseX, double mouseY) {
-            return this.mouseHovered = mouseInHeight(mouseX, mouseY, this.getHeight());
-        }
-
-        @Override
-        void mouseIsNotHovered() {
-            this.mouseHovered = false;
-        }
-
-        @Override
-        void drawItem(GuiDrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
-            String name = nameGetter.apply(this.value);
-            int color = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
-            int height = this.getHeight();
-            int textLeft = ITEM_PADDING_HORIZONTAL, limit = itemInnerWidth;
-
-            if (Objects.equals(this.value, selectedValue)) {
-                drawContextWrapper.fillRect(0, 0, getWidth(), height, SELECTED_BACKGROUND_COLOR);
-            }
-
-            // Get icon
-            NativeTextureWrapper iconTextureObject = iconTextureObjectGetter.apply(value);
-            if (iconTextureObject != null) {
-                int textHeight = getDefaultFont().getWordWrappedHeight(nameGetter.apply(this.value), itemInnerWidth);
-                int y = ITEM_PADDING_VERTICAL + textHeight / 2 - ICON_SIZE / 2;
-                drawContextWrapper.drawWholeNativeImage(iconTextureObject,
-                        textLeft + ICON_MARGIN_LEFT, y, ICON_SIZE, ICON_SIZE);
-                limit -= ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
-                textLeft += ICON_SIZE + ICON_MARGIN_LEFT + ICON_MARGIN_RIGHT;
-            }
-
-            // Item text
-            drawContextWrapper.drawWidthSplitText(getDefaultFont(), name, textLeft, ITEM_PADDING_VERTICAL, limit, color);
-
-            // Translate
-            drawContextWrapper.translate(0, height, 0);
-        }
-
-        @Override
-        void mouseClicked() {
-            if (this.mouseHovered) selectedValue.set(this.value);
-        }
-    }
-
-    @RequiredArgsConstructor
-    private class ItemList extends DropdownItem {
-        boolean opened = false;
-        final String name;
-        final boolean main;
-        final List<DropdownItem> itemList = new ArrayList<>();
-
-        ItemList findCategory(String categoryName) {
-            for (DropdownItem item : this.itemList) {
-                if (item == null) continue;
-                if (!(item instanceof McFXDropdown<?>.ItemList)) continue;
-                ItemList category = (ItemList) item;
-                if (category.name.equals(categoryName)) return category;
-            }
-            return null;
-        }
-
-        void toggleOpened() {
-            this.opened = !this.opened;
-        }
-
-        int getCategoryHeight() {
-            return this.main ? DROPDOWN_PADDING_TOP : singleLineElementHeight + ITEM_CATEGORY_PADDING_TOP;
-        }
-
-        @Override
-        int getHeight() {
-            return this.getCategoryHeight() + (this.opened ?
-                    this.itemList.stream().mapToInt(DropdownItem::getHeight).sum() : 0);
-        }
-
-        @Override
-        boolean checkMouseHovered(double mouseX, double mouseY) {
-            int yOffset = this.getCategoryHeight();
-            boolean result = this.mouseHovered = (!this.main && mouseInHeight(mouseX, mouseY, yOffset));
-
-            if (this.opened) for (DropdownItem item : this.itemList) {
-                if (result) { item.mouseIsNotHovered(); continue; }
-                if (item.checkMouseHovered(mouseX, mouseY - yOffset)) result = true;
-                yOffset += item.getHeight();
-            }
-            return result;
-        }
-
-        @Override
-        void mouseIsNotHovered() {
-            this.mouseHovered = false;
-            if (this.opened) this.itemList.forEach(DropdownItem::mouseIsNotHovered);
-        }
-
-        @Override
-        void drawItem(GuiDrawContextWrapper drawContextWrapper, T selectedValue, boolean isLast) {
-            int categoryColor = this.mouseHovered ? HOVERED_COLOR : NORMAL_TEXT_COLOR;
-
-            if (!this.main) {
-                // Category name
-                drawContextWrapper.drawCenteredTextWithShadow(getDefaultFont(),
-                        this.name, getWidth() / 2.0f, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor);
-                // Dropdown arrow
-                drawDropdownArrow(drawContextWrapper, ITEM_PADDING_VERTICAL + ITEM_CATEGORY_PADDING_TOP, categoryColor, this.opened);
-            }
-            drawContextWrapper.translate(0, this.getCategoryHeight(), 0);
-
-            if (this.opened) IntStream.range(0, itemList.size()).forEachOrdered(i ->
-                    itemList.get(i).drawItem(drawContextWrapper, selectedValue, i == itemList.size() - 1));
-
-            if (!isLast) {
-                // Category separator line
-                drawContextWrapper.fillRect(0, 0, getWidth(), 1, ITEMLIST_SEPARATOR_LINE_COLOR);
-            }
-        }
-
-        @Override
-        void mouseClicked() {
-            if (this.mouseHovered) { this.toggleOpened(); return; }
-            this.itemList.forEach(DropdownItem::mouseClicked);
-        }
-    }
-
-
     public class ItemListUpdater {
-        private final List<DropdownItem> list = new ArrayList<>();
-        private final Stack<ItemList> stack = new Stack<>();
+        private final List<McFXDropdownItem> list = new ArrayList<>();
+        private final Stack<McFXDropdownItemList> stack = new Stack<>();
         private boolean finalized = false;
 
-        public void add(T item) {
+        public void add(String id) {
             this.validateNonFinalization();
-            if (item == null) return;
-            this.addItem(new ValueWrapper(item));
+            this.addItem(new McFXDropdownValueWrapper(McFXDropdown.this, id));
         }
 
-        private void addItem(DropdownItem item) {
+        private void addItem(McFXDropdownItem item) {
             this.validateNonFinalization();
             if (stack.isEmpty()) list.add(item);
             else stack.peek().itemList.add(item);
@@ -348,15 +226,15 @@ public class McFXDropdown<T> extends McFXElement {
 
         public void push(String categoryName) {
             this.validateNonFinalization();
-            stack.push(new ItemList(categoryName, false));
+            stack.push(new McFXDropdownItemList(McFXDropdown.this, categoryName, false));
         }
 
         public void pop() {
             this.validateNonFinalization();
             if (stack.isEmpty()) throw new RuntimeException("stack size == 0");
 
-            ItemList list = stack.peek();
-            ItemList victim = dropdownItems;
+            McFXDropdownItemList list = stack.peek();
+            McFXDropdownItemList victim = dropdownItems;
             for (int i = 0; i < stack.size(); i++) {
                 if (victim != null) victim = victim.findCategory(stack.get(0).name);
             }

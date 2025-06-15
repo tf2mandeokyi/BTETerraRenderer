@@ -1,20 +1,9 @@
 package com.mndk.bteterrarenderer.core.tile;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
-import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
-import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
-import com.mndk.bteterrarenderer.mcconnector.client.mcfx.image.McFXImage;
-import com.mndk.bteterrarenderer.util.Loggers;
-import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
+import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.projection.Projections;
-import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.GeographicProjection;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
@@ -24,15 +13,19 @@ import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrappe
 import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFX;
 import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
+import com.mndk.bteterrarenderer.mcconnector.client.mcfx.image.McFXImage;
 import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
+import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
+import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.util.json.JsonString;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,27 +51,29 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
     @Nullable private final URL iconUrl;
     @Nullable private final URL hudImageUrl;
     @Nullable private final GeographicProjection hologramProjection;
-    @Getter(value = AccessLevel.PRIVATE)
+    @Getter(value = AccessLevel.PACKAGE)
     private final String dummyTileUrl;
 
+    @Getter @Setter @Nullable
+    private transient String source;
     private transient final List<PropertyAccessor.Localized<?>> stateAccessors = new ArrayList<>();
     private transient final ModelStorage storage;
     private transient McFXElement hudElement;
     private final transient McFXElement bakingIndicatorWrapper = McFX.div().setColor(0xFFFFFFFF);
     private final transient McFXImage hudImage = McFX.image().setDimension(null, 32);
 
-    protected AbstractTileMapService(CommonYamlObject commonYamlObject) {
-        this.name = commonYamlObject.name;
-        this.dummyTileUrl = commonYamlObject.tileUrl;
-        this.iconUrl = commonYamlObject.iconUrl;
-        this.hudImageUrl = commonYamlObject.hudImageUrl;
-        this.copyrightTextJson = Optional.ofNullable(commonYamlObject.copyrightTextJson)
+    protected AbstractTileMapService(TileMapServiceCommonProperties properties) {
+        this.name = properties.getName();
+        this.dummyTileUrl = properties.getTileUrl();
+        this.iconUrl = properties.getIconUrl();
+        this.hudImageUrl = properties.getHudImageUrl();
+        this.copyrightTextJson = Optional.ofNullable(properties.getCopyrightTextJson())
                 .map(json -> json.map(JsonString::getValue))
                 .orElse(null);
-        this.nThreads = commonYamlObject.nThreads;
-        this.hologramProjection = commonYamlObject.hologramProjection;
+        this.nThreads = properties.getNThreads();
+        this.hologramProjection = properties.getHologramProjection();
         this.stateAccessors.addAll(this.makeStateAccessors());
-        this.storage = new ModelStorage(commonYamlObject.cacheConfig);
+        this.storage = new ModelStorage(properties.getCacheConfig());
     }
 
     @Override
@@ -260,99 +255,4 @@ public abstract class AbstractTileMapService<TileId> implements TileMapService {
         }
     }
 
-    protected abstract static class TMSSerializer<T extends AbstractTileMapService<?>> extends JsonSerializer<T> {
-        private final String type;
-        protected TMSSerializer(Class<T> clazz) {
-            this.type = TileMapServiceParseRegistries.TYPE_MAP.inverse().get(clazz);
-        }
-
-        @Override
-        public final void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeStartObject();
-            gen.writeStringField("type", this.type);
-
-            CommonYamlObject.from(value).write(gen);
-            this.serializeTMS(value, gen, serializers);
-            gen.writeEndObject();
-        }
-
-        protected abstract void serializeTMS(T value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException;
-    }
-
-    protected static abstract class TMSDeserializer<T extends AbstractTileMapService<?>> extends JsonDeserializer<T> {
-        @Override
-        public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            JsonNode node = ctxt.readTree(p);
-            CommonYamlObject commonYamlObject = ctxt.readTreeAsValue(node, CommonYamlObject.class);
-            return this.deserialize(node, commonYamlObject, ctxt);
-        }
-        protected abstract T deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt)
-                throws IOException;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    protected static class CommonYamlObject {
-
-        private Translatable<String> name;
-        private String tileUrl;
-        private int nThreads;
-        @Nullable private URL hudImageUrl;
-        @Nullable private URL iconUrl;
-        @Nullable private Translatable<JsonString> copyrightTextJson;
-        @Nullable private GeographicProjection hologramProjection;
-        @Nullable private CacheStorage.Config cacheConfig;
-
-        @JsonCreator
-        public CommonYamlObject(
-                @JsonProperty(value = "name", required = true) Translatable<String> name,
-                @JsonProperty(value = "tile_url", required = true) String tileUrl,
-                @Nullable @JsonProperty("max_thread") Integer nThreads,
-                @Nullable @JsonProperty("copyright") Translatable<JsonString> copyrightTextJson,
-                @Nullable @JsonProperty("icon_url") URL iconUrl,
-                @Nullable @JsonProperty("hud_image") URL hudImageUrl,
-                @Nullable @JsonProperty("hologram_projection") GeographicProjection hologramProjection,
-                @Nullable @JsonProperty("cache") CacheStorage.Config cacheConfig
-        ) {
-            this.name = name;
-            this.copyrightTextJson = copyrightTextJson;
-            this.tileUrl = tileUrl;
-            this.iconUrl = iconUrl;
-            this.hudImageUrl = hudImageUrl;
-            this.nThreads = nThreads != null ? nThreads : DEFAULT_MAX_THREAD;
-            this.hologramProjection = hologramProjection;
-            this.cacheConfig = cacheConfig;
-        }
-
-        private void write(JsonGenerator gen) throws IOException {
-            gen.writeObjectField("name", this.name);
-            gen.writeStringField("tile_url", this.tileUrl);
-            if (this.iconUrl != null) {
-                gen.writeStringField("icon_url", this.iconUrl.toString());
-            }
-            if (this.hudImageUrl != null) {
-                gen.writeStringField("hud_image", this.hudImageUrl.toString());
-            }
-            gen.writeNumberField("max_thread", this.nThreads);
-            gen.writeObjectField("copyright", this.copyrightTextJson);
-            gen.writeObjectField("hologram_projection", this.hologramProjection);
-        }
-
-        private static CommonYamlObject from(AbstractTileMapService<?> tms) {
-            CommonYamlObject result = new CommonYamlObject();
-            result.name = tms.getName();
-            result.tileUrl = tms.getDummyTileUrl();
-            result.iconUrl = tms.getIconUrl();
-            result.hudImageUrl = tms.getHudImageUrl();
-            result.nThreads = tms.getNThreads();
-            result.copyrightTextJson = Optional.ofNullable(tms.copyrightTextJson)
-                    .map(json -> json.map(JsonString::fromUnsafe))
-                    .orElse(null);
-            result.hologramProjection = tms.getHologramProjection();
-
-            return result;
-        }
-    }
 }

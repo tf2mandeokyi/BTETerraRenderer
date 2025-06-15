@@ -3,7 +3,7 @@ package com.mndk.bteterrarenderer.core.input;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.gui.MapRenderingOptionsSidebar;
-import com.mndk.bteterrarenderer.core.tile.TileMapService;
+import com.mndk.bteterrarenderer.core.loader.LoaderRegistry;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.input.GameInputManager;
 import com.mndk.bteterrarenderer.mcconnector.client.input.IKeyBinding;
@@ -32,10 +32,10 @@ public class KeyBindings {
             MapRenderingOptionsSidebar.open();
         }
         while (KeyBindings.MOVE_UP_KEY.wasPressed()) {
-            TileMapService.getSelected().getItem().moveAlongYAxis(0.5);
+            LoaderRegistry.getCurrentTMS().moveAlongYAxis(0.5);
         }
         while (KeyBindings.MOVE_DOWN_KEY.wasPressed()) {
-            TileMapService.getSelected().getItem().moveAlongYAxis(-0.5);
+            LoaderRegistry.getCurrentTMS().moveAlongYAxis(-0.5);
         }
     }
 }

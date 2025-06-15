@@ -6,12 +6,12 @@ import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.core.gui.mapaligner.MapAligner;
 import com.mndk.bteterrarenderer.core.gui.sidebar.GuiSidebar;
 import com.mndk.bteterrarenderer.core.gui.sidebar.SidebarSide;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.loader.LoaderRegistry;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileMapService;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.core.util.ImageUtil;
+import com.mndk.bteterrarenderer.util.category.CategoryMap;
+import com.mndk.bteterrarenderer.util.image.ImageUtil;
 import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.NativeTextureWrapper;
@@ -52,7 +52,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
     private static final IconStorage ICON_STORAGE = new IconStorage();
 
     private static MapRenderingOptionsSidebar INSTANCE;
-    private final McFXDropdown<CategoryMap.Wrapper<TileMapService>> mapSourceDropdown;
+    private final McFXDropdown mapSourceDropdown;
     private final McFXElement mapCopyright;
     private final McFXVerticalList tmsStateElementList;
     private final McFXWrapper yAxisInputWrapper;
@@ -75,8 +75,8 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
         this.yAxisInputWrapper = McFX.wrapper();
         this.mapSourceDropdown = McFX.dropdown(
-                PropertyAccessor.of(BTRUtil.uncheckedCast(CategoryMap.Wrapper.class),
-                        this::getWrappedTMS, this::setTileMapServiceWrapper),
+                PropertyAccessor.of(BTRUtil.uncheckedCast(String[].class),
+                        this::getWrappedTMS, this::setTileMapServiceCategoryPath),
                 MapRenderingOptionsSidebar::tmsWrappedToString,
                 MapRenderingOptionsSidebar::getIconTextureObject
         );
@@ -113,6 +113,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         );
 
         McFXElement hl = McFX.div(1).setBackgroundColor(0xFFFFFFFF);
+        this.updateTmsSettings();
 
         return Arrays.asList(
                 // ===========================================================================================
@@ -178,24 +179,22 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         super.drawScreen(drawContextWrapper);
     }
 
-    private CategoryMap.Wrapper<TileMapService> getWrappedTMS() {
-        return TileMapService.getSelected();
+    private String[] getWrappedTMS() {
+        return new String[] {
+                BTETerraRendererConfig.GENERAL.getMapServiceCategory(),
+                BTETerraRendererConfig.GENERAL.getMapServiceId()
+        };
     }
 
-    private void setTileMapServiceWrapper(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
+    private void updateTmsSettings() {
         BTETerraRendererConfig.HologramConfig renderSettings = BTETerraRendererConfig.HOLOGRAM;
-
-        // Check null
-        TileMapService tms = tmsWrapped != null ? tmsWrapped.getItem() : null;
+        TileMapService tms = LoaderRegistry.getCurrentTMS();
         if (tms == null) {
             this.yAxisInputWrapper.hide = true;
             this.tmsStateElementList.hide = true;
             this.mapCopyright.hide = true;
             return;
         }
-
-        // Set to config
-        TileMapService.selectForDisplay(tmsWrapped);
 
         // Set property element list
         this.tmsStateElementList.clear().addAll(
@@ -228,32 +227,53 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         this.mapCopyright.setTextJsonContent(textComponentJson);
     }
 
-    private static String tmsWrappedToString(CategoryMap.Wrapper<TileMapService> tmsWrapped) {
-        TileMapService tms = tmsWrapped.getItem();
+    private void setTileMapServiceCategoryPath(String[] categoryPath) {
+        if (categoryPath == null || categoryPath.length != 2) {
+            throw new IllegalArgumentException("Category stack must have exactly 3 elements: "
+                    + "[categoryName, id]. Current: "
+                    + Arrays.toString(categoryPath));
+        }
+        String categoryName = categoryPath[0];
+        String id = categoryPath[1];
+        BTETerraRendererConfig.GENERAL.setMapServiceCategory(categoryName);
+        BTETerraRendererConfig.GENERAL.setMapServiceId(id);
+        this.updateTmsSettings();
+    }
+
+    private static String tmsWrappedToString(String[] categoryPath) {
+        if (categoryPath == null || categoryPath.length != 2) {
+            throw new IllegalArgumentException("Category stack must have exactly 3 elements: "
+                    + "[categoryName, id]. Current: "
+                    + Arrays.toString(categoryPath));
+        }
+        String categoryName = categoryPath[0];
+        String id = categoryPath[1];
+        TileMapService tms = LoaderRegistry.tms().getResult().getItem(categoryName, id);
         if (tms == null) {
-            return "[§7" + tmsWrapped.getSource() + "§r]\n§4§o(error)";
+            return "[§7null§r]\n§4§o(error)";
         }
 
         String name = tms.getName().get();
-        if ("default".equalsIgnoreCase(tmsWrapped.getSource())) {
+        if ("default".equalsIgnoreCase(tms.getSource())) {
             return name;
         }
-        return "[§7" + tmsWrapped.getSource() + "§r]\n§r" + name;
+        return "[§7" + tms.getSource() + "§r]\n§r" + name;
     }
 
     private void reloadMapSources() {
-        BTETerraRendererConfig.load(true);
+        LoaderRegistry.save();
+        LoaderRegistry.load(true);
         this.updateMapSourceDropdown();
+        this.updateTmsSettings();
     }
 
     private void updateMapSourceDropdown() {
-        McFXDropdown<CategoryMap.Wrapper<TileMapService>>.ItemListUpdater updater =
-                mapSourceDropdown.itemListBuilder();
+        McFXDropdown.ItemListUpdater updater = mapSourceDropdown.itemListBuilder();
 
-        CategoryMap<TileMapService> tmsCategoryMap = ConfigLoaders.tms().getResult();
+        CategoryMap<TileMapService> tmsCategoryMap = LoaderRegistry.tms().getResult();
         tmsCategoryMap.forEach((name, category) -> {
             updater.push(name);
-            category.values().forEach(updater::add);
+            category.forEach((id, tms) -> updater.add(id));
             updater.pop();
         });
         updater.update();
@@ -261,7 +281,7 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     private void openMapsFolder() {
         try {
-            File directory = ConfigLoaders.tms().getFilesDirectory();
+            File directory = LoaderRegistry.tms().getFilesDirectory();
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(directory);
                 return;
@@ -286,8 +306,15 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
         }
     }
 
-    private static NativeTextureWrapper getIconTextureObject(CategoryMap.Wrapper<TileMapService> wrapper) {
-        TileMapService tms = wrapper.getItem();
+    private static NativeTextureWrapper getIconTextureObject(String[] categoryPath) {
+        if (categoryPath == null || categoryPath.length != 2) {
+            throw new IllegalArgumentException("Category stack must have exactly 3 elements: "
+                    + "[categoryName, id]. Current: "
+                    + Arrays.toString(categoryPath));
+        }
+        String categoryName = categoryPath[0];
+        String id = categoryPath[1];
+        TileMapService tms = LoaderRegistry.tms().getResult().getItem(categoryName, id);
         if (tms == null) return null;
 
         URL iconUrl = tms.getIconUrl();
@@ -306,15 +333,14 @@ public class MapRenderingOptionsSidebar extends GuiSidebar {
 
     public static void open() {
         if (INSTANCE == null) INSTANCE = new MapRenderingOptionsSidebar();
-        BTETerraRendererConfig.save();
+        LoaderRegistry.save();
         INSTANCE.updateMapSourceDropdown();
-        INSTANCE.setTileMapServiceWrapper(TileMapService.getSelected());
         McConnector.client().displayGuiScreen(INSTANCE);
     }
 
     @Override
     public void onRemoved() {
-        BTETerraRendererConfig.save();
+        LoaderRegistry.save();
         super.onRemoved();
     }
 

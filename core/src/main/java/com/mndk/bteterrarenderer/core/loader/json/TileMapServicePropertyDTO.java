@@ -1,22 +1,25 @@
-package com.mndk.bteterrarenderer.core.loader.yml;
+package com.mndk.bteterrarenderer.core.loader.json;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mndk.bteterrarenderer.core.tile.TileMapService;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
+import com.mndk.bteterrarenderer.util.category.CategoryMap;
 import lombok.Getter;
+import lombok.Value;
+
+import java.util.Map;
 
 @Getter
+@Value
 @JsonDeserialize
-public class TileMapServiceYamlFile {
+public class TileMapServicePropertyDTO {
 
-    private final CategoryMap<TileMapService> categories;
+    CategoryMap<Map<String, Object>> categories;
 
     @JsonCreator
-    public TileMapServiceYamlFile(
+    public TileMapServicePropertyDTO(
             @JsonProperty(value = "categories", required = true)
-            CategoryMap<TileMapService> categories
+            CategoryMap<Map<String, Object>> categories
     ) {
         this.categories = categories;
     }

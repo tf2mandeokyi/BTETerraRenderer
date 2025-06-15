@@ -25,7 +25,7 @@ public abstract class McFXElement implements GuiComponentCopy {
     /**
      * Default, non-initialized value is -1
      */
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(AccessLevel.PUBLIC)
     private int width = -1;
 
     @Setter private int backgroundColor = 0x00000000;

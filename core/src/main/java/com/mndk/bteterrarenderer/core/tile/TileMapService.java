@@ -7,17 +7,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.core.config.registry.TileMapServiceParseRegistries;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.BufferBuildersManager;
-import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
-import com.mndk.bteterrarenderer.mcconnector.client.graphics.VertexBeginner;
-import com.mndk.bteterrarenderer.util.BTRUtil;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
-import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
-import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
-import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
+import com.mndk.bteterrarenderer.mcconnector.client.graphics.VertexBeginner;
+import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
+import com.mndk.bteterrarenderer.mcconnector.i18n.Translatable;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
+import com.mndk.bteterrarenderer.util.BTRUtil;
+import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -26,9 +26,9 @@ import java.util.List;
 @JsonDeserialize(using = TileMapService.Deserializer.class)
 public interface TileMapService extends AutoCloseable {
 
-    static CategoryMap.Wrapper<TileMapService> getSelected() { return TileMapServiceSelection.get(); }
-    static void selectForDisplay(CategoryMap.Wrapper<TileMapService> wrapper) { TileMapServiceSelection.set(wrapper); }
-    static void refreshSelectionFromConfig() { TileMapServiceSelection.refresh(); }
+    @Nullable
+    String getSource();
+    void setSource(@Nullable String source);
 
     Translatable<String> getName();
     Translatable<String> getCopyrightTextJson();

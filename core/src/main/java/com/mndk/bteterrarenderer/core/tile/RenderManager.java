@@ -1,6 +1,7 @@
 package com.mndk.bteterrarenderer.core.tile;
 
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
+import com.mndk.bteterrarenderer.core.loader.LoaderRegistry;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.GraphicsModel;
 import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapper;
@@ -18,7 +19,7 @@ public class RenderManager {
         BTETerraRendererConfig.HologramConfig hologramConfig = BTETerraRendererConfig.HOLOGRAM;
         if (!hologramConfig.isDoRender()) return;
 
-        TileMapService tms = TileMapService.getSelected().getItem();
+        TileMapService tms = LoaderRegistry.getCurrentTMS();
         if (tms == null) return;
 
         double yawDegrees = McConnector.client().getPlayerRotationYaw();
@@ -40,7 +41,7 @@ public class RenderManager {
     public static void renderHud(@Nonnull GuiDrawContextWrapper context) {
         if (!BTETerraRendererConfig.HOLOGRAM.isDoRender()) return;
 
-        TileMapService tms = TileMapService.getSelected().getItem();
+        TileMapService tms = LoaderRegistry.getCurrentTMS();
         if (tms != null) tms.renderHud(context);
     }
 }

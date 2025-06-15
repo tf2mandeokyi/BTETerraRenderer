@@ -1,4 +1,4 @@
-package com.mndk.bteterrarenderer.core.util;
+package com.mndk.bteterrarenderer.util.function;
 
 @FunctionalInterface
 public interface ThrowableBiConsumer<T, U, E extends Throwable> {

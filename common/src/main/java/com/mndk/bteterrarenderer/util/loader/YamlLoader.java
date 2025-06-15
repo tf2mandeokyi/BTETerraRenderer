@@ -1,7 +1,8 @@
-package com.mndk.bteterrarenderer.core.loader.yml;
+package com.mndk.bteterrarenderer.util.loader;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.util.Loggers;
+import com.mndk.bteterrarenderer.util.merge.MergeStrategy;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Getter
 public abstract class YamlLoader<F, T> {
@@ -22,11 +25,13 @@ public abstract class YamlLoader<F, T> {
     private final Class<F> fileClazz;
     @Getter @Setter
     protected T result;
+    private final MergeStrategy<T> mergeStrategy;
 
-    protected YamlLoader(String folderName, String defaultYamlPath, Class<F> fileClazz) {
+    protected YamlLoader(String folderName, String defaultYamlPath, Class<F> fileClazz, MergeStrategy<T> mergeStrategy) {
         this.folderName = folderName;
         this.defaultYamlPath = defaultYamlPath;
         this.fileClazz = fileClazz;
+        this.mergeStrategy = mergeStrategy;
     }
 
     public void refresh() {
@@ -45,16 +50,21 @@ public abstract class YamlLoader<F, T> {
             return;
         }
 
-        File[] files = filesDirectory.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files == null) return;
+        try (Stream<Path> paths = Files.walk(filesDirectory.toPath())) {
+            paths.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().endsWith(".yml"))
+                    .forEach(this::addYmlFileAsPath);
+        } catch (IOException e) {
+            Loggers.get(this).error("Error walking directory: {}", filesDirectory, e);
+        }
+    }
 
-        for (File file : files) {
-            String name = file.getName();
-            try (InputStreamReader fileReader = new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
-                addToResult(this.result, load(name, fileReader));
-            } catch (Exception e) {
-                Loggers.get(this).error("Error while parsing file: {}", file, e);
-            }
+    private void addYmlFileAsPath(Path p) {
+        String name = filesDirectory.toPath().relativize(p).toString();
+        try (InputStreamReader fileReader = new InputStreamReader(Files.newInputStream(p), StandardCharsets.UTF_8)) {
+            mergeStrategy.merge(this.result, load(name, fileReader));
+        } catch (Exception e) {
+            Loggers.get(this).error("Error parsing file: {}", p, e);
         }
     }
 
@@ -76,5 +86,4 @@ public abstract class YamlLoader<F, T> {
     }
 
     protected abstract T load(String fileName, F f) throws IOException;
-    protected abstract void addToResult(T originalT, T newT);
 }

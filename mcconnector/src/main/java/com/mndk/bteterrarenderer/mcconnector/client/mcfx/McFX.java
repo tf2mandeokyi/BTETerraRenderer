@@ -116,10 +116,10 @@ public class McFX {
         return new McFXNumberInput(value, McConnector.client().i18nManager.format(i18nKeyPrefix) + ": ");
     }
 
-    public <T> McFXDropdown<T> dropdown(PropertyAccessor<T> selectedValue,
-                                        Function<T, String> nameGetter,
-                                        Function<T, NativeTextureWrapper> iconTextureObjectGetter) {
-        return new McFXDropdown<>(selectedValue, nameGetter, iconTextureObjectGetter);
+    public McFXDropdown dropdown(PropertyAccessor<String[]> categoryPathAccessor,
+                                 Function<String[], String> nameGetter,
+                                 Function<String[], NativeTextureWrapper> iconTextureObjectGetter) {
+        return new McFXDropdown(categoryPathAccessor, nameGetter, iconTextureObjectGetter);
     }
 
     public McFXElement fromPropertyAccessor(PropertyAccessor.Localized<?> property) {

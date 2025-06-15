@@ -6,14 +6,13 @@ import com.mndk.bteterrarenderer.mcconnector.client.gui.GuiDrawContextWrapperImp
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapper;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.WorldDrawContextWrapperImpl;
 import lombok.experimental.UtilityClass;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.World;
@@ -23,7 +22,11 @@ public class RenderEvents {
 
     public void registerEvents() {
         WorldRenderEvents.AFTER_ENTITIES.register(RenderEvents::onWorldRender);
-        HudRenderCallback.EVENT.register(RenderEvents::onHudRender);
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerAfter(
+                IdentifiedLayer.MISC_OVERLAYS,
+                Identifier.of("bteterrarenderer", "tile_renderer_info_layer"),
+                RenderEvents::onHudRender
+        ));
     }
 
     @SuppressWarnings("resource")

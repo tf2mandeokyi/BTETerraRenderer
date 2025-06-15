@@ -1,7 +1,7 @@
 package com.mndk.bteterrarenderer.core.projection;
 
 import com.mndk.bteterrarenderer.core.BTETerraRendererCore;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
+import com.mndk.bteterrarenderer.core.loader.LoaderRegistry;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjection;
 import com.mndk.bteterrarenderer.core.tile.flat.FlatTileProjectionImpl;
 import com.mndk.bteterrarenderer.mcconnector.client.TestEnvironmentDummyMinecraft;
@@ -37,6 +37,6 @@ public class FlatTileProjectionTest {
 
     static {
         BTETerraRendererCore.initialize(TestEnvironmentDummyMinecraft.getInstance());
-        PROJECTION_MAP = ConfigLoaders.flatProj().getResult();
+        PROJECTION_MAP = LoaderRegistry.flatProj().getResult();
     }
 }

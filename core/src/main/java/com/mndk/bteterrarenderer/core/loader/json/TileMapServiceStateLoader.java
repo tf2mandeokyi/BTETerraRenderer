@@ -2,10 +2,11 @@ package com.mndk.bteterrarenderer.core.loader.json;
 
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.tile.TileMapService;
-import com.mndk.bteterrarenderer.core.util.CategoryMap;
 import com.mndk.bteterrarenderer.util.BTRUtil;
 import com.mndk.bteterrarenderer.util.Loggers;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
+import com.mndk.bteterrarenderer.util.category.CategoryMap;
+import com.mndk.bteterrarenderer.util.loader.ConfigLoader;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
@@ -18,13 +19,14 @@ import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class TileMapServiceStatesLoader {
+public class TileMapServiceStateLoader implements ConfigLoader<CategoryMap<TileMapService>> {
 
     private final File file;
 
+    @Override
     public void load(CategoryMap<TileMapService> tmsCategoryMap) {
         try {
-            TileMapServicePropertyJsonFile raw = BTETerraRenderer.JSON_MAPPER.readValue(this.file, TileMapServicePropertyJsonFile.class);
+            TileMapServicePropertyDTO raw = BTETerraRenderer.JSON_MAPPER.readValue(this.file, TileMapServicePropertyDTO.class);
             this.applyRawFileData(tmsCategoryMap, raw);
         } catch (FileNotFoundException e) {
             Loggers.get(this).warn("TMS property json file not found, skipping");
@@ -33,14 +35,12 @@ public class TileMapServiceStatesLoader {
         }
     }
 
-    private void applyRawFileData(@Nonnull CategoryMap<TileMapService> tmsCategoryMap, TileMapServicePropertyJsonFile raw) {
-        for (CategoryMap.Wrapper<Map<String, Object>> wrappedMap : raw.getCategories().getItemWrappers()) {
-            String categoryName = wrappedMap.getParentCategory().getName(), id = wrappedMap.getId();
+    private void applyRawFileData(@Nonnull CategoryMap<TileMapService> tmsCategoryMap, TileMapServicePropertyDTO raw) {
+        raw.getCategories().forEach((categoryName, category) -> category.forEach((id, map) -> {
             TileMapService tms = tmsCategoryMap.getItem(categoryName, id);
-            if (tms == null) continue;
-            Map<String, Object> propertyValues = wrappedMap.getItem();
-            this.applyRawStates(tms, propertyValues);
-        }
+            if (tms == null || map == null) return; // skip if TMS not found
+            this.applyRawStates(tms, map);
+        }));
     }
 
     private void applyRawStates(@Nonnull TileMapService tms, Map<String, Object> rawValues) {
@@ -53,12 +53,13 @@ public class TileMapServiceStatesLoader {
         }
     }
 
+    @Override
     public void save(@Nullable CategoryMap<TileMapService> tmsCategoryMap) {
         if (tmsCategoryMap == null) return;
 
         try {
             CategoryMap<Map<String, Object>> map = this.prepareRawFileData(tmsCategoryMap);
-            TileMapServicePropertyJsonFile content = new TileMapServicePropertyJsonFile(map);
+            TileMapServicePropertyDTO content = new TileMapServicePropertyDTO(map);
             BTETerraRenderer.JSON_MAPPER.writeValue(this.file, content);
         } catch (IOException e) {
             Loggers.get(this).error("Cannot write TMS property json file", e);
@@ -67,12 +68,11 @@ public class TileMapServiceStatesLoader {
 
     private CategoryMap<Map<String, Object>> prepareRawFileData(@Nonnull CategoryMap<TileMapService> tmsCategoryMap) {
         CategoryMap<Map<String, Object>> map = new CategoryMap<>();
-        for (CategoryMap.Wrapper<TileMapService> tmsWrapped : tmsCategoryMap.getItemWrappers()) {
+        tmsCategoryMap.forEach((categoryName, category) -> category.forEach((id, tms) -> {
             Map<String, Object> propertyValues = new HashMap<>();
-            TileMapService tms = tmsWrapped.getItem();
             this.saveRawStates(tms, propertyValues);
-            map.setItem(tmsWrapped.getParentCategory().getName(), tmsWrapped.getId(), propertyValues);
-        }
+            map.setItem(categoryName, id, propertyValues);
+        }));
         return map;
     }
 

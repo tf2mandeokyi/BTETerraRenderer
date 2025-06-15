@@ -1,18 +1,14 @@
 package com.mndk.bteterrarenderer.core.tile.flat;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mndk.bteterrarenderer.BTETerraRenderer;
 import com.mndk.bteterrarenderer.core.config.BTETerraRendererConfig;
 import com.mndk.bteterrarenderer.core.graphics.ImageTexturePair;
 import com.mndk.bteterrarenderer.core.graphics.PreBakedModel;
-import com.mndk.bteterrarenderer.core.loader.ConfigLoaders;
 import com.mndk.bteterrarenderer.core.network.HttpResourceManager;
 import com.mndk.bteterrarenderer.core.tile.AbstractTileMapService;
+import com.mndk.bteterrarenderer.core.tile.TileMapServiceCommonProperties;
 import com.mndk.bteterrarenderer.dep.terraplusplus.projection.OutOfProjectionBoundsException;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.*;
 import com.mndk.bteterrarenderer.mcconnector.client.graphics.shape.GraphicsQuad;
@@ -24,12 +20,11 @@ import com.mndk.bteterrarenderer.mcconnector.client.mcfx.McFXElement;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoord;
 import com.mndk.bteterrarenderer.mcconnector.util.math.McCoordTransformer;
 import com.mndk.bteterrarenderer.util.Loggers;
-import com.mndk.bteterrarenderer.util.MathUtil;
 import com.mndk.bteterrarenderer.util.accessor.PropertyAccessor;
 import com.mndk.bteterrarenderer.util.concurrent.CacheStorage;
 import com.mndk.bteterrarenderer.util.concurrent.ManualThreadExecutor;
 import com.mndk.bteterrarenderer.util.concurrent.MappedExecutors;
-import com.mndk.bteterrarenderer.util.json.JsonParserUtil;
+import com.mndk.bteterrarenderer.util.math.Interpolation;
 import lombok.*;
 
 import javax.annotation.Nullable;
@@ -44,8 +39,8 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 @Getter
-@JsonSerialize(using = FlatTileMapService.Serializer.class)
-@JsonDeserialize(using = FlatTileMapService.Deserializer.class)
+@JsonSerialize(using = FlatTileMapServiceSerializer.class)
+@JsonDeserialize(using = FlatTileMapServiceDeserializer.class)
 public class FlatTileMapService extends AbstractTileMapService<FlatTileMapService.Key> {
 
     /**
@@ -71,17 +66,17 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
     private transient final ManualThreadExecutor imageToPreModel;
 
     @Builder
-    private FlatTileMapService(CommonYamlObject commonYamlObject,
+    private FlatTileMapService(TileMapServiceCommonProperties properties,
                                FlatTileCoordTranslator coordTranslator,
                                FlatTileURLConverter urlConverter) {
-        super(commonYamlObject);
-        this.urlTemplate = commonYamlObject.getTileUrl();
+        super(properties);
+        this.urlTemplate = properties.getTileUrl();
         this.coordTranslator = coordTranslator;
         this.urlConverter = urlConverter;
 
         this.imageFetcher = new MappedExecutors<>(Executors.newCachedThreadPool(), this.relativeZoom);
         this.imageToPreModel = new ManualThreadExecutor();
-        this.imageCache = new CacheStorage<>(commonYamlObject.getCacheConfig());
+        this.imageCache = new CacheStorage<>(properties.getCacheConfig());
     }
 
     private static float getFlatMapYAxis() {
@@ -201,13 +196,13 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
             double fy = (double) yj / cells;
             for (int xi = 0; xi <= cells; xi++) {
                 double fx = (double) xi / cells;
-                double[] t = MathUtil.bilerp(off[0], off[1], off[3], off[2], fx, fy);
+                double[] t = Interpolation.bilinear(off[0], off[1], off[3], off[2], fx, fy);
                 double tx = relCoord.getX() + t[0];
                 double ty = relCoord.getY() + t[1];
                 double[] geo = coordTranslator.tileCoordToGeoCoord(tx, ty, relCoord.getRelativeZoom());
                 double[] mc = this.getHologramProjection().fromGeo(geo[0], geo[1]);
-                float tu = (float) ((1-fy) * MathUtil.lerp(u[0], u[1], fx) + fy * MathUtil.lerp(u[3], u[2], fx));
-                float tv = (float) ((1-fy) * MathUtil.lerp(v[0], v[1], fx) + fy * MathUtil.lerp(v[3], v[2], fx));
+                float tu = (float) ((1-fy) * Interpolation.linear(u[0], u[1], fx) + fy * Interpolation.linear(u[3], u[2], fx));
+                float tv = (float) ((1-fy) * Interpolation.linear(v[0], v[1], fx) + fy * Interpolation.linear(v[3], v[2], fx));
                 currRowPosGrid[xi] = new PosTex(new McCoord(mc[0], 0, mc[1]), tu, tv);
                 if (xi > 0 && yj > 0) shapes.add(DrawingFormat.QUAD_PT,
                     new GraphicsQuad<>(prevRowPosGrid[xi-1], prevRowPosGrid[xi], currRowPosGrid[xi], currRowPosGrid[xi-1])
@@ -256,54 +251,6 @@ public class FlatTileMapService extends AbstractTileMapService<FlatTileMapServic
     public List<GraphicsModel> getErrorModel(Key tileKey) throws OutOfProjectionBoundsException {
         GraphicsShapes shapes = this.computeTileQuad(tileKey);
         return Collections.singletonList(new GraphicsModel(SOMETHING_WENT_WRONG.getTextureObject(), shapes));
-    }
-
-    static class Serializer extends TMSSerializer<FlatTileMapService> {
-        protected Serializer() {
-            super(FlatTileMapService.class);
-        }
-
-        @Override
-        public void serializeTMS(FlatTileMapService value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            FlatTileCoordTranslator translator = value.getCoordTranslator();
-            gen.writeNumberField("default_zoom", translator.getDefaultZoom());
-            gen.writeBooleanField("invert_zoom", translator.isInvertZoom());
-            gen.writeBooleanField("invert_lat", translator.isInvertLatitude());
-            gen.writeBooleanField("flip_vert", translator.isFlipVertically());
-
-            FlatTileProjection projection = translator.getProjection();
-            if (projection.getName() != null) {
-                gen.writeStringField("projection", projection.getName());
-            } else {
-                gen.writeObjectField("projection", projection);
-            }
-        }
-    }
-
-    static class Deserializer extends TMSDeserializer<FlatTileMapService> {
-        @Override
-        protected FlatTileMapService deserialize(JsonNode node, CommonYamlObject commonYamlObject, DeserializationContext ctxt) throws IOException {
-            int defaultZoom = JsonParserUtil.getOrDefault(node, "default_zoom", DEFAULT_ZOOM);
-            boolean invertZoom = JsonParserUtil.getOrDefault(node, "invert_zoom", false);
-            boolean invertLatitude = JsonParserUtil.getOrDefault(node, "invert_lat", false);
-            boolean flipVertically = JsonParserUtil.getOrDefault(node, "flip_vert", false);
-
-            // Get projection
-            FlatTileProjection projection = ConfigLoaders.flatProj().get(node.get("projection"));
-
-            // Modify projection
-            FlatTileCoordTranslator coordTranslator = new FlatTileCoordTranslator(projection)
-                    .setDefaultZoom(defaultZoom)
-                    .setInvertZoom(invertZoom)
-                    .setInvertLatitude(invertLatitude)
-                    .setFlipVertically(flipVertically);
-
-            return FlatTileMapService.builder()
-                    .commonYamlObject(commonYamlObject)
-                    .coordTranslator(coordTranslator)
-                    .urlConverter(new FlatTileURLConverter(defaultZoom, invertZoom))
-                    .build();
-        }
     }
 
     static {

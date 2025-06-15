@@ -10,7 +10,7 @@ public class McFXNumberInput extends McFXElement {
 
     private final PropertyAccessor<Double> value;
     private final String prefixText;
-    private com.mndk.bteterrarenderer.mcconnector.client.gui.widget.GuiNumberInput textField;
+    private GuiNumberInput textField;
 
     public McFXNumberInput(PropertyAccessor<Double> value, String prefixText) {
         this.value = value;

@@ -1,26 +1,22 @@
 package com.mndk.bteterrarenderer.mcconnector.i18n;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.mndk.bteterrarenderer.mcconnector.McConnector;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@JsonSerialize(using = Translatable.Serializer.class)
-@JsonDeserialize(using = Translatable.Deserializer.class)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@JsonSerialize(using = TranslatableSerializer.class)
+@JsonDeserialize(using = TranslatableDeserializer.class)
 public class Translatable<T> {
     public static final String DEFAULT_KEY = "en_us";
 
+    @Getter(AccessLevel.PACKAGE)
     private final Map<String, T> translations;
 
     public T get() {
@@ -35,61 +31,4 @@ public class Translatable<T> {
         return new Translatable<>(newMap);
     }
 
-    static class Serializer extends JsonSerializer<Translatable<?>> {
-        @Override
-        public void serialize(Translatable<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeStartObject();
-            for (Map.Entry<String, ?> entry : value.translations.entrySet()) {
-                gen.writeObjectField(entry.getKey(), entry.getValue());
-            }
-            gen.writeEndObject();
-        }
-    }
-
-    static class Deserializer extends JsonDeserializer<Translatable<?>> implements ContextualDeserializer {
-        private JavaType valueType;
-
-        @Override
-        public Translatable<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.currentToken() == JsonToken.START_OBJECT) {
-                p.nextToken();
-            }
-            JsonNode node = ctxt.readTree(p);
-
-            // Try map object
-            try {
-                if (!node.isObject()) throw JsonMappingException.from(p, "");
-
-                Map<String, Object> translations = new HashMap<>();
-                for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                    String fieldName = it.next();
-                    Object fieldValue = ctxt.readTreeAsValue(node.get(fieldName), valueType);
-                    translations.put(fieldName, fieldValue);
-                }
-                if (!translations.containsKey(DEFAULT_KEY)) {
-                    // If the value for default key doesn't exist, it will pick the first entry
-                    // as the default key.
-                    String alternativeKey = new ArrayList<>(translations.keySet()).get(0);
-                    translations.put(DEFAULT_KEY, translations.get(alternativeKey));
-                }
-                return new Translatable<>(translations);
-            } catch (IOException ignored) {}
-
-            // If the serialization fails, try default object
-            Object defaultValue = ctxt.readTreeAsValue(node, valueType);
-            Map<String, Object> translations = new HashMap<String, Object>() {{ put(DEFAULT_KEY, defaultValue); }};
-            return new Translatable<>(translations);
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
-            JavaType wrapperType = property != null ? property.getType() : ctxt.getContextualType();
-            if (wrapperType == null) return new Deserializer();
-
-            JavaType valueType = wrapperType.containedType(0);
-            Deserializer deserializer = new Deserializer();
-            deserializer.valueType = valueType;
-            return deserializer;
-        }
-    }
 }
